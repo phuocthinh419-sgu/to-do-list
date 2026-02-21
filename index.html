@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Academic Weekly Planner</title>
     
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e293b">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/000000/calendar--v1.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +19,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <style>
-        /* CSS Variables cho phong cách Học thuật (Minimal & Clean) */
+        /* CHẾ ĐỘ LIGHT MODE (Mặc định) */
         :root {
             --bg-color: #f1f5f9;
             --text-main: #1e293b;
@@ -28,57 +31,76 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --modal-overlay: rgba(15, 23, 42, 0.6);
+            --input-bg: #ffffff;
             
-            /* Task Colors */
-            --color-red: #fee2e2;
-            --color-red-border: #fca5a5;
-            --color-blue: #dbeafe;
-            --color-blue-border: #bfdbfe;
-            --color-green: #dcfce7;
-            --color-green-border: #bbf7d0;
-            --color-default: #f8fafc;
-            --color-default-border: #e2e8f0;
+            /* Task Colors - Light */
+            --color-red: #fee2e2; --color-red-border: #fca5a5;
+            --color-blue: #dbeafe; --color-blue-border: #bfdbfe;
+            --color-green: #dcfce7; --color-green-border: #bbf7d0;
+            --color-default: #f8fafc; --color-default-border: #e2e8f0;
+        }
+
+        /* CHẾ ĐỘ DARK MODE (Kích hoạt khi có data-theme="dark") */
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --modal-overlay: rgba(0, 0, 0, 0.8);
+            --input-bg: #0f172a;
+            
+            /* Task Colors - Dark */
+            --color-red: rgba(239, 68, 68, 0.15); --color-red-border: #ef4444;
+            --color-blue: rgba(59, 130, 246, 0.15); --color-blue-border: #3b82f6;
+            --color-green: rgba(16, 185, 129, 0.15); --color-green-border: #10b981;
+            --color-default: rgba(148, 163, 184, 0.1); --color-default-border: #475569;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        
-        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; transition: background-color 0.3s, color 0.3s; }
 
         /* HEADER */
-        .header { background: var(--card-bg); padding: 20px 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .header-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .header { background: var(--card-bg); padding: 15px 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: background 0.3s; border-bottom: 1px solid var(--border-color); }
+        .header-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-controls { display: flex; gap: 10px; flex-wrap: wrap; }
         
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-outline:hover { background: #f8fafc; border-color: var(--text-muted); }
+        .btn-outline:hover { background: var(--border-color); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-success { background: var(--success); color: white; width: 100%; justify-content: center; margin-top: 15px; }
 
+        /* Nút Cài App làm nổi bật */
+        #btn-install { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; display: none; animation: pulse-green 2s infinite; }
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
         /* BOARD (WEEKLY GRID) */
-        .board { display: flex; gap: 20px; padding: 20px 40px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 100px); }
-        .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .board { display: flex; gap: 20px; padding: 20px 30px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 80px); }
+        .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: background 0.3s, border 0.3s; }
         
         .day-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
-        .day-title { font-weight: 600; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
-        .today-badge { font-size: 0.75rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+        .day-title { font-weight: 700; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .today-badge { font-size: 0.75rem; background: var(--primary); color: white; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
         
         /* PROGRESS BAR */
-        .progress-container { margin-top: 10px; }
-        .progress-text { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .progress-track { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .progress-container { margin-top: 12px; }
+        .progress-text { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 500; }
+        .progress-track { height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s ease; }
 
-        .task-list { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 150px; }
+        .task-list { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 150px; }
         
         /* TASK ITEM */
         .task-item { border: 1px solid; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: flex-start; transition: 0.2s; position: relative; }
-        .task-item:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transform: translateY(-2px); }
-        .task-item.completed { opacity: 0.6; }
+        .task-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .task-item.completed { opacity: 0.5; }
         .task-item.completed .task-desc { text-decoration: line-through; color: var(--text-muted); }
         
-        /* COLOR CODING CLASSES */
         .task-urgent { background: var(--color-red); border-color: var(--color-red-border); }
         .task-study { background: var(--color-blue); border-color: var(--color-blue-border); }
         .task-work { background: var(--color-green); border-color: var(--color-green-border); }
@@ -86,40 +108,40 @@
 
         .task-checkbox { margin-top: 3px; cursor: pointer; width: 18px; height: 18px; accent-color: var(--success); }
         .task-content { flex: 1; }
-        .task-time { font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
-        .task-desc { font-size: 0.95rem; color: var(--text-main); word-break: break-word; }
-        .rollover-badge { font-size: 0.65rem; background: var(--warning); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .task-time { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .task-desc { font-size: 0.95rem; color: var(--text-main); word-break: break-word; font-weight: 500;}
+        .rollover-badge { font-size: 0.7rem; background: var(--warning); color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
         
         .task-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; position: absolute; right: 10px; top: 10px; }
         .task-item:hover .task-actions { opacity: 1; }
-        .btn-icon { background: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; padding: 4px; color: var(--text-muted); font-size: 0.8rem; }
+        .btn-icon { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; padding: 4px 6px; color: var(--text-muted); font-size: 0.8rem; }
         .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
         .btn-icon.delete:hover { color: var(--danger); border-color: var(--danger); }
 
         .day-footer { padding: 15px; border-top: 1px solid var(--border-color); }
-        .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .btn-add:hover { background: #f8fafc; color: var(--primary); border-color: var(--primary); }
+        .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+        .btn-add:hover { background: var(--border-color); color: var(--primary); border-color: var(--primary); }
 
         /* MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal { background: white; width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: slideUp 0.3s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .modal { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
         .close-modal { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
         
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 5px; color: var(--text-muted); }
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; color: var(--text-main); }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
         /* COLOR PICKER */
-        .color-options { display: flex; gap: 10px; margin-top: 5px; }
+        .color-options { display: flex; gap: 12px; margin-top: 5px; }
         .color-radio { display: none; }
-        .color-label { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .color-radio:checked + .color-label { transform: scale(1.2); border-color: var(--text-main); }
-        .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #e2e8f0; }
+        .color-label { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-radio:checked + .color-label { transform: scale(1.2); border-color: var(--primary); box-shadow: 0 0 8px rgba(0,0,0,0.2); }
+        .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
 
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 
         @media (max-width: 768px) {
             .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; }
@@ -136,15 +158,21 @@
             <i class="fas fa-calendar-check"></i> Academic Planner
         </div>
         <div class="header-controls">
-            <button class="btn btn-outline" id="btn-install" style="display:none;" onclick="installApp()">
-                <i class="fas fa-download"></i> Cài đặt App
+            <button class="btn btn-outline" id="btn-theme" onclick="toggleTheme()" title="Giao diện Tối/Sáng">
+                <i class="fas fa-moon"></i>
             </button>
+            
             <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">
                 <i class="fas fa-file-import"></i> Nhập dữ liệu
             </button>
             <button class="btn btn-outline" onclick="exportExcel()">
                 <i class="fas fa-file-export"></i> Xuất Excel
             </button>
+            
+            <button class="btn" id="btn-install" onclick="installApp()">
+                <i class="fas fa-mobile-alt"></i> Tải App
+            </button>
+            
             <input type="file" id="import-file" style="display: none;" accept=".xlsx, .xls" onchange="importExcel(event)">
         </div>
     </header>
@@ -162,7 +190,7 @@
             <input type="hidden" id="task-id">
             
             <div class="form-group">
-                <label>Công việc cần làm <span style="color:red">*</span></label>
+                <label>Công việc cần làm <span style="color:var(--danger)">*</span></label>
                 <input type="text" id="task-desc" class="form-control" placeholder="Ví dụ: Ôn tập Unit 5" required>
             </div>
             
@@ -196,34 +224,50 @@
     </div>
 
     <script>
+        // --- 0. DARK MODE LOGIC ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('academic_planner_theme');
+            if(savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('btn-theme').innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('btn-theme');
+            if(currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('academic_planner_theme', 'light');
+                btn.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('academic_planner_theme', 'dark');
+                btn.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+
         // --- 1. DỮ LIỆU & CẤU HÌNH ---
         const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
         const STORAGE_KEY = "academic_planner_data";
         
-        // State management
-        let scheduleData = {
-            0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] // 0=Thứ 2, 6=CN
-        };
-        let currentDayIndex = getRealDayIndex(); // Lấy ngày hiện tại (Thứ 2 = 0)
+        let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+        let currentDayIndex = getRealDayIndex();
 
-        // Lấy thứ hiện tại của hệ thống và chuẩn hóa (JS: 0=CN, 1=T2 -> Chuyển thành: 0=T2, 6=CN)
         function getRealDayIndex() {
             let d = new Date().getDay();
             return d === 0 ? 6 : d - 1; 
         }
 
-        // Tạo ID ngẫu nhiên cho task
         function generateId() {
             return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
         }
 
-        // --- 2. LOGIC LƯU TRỮ & TẢI DỮ LIỆU ---
+        // --- 2. LOGIC LƯU TRỮ ---
         function loadData() {
             const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                scheduleData = JSON.parse(saved);
-            }
-            handleRollover(); // Kích hoạt dời việc tự động
+            if (saved) scheduleData = JSON.parse(saved);
+            handleRollover(); 
             renderBoard();
         }
 
@@ -232,38 +276,28 @@
             renderBoard();
         }
 
-        // --- 3. CƠ CHẾ AUTO-ROLLOVER (DỜI VIỆC TỒN ĐỌNG) ---
+        // --- 3. AUTO-ROLLOVER (DỜI VIỆC TỒN ĐỌNG) ---
         function handleRollover() {
             let hasRollover = false;
             let today = getRealDayIndex();
             
-            // Nếu là thứ 2 (0), không dọn dẹp tuần trước để tránh mất dữ liệu cũ chưa kịp xem.
-            // Chỉ dời việc từ các ngày trước đó trong CÙNG 1 TUẦN.
-            if (today === 0) return; 
+            if (today === 0) return; // Thứ 2 bắt đầu tuần mới, không dời của tuần trước
 
             for (let i = 0; i < today; i++) {
-                // Lọc ra các việc chưa hoàn thành ở quá khứ
                 let incompleteTasks = scheduleData[i].filter(task => !task.completed);
-                
                 if (incompleteTasks.length > 0) {
                     incompleteTasks.forEach(task => {
-                        // Thêm vào ngày hôm nay
                         scheduleData[today].push({
-                            ...task,
-                            id: generateId(), // Tạo ID mới
-                            rolledOver: true, // Gắn cờ tồn đọng
-                            originalDay: DAYS_OF_WEEK[i]
+                            ...task, id: generateId(), rolledOver: true, originalDay: DAYS_OF_WEEK[i]
                         });
                     });
-                    
-                    // Cập nhật lại ngày cũ (xóa các việc chưa xong vì đã chuyển đi)
                     scheduleData[i] = scheduleData[i].filter(task => task.completed);
                     hasRollover = true;
                 }
             }
 
             if (hasRollover) {
-                alert("Hệ thống đã tự động dời các công việc tồn đọng sang hôm nay.");
+                alert("🔔 Hệ thống đã tự động dời các công việc chưa hoàn thành của ngày hôm trước sang hôm nay!");
                 saveData();
             }
         }
@@ -282,7 +316,6 @@
                 
                 const isToday = index === today;
                 
-                // Render List Task
                 let tasksHTML = tasks.map(task => {
                     const colorClass = `task-${task.color || 'default'}`;
                     const rolloverBadge = task.rolledOver ? `<span class="rollover-badge" title="Dời từ ${task.originalDay}"><i class="fas fa-share"></i> ${task.originalDay}</span>` : '';
@@ -291,7 +324,10 @@
                         <div class="task-item ${task.completed ? 'completed' : ''} ${colorClass}">
                             <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index}, '${task.id}')">
                             <div class="task-content">
-                                ${task.time ? `<div class="task-time"><i class="far fa-clock"></i> ${task.time} ${rolloverBadge}</div>` : `<div class="task-time">${rolloverBadge}</div>`}
+                                <div class="task-time">
+                                    ${task.time ? `<i class="far fa-clock"></i> ${task.time}` : ``} 
+                                    ${rolloverBadge}
+                                </div>
                                 <div class="task-desc">${task.text}</div>
                             </div>
                             <div class="task-actions">
@@ -302,16 +338,11 @@
                     `;
                 }).join('');
 
-                if(tasks.length === 0) {
-                    tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
-                }
+                if(tasks.length === 0) tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
 
-                // Nút Hoàn thành ngày
                 const finishBtn = (total > 0 && total === completed) 
-                    ? `<button class="btn btn-success" onclick="celebrate()"><i class="fas fa-check-circle"></i> Ngày trọn vẹn</button>` 
-                    : '';
+                    ? `<button class="btn btn-success" onclick="alert('Tuyệt vời! Bạn đã hoàn thành xuất sắc ngày hôm nay!')"><i class="fas fa-check-circle"></i> Ngày trọn vẹn</button>` : '';
 
-                // Build Column
                 const colHTML = `
                     <div class="day-column" id="col-${index}" ${isToday ? 'style="border: 2px solid var(--primary);"' : ''}>
                         <div class="day-header">
@@ -340,17 +371,13 @@
                 board.innerHTML += colHTML;
             });
             
-            // Tự động scroll đến ngày hôm nay khi load lần đầu
             if(!window.scrolledToToday) {
                 const todayCol = document.getElementById(`col-${today}`);
-                if(todayCol) {
-                    todayCol.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-                    window.scrolledToToday = true;
-                }
+                if(todayCol) { todayCol.scrollIntoView({ behavior: 'smooth', inline: 'center' }); window.scrolledToToday = true; }
             }
         }
 
-        // --- 5. LOGIC THÊM/SỬA/XÓA (CRUD) ---
+        // --- 5. LOGIC CRUD ---
         function openModal(dayIndex, taskId = null) {
             document.getElementById('task-day-index').value = dayIndex;
             document.getElementById('task-id').value = taskId || '';
@@ -372,9 +399,7 @@
             document.getElementById('task-desc').focus();
         }
 
-        function closeModal() {
-            document.getElementById('task-modal').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('task-modal').style.display = 'none'; }
 
         function saveTask() {
             const dayIndex = document.getElementById('task-day-index').value;
@@ -386,31 +411,17 @@
             if (!text) { alert("Vui lòng nhập tên công việc!"); return; }
 
             if (taskId) {
-                // Sửa
                 const task = scheduleData[dayIndex].find(t => t.id === taskId);
-                task.text = text;
-                task.time = time;
-                task.color = color;
+                task.text = text; task.time = time; task.color = color;
             } else {
-                // Thêm mới
-                scheduleData[dayIndex].push({
-                    id: generateId(),
-                    text: text,
-                    time: time,
-                    color: color,
-                    completed: false,
-                    rolledOver: false
-                });
-                
-                // Sắp xếp lại theo thời gian (nếu có time)
+                scheduleData[dayIndex].push({ id: generateId(), text: text, time: time, color: color, completed: false, rolledOver: false });
                 scheduleData[dayIndex].sort((a, b) => {
                     if(!a.time) return 1; if(!b.time) return -1;
                     return a.time.localeCompare(b.time);
                 });
             }
 
-            saveData();
-            closeModal();
+            saveData(); closeModal();
         }
 
         function toggleComplete(dayIndex, taskId) {
@@ -426,88 +437,53 @@
             }
         }
 
-        // --- 6. EXPORT / IMPORT EXCEL (BACKUP) ---
+        // --- 6. EXCEL ---
         function exportExcel() {
-            let rows = [["Ngày", "Khung Giờ", "Công việc", "Phân loại", "Hoàn thành", "Trạng thái dời"]];
-            
+            let rows = [["Ngày", "Khung Giờ", "Công việc", "Phân loại", "Trạng thái", "Ghi chú"]];
             DAYS_OF_WEEK.forEach((day, index) => {
                 const tasks = scheduleData[index] || [];
                 tasks.forEach(t => {
-                    rows.push([
-                        day, 
-                        t.time || "", 
-                        t.text, 
-                        t.color, 
-                        t.completed ? "Xong" : "Chưa",
-                        t.rolledOver ? `Từ ${t.originalDay}` : ""
-                    ]);
+                    rows.push([day, t.time || "", t.text, t.color, t.completed ? "Xong" : "Chưa", t.rolledOver ? `Dời từ ${t.originalDay}` : ""]);
                 });
             });
-
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(rows);
-            
-            // Format column widths
-            ws['!cols'] = [{wch: 10}, {wch: 10}, {wch: 40}, {wch: 15}, {wch: 12}, {wch: 15}];
-            
+            const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [{wch: 10}, {wch: 10}, {wch: 40}, {wch: 10}, {wch: 10}, {wch: 15}];
             XLSX.utils.book_append_sheet(wb, ws, "Planner");
-            XLSX.writeFile(wb, `Academic_Planner_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.writeFile(wb, `Planner_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         function importExcel(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    
-                    // Reset data
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                     let newData = { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
-                    
                     jsonData.forEach(row => {
-                        const dayName = row["Ngày"];
-                        const dayIndex = DAYS_OF_WEEK.indexOf(dayName);
+                        const dayIndex = DAYS_OF_WEEK.indexOf(row["Ngày"]);
                         if(dayIndex !== -1) {
                             newData[dayIndex].push({
-                                id: generateId(),
-                                text: row["Công việc"] || "",
-                                time: row["Khung Giờ"] || "",
-                                color: row["Phân loại"] || "default",
-                                completed: row["Hoàn thành"] === "Xong",
-                                rolledOver: !!row["Trạng thái dời"],
-                                originalDay: row["Trạng thái dời"] ? row["Trạng thái dời"].replace("Từ ", "") : null
+                                id: generateId(), text: row["Công việc"] || "", time: row["Khung Giờ"] || "", color: row["Phân loại"] || "default",
+                                completed: row["Trạng thái"] === "Xong", rolledOver: !!row["Ghi chú"], originalDay: row["Ghi chú"] ? row["Ghi chú"].replace("Dời từ ", "") : null
                             });
                         }
                     });
-                    
-                    scheduleData = newData;
-                    saveData();
-                    alert("Khôi phục dữ liệu thành công!");
-                } catch (err) {
-                    alert("Đã có lỗi xảy ra khi đọc file Excel.");
-                    console.error(err);
-                }
-                event.target.value = ''; // Reset input
+                    scheduleData = newData; saveData(); alert("Khôi phục thành công!");
+                } catch (err) { alert("Lỗi đọc file Excel."); }
+                event.target.value = '';
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- 7. HIỆU ỨNG CHÚC MỪNG HOÀN THÀNH ---
-        function celebrate() {
-            // Có thể dùng Canvas Confetti ở đây. Tạm thời dùng alert tạo động lực.
-            alert("Tuyệt vời! Bạn đã hoàn thành xuất sắc toàn bộ mục tiêu trong ngày. Hãy nghỉ ngơi nhé!");
-        }
-
-        // --- 8. PWA INSTALL LOGIC ---
+        // --- 7. PWA INSTALL LOGIC ---
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            // Hiện nút cài đặt khi trình duyệt cho phép
             document.getElementById('btn-install').style.display = 'flex';
         });
 
@@ -520,13 +496,25 @@
                     }
                     deferredPrompt = null;
                 });
+            } else {
+                alert("Vui lòng ấn vào menu trình duyệt (dấu 3 chấm) và chọn 'Thêm vào màn hình chính' (Add to Home screen) để cài đặt App.");
             }
+        }
+        
+        // Đăng ký Service Worker (Bắt buộc để PWA hoạt động)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Error', err));
+            });
         }
 
         // --- KHỞI TẠO APP ---
-        document.addEventListener('DOMContentLoaded', loadData);
-
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadData();
+        });
     </script>
 </body>
-</html> 
-
+</html>
