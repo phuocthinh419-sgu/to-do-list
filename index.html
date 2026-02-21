@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Phuoc Thinh Nguyen">
+    <title>Hệ Thống Quản Lý Kế Hoạch Trực Quan</title>
+    <style>
+        :root {
+            --bg-main: #0f172a; /* Slate 900 */
+            --bg-card: #1e293b; /* Slate 800 */
+            --bg-item: #334155; /* Slate 700 */
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main);
+            color: var(--text-primary); 
+            padding: 20px; 
+            margin: 0; 
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg-item); padding-bottom: 15px; margin-bottom: 25px; }
+        .header h2 { margin: 0; font-weight: 600; font-size: 24px; letter-spacing: 0.5px; }
+        .install-btn { padding: 10px 20px; background: var(--accent-blue); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .install-btn:hover { background: #2563eb; }
+        
+        /* Layout */
+        .week-container { display: flex; overflow-x: auto; gap: 24px; padding-bottom: 20px; scroll-behavior: smooth; }
+        .week-container::-webkit-scrollbar { height: 8px; }
+        .week-container::-webkit-scrollbar-thumb { background: var(--bg-item); border-radius: 4px; }
+        .week-container::-webkit-scrollbar-track { background: var(--bg-main); }
+        
+        /* Day Card */
+        .day-card { background: var(--bg-card); padding: 20px; border-radius: 12px; min-width: 340px; border: 1px solid #2dd4bf20; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .day-header h3 { margin: 0; font-size: 18px; color: var(--text-primary); }
+        .add-task-btn { background: var(--bg-item); color: var(--text-primary); border: 1px solid #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .add-task-btn:hover { background: #475569; }
+        
+        /* Progress Bar */
+        .progress-container { width: 100%; background: #0f172a; border-radius: 6px; margin-bottom: 20px; position: relative; height: 20px; border: 1px solid #334155; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--accent-blue); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .progress-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 12px; line-height: 20px; color: #fff; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        
+        /* Task List */
+        .task-list { min-height: 180px; }
+        .task-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); padding: 12px 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid var(--accent-blue); transition: transform 0.2s ease; }
+        .task-item:hover { transform: translateX(2px); }
+        .task-info { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+        .task-info input[type="checkbox"] { transform: scale(1.2); cursor: pointer; accent-color: var(--accent-green); }
+        .task-time { color: var(--accent-yellow); font-weight: 600; font-size: 14px; white-space: nowrap; }
+        .task-text { word-break: break-word; font-size: 15px; color: var(--text-secondary); }
+        
+        /* Actions */
+        .task-actions { display: flex; gap: 8px; }
+        .task-actions button { background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.6; transition: 0.2s; }
+        .task-actions button:hover { opacity: 1; transform: scale(1.1); }
+        
+        /* Complete Button */
+        .complete-day-btn { width: 100%; padding: 12px; background: transparent; color: var(--text-secondary); border: 1px solid #475569; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .complete-day-btn:hover { background: #475569; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Hệ Thống Quản Lý Kế Hoạch Trực Quan</h2>
+        <button class="install-btn" onclick="alert('Tính năng Progressive Web App (PWA) sẽ được kích hoạt khi triển khai trên hệ thống máy chủ.')">Cài đặt Ứng dụng</button>
+    </div>
+
+    <div class="week-container" id="week-container">
+        </div>
+
+    <script>
+        const daysOfWeek = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+        
+        let tasksData = JSON.parse(localStorage.getItem('academicTodoListData')) || {};
+        daysOfWeek.forEach(day => { if(!tasksData[day]) tasksData[day] = []; });
+
+        function saveData() { localStorage.setItem('academicTodoListData', JSON.stringify(tasksData)); }
+
+        function render() {
+            const container = document.getElementById('week-container');
+            container.innerHTML = '';
+            
+            daysOfWeek.forEach((day, index) => {
+                const dayTasks = tasksData[day];
+                const total = dayTasks.length;
+                const completed = dayTasks.filter(t => t.done).length;
+                const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+                // Đổi màu viền dựa trên trạng thái hoàn thành
+                const itemBorderColor = taskDone => taskDone ? 'var(--accent-green)' : 'var(--accent-blue)';
+
+                let html = `
+                <div class="day-card">
+                    <div class="day-header">
+                        <h3>${day}</h3>
+                        <button class="add-task-btn" onclick="addTask('${day}')">+ Thêm tác vụ</button>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${progressPct}%; ${progressPct === 100 ? 'background: var(--accent-green);' : ''}"></div>
+                        <div class="progress-text">Tiến độ: ${completed}/${total} (${progressPct}%)</div>
+                    </div>
+                    <div class="task-list">
+                `;
+                
+                dayTasks.forEach(task => {
+                    html += `
+                    <div class="task-item" style="border-left-color: ${itemBorderColor(task.done)}">
+                        <div class="task-info">
+                            <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${day}', '${task.id}')">
+                            <span class="task-time">${task.time}</span>
+                            <span class="task-text" style="${task.done ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${task.text}</span>
+                        </div>
+                        <div class="task-actions">
+                            <button title="Chỉnh sửa" onclick="editTask('${day}', '${task.id}')">✏️</button>
+                            <button title="Xóa" onclick="deleteTask('${day}', '${task.id}')">🗑️</button>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <button class="complete-day-btn" onclick="completeDay('${day}', ${index})">Xác nhận tổng kết ngày</button>
+                </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function addTask(day) {
+            const time = prompt(`Vui lòng nhập khung giờ thực hiện cho ${day} (Định dạng: HH:MM):`);
+            if (!time) return;
+            const text = prompt('Vui lòng nhập nội dung tác vụ:');
+            if (!text) return;
+            
+            tasksData[day].push({ id: Date.now().toString(), time: time, text: text, done: false });
+            tasksData[day].sort((a, b) => a.time.localeCompare(b.time));
+            saveData(); render();
+        }
+
+        function toggleTask(day, id) {
+            const task = tasksData[day].find(t => t.id === id);
+            if(task) { task.done = !task.done; saveData(); render(); }
+        }
+
+        function editTask(day, id) {
+            const task = tasksData[day].find(t => t.id === id);
+            if(task) {
+                const newTime = prompt('Cập nhật khung giờ (HH:MM):', task.time);
+                if(newTime !== null && newTime.trim() !== '') task.time = newTime;
+                
+                const newText = prompt('Cập nhật nội dung tác vụ:', task.text);
+                if(newText !== null && newText.trim() !== '') task.text = newText;
+                
+                tasksData[day].sort((a, b) => a.time.localeCompare(b.time));
+                saveData(); render();
+            }
+        }
+
+        function deleteTask(day, id) {
+            if(confirm('Xác nhận xóa tác vụ này khỏi hệ thống?')) {
+                tasksData[day] = tasksData[day].filter(t => t.id !== id);
+                saveData(); render();
+            }
+        }
+
+        function completeDay(day, index) {
+            const incompleteTasks = tasksData[day].filter(t => !t.done);
+            if (incompleteTasks.length > 0) {
+                if (confirm(`Ngày ${day} hiện còn ${incompleteTasks.length} tác vụ chưa hoàn thành. Bạn có muốn tự động chuyển tiếp (rollover) các tác vụ này sang ngày kế tiếp không?`)) {
+                    const nextDayIndex = (index + 1) % 7;
+                    const nextDay = daysOfWeek[nextDayIndex];
+                    
+                    tasksData[nextDay].push(...incompleteTasks);
+                    tasksData[nextDay].sort((a, b) => a.time.localeCompare(b.time));
+                    
+                    tasksData[day] = tasksData[day].filter(t => t.done);
+                    
+                    saveData(); render();
+                    alert(`Hệ thống đã chuyển tiếp thành công các tác vụ sang ${nextDay}.`);
+                }
+            } else if (tasksData[day].length > 0) {
+                alert(`Xác nhận: Toàn bộ tác vụ trong ngày ${day} đã được hoàn thành.`);
+            } else {
+                alert(`Hiện chưa có dữ liệu tác vụ nào được thiết lập cho ngày ${day}.`);
+            }
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
