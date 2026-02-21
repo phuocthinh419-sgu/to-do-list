@@ -2,234 +2,530 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Phuoc Thinh Nguyen">
-    <meta name="theme-color" content="#0f2027">
-    <title>Hệ Thống Quản Lý Kế Hoạch Học Thuật</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Academic Weekly Planner</title>
     
-    <script>
-        const manifestJSON = {
-            "name": "Sổ Nhật Trình Học Thuật",
-            "short_name": "Kế Hoạch",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#0f2027",
-            "theme_color": "#0f2027",
-            "icons": [{
-                "src": "https://cdn-icons-png.flaticon.com/512/2382/2382461.png",
-                "sizes": "512x512",
-                "type": "image/png"
-            }]
-        };
-        const manifestLink = document.createElement('link');
-        manifestLink.rel = 'manifest';
-        manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestJSON));
-        document.head.appendChild(manifestLink);
-    </script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1e293b">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <style>
+        /* CSS Variables cho phong cách Học thuật (Minimal & Clean) */
         :root {
-            --primary: #4facfe;
-            --secondary: #00f2fe;
-            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-color: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            
+            /* Task Colors */
+            --color-red: #fee2e2;
+            --color-red-border: #fca5a5;
+            --color-blue: #dbeafe;
+            --color-blue-border: #bfdbfe;
+            --color-green: #dcfce7;
+            --color-green-border: #bbf7d0;
+            --color-default: #f8fafc;
+            --color-default-border: #e2e8f0;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s ease; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         
-        body { background: var(--bg-gradient); background-attachment: fixed; color: #fff; padding: 20px; margin: 0; min-height: 100vh; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); }
-        .header h2 { margin: 0; font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        
-        #installAppBtn { 
-            display: none; padding: 10px 24px; background: linear-gradient(90deg, #11998e, #38ef7d); 
-            color: white; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4); 
-        }
-        #installAppBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6); }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; }
 
-        .week-container { display: flex; overflow-x: auto; gap: 25px; padding-bottom: 20px; scroll-behavior: smooth; }
-        .week-container::-webkit-scrollbar { height: 10px; }
-        .week-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        /* HEADER */
+        .header { background: var(--card-bg); padding: 20px 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; }
         
-        .day-card { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 25px; border-radius: 20px; min-width: 360px; border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background: #f8fafc; border-color: var(--text-muted); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; width: 100%; justify-content: center; margin-top: 15px; }
+
+        /* BOARD (WEEKLY GRID) */
+        .board { display: flex; gap: 20px; padding: 20px 40px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 100px); }
+        .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
         
-        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .day-header h3 { margin: 0; font-size: 20px; color: #fff; }
-        .add-task-btn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; }
-        .add-task-btn:hover { background: var(--primary); border-color: var(--primary); }
+        .day-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
+        .day-title { font-weight: 600; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .today-badge { font-size: 0.75rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
         
-        .progress-container { width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 25px; height: 22px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 10px; }
-        .progress-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 13px; line-height: 22px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        /* PROGRESS BAR */
+        .progress-container { margin-top: 10px; }
+        .progress-text { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .progress-track { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s ease; }
+
+        .task-list { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 150px; }
         
-        .task-list { min-height: 200px; }
-        .task-item { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 4px solid var(--primary); }
-        .task-item:hover { background: rgba(0,0,0,0.4); transform: translateX(5px); }
-        .task-item.completed { border-left-color: #38ef7d; opacity: 0.6; }
+        /* TASK ITEM */
+        .task-item { border: 1px solid; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: flex-start; transition: 0.2s; position: relative; }
+        .task-item:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .task-item.completed { opacity: 0.6; }
+        .task-item.completed .task-desc { text-decoration: line-through; color: var(--text-muted); }
         
-        .task-info { display: flex; align-items: center; gap: 15px; flex: 1; }
-        .task-info input[type="checkbox"] { appearance: none; width: 22px; height: 22px; border: 2px solid var(--primary); border-radius: 6px; cursor: pointer; position: relative; }
-        .task-info input[type="checkbox"]:checked { background: #38ef7d; border-color: #38ef7d; }
-        .task-info input[type="checkbox"]:checked::after { content: '✔'; position: absolute; color: white; font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        /* COLOR CODING CLASSES */
+        .task-urgent { background: var(--color-red); border-color: var(--color-red-border); }
+        .task-study { background: var(--color-blue); border-color: var(--color-blue-border); }
+        .task-work { background: var(--color-green); border-color: var(--color-green-border); }
+        .task-default { background: var(--color-default); border-color: var(--color-default-border); }
+
+        .task-checkbox { margin-top: 3px; cursor: pointer; width: 18px; height: 18px; accent-color: var(--success); }
+        .task-content { flex: 1; }
+        .task-time { font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .task-desc { font-size: 0.95rem; color: var(--text-main); word-break: break-word; }
+        .rollover-badge { font-size: 0.65rem; background: var(--warning); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
         
-        .task-time { color: var(--secondary); font-weight: bold; font-size: 15px; }
-        .task-text { font-size: 15px; }
-        .task-item.completed .task-text { text-decoration: line-through; }
+        .task-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; position: absolute; right: 10px; top: 10px; }
+        .task-item:hover .task-actions { opacity: 1; }
+        .btn-icon { background: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; padding: 4px; color: var(--text-muted); font-size: 0.8rem; }
+        .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
+        .btn-icon.delete:hover { color: var(--danger); border-color: var(--danger); }
+
+        .day-footer { padding: 15px; border-top: 1px solid var(--border-color); }
+        .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .btn-add:hover { background: #f8fafc; color: var(--primary); border-color: var(--primary); }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .modal { background: white; width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .close-modal { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
         
-        .task-actions button { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.5; }
-        .task-actions button:hover { opacity: 1; transform: scale(1.2); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 5px; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
-        .complete-day-btn { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 20px; }
-        .complete-day-btn:hover { background: rgba(255,255,255,0.15); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        /* COLOR PICKER */
+        .color-options { display: flex; gap: 10px; margin-top: 5px; }
+        .color-radio { display: none; }
+        .color-label { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-radio:checked + .color-label { transform: scale(1.2); border-color: var(--text-main); }
+        .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #e2e8f0; }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; }
+            .board { padding: 15px; flex-direction: column; overflow-x: hidden; }
+            .day-column { min-width: 100%; max-width: 100%; }
+            .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>Không Gian Quản Lý Kế Hoạch</h2>
-        <button id="installAppBtn">📲 Cài Đặt Ứng Dụng</button>
+    <header class="header">
+        <div class="header-title">
+            <i class="fas fa-calendar-check"></i> Academic Planner
+        </div>
+        <div class="header-controls">
+            <button class="btn btn-outline" id="btn-install" style="display:none;" onclick="installApp()">
+                <i class="fas fa-download"></i> Cài đặt App
+            </button>
+            <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">
+                <i class="fas fa-file-import"></i> Nhập dữ liệu
+            </button>
+            <button class="btn btn-outline" onclick="exportExcel()">
+                <i class="fas fa-file-export"></i> Xuất Excel
+            </button>
+            <input type="file" id="import-file" style="display: none;" accept=".xlsx, .xls" onchange="importExcel(event)">
+        </div>
+    </header>
+
+    <div class="board" id="board-container">
+        </div>
+
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="modal-title">Thêm công việc mới</span>
+                <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <input type="hidden" id="task-day-index">
+            <input type="hidden" id="task-id">
+            
+            <div class="form-group">
+                <label>Công việc cần làm <span style="color:red">*</span></label>
+                <input type="text" id="task-desc" class="form-control" placeholder="Ví dụ: Ôn tập Unit 5" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Khung giờ dự kiến</label>
+                <input type="time" id="task-time" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Phân loại mức độ / Lĩnh vực</label>
+                <div class="color-options">
+                    <input type="radio" name="task-color" id="color-blue" value="study" class="color-radio" checked>
+                    <label for="color-blue" class="color-label bg-blue" title="Học tập / Nghiên cứu"></label>
+                    
+                    <input type="radio" name="task-color" id="color-red" value="urgent" class="color-radio">
+                    <label for="color-red" class="color-label bg-red" title="Khẩn cấp / Quan trọng"></label>
+                    
+                    <input type="radio" name="task-color" id="color-green" value="work" class="color-radio">
+                    <label for="color-green" class="color-label bg-green" title="Làm thêm / Ngoại khóa"></label>
+                    
+                    <input type="radio" name="task-color" id="color-default" value="default" class="color-radio">
+                    <label for="color-default" class="color-label bg-default" title="Khác"></label>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="saveTask()">Lưu công việc</button>
+            </div>
+        </div>
     </div>
 
-    <div class="week-container" id="week-container"></div>
-
     <script>
-        // --- LOGIC GIAO DIỆN & DỮ LIỆU ---
-        const daysOfWeek = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
-        let tasksData = JSON.parse(localStorage.getItem('academicScheduleData')) || {};
-        daysOfWeek.forEach(day => { if(!tasksData[day]) tasksData[day] = []; });
-
-        function saveData() { localStorage.setItem('academicScheduleData', JSON.stringify(tasksData)); }
-
-        function render() {
-            const container = document.getElementById('week-container');
-            container.innerHTML = '';
-            
-            daysOfWeek.forEach((day, index) => {
-                const dayTasks = tasksData[day];
-                const total = dayTasks.length;
-                const completed = dayTasks.filter(t => t.done).length;
-                const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100);
-
-                let html = `
-                <div class="day-card">
-                    <div class="day-header">
-                        <h3>${day}</h3>
-                        <button class="add-task-btn" onclick="addTask('${day}')">+ Thêm Tác Vụ</button>
-                    </div>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: ${progressPct}%; ${progressPct === 100 ? 'background: linear-gradient(90deg, #11998e, #38ef7d);' : ''}"></div>
-                        <div class="progress-text">${progressPct}% (${completed}/${total})</div>
-                    </div>
-                    <div class="task-list">
-                `;
-                
-                dayTasks.forEach(task => {
-                    html += `
-                    <div class="task-item ${task.done ? 'completed' : ''}">
-                        <div class="task-info">
-                            <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${day}', '${task.id}')">
-                            <span class="task-time">${task.time}</span>
-                            <span class="task-text">${task.text}</span>
-                        </div>
-                        <div class="task-actions">
-                            <button onclick="editTask('${day}', '${task.id}')" title="Chỉnh sửa">✏️</button>
-                            <button onclick="deleteTask('${day}', '${task.id}')" title="Xóa">🗑️</button>
-                        </div>
-                    </div>
-                    `;
-                });
-
-                html += `
-                    </div>
-                    <button class="complete-day-btn" onclick="completeDay('${day}', ${index})">Xác Nhận Tổng Kết Ngày</button>
-                </div>
-                `;
-                container.innerHTML += html;
-            });
-        }
-
-        function addTask(day) {
-            const time = prompt(`Nhập khung giờ thực hiện (HH:MM):`);
-            if (!time) return;
-            const text = prompt('Nhập nội dung tác vụ:');
-            if (!text) return;
-            tasksData[day].push({ id: Date.now().toString(), time: time, text: text, done: false });
-            tasksData[day].sort((a, b) => a.time.localeCompare(b.time));
-            saveData(); render();
-        }
-
-        function toggleTask(day, id) {
-            const task = tasksData[day].find(t => t.id === id);
-            if(task) { task.done = !task.done; saveData(); render(); }
-        }
-
-        function editTask(day, id) {
-            const task = tasksData[day].find(t => t.id === id);
-            if(task) {
-                const newTime = prompt('Cập nhật khung giờ:', task.time);
-                if(newTime) task.time = newTime;
-                const newText = prompt('Cập nhật nội dung:', task.text);
-                if(newText) task.text = newText;
-                tasksData[day].sort((a, b) => a.time.localeCompare(b.time));
-                saveData(); render();
-            }
-        }
-
-        function deleteTask(day, id) {
-            if(confirm('Bạn có chắc chắn muốn xóa tác vụ này?')) { 
-                tasksData[day] = tasksData[day].filter(t => t.id !== id); 
-                saveData(); render(); 
-            }
-        }
-
-        function completeDay(day, index) {
-            const incompleteTasks = tasksData[day].filter(t => !t.done);
-            if (incompleteTasks.length > 0) {
-                if (confirm(`Còn ${incompleteTasks.length} tác vụ chưa hoàn thành. Bạn có muốn hệ thống tự động dời sang ngày tiếp theo không?`)) {
-                    const nextDay = daysOfWeek[(index + 1) % 7];
-                    tasksData[nextDay].push(...incompleteTasks);
-                    tasksData[nextDay].sort((a, b) => a.time.localeCompare(b.time));
-                    tasksData[day] = tasksData[day].filter(t => t.done);
-                    saveData(); render();
-                    alert(`Đã chuyển tiếp tác vụ thành công sang ${nextDay}.`);
-                }
-            } else {
-                alert('Tuyệt vời! Toàn bộ lịch trình trong ngày đã được hoàn tất.');
-            }
-        }
-
-        window.onload = render;
-
-        // --- PWA: KÍCH HOẠT NÚT TẢI APP ---
-        // Tạo ảo Service Worker để vượt qua kiểm duyệt tải App của trình duyệt
-        const swCode = `self.addEventListener('fetch', () => {});`;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
+        // --- 1. DỮ LIỆU & CẤU HÌNH ---
+        const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+        const STORAGE_KEY = "academic_planner_data";
         
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register(swUrl).catch(() => console.log('SW chạy nền chờ GitHub Pages.'));
+        // State management
+        let scheduleData = {
+            0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] // 0=Thứ 2, 6=CN
+        };
+        let currentDayIndex = getRealDayIndex(); // Lấy ngày hiện tại (Thứ 2 = 0)
+
+        // Lấy thứ hiện tại của hệ thống và chuẩn hóa (JS: 0=CN, 1=T2 -> Chuyển thành: 0=T2, 6=CN)
+        function getRealDayIndex() {
+            let d = new Date().getDay();
+            return d === 0 ? 6 : d - 1; 
         }
 
-        let deferredPrompt;
-        const installBtn = document.getElementById('installAppBtn');
+        // Tạo ID ngẫu nhiên cho task
+        function generateId() {
+            return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        }
 
+        // --- 2. LOGIC LƯU TRỮ & TẢI DỮ LIỆU ---
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                scheduleData = JSON.parse(saved);
+            }
+            handleRollover(); // Kích hoạt dời việc tự động
+            renderBoard();
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
+            renderBoard();
+        }
+
+        // --- 3. CƠ CHẾ AUTO-ROLLOVER (DỜI VIỆC TỒN ĐỌNG) ---
+        function handleRollover() {
+            let hasRollover = false;
+            let today = getRealDayIndex();
+            
+            // Nếu là thứ 2 (0), không dọn dẹp tuần trước để tránh mất dữ liệu cũ chưa kịp xem.
+            // Chỉ dời việc từ các ngày trước đó trong CÙNG 1 TUẦN.
+            if (today === 0) return; 
+
+            for (let i = 0; i < today; i++) {
+                // Lọc ra các việc chưa hoàn thành ở quá khứ
+                let incompleteTasks = scheduleData[i].filter(task => !task.completed);
+                
+                if (incompleteTasks.length > 0) {
+                    incompleteTasks.forEach(task => {
+                        // Thêm vào ngày hôm nay
+                        scheduleData[today].push({
+                            ...task,
+                            id: generateId(), // Tạo ID mới
+                            rolledOver: true, // Gắn cờ tồn đọng
+                            originalDay: DAYS_OF_WEEK[i]
+                        });
+                    });
+                    
+                    // Cập nhật lại ngày cũ (xóa các việc chưa xong vì đã chuyển đi)
+                    scheduleData[i] = scheduleData[i].filter(task => task.completed);
+                    hasRollover = true;
+                }
+            }
+
+            if (hasRollover) {
+                alert("Hệ thống đã tự động dời các công việc tồn đọng sang hôm nay.");
+                saveData();
+            }
+        }
+
+        // --- 4. RENDER GIAO DIỆN ---
+        function renderBoard() {
+            const board = document.getElementById('board-container');
+            board.innerHTML = '';
+            let today = getRealDayIndex();
+
+            DAYS_OF_WEEK.forEach((dayName, index) => {
+                const tasks = scheduleData[index] || [];
+                const total = tasks.length;
+                const completed = tasks.filter(t => t.completed).length;
+                const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100);
+                
+                const isToday = index === today;
+                
+                // Render List Task
+                let tasksHTML = tasks.map(task => {
+                    const colorClass = `task-${task.color || 'default'}`;
+                    const rolloverBadge = task.rolledOver ? `<span class="rollover-badge" title="Dời từ ${task.originalDay}"><i class="fas fa-share"></i> ${task.originalDay}</span>` : '';
+                    
+                    return `
+                        <div class="task-item ${task.completed ? 'completed' : ''} ${colorClass}">
+                            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index}, '${task.id}')">
+                            <div class="task-content">
+                                ${task.time ? `<div class="task-time"><i class="far fa-clock"></i> ${task.time} ${rolloverBadge}</div>` : `<div class="task-time">${rolloverBadge}</div>`}
+                                <div class="task-desc">${task.text}</div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-icon" onclick="openModal(${index}, '${task.id}')" title="Sửa"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon delete" onclick="deleteTask(${index}, '${task.id}')" title="Xóa"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                if(tasks.length === 0) {
+                    tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
+                }
+
+                // Nút Hoàn thành ngày
+                const finishBtn = (total > 0 && total === completed) 
+                    ? `<button class="btn btn-success" onclick="celebrate()"><i class="fas fa-check-circle"></i> Ngày trọn vẹn</button>` 
+                    : '';
+
+                // Build Column
+                const colHTML = `
+                    <div class="day-column" id="col-${index}" ${isToday ? 'style="border: 2px solid var(--primary);"' : ''}>
+                        <div class="day-header">
+                            <div class="day-title">
+                                ${dayName} ${isToday ? '<span class="today-badge">Hôm nay</span>' : ''}
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-text">
+                                    <span>Tiến độ</span>
+                                    <span>${completed}/${total} (${progressPct}%)</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill" style="width: ${progressPct}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-list">
+                            ${tasksHTML}
+                        </div>
+                        <div class="day-footer">
+                            <button class="btn-add" onclick="openModal(${index})"><i class="fas fa-plus"></i> Thêm việc</button>
+                            ${finishBtn}
+                        </div>
+                    </div>
+                `;
+                board.innerHTML += colHTML;
+            });
+            
+            // Tự động scroll đến ngày hôm nay khi load lần đầu
+            if(!window.scrolledToToday) {
+                const todayCol = document.getElementById(`col-${today}`);
+                if(todayCol) {
+                    todayCol.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                    window.scrolledToToday = true;
+                }
+            }
+        }
+
+        // --- 5. LOGIC THÊM/SỬA/XÓA (CRUD) ---
+        function openModal(dayIndex, taskId = null) {
+            document.getElementById('task-day-index').value = dayIndex;
+            document.getElementById('task-id').value = taskId || '';
+            
+            if (taskId) {
+                document.getElementById('modal-title').innerText = "Chỉnh sửa công việc";
+                const task = scheduleData[dayIndex].find(t => t.id === taskId);
+                document.getElementById('task-desc').value = task.text;
+                document.getElementById('task-time').value = task.time || '';
+                document.querySelector(`input[name="task-color"][value="${task.color || 'default'}"]`).checked = true;
+            } else {
+                document.getElementById('modal-title').innerText = "Thêm công việc mới";
+                document.getElementById('task-desc').value = '';
+                document.getElementById('task-time').value = '';
+                document.getElementById('color-blue').checked = true;
+            }
+            
+            document.getElementById('task-modal').style.display = 'flex';
+            document.getElementById('task-desc').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('task-modal').style.display = 'none';
+        }
+
+        function saveTask() {
+            const dayIndex = document.getElementById('task-day-index').value;
+            const taskId = document.getElementById('task-id').value;
+            const text = document.getElementById('task-desc').value.trim();
+            const time = document.getElementById('task-time').value;
+            const color = document.querySelector('input[name="task-color"]:checked').value;
+
+            if (!text) { alert("Vui lòng nhập tên công việc!"); return; }
+
+            if (taskId) {
+                // Sửa
+                const task = scheduleData[dayIndex].find(t => t.id === taskId);
+                task.text = text;
+                task.time = time;
+                task.color = color;
+            } else {
+                // Thêm mới
+                scheduleData[dayIndex].push({
+                    id: generateId(),
+                    text: text,
+                    time: time,
+                    color: color,
+                    completed: false,
+                    rolledOver: false
+                });
+                
+                // Sắp xếp lại theo thời gian (nếu có time)
+                scheduleData[dayIndex].sort((a, b) => {
+                    if(!a.time) return 1; if(!b.time) return -1;
+                    return a.time.localeCompare(b.time);
+                });
+            }
+
+            saveData();
+            closeModal();
+        }
+
+        function toggleComplete(dayIndex, taskId) {
+            const task = scheduleData[dayIndex].find(t => t.id === taskId);
+            task.completed = !task.completed;
+            saveData();
+        }
+
+        function deleteTask(dayIndex, taskId) {
+            if(confirm("Bạn có chắc chắn muốn xóa việc này?")) {
+                scheduleData[dayIndex] = scheduleData[dayIndex].filter(t => t.id !== taskId);
+                saveData();
+            }
+        }
+
+        // --- 6. EXPORT / IMPORT EXCEL (BACKUP) ---
+        function exportExcel() {
+            let rows = [["Ngày", "Khung Giờ", "Công việc", "Phân loại", "Hoàn thành", "Trạng thái dời"]];
+            
+            DAYS_OF_WEEK.forEach((day, index) => {
+                const tasks = scheduleData[index] || [];
+                tasks.forEach(t => {
+                    rows.push([
+                        day, 
+                        t.time || "", 
+                        t.text, 
+                        t.color, 
+                        t.completed ? "Xong" : "Chưa",
+                        t.rolledOver ? `Từ ${t.originalDay}` : ""
+                    ]);
+                });
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            
+            // Format column widths
+            ws['!cols'] = [{wch: 10}, {wch: 10}, {wch: 40}, {wch: 15}, {wch: 12}, {wch: 15}];
+            
+            XLSX.utils.book_append_sheet(wb, ws, "Planner");
+            XLSX.writeFile(wb, `Academic_Planner_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        function importExcel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    // Reset data
+                    let newData = { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
+                    
+                    jsonData.forEach(row => {
+                        const dayName = row["Ngày"];
+                        const dayIndex = DAYS_OF_WEEK.indexOf(dayName);
+                        if(dayIndex !== -1) {
+                            newData[dayIndex].push({
+                                id: generateId(),
+                                text: row["Công việc"] || "",
+                                time: row["Khung Giờ"] || "",
+                                color: row["Phân loại"] || "default",
+                                completed: row["Hoàn thành"] === "Xong",
+                                rolledOver: !!row["Trạng thái dời"],
+                                originalDay: row["Trạng thái dời"] ? row["Trạng thái dời"].replace("Từ ", "") : null
+                            });
+                        }
+                    });
+                    
+                    scheduleData = newData;
+                    saveData();
+                    alert("Khôi phục dữ liệu thành công!");
+                } catch (err) {
+                    alert("Đã có lỗi xảy ra khi đọc file Excel.");
+                    console.error(err);
+                }
+                event.target.value = ''; // Reset input
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- 7. HIỆU ỨNG CHÚC MỪNG HOÀN THÀNH ---
+        function celebrate() {
+            // Có thể dùng Canvas Confetti ở đây. Tạm thời dùng alert tạo động lực.
+            alert("Tuyệt vời! Bạn đã hoàn thành xuất sắc toàn bộ mục tiêu trong ngày. Hãy nghỉ ngơi nhé!");
+        }
+
+        // --- 8. PWA INSTALL LOGIC ---
+        let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'block';
+            document.getElementById('btn-install').style.display = 'flex';
         });
 
-        installBtn.addEventListener('click', async () => {
+        function installApp() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') installBtn.style.display = 'none';
-                deferredPrompt = null;
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('btn-install').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
             }
-        });
+        }
+
+        // --- KHỞI TẠO APP ---
+        document.addEventListener('DOMContentLoaded', loadData);
+
     </script>
 </body>
 </html>
