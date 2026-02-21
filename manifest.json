@@ -1,0 +1,21 @@
+{
+  "name": "Academic Weekly Planner",
+  "short_name": "Planner",
+  "description": "Quản lý công việc và lịch học hàng tuần",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/000000/calendar--v1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/000000/calendar--v1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
