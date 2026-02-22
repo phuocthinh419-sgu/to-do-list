@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner & Zen Timer</title>
+    <title>Academic Planner & Focus Zone</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,40 +12,62 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Alfa+Slab+One&family=Black+Ops+One&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Black+Ops+One&family=Lora:wght@700&family=Special+Elite&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
 
     <style>
+        /* --- 1. LIGHT MODE (Default) --- */
         :root {
             --bg-color: #f1f5f9; --text-main: #1e293b; --text-muted: #64748b; --card-bg: #ffffff;
             --border-color: #e2e8f0; --primary: #2563eb; --primary-hover: #1d4ed8;
             --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
             --modal-overlay: rgba(15, 23, 42, 0.6); --input-bg: #ffffff;
-            --color-red: #fee2e2; --color-red-border: #fca5a5;
-            --color-blue: #dbeafe; --color-blue-border: #bfdbfe;
-            --color-green: #dcfce7; --color-green-border: #bbf7d0;
-            --color-default: #f8fafc; --color-default-border: #e2e8f0;
+            --color-red: #fee2e2; --color-red-border: #fca5a5; --color-blue: #dbeafe; --color-blue-border: #bfdbfe;
+            --color-green: #dcfce7; --color-green-border: #bbf7d0; --color-default: #f8fafc; --color-default-border: #e2e8f0;
+            --font-main: 'Inter', sans-serif;
         }
 
+        /* --- 2. DARK MODE --- */
         [data-theme="dark"] {
             --bg-color: #0f172a; --text-main: #f8fafc; --text-muted: #94a3b8; --card-bg: #1e293b;
             --border-color: #334155; --primary: #3b82f6; --primary-hover: #60a5fa;
             --modal-overlay: rgba(0, 0, 0, 0.8); --input-bg: #0f172a;
-            --color-red: rgba(239, 68, 68, 0.15); --color-red-border: #ef4444;
-            --color-blue: rgba(59, 130, 246, 0.15); --color-blue-border: #3b82f6;
-            --color-green: rgba(16, 185, 129, 0.15); --color-green-border: #10b981;
-            --color-default: rgba(148, 163, 184, 0.1); --color-default-border: #475569;
+            --color-red: rgba(239, 68, 68, 0.15); --color-red-border: #ef4444; --color-blue: rgba(59, 130, 246, 0.15); --color-blue-border: #3b82f6;
+            --color-green: rgba(16, 185, 129, 0.15); --color-green-border: #10b981; --color-default: rgba(148, 163, 184, 0.1); --color-default-border: #475569;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; transition: background-color 0.3s, color 0.3s; }
+        /* --- 3. THEME THƯ VIỆN BÍ ẨN (Mở khóa Chuỗi 7) --- */
+        [data-theme="detective"] {
+            --bg-color: #121212; --text-main: #d1d5db; --text-muted: #7f1d1d; --card-bg: #1e1e1e;
+            --border-color: #450a0a; --primary: #991b1b; --primary-hover: #b91c1c;
+            --success: #065f46; --danger: #dc2626; --warning: #b45309;
+            --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #000000;
+            --color-red: rgba(220, 38, 38, 0.1); --color-red-border: #991b1b; --color-blue: rgba(59, 130, 246, 0.05); --color-blue-border: #1e3a8a;
+            --color-green: rgba(16, 185, 129, 0.05); --color-green-border: #064e3b; --color-default: rgba(156, 163, 175, 0.05); --color-default-border: #374151;
+            --font-main: 'Special Elite', cursive, 'Inter', sans-serif;
+        }
 
+        /* --- 4. THEME GÓC HỌC TẬP / ZEN (Mở khóa Chuỗi 14) --- */
+        [data-theme="nature"] {
+            --bg-color: #e9ecef; --text-main: #2c3e50; --text-muted: #6c757d; --card-bg: #ffffff;
+            --border-color: #c3e6cb; --primary: #2e7d32; --primary-hover: #1b5e20; 
+            --success: #20c997; --danger: #e07a5f; --warning: #f4a261;
+            --modal-overlay: rgba(44, 62, 80, 0.7); --input-bg: #f8f9fa;
+            --color-red: #fef0f0; --color-red-border: #f5c6cb; --color-blue: #e8f4f8; --color-blue-border: #bee5eb;
+            --color-green: #e6f4ea; --color-green-border: #c3e6cb; --color-default: #fdfdfe; --color-default-border: #dfdfdf;
+            --font-main: 'Lora', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; transition: background-color 0.5s, color 0.5s; }
+
+        /* HEADER & UI */
         .header { background: var(--card-bg); padding: 15px 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: background 0.3s; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 15px;}
         .header-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         
         .btn { padding: 8px 15px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
@@ -54,13 +76,26 @@
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-success { background: var(--success); color: white; width: 100%; justify-content: center; margin-top: 15px; }
 
-        #btn-install { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; display: none; animation: pulse-green 2s infinite; }
-        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        #header-tuvi-badge { border-color: var(--primary); color: var(--primary); cursor: default; }
+        #header-tuvi-badge.pulse { animation: tuvi-pulse 0.5s ease-out; }
+        @keyframes tuvi-pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); } 50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); } 100% { transform: scale(1); } }
+
+        #header-streak-badge { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
+        #header-wager-badge { border-color: var(--danger); color: var(--danger); }
+        
         .btn-zen { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; }
         .btn-zen:hover { transform: scale(1.05); }
 
+        /* BÓNG MA QUÁ KHỨ */
+        .ghost-panel { background: var(--card-bg); margin: 20px 30px 0; padding: 15px 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; }
+        .ghost-title { font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; }
+        .ghost-track { height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; position: relative; }
+        .ghost-fill-past { position: absolute; top: 0; left: 0; height: 100%; background: var(--text-muted); opacity: 0.5; transition: width 1s; z-index: 1;}
+        .ghost-fill-now { position: absolute; top: 0; left: 0; height: 100%; background: var(--success); transition: width 1s; z-index: 2; box-shadow: 0 0 10px var(--success);}
+
+        /* BOARD */
         #main-board { transition: filter 0.3s; }
-        .board { display: flex; gap: 20px; padding: 20px 30px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 80px); }
+        .board { display: flex; gap: 20px; padding: 20px 30px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 150px); }
         .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: background 0.3s, border 0.3s; }
         
         .day-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
@@ -77,20 +112,25 @@
         .task-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .task-item.completed { opacity: 0.5; }
         .task-item.completed .task-desc { text-decoration: line-through; color: var(--text-muted); }
+        .task-item.missed-task { opacity: 0.5; border-color: var(--danger); background: var(--color-red); }
+        .task-item.missed-task .task-desc { text-decoration: line-through; color: var(--danger); }
+        .task-item.missed-task .task-checkbox { display: none; } 
+        .task-item.locked { pointer-events: none; border-style: dashed; }
         
         .task-urgent { background: var(--color-red); border-color: var(--color-red-border); }
         .task-study { background: var(--color-blue); border-color: var(--color-blue-border); }
         .task-work { background: var(--color-green); border-color: var(--color-green-border); }
         .task-default { background: var(--color-default); border-color: var(--color-default-border); }
 
-        .task-checkbox { margin-top: 3px; cursor: pointer; width: 18px; height: 18px; accent-color: var(--success); }
+        .task-checkbox { margin-top: 3px; cursor: pointer; width: 18px; height: 18px; accent-color: var(--success); flex-shrink: 0;}
         .task-content { flex: 1; }
-        .task-time { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .task-time { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;}
         .task-desc { font-size: 0.95rem; color: var(--text-main); word-break: break-word; font-weight: 500;}
         .rollover-badge { font-size: 0.7rem; background: var(--warning); color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
+        .missed-badge { font-size: 0.7rem; color: var(--danger); font-weight: 800; margin-left: auto; }
         
         .task-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; position: absolute; right: 10px; top: 10px; }
-        .task-item:hover .task-actions { opacity: 1; }
+        .task-item:not(.locked):hover .task-actions { opacity: 1; }
         .btn-icon { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; padding: 4px 6px; color: var(--text-muted); font-size: 0.8rem; }
         .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
         .btn-icon.delete:hover { color: var(--danger); border-color: var(--danger); }
@@ -99,6 +139,7 @@
         .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
         .btn-add:hover { background: var(--border-color); color: var(--primary); border-color: var(--primary); }
 
+        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -117,28 +158,25 @@
         .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 
-        /* PHẦN TU TIÊN ĐẠO QUÁN */
+        /* FOCUS ZONE */
         #zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: flex-start; backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.5s ease; text-align: center; padding: 30px 20px; box-sizing: border-box; color: #e2e8f0; overflow-y: auto; }
         #zen-overlay.active { display: flex; opacity: 1; }
         #fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5001; }
-        .zen-app-container { width: 100%; max-width: 900px; z-index: 5002; display: flex; flex-direction: column; align-items: center; margin: auto; }
+        .zen-app-container { width: 100%; max-width: 900px; z-index: 5002; display: flex; flex-direction: column; align-items: center; margin: auto; position: relative;}
         .zen-btn-exit { position: absolute; top: 20px; right: 20px; background: transparent; border: none; font-size: 2rem; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; z-index: 6005; }
         .zen-btn-exit:hover { color: #ef4444; transform: rotate(90deg) scale(1.2); }
         .zen-timer { font-family: 'Black Ops One', cursive; font-size: clamp(5rem, 12vw, 8rem); color: #fff; letter-spacing: 5px; margin: 0 0 10px 0; text-shadow: 4px 4px 0px #000, 8px 8px 20px rgba(0,0,0,0.8); line-height: 1; }
         @keyframes timer-pulse-zen { 0% { filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)); transform: scale(1.02); } 100% { filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); transform: scale(1); } }
         .zen-timer.ticking { animation: timer-pulse-zen 1.5s infinite ease-in-out; }
-        .zen-energy-bar-container { width: 100%; height: 14px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 10px 0 20px; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: visible; }
-        .zen-energy-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #991b1b, #dc2626, #f59e0b); transition: width 0.5s linear; border-radius: 8px; box-shadow: 0 0 10px currentColor; position: relative; }
         
-        .zen-energy-flame { position: absolute; right: -20px; top: 50%; transform: translateY(-50%); font-size: 32px; color: #fcd34d; text-shadow: 0 -5px 15px #f59e0b, 0 -10px 25px #ef4444, 0 0 35px #ef4444; filter: drop-shadow(0 0 10px #ef4444); opacity: 0; transition: opacity 0.3s; z-index: 10; pointer-events: none; }
-        .zen-energy-bar-container.active .zen-energy-flame { opacity: 1; animation: immortal-flame 0.3s infinite alternate ease-in-out; }
-        .zen-energy-bar-container.break-mode .zen-energy-flame { color: #a7f3d0; text-shadow: 0 -5px 15px #34d399, 0 -10px 25px #059669, 0 0 35px #059669; filter: drop-shadow(0 0 10px #059669); }
-        @keyframes immortal-flame { 0% { transform: translateY(-50%) scale(0.9) skewX(-5deg); } 100% { transform: translateY(-50%) scale(1.15) skewX(5deg); color: #fff; } }
-
-        .zen-rank-badge { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #fbbf24; border: 2px solid #fbbf24; padding: 5px 20px; border-radius: 4px; background: rgba(0,0,0,0.6); margin-bottom: 10px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); text-transform: uppercase; letter-spacing: 2px; }
+        .zen-energy-bar-container { width: 100%; height: 14px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 10px 0 20px; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: visible; }
+        .zen-energy-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #1d4ed8, #3b82f6, #93c5fd); transition: width 0.5s linear; border-radius: 8px; box-shadow: 0 0 10px currentColor; position: relative; }
+        
+        .zen-rank-badge { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.2rem; color: #60a5fa; border: 2px solid #60a5fa; padding: 5px 20px; border-radius: 4px; background: rgba(0,0,0,0.6); margin-bottom: 10px; box-shadow: 0 0 15px rgba(96, 165, 250, 0.3); text-transform: uppercase; letter-spacing: 2px; }
         .zen-xp-bar-container { width: 100%; max-width: 400px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
-        .zen-xp-bar-fill { height: 100%; background: linear-gradient(90deg, #0ea5e9, #38bdf8); width: 0%; transition: width 0.5s ease-out; }
+        .zen-xp-bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.5s ease-out; }
         .zen-xp-text { font-size: 0.9rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
+        
         .zen-quote-container { margin-top: 10px; max-width: 800px; width: 90%; padding: 25px 30px; border-radius: 12px; position: relative; background: #0f172a; min-height: 120px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .zen-quote-line { position: absolute; display: block; z-index: 1; pointer-events: none; }
         .zen-quote-line:nth-child(1) { top: 0; left: -100%; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #0ea5e9, #38bdf8); box-shadow: 0 0 10px #38bdf8; animation: led-top 2s linear infinite; animation-delay: 0s; }
@@ -150,18 +188,28 @@
         .zen-quote-line:nth-child(4) { bottom: -100%; left: 0; width: 4px; height: 100%; background: linear-gradient(360deg, transparent, #10b981, #34d399); box-shadow: 0 0 10px #34d399; animation: led-left 2s linear infinite; animation-delay: -0.5s; }
         @keyframes led-left { 0% { bottom: -100%; } 50%, 100% { bottom: 100%; } }
         .zen-quote-content { position: relative; z-index: 5; }
-        .zen-quote-en { font-size: 1.2rem; font-style: italic; color: #cbd5e1; margin-bottom: 5px; font-family: 'Segoe UI', serif; transition: opacity 0.5s; }
+        .zen-quote-en { font-size: 1.2rem; font-style: italic; color: #cbd5e1; margin-bottom: 5px; font-family: 'Inter', serif; transition: opacity 0.5s; }
         .zen-quote-vi { font-size: 1.1rem; color: #a5b4fc; font-weight: 600; margin-bottom: 8px; transition: opacity 0.5s; }
         .zen-quote-author { font-size: 0.9rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; text-align: right; transition: opacity 0.5s; }
+        
         .zen-status { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .zen-controls { display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .zen-btn-action:hover { background: #fff; color: #000; transform: translateY(-3px); }
+        
         .zen-mascot { font-size: 5rem; animation: mascot-idle 6s ease-in-out infinite, mascot-glow 4s infinite; margin-bottom: 5px; cursor: pointer; user-select: none; transition: 0.3s;}
         .zen-mascot:hover { transform: scale(1.2) rotate(-5deg); filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.8)); }
         .zen-rebirth-btn { display: none; margin-top: 10px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: 2px solid #fecaca; color: white; padding: 10px 20px; border-radius: 30px; font-size: 1rem; font-weight: bold; cursor: pointer; animation: pulse-red 2s infinite; margin-bottom: 10px;}
 
-        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; } .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } }
+        /* KIỂM TRA HIỆN DIỆN (AFK) */
+        #afk-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 38, 38, 0.9); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; animation: flash-red 0.5s infinite alternate; }
+        @keyframes flash-red { 0% { background: rgba(220, 38, 38, 0.9); } 100% { background: rgba(153, 27, 27, 0.95); } }
+        #afk-overlay h1 { font-size: 3rem; margin-bottom: 10px; text-transform: uppercase; font-family: 'Black Ops One', cursive; text-shadow: 0 0 20px black;}
+        #afk-timer { font-size: 5rem; font-weight: bold; margin: 20px 0; }
+        .btn-afk { background: #fff; color: #dc2626; border: none; padding: 20px 50px; font-size: 2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.2s;}
+        .btn-afk:hover { transform: scale(1.1); background: #fef08a; }
+
+        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; min-height: auto;} .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } }
     </style>
 </head>
 <body>
@@ -169,35 +217,49 @@
     <div id="main-board">
         <header class="header">
             <div class="header-title">
-                <i class="fas fa-calendar-check"></i> Academic Planner
+                <i class="fas fa-graduation-cap"></i> Academic Planner
             </div>
             <div class="header-controls">
-                <button class="btn btn-outline" id="btn-theme" onclick="toggleTheme()" title="Giao diện Tối/Sáng">
-                    <i class="fas fa-moon"></i>
+                <div id="header-tuvi-badge" class="btn btn-outline" title="Điểm Tích Lũy Kỷ Luật">
+                    <i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span>
+                </div>
+                <div id="header-streak-badge" class="btn" title="Chuỗi Kỷ Luật Liên Tiếp">
+                    🔥 <span id="streak-text">0 Ngày</span>
+                </div>
+                <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()" title="Cam Kết Kỷ Luật (Cược XP)">
+                    <i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span>
+                </div>
+                
+                <button class="btn btn-outline" id="btn-theme" onclick="toggleThemeCycle()" title="Đổi Giao Diện">
+                    <i class="fas fa-palette"></i>
                 </button>
                 <button class="btn btn-zen" onclick="toggleZenMode()">
-                    <i class="fas fa-yin-yang"></i> Tu Luyện
+                    <i class="fas fa-brain"></i> Focus Mode
                 </button>
                 
-                <button class="btn btn-outline" onclick="saveTemplate()" title="Lưu lịch hiện tại làm mẫu cố định">
-                    <i class="fas fa-bookmark"></i> Lưu Lịch Mẫu
+                <button class="btn btn-outline" onclick="saveTemplate()" title="Lưu Lịch Mẫu">
+                    <i class="fas fa-bookmark"></i>
                 </button>
-                <button class="btn btn-primary" onclick="resetWeek()" title="Bắt đầu tuần mới (Khôi phục lịch mẫu)">
+                <button class="btn btn-primary" onclick="resetWeek()" title="Khởi tạo tuần học mới">
                     <i class="fas fa-sync-alt"></i> Tuần Mới
                 </button>
                 
-                <button class="btn btn-outline" onclick="document.getElementById('import-file').click()" title="Nhập Excel">
-                    <i class="fas fa-file-import"></i>
-                </button>
-                <button class="btn btn-outline" onclick="exportExcel()" title="Xuất Excel">
-                    <i class="fas fa-file-export"></i>
-                </button>
-                <button class="btn" id="btn-install" onclick="installApp()">
-                    <i class="fas fa-download"></i> Tải App
-                </button>
+                <button class="btn btn-outline" onclick="document.getElementById('import-file').click()" title="Nhập Excel"><i class="fas fa-file-import"></i></button>
+                <button class="btn btn-outline" onclick="exportExcel()" title="Xuất Excel"><i class="fas fa-file-export"></i></button>
                 <input type="file" id="import-file" style="display: none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
+
+        <div class="ghost-panel">
+            <div class="ghost-title">
+                <span><i class="fas fa-chart-line"></i> Phân tích Kỷ luật (Tuần này vs Tuần trước)</span>
+                <span id="ghost-status-text">Đang tính toán...</span>
+            </div>
+            <div class="ghost-track">
+                <div class="ghost-fill-past" id="ghost-bar-past" style="width: 0%;" title="Tiến độ Tuần Trước"></div>
+                <div class="ghost-fill-now" id="ghost-bar-now" style="width: 0%;" title="Tiến độ Tuần Này"></div>
+            </div>
+        </div>
 
         <div class="board" id="board-container"></div>
     </div>
@@ -210,26 +272,18 @@
             </div>
             <input type="hidden" id="task-day-index">
             <input type="hidden" id="task-id">
-            
             <div class="form-group">
                 <label>Công việc cần làm <span style="color:var(--danger)">*</span></label>
-                <input type="text" id="task-desc" class="form-control" placeholder="Ví dụ: Ôn tập Unit 5" required>
+                <input type="text" id="task-desc" class="form-control" placeholder="Ví dụ: Hoàn thành Unit 5 IELTS" required>
             </div>
-            <div class="form-group">
-                <label>Khung giờ dự kiến</label>
-                <input type="time" id="task-time" class="form-control">
-            </div>
+            <div class="form-group"><label>Giờ dự kiến</label><input type="time" id="task-time" class="form-control"></div>
             <div class="form-group">
                 <label>Phân loại mức độ / Lĩnh vực</label>
                 <div class="color-options">
-                    <input type="radio" name="task-color" id="color-blue" value="study" class="color-radio" checked>
-                    <label for="color-blue" class="color-label bg-blue" title="Học tập / Nghiên cứu"></label>
-                    <input type="radio" name="task-color" id="color-red" value="urgent" class="color-radio">
-                    <label for="color-red" class="color-label bg-red" title="Khẩn cấp / Quan trọng"></label>
-                    <input type="radio" name="task-color" id="color-green" value="work" class="color-radio">
-                    <label for="color-green" class="color-label bg-green" title="Làm thêm / Ngoại khóa"></label>
-                    <input type="radio" name="task-color" id="color-default" value="default" class="color-radio">
-                    <label for="color-default" class="color-label bg-default" title="Khác"></label>
+                    <input type="radio" name="task-color" id="color-blue" value="study" class="color-radio" checked><label for="color-blue" class="color-label bg-blue" title="Học tập / Nghiên cứu"></label>
+                    <input type="radio" name="task-color" id="color-red" value="urgent" class="color-radio"><label for="color-red" class="color-label bg-red" title="Khẩn cấp / Quan trọng"></label>
+                    <input type="radio" name="task-color" id="color-green" value="work" class="color-radio"><label for="color-green" class="color-label bg-green" title="Công việc / Part-time"></label>
+                    <input type="radio" name="task-color" id="color-default" value="default" class="color-radio"><label for="color-default" class="color-label bg-default" title="Khác"></label>
                 </div>
             </div>
             <div class="modal-footer">
@@ -239,30 +293,55 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="wager-modal">
+        <div class="modal" style="border-color: var(--primary); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);">
+            <div class="modal-header" style="color: var(--primary);">
+                <span><i class="fas fa-handshake"></i> Cam Kết Kỷ Luật</span>
+                <button class="close-modal" onclick="closeWagerModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-main);">
+                Bạn đang có <strong id="wager-max-points">0</strong> Điểm Tích Lũy (XP). Nếu hoàn thành 100% việc trong ngày, bạn sẽ nhận lại vốn và nhân đôi điểm cược. Nếu để sót việc, bạn sẽ mất toàn bộ số điểm này!
+            </div>
+            <div class="form-group">
+                <label>Số Điểm Tích Lũy muốn cam kết:</label>
+                <input type="number" id="wager-amount" class="form-control" min="1" placeholder="Nhập số điểm...">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeWagerModal()">Rút lui</button>
+                <button class="btn btn-primary" onclick="placeWager()">Xác nhận Cam Kết</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="afk-overlay">
+        <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
+        <p style="font-size: 1.5rem;">Bạn vẫn đang ngồi học chứ? Xác nhận ngay để duy trì phiên làm việc!</p>
+        <div id="afk-timer">15</div>
+        <button class="btn-afk" onclick="afkSuccess()">MÌNH VẪN ĐANG TẬP TRUNG!</button>
+    </div>
+
     <div id="fireworks-container"></div>
     <div id="zen-overlay">
-        <button class="zen-btn-exit zen-ui-layer" onclick="toggleZenMode()" title="Thoát Tu Luyện"><i class="fas fa-sign-out-alt"></i></button>
+        <button class="zen-btn-exit zen-ui-layer" onclick="toggleZenMode()" title="Thoát Chế độ Tập trung"><i class="fas fa-sign-out-alt"></i></button>
         <div class="zen-app-container">
-            <div class="zen-mascot" id="zen-mascot">👑</div>
-            <div class="zen-rank-badge" id="zen-rank">Phàm Nhân</div>
+            <div class="zen-mascot" id="zen-mascot">🎓</div>
+            <div class="zen-rank-badge" id="zen-rank">Tân Sinh</div>
             <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div>
-            <div class="zen-xp-text" id="zen-xp-text">0 / 25 Tu Vi</div>
-            <button class="zen-rebirth-btn" id="btn-rebirth" onclick="triggerRebirth()">🌀 CHUYỂN SINH</button>
+            <div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
+            <button class="zen-rebirth-btn" id="btn-rebirth" onclick="triggerRebirth()">🌟 NÂNG CẤP HỌC VỊ</button>
             
-            <div class="zen-status" id="zen-status">Sẵn sàng tu luyện</div>
+            <div class="zen-status" id="zen-status">Sẵn sàng học tập</div>
             <div class="zen-timer" id="zen-timer">25:00</div>
             
             <div class="zen-energy-bar-container" id="zen-energy-bar">
-                <div class="zen-energy-bar-fill" id="zen-energy-fill" style="width: 0%;">
-                    <i class="fas fa-fire zen-energy-flame"></i>
-                </div>
+                <div class="zen-energy-bar-fill" id="zen-energy-fill" style="width: 0%;"></div>
             </div>
 
             <div class="zen-quote-container" id="zen-quote-box">
                 <span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span>
                 <div class="zen-quote-content">
-                    <div class="zen-quote-en" id="q-en">"Nhấn Bắt đầu để tĩnh tâm tu luyện."</div>
-                    <div class="zen-quote-vi" id="q-vi">Đại đạo vô hình, kiên nhẫn tất thành.</div>
+                    <div class="zen-quote-en" id="q-en">"Press Start to begin your deep work session."</div>
+                    <div class="zen-quote-vi" id="q-vi">Kỷ luật sinh tự do, kiên nhẫn tất thành.</div>
                     <div class="zen-quote-author" id="q-author">- Hệ thống</div>
                 </div>
             </div>
@@ -272,161 +351,287 @@
                 <button class="zen-btn-action" onclick="resetTimer()">Đặt lại</button>
             </div>
             <div class="zen-controls" id="zen-break-options" style="display:none;">
-                <button class="zen-btn-action" style="background:rgba(16, 185, 129, 0.2); border-color:#10b981;" onclick="startBreak(5)">🍵 Nghỉ Ngắn (5p)</button>
-                <button class="zen-btn-action" style="background:rgba(59, 130, 246, 0.2); border-color:#3b82f6;" onclick="startBreak(15)">🎮 Nghỉ Dài (15p)</button>
+                <button class="zen-btn-action" style="background:rgba(16, 185, 129, 0.2); border-color:#10b981;" onclick="startBreak(5)">🍵 Nghỉ Ngắn</button>
+                <button class="zen-btn-action" style="background:rgba(59, 130, 246, 0.2); border-color:#3b82f6;" onclick="startBreak(15)">🎮 Nghỉ Dài</button>
             </div>
         </div>
     </div>
 
     <script>
-        // =========================================
-        // SCRIPT 1: ACADEMIC PLANNER LOGIC
-        // =========================================
-        
-        function initTheme() {
-            const savedTheme = localStorage.getItem('planner_theme');
-            if(savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.getElementById('btn-theme').innerHTML = '<i class="fas fa-sun"></i>';
-            }
-        }
-        
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const btn = document.getElementById('btn-theme');
-            if(currentTheme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('planner_theme', 'light');
-                btn.innerHTML = '<i class="fas fa-moon"></i>';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('planner_theme', 'dark');
-                btn.innerHTML = '<i class="fas fa-sun"></i>';
-            }
-        }
+        const quotes = [
+            { en: "Education is the most powerful weapon which you can use to change the world.", vi: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.", author: "Nelson Mandela" },
+            { en: "The only place where success comes before work is in the dictionary.", vi: "Nơi duy nhất thành công đến trước làm việc là trong từ điển.", author: "Vidal Sassoon" },
+            { en: "It does not matter how slowly you go as long as you do not stop.", vi: "Chậm bao nhiêu không quan trọng, miễn là đừng dừng lại.", author: "Confucius" },
+            { en: "Genius is 1% talent and 99% percent hard work.", vi: "Thiên tài chỉ có 1% là năng khiếu, 99% là khổ luyện.", author: "Albert Einstein" },
+            { en: "Discipline is the bridge between goals and accomplishment.", vi: "Kỷ luật là chiếc cầu nối giữa mục tiêu và thành tựu.", author: "Jim Rohn" },
+            { en: "Learning never exhausts the mind.", vi: "Học tập không bao giờ làm trí óc kiệt sức.", author: "Leonardo da Vinci" },
+            { en: "Don't watch the clock; do what it does. Keep going.", vi: "Đừng nhìn đồng hồ; hãy làm như nó. Cứ đi tiếp.", author: "Sam Levenson" }
+        ];
 
+        const REALMS = [ 
+            { name: "Tân Sinh", min: 0, color: {r:156, g:163, b:175} }, 
+            { name: "Tú Tài", min: 25, color: {r:56, g:189, b:248} }, 
+            { name: "Cử Nhân", min: 100, color: {r:52, g:211, b:153} }, 
+            { name: "Thạc Sĩ", min: 300, color: {r:250, g:204, b:21} }, 
+            { name: "Tiến Sĩ", min: 1000, color: {r:192, g:132, b:252} }, 
+            { name: "Phó Giáo Sư", min: 3000, color: {r:248, g:113, b:113} },
+            { name: "Giáo Sư", min: 10000, color: {r:251, g:146, b:60} }
+        ];
+        const MAX_POINTS = 10000; 
         const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v2";
-        const TEMPLATE_KEY = "planner_template_v1";
+        const STORAGE_KEY = "planner_data_v75";
+        const TEMPLATE_KEY = "planner_template_v75";
+        const SYSTEM_KEY = "planner_system_v75";
+
         let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+        let systemData = {
+            points: 0, generation: 1, 
+            streak: 0, highestStreak: 0,
+            wagerAmount: 0,
+            lastWeekTotal: 0, currentWeekTotal: 0,
+            lastWeekCompleted: 0, currentWeekCompleted: 0,
+            currentTheme: 'light'
+        };
 
         function getRealDayIndex() { let d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
         function generateId() { return Math.random().toString(36).substr(2, 9) + Date.now().toString(36); }
 
-        function loadData() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) scheduleData = JSON.parse(saved);
+        function loadAllData() {
+            const savedSchedule = localStorage.getItem(STORAGE_KEY);
+            if (savedSchedule) scheduleData = JSON.parse(savedSchedule);
+            const savedSystem = localStorage.getItem(SYSTEM_KEY);
+            if (savedSystem) { systemData = { ...systemData, ...JSON.parse(savedSystem) }; }
+            applyTheme(systemData.currentTheme);
+            updateSystemUI();
             renderBoard();
+            updateGhostBar();
         }
 
-        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData)); renderBoard(); }
+        function saveAllData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
+            localStorage.setItem(SYSTEM_KEY, JSON.stringify(systemData));
+            updateSystemUI();
+            updateGhostBar();
+            renderBoard(); // Đã vá lỗi: Tự động tải lại bảng dữ liệu sau khi tương tác
+        }
 
-        // --- LƯU BẢN MẪU ---
+        const THEMES = ['light', 'dark', 'detective', 'nature'];
+        
+        function applyTheme(themeName) {
+            if (themeName === 'light') document.documentElement.removeAttribute('data-theme');
+            else document.documentElement.setAttribute('data-theme', themeName);
+            systemData.currentTheme = themeName;
+        }
+
+        function toggleThemeCycle() {
+            let currentIndex = THEMES.indexOf(systemData.currentTheme);
+            if (currentIndex === -1) currentIndex = 0;
+            let nextIndex = (currentIndex + 1) % THEMES.length;
+            let nextTheme = THEMES[nextIndex];
+
+            if (nextTheme === 'detective' && systemData.highestStreak < 7 && systemData.streak < 7) {
+                alert("🔒 Theme Thư Viện Bí Ẩn bị khóa! Yêu cầu Chuỗi Kỷ Luật đạt 7 ngày.");
+                nextIndex = (nextIndex + 1) % THEMES.length;
+                nextTheme = THEMES[nextIndex];
+            }
+            if (nextTheme === 'nature' && systemData.highestStreak < 14 && systemData.streak < 14) {
+                alert("🔒 Theme Góc Học Tập bị khóa! Yêu cầu Chuỗi Kỷ Luật đạt 14 ngày.");
+                nextIndex = 0;
+                nextTheme = THEMES[nextIndex];
+            }
+            applyTheme(nextTheme);
+            saveAllData();
+        }
+
+        function getRealmInfo(points) { 
+            let current = REALMS[0]; let next = REALMS[1]; 
+            for (let i = 0; i < REALMS.length; i++) { if (points >= REALMS[i].min) { current = REALMS[i]; next = REALMS[i+1]; } } 
+            return { current, next }; 
+        }
+
+        function addTuVi(amount) { 
+            const oldRank = getRealmInfo(systemData.points).current.name; 
+            systemData.points += amount; 
+            if (systemData.points < 0) systemData.points = 0; 
+            
+            const badge = document.getElementById('header-tuvi-badge');
+            if(badge) { badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse'); }
+
+            if (amount > 0 && getRealmInfo(systemData.points).current.name !== oldRank) { 
+                setTimeout(() => { alert(`Tuyệt vời! Học vị của bạn đã được nâng cấp lên: ${getRealmInfo(systemData.points).current.name}!`); runBigFireworks(); playRealisticBoom(); }, 100);
+            }
+            saveAllData(); 
+        }
+
+        function updateSystemUI() {
+            const { current, next } = getRealmInfo(systemData.points); 
+            const genPrefix = systemData.generation > 1 ? `[Chu kỳ ${systemData.generation}] ` : ""; 
+            
+            const rankBadge = document.getElementById('zen-rank');
+            if (rankBadge) {
+                rankBadge.innerText = genPrefix + current.name; 
+                const colorStr = `rgb(${current.color.r},${current.color.g},${current.color.b})`;
+                rankBadge.style.color = colorStr; rankBadge.style.borderColor = colorStr; 
+                
+                let percent = next ? ((systemData.points - current.min) / (next.min - current.min)) * 100 : Math.min(100, ((systemData.points - current.min) / (MAX_POINTS - current.min)) * 100);
+                document.getElementById('zen-xp-fill').style.width = `${percent}%`; 
+                document.getElementById('zen-xp-text').innerText = next ? `${systemData.points} / ${next.min} XP` : `${systemData.points} / ${MAX_POINTS} (Tối đa)`;
+                document.getElementById('btn-rebirth').style.display = (systemData.points >= MAX_POINTS) ? 'block' : 'none';
+            }
+
+            const headerBadge = document.getElementById('header-tuvi-text');
+            if (headerBadge) headerBadge.innerText = `${current.name}: ${systemData.points} XP`;
+
+            const streakBadge = document.getElementById('streak-text');
+            if (streakBadge) streakBadge.innerText = `${systemData.streak} Ngày`;
+
+            const wagerBadge = document.getElementById('wager-text');
+            if (wagerBadge) wagerBadge.innerText = systemData.wagerAmount > 0 ? `Cam kết: ${systemData.wagerAmount} XP` : `Cam Kết`;
+        }
+
+        function openWagerModal() {
+            if (systemData.wagerAmount > 0) {
+                alert(`Bạn đã cam kết ${systemData.wagerAmount} XP rồi. Hãy hoàn thành 100% công việc và chốt sổ để nhận thưởng!`); return;
+            }
+            document.getElementById('wager-max-points').innerText = systemData.points;
+            document.getElementById('wager-amount').value = '';
+            document.getElementById('wager-modal').style.display = 'flex';
+        }
+        function closeWagerModal() { document.getElementById('wager-modal').style.display = 'none'; }
+        function placeWager() {
+            let amount = parseInt(document.getElementById('wager-amount').value);
+            if (isNaN(amount) || amount <= 0) { alert("Số lượng XP không hợp lệ!"); return; }
+            if (amount > systemData.points) { alert("Bạn không đủ số XP để thực hiện cam kết này!"); return; }
+
+            systemData.points -= amount;
+            systemData.wagerAmount = amount;
+            saveAllData();
+            closeWagerModal();
+            alert(`Cam kết thiết lập thành công! Trích xuất ${amount} XP. Hoàn thành toàn bộ công việc hôm nay để nhận lại x2 điểm thưởng!`);
+        }
+
+        function updateGhostBar() {
+            let completedNow = 0; let totalNow = 0;
+            for(let i=0; i<7; i++) {
+                totalNow += scheduleData[i].length;
+                completedNow += scheduleData[i].filter(t => t.completed).length;
+            }
+            systemData.currentWeekCompleted = completedNow;
+            systemData.currentWeekTotal = totalNow;
+
+            const pastPct = systemData.lastWeekTotal === 0 ? 0 : Math.round((systemData.lastWeekCompleted / systemData.lastWeekTotal) * 100);
+            const nowPct = totalNow === 0 ? 0 : Math.round((completedNow / totalNow) * 100);
+
+            document.getElementById('ghost-bar-past').style.width = `${pastPct}%`;
+            document.getElementById('ghost-bar-now').style.width = `${nowPct}%`;
+
+            let statusText = "";
+            if (systemData.lastWeekTotal === 0) statusText = `Chưa có dữ liệu tuần trước. Tuần này: ${nowPct}%`;
+            else if (nowPct >= pastPct && nowPct > 0) statusText = `<span style="color:var(--success)"><i class="fas fa-arrow-up"></i> Bạn đang giữ vững phong độ tốt hơn tuần trước (${nowPct}% vs ${pastPct}%)</span>`;
+            else statusText = `<span style="color:var(--danger)"><i class="fas fa-arrow-down"></i> Tỷ lệ hoàn thành đang thấp hơn tuần trước (${nowPct}% vs ${pastPct}%)</span>`;
+            
+            document.getElementById('ghost-status-text').innerHTML = statusText;
+        }
+
         function saveTemplate() {
-            if(confirm("Lưu lịch trình hiện tại làm 'Bản Mẫu' cố định cho các tuần sau?")) {
+            if(confirm("Lưu lịch trình hiện tại làm 'Bản Mẫu' cố định cho các tuần tiếp theo?")) {
                 let templateData = JSON.parse(JSON.stringify(scheduleData));
                 for(let i=0; i<7; i++) {
-                    templateData[i].forEach(t => {
-                        t.completed = false;
-                        t.rolledOver = false;
-                        t.originalDay = null;
-                    });
+                    templateData[i].forEach(t => { t.completed = false; t.rolledOver = false; t.originalDay = null; t.locked = false; t.missed = false; });
                 }
                 localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateData));
-                alert("Đã lưu Bản Mẫu thành công! Bệ hạ có thể dùng nút 'Tuần Mới' để khôi phục lại lịch này bất cứ lúc nào.");
+                alert("Đã lưu Bản Mẫu lịch trình thành công!");
             }
         }
 
-        // --- VÁ LỖI LOGIC: BẤM TUẦN MỚI THÌ DỒN VIỆC CŨ SANG HÔM NAY ---
         function resetWeek() {
             const template = localStorage.getItem(TEMPLATE_KEY);
-            let todayIndex = getRealDayIndex(); // Lấy ngày hôm nay làm điểm tập kết
+            let todayIndex = getRealDayIndex(); 
 
-            if (template) {
-                if(confirm("Bệ hạ có chắc chắn muốn bắt đầu Tuần Mới? Lịch sẽ được khôi phục theo Bản Mẫu, và các việc CHƯA XONG của tuần cũ sẽ được dời sang hôm nay.")) {
-                    
-                    // 1. Gom toàn bộ việc chưa xong
-                    let pendingTasks = [];
-                    for(let i=0; i<7; i++) {
-                        scheduleData[i].forEach(t => {
-                            if(!t.completed) {
-                                pendingTasks.push({
-                                    ...t,
-                                    id: generateId(),
-                                    rolledOver: true,
-                                    originalDay: t.originalDay || DAYS_OF_WEEK[i]
-                                });
-                            }
-                        });
-                    }
-
-                    // 2. Khôi phục từ mẫu
-                    scheduleData = JSON.parse(template);
-                    
-                    // 3. Dồn việc chưa xong vào ngày hôm nay
-                    if(pendingTasks.length > 0) {
-                        scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
-                    }
-
-                    saveData();
-                    alert(`Đã khôi phục Tuần Mới! Có ${pendingTasks.length} việc tồn đọng được dời sang ${DAYS_OF_WEEK[todayIndex]}.`);
+            if(confirm("Khởi tạo tuần học mới? Tiến độ sẽ được làm mới. Công việc CHƯA XONG của tuần cũ sẽ tự động chuyển sang hôm nay.")) {
+                systemData.lastWeekCompleted = systemData.currentWeekCompleted;
+                systemData.lastWeekTotal = systemData.currentWeekTotal;
+                
+                let pendingTasks = [];
+                for(let i=0; i<7; i++) {
+                    scheduleData[i].forEach(t => {
+                        if(!t.completed && !t.locked && !t.missed) {
+                            pendingTasks.push({ ...t, id: generateId(), rolledOver: true, originalDay: t.originalDay || DAYS_OF_WEEK[i] });
+                        }
+                    });
                 }
-            } else {
-                if(confirm("Bệ hạ chưa lưu Bản Mẫu nào. Hệ thống sẽ bỏ đánh dấu toàn bộ công việc và dồn các việc chưa xong về hôm nay. Tiếp tục?")) {
-                    
-                    let pendingTasks = [];
-                    for(let i=0; i<7; i++) {
-                        scheduleData[i] = scheduleData[i].filter(t => {
-                            if (!t.completed) {
-                                pendingTasks.push({
-                                    ...t,
-                                    id: generateId(),
-                                    rolledOver: true,
-                                    originalDay: t.originalDay || DAYS_OF_WEEK[i]
-                                });
-                                return false; // Lấy ra để dời đi
-                            }
-                            // Việc đã xong thì uncheck và giữ nguyên vị trí
-                            t.completed = false;
-                            t.rolledOver = false;
-                            t.originalDay = null;
-                            return true;
-                        });
-                    }
-                    
-                    if(pendingTasks.length > 0) {
-                        scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
-                    }
 
-                    saveData();
-                    alert(`Đã làm mới tuần! Có ${pendingTasks.length} việc tồn đọng được dời sang ${DAYS_OF_WEEK[todayIndex]}.`);
-                }
+                if (template) { scheduleData = JSON.parse(template); } 
+                else { for(let i=0; i<7; i++) scheduleData[i] = []; }
+
+                if(pendingTasks.length > 0) scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
+                
+                saveAllData();
+                alert(`Đã thiết lập Tuần Mới thành công!`);
             }
         }
 
-        // --- KẾT THÚC NGÀY (CHỐT SỔ & DỜI VIỆC) ---
+        function toggleComplete(dayIndex, taskId) {
+            const task = scheduleData[dayIndex].find(t => t.id === taskId);
+            if (task.locked || task.missed) return; 
+
+            task.completed = !task.completed;
+            if (task.completed) addTuVi(10); else addTuVi(-10);
+            saveAllData();
+        }
+
         function finishDay(dayIndex) {
             const tasks = scheduleData[dayIndex];
-            const incompleteTasks = tasks.filter(t => !t.completed);
+            const incompleteTasks = tasks.filter(t => !t.completed && !t.missed);
             const completedTasks = tasks.filter(t => t.completed);
 
             if (incompleteTasks.length === 0) {
-                alert("Tuyệt vời! Bệ hạ đã hoàn thành xuất sắc toàn bộ mục tiêu trong ngày. Khởi động pháo hoa!");
+                const alreadyLocked = tasks.length > 0 && tasks.every(t => t.locked);
+                if (alreadyLocked) { alert("Bạn đã xác nhận hoàn thành ngày này rồi!"); return; }
+
+                systemData.streak += 1;
+                if (systemData.streak > systemData.highestStreak) systemData.highestStreak = systemData.streak;
+                
+                let msg = `Hoàn thành xuất sắc toàn bộ mục tiêu! Bạn đang giữ chuỗi kỷ luật: ${systemData.streak} ngày. Thưởng +50 XP!`;
+                let bonus = 50;
+
+                if (systemData.wagerAmount > 0) {
+                    let winAmount = systemData.wagerAmount * 2;
+                    bonus += winAmount;
+                    msg += `\nHoàn thành Cam Kết: Nhận lại mức cược nhân đôi (+${winAmount} XP)!`;
+                    systemData.wagerAmount = 0; 
+                }
+
+                alert(msg);
+                addTuVi(bonus);
+                tasks.forEach(t => t.locked = true);
                 runBigFireworks(); 
             } else {
+                let msg = `CẢNH BÁO KỶ LUẬT: Có ${incompleteTasks.length} công việc chưa hoàn thành sẽ bị chuyển sang ngày tiếp theo.`;
+                
+                if (systemData.streak > 0) { msg += `\n🔥 Chuỗi kỷ luật đã bị hủy về 0!`; systemData.streak = 0; }
+                
+                let bloodTax = Math.floor(systemData.points * 0.1);
+                if (bloodTax > 0) {
+                    systemData.points -= bloodTax;
+                    msg += `\nPhạt lơ là nhiệm vụ: Trừ ${bloodTax} XP (10% tổng điểm hiện có)!`;
+                }
+
+                if (systemData.wagerAmount > 0) {
+                    msg += `\nThất bại Cam Kết: Hệ thống thu hồi ${systemData.wagerAmount} XP đã cược!`;
+                    systemData.wagerAmount = 0;
+                }
+
+                alert(msg);
+                
                 const nextDayIndex = (dayIndex + 1) % 7; 
                 incompleteTasks.forEach(task => {
-                    scheduleData[nextDayIndex].push({
-                        ...task,
-                        id: generateId(), 
-                        rolledOver: true,
-                        originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] 
-                    });
+                    scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] });
+                    task.missed = true; task.locked = true;
                 });
-                scheduleData[dayIndex] = completedTasks;
-                alert(`Đã chốt sổ ngày ${DAYS_OF_WEEK[dayIndex]}! Có ${incompleteTasks.length} việc bị dời sang ${DAYS_OF_WEEK[nextDayIndex]}.`);
+                completedTasks.forEach(t => t.locked = true);
             }
-            saveData(); 
+            saveAllData(); 
         }
 
         function renderBoard() {
@@ -440,43 +645,48 @@
                 const completed = tasks.filter(t => t.completed).length;
                 const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100);
                 const isToday = index === today;
-                
+                const allLocked = total > 0 && tasks.every(t => t.locked || t.missed); 
+
                 let tasksHTML = tasks.map(task => {
                     const colorClass = `task-${task.color || 'default'}`;
                     const rolloverBadge = task.rolledOver ? `<span class="rollover-badge" title="Dời từ ${task.originalDay}"><i class="fas fa-share"></i> ${task.originalDay}</span>` : '';
-                    
+                    const lockedClass = task.locked ? 'locked' : '';
+                    const disableCheck = task.locked || task.missed ? 'disabled' : '';
+                    const actionButtons = task.locked || task.missed ? '' : `
+                        <div class="task-actions"><button class="btn-icon" onclick="openModal(${index}, '${task.id}')"><i class="fas fa-pen"></i></button><button class="btn-icon delete" onclick="deleteTask(${index}, '${task.id}')"><i class="fas fa-trash"></i></button></div>`;
+                    const missedClass = task.missed ? 'missed-task' : '';
+                    const missedLabel = task.missed ? `<span class="missed-badge"><i class="fas fa-exclamation-circle"></i> Trì hoãn</span>` : '';
+
                     return `
-                        <div class="task-item ${task.completed ? 'completed' : ''} ${colorClass}">
-                            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index}, '${task.id}')">
+                        <div class="task-item ${task.completed ? 'completed' : ''} ${colorClass} ${lockedClass} ${missedClass}">
+                            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} ${disableCheck} onchange="toggleComplete(${index}, '${task.id}')">
                             <div class="task-content">
-                                <div class="task-time">${task.time ? `<i class="far fa-clock"></i> ${task.time}` : ``} ${rolloverBadge}</div>
+                                <div class="task-time">${task.time ? `<i class="far fa-clock"></i> ${task.time}` : ``} ${rolloverBadge} ${missedLabel}</div>
                                 <div class="task-desc">${task.text}</div>
                             </div>
-                            <div class="task-actions">
-                                <button class="btn-icon" onclick="openModal(${index}, '${task.id}')" title="Sửa"><i class="fas fa-pen"></i></button>
-                                <button class="btn-icon delete" onclick="deleteTask(${index}, '${task.id}')" title="Xóa"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
+                            ${actionButtons}
+                        </div>`;
                 }).join('');
 
                 if(tasks.length === 0) tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
 
-                const finishBtn = (total > 0) ? `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-flag-checkered"></i> Kết thúc ngày</button>` : '';
+                let finishBtn = '';
+                if (total > 0 && !allLocked) {
+                    finishBtn = `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`;
+                } else if (allLocked) {
+                    if (tasks.every(t => !t.missed)) finishBtn = `<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Hoàn thành xuất sắc</div>`;
+                    else finishBtn = `<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px; padding: 12px; border: 2px dashed var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.05); line-height: 1.4;"><i class="fas fa-times-circle"></i><br>NHIỆM VỤ TỒN ĐỌNG<br><span style="font-size: 0.85rem; font-weight: 500; opacity: 0.9;">Hãy nỗ lực hoàn thành tốt hơn vào ngày mai!</span></div>`;
+                }
 
                 board.innerHTML += `
                     <div class="day-column" id="col-${index}" ${isToday ? 'style="border: 2px solid var(--primary);"' : ''}>
                         <div class="day-header">
                             <div class="day-title">${dayName} ${isToday ? '<span class="today-badge">Hôm nay</span>' : ''}</div>
-                            <div class="progress-container">
-                                <div class="progress-text"><span>Tiến độ</span><span>${completed}/${total} (${progressPct}%)</span></div>
-                                <div class="progress-track"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
-                            </div>
+                            <div class="progress-container"><div class="progress-text"><span>Tiến độ</span><span>${completed}/${total} (${progressPct}%)</span></div><div class="progress-track"><div class="progress-fill" style="width: ${progressPct}%"></div></div></div>
                         </div>
                         <div class="task-list">${tasksHTML}</div>
-                        <div class="day-footer"><button class="btn-add" onclick="openModal(${index})"><i class="fas fa-plus"></i> Thêm việc</button>${finishBtn}</div>
-                    </div>
-                `;
+                        <div class="day-footer">${!allLocked ? `<button class="btn-add" onclick="openModal(${index})"><i class="fas fa-plus"></i> Thêm công việc</button>` : ''} ${finishBtn}</div>
+                    </div>`;
             });
             
             if(!window.scrolledToToday) {
@@ -486,64 +696,197 @@
         }
 
         function openModal(dayIndex, taskId = null) {
-            document.getElementById('task-day-index').value = dayIndex;
-            document.getElementById('task-id').value = taskId || '';
-            
+            document.getElementById('task-day-index').value = dayIndex; document.getElementById('task-id').value = taskId || '';
             if (taskId) {
-                document.getElementById('modal-title').innerText = "Chỉnh sửa công việc";
                 const task = scheduleData[dayIndex].find(t => t.id === taskId);
-                document.getElementById('task-desc').value = task.text;
-                document.getElementById('task-time').value = task.time || '';
+                document.getElementById('task-desc').value = task.text; document.getElementById('task-time').value = task.time || '';
                 document.querySelector(`input[name="task-color"][value="${task.color || 'default'}"]`).checked = true;
             } else {
-                document.getElementById('modal-title').innerText = "Thêm công việc mới";
-                document.getElementById('task-desc').value = '';
-                document.getElementById('task-time').value = '';
-                document.getElementById('color-blue').checked = true;
+                document.getElementById('task-desc').value = ''; document.getElementById('task-time').value = ''; document.getElementById('color-blue').checked = true;
             }
-            document.getElementById('task-modal').style.display = 'flex';
-            document.getElementById('task-desc').focus();
+            document.getElementById('task-modal').style.display = 'flex'; document.getElementById('task-desc').focus();
         }
-
         function closeModal() { document.getElementById('task-modal').style.display = 'none'; }
-
         function saveTask() {
-            const dayIndex = document.getElementById('task-day-index').value;
-            const taskId = document.getElementById('task-id').value;
-            const text = document.getElementById('task-desc').value.trim();
-            const time = document.getElementById('task-time').value;
+            const dayIndex = document.getElementById('task-day-index').value; const taskId = document.getElementById('task-id').value;
+            const text = document.getElementById('task-desc').value.trim(); const time = document.getElementById('task-time').value;
             const color = document.querySelector('input[name="task-color"]:checked').value;
-
             if (!text) { alert("Vui lòng nhập tên công việc!"); return; }
 
             if (taskId) {
                 const task = scheduleData[dayIndex].find(t => t.id === taskId);
                 task.text = text; task.time = time; task.color = color;
             } else {
-                scheduleData[dayIndex].push({ id: generateId(), text: text, time: time, color: color, completed: false, rolledOver: false });
+                scheduleData[dayIndex].push({ id: generateId(), text: text, time: time, color: color, completed: false, rolledOver: false, locked: false, missed: false });
                 scheduleData[dayIndex].sort((a, b) => { if(!a.time) return 1; if(!b.time) return -1; return a.time.localeCompare(b.time); });
             }
-            saveData(); closeModal();
+            saveAllData(); closeModal();
         }
-
-        function toggleComplete(dayIndex, taskId) {
-            const task = scheduleData[dayIndex].find(t => t.id === taskId);
-            task.completed = !task.completed;
-            saveData();
-        }
-
         function deleteTask(dayIndex, taskId) {
-            if(confirm("Bạn có chắc chắn muốn xóa việc này?")) {
+            if(confirm("Bạn có chắc chắn muốn xóa nhiệm vụ này?")) {
+                const task = scheduleData[dayIndex].find(t => t.id === taskId);
+                if(task.completed && !task.locked) addTuVi(-10); 
                 scheduleData[dayIndex] = scheduleData[dayIndex].filter(t => t.id !== taskId);
-                saveData();
+                saveAllData();
             }
         }
+
+        let currentQuoteIndex = -1; 
+        function showRandomQuote() {
+            let idx; do { idx = Math.floor(Math.random() * quotes.length); } while (idx === currentQuoteIndex && quotes.length > 1);
+            currentQuoteIndex = idx; const q = quotes[idx];
+            const qEn = document.getElementById('q-en'); const qVi = document.getElementById('q-vi'); const qAu = document.getElementById('q-author');
+            qEn.style.opacity = '0'; qVi.style.opacity = '0'; qAu.style.opacity = '0';
+            setTimeout(() => {
+                qEn.innerText = `"${q.en}"`; qVi.innerText = `"${q.vi}"`; qAu.innerText = `- ${q.author}`;
+                qEn.style.opacity = '1'; qVi.style.opacity = '1'; qAu.style.opacity = '1';
+            }, 500);
+        }
+
+        let zenTimer = null; let timeLeft = 25 * 60; let isTimerRunning = false; let isWorkSession = true; let WORK_TIME = 25 * 60; 
+        let targetEndTime = 0; let tuViEarned = 0; 
+        let afkTriggered = false; let afkCountdown = null; let afkTimeVal = 15;
+
+        function toggleZenMode() {
+            const overlay = document.getElementById('zen-overlay');
+            const mainBoard = document.getElementById('main-board');
+            if (overlay.classList.contains('active')) { 
+                overlay.classList.remove('active'); mainBoard.style.filter = 'blur(0)'; 
+            } else { 
+                showRandomQuote(); overlay.classList.add('active'); mainBoard.style.filter = 'blur(10px)'; 
+            }
+        }
+        
+        function startTimer() {
+            const btn = document.getElementById('btn-zen-start');
+            const barContainer = document.getElementById('zen-energy-bar');
+            
+            if (isTimerRunning) {
+                clearInterval(zenTimer); isTimerRunning = false; btn.innerText = "Tiếp tục";
+                document.getElementById('zen-status').innerText = "Đã tạm dừng"; document.getElementById('zen-timer').classList.remove('ticking');
+                barContainer.classList.remove('active'); return; 
+            }
+
+            if(timeLeft === 25*60 && isWorkSession && tuViEarned === 0) {
+                showRandomQuote(); afkTriggered = false; 
+            }
+
+            isTimerRunning = true; btn.innerText = "Tạm dừng";
+            document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
+            
+            if (isWorkSession) {
+                 document.getElementById('zen-status').innerText = "Đang trong phiên tập trung..."; document.getElementById('zen-status').style.color = "white";
+                 barContainer.classList.remove('break-mode'); 
+            } else {
+                 document.getElementById('zen-status').innerText = "Đang nghỉ ngơi..."; document.getElementById('zen-status').style.color = "#10b981";
+                 barContainer.classList.add('break-mode'); 
+            }
+
+            targetEndTime = Date.now() + (timeLeft * 1000);
+
+            zenTimer = setInterval(() => {
+                const now = Date.now();
+                timeLeft = Math.max(0, Math.ceil((targetEndTime - now) / 1000));
+                
+                if (isWorkSession && !afkTriggered && timeLeft < (20*60) && timeLeft > (5*60)) {
+                    if (Math.random() < 0.005) triggerAFK();
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking');
+                    document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
+                    
+                    if (isWorkSession) {
+                        if(25 - tuViEarned > 0) addTuVi(25 - tuViEarned);
+                        runBigFireworks(); playRealisticBoom(); addTuVi(5); 
+                        document.getElementById('zen-status').innerText = "Phiên học tập hoàn tất!";
+                        document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-break-options').style.display = 'flex'; 
+                    } else {
+                        playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
+                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ! Quay lại nào."; document.getElementById('zen-status').style.color = "white"; 
+                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; 
+                        document.getElementById('zen-energy-fill').style.width = '0%'; updateTimerDisplay();
+                    }
+                    return;
+                }
+                
+                if(isWorkSession) {
+                    const minutesPassed = Math.floor((WORK_TIME - timeLeft) / 60);
+                    if (minutesPassed > tuViEarned) { addTuVi(minutesPassed - tuViEarned); tuViEarned = minutesPassed; showRandomQuote(); }
+                }
+                document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`;
+                updateTimerDisplay();
+            }, 500); 
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isTimerRunning && isWorkSession) {
+                clearInterval(zenTimer); isTimerRunning = false;
+                document.getElementById('btn-zen-start').innerText = "Tiếp tục";
+                document.getElementById('zen-timer').classList.remove('ticking');
+                document.getElementById('zen-energy-bar').classList.remove('active');
+                
+                alert("🚨 CẢNH BÁO MẤT TẬP TRUNG: Phát hiện bạn vừa rời khỏi không gian học thuật!\nĐồng hồ đã bị dừng. Phạt 20 XP!");
+                addTuVi(-20);
+                document.getElementById('zen-status').innerText = "Tạm khóa do xao nhãng";
+                document.getElementById('zen-status').style.color = "var(--danger)";
+            }
+        });
+
+        function triggerAFK() {
+            afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex';
+            afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal;
+            afkCountdown = setInterval(() => {
+                afkTimeVal--; document.getElementById('afk-timer').innerText = afkTimeVal;
+                if(afkTimeVal <= 0) { clearInterval(afkCountdown); afkFail(); }
+            }, 1000);
+        }
+
+        function afkSuccess() { clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; }
+        function afkFail() {
+            document.getElementById('afk-overlay').style.display = 'none'; resetTimer();
+            alert("⏰ THẤT BẠI: Bạn đã không phản hồi trong 15 giây! Phiên tập trung bị hủy bỏ, hệ thống phạt 30 XP.");
+            addTuVi(-30);
+        }
+        
+        function startBreak(minutes) {
+            isWorkSession = false; WORK_TIME = minutes * 60; timeLeft = WORK_TIME; tuViEarned = 0;
+            document.getElementById('zen-break-options').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex';
+            document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng";
+            startTimer(); 
+        }
+
+        function resetTimer() {
+            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
+            document.getElementById('zen-status').innerText = "Sẵn sàng học tập"; document.getElementById('zen-status').style.color = "white";
+            document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active');
+            document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex';
+            document.getElementById('zen-break-options').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%';
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() { 
+            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; 
+            document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; 
+        }
+
+        function playChime() { const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return; const ctx = new AudioContext(); const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.frequency.setValueAtTime(880, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 1.5); gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 1.5); }
+        function playRealisticBoom() { const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return; const ctx = new AudioContext(); const t = ctx.currentTime; const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0); let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0; for (let i=0; i<bufferSize; i++) { const w = Math.random() * 2 - 1; b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520; b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980; data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362; data[i] *= 0.11; b6 = w * 0.115926; } const noise = ctx.createBufferSource(); noise.buffer = buffer; const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 800; filter.frequency.exponentialRampToValueAtTime(100, t + 0.3); const gain = ctx.createGain(); gain.gain.setValueAtTime(1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5); noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t + 2); }
+        
+        let fireworks; 
+        function initFireworks() { fireworks = new Fireworks.default(document.getElementById('fireworks-container'), { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); }
+        function runBigFireworks() { if (!fireworks) initFireworks(); fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); }
+
+        document.addEventListener('DOMContentLoaded', () => { loadAllData(); updateTimerDisplay(); });
 
         function exportExcel() {
             let rows = [["Ngày", "Khung Giờ", "Công việc", "Phân loại", "Trạng thái", "Ghi chú"]];
             DAYS_OF_WEEK.forEach((day, index) => {
                 const tasks = scheduleData[index] || [];
-                tasks.forEach(t => { rows.push([day, t.time || "", t.text, t.color, t.completed ? "Xong" : "Chưa", t.rolledOver ? `Dời từ ${t.originalDay}` : ""]); });
+                tasks.forEach(t => { 
+                    let status = "Chưa"; if(t.completed) status = "Xong"; if(t.missed) status = "Bỏ lỡ";
+                    rows.push([day, t.time || "", t.text, t.color, status, t.rolledOver ? `Dời từ ${t.originalDay}` : ""]); 
+                });
             });
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(rows);
             ws['!cols'] = [{wch: 10}, {wch: 10}, {wch: 40}, {wch: 10}, {wch: 10}, {wch: 15}];
@@ -566,246 +909,22 @@
                         if(dayIndex !== -1) {
                             newData[dayIndex].push({
                                 id: generateId(), text: row["Công việc"] || "", time: row["Khung Giờ"] || "", color: row["Phân loại"] || "default",
-                                completed: row["Trạng thái"] === "Xong", rolledOver: !!row["Ghi chú"], originalDay: row["Ghi chú"] ? row["Ghi chú"].replace("Dời từ ", "") : null
+                                completed: row["Trạng thái"] === "Xong", rolledOver: !!row["Ghi chú"], originalDay: row["Ghi chú"] ? row["Ghi chú"].replace("Dời từ ", "") : null,
+                                locked: row["Trạng thái"] === "Xong" || row["Trạng thái"] === "Bỏ lỡ", missed: row["Trạng thái"] === "Bỏ lỡ"
                             });
                         }
                     });
-                    scheduleData = newData; saveData(); alert("Khôi phục thành công!");
+                    
+                    // Lưu lại Storage KEY mới để tránh lỗi xung đột với dữ liệu cũ
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+                    scheduleData = newData; 
+                    saveAllData(); 
+                    alert("Khôi phục thành công! Giao diện đã được làm mới.");
                 } catch (err) { alert("Lỗi đọc file Excel."); }
                 event.target.value = '';
             };
             reader.readAsArrayBuffer(file);
         }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            document.getElementById('btn-install').style.display = 'flex';
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') document.getElementById('btn-install').style.display = 'none';
-                    deferredPrompt = null;
-                });
-            } else {
-                alert("Vui lòng ấn vào menu trình duyệt và chọn 'Thêm vào màn hình chính' để cài đặt App.");
-            }
-        }
-        
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error', err)); });
-        }
-
-
-        // =========================================
-        // SCRIPT 2: TU TIÊN ĐẠO QUÁN LOGIC
-        // =========================================
-
-        const REALMS = [ 
-            { name: "Phàm Nhân", min: 0, color: {r:200, g:200, b:200} }, 
-            { name: "Luyện Khí Kỳ", min: 25, color: {r:0, g:242, b:255} }, 
-            { name: "Trúc Cơ Kỳ", min: 100, color: {r:0, g:255, b:127} }, 
-            { name: "Kim Đan Kỳ", min: 300, color: {r:255, g:215, b:0} }, 
-            { name: "Nguyên Anh Kỳ", min: 1000, color: {r:188, g:19, b:254} }, 
-            { name: "Hóa Thần Kỳ", min: 3000, color: {r:255, g:50, b:50} },
-            { name: "Đại Thừa Kỳ", min: 10000, color: {r:255, g:0, b:255} }
-        ];
-        let cultivationData = { points: 0, generation: 1 };
-        const MAX_POINTS = 10000; 
-
-        function loadCultivation() { 
-            try { const saved = localStorage.getItem('mixed_tuvi'); if (saved) cultivationData = JSON.parse(saved); } catch(e) {}
-            if (!cultivationData.generation) cultivationData.generation = 1; 
-            updateRankDisplay(); 
-        }
-
-        function saveCultivation() { localStorage.setItem('mixed_tuvi', JSON.stringify(cultivationData)); }
-
-        function getRealmInfo(points) { 
-            let current = REALMS[0]; let next = REALMS[1]; 
-            for (let i = 0; i < REALMS.length; i++) { if (points >= REALMS[i].min) { current = REALMS[i]; next = REALMS[i+1]; } } 
-            return { current, next }; 
-        }
-
-        function updateRankDisplay() { 
-            const { current, next } = getRealmInfo(cultivationData.points); 
-            const genPrefix = cultivationData.generation > 1 ? `[Kiếp ${cultivationData.generation}] ` : ""; 
-            const rankBadge = document.getElementById('zen-rank');
-            rankBadge.innerText = genPrefix + current.name; 
-            const colorStr = `rgb(${current.color.r},${current.color.g},${current.color.b})`;
-            rankBadge.style.color = colorStr; rankBadge.style.borderColor = colorStr; 
-            
-            let percent = 0; let progressText = ""; 
-            if (next) { 
-                percent = ((cultivationData.points - current.min) / (next.min - current.min)) * 100; 
-                progressText = `${cultivationData.points} / ${next.min} Tu Vi`; 
-                document.getElementById('btn-rebirth').style.display = 'none'; 
-            } else { 
-                percent = Math.min(100, ((cultivationData.points - current.min) / (MAX_POINTS - current.min)) * 100); 
-                progressText = `${cultivationData.points} / ${MAX_POINTS} (Đỉnh Phong)`; 
-                document.getElementById('btn-rebirth').style.display = (cultivationData.points >= MAX_POINTS) ? 'block' : 'none';
-                if (cultivationData.points >= MAX_POINTS) percent = 100; 
-            } 
-            document.getElementById('zen-xp-fill').style.width = `${percent}%`; 
-            document.getElementById('zen-xp-text').innerText = progressText; 
-            
-            if(isWorkSession) document.getElementById('zen-energy-fill').style.background = `linear-gradient(90deg, #991b1b, ${colorStr}, #f59e0b)`;
-        }
-
-        function addTuVi(amount) { 
-            const oldRank = getRealmInfo(cultivationData.points).current.name; 
-            cultivationData.points += amount; saveCultivation(); updateRankDisplay(); 
-            if (getRealmInfo(cultivationData.points).current.name !== oldRank) { 
-                alert(`Chúc mừng! Bệ hạ đã đột phá lên ${getRealmInfo(cultivationData.points).current.name}!`); 
-                runBigFireworks(); playRealisticBoom(); 
-            } 
-        }
-
-        function triggerRebirth() { 
-            if(confirm("Bệ hạ có chắc chắn muốn CHUYỂN SINH? Tu vi sẽ về 0, nhưng sẽ nhận được danh hiệu [Kiếp " + (cultivationData.generation + 1) + "] và Sức mạnh tia sét tăng cường!")) { 
-                cultivationData.points = 0; cultivationData.generation += 1; saveCultivation();
-                updateRankDisplay(); runBigFireworks(); playRealisticBoom(); alert("Chuyển sinh thành công!"); 
-            } 
-        }
-
-        const quotes = [
-            { en: "Education is the most powerful weapon which you can use to change the world.", vi: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.", author: "Nelson Mandela" },
-            { en: "The only place where success comes before work is in the dictionary.", vi: "Nơi duy nhất thành công đến trước làm việc là trong từ điển.", author: "Vidal Sassoon" },
-            { en: "It does not matter how slowly you go as long as you do not stop.", vi: "Chậm bao nhiêu không quan trọng, miễn là đừng dừng lại.", author: "Confucius" },
-            { en: "Genius is 1% talent and 99% percent hard work.", vi: "Thiên tài chỉ có 1% là năng khiếu, 99% là khổ luyện.", author: "Albert Einstein" },
-            { en: "Failure is the opportunity to begin again more intelligently.", vi: "Thất bại là cơ hội để bắt đầu lại một cách thông minh hơn.", author: "Henry Ford" }
-        ];
-
-        let currentQuoteIndex = -1; 
-        function showRandomQuote() {
-            let idx; do { idx = Math.floor(Math.random() * quotes.length); } while (idx === currentQuoteIndex && quotes.length > 1);
-            currentQuoteIndex = idx; const q = quotes[idx];
-            
-            const qEn = document.getElementById('q-en');
-            const qVi = document.getElementById('q-vi');
-            const qAu = document.getElementById('q-author');
-            
-            qEn.style.opacity = '0'; qVi.style.opacity = '0'; qAu.style.opacity = '0';
-            
-            setTimeout(() => {
-                qEn.innerText = `"${q.en}"`; qVi.innerText = `"${q.vi}"`; qAu.innerText = `- ${q.author}`;
-                qEn.style.opacity = '1'; qVi.style.opacity = '1'; qAu.style.opacity = '1';
-            }, 500);
-        }
-
-        let zenTimer = null; let timeLeft = 25 * 60; let isTimerRunning = false; let isWorkSession = true; let WORK_TIME = 25 * 60; 
-        let targetEndTime = 0; let tuViEarned = 0; 
-        
-        function toggleZenMode() {
-            const overlay = document.getElementById('zen-overlay');
-            const mainBoard = document.getElementById('main-board');
-            if (overlay.classList.contains('active')) { 
-                overlay.classList.remove('active'); 
-                mainBoard.style.filter = 'blur(0)'; 
-            } else { 
-                showRandomQuote(); 
-                overlay.classList.add('active'); 
-                mainBoard.style.filter = 'blur(10px)'; 
-            }
-        }
-        
-        function startTimer() {
-            const btn = document.getElementById('btn-zen-start');
-            const barContainer = document.getElementById('zen-energy-bar');
-            
-            if (isTimerRunning) {
-                clearInterval(zenTimer); isTimerRunning = false; btn.innerText = "Tiếp tục";
-                document.getElementById('zen-status').innerText = "Đang tạm dừng"; document.getElementById('zen-timer').classList.remove('ticking');
-                barContainer.classList.remove('active'); return; 
-            }
-
-            if(timeLeft === 25*60 && isWorkSession && tuViEarned === 0) showRandomQuote(); 
-
-            isTimerRunning = true; btn.innerText = "Tạm dừng";
-            document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
-            
-            if (isWorkSession) {
-                 document.getElementById('zen-status').innerText = "Đang tập trung..."; document.getElementById('zen-status').style.color = "white";
-                 document.getElementById('zen-energy-fill').style.background = "linear-gradient(90deg, #991b1b, #dc2626, #f59e0b)";
-                 barContainer.classList.remove('break-mode'); 
-            } else {
-                 document.getElementById('zen-status').innerText = "Đang nghỉ ngơi..."; document.getElementById('zen-status').style.color = "#10b981";
-                 document.getElementById('zen-energy-fill').style.background = "linear-gradient(90deg, #064e3b, #059669, #34d399)"; 
-                 barContainer.classList.add('break-mode'); 
-            }
-
-            targetEndTime = Date.now() + (timeLeft * 1000);
-
-            zenTimer = setInterval(() => {
-                const now = Date.now();
-                timeLeft = Math.max(0, Math.ceil((targetEndTime - now) / 1000));
-                
-                if (timeLeft <= 0) {
-                    clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking');
-                    document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
-                    
-                    if (isWorkSession) {
-                        if(25 - tuViEarned > 0) addTuVi(25 - tuViEarned);
-                        runBigFireworks(); playRealisticBoom(); addTuVi(5); 
-                        document.getElementById('zen-status').innerText = "Đợt tu luyện hoàn tất!";
-                        document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-break-options').style.display = 'flex'; 
-                    } else {
-                        playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; 
-                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ! Quay lại nào."; document.getElementById('zen-status').style.color = "white"; 
-                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; 
-                        document.getElementById('zen-energy-fill').style.width = '0%'; updateTimerDisplay();
-                    }
-                    return;
-                }
-                
-                if(isWorkSession) {
-                    const minutesPassed = Math.floor((WORK_TIME - timeLeft) / 60);
-                    if (minutesPassed > tuViEarned) { addTuVi(minutesPassed - tuViEarned); tuViEarned = minutesPassed; showRandomQuote(); }
-                }
-                
-                document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`;
-                updateTimerDisplay();
-            }, 500); 
-        }
-        
-        function startBreak(minutes) {
-            isWorkSession = false; WORK_TIME = minutes * 60; timeLeft = WORK_TIME; tuViEarned = 0;
-            document.getElementById('zen-break-options').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex';
-            document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng";
-            startTimer(); 
-        }
-
-        function resetTimer() {
-            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0;
-            document.getElementById('zen-status').innerText = "Sẵn sàng tu luyện"; document.getElementById('zen-status').style.color = "white";
-            document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active');
-            document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex';
-            document.getElementById('zen-break-options').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%';
-            updateTimerDisplay();
-        }
-        
-        function updateTimerDisplay() { 
-            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; 
-            document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; 
-        }
-
-        function playChime() { const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return; const ctx = new AudioContext(); const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.frequency.setValueAtTime(880, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 1.5); gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 1.5); }
-        function playRealisticBoom() { const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return; const ctx = new AudioContext(); const t = ctx.currentTime; const bufferSize = ctx.sampleRate * 2; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0); let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0; for (let i=0; i<bufferSize; i++) { const w = Math.random() * 2 - 1; b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520; b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980; data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362; data[i] *= 0.11; b6 = w * 0.115926; } const noise = ctx.createBufferSource(); noise.buffer = buffer; const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 800; filter.frequency.exponentialRampToValueAtTime(100, t + 0.3); const gain = ctx.createGain(); gain.gain.setValueAtTime(1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5); noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t + 2); }
-        
-        let fireworks; 
-        function initFireworks() { fireworks = new Fireworks.default(document.getElementById('fireworks-container'), { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); }
-        function runBigFireworks() { if (!fireworks) initFireworks(); fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); }
-
-        // --- KHỞI TẠO TỔNG ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-            loadData();
-            loadCultivation();
-            updateTimerDisplay();
-        });
     </script>
 </body>
 </html>
