@@ -9,7 +9,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e293b">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/000000/calendar--v1.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +19,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
 
     <style>
-        /* --- CHẾ ĐỘ LIGHT MODE --- */
         :root {
             --bg-color: #f1f5f9; --text-main: #1e293b; --text-muted: #64748b; --card-bg: #ffffff;
             --border-color: #e2e8f0; --primary: #2563eb; --primary-hover: #1d4ed8;
@@ -32,7 +30,6 @@
             --color-default: #f8fafc; --color-default-border: #e2e8f0;
         }
 
-        /* --- CHẾ ĐỘ DARK MODE --- */
         [data-theme="dark"] {
             --bg-color: #0f172a; --text-main: #f8fafc; --text-muted: #94a3b8; --card-bg: #1e293b;
             --border-color: #334155; --primary: #3b82f6; --primary-hover: #60a5fa;
@@ -46,8 +43,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; transition: background-color 0.3s, color 0.3s; }
 
-        /* --- HEADER --- */
-        .header { background: var(--card-bg); padding: 15px 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: background 0.3s; border-bottom: 1px solid var(--border-color); }
+        .header { background: var(--card-bg); padding: 15px 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: background 0.3s; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 15px;}
         .header-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-controls { display: flex; gap: 10px; flex-wrap: wrap; }
         
@@ -63,7 +59,6 @@
         .btn-zen { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; }
         .btn-zen:hover { transform: scale(1.05); }
 
-        /* --- BOARD --- */
         #main-board { transition: filter 0.3s; }
         .board { display: flex; gap: 20px; padding: 20px 30px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 80px); }
         .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: background 0.3s, border 0.3s; }
@@ -104,7 +99,6 @@
         .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
         .btn-add:hover { background: var(--border-color); color: var(--primary); border-color: var(--primary); }
 
-        /* --- MODAL TASK --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -123,29 +117,16 @@
         .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 
-        /* =========================================
-           PHẦN 2: GIAO DIỆN TU TIÊN ĐẠO QUÁN
-           ========================================= */
-        #zen-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(15, 23, 42, 0.95); z-index: 5000; 
-            display: none; flex-direction: column; align-items: center; justify-content: flex-start;
-            backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.5s ease; 
-            text-align: center; padding: 30px 20px; box-sizing: border-box; color: #e2e8f0; 
-            overflow-y: auto; 
-        }
+        /* PHẦN TU TIÊN ĐẠO QUÁN */
+        #zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: flex-start; backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.5s ease; text-align: center; padding: 30px 20px; box-sizing: border-box; color: #e2e8f0; overflow-y: auto; }
         #zen-overlay.active { display: flex; opacity: 1; }
         #fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5001; }
-
         .zen-app-container { width: 100%; max-width: 900px; z-index: 5002; display: flex; flex-direction: column; align-items: center; margin: auto; }
-
         .zen-btn-exit { position: absolute; top: 20px; right: 20px; background: transparent; border: none; font-size: 2rem; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; z-index: 6005; }
         .zen-btn-exit:hover { color: #ef4444; transform: rotate(90deg) scale(1.2); }
-
         .zen-timer { font-family: 'Black Ops One', cursive; font-size: clamp(5rem, 12vw, 8rem); color: #fff; letter-spacing: 5px; margin: 0 0 10px 0; text-shadow: 4px 4px 0px #000, 8px 8px 20px rgba(0,0,0,0.8); line-height: 1; }
         @keyframes timer-pulse-zen { 0% { filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)); transform: scale(1.02); } 100% { filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); transform: scale(1); } }
         .zen-timer.ticking { animation: timer-pulse-zen 1.5s infinite ease-in-out; }
-
         .zen-energy-bar-container { width: 100%; height: 14px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 10px 0 20px; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: visible; }
         .zen-energy-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #991b1b, #dc2626, #f59e0b); transition: width 0.5s linear; border-radius: 8px; box-shadow: 0 0 10px currentColor; position: relative; }
         
@@ -158,75 +139,26 @@
         .zen-xp-bar-container { width: 100%; max-width: 400px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
         .zen-xp-bar-fill { height: 100%; background: linear-gradient(90deg, #0ea5e9, #38bdf8); width: 0%; transition: width 0.5s ease-out; }
         .zen-xp-text { font-size: 0.9rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
-        
-        /* --- VÁ LỖI LED CHU VI (RGB SNAKE BORDER) --- */
-        .zen-quote-container { 
-            margin-top: 10px; max-width: 800px; width: 90%; padding: 25px 30px; 
-            border-radius: 12px; position: relative; 
-            background: #0f172a; /* Nền tối để LED nổi bật */
-            min-height: 120px; display: flex; flex-direction: column; justify-content: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            overflow: hidden; /* Cắt phần sáng thừa của viền */
-            border: 1px solid rgba(255,255,255,0.05); /* Viền mờ tàng hình */
-        }
-
-        /* 4 tia sáng đuổi nhau tạo thành chu vi */
+        .zen-quote-container { margin-top: 10px; max-width: 800px; width: 90%; padding: 25px 30px; border-radius: 12px; position: relative; background: #0f172a; min-height: 120px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .zen-quote-line { position: absolute; display: block; z-index: 1; pointer-events: none; }
-        
-        /* Cạnh Trên (Trái sang Phải) */
-        .zen-quote-line:nth-child(1) {
-            top: 0; left: -100%; width: 100%; height: 4px;
-            background: linear-gradient(90deg, transparent, #0ea5e9, #38bdf8);
-            box-shadow: 0 0 10px #38bdf8;
-            animation: led-top 2s linear infinite;
-            animation-delay: 0s;
-        }
+        .zen-quote-line:nth-child(1) { top: 0; left: -100%; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #0ea5e9, #38bdf8); box-shadow: 0 0 10px #38bdf8; animation: led-top 2s linear infinite; animation-delay: 0s; }
         @keyframes led-top { 0% { left: -100%; } 50%, 100% { left: 100%; } }
-
-        /* Cạnh Phải (Trên xuống Dưới) */
-        .zen-quote-line:nth-child(2) {
-            top: -100%; right: 0; width: 4px; height: 100%;
-            background: linear-gradient(180deg, transparent, #a855f7, #c084fc);
-            box-shadow: 0 0 10px #c084fc;
-            animation: led-right 2s linear infinite;
-            animation-delay: -1.5s; /* Dùng số âm để nó luôn chạy sẵn từ đầu */
-        }
+        .zen-quote-line:nth-child(2) { top: -100%; right: 0; width: 4px; height: 100%; background: linear-gradient(180deg, transparent, #a855f7, #c084fc); box-shadow: 0 0 10px #c084fc; animation: led-right 2s linear infinite; animation-delay: -1.5s; }
         @keyframes led-right { 0% { top: -100%; } 50%, 100% { top: 100%; } }
-
-        /* Cạnh Dưới (Phải sang Trái) */
-        .zen-quote-line:nth-child(3) {
-            bottom: 0; right: -100%; width: 100%; height: 4px;
-            background: linear-gradient(270deg, transparent, #f59e0b, #fbbf24);
-            box-shadow: 0 0 10px #fbbf24;
-            animation: led-bottom 2s linear infinite;
-            animation-delay: -1s;
-        }
+        .zen-quote-line:nth-child(3) { bottom: 0; right: -100%; width: 100%; height: 4px; background: linear-gradient(270deg, transparent, #f59e0b, #fbbf24); box-shadow: 0 0 10px #fbbf24; animation: led-bottom 2s linear infinite; animation-delay: -1s; }
         @keyframes led-bottom { 0% { right: -100%; } 50%, 100% { right: 100%; } }
-
-        /* Cạnh Trái (Dưới lên Trên) */
-        .zen-quote-line:nth-child(4) {
-            bottom: -100%; left: 0; width: 4px; height: 100%;
-            background: linear-gradient(360deg, transparent, #10b981, #34d399);
-            box-shadow: 0 0 10px #34d399;
-            animation: led-left 2s linear infinite;
-            animation-delay: -0.5s;
-        }
+        .zen-quote-line:nth-child(4) { bottom: -100%; left: 0; width: 4px; height: 100%; background: linear-gradient(360deg, transparent, #10b981, #34d399); box-shadow: 0 0 10px #34d399; animation: led-left 2s linear infinite; animation-delay: -0.5s; }
         @keyframes led-left { 0% { bottom: -100%; } 50%, 100% { bottom: 100%; } }
-
-        /* Chữ bên trong khung châm ngôn */
         .zen-quote-content { position: relative; z-index: 5; }
         .zen-quote-en { font-size: 1.2rem; font-style: italic; color: #cbd5e1; margin-bottom: 5px; font-family: 'Segoe UI', serif; transition: opacity 0.5s; }
         .zen-quote-vi { font-size: 1.1rem; color: #a5b4fc; font-weight: 600; margin-bottom: 8px; transition: opacity 0.5s; }
         .zen-quote-author { font-size: 0.9rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; text-align: right; transition: opacity 0.5s; }
-        
         .zen-status { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .zen-controls { display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .zen-btn-action:hover { background: #fff; color: #000; transform: translateY(-3px); }
-        
         .zen-mascot { font-size: 5rem; animation: mascot-idle 6s ease-in-out infinite, mascot-glow 4s infinite; margin-bottom: 5px; cursor: pointer; user-select: none; transition: 0.3s;}
         .zen-mascot:hover { transform: scale(1.2) rotate(-5deg); filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.8)); }
-        
         .zen-rebirth-btn { display: none; margin-top: 10px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: 2px solid #fecaca; color: white; padding: 10px 20px; border-radius: 30px; font-size: 1rem; font-weight: bold; cursor: pointer; animation: pulse-red 2s infinite; margin-bottom: 10px;}
 
         @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; } .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } }
@@ -246,11 +178,19 @@
                 <button class="btn btn-zen" onclick="toggleZenMode()">
                     <i class="fas fa-yin-yang"></i> Tu Luyện
                 </button>
-                <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">
-                    <i class="fas fa-file-import"></i> Nhập dữ liệu
+                
+                <button class="btn btn-outline" onclick="saveTemplate()" title="Lưu lịch hiện tại làm mẫu cố định">
+                    <i class="fas fa-bookmark"></i> Lưu Lịch Mẫu
                 </button>
-                <button class="btn btn-outline" onclick="exportExcel()">
-                    <i class="fas fa-file-export"></i> Xuất Excel
+                <button class="btn btn-primary" onclick="resetWeek()" title="Bắt đầu tuần mới (Khôi phục lịch mẫu)">
+                    <i class="fas fa-sync-alt"></i> Tuần Mới
+                </button>
+                
+                <button class="btn btn-outline" onclick="document.getElementById('import-file').click()" title="Nhập Excel">
+                    <i class="fas fa-file-import"></i>
+                </button>
+                <button class="btn btn-outline" onclick="exportExcel()" title="Xuất Excel">
+                    <i class="fas fa-file-export"></i>
                 </button>
                 <button class="btn" id="btn-install" onclick="installApp()">
                     <i class="fas fa-download"></i> Tải App
@@ -300,10 +240,8 @@
     </div>
 
     <div id="fireworks-container"></div>
-
     <div id="zen-overlay">
         <button class="zen-btn-exit zen-ui-layer" onclick="toggleZenMode()" title="Thoát Tu Luyện"><i class="fas fa-sign-out-alt"></i></button>
-        
         <div class="zen-app-container">
             <div class="zen-mascot" id="zen-mascot">👑</div>
             <div class="zen-rank-badge" id="zen-rank">Phàm Nhân</div>
@@ -321,11 +259,7 @@
             </div>
 
             <div class="zen-quote-container" id="zen-quote-box">
-                <span class="zen-quote-line"></span>
-                <span class="zen-quote-line"></span>
-                <span class="zen-quote-line"></span>
-                <span class="zen-quote-line"></span>
-                
+                <span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span>
                 <div class="zen-quote-content">
                     <div class="zen-quote-en" id="q-en">"Nhấn Bắt đầu để tĩnh tâm tu luyện."</div>
                     <div class="zen-quote-vi" id="q-vi">Đại đạo vô hình, kiên nhẫn tất thành.</div>
@@ -337,7 +271,6 @@
                 <button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button>
                 <button class="zen-btn-action" onclick="resetTimer()">Đặt lại</button>
             </div>
-            
             <div class="zen-controls" id="zen-break-options" style="display:none;">
                 <button class="zen-btn-action" style="background:rgba(16, 185, 129, 0.2); border-color:#10b981;" onclick="startBreak(5)">🍵 Nghỉ Ngắn (5p)</button>
                 <button class="zen-btn-action" style="background:rgba(59, 130, 246, 0.2); border-color:#3b82f6;" onclick="startBreak(15)">🎮 Nghỉ Dài (15p)</button>
@@ -374,6 +307,7 @@
 
         const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
         const STORAGE_KEY = "planner_data_v2";
+        const TEMPLATE_KEY = "planner_template_v1";
         let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
 
         function getRealDayIndex() { let d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
@@ -382,28 +316,117 @@
         function loadData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) scheduleData = JSON.parse(saved);
-            handleRollover(); 
             renderBoard();
         }
 
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData)); renderBoard(); }
 
-        function handleRollover() {
-            let hasRollover = false;
-            let today = getRealDayIndex();
-            if (today === 0) return; 
-
-            for (let i = 0; i < today; i++) {
-                let incompleteTasks = scheduleData[i].filter(task => !task.completed);
-                if (incompleteTasks.length > 0) {
-                    incompleteTasks.forEach(task => {
-                        scheduleData[today].push({ ...task, id: generateId(), rolledOver: true, originalDay: DAYS_OF_WEEK[i] });
+        // --- LƯU BẢN MẪU ---
+        function saveTemplate() {
+            if(confirm("Lưu lịch trình hiện tại làm 'Bản Mẫu' cố định cho các tuần sau?")) {
+                let templateData = JSON.parse(JSON.stringify(scheduleData));
+                for(let i=0; i<7; i++) {
+                    templateData[i].forEach(t => {
+                        t.completed = false;
+                        t.rolledOver = false;
+                        t.originalDay = null;
                     });
-                    scheduleData[i] = scheduleData[i].filter(task => task.completed);
-                    hasRollover = true;
+                }
+                localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateData));
+                alert("Đã lưu Bản Mẫu thành công! Bệ hạ có thể dùng nút 'Tuần Mới' để khôi phục lại lịch này bất cứ lúc nào.");
+            }
+        }
+
+        // --- VÁ LỖI LOGIC: BẤM TUẦN MỚI THÌ DỒN VIỆC CŨ SANG HÔM NAY ---
+        function resetWeek() {
+            const template = localStorage.getItem(TEMPLATE_KEY);
+            let todayIndex = getRealDayIndex(); // Lấy ngày hôm nay làm điểm tập kết
+
+            if (template) {
+                if(confirm("Bệ hạ có chắc chắn muốn bắt đầu Tuần Mới? Lịch sẽ được khôi phục theo Bản Mẫu, và các việc CHƯA XONG của tuần cũ sẽ được dời sang hôm nay.")) {
+                    
+                    // 1. Gom toàn bộ việc chưa xong
+                    let pendingTasks = [];
+                    for(let i=0; i<7; i++) {
+                        scheduleData[i].forEach(t => {
+                            if(!t.completed) {
+                                pendingTasks.push({
+                                    ...t,
+                                    id: generateId(),
+                                    rolledOver: true,
+                                    originalDay: t.originalDay || DAYS_OF_WEEK[i]
+                                });
+                            }
+                        });
+                    }
+
+                    // 2. Khôi phục từ mẫu
+                    scheduleData = JSON.parse(template);
+                    
+                    // 3. Dồn việc chưa xong vào ngày hôm nay
+                    if(pendingTasks.length > 0) {
+                        scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
+                    }
+
+                    saveData();
+                    alert(`Đã khôi phục Tuần Mới! Có ${pendingTasks.length} việc tồn đọng được dời sang ${DAYS_OF_WEEK[todayIndex]}.`);
+                }
+            } else {
+                if(confirm("Bệ hạ chưa lưu Bản Mẫu nào. Hệ thống sẽ bỏ đánh dấu toàn bộ công việc và dồn các việc chưa xong về hôm nay. Tiếp tục?")) {
+                    
+                    let pendingTasks = [];
+                    for(let i=0; i<7; i++) {
+                        scheduleData[i] = scheduleData[i].filter(t => {
+                            if (!t.completed) {
+                                pendingTasks.push({
+                                    ...t,
+                                    id: generateId(),
+                                    rolledOver: true,
+                                    originalDay: t.originalDay || DAYS_OF_WEEK[i]
+                                });
+                                return false; // Lấy ra để dời đi
+                            }
+                            // Việc đã xong thì uncheck và giữ nguyên vị trí
+                            t.completed = false;
+                            t.rolledOver = false;
+                            t.originalDay = null;
+                            return true;
+                        });
+                    }
+                    
+                    if(pendingTasks.length > 0) {
+                        scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
+                    }
+
+                    saveData();
+                    alert(`Đã làm mới tuần! Có ${pendingTasks.length} việc tồn đọng được dời sang ${DAYS_OF_WEEK[todayIndex]}.`);
                 }
             }
-            if (hasRollover) { alert("🔔 Hệ thống đã tự động dời các công việc chưa hoàn thành của ngày hôm trước sang hôm nay!"); saveData(); }
+        }
+
+        // --- KẾT THÚC NGÀY (CHỐT SỔ & DỜI VIỆC) ---
+        function finishDay(dayIndex) {
+            const tasks = scheduleData[dayIndex];
+            const incompleteTasks = tasks.filter(t => !t.completed);
+            const completedTasks = tasks.filter(t => t.completed);
+
+            if (incompleteTasks.length === 0) {
+                alert("Tuyệt vời! Bệ hạ đã hoàn thành xuất sắc toàn bộ mục tiêu trong ngày. Khởi động pháo hoa!");
+                runBigFireworks(); 
+            } else {
+                const nextDayIndex = (dayIndex + 1) % 7; 
+                incompleteTasks.forEach(task => {
+                    scheduleData[nextDayIndex].push({
+                        ...task,
+                        id: generateId(), 
+                        rolledOver: true,
+                        originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] 
+                    });
+                });
+                scheduleData[dayIndex] = completedTasks;
+                alert(`Đã chốt sổ ngày ${DAYS_OF_WEEK[dayIndex]}! Có ${incompleteTasks.length} việc bị dời sang ${DAYS_OF_WEEK[nextDayIndex]}.`);
+            }
+            saveData(); 
         }
 
         function renderBoard() {
@@ -439,7 +462,7 @@
 
                 if(tasks.length === 0) tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
 
-                const finishBtn = (total > 0 && total === completed) ? `<button class="btn btn-success" onclick="alert('Tuyệt vời! Bạn đã hoàn thành xuất sắc ngày hôm nay!')"><i class="fas fa-check-circle"></i> Ngày trọn vẹn</button>` : '';
+                const finishBtn = (total > 0) ? `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-flag-checkered"></i> Kết thúc ngày</button>` : '';
 
                 board.innerHTML += `
                     <div class="day-column" id="col-${index}" ${isToday ? 'style="border: 2px solid var(--primary);"' : ''}>
