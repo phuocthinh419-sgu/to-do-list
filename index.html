@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner & Focus Zone V77</title>
+    <title>Academic Planner & Focus Zone V80</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -82,6 +82,9 @@
 
         #header-streak-badge { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
         #header-wager-badge { border-color: var(--danger); color: var(--danger); }
+        
+        /* TÚI ĐỒ UI CẬP NHẬT: LUÔN HIỂN THỊ */
+        #header-buffs-badge { border-color: #8b5cf6; color: #8b5cf6; cursor: default; display: flex; }
         
         .btn-zen { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; }
         .btn-zen:hover { transform: scale(1.05); }
@@ -192,17 +195,19 @@
         .zen-quote-vi { font-size: 1.1rem; color: #a5b4fc; font-weight: 600; margin-bottom: 8px; transition: opacity 0.5s; }
         .zen-quote-author { font-size: 0.9rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; text-align: right; transition: opacity 0.5s; }
         
-        .zen-status { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .zen-status { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); text-align: center;}
         .zen-controls { display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .zen-btn-action:hover { background: #fff; color: #000; transform: translateY(-3px); }
+        #btn-zen-cashout { background: linear-gradient(45deg, #10b981, #059669); border: none; box-shadow: 0 0 15px rgba(16,185,129,0.5); animation: pulse-green 2s infinite;}
+        @keyframes pulse-green { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(16,185,129,0.8); } 100% { transform: scale(1); } }
 
-        /* VÒNG QUAY NHÂN PHẨM */
+        /* VÒNG QUAY NHÂN PHẨM 10 Ô MỚI */
         #zen-wheel-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; animation: slideUp 0.5s ease; }
-        .wheel-wrapper { position: relative; width: 320px; height: 320px; margin-bottom: 20px;}
+        .wheel-wrapper { position: relative; width: 340px; height: 340px; margin-bottom: 20px;}
         .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fbbf24; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); }
         .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 25px rgba(0,0,0,0.8); overflow: hidden; position: relative; }
-        .wheel-label { position: absolute; top: 50%; left: 50%; width: 50%; height: 30px; transform-origin: 0% 50%; margin-top: -15px; text-align: right; padding-right: 25px; font-size: 0.75rem; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,1); line-height: 30px; white-space: nowrap;}
+        .wheel-label { position: absolute; top: 50%; left: 50%; width: 50%; height: 24px; transform-origin: 0% 50%; margin-top: -12px; text-align: right; padding-right: 25px; font-size: 0.7rem; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,1); line-height: 24px; white-space: nowrap;}
         
         /* AFK OVERLAY */
         #afk-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 38, 38, 0.9); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; animation: flash-red 0.5s infinite alternate; }
@@ -212,7 +217,7 @@
         .btn-afk { background: #fff; color: #dc2626; border: none; padding: 20px 50px; font-size: 2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.2s;}
         .btn-afk:hover { transform: scale(1.1); background: #fef08a; }
 
-        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; min-height: auto;} .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } .wheel-wrapper {width: 260px; height: 260px;} .wheel-label {font-size: 0.65rem; padding-right: 15px;}}
+        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; min-height: auto;} .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } .wheel-wrapper {width: 280px; height: 280px;} .wheel-label {font-size: 0.6rem; padding-right: 15px;}}
     </style>
 </head>
 <body>
@@ -231,6 +236,9 @@
                 </div>
                 <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()" title="Cam Kết Kỷ Luật (Cược XP)">
                     <i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span>
+                </div>
+                <div id="header-buffs-badge" class="btn btn-outline" title="Túi Đồ: Kim Bài Miễn Tử & Bùa X2 XP">
+                    <span id="buff-immunity-text">🛡️ 0</span> &nbsp;|&nbsp; <span id="buff-double-text">✨ 0</span>
                 </div>
                 
                 <button class="btn btn-outline" id="btn-theme" onclick="toggleThemeCycle()" title="Đổi Giao Diện">
@@ -355,23 +363,35 @@
             
             <div class="zen-controls" id="zen-controls">
                 <button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button>
-                <button class="zen-btn-action" onclick="resetTimer()">Đặt lại</button>
+                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt lời & Nghỉ</button>
+                <button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button>
             </div>
         </div>
     </div>
 
     <script>
-        // HỆ THỐNG ÂM THANH BỌC LỒNG KÍNH AN TOÀN
+        // HỆ THỐNG ÂM THANH 
         let sysAudioCtx = null;
         function getAudioCtx() {
             try {
-                if (!sysAudioCtx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if(AudioContext) sysAudioCtx = new AudioContext();
-                }
+                if (!sysAudioCtx) { const AudioContext = window.AudioContext || window.webkitAudioContext; if(AudioContext) sysAudioCtx = new AudioContext(); }
                 if(sysAudioCtx && sysAudioCtx.state === 'suspended') sysAudioCtx.resume();
                 return sysAudioCtx;
             } catch(e) { return null; }
+        }
+
+        function playAlarmSound() {
+            try {
+                const ctx = getAudioCtx(); if (!ctx) return;
+                for (let i = 0; i < 3; i++) {
+                    const t = ctx.currentTime + i * 0.3;
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                    osc.type = 'square'; osc.frequency.setValueAtTime(1000, t); 
+                    gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(t); osc.stop(t + 0.2);
+                }
+            } catch(e) {}
         }
 
         function playChime() { 
@@ -407,34 +427,25 @@
         function playTickSound() {
             try {
                 const ctx = getAudioCtx(); if (!ctx) return;
-                let count = 0; let maxCount = 25;
-                let interval = setInterval(() => {
-                    if(count >= maxCount) { clearInterval(interval); return; }
-                    count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*10, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); 
-                    gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); 
-                    osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1);
-                }, 150); 
+                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); 
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); 
+                osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1);
             } catch(e) {}
         }
 
-        // HỆ THỐNG PHÁO HOA AN TOÀN
+        // HỆ THỐNG PHÁO HOA
         let fireworks; 
         function initFireworks() { 
             try {
                 const container = document.getElementById('fireworks-container');
-                const FW = window.Fireworks || window.Fireworks.default; // Vá lỗi sập nguồn ở dòng này
-                if(FW) {
-                    fireworks = new FW(container, { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); 
-                }
-            } catch(e) { console.warn("Fireworks init failed", e); }
+                const FW = window.Fireworks || window.Fireworks.default; 
+                if(FW) { fireworks = new FW(container, { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); }
+            } catch(e) { }
         }
 
         function runBigFireworks() { 
-            try {
-                if (!fireworks) initFireworks(); 
-                if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); }
-            } catch(e) { console.warn("Fireworks run failed", e); }
+            try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
         }
 
         const quotes = [
@@ -478,9 +489,9 @@
         ];
         const MAX_POINTS = 10000; 
         const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v77";
-        const TEMPLATE_KEY = "planner_template_v77";
-        const SYSTEM_KEY = "planner_system_v77";
+        const STORAGE_KEY = "planner_data_v80";
+        const TEMPLATE_KEY = "planner_template_v80";
+        const SYSTEM_KEY = "planner_system_v80";
 
         let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
         let systemData = {
@@ -488,7 +499,8 @@
             streak: 0, highestStreak: 0, wagerAmount: 0,
             lastWeekTotal: 0, currentWeekTotal: 0,
             lastWeekCompleted: 0, currentWeekCompleted: 0,
-            currentTheme: 'light'
+            currentTheme: 'light',
+            immunity: 0, doubleXp: 0 // Kho túi đồ Gacha
         };
 
         function getRealDayIndex() { let d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
@@ -567,6 +579,14 @@
             if (streakBadge) streakBadge.innerText = `${systemData.streak} Ngày`;
             const wagerBadge = document.getElementById('wager-text');
             if (wagerBadge) wagerBadge.innerText = systemData.wagerAmount > 0 ? `Cam kết: ${systemData.wagerAmount} XP` : `Cam Kết`;
+
+            // TÚI ĐỒ LUÔN HIỂN THỊ DÙ LÀ 0
+            const buffsBadge = document.getElementById('header-buffs-badge');
+            if (buffsBadge) {
+                buffsBadge.style.display = 'flex';
+                document.getElementById('buff-immunity-text').innerText = `🛡️ ${systemData.immunity || 0}`;
+                document.getElementById('buff-double-text').innerText = `✨ ${systemData.doubleXp || 0}`;
+            }
         }
 
         function openWagerModal() {
@@ -644,15 +664,24 @@
                 }
                 alert(msg); addTuVi(bonus); tasks.forEach(t => t.locked = true); runBigFireworks(); playRealisticBoom();
             } else {
-                let msg = `CẢNH BÁO KỶ LUẬT: Có ${incompleteTasks.length} công việc chưa hoàn thành sẽ bị chuyển sang ngày tiếp theo.`;
-                if (systemData.streak > 0) { msg += `\n🔥 Chuỗi kỷ luật đã bị hủy về 0!`; systemData.streak = 0; }
-                let bloodTax = Math.floor(systemData.points * 0.1);
-                if (bloodTax > 0) { systemData.points -= bloodTax; msg += `\nPhạt lơ là nhiệm vụ: Trừ ${bloodTax} XP (10% tổng điểm hiện có)!`; }
-                if (systemData.wagerAmount > 0) { msg += `\nThất bại Cam Kết: Hệ thống thu hồi ${systemData.wagerAmount} XP đã cược!`; systemData.wagerAmount = 0; }
-                alert(msg);
-                const nextDayIndex = (dayIndex + 1) % 7; 
-                incompleteTasks.forEach(task => { scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] }); task.missed = true; task.locked = true; });
-                completedTasks.forEach(t => t.locked = true);
+                // LOGIC MIỄN TRỪ KHI KẾT THÚC NGÀY LỖI
+                if (systemData.immunity > 0) {
+                    systemData.immunity--;
+                    alert(`🛡️ KIM BÀI MIỄN TỬ ĐÃ KÍCH HOẠT!\nBệ hạ lỡ sót ${incompleteTasks.length} việc nhưng được Thẻ bảo hộ cứu giá. KHÔNG BỊ TRỪ ĐIỂM, KHÔNG ĐỨT CHUỖI!\nCác việc chưa xong sẽ bị đẩy sang ngày mai.`);
+                    const nextDayIndex = (dayIndex + 1) % 7; 
+                    incompleteTasks.forEach(task => { scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] }); task.missed = true; task.locked = true; });
+                    completedTasks.forEach(t => t.locked = true);
+                } else {
+                    let msg = `CẢNH BÁO KỶ LUẬT: Có ${incompleteTasks.length} công việc chưa hoàn thành sẽ bị chuyển sang ngày tiếp theo.`;
+                    if (systemData.streak > 0) { msg += `\n🔥 Chuỗi kỷ luật đã bị hủy về 0!`; systemData.streak = 0; }
+                    let bloodTax = Math.floor(systemData.points * 0.1);
+                    if (bloodTax > 0) { systemData.points -= bloodTax; msg += `\nPhạt lơ là nhiệm vụ: Trừ ${bloodTax} XP (10% tổng điểm hiện có)!`; }
+                    if (systemData.wagerAmount > 0) { msg += `\nThất bại Cam Kết: Hệ thống thu hồi ${systemData.wagerAmount} XP đã cược!`; systemData.wagerAmount = 0; }
+                    alert(msg);
+                    const nextDayIndex = (dayIndex + 1) % 7; 
+                    incompleteTasks.forEach(task => { scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] }); task.missed = true; task.locked = true; });
+                    completedTasks.forEach(t => t.locked = true);
+                }
             }
             saveAllData(); 
         }
@@ -708,29 +737,32 @@
         }
 
         // =========================================
-        // HỆ THỐNG VÒNG QUAY NHÂN PHẨM (GACHA)
+        // HỆ THỐNG VÒNG QUAY 10 Ô (THẬP CUNG TRẬN)
         // =========================================
         const wheelOptions = [
-            { id: 0, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 25 },
-            { id: 1, name: "🚶 Nghỉ 10p", type: "break", time: 10, xp: 0, color: "#10b981", prob: 20 },
-            { id: 2, name: "🎮 Nghỉ 15p", type: "break", time: 15, xp: 0, color: "#8b5cf6", prob: 15 },
-            { id: 3, name: "⚡ Phạt (3p)", type: "break", time: 3, xp: 0, color: "#ef4444", prob: 15 },
+            { id: 0, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 15 },
+            { id: 1, name: "🚶 Nghỉ 10p", type: "break", time: 10, xp: 0, color: "#10b981", prob: 10 },
+            { id: 2, name: "🎮 Nghỉ 15p", type: "break", time: 15, xp: 0, color: "#059669", prob: 10 },
+            { id: 3, name: "⚡ Phạt (3p)", type: "break", time: 3, xp: 0, color: "#ef4444", prob: 10 },
             { id: 4, name: "📚 Học 15p", type: "work", time: 15, xp: 0, color: "#f59e0b", prob: 10 },
             { id: 5, name: "🔥 Học 25p(+50)", type: "work", time: 25, xp: 50, color: "#dc2626", prob: 5 },
-            { id: 6, name: "🎁 Nghỉ10p(+30)", type: "break", time: 10, xp: 30, color: "#ec4899", prob: 8 },
-            { id: 7, name: "🎲 Nghỉ 5p(+100)", type: "break", time: 5, xp: 100, color: "#f5a623", prob: 2 }
+            { id: 6, name: "🛡️ Thẻ Miễn Trừ", type: "item_immunity", color: "#6366f1", prob: 15 },
+            { id: 7, name: "✨ Thẻ X2 XP", type: "item_doublexp", color: "#ec4899", prob: 10 },
+            { id: 8, name: "♾️ Focus Vô Cực", type: "endless", color: "#8b5cf6", prob: 10 },
+            { id: 9, name: "🎲 Jackpot (+100)", type: "jackpot", xp: 100, color: "#f5a623", prob: 5 }
         ];
 
         function initWheel() {
             const wheel = document.getElementById('the-wheel');
-            let bgStr = wheelOptions.map((opt, i) => `${opt.color} ${i*45}deg ${(i+1)*45}deg`).join(', ');
+            let sliceDeg = 360 / wheelOptions.length;
+            let bgStr = wheelOptions.map((opt, i) => `${opt.color} ${i*sliceDeg}deg ${(i+1)*sliceDeg}deg`).join(', ');
             wheel.style.background = `conic-gradient(from 0deg, ${bgStr})`;
             wheel.innerHTML = '';
             wheelOptions.forEach((opt, i) => {
                 let label = document.createElement('div');
                 label.className = 'wheel-label';
                 label.innerText = opt.name;
-                let rot = -90 + 22.5 + (i * 45); 
+                let rot = -90 + (sliceDeg / 2) + (i * sliceDeg); 
                 label.style.transform = `rotate(${rot}deg)`;
                 wheel.appendChild(label);
             });
@@ -750,43 +782,74 @@
             }
             let winner = wheelOptions[winnerIdx];
 
-            let offset = 5 + Math.random() * 35; 
-            let pointInSlice = winnerIdx * 45 + offset;
+            let sliceDeg = 360 / wheelOptions.length;
+            let offset = 5 + Math.random() * (sliceDeg - 10); 
+            let pointInSlice = winnerIdx * sliceDeg + offset;
             let targetRotation = 360 * 5 + (360 - pointInSlice); 
             
             const wheel = document.getElementById('the-wheel');
             wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)';
             wheel.style.transform = `rotate(${targetRotation}deg)`;
 
-            playTickSound();
+            try {
+                const ctx = getAudioCtx(); if(ctx) {
+                    let count = 0; let maxCount = 20;
+                    let interval = setInterval(() => {
+                        if(count >= maxCount) { clearInterval(interval); return; }
+                        count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
+                        osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*20, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); 
+                        gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); 
+                        osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1);
+                    }, 200 - count*5); 
+                }
+            } catch(e) {}
 
             setTimeout(() => {
                 isSpinning = false;
                 document.getElementById('btn-spin-wheel').innerText = "QUAY THƯỞNG";
-                
                 let alertMsg = `🎉 KẾT QUẢ VÒNG QUAY: ${winner.name}!\n\n`;
-                if (winner.xp > 0) { alertMsg += `Hệ thống thưởng nóng ${winner.xp} XP!\n`; addTuVi(winner.xp); }
-                if (winner.type === 'work') { alertMsg += `ÁC MỘNG: Đồng hồ sẽ đếm ngược ${winner.time} phút Học Tập ngay lập tức. Cố lên!`; } 
-                else { alertMsg += `Bạn được phép nghỉ ngơi ${winner.time} phút.`; }
-                alert(alertMsg);
-
+                
                 document.getElementById('zen-wheel-box').style.display = 'none';
                 document.getElementById('zen-controls').style.display = 'flex';
                 document.getElementById('zen-quote-box').style.display = 'flex';
                 
-                isWorkSession = (winner.type === 'work');
-                WORK_TIME = winner.time * 60; 
-                timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
-                document.getElementById('zen-energy-fill').style.width = '0%'; 
-                document.getElementById('btn-zen-start').innerText = "Tạm dừng";
-                
-                updateTimerDisplay();
-                startTimer(); 
+                // LOGIC PHÂN NHÁNH VẬT PHẨM GACHA
+                if (winner.type === 'work') { 
+                    alertMsg += `ÁC MỘNG: Đồng hồ sẽ đếm ngược ${winner.time} phút Học Tập ngay lập tức. Cố lên!`; 
+                    alert(alertMsg);
+                    isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
+                    document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng";
+                    updateTimerDisplay(); startTimer(); 
+                } 
+                else if (winner.type === 'endless') {
+                    alertMsg += `🔥 THỬ THÁCH VÔ CỰC:\nĐồng hồ sẽ đếm tiến. Cày càng lâu XP nhân theo hệ số càng cao.\nNHỚ TỰ BẤM CHỐT LỜI, Bị AFK sẽ mất trắng!`;
+                    alert(alertMsg);
+                    startEndlessMode();
+                }
+                else if (winner.type === 'item_immunity') {
+                    systemData.immunity = (systemData.immunity || 0) + 1; saveAllData();
+                    alertMsg += `Bạn nhận được 1 Kim Bài Miễn Tử 🛡️ (Chống phạt AFK/Sót việc).\nĐã cấp cho bạn 5 phút xả hơi!`;
+                    alert(alertMsg); startBreak(5);
+                }
+                else if (winner.type === 'item_doublexp') {
+                    systemData.doubleXp = (systemData.doubleXp || 0) + 1; saveAllData();
+                    alertMsg += `Bạn nhận được 1 Bùa Chúc Phúc ✨ (Nhân đôi XP cho hiệp kế tiếp).\nĐã cấp cho bạn 5 phút xả hơi trước khi lâm trận!`;
+                    alert(alertMsg); startBreak(5);
+                }
+                else if (winner.type === 'jackpot') {
+                    addTuVi(winner.xp);
+                    alertMsg += `JACKPOT! Hệ thống văng thẳng vào mặt bạn ${winner.xp} XP!\nĐi nghỉ 5 phút ăn mừng thôi!`;
+                    alert(alertMsg); startBreak(5);
+                }
+                else { 
+                    alertMsg += `Bạn được phép nghỉ ngơi ${winner.time} phút.`; 
+                    alert(alertMsg); startBreak(winner.time);
+                }
             }, 4000); 
         }
 
         // =========================================
-        // POMODORO & TIMER LOGIC
+        // POMODORO, ENDLESS & TIMER LOGIC
         // =========================================
         let currentQuoteIndex = -1; 
         function showRandomQuote() {
@@ -797,22 +860,28 @@
             setTimeout(() => { qEn.innerText = `"${q.en}"`; qVi.innerText = `"${q.vi}"`; qAu.innerText = `- ${q.author}`; qEn.style.opacity = '1'; qVi.style.opacity = '1'; qAu.style.opacity = '1'; }, 500);
         }
 
-        // ⚠️ THỜI GIAN ĐÃ ĐƯỢC CHỈNH VỀ 5 GIÂY ĐỂ BỆ HẠ TEST. TEST XONG SỬA LẠI THÀNH: let WORK_TIME = 25 * 60;
-        let zenTimer = null; let timeLeft = 25 * 60; let isTimerRunning = false; let isWorkSession = true; let WORK_TIME = 25 * 60; 
+        // ⚠️ THỜI GIAN ĐANG ĐỂ 5 GIÂY CHO BỆ HẠ TEST. TEST XONG ĐỔI THÀNH 25 * 60 CẢ 3 CHỖ BÊN DƯỚI NHÉ!
+        let zenTimer = null; let isTimerRunning = false; let isWorkSession = true; 
+        let WORK_TIME = 25 * 60; 
+        let timeLeft = WORK_TIME; 
+        
         let targetEndTime = 0; let tuViEarned = 0; 
         let afkTriggered = false; let afkCountdown = null; let afkTimeVal = 15;
+        
+        // Endless vars
+        let isEndless = false; let endlessSeconds = 0; let endlessTempXp = 0; let startEndlessTime = 0;
 
         function toggleZenMode() {
-            const overlay = document.getElementById('zen-overlay');
-            const mainBoard = document.getElementById('main-board');
+            const overlay = document.getElementById('zen-overlay'); const mainBoard = document.getElementById('main-board');
             if (overlay.classList.contains('active')) { 
-                overlay.classList.remove('active'); mainBoard.style.filter = 'blur(0)'; 
-                document.getElementById('zen-wheel-box').style.display = 'none';
+                overlay.classList.remove('active'); mainBoard.style.filter = 'blur(0)'; document.getElementById('zen-wheel-box').style.display = 'none';
             } else { 
                 showRandomQuote(); overlay.classList.add('active'); mainBoard.style.filter = 'blur(10px)'; 
             }
         }
         
+        let isCurrentSessionDouble = false;
+
         function startTimer() {
             const btn = document.getElementById('btn-zen-start');
             const barContainer = document.getElementById('zen-energy-bar');
@@ -823,13 +892,17 @@
                 barContainer.classList.remove('active'); return; 
             }
 
-            if(timeLeft === WORK_TIME && isWorkSession && tuViEarned === 0) { showRandomQuote(); afkTriggered = false; }
+            if(timeLeft === WORK_TIME && isWorkSession && tuViEarned === 0) { 
+                showRandomQuote(); afkTriggered = false; 
+                isCurrentSessionDouble = (systemData.doubleXp > 0); 
+            }
 
             isTimerRunning = true; btn.innerText = "Tạm dừng";
             document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
             
             if (isWorkSession) {
-                 document.getElementById('zen-status').innerText = "Đang trong phiên tập trung..."; document.getElementById('zen-status').style.color = "white";
+                 document.getElementById('zen-status').innerText = isCurrentSessionDouble ? "Đang tập trung... (Được BUFF X2 XP ✨)" : "Đang trong phiên tập trung..."; 
+                 document.getElementById('zen-status').style.color = isCurrentSessionDouble ? "#ec4899" : "white";
                  barContainer.classList.remove('break-mode'); 
             } else {
                  document.getElementById('zen-status').innerText = "Đang nghỉ ngơi..."; document.getElementById('zen-status').style.color = "#10b981";
@@ -847,64 +920,140 @@
                 }
 
                 if (timeLeft <= 0) {
-                    timeLeft = 0; 
-                    updateTimerDisplay(); // Bắt buộc vẽ lại số 00:00
-
-                    clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking');
+                    timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; 
+                    document.getElementById('zen-timer').classList.remove('ticking');
                     document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
                     
                     if (isWorkSession) {
-                        let totalMinutes = Math.floor(WORK_TIME / 60);
-                        if (totalMinutes > tuViEarned) { addTuVi(totalMinutes - tuViEarned); }
-
-                        runBigFireworks(); playRealisticBoom(); addTuVi(5); // Fixed Reward 5XP
+                        let baseReward = 5; 
+                        if (isCurrentSessionDouble) {
+                            baseReward *= 2; systemData.doubleXp--; saveAllData();
+                            alert("✨ Chúc mừng! Bùa Chúc Phúc đã phát huy uy lực. Điểm thưởng phiên này đã được nhân đôi!");
+                        }
+                        
+                        runBigFireworks(); playRealisticBoom(); addTuVi(baseReward);
                         
                         document.getElementById('zen-status').innerText = "Phiên học tập hoàn tất!";
-                        document.getElementById('zen-controls').style.display = 'none'; 
-                        document.getElementById('zen-quote-box').style.display = 'none'; 
+                        document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none'; 
                         
-                        const wheel = document.getElementById('the-wheel');
-                        wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; 
+                        const wheel = document.getElementById('the-wheel'); wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; 
                         document.getElementById('zen-wheel-box').style.display = 'flex';
                         
                     } else {
                         playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
                         document.getElementById('zen-status').innerText = "Hết giờ nghỉ! Quay lại nào."; document.getElementById('zen-status').style.color = "white"; 
                         btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; 
-                        document.getElementById('zen-quote-box').style.display = 'flex';
-                        document.getElementById('zen-energy-fill').style.width = '0%'; 
+                        document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; 
                     }
                     return; 
                 }
                 
                 if(isWorkSession) {
                     const minutesPassed = Math.floor((WORK_TIME - timeLeft) / 60);
-                    if (minutesPassed > tuViEarned) { addTuVi(minutesPassed - tuViEarned); tuViEarned = minutesPassed; showRandomQuote(); }
+                    if (minutesPassed > tuViEarned) { 
+                        let earnedMinXp = (minutesPassed - tuViEarned);
+                        if (isCurrentSessionDouble) earnedMinXp *= 2; 
+                        addTuVi(earnedMinXp); 
+                        tuViEarned = minutesPassed; showRandomQuote(); 
+                    }
                 }
                 document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`;
                 updateTimerDisplay();
             }, 500); 
         }
 
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && isTimerRunning && isWorkSession) {
-                clearInterval(zenTimer); isTimerRunning = false;
-                document.getElementById('btn-zen-start').innerText = "Tiếp tục";
-                document.getElementById('zen-timer').classList.remove('ticking');
-                document.getElementById('zen-energy-bar').classList.remove('active');
+        // --- PHIÊN VÔ CỰC (ENDLESS MODE) ---
+        function startEndlessMode() {
+            isEndless = true; isTimerRunning = true; endlessSeconds = 0; endlessTempXp = 0; afkTriggered = false;
+            startEndlessTime = Date.now();
+            
+            document.getElementById('btn-zen-start').style.display = 'none';
+            document.getElementById('btn-zen-cashout').style.display = 'inline-block';
+            document.getElementById('btn-zen-reset').style.display = 'none';
+            
+            document.getElementById('zen-timer').classList.add('ticking');
+            document.getElementById('zen-energy-bar').classList.remove('break-mode');
+            document.getElementById('zen-energy-bar').classList.add('active');
+
+            zenTimer = setInterval(() => {
+                const now = Date.now();
+                endlessSeconds = Math.floor((now - startEndlessTime) / 1000);
                 
-                alert("🚨 CẢNH BÁO MẤT TẬP TRUNG: Phát hiện bạn vừa rời khỏi không gian học thuật!\nĐồng hồ đã bị dừng. Phạt 20 XP!");
-                addTuVi(-20);
-                document.getElementById('zen-status').innerText = "Tạm khóa do xao nhãng";
-                document.getElementById('zen-status').style.color = "var(--danger)";
+                if (!afkTriggered && endlessSeconds > 5 * 60) {
+                    if (Math.random() < 0.005) triggerAFK();
+                }
+                
+                let mins = Math.floor(endlessSeconds / 60); let tempXp = 0;
+                if(mins <= 15) tempXp = mins * 1;
+                else if(mins <= 30) tempXp = 15 * 1 + (mins - 15) * 2;
+                else tempXp = 15 * 1 + 15 * 2 + (mins - 30) * 3;
+                
+                endlessTempXp = tempXp;
+                
+                document.getElementById('zen-status').innerText = `🔥 PHIÊN VÔ CỰC - Tạm tính: +${tempXp} XP`;
+                document.getElementById('zen-status').style.color = "#f5a623";
+                
+                let secInMin = endlessSeconds % 60;
+                document.getElementById('zen-energy-fill').style.width = `${(secInMin / 60) * 100}%`;
+                
+                let m = Math.floor(endlessSeconds / 60); let s = endlessSeconds % 60;
+                document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // --- NÚT CHỐT LỜI ---
+        function cashOutEndless() {
+            clearInterval(zenTimer); isTimerRunning = false; isEndless = false;
+            
+            document.getElementById('btn-zen-cashout').style.display = 'none';
+            document.getElementById('btn-zen-start').style.display = 'inline-block';
+            document.getElementById('btn-zen-reset').style.display = 'inline-block';
+            
+            if (endlessTempXp > 0) {
+                addTuVi(endlessTempXp); runBigFireworks(); playRealisticBoom();
+                alert(`🎉 CHỐT LỜI THÀNH CÔNG!\nBạn đã xuất sắc bỏ túi ${endlessTempXp} XP từ Phiên Vô Cực! Bây giờ hãy nghỉ ngơi 10 phút nhé.`);
+                startBreak(10);
+            } else {
+                alert(`Phiên Vô Cực kết thúc quá sớm. Bạn chưa kịp thu hoạch được XP nào.\nHãy nghỉ 5 phút và quay lại phiên 25 phút bình thường.`);
+                startBreak(5);
+            }
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isTimerRunning && (isWorkSession || isEndless)) {
+                clearInterval(zenTimer); isTimerRunning = false;
+                
+                if (isEndless) {
+                    if (systemData.immunity > 0) {
+                        systemData.immunity--; saveAllData();
+                        alert("🚨 CẢNH BÁO MẤT TẬP TRUNG!\nBạn đã rời khỏi web trong Phiên Vô Cực. May mắn Kim Bài Miễn Tử đã tự động kích hoạt chốt lời giúp bạn để bảo toàn điểm!");
+                        cashOutEndless();
+                    } else {
+                        isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none';
+                        document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
+                        alert(`💀 THẢM HỌA XAO NHÃNG: Bị phát hiện rời khỏi màn hình! Toàn bộ ${endlessTempXp} XP chưa chốt lời của Phiên Vô Cực đã bốc hơi sạch sẽ! Phạt thêm 20 XP!`);
+                        addTuVi(-20); resetTimer();
+                    }
+                } else {
+                    document.getElementById('btn-zen-start').innerText = "Tiếp tục";
+                    document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active');
+                    alert("🚨 CẢNH BÁO MẤT TẬP TRUNG: Phát hiện bạn vừa rời khỏi không gian học thuật!\nĐồng hồ đã bị dừng. Phạt 20 XP!");
+                    addTuVi(-20);
+                    document.getElementById('zen-status').innerText = "Tạm khóa do xao nhãng"; document.getElementById('zen-status').style.color = "var(--danger)";
+                }
             }
         });
 
+        // HÀM KIỂM TRA AFK TÍCH HỢP CHO CẢ BÌNH THƯỜNG & VÔ CỰC
         function triggerAFK() {
             afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex';
             afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal;
+            
+            playAlarmSound(); 
+            
             afkCountdown = setInterval(() => {
                 afkTimeVal--; document.getElementById('afk-timer').innerText = afkTimeVal;
+                if (afkTimeVal <= 5 && afkTimeVal > 0) { playTickSound(); }
                 if(afkTimeVal <= 0) { clearInterval(afkCountdown); afkFail(); }
             }, 1000);
         }
@@ -912,18 +1061,45 @@
         function afkSuccess() { clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; }
         function afkFail() {
             document.getElementById('afk-overlay').style.display = 'none'; resetTimer();
-            alert("⏰ THẤT BẠI: Bạn đã không phản hồi trong 15 giây! Phiên tập trung bị hủy bỏ, hệ thống phạt 30 XP.");
-            addTuVi(-30);
+            
+            if (isEndless) {
+                if (systemData.immunity > 0) {
+                    systemData.immunity--; saveAllData();
+                    alert("🛡️ KIM BÀI MIỄN TỬ đã đỡ thay một đòn Thiên Lôi! Phiên Vô Cực tự động chốt lời bảo toàn điểm số.");
+                    cashOutEndless();
+                } else {
+                    isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none';
+                    document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
+                    alert(`💀 THẢM HỌA AFK! Bạn đã không xác nhận AFK. Toàn bộ ${endlessTempXp} XP chưa chốt lời bốc hơi sạch sẽ! Phạt thêm 30 XP!`);
+                    addTuVi(-30); resetTimer();
+                }
+            } else {
+                if (systemData.immunity > 0) {
+                    systemData.immunity--; saveAllData();
+                    alert("🛡️ KIM BÀI MIỄN TỬ đã phát huy tác dụng! Bạn được miễn phạt AFK 30 XP, nhưng phiên học hiện tại bị hủy.");
+                    resetTimer();
+                } else {
+                    alert("⏰ THẤT BẠI: Bạn đã không phản hồi trong 15 giây! Phiên tập trung bị hủy bỏ, hệ thống phạt 30 XP.");
+                    addTuVi(-30); resetTimer();
+                }
+            }
+        }
+
+        function startBreak(minutes) {
+            isWorkSession = false; WORK_TIME = minutes * 60; timeLeft = WORK_TIME; tuViEarned = 0;
+            document.getElementById('zen-break-options').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex';
+            document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng";
+            startTimer(); 
         }
 
         function resetTimer() {
-            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
+            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isEndless = false;
             document.getElementById('zen-status').innerText = "Sẵn sàng học tập"; document.getElementById('zen-status').style.color = "white";
             document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active');
-            document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex';
-            document.getElementById('zen-quote-box').style.display = 'flex';
-            document.getElementById('zen-wheel-box').style.display = 'none'; 
-            document.getElementById('zen-energy-fill').style.width = '0%';
+            document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block';
+            document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
+            document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex';
+            document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%';
             updateTimerDisplay();
         }
 
