@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner V83.1 - Capitalist Empire</title>
+    <title>Academic Planner V83.2 - Capitalist Empire</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -247,7 +247,7 @@
     <div id="main-board">
         <header class="header">
             <div class="header-title">
-                <i class="fas fa-chess-king"></i> Academic Planner V83.1
+                <i class="fas fa-chess-king"></i> Academic Planner V83.2
             </div>
             <div class="header-controls">
                 <div id="header-tuvi-badge" class="btn btn-outline" title="Học Vị (XP - Không bao giờ giảm)">
@@ -373,12 +373,12 @@
                 <div class="shop-item" style="border-color: #d4af37;">
                     <h4 style="color:#d4af37;">👑 Theme Hoàng Cung</h4>
                     <p>Mở khóa vĩnh viễn giao diện vàng Gold vương giả.</p>
-                    <button class="btn btn-warning" style="width:100%; justify-content:center; background:#d4af37; color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button>
+                    <button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%; justify-content:center; background:#d4af37; color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button>
                 </div>
                 <div class="shop-item" style="border-color: #00ff00; background: #0a0a0a;">
                     <h4 style="color:#00ff00;">💻 Theme Hắc Ám</h4>
                     <p style="color:#006600;">Giao diện Hacker ngầu lòi, bảo vệ thị lực ban đêm.</p>
-                    <button class="btn" style="width:100%; justify-content:center; background:#00cc00; color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button>
+                    <button id="btn-buy-theme-hacker" class="btn" style="width:100%; justify-content:center; background:#00cc00; color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button>
                 </div>
             </div>
 
@@ -623,7 +623,7 @@
             try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
         }
 
-        // --- CÂU TRÍCH DẪN NGẪU NHIÊN (Đã được phục hồi) ---
+        // --- CÂU TRÍCH DẪN NGẪU NHIÊN ---
         const quotes = [
             { en: "Education is the most powerful weapon which you can use to change the world.", vi: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.", author: "Nelson Mandela" },
             { en: "The only place where success comes before work is in the dictionary.", vi: "Nơi duy nhất thành công đến trước làm việc là trong từ điển.", author: "Vidal Sassoon" },
@@ -687,17 +687,25 @@
             let available = [...THEMES, ...(sys.unlockedThemes || [])];
             let currentIndex = available.indexOf(sys.currentTheme);
             if (currentIndex === -1) currentIndex = 0;
+            
             let nextIndex = (currentIndex + 1) % available.length;
             let nextTheme = available[nextIndex];
-
-            if (nextTheme === 'detective' && sys.highestStreak < 7 && sys.streak < 7) {
-                alert("🔒 Theme Thư Viện Bí Ẩn bị khóa! Yêu cầu Chuỗi Kỷ Luật đạt 7 ngày.");
-                nextIndex = (nextIndex + 1) % available.length; nextTheme = available[nextIndex];
+            
+            // Bỏ qua các theme bị khóa nếu chưa đủ trình độ
+            let attempts = 0;
+            while(attempts < available.length) {
+                if (nextTheme === 'detective' && sys.highestStreak < 7 && sys.streak < 7) {
+                    // Bị khóa, bỏ qua
+                } else if (nextTheme === 'nature' && sys.highestStreak < 14 && sys.streak < 14) {
+                    // Bị khóa, bỏ qua
+                } else {
+                    break; // Hợp lệ
+                }
+                nextIndex = (nextIndex + 1) % available.length;
+                nextTheme = available[nextIndex];
+                attempts++;
             }
-            if (nextTheme === 'nature' && sys.highestStreak < 14 && sys.streak < 14) {
-                alert("🔒 Theme Góc Học Tập bị khóa! Yêu cầu Chuỗi Kỷ Luật đạt 14 ngày.");
-                nextIndex = 0; nextTheme = available[nextIndex];
-            }
+            
             applyTheme(nextTheme);
         }
 
@@ -962,7 +970,31 @@
         // ==========================================
         // CỬA HÀNG & CHỨNG KHOÁN & THẦN TÀI
         // ==========================================
-        function openShopModal() { document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins); document.getElementById('shop-modal').style.display = 'flex'; }
+        function openShopModal() { 
+            document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins); 
+            updateShopUI(); // Cập nhật nút Đã Mua
+            document.getElementById('shop-modal').style.display = 'flex'; 
+        }
+
+        // TÍNH NĂNG MỚI: CẬP NHẬT TRẠNG THÁI NÚT TRONG SHOP
+        function updateShopUI() {
+            const btnRoyal = document.getElementById('btn-buy-theme-royal');
+            if (btnRoyal && sys.unlockedThemes.includes('royal')) {
+                btnRoyal.innerText = "👑 Đã Sở Hữu";
+                btnRoyal.disabled = true;
+                btnRoyal.style.opacity = "0.5";
+                btnRoyal.style.cursor = "not-allowed";
+            }
+            
+            const btnHacker = document.getElementById('btn-buy-theme-hacker');
+            if (btnHacker && sys.unlockedThemes.includes('hacker')) {
+                btnHacker.innerText = "💻 Đã Sở Hữu";
+                btnHacker.disabled = true;
+                btnHacker.style.opacity = "0.5";
+                btnHacker.style.cursor = "not-allowed";
+            }
+        }
+
         function openStockModal() { document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); document.getElementById('stock-modal').style.display = 'flex'; renderStockMarket(); }
         function openBankModal() { document.getElementById('bank-rate-display').innerText = Math.max(1, sys.streak); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-modal').style.display = 'flex'; }
 
@@ -973,7 +1005,14 @@
 
         function buyTheme(themeName, cost) {
             if (sys.unlockedThemes.includes(themeName)) { applyTheme(themeName); alert("Đã chuyển sang giao diện này!"); return; }
-            if (sys.coins >= cost) { sys.coins -= cost; sys.unlockedThemes.push(themeName); applyTheme(themeName); playRealisticBoom(); saveAllData(); alert("Đã mở khóa vĩnh viễn giao diện Hoàng Gia!"); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            if (sys.coins >= cost) { 
+                sys.coins -= cost; 
+                sys.unlockedThemes.push(themeName); 
+                applyTheme(themeName); 
+                playRealisticBoom(); saveAllData(); 
+                alert("Đã mở khóa vĩnh viễn giao diện Hoàng Gia!"); 
+                document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+                updateShopUI(); // Đổi nút thành Đã sở hữu
             } else alert("Phải có đủ 1000 Xu mới xứng đáng mặc Long Bào!");
         }
 
