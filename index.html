@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner V83.2 - Capitalist Empire</title>
+    <title>Academic Planner V84 - Standard Edition</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -61,7 +61,7 @@
             --font-main: 'Lora', serif;
         }
 
-        /* --- 5. THEME VIP (MUA TRONG SHOP) --- */
+        /* --- 5. THEME VIP --- */
         [data-theme="royal"] { --bg-color: #1a1500; --text-main: #ffd700; --text-muted: #b89947; --card-bg: #2a2200; --border-color: #ffd700; --primary: #d4af37; --primary-hover: #f1c40f; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #1a1500; --font-main: 'Lora', serif; }
         [data-theme="hacker"] { --bg-color: #000000; --text-main: #00ff00; --text-muted: #006600; --card-bg: #0a0a0a; --border-color: #00ff00; --primary: #00cc00; --primary-hover: #00ff00; --success: #00ff00; --danger: #ff0000; --warning: #ffff00; --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #000000; --font-main: 'Special Elite', monospace; }
 
@@ -87,7 +87,7 @@
         #header-streak-badge { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
         #header-wager-badge { border-color: var(--danger); color: var(--danger); }
         
-        /* TÚI ĐỒ & TIỀN TỆ MỚI */
+        /* TÚI ĐỒ & TIỀN TỆ */
         #header-coin-badge { background: linear-gradient(45deg, #f59e0b, #d97706); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
         #header-buffs-badge { border-color: #8b5cf6; color: #8b5cf6; cursor: default; display: flex; }
         
@@ -147,7 +147,7 @@
         .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
         .btn-add:hover { background: var(--border-color); color: var(--primary); border-color: var(--primary); }
 
-        /* MODALS */
+        /* MODALS CHUNG */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal { background: var(--card-bg); width: 90%; max-width: 450px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -166,7 +166,7 @@
         .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 
-        /* UI TƯ BẢN: SHOP, CHỨNG KHOÁN, THẦN TÀI */
+        /* UI CỬA HÀNG, CHỨNG KHOÁN, THẦN TÀI */
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .shop-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center; background: var(--input-bg); transition: 0.2s;}
         .shop-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -219,7 +219,7 @@
         .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .zen-btn-action:hover { background: #fff; color: #000; transform: translateY(-3px); }
 
-        /* VÒNG QUAY CHUNG (Áp dụng cho cả Focus và Shop) */
+        /* VÒNG QUAY CHUNG */
         .wheel-wrapper { position: relative; width: 320px; height: 320px; margin-bottom: 20px;}
         .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fbbf24; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); }
         .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 25px rgba(0,0,0,0.8); overflow: hidden; position: relative; transition: transform 4s cubic-bezier(0.17, 0.67, 0.1, 1); }
@@ -227,7 +227,7 @@
         
         #zen-wheel-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; animation: slideUp 0.5s ease; }
 
-        /* OVERLAY NHA MÔN PHẠT TIỀN */
+        /* OVERLAY KỶ LUẬT */
         #punish-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(220, 38, 38, 0.95); z-index: 9999; display:none; flex-direction:column; align-items:center; justify-content:center; color: white; text-align: center; padding: 20px;}
         .punish-box { background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 2px solid #fca5a5; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
 
@@ -247,20 +247,20 @@
     <div id="main-board">
         <header class="header">
             <div class="header-title">
-                <i class="fas fa-chess-king"></i> Academic Planner V83.2
+                <i class="fas fa-graduation-cap"></i> Academic Planner V84
             </div>
             <div class="header-controls">
-                <div id="header-tuvi-badge" class="btn btn-outline" title="Học Vị (XP - Không bao giờ giảm)">
+                <div id="header-tuvi-badge" class="btn btn-outline" title="Điểm Kinh Nghiệm (XP)">
                     <i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span>
                 </div>
-                <div id="header-coin-badge" class="btn" title="Ngân Lượng (Xu - Dùng để tiêu xài)">
+                <div id="header-coin-badge" class="btn" title="Số dư hiện tại (Xu)">
                     <i class="fas fa-coins"></i> <span id="ui-coins">0 Xu</span>
                 </div>
                 <div id="header-streak-badge" class="btn" title="Chuỗi Kỷ Luật Liên Tiếp">
                     🔥 <span id="streak-text">0 Ngày</span>
                 </div>
                 
-                <div id="header-buffs-badge" class="btn btn-outline" title="Túi Đồ: Kim Bài Miễn Tử & Bùa X2 XP">
+                <div id="header-buffs-badge" class="btn btn-outline" title="Kho Đồ: Thẻ Bảo Hộ & Thẻ Nhân Đôi XP">
                     <span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span>
                 </div>
 
@@ -268,9 +268,9 @@
                     <i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span>
                 </div>
                 
-                <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Trân Bảo Các</button>
-                <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Chứng Khoán</button>
-                <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Thần Tài</button>
+                <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng</button>
+                <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
+                <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
                 
                 <button class="btn btn-outline" id="btn-theme" onclick="toggleThemeCycle()" title="Đổi Giao Diện">
                     <i class="fas fa-palette"></i>
@@ -354,55 +354,55 @@
     <div class="modal-overlay" id="shop-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--warning);">
-                <span><i class="fas fa-store"></i> TRÂN BẢO CÁC</span>
+                <span><i class="fas fa-store"></i> CỬA HÀNG VẬT PHẨM</span>
                 <button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button>
             </div>
-            <p style="text-align:center; margin-bottom: 20px;">Ngân lượng hiện có: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
+            <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
             
             <div class="shop-grid">
                 <div class="shop-item">
-                    <h4>🛡️ Kim Bài Miễn Tử</h4>
-                    <p>Miễn phạt AFK hoặc lười học 1 lần. Bảo toàn tính mạng.</p>
+                    <h4>🛡️ Thẻ Bảo Hộ</h4>
+                    <p>Miễn phạt AFK hoặc bỏ sót công việc 1 lần.</p>
                     <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button>
                 </div>
                 <div class="shop-item">
-                    <h4>✨ Bùa X2 XP & Xu</h4>
-                    <p>Nhân đôi toàn bộ thu nhập trong 25 phút Focus kế tiếp.</p>
+                    <h4>✨ Thẻ Nhân Đôi</h4>
+                    <p>Nhân đôi toàn bộ thu nhập (XP/Xu) trong 25 phút Focus tiếp theo.</p>
                     <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="buyItem('doubleXp', 300)">Mua (300 Xu)</button>
                 </div>
                 <div class="shop-item" style="border-color: #d4af37;">
-                    <h4 style="color:#d4af37;">👑 Theme Hoàng Cung</h4>
-                    <p>Mở khóa vĩnh viễn giao diện vàng Gold vương giả.</p>
+                    <h4 style="color:#d4af37;">👑 Giao diện Hoàng Cung</h4>
+                    <p>Mở khóa vĩnh viễn giao diện vàng VIP.</p>
                     <button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%; justify-content:center; background:#d4af37; color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button>
                 </div>
                 <div class="shop-item" style="border-color: #00ff00; background: #0a0a0a;">
-                    <h4 style="color:#00ff00;">💻 Theme Hắc Ám</h4>
-                    <p style="color:#006600;">Giao diện Hacker ngầu lòi, bảo vệ thị lực ban đêm.</p>
+                    <h4 style="color:#00ff00;">💻 Giao diện Hắc Ám</h4>
+                    <p style="color:#006600;">Mở khóa vĩnh viễn giao diện phong cách Hacker.</p>
                     <button id="btn-buy-theme-hacker" class="btn" style="width:100%; justify-content:center; background:#00cc00; color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button>
                 </div>
             </div>
 
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
 
-            <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> SÒNG BÀI HOÀNG GIA</h3>
-            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cẩn thận mất trắng hoặc bị bắt lao động khổ sai!</p>
+            <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> VÒNG QUAY ĐỊNH MỆNH</h3>
+            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cơ hội nhận giải thưởng lớn hoặc rủi ro mất trắng.</p>
             
             <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;">
                 <div class="wheel-pointer"></div>
                 <div class="wheel" id="shop-wheel"></div>
             </div>
             
-            <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY VÉ (Tốn 100 Xu)</button>
+            <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY (100 Xu)</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="stock-modal">
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header" style="color: var(--success);">
-                <span><i class="fas fa-chart-line"></i> WALL STREET HỌC THUẬT</span>
+                <span><i class="fas fa-chart-line"></i> THỊ TRƯỜNG CỔ PHIẾU</span>
                 <button class="close-modal" onclick="closeModal('stock-modal')"><i class="fas fa-times"></i></button>
             </div>
-            <p style="text-align:center; margin-bottom: 5px;">Ngân lượng khả dụng: <strong style="color:var(--warning); font-size:1.2rem;" id="stock-coins-display">0</strong> Xu</p>
+            <p style="text-align:center; margin-bottom: 5px;">Số dư khả dụng: <strong style="color:var(--warning); font-size:1.2rem;" id="stock-coins-display">0</strong> Xu</p>
             <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-bottom: 20px;">Giá biến động ngẫu nhiên mỗi 5 phút.</p>
             
             <div id="stock-list-container"></div>
@@ -412,10 +412,10 @@
     <div class="modal-overlay" id="bank-modal">
         <div class="modal" style="max-width: 400px; text-align: center;">
             <div class="modal-header" style="color: var(--warning);">
-                <span><i class="fas fa-piggy-bank"></i> TÚI THẦN TÀI</span>
+                <span><i class="fas fa-piggy-bank"></i> QUỸ TIẾT KIỆM</span>
                 <button class="close-modal" onclick="closeModal('bank-modal')"><i class="fas fa-times"></i></button>
             </div>
-            <p style="margin-bottom: 10px;">Gửi Xu vào đây để sinh lời mỗi giây!</p>
+            <p style="margin-bottom: 10px;">Gửi Xu vào quỹ để sinh lời tự động!</p>
             <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--warning); margin-bottom: 20px;">
                 <p style="font-size: 0.9rem; color: var(--text-muted);">Tiền lãi chưa thu hoạch</p>
                 <div class="bank-display" id="bank-interest-display">0.000</div>
@@ -428,7 +428,7 @@
             </div>
 
             <div style="display:flex; gap:10px;">
-                <input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số Xu...">
+                <input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số lượng...">
                 <button class="btn btn-success" onclick="depositBank()">Gửi Vào</button>
                 <button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button>
             </div>
@@ -437,25 +437,25 @@
 
     <div id="punish-overlay">
         <div class="punish-box">
-            <h1 style="font-family: 'Black Ops One', cursive; font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"><i class="fas fa-gavel"></i> TRÁT PHẠT KỶ LUẬT</h1>
-            <p id="punish-reason" style="font-size: 1rem; margin-bottom: 20px;">Tội danh: Ngủ gật, xao nhãng trong giờ làm việc!</p>
+            <h1 style="font-family: 'Black Ops One', cursive; font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"><i class="fas fa-gavel"></i> CẢNH BÁO KỶ LUẬT</h1>
+            <p id="punish-reason" style="font-size: 1rem; margin-bottom: 20px;">Lý do: Không hoàn thành nhiệm vụ được giao!</p>
             
-            <h3 style="color: #fca5a5; margin-bottom: 10px;">Mức án: Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
-            <p style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;">PHẠT <span id="punish-fine-display">50</span> XU</p>
-            <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 20px;">Nộp phạt để Quan tham xóa án tích. Nếu không nộp, Bệ hạ sẽ bị <strong>Trừ 30 XP & Chém đứt Chuỗi Kỷ Luật</strong>.</p>
+            <h3 style="color: #fca5a5; margin-bottom: 10px;">Mức phạt: Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
+            <p style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;"><span id="punish-fine-display">50</span> XU</p>
+            <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 20px;">Nộp phạt để Hệ thống xóa cảnh báo. Nếu không nộp, bạn sẽ bị <strong>Trừ 30 XP & Mất Chuỗi Kỷ Luật</strong>.</p>
             
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 20px;" id="btn-pay-fine" onclick="payFine()">Nộp Phạt Chuộc Tội</button>
-                <button class="btn btn-outline" style="font-size: 1.1rem; padding: 12px 20px; color: white; border-color: white;" onclick="refuseFine()">Chấp Nhận Lãnh Án</button>
+                <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 20px;" id="btn-pay-fine" onclick="payFine()">Nộp Phạt</button>
+                <button class="btn btn-outline" style="font-size: 1.1rem; padding: 12px 20px; color: white; border-color: white;" onclick="refuseFine()">Từ chối nộp phạt</button>
             </div>
         </div>
     </div>
 
     <div id="afk-overlay">
         <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
-        <p style="font-size: 1.5rem;">Bệ hạ vẫn đang ngồi học chứ? Xác nhận ngay!</p>
+        <p style="font-size: 1.5rem;">Bạn vẫn đang học chứ? Xác nhận ngay!</p>
         <div id="afk-timer">15</div>
-        <button class="btn-afk" onclick="afkSuccess()">TRẪM VẪN ĐANG HỌC!</button>
+        <button class="btn-afk" onclick="afkSuccess()">TÔI VẪN ĐANG HỌC!</button>
     </div>
 
     <div id="fireworks-container"></div>
@@ -468,7 +468,7 @@
             <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div>
             <div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
             
-            <div class="zen-status" id="zen-status">SẴN SÀNG TU LUYỆN</div>
+            <div class="zen-status" id="zen-status">SẴN SÀNG HỌC TẬP</div>
             <div class="zen-timer" id="zen-timer">25:00</div>
             
             <div class="zen-energy-bar-container" id="zen-energy-bar">
@@ -476,19 +476,19 @@
             </div>
 
             <div id="zen-pump-box" style="background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 400px;">
-                <p style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fas fa-chart-line"></i> Thao Túng Cổ Phiếu (Bơm Giá)</p>
+                <p style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fas fa-chart-line"></i> Tập trung đẩy giá cổ phiếu</p>
                 <select id="pump-stock-select" style="padding: 10px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #3b82f6; width: 100%; font-size: 1rem; margin-bottom: 5px;">
                     <option value="NONE">Không can thiệp thị trường</option>
-                    <option value="IEL">Bơm giá mã $IEL (+20%)</option>
-                    <option value="MUN">Bơm giá mã $MUN (+20%)</option>
-                    <option value="BYN">Bơm giá mã $BYN (+20%)</option>
-                    <option value="ZHN">Bơm giá mã $ZHN (+20%)</option>
+                    <option value="IEL">Đẩy giá mã $IEL (+20%)</option>
+                    <option value="MUN">Đẩy giá mã $MUN (+20%)</option>
+                    <option value="BYN">Đẩy giá mã $BYN (+20%)</option>
+                    <option value="ZHN">Đẩy giá mã $ZHN (+20%)</option>
                 </select>
-                <p style="font-size: 0.8rem; color: #94a3b8;">Hoàn thành 25p để đẩy giá tăng mạnh. Nếu AFK, mã sẽ sập sàn chia đôi!</p>
+                <p style="font-size: 0.8rem; color: #94a3b8;">Hoàn thành 25p để giúp giá cổ phiếu tăng mạnh. Nếu không phản hồi kiểm tra, giá sẽ giảm mạnh!</p>
             </div>
 
             <div id="zen-wheel-box">
-                <div class="zen-status" style="color: #fbbf24; margin-bottom: 10px;"><i class="fas fa-dice"></i> VÒNG QUAY ĐỊNH MỆNH <i class="fas fa-dice"></i></div>
+                <div class="zen-status" style="color: #fbbf24; margin-bottom: 10px;"><i class="fas fa-dice"></i> PHẦN THƯỞNG NGẪU NHIÊN <i class="fas fa-dice"></i></div>
                 <div class="wheel-wrapper">
                     <div class="wheel-pointer"></div>
                     <div class="wheel" id="focus-wheel"></div>
@@ -507,7 +507,7 @@
             
             <div class="zen-controls" id="zen-controls">
                 <button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button>
-                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt lời</button>
+                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt kết quả</button>
                 <button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button>
             </div>
         </div>
@@ -528,8 +528,8 @@
         ];
         const MAX_POINTS = 10000; 
         const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v83"; 
-        const TEMPLATE_KEY = "planner_template_v83";
+        const STORAGE_KEY = "planner_data_v84"; 
+        const TEMPLATE_KEY = "planner_template_v84";
         const THEMES = ['light', 'dark', 'detective', 'nature'];
 
         let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
@@ -551,7 +551,6 @@
             unlockedThemes: []
         };
 
-        // --- CÁC HÀM ÂM THANH ---
         let sysAudioCtx = null;
         function getAudioCtx() {
             try {
@@ -610,7 +609,6 @@
             } catch(e) {}
         }
 
-        // --- HỆ THỐNG PHÁO HOA ---
         let fireworks; 
         function initFireworks() { 
             try {
@@ -623,7 +621,6 @@
             try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
         }
 
-        // --- CÂU TRÍCH DẪN NGẪU NHIÊN ---
         const quotes = [
             { en: "Education is the most powerful weapon which you can use to change the world.", vi: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.", author: "Nelson Mandela" },
             { en: "The only place where success comes before work is in the dictionary.", vi: "Nơi duy nhất thành công đến trước làm việc là trong từ điển.", author: "Vidal Sassoon" },
@@ -657,14 +654,13 @@
                 sys = { ...sys, ...parsed.sys };
             }
             
-            // Rào chắn bảo mật (Migration Safety)
             sys.points = Number(sys.points) || 0;
             sys.coins = Number(sys.coins) || 0;
             sys.streak = Number(sys.streak) || 0;
             sys.bankCapital = Number(sys.bankCapital) || 0;
             sys.bankUnclaimed = Number(sys.bankUnclaimed) || 0;
             sys.currentTheme = sys.currentTheme || 'light';
-            if(!sys.stocks) sys.stocks = { IEL: {name:"IELTS",price:100,qty:0}, MUN: {name:"ManUtd",price:50,qty:0}, BYN: {name:"Bayern",price:150,qty:0}, ZHN: {name:"Trung",price:30,qty:0} };
+            if(!sys.stocks) sys.stocks = { IEL: {name:"IELTS Corp",price:100,qty:0}, MUN: {name:"Quỷ Đỏ Old Trafford",price:50,qty:0}, BYN: {name:"Hùm Xám Bavaria",price:150,qty:0}, ZHN: {name:"Hán Ngữ Group",price:30,qty:0} };
             if(!sys.unlockedThemes || !Array.isArray(sys.unlockedThemes)) sys.unlockedThemes = [];
             
             applyTheme(sys.currentTheme);
@@ -691,15 +687,14 @@
             let nextIndex = (currentIndex + 1) % available.length;
             let nextTheme = available[nextIndex];
             
-            // Bỏ qua các theme bị khóa nếu chưa đủ trình độ
             let attempts = 0;
             while(attempts < available.length) {
                 if (nextTheme === 'detective' && sys.highestStreak < 7 && sys.streak < 7) {
-                    // Bị khóa, bỏ qua
+                    
                 } else if (nextTheme === 'nature' && sys.highestStreak < 14 && sys.streak < 14) {
-                    // Bị khóa, bỏ qua
+                    
                 } else {
-                    break; // Hợp lệ
+                    break;
                 }
                 nextIndex = (nextIndex + 1) % available.length;
                 nextTheme = available[nextIndex];
@@ -768,10 +763,10 @@
         function closeWagerModal() { document.getElementById('wager-modal').style.display = 'none'; }
         function placeWager() {
             let amount = parseInt(document.getElementById('wager-amount').value);
-            if (isNaN(amount) || amount <= 0) { alert("Số lượng XP không hợp lệ!"); return; }
-            if (amount > sys.points) { alert("Bạn không đủ số XP để thực hiện cam kết này!"); return; }
+            if (isNaN(amount) || amount <= 0) { alert("Vui lòng nhập số lượng hợp lệ!"); return; }
+            if (amount > sys.points) { alert("Số dư XP không đủ để thực hiện cam kết này!"); return; }
             sys.points -= amount; sys.wagerAmount = amount; saveAllData(); closeWagerModal();
-            alert(`Cam kết thiết lập thành công! Trích xuất ${amount} XP. Hoàn thành toàn bộ công việc hôm nay để nhận lại x2 điểm thưởng!`);
+            alert(`Thiết lập cam kết thành công! Trích xuất ${amount} XP. Hoàn thành toàn bộ công việc hôm nay để nhận lại nhân đôi!`);
         }
 
         function updateGhostBar() {
@@ -789,7 +784,7 @@
         }
 
         // ==========================================
-        // BẢNG KẾ HOẠCH & NHA MÔN PHẠT TIỀN
+        // BẢNG KẾ HOẠCH & KỶ LUẬT
         // ==========================================
         function renderBoard() {
             const board = document.getElementById('board-container'); board.innerHTML = ''; let today = getRealDayIndex();
@@ -812,7 +807,7 @@
                 if (total > 0 && !allLocked) { finishBtn = `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`; } 
                 else if (allLocked) {
                     if (tasks.every(t => !t.missed)) finishBtn = `<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Hoàn thành xuất sắc</div>`;
-                    else finishBtn = `<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px; padding: 12px; border: 2px dashed var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.05); line-height: 1.4;"><i class="fas fa-times-circle"></i><br>NHIỆM VỤ TỒN ĐỌNG<br><span style="font-size: 0.85rem; font-weight: 500; opacity: 0.9;">Hãy nỗ lực hoàn thành tốt hơn vào ngày mai!</span></div>`;
+                    else finishBtn = `<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px; padding: 12px; border: 2px dashed var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.05); line-height: 1.4;"><i class="fas fa-times-circle"></i><br>CẦN CỐ GẮNG HƠN<br><span style="font-size: 0.85rem; font-weight: 500; opacity: 0.9;">Nhiệm vụ còn tồn đọng</span></div>`;
                 }
                 board.innerHTML += `<div class="day-column" id="col-${index}" ${isToday ? 'style="border: 2px solid var(--primary);"' : ''}><div class="day-header"><div class="day-title">${dayName} ${isToday ? '<span class="today-badge">Hôm nay</span>' : ''}</div><div class="progress-container"><div class="progress-text"><span>Tiến độ</span><span>${completed}/${total} (${progressPct}%)</span></div><div class="progress-track"><div class="progress-fill" style="width: ${progressPct}%"></div></div></div></div><div class="task-list">${tasksHTML}</div><div class="day-footer">${!allLocked ? `<button class="btn-add" onclick="openModal(${index})"><i class="fas fa-plus"></i> Thêm công việc</button>` : ''} ${finishBtn}</div></div>`;
             });
@@ -877,7 +872,7 @@
                 alert(msg); runBigFireworks(); playRealisticBoom();
                 renderBoard(); saveAllData();
             } else {
-                pendingPunishReason = "Lơ là nhiệm vụ, không hoàn thành kế hoạch trong ngày!";
+                pendingPunishReason = "Chưa hoàn thành kế hoạch trong ngày!";
                 pendingIncompleteTasks = incompleteTasks;
                 pendingDayIndex = dayIndex;
                 completedTasks.forEach(t => t.locked = true); 
@@ -893,7 +888,7 @@
         function showPunishmentModal(reason = null) {
             if(reason) pendingPunishReason = reason;
             document.getElementById('punish-overlay').style.display = 'flex';
-            document.getElementById('punish-reason').innerText = `Tội danh: ${pendingPunishReason}`;
+            document.getElementById('punish-reason').innerText = `Lý do: ${pendingPunishReason}`;
             document.getElementById('punish-tier-display').innerText = sys.punishTier;
             
             let fineAmount = sys.punishTier * 50;
@@ -901,10 +896,10 @@
             
             const btnPay = document.getElementById('btn-pay-fine');
             if (sys.coins >= fineAmount) {
-                btnPay.innerText = `Nộp Phạt (${fineAmount} Xu)`;
+                btnPay.innerText = `Nộp phạt (${fineAmount} Xu)`;
                 btnPay.disabled = false; btnPay.style.opacity = 1;
             } else {
-                btnPay.innerText = `Không Đủ Tiền (${Math.floor(sys.coins)}/${fineAmount})`;
+                btnPay.innerText = `Số dư không đủ (${Math.floor(sys.coins)}/${fineAmount})`;
                 btnPay.disabled = true; btnPay.style.opacity = 0.5;
             }
         }
@@ -914,13 +909,13 @@
             if (sys.coins >= fineAmount) {
                 sys.coins -= fineAmount;
                 sys.punishTier++; 
-                alert(`💸 Đã đút lót ${fineAmount} Xu thành công! Quan tham đã xóa án tích. Bệ hạ được bảo toàn XP và Chuỗi Kỷ luật!`);
+                alert(`Đã nộp phạt thành công! Hệ thống đã xóa cảnh báo. Bảo toàn điểm XP và chuỗi kỷ luật!`);
                 closePunishmentModal(true);
             }
         }
 
         function refuseFine() {
-            alert(`☠️ ÁN ĐÃ TUYÊN! Bệ hạ bị chém 30 XP và đứt Chuỗi Kỷ luật!`);
+            alert(`CẢNH BÁO: Bạn bị trừ 30 XP và mất chuỗi kỷ luật!`);
             sys.points = Math.max(0, sys.points - 30); 
             sys.streak = 0;
             sys.punishTier++;
@@ -935,7 +930,7 @@
                     scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[pendingDayIndex] }); 
                     task.missed = true; task.locked = true; 
                 });
-                alert("Các công việc dang dở đã bị phạt chuyển sang ngày mai!");
+                alert("Các công việc dang dở đã bị chuyển sang ngày mai!");
                 pendingIncompleteTasks = []; pendingDayIndex = -1;
             }
             saveAllData(); renderBoard();
@@ -951,7 +946,7 @@
 
         function resetWeek() {
             const template = localStorage.getItem(TEMPLATE_KEY); let todayIndex = getRealDayIndex(); 
-            if(confirm("Khởi tạo Tuần Học Mới?\nLịch cũ sẽ bị xóa. ĐẶC BIỆT: Hệ thống Nha môn sẽ ân xá, reset tiền phạt về 50 Xu!")) {
+            if(confirm("Khởi tạo Tuần Học Mới?\nLịch cũ sẽ bị xóa. Hệ thống sẽ đặt lại mức phạt về 50 Xu.")) {
                 sys.punishTier = 1; 
                 sys.lastWeekCompleted = sys.currentWeekCompleted; sys.lastWeekTotal = sys.currentWeekTotal;
                 
@@ -963,7 +958,7 @@
                 if(pendingTasks.length > 0) scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
                 
                 saveAllData(); renderBoard();
-                alert(`Đã sang Tuần Mới! Án tích được xóa bỏ.`);
+                alert(`Đã sang Tuần Mới! Dữ liệu đã được làm mới.`);
             }
         }
 
@@ -972,15 +967,14 @@
         // ==========================================
         function openShopModal() { 
             document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins); 
-            updateShopUI(); // Cập nhật nút Đã Mua
+            updateShopUI(); 
             document.getElementById('shop-modal').style.display = 'flex'; 
         }
 
-        // TÍNH NĂNG MỚI: CẬP NHẬT TRẠNG THÁI NÚT TRONG SHOP
         function updateShopUI() {
             const btnRoyal = document.getElementById('btn-buy-theme-royal');
             if (btnRoyal && sys.unlockedThemes.includes('royal')) {
-                btnRoyal.innerText = "👑 Đã Sở Hữu";
+                btnRoyal.innerText = "👑 Đã Mở Khóa";
                 btnRoyal.disabled = true;
                 btnRoyal.style.opacity = "0.5";
                 btnRoyal.style.cursor = "not-allowed";
@@ -988,7 +982,7 @@
             
             const btnHacker = document.getElementById('btn-buy-theme-hacker');
             if (btnHacker && sys.unlockedThemes.includes('hacker')) {
-                btnHacker.innerText = "💻 Đã Sở Hữu";
+                btnHacker.innerText = "💻 Đã Mở Khóa";
                 btnHacker.disabled = true;
                 btnHacker.style.opacity = "0.5";
                 btnHacker.style.cursor = "not-allowed";
@@ -999,32 +993,32 @@
         function openBankModal() { document.getElementById('bank-rate-display').innerText = Math.max(1, sys.streak); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-modal').style.display = 'flex'; }
 
         function buyItem(itemType, cost) {
-            if (sys.coins >= cost) { sys.coins -= cost; sys[itemType]++; playTickSound(); saveAllData(); alert("Mua sắm thành công!"); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            } else alert("Quốc khố cạn kiệt, không đủ Xu để mua!");
+            if (sys.coins >= cost) { sys.coins -= cost; sys[itemType]++; playTickSound(); saveAllData(); alert("Giao dịch thành công!"); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            } else alert("Số dư không đủ!");
         }
 
         function buyTheme(themeName, cost) {
-            if (sys.unlockedThemes.includes(themeName)) { applyTheme(themeName); alert("Đã chuyển sang giao diện này!"); return; }
+            if (sys.unlockedThemes.includes(themeName)) { applyTheme(themeName); alert("Đã áp dụng giao diện này!"); return; }
             if (sys.coins >= cost) { 
                 sys.coins -= cost; 
                 sys.unlockedThemes.push(themeName); 
                 applyTheme(themeName); 
                 playRealisticBoom(); saveAllData(); 
-                alert("Đã mở khóa vĩnh viễn giao diện Hoàng Gia!"); 
+                alert("Đã mở khóa giao diện mới!"); 
                 document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-                updateShopUI(); // Đổi nút thành Đã sở hữu
-            } else alert("Phải có đủ 1000 Xu mới xứng đáng mặc Long Bào!");
+                updateShopUI(); 
+            } else alert("Bạn cần 1000 Xu để mở khóa giao diện này!");
         }
 
         const shopGachaOpts = [
-            { n: "🎰 Mega Jackpot", c: "#fbbf24", act: ()=> { addTuVi(1000); alert("CHẤN ĐỘNG! NỔ HŨ +1000 XP/XU!!"); } },
-            { n: "📦 Rương Bí Bảo", c: "#8b5cf6", act: ()=> { sys.doubleXp++; alert("Trúng 1 Bùa X2 XP (Đỡ tốn 300 Xu mua)!"); } },
-            { n: "♻️ Hoàn Vốn", c: "#10b981", act: ()=> { sys.coins+=100; alert("May quá, hoàn lại 100 Xu!"); } },
-            { n: "🤡 Suýt Nổ Hũ", c: "#fca5a5", act: ()=> { sys.coins+=1; alert("Há há há! Lệch 1 milimet trúng Jackpot! Trả Bệ hạ 1 Xu tiền an ủi!"); } },
-            { n: "💸 Mất Trắng", c: "#3b82f6", act: ()=> { alert("Cảm ơn Bệ hạ đã quyên góp tài sản cho nhà cái."); } },
-            { n: "💸 Mất Trắng", c: "#3b82f6", act: ()=> { alert("Quay vào ô mất lượt..."); } },
-            { n: "⚖️ Thuế 20%", c: "#dc2626", act: ()=> { let tax = Math.floor(sys.coins*0.2); sys.coins-=tax; alert(`Nhà cái thu Thuế Tài Sản 20%! Bị siết ${tax} Xu!`); } },
-            { n: "⛓️ Khổ Sai 25p", c: "#000000", act: ()=> { alert("💀 ÁC MỘNG! Bị nhà cái xích cổ, bắt làm việc 25 phút KHÔNG CÔNG!"); closeModal('shop-modal'); toggleZenMode(); startTimer(true); }}
+            { n: "🎰 Giải Đặc Biệt", c: "#fbbf24", act: ()=> { addTuVi(1000); alert("CHÚC MỪNG! Nhận ngay +1000 XP/Xu!!"); } },
+            { n: "📦 Phần Thưởng", c: "#8b5cf6", act: ()=> { sys.doubleXp++; alert("Nhận 1 Thẻ Nhân Đôi XP!"); } },
+            { n: "♻️ Hoàn Lại", c: "#10b981", act: ()=> { sys.coins+=100; alert("Hoàn lại 100 Xu!"); } },
+            { n: "🤡 Kém May Mắn", c: "#fca5a5", act: ()=> { sys.coins+=1; alert("Rất tiếc! Bạn suýt trúng thưởng. Nhận 1 Xu an ủi."); } },
+            { n: "💸 Không Trúng", c: "#3b82f6", act: ()=> { alert("Rất tiếc, bạn không trúng thưởng."); } },
+            { n: "💸 Không Trúng", c: "#3b82f6", act: ()=> { alert("Lần sau may mắn hơn nhé."); } },
+            { n: "⚖️ Giảm Trừ 20%", c: "#dc2626", act: ()=> { let tax = Math.floor(sys.coins*0.2); sys.coins-=tax; alert(`Hệ thống trừ 20% số dư hiện tại! Bạn bị trừ ${tax} Xu.`); } },
+            { n: "⛓️ Phạt Tập Trung", c: "#000000", act: ()=> { alert("CẢNH BÁO: Bị phạt tập trung 25 phút (Không nhận phần thưởng)!"); closeModal('shop-modal'); toggleZenMode(); startTimer(true); }}
         ];
 
         function initShopWheel() {
@@ -1040,9 +1034,9 @@
         let isShopSpinning = false;
         function spinShopGacha() {
             if(isShopSpinning) return;
-            if(sys.coins < 100) { alert("Không đủ 100 Xu mua vé!"); return; }
+            if(sys.coins < 100) { alert("Số dư không đủ 100 Xu để thực hiện!"); return; }
             sys.coins -= 100; saveAllData(); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            isShopSpinning = true; document.getElementById('btn-shop-spin').innerText = "Đang quay...";
+            isShopSpinning = true; document.getElementById('btn-shop-spin').innerText = "Đang xử lý...";
 
             let r = Math.random() * 100; let idx = 4;
             if(r < 1) idx = 0; else if(r < 15) idx = 1; else if(r < 30) idx = 2; else if(r < 45) idx = 3; else if(r < 55) idx = 6; else if(r < 70) idx = 7; else idx = (Math.random() > 0.5) ? 4 : 5;
@@ -1053,7 +1047,7 @@
             playAlarmSound();
 
             setTimeout(() => {
-                isShopSpinning = false; document.getElementById('btn-shop-spin').innerText = "QUAY VÉ (Tốn 100 Xu)";
+                isShopSpinning = false; document.getElementById('btn-shop-spin').innerText = "QUAY NGAY (100 Xu)";
                 wheel.style.transition = 'none'; wheel.style.transform = `rotate(${targetRotation % 360}deg)`;
                 shopGachaOpts[idx].act(); saveAllData(); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
             }, 4000);
@@ -1079,42 +1073,37 @@
 
         function tradeStock(code, dir) {
             let s = sys.stocks[code];
-            if(dir > 0) { if(sys.coins >= s.price) { sys.coins -= s.price; s.qty++; } else { alert("Lưu manh giả danh trí thức! Không có tiền đòi mua chứng khoán?"); return; } } 
-            else { if(s.qty > 0) { sys.coins += s.price; s.qty--; } else { alert("Trong tay không có cổ phiếu đòi bán khống?"); return; } }
+            if(dir > 0) { if(sys.coins >= s.price) { sys.coins -= s.price; s.qty++; } else { alert("Số dư không đủ để giao dịch!"); return; } } 
+            else { if(s.qty > 0) { sys.coins += s.price; s.qty--; } else { alert("Số lượng cổ phiếu không đủ để bán!"); return; } }
             playTickSound(); saveAllData(); document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); renderStockMarket();
         }
 
         function depositBank() {
             let amt = parseInt(document.getElementById('bank-input-amount').value);
-            if (isNaN(amt) || amt <= 0) {
-                alert("Bệ hạ vui lòng gõ một con số hợp lệ vào ô trống để gửi!");
-                return;
-            }
+            if (isNaN(amt) || amt <= 0) { alert("Vui lòng nhập một số hợp lệ để gửi!"); return; }
             if (sys.coins >= amt) { 
                 sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now(); 
                 saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); 
-                alert(`Đã đưa ${amt} Xu vào Túi Thần Tài để sinh lời!`);
+                alert(`Đã chuyển ${amt} Xu vào Quỹ Tiết Kiệm.`);
             } else {
-                alert("Trong ví của Bệ hạ không đủ số Xu này!");
+                alert("Số dư Xu không đủ!");
             }
         }
         
         function withdrawBank() {
             let amt = parseInt(document.getElementById('bank-input-amount').value);
-            if (isNaN(amt) || amt <= 0) {
-                alert("Bệ hạ vui lòng gõ một con số hợp lệ vào ô trống để rút!");
-                return;
-            }
+            if (isNaN(amt) || amt <= 0) { alert("Vui lòng nhập một số hợp lệ để rút!"); return; }
             if (sys.bankCapital >= amt) { 
                 sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now(); 
                 saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); 
-                alert(`Đã rút thành công ${amt} Xu tiền vốn ra khỏi túi!`);
+                alert(`Đã rút thành công ${amt} Xu.`);
             } else {
-                alert("Số vốn Bệ hạ đang gửi ít hơn số tiền Bệ hạ muốn rút!");
+                alert("Số vốn hiện tại ít hơn số tiền muốn rút!");
             }
         }
+        
         function harvestBank() {
-            if(sys.bankUnclaimed > 0) { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastUpdate = Date.now(); saveAllData(); alert("Thu hoạch lãi thành công! Ting ting!"); playChime(); }
+            if(sys.bankUnclaimed > 0) { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastUpdate = Date.now(); saveAllData(); alert("Đã nhận tiền lãi thành công!"); playChime(); }
         }
         
         setInterval(() => {
@@ -1138,10 +1127,10 @@
             { id: 2, name: "🎮 Nghỉ 15p", type: "break", time: 15, xp: 0, color: "#059669", prob: 10 },
             { id: 3, name: "📚 Học 15p", type: "work", time: 15, xp: 0, color: "#f59e0b", prob: 10 },
             { id: 4, name: "🔥 Học 25p(+50)", type: "work", time: 25, xp: 50, color: "#dc2626", prob: 5 },
-            { id: 5, name: "🛡️ Thẻ Miễn Trừ", type: "item_immunity", color: "#6366f1", prob: 15 },
-            { id: 6, name: "✨ Thẻ X2 XP", type: "item_doublexp", color: "#ec4899", prob: 10 },
-            { id: 7, name: "♾️ Focus Vô Cực", type: "endless", color: "#8b5cf6", prob: 10 },
-            { id: 8, name: "🎲 Jackpot (+100)", type: "jackpot", xp: 100, color: "#f5a623", prob: 5 },
+            { id: 5, name: "🛡️ Thẻ Bảo Hộ", type: "item_immunity", color: "#6366f1", prob: 15 },
+            { id: 6, name: "✨ Thẻ Nhân Đôi", type: "item_doublexp", color: "#ec4899", prob: 10 },
+            { id: 7, name: "♾️ Tập Trung Vô Cực", type: "endless", color: "#8b5cf6", prob: 10 },
+            { id: 8, name: "🎲 Phần Thưởng (+100)", type: "jackpot", xp: 100, color: "#f5a623", prob: 5 },
             { id: 9, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 10 }
         ];
 
@@ -1185,7 +1174,7 @@
             isTimerRunning = true; btn.innerText = "Tạm dừng"; document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
             
             if (isWorkSession) {
-                if(isForcedLabor) document.getElementById('zen-status').innerText = "💀 ĐANG PHỤC VỤ KHỔ SAI (0 LƯƠNG)"; else if(pumpedStock !== "NONE") document.getElementById('zen-status').innerText = `📈 ĐANG BƠM GIÁ MÃ $${pumpedStock}`; else if(isCurrentSessionDouble) document.getElementById('zen-status').innerText = "✨ ĐANG TẬP TRUNG... (BUFF X2)"; else document.getElementById('zen-status').innerText = "ĐANG TRONG PHIÊN TẬP TRUNG";
+                if(isForcedLabor) document.getElementById('zen-status').innerText = "🔴 ĐANG TRONG PHIÊN PHẠT (KHÔNG CỘNG ĐIỂM)"; else if(pumpedStock !== "NONE") document.getElementById('zen-status').innerText = `📈 ĐANG ĐẨY GIÁ MÃ $${pumpedStock}`; else if(isCurrentSessionDouble) document.getElementById('zen-status').innerText = "✨ ĐANG TẬP TRUNG... (NHÂN ĐÔI)"; else document.getElementById('zen-status').innerText = "ĐANG TRONG PHIÊN TẬP TRUNG";
                 document.getElementById('zen-status').style.color = isForcedLabor ? "red" : (isCurrentSessionDouble ? "#ec4899" : "white"); barContainer.classList.remove('break-mode'); 
             } else { document.getElementById('zen-status').innerText = "ĐANG NGHỈ NGƠI..."; document.getElementById('zen-status').style.color = "#10b981"; barContainer.classList.add('break-mode'); }
 
@@ -1198,16 +1187,16 @@
                     timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
                     
                     if (isWorkSession) {
-                        if(isForcedLabor) { alert("Đã hoàn thành phiên Khổ Sai! Bạn được ân xá, ra tù không một xu dính túi."); resetTimer(); toggleZenMode(); return; }
-                        let baseReward = 5; if (isCurrentSessionDouble) { baseReward *= 2; sys.doubleXp--; saveAllData(); alert("✨ Chúc mừng! Bùa Chúc Phúc đã phát huy uy lực. Điểm thưởng phiên này đã được nhân đôi!"); }
+                        if(isForcedLabor) { alert("Đã hoàn thành phiên phạt. Bạn có thể tiếp tục kế hoạch bình thường."); resetTimer(); toggleZenMode(); return; }
+                        let baseReward = 5; if (isCurrentSessionDouble) { baseReward *= 2; sys.doubleXp--; saveAllData(); alert("Hoàn thành phiên tập trung! Bù phần thưởng đã được nhân đôi."); }
                         runBigFireworks(); playRealisticBoom(); addTuVi(baseReward);
                         
-                        if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 1.20); alert(`📈 Giao dịch nội gián hoàn hảo! Giá cổ phiếu $${pumpedStock} đã BƠM THẲNG ĐỨNG +20%! Hãy ra Sàn chốt lời ngay!`); saveAllData(); }
+                        if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 1.20); alert(`Giao dịch thành công! Giá cổ phiếu $${pumpedStock} đã tăng +20%.`); saveAllData(); }
                         document.getElementById('zen-status').innerText = "PHIÊN HỌC TẬP HOÀN TẤT!"; document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none'; 
                         const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; document.getElementById('zen-wheel-box').style.display = 'flex';
                     } else {
                         playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
-                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ! Quay lại nào."; document.getElementById('zen-status').style.color = "white"; 
+                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ. Trở lại công việc."; document.getElementById('zen-status').style.color = "white"; 
                         btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; 
                     } return; 
                 }
@@ -1222,7 +1211,7 @@
 
         let isFocusSpinning = false;
         function spinFocusWheel() {
-            if(isFocusSpinning) return; isFocusSpinning = true; document.getElementById('btn-focus-spin').innerText = "Đang quay...";
+            if(isFocusSpinning) return; isFocusSpinning = true; document.getElementById('btn-focus-spin').innerText = "Đang xử lý...";
             let rand = Math.random() * 100; let sum = 0; let winnerIdx = 0;
             for(let i=0; i<focusWheelOpts.length; i++) { sum += focusWheelOpts[i].prob; if(rand <= sum) { winnerIdx = i; break; } }
             let winner = focusWheelOpts[winnerIdx]; let sliceDeg = 360 / 10; let offset = 5 + Math.random() * (sliceDeg - 10); let pointInSlice = winnerIdx * sliceDeg + offset; let targetRotation = 360 * 5 + (360 - pointInSlice); 
@@ -1231,15 +1220,15 @@
             try { const ctx = getAudioCtx(); if(ctx) { let count = 0; let interval = setInterval(() => { if(count >= 20) { clearInterval(interval); return; } count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*20, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1); }, 200 - count*5); } } catch(e) {}
 
             setTimeout(() => {
-                isFocusSpinning = false; document.getElementById('btn-focus-spin').innerText = "QUAY THƯỞNG"; let alertMsg = `🎉 KẾT QUẢ VÒNG QUAY: ${winner.name}!\n\n`;
+                isFocusSpinning = false; document.getElementById('btn-focus-spin').innerText = "QUAY THƯỞNG"; let alertMsg = `🎉 Kết quả: ${winner.name}!\n\n`;
                 document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex';
                 
-                if (winner.type === 'work') { alertMsg += `ÁC MỘNG: Đồng hồ sẽ đếm ngược ${winner.time} phút Học Tập ngay lập tức. Cố lên!`; alert(alertMsg); isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; updateTimerDisplay(); startTimer(); } 
-                else if (winner.type === 'endless') { alertMsg += `🔥 THỬ THÁCH VÔ CỰC:\nĐồng hồ sẽ đếm tiến. Cày càng lâu XP nhân theo hệ số càng cao.\nNHỚ TỰ BẤM CHỐT LỜI, Bị AFK sẽ mất trắng!`; alert(alertMsg); startEndlessMode(); }
-                else if (winner.type === 'item_immunity') { sys.immunity++; saveAllData(); alertMsg += `Bạn nhận được 1 Kim Bài Miễn Tử 🛡️.\nĐã cấp cho bạn 5 phút xả hơi!`; alert(alertMsg); startBreak(5); }
-                else if (winner.type === 'item_doublexp') { sys.doubleXp++; saveAllData(); alertMsg += `Bạn nhận được 1 Bùa Chúc Phúc ✨.\nĐã cấp cho bạn 5 phút xả hơi trước khi lâm trận!`; alert(alertMsg); startBreak(5); }
-                else if (winner.type === 'jackpot') { addTuVi(winner.xp); alertMsg += `JACKPOT! Nhận ngay ${winner.xp} XP & Xu!\nĐi nghỉ 5 phút ăn mừng thôi!`; alert(alertMsg); startBreak(5); }
-                else { alertMsg += `Bạn được phép nghỉ ngơi ${winner.time} phút.`; alert(alertMsg); startBreak(winner.time); }
+                if (winner.type === 'work') { alertMsg += `Thử thách: Bắt đầu phiên tập trung ${winner.time} phút!`; alert(alertMsg); isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; updateTimerDisplay(); startTimer(); } 
+                else if (winner.type === 'endless') { alertMsg += `Kích hoạt Chế độ Vô Cực:\nHệ số thưởng tăng dần theo thời gian. Cẩn thận với cảnh báo tập trung.`; alert(alertMsg); startEndlessMode(); }
+                else if (winner.type === 'item_immunity') { sys.immunity++; saveAllData(); alertMsg += `Bạn nhận được 1 Thẻ Bảo Hộ 🛡️.\nĐã cấp cho bạn 5 phút xả hơi.`; alert(alertMsg); startBreak(5); }
+                else if (winner.type === 'item_doublexp') { sys.doubleXp++; saveAllData(); alertMsg += `Bạn nhận được 1 Thẻ Nhân Đôi ✨.\nĐã cấp cho bạn 5 phút xả hơi.`; alert(alertMsg); startBreak(5); }
+                else if (winner.type === 'jackpot') { addTuVi(winner.xp); alertMsg += `Nhận ngay ${winner.xp} phần thưởng!\nĐi nghỉ 5 phút thôi!`; alert(alertMsg); startBreak(5); }
+                else { alertMsg += `Thời gian nghỉ ngơi: ${winner.time} phút.`; alert(alertMsg); startBreak(winner.time); }
             }, 4000); 
         }
 
@@ -1252,7 +1241,7 @@
                 if (!afkTriggered && endlessSeconds > 5 * 60) { if (Math.random() < 0.005) triggerAFK(); }
                 let mins = Math.floor(endlessSeconds / 60); let tempXp = 0;
                 if(mins <= 15) tempXp = mins * 1; else if(mins <= 30) tempXp = 15 * 1 + (mins - 15) * 2; else tempXp = 15 * 1 + 15 * 2 + (mins - 30) * 3;
-                endlessTempXp = tempXp; document.getElementById('zen-status').innerText = `🔥 PHIÊN VÔ CỰC - Tạm tính: +${tempXp} XP`; document.getElementById('zen-status').style.color = "#f5a623";
+                endlessTempXp = tempXp; document.getElementById('zen-status').innerText = `🔥 TẬP TRUNG VÔ CỰC - Tạm tính: +${tempXp} XP`; document.getElementById('zen-status').style.color = "#f5a623";
                 let secInMin = endlessSeconds % 60; document.getElementById('zen-energy-fill').style.width = `${(secInMin / 60) * 100}%`;
                 let m = Math.floor(endlessSeconds / 60); let s = endlessSeconds % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
             }, 1000);
@@ -1261,7 +1250,7 @@
         function cashOutEndless() {
             clearInterval(zenTimer); isTimerRunning = false; isEndless = false;
             document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
-            if (endlessTempXp > 0) { addTuVi(endlessTempXp); runBigFireworks(); playRealisticBoom(); alert(`🎉 CHỐT LỜI THÀNH CÔNG!\nBạn đã xuất sắc bỏ túi ${endlessTempXp} XP từ Phiên Vô Cực! Bây giờ hãy nghỉ ngơi 10 phút nhé.`); startBreak(10); } else { alert(`Phiên Vô Cực kết thúc quá sớm. Bạn chưa kịp thu hoạch được XP nào.\nHãy nghỉ 5 phút và quay lại phiên 25 phút bình thường.`); startBreak(5); }
+            if (endlessTempXp > 0) { addTuVi(endlessTempXp); runBigFireworks(); playRealisticBoom(); alert(`Hoàn thành xuất sắc!\nĐã lưu lại ${endlessTempXp} XP từ Phiên Vô Cực. Chuyển sang giờ nghỉ 10 phút.`); startBreak(10); } else { alert(`Phiên kết thúc sớm, không có phần thưởng.\nChuyển sang giờ nghỉ 5 phút.`); startBreak(5); }
         }
 
         function triggerAFK() {
@@ -1272,11 +1261,11 @@
         function afkFail() {
             document.getElementById('afk-overlay').style.display = 'none'; 
             if (isEndless) {
-                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("🛡️ KIM BÀI MIỄN TỬ đã đỡ thay một đòn Thiên Lôi! Phiên Vô Cực tự động chốt lời bảo toàn điểm số."); cashOutEndless(); } 
-                else { isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; alert(`💀 THẢM HỌA AFK! Bạn đã không xác nhận AFK. Toàn bộ ${endlessTempXp} XP chưa chốt lời bốc hơi sạch sẽ! Đã chuyển hồ sơ lên Nha Môn.`); resetTimer(); toggleZenMode(); showPunishmentModal("Ngủ gật trong Phiên Vô Cực!"); }
+                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Phiên Vô Cực tự động lưu phần thưởng."); cashOutEndless(); } 
+                else { isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; alert(`Không xác nhận tập trung. Hủy phần thưởng tạm tính! Hệ thống đã ghi nhận cảnh báo.`); resetTimer(); toggleZenMode(); showPunishmentModal("Lý do: Không phản hồi kiểm tra tập trung!"); }
             } else {
-                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("🛡️ KIM BÀI MIỄN TỬ đã phát huy tác dụng! Bạn được miễn tội AFK, nhưng phiên học hiện tại bị hủy."); resetTimer(); } 
-                else { if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 0.5); alert(`📉 CẢNH BÁO TÀI CHÍNH! Đang bơm giá mà lơ là, cổ phiếu $${pumpedStock} sập sàn chia đôi tài sản!`); } resetTimer(); toggleZenMode(); showPunishmentModal("Ngủ gật, xao nhãng trong giờ Focus!"); }
+                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Miễn cảnh báo, phiên học hiện tại bị hủy."); resetTimer(); } 
+                else { if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 0.5); alert(`Lỗi giao dịch! Mất tập trung khiến cổ phiếu $${pumpedStock} giảm mạnh!`); } resetTimer(); toggleZenMode(); showPunishmentModal("Lý do: Không phản hồi kiểm tra tập trung!"); }
             }
         }
         document.addEventListener("visibilitychange", () => {
@@ -1290,7 +1279,7 @@
 
         function resetTimer() {
             clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isEndless = false; isForcedLabor = false; pumpedStock = "NONE";
-            document.getElementById('zen-status').innerText = "SẴN SÀNG TU LUYỆN"; document.getElementById('zen-status').style.color = "white"; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active'); document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('zen-pump-box').style.display = 'block'; 
+            document.getElementById('zen-status').innerText = "SẴN SÀNG HỌC TẬP"; document.getElementById('zen-status').style.color = "white"; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active'); document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('zen-pump-box').style.display = 'block'; 
             updateTimerDisplay();
         }
         function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
@@ -1338,7 +1327,7 @@
                     scheduleData = newData; saveAllData(); 
                     alert("Khôi phục thành công! Giao diện đã được làm mới.");
                     renderBoard();
-                } catch (err) { alert("Lỗi đọc file Excel."); }
+                } catch (err) { alert("Lỗi định dạng tệp."); }
                 event.target.value = '';
             }; reader.readAsArrayBuffer(file);
         }
