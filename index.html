@@ -1086,11 +1086,32 @@
 
         function depositBank() {
             let amt = parseInt(document.getElementById('bank-input-amount').value);
-            if(amt > 0 && sys.coins >= amt) { sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now(); saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); } else alert("Số dư Xu không đủ hoặc nhập sai!");
+            if (isNaN(amt) || amt <= 0) {
+                alert("Bệ hạ vui lòng gõ một con số hợp lệ vào ô trống để gửi!");
+                return;
+            }
+            if (sys.coins >= amt) { 
+                sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now(); 
+                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); 
+                alert(`Đã đưa ${amt} Xu vào Túi Thần Tài để sinh lời!`);
+            } else {
+                alert("Trong ví của Bệ hạ không đủ số Xu này!");
+            }
         }
+        
         function withdrawBank() {
             let amt = parseInt(document.getElementById('bank-input-amount').value);
-            if(amt > 0 && sys.bankCapital >= amt) { sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now(); saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); } else alert("Vốn gửi không đủ!");
+            if (isNaN(amt) || amt <= 0) {
+                alert("Bệ hạ vui lòng gõ một con số hợp lệ vào ô trống để rút!");
+                return;
+            }
+            if (sys.bankCapital >= amt) { 
+                sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now(); 
+                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); 
+                alert(`Đã rút thành công ${amt} Xu tiền vốn ra khỏi túi!`);
+            } else {
+                alert("Số vốn Bệ hạ đang gửi ít hơn số tiền Bệ hạ muốn rút!");
+            }
         }
         function harvestBank() {
             if(sys.bankUnclaimed > 0) { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastUpdate = Date.now(); saveAllData(); alert("Thu hoạch lãi thành công! Ting ting!"); playChime(); }
