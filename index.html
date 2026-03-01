@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner & Focus Zone V80</title>
+    <title>Academic Planner V83.1 - Capitalist Empire</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -61,6 +61,10 @@
             --font-main: 'Lora', serif;
         }
 
+        /* --- 5. THEME VIP (MUA TRONG SHOP) --- */
+        [data-theme="royal"] { --bg-color: #1a1500; --text-main: #ffd700; --text-muted: #b89947; --card-bg: #2a2200; --border-color: #ffd700; --primary: #d4af37; --primary-hover: #f1c40f; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #1a1500; --font-main: 'Lora', serif; }
+        [data-theme="hacker"] { --bg-color: #000000; --text-main: #00ff00; --text-muted: #006600; --card-bg: #0a0a0a; --border-color: #00ff00; --primary: #00cc00; --primary-hover: #00ff00; --success: #00ff00; --danger: #ff0000; --warning: #ffff00; --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #000000; --font-main: 'Special Elite', monospace; }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
         body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; transition: background-color 0.5s, color 0.5s; }
 
@@ -83,7 +87,8 @@
         #header-streak-badge { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
         #header-wager-badge { border-color: var(--danger); color: var(--danger); }
         
-        /* TÚI ĐỒ UI CẬP NHẬT: LUÔN HIỂN THỊ */
+        /* TÚI ĐỒ & TIỀN TỆ MỚI */
+        #header-coin-badge { background: linear-gradient(45deg, #f59e0b, #d97706); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
         #header-buffs-badge { border-color: #8b5cf6; color: #8b5cf6; cursor: default; display: flex; }
         
         .btn-zen { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; }
@@ -144,7 +149,7 @@
 
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); }
+        .modal { background: var(--card-bg); width: 90%; max-width: 450px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
         .close-modal { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
@@ -160,6 +165,20 @@
         .color-radio:checked + .color-label { transform: scale(1.2); border-color: var(--primary); box-shadow: 0 0 8px rgba(0,0,0,0.2); }
         .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+
+        /* UI TƯ BẢN: SHOP, CHỨNG KHOÁN, THẦN TÀI */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .shop-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center; background: var(--input-bg); transition: 0.2s;}
+        .shop-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .shop-item h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px;}
+        .shop-item p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; min-height: 35px;}
+        
+        .stock-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--input-bg);}
+        .stock-price { font-size: 1.2rem; font-weight: 700; width: 80px; text-align: right;}
+        .stock-price.up { color: var(--success); }
+        .stock-price.down { color: var(--danger); }
+        
+        .bank-display { text-align: center; font-size: 2.5rem; color: var(--warning); font-family: 'Black Ops One', cursive; margin: 20px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.1);}
 
         /* FOCUS ZONE */
         #zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: flex-start; backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.5s ease; text-align: center; padding: 30px 20px; box-sizing: border-box; color: #e2e8f0; overflow-y: auto; overflow-x: hidden;}
@@ -199,16 +218,19 @@
         .zen-controls { display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .zen-btn-action:hover { background: #fff; color: #000; transform: translateY(-3px); }
-        #btn-zen-cashout { background: linear-gradient(45deg, #10b981, #059669); border: none; box-shadow: 0 0 15px rgba(16,185,129,0.5); animation: pulse-green 2s infinite;}
-        @keyframes pulse-green { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(16,185,129,0.8); } 100% { transform: scale(1); } }
 
-        /* VÒNG QUAY NHÂN PHẨM 10 Ô MỚI */
-        #zen-wheel-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; animation: slideUp 0.5s ease; }
-        .wheel-wrapper { position: relative; width: 340px; height: 340px; margin-bottom: 20px;}
+        /* VÒNG QUAY CHUNG (Áp dụng cho cả Focus và Shop) */
+        .wheel-wrapper { position: relative; width: 320px; height: 320px; margin-bottom: 20px;}
         .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fbbf24; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 25px rgba(0,0,0,0.8); overflow: hidden; position: relative; }
-        .wheel-label { position: absolute; top: 50%; left: 50%; width: 50%; height: 24px; transform-origin: 0% 50%; margin-top: -12px; text-align: right; padding-right: 25px; font-size: 0.7rem; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,1); line-height: 24px; white-space: nowrap;}
+        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 25px rgba(0,0,0,0.8); overflow: hidden; position: relative; transition: transform 4s cubic-bezier(0.17, 0.67, 0.1, 1); }
+        .wheel-label { position: absolute; top: 50%; left: 50%; width: 50%; height: 24px; transform-origin: 0% 50%; margin-top: -12px; text-align: right; padding-right: 25px; font-size: 0.75rem; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,1); line-height: 24px; white-space: nowrap;}
         
+        #zen-wheel-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; animation: slideUp 0.5s ease; }
+
+        /* OVERLAY NHA MÔN PHẠT TIỀN */
+        #punish-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(220, 38, 38, 0.95); z-index: 9999; display:none; flex-direction:column; align-items:center; justify-content:center; color: white; text-align: center; padding: 20px;}
+        .punish-box { background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 2px solid #fca5a5; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+
         /* AFK OVERLAY */
         #afk-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 38, 38, 0.9); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; animation: flash-red 0.5s infinite alternate; }
         @keyframes flash-red { 0% { background: rgba(220, 38, 38, 0.9); } 100% { background: rgba(153, 27, 27, 0.95); } }
@@ -217,7 +239,7 @@
         .btn-afk { background: #fff; color: #dc2626; border: none; padding: 20px 50px; font-size: 2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.2s;}
         .btn-afk:hover { transform: scale(1.1); background: #fef08a; }
 
-        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; min-height: auto;} .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } .wheel-wrapper {width: 280px; height: 280px;} .wheel-label {font-size: 0.6rem; padding-right: 15px;}}
+        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; min-height: auto;} .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } .wheel-wrapper {width: 260px; height: 260px;} .wheel-label {font-size: 0.65rem; padding-right: 15px;}}
     </style>
 </head>
 <body>
@@ -225,27 +247,36 @@
     <div id="main-board">
         <header class="header">
             <div class="header-title">
-                <i class="fas fa-graduation-cap"></i> Academic Planner
+                <i class="fas fa-chess-king"></i> Academic Planner V83.1
             </div>
             <div class="header-controls">
-                <div id="header-tuvi-badge" class="btn btn-outline" title="Điểm Tích Lũy Kỷ Luật">
+                <div id="header-tuvi-badge" class="btn btn-outline" title="Học Vị (XP - Không bao giờ giảm)">
                     <i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span>
+                </div>
+                <div id="header-coin-badge" class="btn" title="Ngân Lượng (Xu - Dùng để tiêu xài)">
+                    <i class="fas fa-coins"></i> <span id="ui-coins">0 Xu</span>
                 </div>
                 <div id="header-streak-badge" class="btn" title="Chuỗi Kỷ Luật Liên Tiếp">
                     🔥 <span id="streak-text">0 Ngày</span>
                 </div>
+                
+                <div id="header-buffs-badge" class="btn btn-outline" title="Túi Đồ: Kim Bài Miễn Tử & Bùa X2 XP">
+                    <span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span>
+                </div>
+
                 <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()" title="Cam Kết Kỷ Luật (Cược XP)">
                     <i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span>
                 </div>
-                <div id="header-buffs-badge" class="btn btn-outline" title="Túi Đồ: Kim Bài Miễn Tử & Bùa X2 XP">
-                    <span id="buff-immunity-text">🛡️ 0</span> &nbsp;|&nbsp; <span id="buff-double-text">✨ 0</span>
-                </div>
+                
+                <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Trân Bảo Các</button>
+                <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Chứng Khoán</button>
+                <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Thần Tài</button>
                 
                 <button class="btn btn-outline" id="btn-theme" onclick="toggleThemeCycle()" title="Đổi Giao Diện">
                     <i class="fas fa-palette"></i>
                 </button>
                 <button class="btn btn-zen" onclick="toggleZenMode()">
-                    <i class="fas fa-brain"></i> Focus Mode
+                    <i class="fas fa-fire"></i> Focus Mode
                 </button>
                 
                 <button class="btn btn-outline" onclick="saveTemplate()" title="Lưu Lịch Mẫu"><i class="fas fa-bookmark"></i></button>
@@ -275,7 +306,7 @@
         <div class="modal">
             <div class="modal-header">
                 <span id="modal-title">Thêm công việc mới</span>
-                <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                <button class="close-modal" onclick="closeModal('task-modal')"><i class="fas fa-times"></i></button>
             </div>
             <input type="hidden" id="task-day-index">
             <input type="hidden" id="task-id">
@@ -294,7 +325,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal()">Hủy</button>
+                <button class="btn btn-outline" onclick="closeModal('task-modal')">Hủy</button>
                 <button class="btn btn-primary" onclick="saveTask()">Lưu công việc</button>
             </div>
         </div>
@@ -320,36 +351,149 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="shop-modal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header" style="color: var(--warning);">
+                <span><i class="fas fa-store"></i> TRÂN BẢO CÁC</span>
+                <button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="text-align:center; margin-bottom: 20px;">Ngân lượng hiện có: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
+            
+            <div class="shop-grid">
+                <div class="shop-item">
+                    <h4>🛡️ Kim Bài Miễn Tử</h4>
+                    <p>Miễn phạt AFK hoặc lười học 1 lần. Bảo toàn tính mạng.</p>
+                    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button>
+                </div>
+                <div class="shop-item">
+                    <h4>✨ Bùa X2 XP & Xu</h4>
+                    <p>Nhân đôi toàn bộ thu nhập trong 25 phút Focus kế tiếp.</p>
+                    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="buyItem('doubleXp', 300)">Mua (300 Xu)</button>
+                </div>
+                <div class="shop-item" style="border-color: #d4af37;">
+                    <h4 style="color:#d4af37;">👑 Theme Hoàng Cung</h4>
+                    <p>Mở khóa vĩnh viễn giao diện vàng Gold vương giả.</p>
+                    <button class="btn btn-warning" style="width:100%; justify-content:center; background:#d4af37; color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button>
+                </div>
+                <div class="shop-item" style="border-color: #00ff00; background: #0a0a0a;">
+                    <h4 style="color:#00ff00;">💻 Theme Hắc Ám</h4>
+                    <p style="color:#006600;">Giao diện Hacker ngầu lòi, bảo vệ thị lực ban đêm.</p>
+                    <button class="btn" style="width:100%; justify-content:center; background:#00cc00; color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button>
+                </div>
+            </div>
+
+            <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
+
+            <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> SÒNG BÀI HOÀNG GIA</h3>
+            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cẩn thận mất trắng hoặc bị bắt lao động khổ sai!</p>
+            
+            <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;">
+                <div class="wheel-pointer"></div>
+                <div class="wheel" id="shop-wheel"></div>
+            </div>
+            
+            <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY VÉ (Tốn 100 Xu)</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="stock-modal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header" style="color: var(--success);">
+                <span><i class="fas fa-chart-line"></i> WALL STREET HỌC THUẬT</span>
+                <button class="close-modal" onclick="closeModal('stock-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="text-align:center; margin-bottom: 5px;">Ngân lượng khả dụng: <strong style="color:var(--warning); font-size:1.2rem;" id="stock-coins-display">0</strong> Xu</p>
+            <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-bottom: 20px;">Giá biến động ngẫu nhiên mỗi 5 phút.</p>
+            
+            <div id="stock-list-container"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="bank-modal">
+        <div class="modal" style="max-width: 400px; text-align: center;">
+            <div class="modal-header" style="color: var(--warning);">
+                <span><i class="fas fa-piggy-bank"></i> TÚI THẦN TÀI</span>
+                <button class="close-modal" onclick="closeModal('bank-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="margin-bottom: 10px;">Gửi Xu vào đây để sinh lời mỗi giây!</p>
+            <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--warning); margin-bottom: 20px;">
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Tiền lãi chưa thu hoạch</p>
+                <div class="bank-display" id="bank-interest-display">0.000</div>
+                <button class="btn btn-warning" style="width:100%; justify-content:center; color:black; font-weight:bold;" onclick="harvestBank()">THU HOẠCH LÃI</button>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem;">
+                <div>Vốn đang gửi: <br><strong style="font-size: 1.2rem;" id="bank-capital-display">0</strong> Xu</div>
+                <div>Lãi suất: <br><strong style="font-size: 1.2rem; color:var(--success);"><span id="bank-rate-display">1</span>%/Ngày</strong><br><span style="font-size:0.7rem;">(Dựa theo Chuỗi Kỷ Luật)</span></div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số Xu...">
+                <button class="btn btn-success" onclick="depositBank()">Gửi Vào</button>
+                <button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="punish-overlay">
+        <div class="punish-box">
+            <h1 style="font-family: 'Black Ops One', cursive; font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"><i class="fas fa-gavel"></i> TRÁT PHẠT KỶ LUẬT</h1>
+            <p id="punish-reason" style="font-size: 1rem; margin-bottom: 20px;">Tội danh: Ngủ gật, xao nhãng trong giờ làm việc!</p>
+            
+            <h3 style="color: #fca5a5; margin-bottom: 10px;">Mức án: Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
+            <p style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;">PHẠT <span id="punish-fine-display">50</span> XU</p>
+            <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 20px;">Nộp phạt để Quan tham xóa án tích. Nếu không nộp, Bệ hạ sẽ bị <strong>Trừ 30 XP & Chém đứt Chuỗi Kỷ Luật</strong>.</p>
+            
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 20px;" id="btn-pay-fine" onclick="payFine()">Nộp Phạt Chuộc Tội</button>
+                <button class="btn btn-outline" style="font-size: 1.1rem; padding: 12px 20px; color: white; border-color: white;" onclick="refuseFine()">Chấp Nhận Lãnh Án</button>
+            </div>
+        </div>
+    </div>
+
     <div id="afk-overlay">
         <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
-        <p style="font-size: 1.5rem;">Bạn vẫn đang ngồi học chứ? Xác nhận ngay để duy trì phiên làm việc!</p>
+        <p style="font-size: 1.5rem;">Bệ hạ vẫn đang ngồi học chứ? Xác nhận ngay!</p>
         <div id="afk-timer">15</div>
-        <button class="btn-afk" onclick="afkSuccess()">MÌNH VẪN ĐANG TẬP TRUNG!</button>
+        <button class="btn-afk" onclick="afkSuccess()">TRẪM VẪN ĐANG HỌC!</button>
     </div>
 
     <div id="fireworks-container"></div>
+    
     <div id="zen-overlay">
-        <button class="zen-btn-exit zen-ui-layer" onclick="toggleZenMode()" title="Thoát Chế độ Tập trung"><i class="fas fa-sign-out-alt"></i></button>
+        <button class="zen-btn-exit" onclick="toggleZenMode()" title="Thoát Focus"><i class="fas fa-sign-out-alt"></i></button>
         <div class="zen-app-container">
             <div class="zen-mascot" id="zen-mascot">🎓</div>
             <div class="zen-rank-badge" id="zen-rank">Tân Sinh</div>
             <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div>
             <div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
             
-            <div class="zen-status" id="zen-status">Sẵn sàng học tập</div>
+            <div class="zen-status" id="zen-status">SẴN SÀNG TU LUYỆN</div>
             <div class="zen-timer" id="zen-timer">25:00</div>
             
             <div class="zen-energy-bar-container" id="zen-energy-bar">
                 <div class="zen-energy-bar-fill" id="zen-energy-fill" style="width: 0%;"></div>
             </div>
 
+            <div id="zen-pump-box" style="background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 400px;">
+                <p style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fas fa-chart-line"></i> Thao Túng Cổ Phiếu (Bơm Giá)</p>
+                <select id="pump-stock-select" style="padding: 10px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #3b82f6; width: 100%; font-size: 1rem; margin-bottom: 5px;">
+                    <option value="NONE">Không can thiệp thị trường</option>
+                    <option value="IEL">Bơm giá mã $IEL (+20%)</option>
+                    <option value="MUN">Bơm giá mã $MUN (+20%)</option>
+                    <option value="BYN">Bơm giá mã $BYN (+20%)</option>
+                    <option value="ZHN">Bơm giá mã $ZHN (+20%)</option>
+                </select>
+                <p style="font-size: 0.8rem; color: #94a3b8;">Hoàn thành 25p để đẩy giá tăng mạnh. Nếu AFK, mã sẽ sập sàn chia đôi!</p>
+            </div>
+
             <div id="zen-wheel-box">
                 <div class="zen-status" style="color: #fbbf24; margin-bottom: 10px;"><i class="fas fa-dice"></i> VÒNG QUAY ĐỊNH MỆNH <i class="fas fa-dice"></i></div>
                 <div class="wheel-wrapper">
                     <div class="wheel-pointer"></div>
-                    <div class="wheel" id="the-wheel"></div>
+                    <div class="wheel" id="focus-wheel"></div>
                 </div>
-                <button class="zen-btn-action" style="background:linear-gradient(45deg, #f59e0b, #ef4444); border:none; box-shadow: 0 0 15px rgba(239,68,68,0.5);" onclick="spinWheel()" id="btn-spin-wheel">QUAY THƯỞNG</button>
+                <button class="zen-btn-action" style="background:linear-gradient(45deg, #f59e0b, #ef4444); border:none; box-shadow: 0 0 15px rgba(239,68,68,0.5);" onclick="spinFocusWheel()" id="btn-focus-spin">QUAY THƯỞNG</button>
             </div>
 
             <div class="zen-quote-container" id="zen-quote-box">
@@ -363,14 +507,51 @@
             
             <div class="zen-controls" id="zen-controls">
                 <button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button>
-                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt lời & Nghỉ</button>
+                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt lời</button>
                 <button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button>
             </div>
         </div>
     </div>
 
     <script>
-        // HỆ THỐNG ÂM THANH 
+        // ==========================================
+        // KHỞI TẠO DỮ LIỆU & HỆ THỐNG
+        // ==========================================
+        const REALMS = [ 
+            { name: "Tân Sinh", min: 0, color: {r:156, g:163, b:175} }, 
+            { name: "Tú Tài", min: 25, color: {r:56, g:189, b:248} }, 
+            { name: "Cử Nhân", min: 100, color: {r:52, g:211, b:153} }, 
+            { name: "Thạc Sĩ", min: 300, color: {r:250, g:204, b:21} }, 
+            { name: "Tiến Sĩ", min: 1000, color: {r:192, g:132, b:252} }, 
+            { name: "Phó Giáo Sư", min: 3000, color: {r:248, g:113, b:113} },
+            { name: "Giáo Sư", min: 10000, color: {r:251, g:146, b:60} }
+        ];
+        const MAX_POINTS = 10000; 
+        const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+        const STORAGE_KEY = "planner_data_v83"; 
+        const TEMPLATE_KEY = "planner_template_v83";
+        const THEMES = ['light', 'dark', 'detective', 'nature'];
+
+        let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+        
+        let sys = {
+            points: 0, coins: 0,
+            streak: 0, highestStreak: 0, wagerAmount: 0,
+            lastWeekTotal: 0, currentWeekTotal: 0, lastWeekCompleted: 0, currentWeekCompleted: 0,
+            currentTheme: 'light',
+            immunity: 0, doubleXp: 0,
+            punishTier: 1, 
+            stocks: { 
+                IEL: { name: "IELTS Corp", price: 100, qty: 0 }, 
+                MUN: { name: "Quỷ Đỏ Old Trafford", price: 50, qty: 0 }, 
+                BYN: { name: "Hùm Xám Bavaria", price: 150, qty: 0 }, 
+                ZHN: { name: "Hán Ngữ Group", price: 30, qty: 0 } 
+            },
+            bankCapital: 0, bankUnclaimed: 0, bankLastUpdate: Date.now(),
+            unlockedThemes: []
+        };
+
+        // --- CÁC HÀM ÂM THANH ---
         let sysAudioCtx = null;
         function getAudioCtx() {
             try {
@@ -379,7 +560,6 @@
                 return sysAudioCtx;
             } catch(e) { return null; }
         }
-
         function playAlarmSound() {
             try {
                 const ctx = getAudioCtx(); if (!ctx) return;
@@ -388,12 +568,10 @@
                     const osc = ctx.createOscillator(); const gain = ctx.createGain();
                     osc.type = 'square'; osc.frequency.setValueAtTime(1000, t); 
                     gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.start(t); osc.stop(t + 0.2);
+                    osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.2);
                 }
             } catch(e) {}
         }
-
         function playChime() { 
             try {
                 const ctx = getAudioCtx(); if (!ctx) return; 
@@ -403,7 +581,6 @@
                 osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 1.5); 
             } catch(e) {}
         }
-
         function playRealisticBoom() { 
             try {
                 const ctx = getAudioCtx(); if (!ctx) return; 
@@ -423,7 +600,6 @@
                 noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t + 2); 
             } catch(e) {}
         }
-
         function playTickSound() {
             try {
                 const ctx = getAudioCtx(); if (!ctx) return;
@@ -434,7 +610,7 @@
             } catch(e) {}
         }
 
-        // HỆ THỐNG PHÁO HOA
+        // --- HỆ THỐNG PHÁO HOA ---
         let fireworks; 
         function initFireworks() { 
             try {
@@ -443,11 +619,11 @@
                 if(FW) { fireworks = new FW(container, { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); }
             } catch(e) { }
         }
-
         function runBigFireworks() { 
             try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
         }
 
+        // --- CÂU TRÍCH DẪN NGẪU NHIÊN (Đã được phục hồi) ---
         const quotes = [
             { en: "Education is the most powerful weapon which you can use to change the world.", vi: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.", author: "Nelson Mandela" },
             { en: "The only place where success comes before work is in the dictionary.", vi: "Nơi duy nhất thành công đến trước làm việc là trong từ điển.", author: "Vidal Sassoon" },
@@ -457,94 +633,77 @@
             { en: "Learning never exhausts the mind.", vi: "Học tập không bao giờ làm trí óc kiệt sức.", author: "Leonardo da Vinci" },
             { en: "Don't watch the clock; do what it does. Keep going.", vi: "Đừng nhìn đồng hồ; hãy làm như nó. Cứ đi tiếp.", author: "Sam Levenson" },
             { en: "The roots of education are bitter, but the fruit is sweet.", vi: "Rễ của học vấn thì đắng cay, nhưng quả của nó thì ngọt ngào.", author: "Aristotle" },
-            { en: "You don't have to be great to start, but you have to start to be great.", vi: "Bạn không cần phải vĩ đại để bắt đầu, nhưng bạn phải bắt đầu để trở nên vĩ đại.", author: "Zig Ziglar" },
-            { en: "I find that the harder I work, the more luck I seem to have.", vi: "Tôi nhận ra rằng càng làm việc chăm chỉ, tôi dường như càng gặp nhiều may mắn.", author: "Thomas Jefferson" },
-            { en: "There are no shortcuts to any place worth going.", vi: "Không có đường tắt nào dẫn đến những nơi đáng giá.", author: "Beverly Sills" },
-            { en: "Success is the sum of small efforts, repeated day in and day out.", vi: "Thành công là tổng hòa của những nỗ lực nhỏ bé, được lặp đi lặp lại mỗi ngày.", author: "Robert Collier" },
-            { en: "Motivation is what gets you started. Habit is what keeps you going.", vi: "Động lực giúp bạn bắt đầu. Thói quen giúp bạn tiếp tục bước đi.", author: "Jim Ryun" },
-            { en: "The secret of getting ahead is getting started.", vi: "Bí quyết để tiến lên phía trước là hãy bắt đầu.", author: "Mark Twain" },
-            { en: "It always seems impossible until it's done.", vi: "Mọi thứ luôn có vẻ bất khả thi cho đến khi nó được hoàn thành.", author: "Nelson Mandela" },
-            { en: "Don't let what you cannot do interfere with what you can do.", vi: "Đừng để những gì bạn không thể làm ảnh hưởng đến những gì bạn có thể làm.", author: "John Wooden" },
-            { en: "Strive for progress, not perfection.", vi: "Hãy nỗ lực để tiến bộ, chứ không phải để hoàn hảo.", author: "Unknown" },
-            { en: "The expert in anything was once a beginner.", vi: "Chuyên gia trong bất kỳ lĩnh vực nào cũng từng là một người mới bắt đầu.", author: "Helen Hayes" },
-            { en: "A year from now you may wish you had started today.", vi: "Một năm nữa, có thể bạn sẽ ước rằng mình đã bắt đầu từ ngày hôm nay.", author: "Karen Lamb" },
-            { en: "Focus on your goal. Don't look in any direction but ahead.", vi: "Hãy tập trung vào mục tiêu. Đừng nhìn đi đâu khác ngoài việc hướng về phía trước.", author: "Unknown" },
-            { en: "Doubt kills more dreams than failure ever will.", vi: "Sự hoài nghi giết chết nhiều ước mơ hơn là sự thất bại.", author: "Suzy Kassem" },
-            { en: "Discipline is choosing between what you want now and what you want most.", vi: "Kỷ luật là việc lựa chọn giữa những gì bạn muốn ngay bây giờ và những gì bạn muốn nhất.", author: "Abraham Lincoln" },
-            { en: "Education is not the learning of facts, but the training of the mind to think.", vi: "Giáo dục không phải là học thuộc các sự kiện, mà là rèn luyện tâm trí để suy nghĩ.", author: "Albert Einstein" },
-            { en: "Do something today that your future self will thank you for.", vi: "Hôm nay hãy làm điều gì đó mà bản thân bạn trong tương lai sẽ phải cảm ơn.", author: "Sean Patrick Flanery" },
-            { en: "Quality is not an act, it is a habit.", vi: "Chất lượng không phải là một hành động, nó là một thói quen.", author: "Aristotle" },
-            { en: "Fall seven times, stand up eight.", vi: "Ngã bảy lần, đứng dậy tám lần.", author: "Ngạn ngữ Nhật Bản" },
-            { en: "The beautiful thing about learning is that no one can take it away from you.", vi: "Điều tuyệt vời của việc học là không ai có thể lấy nó đi khỏi bạn.", author: "B.B. King" }
+            { en: "You don't have to be great to start, but you have to start to be great.", vi: "Bạn không cần phải vĩ đại để bắt đầu, nhưng bạn phải bắt đầu để trở nên vĩ đại.", author: "Zig Ziglar" }
         ];
 
-        const REALMS = [ 
-            { name: "Tân Sinh", min: 0, color: {r:156, g:163, b:175} }, 
-            { name: "Tú Tài", min: 25, color: {r:56, g:189, b:248} }, 
-            { name: "Cử Nhân", min: 100, color: {r:52, g:211, b:153} }, 
-            { name: "Thạc Sĩ", min: 300, color: {r:250, g:204, b:21} }, 
-            { name: "Tiến Sĩ", min: 1000, color: {r:192, g:132, b:252} }, 
-            { name: "Phó Giáo Sư", min: 3000, color: {r:248, g:113, b:113} },
-            { name: "Giáo Sư", min: 10000, color: {r:251, g:146, b:60} }
-        ];
-        const MAX_POINTS = 10000; 
-        const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v80";
-        const TEMPLATE_KEY = "planner_template_v80";
-        const SYSTEM_KEY = "planner_system_v80";
-
-        let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
-        let systemData = {
-            points: 0, generation: 1, 
-            streak: 0, highestStreak: 0, wagerAmount: 0,
-            lastWeekTotal: 0, currentWeekTotal: 0,
-            lastWeekCompleted: 0, currentWeekCompleted: 0,
-            currentTheme: 'light',
-            immunity: 0, doubleXp: 0 // Kho túi đồ Gacha
-        };
+        let currentQuoteIndex = -1; 
+        function showRandomQuote() {
+            let idx; do { idx = Math.floor(Math.random() * quotes.length); } while (idx === currentQuoteIndex && quotes.length > 1);
+            currentQuoteIndex = idx; const q = quotes[idx];
+            const qEn = document.getElementById('q-en'); const qVi = document.getElementById('q-vi'); const qAu = document.getElementById('q-author');
+            if(!qEn) return;
+            qEn.style.opacity = '0'; qVi.style.opacity = '0'; qAu.style.opacity = '0';
+            setTimeout(() => { qEn.innerText = `"${q.en}"`; qVi.innerText = `"${q.vi}"`; qAu.innerText = `- ${q.author}`; qEn.style.opacity = '1'; qVi.style.opacity = '1'; qAu.style.opacity = '1'; }, 500);
+        }
 
         function getRealDayIndex() { let d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
         function generateId() { return Math.random().toString(36).substr(2, 9) + Date.now().toString(36); }
 
         function loadAllData() {
-            const savedSchedule = localStorage.getItem(STORAGE_KEY);
-            if (savedSchedule) scheduleData = JSON.parse(savedSchedule);
-            const savedSystem = localStorage.getItem(SYSTEM_KEY);
-            if (savedSystem) { systemData = { ...systemData, ...JSON.parse(savedSystem) }; }
-            applyTheme(systemData.currentTheme);
-            updateSystemUI(); renderBoard(); updateGhostBar();
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                scheduleData = parsed.schedule || scheduleData;
+                sys = { ...sys, ...parsed.sys };
+            }
+            
+            // Rào chắn bảo mật (Migration Safety)
+            sys.points = Number(sys.points) || 0;
+            sys.coins = Number(sys.coins) || 0;
+            sys.streak = Number(sys.streak) || 0;
+            sys.bankCapital = Number(sys.bankCapital) || 0;
+            sys.bankUnclaimed = Number(sys.bankUnclaimed) || 0;
+            sys.currentTheme = sys.currentTheme || 'light';
+            if(!sys.stocks) sys.stocks = { IEL: {name:"IELTS",price:100,qty:0}, MUN: {name:"ManUtd",price:50,qty:0}, BYN: {name:"Bayern",price:150,qty:0}, ZHN: {name:"Trung",price:30,qty:0} };
+            if(!sys.unlockedThemes || !Array.isArray(sys.unlockedThemes)) sys.unlockedThemes = [];
+            
+            applyTheme(sys.currentTheme);
+            updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket();
         }
 
         function saveAllData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
-            localStorage.setItem(SYSTEM_KEY, JSON.stringify(systemData));
-            updateSystemUI(); updateGhostBar(); renderBoard(); 
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ schedule: scheduleData, sys: sys }));
+            updateSystemUI(); updateGhostBar();
         }
 
-        const THEMES = ['light', 'dark', 'detective', 'nature'];
         function applyTheme(themeName) {
+            sys.currentTheme = themeName;
             if (themeName === 'light') document.documentElement.removeAttribute('data-theme');
             else document.documentElement.setAttribute('data-theme', themeName);
-            systemData.currentTheme = themeName;
+            saveAllData();
         }
 
         function toggleThemeCycle() {
-            let currentIndex = THEMES.indexOf(systemData.currentTheme);
+            let available = [...THEMES, ...(sys.unlockedThemes || [])];
+            let currentIndex = available.indexOf(sys.currentTheme);
             if (currentIndex === -1) currentIndex = 0;
-            let nextIndex = (currentIndex + 1) % THEMES.length;
-            let nextTheme = THEMES[nextIndex];
+            let nextIndex = (currentIndex + 1) % available.length;
+            let nextTheme = available[nextIndex];
 
-            if (nextTheme === 'detective' && systemData.highestStreak < 7 && systemData.streak < 7) {
+            if (nextTheme === 'detective' && sys.highestStreak < 7 && sys.streak < 7) {
                 alert("🔒 Theme Thư Viện Bí Ẩn bị khóa! Yêu cầu Chuỗi Kỷ Luật đạt 7 ngày.");
-                nextIndex = (nextIndex + 1) % THEMES.length; nextTheme = THEMES[nextIndex];
+                nextIndex = (nextIndex + 1) % available.length; nextTheme = available[nextIndex];
             }
-            if (nextTheme === 'nature' && systemData.highestStreak < 14 && systemData.streak < 14) {
+            if (nextTheme === 'nature' && sys.highestStreak < 14 && sys.streak < 14) {
                 alert("🔒 Theme Góc Học Tập bị khóa! Yêu cầu Chuỗi Kỷ Luật đạt 14 ngày.");
-                nextIndex = 0; nextTheme = THEMES[nextIndex];
+                nextIndex = 0; nextTheme = available[nextIndex];
             }
-            applyTheme(nextTheme); saveAllData();
+            applyTheme(nextTheme);
         }
 
+        // ==========================================
+        // UI & KINH TẾ
+        // ==========================================
         function getRealmInfo(points) { 
             let current = REALMS[0]; let next = REALMS[1]; 
             for (let i = 0; i < REALMS.length; i++) { if (points >= REALMS[i].min) { current = REALMS[i]; next = REALMS[i+1]; } } 
@@ -552,140 +711,78 @@
         }
 
         function addTuVi(amount) { 
-            const oldRank = getRealmInfo(systemData.points).current.name; 
-            systemData.points += amount; if (systemData.points < 0) systemData.points = 0; 
+            const oldRank = getRealmInfo(sys.points).current.name; 
+            
+            sys.points += amount; if (sys.points < 0) sys.points = 0; 
+            sys.coins += amount; if (sys.coins < 0) sys.coins = 0;
+
             const badge = document.getElementById('header-tuvi-badge');
             if(badge) { badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse'); }
-            if (amount > 0 && getRealmInfo(systemData.points).current.name !== oldRank) { 
-                setTimeout(() => { alert(`Tuyệt vời! Học vị của bạn đã được nâng cấp lên: ${getRealmInfo(systemData.points).current.name}!`); runBigFireworks(); playRealisticBoom(); }, 100);
+            
+            if (amount > 0 && getRealmInfo(sys.points).current.name !== oldRank) { 
+                setTimeout(() => { alert(`Tuyệt vời! Học vị của bạn đã được nâng cấp lên: ${getRealmInfo(sys.points).current.name}!`); runBigFireworks(); playRealisticBoom(); }, 100);
             }
             saveAllData(); 
         }
 
         function updateSystemUI() {
-            const { current, next } = getRealmInfo(systemData.points); 
+            const { current, next } = getRealmInfo(sys.points); 
+            
+            document.getElementById('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`;
+            document.getElementById('ui-coins').innerText = `${Math.floor(sys.coins)} Xu`;
+            document.getElementById('streak-text').innerText = `${sys.streak} Ngày`;
+            
+            const wagerBadge = document.getElementById('wager-text');
+            if (wagerBadge) wagerBadge.innerText = sys.wagerAmount > 0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
+            
             const rankBadge = document.getElementById('zen-rank');
             if (rankBadge) {
                 rankBadge.innerText = current.name; 
                 const colorStr = `rgb(${current.color.r},${current.color.g},${current.color.b})`;
                 rankBadge.style.color = colorStr; rankBadge.style.borderColor = colorStr; 
-                let percent = next ? ((systemData.points - current.min) / (next.min - current.min)) * 100 : Math.min(100, ((systemData.points - current.min) / (MAX_POINTS - current.min)) * 100);
+                let percent = next ? ((sys.points - current.min) / (next.min - current.min)) * 100 : Math.min(100, ((sys.points - current.min) / (MAX_POINTS - current.min)) * 100);
                 document.getElementById('zen-xp-fill').style.width = `${percent}%`; 
-                document.getElementById('zen-xp-text').innerText = next ? `${systemData.points} / ${next.min} XP` : `${systemData.points} / ${MAX_POINTS} (Tối đa)`;
+                document.getElementById('zen-xp-text').innerText = next ? `${sys.points} / ${next.min} XP` : `${sys.points} / ${MAX_POINTS} (Tối đa)`;
             }
-            const headerBadge = document.getElementById('header-tuvi-text');
-            if (headerBadge) headerBadge.innerText = `${current.name}: ${systemData.points} XP`;
-            const streakBadge = document.getElementById('streak-text');
-            if (streakBadge) streakBadge.innerText = `${systemData.streak} Ngày`;
-            const wagerBadge = document.getElementById('wager-text');
-            if (wagerBadge) wagerBadge.innerText = systemData.wagerAmount > 0 ? `Cam kết: ${systemData.wagerAmount} XP` : `Cam Kết`;
 
-            // TÚI ĐỒ LUÔN HIỂN THỊ DÙ LÀ 0
-            const buffsBadge = document.getElementById('header-buffs-badge');
-            if (buffsBadge) {
-                buffsBadge.style.display = 'flex';
-                document.getElementById('buff-immunity-text').innerText = `🛡️ ${systemData.immunity || 0}`;
-                document.getElementById('buff-double-text').innerText = `✨ ${systemData.doubleXp || 0}`;
-            }
+            document.getElementById('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`;
+            document.getElementById('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
+
+            if(document.getElementById('shop-modal').style.display === 'flex') document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            if(document.getElementById('stock-modal').style.display === 'flex') document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins);
         }
 
         function openWagerModal() {
-            if (systemData.wagerAmount > 0) { alert(`Bạn đã cam kết ${systemData.wagerAmount} XP rồi. Hãy hoàn thành 100% công việc và chốt sổ để nhận thưởng!`); return; }
-            document.getElementById('wager-max-points').innerText = systemData.points;
+            if (sys.wagerAmount > 0) { alert(`Bạn đã cam kết ${sys.wagerAmount} XP rồi. Hãy hoàn thành 100% công việc và chốt sổ để nhận thưởng!`); return; }
+            document.getElementById('wager-max-points').innerText = sys.points;
             document.getElementById('wager-amount').value = ''; document.getElementById('wager-modal').style.display = 'flex';
         }
         function closeWagerModal() { document.getElementById('wager-modal').style.display = 'none'; }
         function placeWager() {
             let amount = parseInt(document.getElementById('wager-amount').value);
             if (isNaN(amount) || amount <= 0) { alert("Số lượng XP không hợp lệ!"); return; }
-            if (amount > systemData.points) { alert("Bạn không đủ số XP để thực hiện cam kết này!"); return; }
-            systemData.points -= amount; systemData.wagerAmount = amount; saveAllData(); closeWagerModal();
+            if (amount > sys.points) { alert("Bạn không đủ số XP để thực hiện cam kết này!"); return; }
+            sys.points -= amount; sys.wagerAmount = amount; saveAllData(); closeWagerModal();
             alert(`Cam kết thiết lập thành công! Trích xuất ${amount} XP. Hoàn thành toàn bộ công việc hôm nay để nhận lại x2 điểm thưởng!`);
         }
 
         function updateGhostBar() {
             let completedNow = 0; let totalNow = 0;
             for(let i=0; i<7; i++) { totalNow += scheduleData[i].length; completedNow += scheduleData[i].filter(t => t.completed).length; }
-            systemData.currentWeekCompleted = completedNow; systemData.currentWeekTotal = totalNow;
-            const pastPct = systemData.lastWeekTotal === 0 ? 0 : Math.round((systemData.lastWeekCompleted / systemData.lastWeekTotal) * 100);
+            sys.currentWeekCompleted = completedNow; sys.currentWeekTotal = totalNow;
+            const pastPct = sys.lastWeekTotal === 0 ? 0 : Math.round((sys.lastWeekCompleted / sys.lastWeekTotal) * 100);
             const nowPct = totalNow === 0 ? 0 : Math.round((completedNow / totalNow) * 100);
             document.getElementById('ghost-bar-past').style.width = `${pastPct}%`; document.getElementById('ghost-bar-now').style.width = `${nowPct}%`;
             let statusText = "";
-            if (systemData.lastWeekTotal === 0) statusText = `Chưa có dữ liệu tuần trước. Tuần này: ${nowPct}%`;
+            if (sys.lastWeekTotal === 0) statusText = `Chưa có dữ liệu tuần trước. Tuần này: ${nowPct}%`;
             else if (nowPct >= pastPct && nowPct > 0) statusText = `<span style="color:var(--success)"><i class="fas fa-arrow-up"></i> Tốt hơn tuần trước (${nowPct}% vs ${pastPct}%)</span>`;
             else statusText = `<span style="color:var(--danger)"><i class="fas fa-arrow-down"></i> Thụt lùi hơn tuần trước (${nowPct}% vs ${pastPct}%)</span>`;
             document.getElementById('ghost-status-text').innerHTML = statusText;
         }
 
-        function saveTemplate() {
-            if(confirm("Lưu lịch trình hiện tại làm 'Bản Mẫu' cố định cho các tuần tiếp theo?")) {
-                let templateData = JSON.parse(JSON.stringify(scheduleData));
-                for(let i=0; i<7; i++) { templateData[i].forEach(t => { t.completed = false; t.rolledOver = false; t.originalDay = null; t.locked = false; t.missed = false; }); }
-                localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateData)); alert("Đã lưu Bản Mẫu lịch trình thành công!");
-            }
-        }
-
-        function resetWeek() {
-            const template = localStorage.getItem(TEMPLATE_KEY); let todayIndex = getRealDayIndex(); 
-            if(confirm("Khởi tạo tuần học mới? Tiến độ sẽ được làm mới. Công việc CHƯA XONG của tuần cũ sẽ chuyển sang hôm nay.")) {
-                systemData.lastWeekCompleted = systemData.currentWeekCompleted; systemData.lastWeekTotal = systemData.currentWeekTotal;
-                let pendingTasks = [];
-                for(let i=0; i<7; i++) {
-                    scheduleData[i].forEach(t => { if(!t.completed && !t.locked && !t.missed) { pendingTasks.push({ ...t, id: generateId(), rolledOver: true, originalDay: t.originalDay || DAYS_OF_WEEK[i] }); } });
-                }
-                if (template) { scheduleData = JSON.parse(template); } else { for(let i=0; i<7; i++) scheduleData[i] = []; }
-                if(pendingTasks.length > 0) scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
-                saveAllData(); alert(`Đã thiết lập Tuần Mới thành công!`);
-            }
-        }
-
-        function toggleComplete(dayIndex, taskId) {
-            const task = scheduleData[dayIndex].find(t => t.id === taskId);
-            if (task.locked || task.missed) return; 
-            task.completed = !task.completed;
-            if (task.completed) addTuVi(10); else addTuVi(-10);
-            saveAllData();
-        }
-
-        function finishDay(dayIndex) {
-            const tasks = scheduleData[dayIndex];
-            const incompleteTasks = tasks.filter(t => !t.completed && !t.missed);
-            const completedTasks = tasks.filter(t => t.completed);
-
-            if (incompleteTasks.length === 0) {
-                const alreadyLocked = tasks.length > 0 && tasks.every(t => t.locked);
-                if (alreadyLocked) { alert("Bạn đã xác nhận hoàn thành ngày này rồi!"); return; }
-                systemData.streak += 1; if (systemData.streak > systemData.highestStreak) systemData.highestStreak = systemData.streak;
-                let msg = `Hoàn thành xuất sắc toàn bộ mục tiêu! Bạn đang giữ chuỗi kỷ luật: ${systemData.streak} ngày. Thưởng +50 XP!`;
-                let bonus = 50;
-                if (systemData.wagerAmount > 0) {
-                    let winAmount = systemData.wagerAmount * 2; bonus += winAmount;
-                    msg += `\nHoàn thành Cam Kết: Nhận lại mức cược nhân đôi (+${winAmount} XP)!`; systemData.wagerAmount = 0; 
-                }
-                alert(msg); addTuVi(bonus); tasks.forEach(t => t.locked = true); runBigFireworks(); playRealisticBoom();
-            } else {
-                // LOGIC MIỄN TRỪ KHI KẾT THÚC NGÀY LỖI
-                if (systemData.immunity > 0) {
-                    systemData.immunity--;
-                    alert(`🛡️ KIM BÀI MIỄN TỬ ĐÃ KÍCH HOẠT!\nBệ hạ lỡ sót ${incompleteTasks.length} việc nhưng được Thẻ bảo hộ cứu giá. KHÔNG BỊ TRỪ ĐIỂM, KHÔNG ĐỨT CHUỖI!\nCác việc chưa xong sẽ bị đẩy sang ngày mai.`);
-                    const nextDayIndex = (dayIndex + 1) % 7; 
-                    incompleteTasks.forEach(task => { scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] }); task.missed = true; task.locked = true; });
-                    completedTasks.forEach(t => t.locked = true);
-                } else {
-                    let msg = `CẢNH BÁO KỶ LUẬT: Có ${incompleteTasks.length} công việc chưa hoàn thành sẽ bị chuyển sang ngày tiếp theo.`;
-                    if (systemData.streak > 0) { msg += `\n🔥 Chuỗi kỷ luật đã bị hủy về 0!`; systemData.streak = 0; }
-                    let bloodTax = Math.floor(systemData.points * 0.1);
-                    if (bloodTax > 0) { systemData.points -= bloodTax; msg += `\nPhạt lơ là nhiệm vụ: Trừ ${bloodTax} XP (10% tổng điểm hiện có)!`; }
-                    if (systemData.wagerAmount > 0) { msg += `\nThất bại Cam Kết: Hệ thống thu hồi ${systemData.wagerAmount} XP đã cược!`; systemData.wagerAmount = 0; }
-                    alert(msg);
-                    const nextDayIndex = (dayIndex + 1) % 7; 
-                    incompleteTasks.forEach(task => { scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[dayIndex] }); task.missed = true; task.locked = true; });
-                    completedTasks.forEach(t => t.locked = true);
-                }
-            }
-            saveAllData(); 
-        }
-
+        // ==========================================
+        // BẢNG KẾ HOẠCH & NHA MÔN PHẠT TIỀN
+        // ==========================================
         function renderBoard() {
             const board = document.getElementById('board-container'); board.innerHTML = ''; let today = getRealDayIndex();
             DAYS_OF_WEEK.forEach((dayName, index) => {
@@ -720,15 +817,17 @@
             else { document.getElementById('task-desc').value = ''; document.getElementById('task-time').value = ''; document.getElementById('color-blue').checked = true; }
             document.getElementById('task-modal').style.display = 'flex'; document.getElementById('task-desc').focus();
         }
-        function closeModal() { document.getElementById('task-modal').style.display = 'none'; }
+        function closeModal(modalId) { document.getElementById(modalId || 'task-modal').style.display = 'none'; }
+        
         function saveTask() {
             const dayIndex = document.getElementById('task-day-index').value; const taskId = document.getElementById('task-id').value;
             const text = document.getElementById('task-desc').value.trim(); const time = document.getElementById('task-time').value; const color = document.querySelector('input[name="task-color"]:checked').value;
             if (!text) { alert("Vui lòng nhập tên công việc!"); return; }
             if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); task.text = text; task.time = time; task.color = color; } 
             else { scheduleData[dayIndex].push({ id: generateId(), text: text, time: time, color: color, completed: false, rolledOver: false, locked: false, missed: false }); scheduleData[dayIndex].sort((a, b) => { if(!a.time) return 1; if(!b.time) return -1; return a.time.localeCompare(b.time); }); }
-            saveAllData(); closeModal();
+            saveAllData(); closeModal('task-modal');
         }
+        
         function deleteTask(dayIndex, taskId) {
             if(confirm("Bạn có chắc chắn muốn xóa nhiệm vụ này?")) {
                 const task = scheduleData[dayIndex].find(t => t.id === taskId); if(task.completed && !task.locked) addTuVi(-10); 
@@ -736,140 +835,272 @@
             }
         }
 
-        // =========================================
-        // HỆ THỐNG VÒNG QUAY 10 Ô (THẬP CUNG TRẬN)
-        // =========================================
-        const wheelOptions = [
-            { id: 0, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 15 },
-            { id: 1, name: "🚶 Nghỉ 10p", type: "break", time: 10, xp: 0, color: "#10b981", prob: 10 },
-            { id: 2, name: "🎮 Nghỉ 15p", type: "break", time: 15, xp: 0, color: "#059669", prob: 10 },
-            { id: 3, name: "⚡ Phạt (3p)", type: "break", time: 3, xp: 0, color: "#ef4444", prob: 10 },
-            { id: 4, name: "📚 Học 15p", type: "work", time: 15, xp: 0, color: "#f59e0b", prob: 10 },
-            { id: 5, name: "🔥 Học 25p(+50)", type: "work", time: 25, xp: 50, color: "#dc2626", prob: 5 },
-            { id: 6, name: "🛡️ Thẻ Miễn Trừ", type: "item_immunity", color: "#6366f1", prob: 15 },
-            { id: 7, name: "✨ Thẻ X2 XP", type: "item_doublexp", color: "#ec4899", prob: 10 },
-            { id: 8, name: "♾️ Focus Vô Cực", type: "endless", color: "#8b5cf6", prob: 10 },
-            { id: 9, name: "🎲 Jackpot (+100)", type: "jackpot", xp: 100, color: "#f5a623", prob: 5 }
+        function toggleComplete(dayIndex, taskId) {
+            const task = scheduleData[dayIndex].find(t => t.id === taskId);
+            if (task.locked || task.missed) return; 
+            task.completed = !task.completed;
+            if (task.completed) addTuVi(10); 
+            else addTuVi(-10);               
+            renderBoard();
+        }
+
+        let pendingPunishReason = "";
+        let pendingIncompleteTasks = [];
+        let pendingDayIndex = -1;
+
+        function finishDay(dayIndex) {
+            const tasks = scheduleData[dayIndex];
+            const incompleteTasks = tasks.filter(t => !t.completed && !t.missed);
+            const completedTasks = tasks.filter(t => t.completed);
+
+            if (incompleteTasks.length === 0) {
+                sys.streak += 1; if (sys.streak > sys.highestStreak) sys.highestStreak = sys.streak;
+                let msg = `Hoàn thành xuất sắc toàn bộ mục tiêu! Giữ chuỗi: ${sys.streak} ngày. Thưởng +50 XP & 50 Xu!`;
+                
+                if (sys.wagerAmount > 0) {
+                    let winAmount = sys.wagerAmount * 2; 
+                    addTuVi(winAmount); 
+                    msg += `\nHoàn thành Cam Kết: Nhận lại mức cược nhân đôi (+${winAmount} XP/Xu)!`; 
+                    sys.wagerAmount = 0; 
+                }
+                
+                addTuVi(50); 
+                tasks.forEach(t => t.locked = true); 
+                alert(msg); runBigFireworks(); playRealisticBoom();
+                renderBoard(); saveAllData();
+            } else {
+                pendingPunishReason = "Lơ là nhiệm vụ, không hoàn thành kế hoạch trong ngày!";
+                pendingIncompleteTasks = incompleteTasks;
+                pendingDayIndex = dayIndex;
+                completedTasks.forEach(t => t.locked = true); 
+                
+                if (sys.wagerAmount > 0) { 
+                    alert(`Thất bại Cam Kết: Hệ thống thu hồi ${sys.wagerAmount} XP đã cược!`); 
+                    sys.wagerAmount = 0; 
+                }
+                showPunishmentModal();
+            }
+        }
+
+        function showPunishmentModal(reason = null) {
+            if(reason) pendingPunishReason = reason;
+            document.getElementById('punish-overlay').style.display = 'flex';
+            document.getElementById('punish-reason').innerText = `Tội danh: ${pendingPunishReason}`;
+            document.getElementById('punish-tier-display').innerText = sys.punishTier;
+            
+            let fineAmount = sys.punishTier * 50;
+            document.getElementById('punish-fine-display').innerText = fineAmount;
+            
+            const btnPay = document.getElementById('btn-pay-fine');
+            if (sys.coins >= fineAmount) {
+                btnPay.innerText = `Nộp Phạt (${fineAmount} Xu)`;
+                btnPay.disabled = false; btnPay.style.opacity = 1;
+            } else {
+                btnPay.innerText = `Không Đủ Tiền (${Math.floor(sys.coins)}/${fineAmount})`;
+                btnPay.disabled = true; btnPay.style.opacity = 0.5;
+            }
+        }
+
+        function payFine() {
+            let fineAmount = sys.punishTier * 50;
+            if (sys.coins >= fineAmount) {
+                sys.coins -= fineAmount;
+                sys.punishTier++; 
+                alert(`💸 Đã đút lót ${fineAmount} Xu thành công! Quan tham đã xóa án tích. Bệ hạ được bảo toàn XP và Chuỗi Kỷ luật!`);
+                closePunishmentModal(true);
+            }
+        }
+
+        function refuseFine() {
+            alert(`☠️ ÁN ĐÃ TUYÊN! Bệ hạ bị chém 30 XP và đứt Chuỗi Kỷ luật!`);
+            sys.points = Math.max(0, sys.points - 30); 
+            sys.streak = 0;
+            sys.punishTier++;
+            closePunishmentModal(false);
+        }
+
+        function closePunishmentModal(isForgiven) {
+            document.getElementById('punish-overlay').style.display = 'none';
+            if (pendingIncompleteTasks.length > 0 && pendingDayIndex !== -1) {
+                const nextDayIndex = (pendingDayIndex + 1) % 7; 
+                pendingIncompleteTasks.forEach(task => { 
+                    scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[pendingDayIndex] }); 
+                    task.missed = true; task.locked = true; 
+                });
+                alert("Các công việc dang dở đã bị phạt chuyển sang ngày mai!");
+                pendingIncompleteTasks = []; pendingDayIndex = -1;
+            }
+            saveAllData(); renderBoard();
+        }
+
+        function saveTemplate() {
+            if(confirm("Lưu lịch trình hiện tại làm 'Bản Mẫu' cố định cho các tuần tiếp theo?")) {
+                let templateData = JSON.parse(JSON.stringify(scheduleData));
+                for(let i=0; i<7; i++) { templateData[i].forEach(t => { t.completed = false; t.rolledOver = false; t.originalDay = null; t.locked = false; t.missed = false; }); }
+                localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateData)); alert("Đã lưu Bản Mẫu lịch trình thành công!");
+            }
+        }
+
+        function resetWeek() {
+            const template = localStorage.getItem(TEMPLATE_KEY); let todayIndex = getRealDayIndex(); 
+            if(confirm("Khởi tạo Tuần Học Mới?\nLịch cũ sẽ bị xóa. ĐẶC BIỆT: Hệ thống Nha môn sẽ ân xá, reset tiền phạt về 50 Xu!")) {
+                sys.punishTier = 1; 
+                sys.lastWeekCompleted = sys.currentWeekCompleted; sys.lastWeekTotal = sys.currentWeekTotal;
+                
+                let pendingTasks = [];
+                for(let i=0; i<7; i++) {
+                    scheduleData[i].forEach(t => { if(!t.completed && !t.locked && !t.missed) { pendingTasks.push({ ...t, id: generateId(), rolledOver: true, originalDay: t.originalDay || DAYS_OF_WEEK[i] }); } });
+                }
+                if (template) { scheduleData = JSON.parse(template); } else { for(let i=0; i<7; i++) scheduleData[i] = []; }
+                if(pendingTasks.length > 0) scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
+                
+                saveAllData(); renderBoard();
+                alert(`Đã sang Tuần Mới! Án tích được xóa bỏ.`);
+            }
+        }
+
+        // ==========================================
+        // CỬA HÀNG & CHỨNG KHOÁN & THẦN TÀI
+        // ==========================================
+        function openShopModal() { document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins); document.getElementById('shop-modal').style.display = 'flex'; }
+        function openStockModal() { document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); document.getElementById('stock-modal').style.display = 'flex'; renderStockMarket(); }
+        function openBankModal() { document.getElementById('bank-rate-display').innerText = Math.max(1, sys.streak); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-modal').style.display = 'flex'; }
+
+        function buyItem(itemType, cost) {
+            if (sys.coins >= cost) { sys.coins -= cost; sys[itemType]++; playTickSound(); saveAllData(); alert("Mua sắm thành công!"); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            } else alert("Quốc khố cạn kiệt, không đủ Xu để mua!");
+        }
+
+        function buyTheme(themeName, cost) {
+            if (sys.unlockedThemes.includes(themeName)) { applyTheme(themeName); alert("Đã chuyển sang giao diện này!"); return; }
+            if (sys.coins >= cost) { sys.coins -= cost; sys.unlockedThemes.push(themeName); applyTheme(themeName); playRealisticBoom(); saveAllData(); alert("Đã mở khóa vĩnh viễn giao diện Hoàng Gia!"); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            } else alert("Phải có đủ 1000 Xu mới xứng đáng mặc Long Bào!");
+        }
+
+        const shopGachaOpts = [
+            { n: "🎰 Mega Jackpot", c: "#fbbf24", act: ()=> { addTuVi(1000); alert("CHẤN ĐỘNG! NỔ HŨ +1000 XP/XU!!"); } },
+            { n: "📦 Rương Bí Bảo", c: "#8b5cf6", act: ()=> { sys.doubleXp++; alert("Trúng 1 Bùa X2 XP (Đỡ tốn 300 Xu mua)!"); } },
+            { n: "♻️ Hoàn Vốn", c: "#10b981", act: ()=> { sys.coins+=100; alert("May quá, hoàn lại 100 Xu!"); } },
+            { n: "🤡 Suýt Nổ Hũ", c: "#fca5a5", act: ()=> { sys.coins+=1; alert("Há há há! Lệch 1 milimet trúng Jackpot! Trả Bệ hạ 1 Xu tiền an ủi!"); } },
+            { n: "💸 Mất Trắng", c: "#3b82f6", act: ()=> { alert("Cảm ơn Bệ hạ đã quyên góp tài sản cho nhà cái."); } },
+            { n: "💸 Mất Trắng", c: "#3b82f6", act: ()=> { alert("Quay vào ô mất lượt..."); } },
+            { n: "⚖️ Thuế 20%", c: "#dc2626", act: ()=> { let tax = Math.floor(sys.coins*0.2); sys.coins-=tax; alert(`Nhà cái thu Thuế Tài Sản 20%! Bị siết ${tax} Xu!`); } },
+            { n: "⛓️ Khổ Sai 25p", c: "#000000", act: ()=> { alert("💀 ÁC MỘNG! Bị nhà cái xích cổ, bắt làm việc 25 phút KHÔNG CÔNG!"); closeModal('shop-modal'); toggleZenMode(); startTimer(true); }}
         ];
 
-        function initWheel() {
-            const wheel = document.getElementById('the-wheel');
-            let sliceDeg = 360 / wheelOptions.length;
-            let bgStr = wheelOptions.map((opt, i) => `${opt.color} ${i*sliceDeg}deg ${(i+1)*sliceDeg}deg`).join(', ');
-            wheel.style.background = `conic-gradient(from 0deg, ${bgStr})`;
-            wheel.innerHTML = '';
-            wheelOptions.forEach((opt, i) => {
-                let label = document.createElement('div');
-                label.className = 'wheel-label';
-                label.innerText = opt.name;
-                let rot = -90 + (sliceDeg / 2) + (i * sliceDeg); 
-                label.style.transform = `rotate(${rot}deg)`;
-                wheel.appendChild(label);
+        function initShopWheel() {
+            const wheel = document.getElementById('shop-wheel'); let deg = 360 / 8; 
+            let bgStr = shopGachaOpts.map((opt, i) => `${opt.c} ${i*deg}deg ${(i+1)*deg}deg`).join(', ');
+            if(!wheel) return; wheel.style.background = `conic-gradient(from 0deg, ${bgStr})`; wheel.innerHTML = '';
+            shopGachaOpts.forEach((opt, i) => {
+                let label = document.createElement('div'); label.className = 'wheel-label'; label.innerText = opt.n;
+                label.style.transform = `rotate(${-90 + (deg/2) + (i * deg)}deg)`; wheel.appendChild(label);
             });
         }
 
-        let isSpinning = false;
-        function spinWheel() {
-            if(isSpinning) return;
-            isSpinning = true;
-            document.getElementById('btn-spin-wheel').innerText = "Đang quay...";
+        let isShopSpinning = false;
+        function spinShopGacha() {
+            if(isShopSpinning) return;
+            if(sys.coins < 100) { alert("Không đủ 100 Xu mua vé!"); return; }
+            sys.coins -= 100; saveAllData(); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            isShopSpinning = true; document.getElementById('btn-shop-spin').innerText = "Đang quay...";
 
-            let rand = Math.random() * 100;
-            let sum = 0; let winnerIdx = 0;
-            for(let i=0; i<wheelOptions.length; i++) {
-                sum += wheelOptions[i].prob;
-                if(rand <= sum) { winnerIdx = i; break; }
-            }
-            let winner = wheelOptions[winnerIdx];
+            let r = Math.random() * 100; let idx = 4;
+            if(r < 1) idx = 0; else if(r < 15) idx = 1; else if(r < 30) idx = 2; else if(r < 45) idx = 3; else if(r < 55) idx = 6; else if(r < 70) idx = 7; else idx = (Math.random() > 0.5) ? 4 : 5;
 
-            let sliceDeg = 360 / wheelOptions.length;
-            let offset = 5 + Math.random() * (sliceDeg - 10); 
-            let pointInSlice = winnerIdx * sliceDeg + offset;
-            let targetRotation = 360 * 5 + (360 - pointInSlice); 
-            
-            const wheel = document.getElementById('the-wheel');
-            wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)';
-            wheel.style.transform = `rotate(${targetRotation}deg)`;
-
-            try {
-                const ctx = getAudioCtx(); if(ctx) {
-                    let count = 0; let maxCount = 20;
-                    let interval = setInterval(() => {
-                        if(count >= maxCount) { clearInterval(interval); return; }
-                        count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
-                        osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*20, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); 
-                        gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); 
-                        osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1);
-                    }, 200 - count*5); 
-                }
-            } catch(e) {}
+            const wheel = document.getElementById('shop-wheel');
+            let targetRotation = 360 * 6 + (360 - (idx * 45 + 22.5));
+            wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; wheel.style.transform = `rotate(${targetRotation}deg)`;
+            playAlarmSound();
 
             setTimeout(() => {
-                isSpinning = false;
-                document.getElementById('btn-spin-wheel').innerText = "QUAY THƯỞNG";
-                let alertMsg = `🎉 KẾT QUẢ VÒNG QUAY: ${winner.name}!\n\n`;
-                
-                document.getElementById('zen-wheel-box').style.display = 'none';
-                document.getElementById('zen-controls').style.display = 'flex';
-                document.getElementById('zen-quote-box').style.display = 'flex';
-                
-                // LOGIC PHÂN NHÁNH VẬT PHẨM GACHA
-                if (winner.type === 'work') { 
-                    alertMsg += `ÁC MỘNG: Đồng hồ sẽ đếm ngược ${winner.time} phút Học Tập ngay lập tức. Cố lên!`; 
-                    alert(alertMsg);
-                    isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
-                    document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng";
-                    updateTimerDisplay(); startTimer(); 
-                } 
-                else if (winner.type === 'endless') {
-                    alertMsg += `🔥 THỬ THÁCH VÔ CỰC:\nĐồng hồ sẽ đếm tiến. Cày càng lâu XP nhân theo hệ số càng cao.\nNHỚ TỰ BẤM CHỐT LỜI, Bị AFK sẽ mất trắng!`;
-                    alert(alertMsg);
-                    startEndlessMode();
-                }
-                else if (winner.type === 'item_immunity') {
-                    systemData.immunity = (systemData.immunity || 0) + 1; saveAllData();
-                    alertMsg += `Bạn nhận được 1 Kim Bài Miễn Tử 🛡️ (Chống phạt AFK/Sót việc).\nĐã cấp cho bạn 5 phút xả hơi!`;
-                    alert(alertMsg); startBreak(5);
-                }
-                else if (winner.type === 'item_doublexp') {
-                    systemData.doubleXp = (systemData.doubleXp || 0) + 1; saveAllData();
-                    alertMsg += `Bạn nhận được 1 Bùa Chúc Phúc ✨ (Nhân đôi XP cho hiệp kế tiếp).\nĐã cấp cho bạn 5 phút xả hơi trước khi lâm trận!`;
-                    alert(alertMsg); startBreak(5);
-                }
-                else if (winner.type === 'jackpot') {
-                    addTuVi(winner.xp);
-                    alertMsg += `JACKPOT! Hệ thống văng thẳng vào mặt bạn ${winner.xp} XP!\nĐi nghỉ 5 phút ăn mừng thôi!`;
-                    alert(alertMsg); startBreak(5);
-                }
-                else { 
-                    alertMsg += `Bạn được phép nghỉ ngơi ${winner.time} phút.`; 
-                    alert(alertMsg); startBreak(winner.time);
-                }
-            }, 4000); 
+                isShopSpinning = false; document.getElementById('btn-shop-spin').innerText = "QUAY VÉ (Tốn 100 Xu)";
+                wheel.style.transition = 'none'; wheel.style.transform = `rotate(${targetRotation % 360}deg)`;
+                shopGachaOpts[idx].act(); saveAllData(); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            }, 4000);
         }
 
-        // =========================================
-        // POMODORO, ENDLESS & TIMER LOGIC
-        // =========================================
-        let currentQuoteIndex = -1; 
-        function showRandomQuote() {
-            let idx; do { idx = Math.floor(Math.random() * quotes.length); } while (idx === currentQuoteIndex && quotes.length > 1);
-            currentQuoteIndex = idx; const q = quotes[idx];
-            const qEn = document.getElementById('q-en'); const qVi = document.getElementById('q-vi'); const qAu = document.getElementById('q-author');
-            qEn.style.opacity = '0'; qVi.style.opacity = '0'; qAu.style.opacity = '0';
-            setTimeout(() => { qEn.innerText = `"${q.en}"`; qVi.innerText = `"${q.vi}"`; qAu.innerText = `- ${q.author}`; qEn.style.opacity = '1'; qVi.style.opacity = '1'; qAu.style.opacity = '1'; }, 500);
+        function updateStockPrices() {
+            Object.keys(sys.stocks).forEach(k => {
+                let s = sys.stocks[k]; let change = (Math.random() * 20 - 10);
+                s.price = Math.max(5, Math.floor(s.price * (1 + change/100)));
+            });
+            saveAllData(); if(document.getElementById('stock-modal').style.display === 'flex') renderStockMarket();
+        }
+        setInterval(updateStockPrices, 5 * 60 * 1000); 
+
+        function renderStockMarket() {
+            let container = document.getElementById('stock-list-container'); if(!container) return;
+            let html = '';
+            Object.keys(sys.stocks).forEach(k => {
+                let s = sys.stocks[k];
+                html += `<div class="stock-item"><div><strong style="color:var(--primary); font-size:1.1rem;">$${k}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${s.name}</span><br><span style="font-size:0.85rem;">Sở hữu: <strong style="color:var(--text-main);">${s.qty}</strong> cổ</span></div><div class="stock-price ${Math.random() > 0.5 ? 'up':'down'}">${s.price} Xu</div><div style="display:flex; flex-direction:column; gap:5px;"><button class="btn btn-success" style="padding:4px 10px; justify-content:center;" onclick="tradeStock('${k}', 1)">Mua</button><button class="btn btn-danger" style="padding:4px 10px; justify-content:center;" onclick="tradeStock('${k}', -1)">Bán</button></div></div>`;
+            }); container.innerHTML = html;
         }
 
-        // ⚠️ THỜI GIAN ĐANG ĐỂ 5 GIÂY CHO BỆ HẠ TEST. TEST XONG ĐỔI THÀNH 25 * 60 CẢ 3 CHỖ BÊN DƯỚI NHÉ!
-        let zenTimer = null; let isTimerRunning = false; let isWorkSession = true; 
-        let WORK_TIME = 25 * 60; 
-        let timeLeft = WORK_TIME; 
+        function tradeStock(code, dir) {
+            let s = sys.stocks[code];
+            if(dir > 0) { if(sys.coins >= s.price) { sys.coins -= s.price; s.qty++; } else { alert("Lưu manh giả danh trí thức! Không có tiền đòi mua chứng khoán?"); return; } } 
+            else { if(s.qty > 0) { sys.coins += s.price; s.qty--; } else { alert("Trong tay không có cổ phiếu đòi bán khống?"); return; } }
+            playTickSound(); saveAllData(); document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); renderStockMarket();
+        }
+
+        function depositBank() {
+            let amt = parseInt(document.getElementById('bank-input-amount').value);
+            if(amt > 0 && sys.coins >= amt) { sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now(); saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); } else alert("Số dư Xu không đủ hoặc nhập sai!");
+        }
+        function withdrawBank() {
+            let amt = parseInt(document.getElementById('bank-input-amount').value);
+            if(amt > 0 && sys.bankCapital >= amt) { sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now(); saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); } else alert("Vốn gửi không đủ!");
+        }
+        function harvestBank() {
+            if(sys.bankUnclaimed > 0) { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastUpdate = Date.now(); saveAllData(); alert("Thu hoạch lãi thành công! Ting ting!"); playChime(); }
+        }
         
+        setInterval(() => {
+            if(sys.bankCapital > 0 && sys.streak > 0) {
+                let now = Date.now(); let diffSec = (now - sys.bankLastUpdate) / 1000;
+                if (diffSec >= 1) {
+                    let dailyRate = sys.streak * 0.01; let secRate = dailyRate / 86400; 
+                    sys.bankUnclaimed += (sys.bankCapital * secRate * diffSec); sys.bankLastUpdate = now;
+                    if (sys.bankUnclaimed > sys.bankCapital * dailyRate) sys.bankUnclaimed = sys.bankCapital * dailyRate;
+                }
+            }
+            if(document.getElementById('bank-modal').style.display === 'flex') { document.getElementById('bank-interest-display').innerText = sys.bankUnclaimed.toFixed(3); }
+        }, 1000);
+
+        // ==========================================
+        // ZEN MODE & VÒNG QUAY 10 Ô CUỐI GIỜ
+        // ==========================================
+        const focusWheelOpts = [
+            { id: 0, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 15 },
+            { id: 1, name: "🚶 Nghỉ 10p", type: "break", time: 10, xp: 0, color: "#10b981", prob: 10 },
+            { id: 2, name: "🎮 Nghỉ 15p", type: "break", time: 15, xp: 0, color: "#059669", prob: 10 },
+            { id: 3, name: "📚 Học 15p", type: "work", time: 15, xp: 0, color: "#f59e0b", prob: 10 },
+            { id: 4, name: "🔥 Học 25p(+50)", type: "work", time: 25, xp: 50, color: "#dc2626", prob: 5 },
+            { id: 5, name: "🛡️ Thẻ Miễn Trừ", type: "item_immunity", color: "#6366f1", prob: 15 },
+            { id: 6, name: "✨ Thẻ X2 XP", type: "item_doublexp", color: "#ec4899", prob: 10 },
+            { id: 7, name: "♾️ Focus Vô Cực", type: "endless", color: "#8b5cf6", prob: 10 },
+            { id: 8, name: "🎲 Jackpot (+100)", type: "jackpot", xp: 100, color: "#f5a623", prob: 5 },
+            { id: 9, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 10 }
+        ];
+
+        function initFocusWheel() {
+            const wheel = document.getElementById('focus-wheel'); let sliceDeg = 360 / 10;
+            let bgStr = focusWheelOpts.map((opt, i) => `${opt.color} ${i*sliceDeg}deg ${(i+1)*sliceDeg}deg`).join(', ');
+            if(!wheel) return; wheel.style.background = `conic-gradient(from 0deg, ${bgStr})`; wheel.innerHTML = '';
+            focusWheelOpts.forEach((opt, i) => {
+                let label = document.createElement('div'); label.className = 'wheel-label'; label.innerText = opt.name;
+                label.style.transform = `rotate(${-90 + (sliceDeg / 2) + (i * sliceDeg)}deg)`; wheel.appendChild(label);
+            });
+        }
+
+        let zenTimer = null; let isTimerRunning = false; let isWorkSession = true; 
+        let WORK_TIME = 25 * 60; let timeLeft = WORK_TIME; 
         let targetEndTime = 0; let tuViEarned = 0; 
         let afkTriggered = false; let afkCountdown = null; let afkTimeVal = 15;
-        
-        // Endless vars
         let isEndless = false; let endlessSeconds = 0; let endlessTempXp = 0; let startEndlessTime = 0;
+        let isCurrentSessionDouble = false; let pumpedStock = "NONE"; let isForcedLabor = false; 
 
         function toggleZenMode() {
             const overlay = document.getElementById('zen-overlay'); const mainBoard = document.getElementById('main-board');
@@ -879,240 +1110,136 @@
                 showRandomQuote(); overlay.classList.add('active'); mainBoard.style.filter = 'blur(10px)'; 
             }
         }
-        
-        let isCurrentSessionDouble = false;
 
-        function startTimer() {
-            const btn = document.getElementById('btn-zen-start');
-            const barContainer = document.getElementById('zen-energy-bar');
+        function startTimer(forced = false) {
+            const btn = document.getElementById('btn-zen-start'); const barContainer = document.getElementById('zen-energy-bar');
             
-            if (isTimerRunning) {
-                clearInterval(zenTimer); isTimerRunning = false; btn.innerText = "Tiếp tục";
-                document.getElementById('zen-status').innerText = "Đã tạm dừng"; document.getElementById('zen-timer').classList.remove('ticking');
-                barContainer.classList.remove('active'); return; 
-            }
+            if (isTimerRunning) { clearInterval(zenTimer); isTimerRunning = false; btn.innerText = "Tiếp tục"; document.getElementById('zen-status').innerText = "Đã tạm dừng"; document.getElementById('zen-timer').classList.remove('ticking'); barContainer.classList.remove('active'); return; }
 
             if(timeLeft === WORK_TIME && isWorkSession && tuViEarned === 0) { 
-                showRandomQuote(); afkTriggered = false; 
-                isCurrentSessionDouble = (systemData.doubleXp > 0); 
+                showRandomQuote(); afkTriggered = false; isForcedLabor = forced;
+                if(!isForcedLabor) { isCurrentSessionDouble = (sys.doubleXp > 0); pumpedStock = document.getElementById('pump-stock-select').value; document.getElementById('zen-pump-box').style.display = 'none'; } 
+                else { isCurrentSessionDouble = false; pumpedStock = "NONE"; document.getElementById('zen-pump-box').style.display = 'none'; }
             }
 
-            isTimerRunning = true; btn.innerText = "Tạm dừng";
-            document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
+            isTimerRunning = true; btn.innerText = "Tạm dừng"; document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
             
             if (isWorkSession) {
-                 document.getElementById('zen-status').innerText = isCurrentSessionDouble ? "Đang tập trung... (Được BUFF X2 XP ✨)" : "Đang trong phiên tập trung..."; 
-                 document.getElementById('zen-status').style.color = isCurrentSessionDouble ? "#ec4899" : "white";
-                 barContainer.classList.remove('break-mode'); 
-            } else {
-                 document.getElementById('zen-status').innerText = "Đang nghỉ ngơi..."; document.getElementById('zen-status').style.color = "#10b981";
-                 barContainer.classList.add('break-mode'); 
-            }
+                if(isForcedLabor) document.getElementById('zen-status').innerText = "💀 ĐANG PHỤC VỤ KHỔ SAI (0 LƯƠNG)"; else if(pumpedStock !== "NONE") document.getElementById('zen-status').innerText = `📈 ĐANG BƠM GIÁ MÃ $${pumpedStock}`; else if(isCurrentSessionDouble) document.getElementById('zen-status').innerText = "✨ ĐANG TẬP TRUNG... (BUFF X2)"; else document.getElementById('zen-status').innerText = "ĐANG TRONG PHIÊN TẬP TRUNG";
+                document.getElementById('zen-status').style.color = isForcedLabor ? "red" : (isCurrentSessionDouble ? "#ec4899" : "white"); barContainer.classList.remove('break-mode'); 
+            } else { document.getElementById('zen-status').innerText = "ĐANG NGHỈ NGƠI..."; document.getElementById('zen-status').style.color = "#10b981"; barContainer.classList.add('break-mode'); }
 
             targetEndTime = Date.now() + (timeLeft * 1000);
-
             zenTimer = setInterval(() => {
-                const now = Date.now();
-                timeLeft = Math.max(0, Math.ceil((targetEndTime - now) / 1000));
-                
-                if (isWorkSession && !afkTriggered && timeLeft < (20*60) && timeLeft > (5*60)) {
-                    if (Math.random() < 0.005) triggerAFK();
-                }
+                const now = Date.now(); timeLeft = Math.max(0, Math.ceil((targetEndTime - now) / 1000));
+                if (isWorkSession && !afkTriggered && timeLeft < (20*60) && timeLeft > (5*60)) { if (Math.random() < 0.005) triggerAFK(); }
 
                 if (timeLeft <= 0) {
-                    timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; 
-                    document.getElementById('zen-timer').classList.remove('ticking');
-                    document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
+                    timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
                     
                     if (isWorkSession) {
-                        let baseReward = 5; 
-                        if (isCurrentSessionDouble) {
-                            baseReward *= 2; systemData.doubleXp--; saveAllData();
-                            alert("✨ Chúc mừng! Bùa Chúc Phúc đã phát huy uy lực. Điểm thưởng phiên này đã được nhân đôi!");
-                        }
-                        
+                        if(isForcedLabor) { alert("Đã hoàn thành phiên Khổ Sai! Bạn được ân xá, ra tù không một xu dính túi."); resetTimer(); toggleZenMode(); return; }
+                        let baseReward = 5; if (isCurrentSessionDouble) { baseReward *= 2; sys.doubleXp--; saveAllData(); alert("✨ Chúc mừng! Bùa Chúc Phúc đã phát huy uy lực. Điểm thưởng phiên này đã được nhân đôi!"); }
                         runBigFireworks(); playRealisticBoom(); addTuVi(baseReward);
                         
-                        document.getElementById('zen-status').innerText = "Phiên học tập hoàn tất!";
-                        document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none'; 
-                        
-                        const wheel = document.getElementById('the-wheel'); wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; 
-                        document.getElementById('zen-wheel-box').style.display = 'flex';
-                        
+                        if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 1.20); alert(`📈 Giao dịch nội gián hoàn hảo! Giá cổ phiếu $${pumpedStock} đã BƠM THẲNG ĐỨNG +20%! Hãy ra Sàn chốt lời ngay!`); saveAllData(); }
+                        document.getElementById('zen-status').innerText = "PHIÊN HỌC TẬP HOÀN TẤT!"; document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none'; 
+                        const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; document.getElementById('zen-wheel-box').style.display = 'flex';
                     } else {
                         playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
                         document.getElementById('zen-status').innerText = "Hết giờ nghỉ! Quay lại nào."; document.getElementById('zen-status').style.color = "white"; 
-                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; 
-                        document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; 
-                    }
-                    return; 
+                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; 
+                    } return; 
                 }
                 
-                if(isWorkSession) {
+                if(isWorkSession && !isForcedLabor) {
                     const minutesPassed = Math.floor((WORK_TIME - timeLeft) / 60);
-                    if (minutesPassed > tuViEarned) { 
-                        let earnedMinXp = (minutesPassed - tuViEarned);
-                        if (isCurrentSessionDouble) earnedMinXp *= 2; 
-                        addTuVi(earnedMinXp); 
-                        tuViEarned = minutesPassed; showRandomQuote(); 
-                    }
+                    if (minutesPassed > tuViEarned) { let earnedMinXp = (minutesPassed - tuViEarned); if (isCurrentSessionDouble) earnedMinXp *= 2; addTuVi(earnedMinXp); tuViEarned = minutesPassed; showRandomQuote(); }
                 }
-                document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`;
-                updateTimerDisplay();
+                document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`; updateTimerDisplay();
             }, 500); 
         }
 
-        // --- PHIÊN VÔ CỰC (ENDLESS MODE) ---
-        function startEndlessMode() {
-            isEndless = true; isTimerRunning = true; endlessSeconds = 0; endlessTempXp = 0; afkTriggered = false;
-            startEndlessTime = Date.now();
-            
-            document.getElementById('btn-zen-start').style.display = 'none';
-            document.getElementById('btn-zen-cashout').style.display = 'inline-block';
-            document.getElementById('btn-zen-reset').style.display = 'none';
-            
-            document.getElementById('zen-timer').classList.add('ticking');
-            document.getElementById('zen-energy-bar').classList.remove('break-mode');
-            document.getElementById('zen-energy-bar').classList.add('active');
+        let isFocusSpinning = false;
+        function spinFocusWheel() {
+            if(isFocusSpinning) return; isFocusSpinning = true; document.getElementById('btn-focus-spin').innerText = "Đang quay...";
+            let rand = Math.random() * 100; let sum = 0; let winnerIdx = 0;
+            for(let i=0; i<focusWheelOpts.length; i++) { sum += focusWheelOpts[i].prob; if(rand <= sum) { winnerIdx = i; break; } }
+            let winner = focusWheelOpts[winnerIdx]; let sliceDeg = 360 / 10; let offset = 5 + Math.random() * (sliceDeg - 10); let pointInSlice = winnerIdx * sliceDeg + offset; let targetRotation = 360 * 5 + (360 - pointInSlice); 
+            const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; wheel.style.transform = `rotate(${targetRotation}deg)`;
 
+            try { const ctx = getAudioCtx(); if(ctx) { let count = 0; let interval = setInterval(() => { if(count >= 20) { clearInterval(interval); return; } count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*20, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1); }, 200 - count*5); } } catch(e) {}
+
+            setTimeout(() => {
+                isFocusSpinning = false; document.getElementById('btn-focus-spin').innerText = "QUAY THƯỞNG"; let alertMsg = `🎉 KẾT QUẢ VÒNG QUAY: ${winner.name}!\n\n`;
+                document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex';
+                
+                if (winner.type === 'work') { alertMsg += `ÁC MỘNG: Đồng hồ sẽ đếm ngược ${winner.time} phút Học Tập ngay lập tức. Cố lên!`; alert(alertMsg); isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; updateTimerDisplay(); startTimer(); } 
+                else if (winner.type === 'endless') { alertMsg += `🔥 THỬ THÁCH VÔ CỰC:\nĐồng hồ sẽ đếm tiến. Cày càng lâu XP nhân theo hệ số càng cao.\nNHỚ TỰ BẤM CHỐT LỜI, Bị AFK sẽ mất trắng!`; alert(alertMsg); startEndlessMode(); }
+                else if (winner.type === 'item_immunity') { sys.immunity++; saveAllData(); alertMsg += `Bạn nhận được 1 Kim Bài Miễn Tử 🛡️.\nĐã cấp cho bạn 5 phút xả hơi!`; alert(alertMsg); startBreak(5); }
+                else if (winner.type === 'item_doublexp') { sys.doubleXp++; saveAllData(); alertMsg += `Bạn nhận được 1 Bùa Chúc Phúc ✨.\nĐã cấp cho bạn 5 phút xả hơi trước khi lâm trận!`; alert(alertMsg); startBreak(5); }
+                else if (winner.type === 'jackpot') { addTuVi(winner.xp); alertMsg += `JACKPOT! Nhận ngay ${winner.xp} XP & Xu!\nĐi nghỉ 5 phút ăn mừng thôi!`; alert(alertMsg); startBreak(5); }
+                else { alertMsg += `Bạn được phép nghỉ ngơi ${winner.time} phút.`; alert(alertMsg); startBreak(winner.time); }
+            }, 4000); 
+        }
+
+        function startEndlessMode() {
+            isEndless = true; isTimerRunning = true; endlessSeconds = 0; endlessTempXp = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; startEndlessTime = Date.now();
+            document.getElementById('btn-zen-start').style.display = 'none'; document.getElementById('btn-zen-cashout').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'none'; document.getElementById('zen-pump-box').style.display = 'none';
+            document.getElementById('zen-timer').classList.add('ticking'); document.getElementById('zen-energy-bar').classList.remove('break-mode'); document.getElementById('zen-energy-bar').classList.add('active');
             zenTimer = setInterval(() => {
-                const now = Date.now();
-                endlessSeconds = Math.floor((now - startEndlessTime) / 1000);
-                
-                if (!afkTriggered && endlessSeconds > 5 * 60) {
-                    if (Math.random() < 0.005) triggerAFK();
-                }
-                
+                const now = Date.now(); endlessSeconds = Math.floor((now - startEndlessTime) / 1000);
+                if (!afkTriggered && endlessSeconds > 5 * 60) { if (Math.random() < 0.005) triggerAFK(); }
                 let mins = Math.floor(endlessSeconds / 60); let tempXp = 0;
-                if(mins <= 15) tempXp = mins * 1;
-                else if(mins <= 30) tempXp = 15 * 1 + (mins - 15) * 2;
-                else tempXp = 15 * 1 + 15 * 2 + (mins - 30) * 3;
-                
-                endlessTempXp = tempXp;
-                
-                document.getElementById('zen-status').innerText = `🔥 PHIÊN VÔ CỰC - Tạm tính: +${tempXp} XP`;
-                document.getElementById('zen-status').style.color = "#f5a623";
-                
-                let secInMin = endlessSeconds % 60;
-                document.getElementById('zen-energy-fill').style.width = `${(secInMin / 60) * 100}%`;
-                
-                let m = Math.floor(endlessSeconds / 60); let s = endlessSeconds % 60;
-                document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if(mins <= 15) tempXp = mins * 1; else if(mins <= 30) tempXp = 15 * 1 + (mins - 15) * 2; else tempXp = 15 * 1 + 15 * 2 + (mins - 30) * 3;
+                endlessTempXp = tempXp; document.getElementById('zen-status').innerText = `🔥 PHIÊN VÔ CỰC - Tạm tính: +${tempXp} XP`; document.getElementById('zen-status').style.color = "#f5a623";
+                let secInMin = endlessSeconds % 60; document.getElementById('zen-energy-fill').style.width = `${(secInMin / 60) * 100}%`;
+                let m = Math.floor(endlessSeconds / 60); let s = endlessSeconds % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
             }, 1000);
         }
 
-        // --- NÚT CHỐT LỜI ---
         function cashOutEndless() {
             clearInterval(zenTimer); isTimerRunning = false; isEndless = false;
-            
-            document.getElementById('btn-zen-cashout').style.display = 'none';
-            document.getElementById('btn-zen-start').style.display = 'inline-block';
-            document.getElementById('btn-zen-reset').style.display = 'inline-block';
-            
-            if (endlessTempXp > 0) {
-                addTuVi(endlessTempXp); runBigFireworks(); playRealisticBoom();
-                alert(`🎉 CHỐT LỜI THÀNH CÔNG!\nBạn đã xuất sắc bỏ túi ${endlessTempXp} XP từ Phiên Vô Cực! Bây giờ hãy nghỉ ngơi 10 phút nhé.`);
-                startBreak(10);
-            } else {
-                alert(`Phiên Vô Cực kết thúc quá sớm. Bạn chưa kịp thu hoạch được XP nào.\nHãy nghỉ 5 phút và quay lại phiên 25 phút bình thường.`);
-                startBreak(5);
-            }
+            document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
+            if (endlessTempXp > 0) { addTuVi(endlessTempXp); runBigFireworks(); playRealisticBoom(); alert(`🎉 CHỐT LỜI THÀNH CÔNG!\nBạn đã xuất sắc bỏ túi ${endlessTempXp} XP từ Phiên Vô Cực! Bây giờ hãy nghỉ ngơi 10 phút nhé.`); startBreak(10); } else { alert(`Phiên Vô Cực kết thúc quá sớm. Bạn chưa kịp thu hoạch được XP nào.\nHãy nghỉ 5 phút và quay lại phiên 25 phút bình thường.`); startBreak(5); }
         }
 
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && isTimerRunning && (isWorkSession || isEndless)) {
-                clearInterval(zenTimer); isTimerRunning = false;
-                
-                if (isEndless) {
-                    if (systemData.immunity > 0) {
-                        systemData.immunity--; saveAllData();
-                        alert("🚨 CẢNH BÁO MẤT TẬP TRUNG!\nBạn đã rời khỏi web trong Phiên Vô Cực. May mắn Kim Bài Miễn Tử đã tự động kích hoạt chốt lời giúp bạn để bảo toàn điểm!");
-                        cashOutEndless();
-                    } else {
-                        isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none';
-                        document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
-                        alert(`💀 THẢM HỌA XAO NHÃNG: Bị phát hiện rời khỏi màn hình! Toàn bộ ${endlessTempXp} XP chưa chốt lời của Phiên Vô Cực đã bốc hơi sạch sẽ! Phạt thêm 20 XP!`);
-                        addTuVi(-20); resetTimer();
-                    }
-                } else {
-                    document.getElementById('btn-zen-start').innerText = "Tiếp tục";
-                    document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active');
-                    alert("🚨 CẢNH BÁO MẤT TẬP TRUNG: Phát hiện bạn vừa rời khỏi không gian học thuật!\nĐồng hồ đã bị dừng. Phạt 20 XP!");
-                    addTuVi(-20);
-                    document.getElementById('zen-status').innerText = "Tạm khóa do xao nhãng"; document.getElementById('zen-status').style.color = "var(--danger)";
-                }
-            }
-        });
-
-        // HÀM KIỂM TRA AFK TÍCH HỢP CHO CẢ BÌNH THƯỜNG & VÔ CỰC
         function triggerAFK() {
-            afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex';
-            afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal;
-            
-            playAlarmSound(); 
-            
-            afkCountdown = setInterval(() => {
-                afkTimeVal--; document.getElementById('afk-timer').innerText = afkTimeVal;
-                if (afkTimeVal <= 5 && afkTimeVal > 0) { playTickSound(); }
-                if(afkTimeVal <= 0) { clearInterval(afkCountdown); afkFail(); }
-            }, 1000);
+            afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex'; afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal; playAlarmSound(); 
+            afkCountdown = setInterval(() => { afkTimeVal--; document.getElementById('afk-timer').innerText = afkTimeVal; if (afkTimeVal <= 5 && afkTimeVal > 0) { playTickSound(); } if(afkTimeVal <= 0) { clearInterval(afkCountdown); afkFail(); } }, 1000);
         }
-
         function afkSuccess() { clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; }
         function afkFail() {
-            document.getElementById('afk-overlay').style.display = 'none'; resetTimer();
-            
+            document.getElementById('afk-overlay').style.display = 'none'; 
             if (isEndless) {
-                if (systemData.immunity > 0) {
-                    systemData.immunity--; saveAllData();
-                    alert("🛡️ KIM BÀI MIỄN TỬ đã đỡ thay một đòn Thiên Lôi! Phiên Vô Cực tự động chốt lời bảo toàn điểm số.");
-                    cashOutEndless();
-                } else {
-                    isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none';
-                    document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
-                    alert(`💀 THẢM HỌA AFK! Bạn đã không xác nhận AFK. Toàn bộ ${endlessTempXp} XP chưa chốt lời bốc hơi sạch sẽ! Phạt thêm 30 XP!`);
-                    addTuVi(-30); resetTimer();
-                }
+                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("🛡️ KIM BÀI MIỄN TỬ đã đỡ thay một đòn Thiên Lôi! Phiên Vô Cực tự động chốt lời bảo toàn điểm số."); cashOutEndless(); } 
+                else { isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; alert(`💀 THẢM HỌA AFK! Bạn đã không xác nhận AFK. Toàn bộ ${endlessTempXp} XP chưa chốt lời bốc hơi sạch sẽ! Đã chuyển hồ sơ lên Nha Môn.`); resetTimer(); toggleZenMode(); showPunishmentModal("Ngủ gật trong Phiên Vô Cực!"); }
             } else {
-                if (systemData.immunity > 0) {
-                    systemData.immunity--; saveAllData();
-                    alert("🛡️ KIM BÀI MIỄN TỬ đã phát huy tác dụng! Bạn được miễn phạt AFK 30 XP, nhưng phiên học hiện tại bị hủy.");
-                    resetTimer();
-                } else {
-                    alert("⏰ THẤT BẠI: Bạn đã không phản hồi trong 15 giây! Phiên tập trung bị hủy bỏ, hệ thống phạt 30 XP.");
-                    addTuVi(-30); resetTimer();
-                }
+                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("🛡️ KIM BÀI MIỄN TỬ đã phát huy tác dụng! Bạn được miễn tội AFK, nhưng phiên học hiện tại bị hủy."); resetTimer(); } 
+                else { if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 0.5); alert(`📉 CẢNH BÁO TÀI CHÍNH! Đang bơm giá mà lơ là, cổ phiếu $${pumpedStock} sập sàn chia đôi tài sản!`); } resetTimer(); toggleZenMode(); showPunishmentModal("Ngủ gật, xao nhãng trong giờ Focus!"); }
             }
         }
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isTimerRunning && (isWorkSession || isEndless)) { clearInterval(zenTimer); isTimerRunning = false; if(afkCountdown) clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; afkFail(); }
+        });
 
         function startBreak(minutes) {
             isWorkSession = false; WORK_TIME = minutes * 60; timeLeft = WORK_TIME; tuViEarned = 0;
-            document.getElementById('zen-break-options').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex';
-            document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng";
-            startTimer(); 
+            document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; startTimer(); 
         }
 
         function resetTimer() {
-            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isEndless = false;
-            document.getElementById('zen-status').innerText = "Sẵn sàng học tập"; document.getElementById('zen-status').style.color = "white";
-            document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active');
-            document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block';
-            document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
-            document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex';
-            document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%';
+            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isEndless = false; isForcedLabor = false; pumpedStock = "NONE";
+            document.getElementById('zen-status').innerText = "SẴN SÀNG TU LUYỆN"; document.getElementById('zen-status').style.color = "white"; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active'); document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('zen-pump-box').style.display = 'block'; 
             updateTimerDisplay();
         }
-
-        function updateTimerDisplay() { 
-            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; 
-            document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; 
-        }
+        function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
 
         // =========================================
-        // KHỞI TẠO TỔNG & EXCEL
+        // DOM LOAD & XUẤT NHẬP EXCEL
         // =========================================
         document.addEventListener('DOMContentLoaded', () => { 
-            loadAllData(); updateTimerDisplay(); initWheel(); 
+            loadAllData(); updateTimerDisplay(); initShopWheel(); initFocusWheel();
         });
 
         function exportExcel() {
@@ -1148,8 +1275,9 @@
                             });
                         }
                     });
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(newData)); scheduleData = newData; saveAllData(); 
+                    scheduleData = newData; saveAllData(); 
                     alert("Khôi phục thành công! Giao diện đã được làm mới.");
+                    renderBoard();
                 } catch (err) { alert("Lỗi đọc file Excel."); }
                 event.target.value = '';
             }; reader.readAsArrayBuffer(file);
