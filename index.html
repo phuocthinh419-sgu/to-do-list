@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner V84 - Standard Edition</title>
+    <title>Academic Planner V84 - VIP Edition</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -72,7 +72,6 @@
         .header { background: var(--card-bg); padding: 15px 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: background 0.3s; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 15px;}
         .header-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        
         .btn { padding: 8px 15px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
         .btn-outline:hover { background: var(--border-color); }
@@ -83,14 +82,12 @@
         #header-tuvi-badge { border-color: var(--primary); color: var(--primary); cursor: default; }
         #header-tuvi-badge.pulse { animation: tuvi-pulse 0.5s ease-out; }
         @keyframes tuvi-pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); } 50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); } 100% { transform: scale(1); } }
-
         #header-streak-badge { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
         #header-wager-badge { border-color: var(--danger); color: var(--danger); }
         
         /* TÚI ĐỒ & TIỀN TỆ */
         #header-coin-badge { background: linear-gradient(45deg, #f59e0b, #d97706); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
         #header-buffs-badge { border-color: #8b5cf6; color: #8b5cf6; cursor: default; display: flex; }
-        
         .btn-zen { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; }
         .btn-zen:hover { transform: scale(1.05); }
 
@@ -105,11 +102,9 @@
         #main-board { transition: filter 0.3s; }
         .board { display: flex; gap: 20px; padding: 20px 30px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 150px); }
         .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: background 0.3s, border 0.3s; }
-        
         .day-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
         .day-title { font-weight: 700; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
         .today-badge { font-size: 0.75rem; background: var(--primary); color: white; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
-        
         .progress-container { margin-top: 12px; }
         .progress-text { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 500; }
         .progress-track { height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
@@ -124,7 +119,6 @@
         .task-item.missed-task .task-desc { text-decoration: line-through; color: var(--danger); }
         .task-item.missed-task .task-checkbox { display: none; } 
         .task-item.locked { pointer-events: none; border-style: dashed; }
-        
         .task-urgent { background: var(--color-red); border-color: var(--color-red-border); }
         .task-study { background: var(--color-blue); border-color: var(--color-blue-border); }
         .task-work { background: var(--color-green); border-color: var(--color-green-border); }
@@ -136,7 +130,6 @@
         .task-desc { font-size: 0.95rem; color: var(--text-main); word-break: break-word; font-weight: 500;}
         .rollover-badge { font-size: 0.7rem; background: var(--warning); color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
         .missed-badge { font-size: 0.7rem; color: var(--danger); font-weight: 800; margin-left: auto; }
-        
         .task-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; position: absolute; right: 10px; top: 10px; }
         .task-item:not(.locked):hover .task-actions { opacity: 1; }
         .btn-icon { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; padding: 4px 6px; color: var(--text-muted); font-size: 0.8rem; }
@@ -153,12 +146,10 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
         .close-modal { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
-        
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
         .form-control { width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; color: var(--text-main); }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
         .color-options { display: flex; gap: 12px; margin-top: 5px; }
         .color-radio { display: none; }
         .color-label { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
@@ -166,18 +157,31 @@
         .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 
+        /* --- THẺ HỘI VIÊN VIP (MỚI) --- */
+        .mem-card { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .mem-card.pro { background: linear-gradient(135deg, #2563eb, #1e40af); border-color: #60a5fa; }
+        .mem-card.ultra { background: linear-gradient(135deg, #f59e0b, #b45309); border-color: #fbbf24; }
+        .mem-status { font-size: 1.2rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; }
+        .mem-timer { font-family: 'Special Elite', monospace; font-size: 1.1rem; color: #cbd5e1; margin-bottom: 15px; }
+        .mem-toggle { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; width: fit-content; }
+        .mem-pricing { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .mem-tier-box { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; background: var(--input-bg); }
+        .mem-tier-box h4 { font-size: 1.1rem; margin-bottom: 10px; color: var(--primary); text-transform: uppercase; }
+        .mem-tier-box.ultra-box h4 { color: var(--warning); }
+        .mem-btn { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); border-radius: 6px; cursor: pointer; font-weight: 600; text-align: left; display: flex; justify-content: space-between; transition: 0.2s; }
+        .mem-btn:hover { border-color: var(--primary); background: rgba(37,99,235,0.05); }
+        .mem-badge { background: var(--danger); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+
         /* UI CỬA HÀNG, CHỨNG KHOÁN, THẦN TÀI */
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .shop-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center; background: var(--input-bg); transition: 0.2s;}
         .shop-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .shop-item h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px;}
         .shop-item p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; min-height: 35px;}
-        
         .stock-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--input-bg);}
         .stock-price { font-size: 1.2rem; font-weight: 700; width: 80px; text-align: right;}
         .stock-price.up { color: var(--success); }
         .stock-price.down { color: var(--danger); }
-        
         .bank-display { text-align: center; font-size: 2.5rem; color: var(--warning); font-family: 'Black Ops One', cursive; margin: 20px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.1);}
 
         /* FOCUS ZONE */
@@ -190,15 +194,12 @@
         .zen-timer { font-family: 'Black Ops One', cursive; font-size: clamp(5rem, 12vw, 8rem); color: #fff; letter-spacing: 5px; margin: 0 0 10px 0; text-shadow: 4px 4px 0px #000, 8px 8px 20px rgba(0,0,0,0.8); line-height: 1; }
         @keyframes timer-pulse-zen { 0% { filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)); transform: scale(1.02); } 100% { filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); transform: scale(1); } }
         .zen-timer.ticking { animation: timer-pulse-zen 1.5s infinite ease-in-out; }
-        
         .zen-energy-bar-container { width: 100%; height: 14px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 10px 0 20px; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: visible; }
         .zen-energy-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #1d4ed8, #3b82f6, #93c5fd); transition: width 0.5s linear; border-radius: 8px; box-shadow: 0 0 10px currentColor; position: relative; }
-        
         .zen-rank-badge { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.2rem; color: #60a5fa; border: 2px solid #60a5fa; padding: 5px 20px; border-radius: 4px; background: rgba(0,0,0,0.6); margin-bottom: 10px; box-shadow: 0 0 15px rgba(96, 165, 250, 0.3); text-transform: uppercase; letter-spacing: 2px; }
         .zen-xp-bar-container { width: 100%; max-width: 400px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
         .zen-xp-bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.5s ease-out; }
         .zen-xp-text { font-size: 0.9rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
-        
         .zen-quote-container { margin-top: 10px; max-width: 800px; width: 90%; padding: 25px 30px; border-radius: 12px; position: relative; background: #0f172a; min-height: 120px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .zen-quote-line { position: absolute; display: block; z-index: 1; pointer-events: none; }
         .zen-quote-line:nth-child(1) { top: 0; left: -100%; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #0ea5e9, #38bdf8); box-shadow: 0 0 10px #38bdf8; animation: led-top 2s linear infinite; animation-delay: 0s; }
@@ -213,7 +214,6 @@
         .zen-quote-en { font-size: 1.2rem; font-style: italic; color: #cbd5e1; margin-bottom: 5px; font-family: 'Inter', serif; transition: opacity 0.5s; }
         .zen-quote-vi { font-size: 1.1rem; color: #a5b4fc; font-weight: 600; margin-bottom: 8px; transition: opacity 0.5s; }
         .zen-quote-author { font-size: 0.9rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; text-align: right; transition: opacity 0.5s; }
-        
         .zen-status { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); text-align: center;}
         .zen-controls { display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
@@ -224,7 +224,6 @@
         .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fbbf24; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); }
         .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 25px rgba(0,0,0,0.8); overflow: hidden; position: relative; transition: transform 4s cubic-bezier(0.17, 0.67, 0.1, 1); }
         .wheel-label { position: absolute; top: 50%; left: 50%; width: 50%; height: 24px; transform-origin: 0% 50%; margin-top: -12px; text-align: right; padding-right: 25px; font-size: 0.75rem; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,1); line-height: 24px; white-space: nowrap;}
-        
         #zen-wheel-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; animation: slideUp 0.5s ease; }
 
         /* OVERLAY KỶ LUẬT */
@@ -243,7 +242,6 @@
     </style>
 </head>
 <body>
-
     <div id="main-board">
         <header class="header">
             <div class="header-title">
@@ -259,35 +257,28 @@
                 <div id="header-streak-badge" class="btn" title="Chuỗi Kỷ Luật Liên Tiếp">
                     🔥 <span id="streak-text">0 Ngày</span>
                 </div>
-                
                 <div id="header-buffs-badge" class="btn btn-outline" title="Kho Đồ: Thẻ Bảo Hộ & Thẻ Nhân Đôi XP">
                     <span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span>
                 </div>
-
                 <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()" title="Cam Kết Kỷ Luật (Cược XP)">
                     <i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span>
                 </div>
-                
-                <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng</button>
+                <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
-                
                 <button class="btn btn-outline" id="btn-theme" onclick="toggleThemeCycle()" title="Đổi Giao Diện">
                     <i class="fas fa-palette"></i>
                 </button>
                 <button class="btn btn-zen" onclick="toggleZenMode()">
                     <i class="fas fa-fire"></i> Focus Mode
                 </button>
-                
                 <button class="btn btn-outline" onclick="saveTemplate()" title="Lưu Lịch Mẫu"><i class="fas fa-bookmark"></i></button>
                 <button class="btn btn-primary" onclick="resetWeek()" title="Khởi tạo tuần học mới"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
-                
                 <button class="btn btn-outline" onclick="document.getElementById('import-file').click()" title="Nhập Excel"><i class="fas fa-file-import"></i></button>
                 <button class="btn btn-outline" onclick="exportExcel()" title="Xuất Excel"><i class="fas fa-file-export"></i></button>
                 <input type="file" id="import-file" style="display: none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
-
         <div class="ghost-panel">
             <div class="ghost-title">
                 <span><i class="fas fa-chart-line"></i> Phân tích Kỷ luật (Tuần này vs Tuần trước)</span>
@@ -298,10 +289,9 @@
                 <div class="ghost-fill-now" id="ghost-bar-now" style="width: 0%;" title="Tiến độ Tuần Này"></div>
             </div>
         </div>
-
         <div class="board" id="board-container"></div>
     </div>
-
+    
     <div class="modal-overlay" id="task-modal">
         <div class="modal">
             <div class="modal-header">
@@ -330,7 +320,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="modal-overlay" id="wager-modal">
         <div class="modal" style="border-color: var(--primary); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);">
             <div class="modal-header" style="color: var(--primary);">
@@ -350,14 +340,40 @@
             </div>
         </div>
     </div>
-
+    
     <div class="modal-overlay" id="shop-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--warning);">
-                <span><i class="fas fa-store"></i> CỬA HÀNG VẬT PHẨM</span>
+                <span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span>
                 <button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button>
             </div>
             <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
+            
+            <div id="mem-card-ui" class="mem-card">
+                <div class="mem-status">Đang sử dụng: Hạng <span id="ui-mem-tier">BASIC</span></div>
+                <div class="mem-timer" id="ui-mem-timer">Trạng thái: Miễn phí vĩnh viễn</div>
+                <div class="mem-toggle" id="ui-mem-toggle-box" style="display:none;">
+                    <input type="checkbox" id="mem-auto-renew" onchange="toggleAutoRenew()"> 
+                    <label for="mem-auto-renew" id="ui-mem-renew-label">Tự động gia hạn</label>
+                </div>
+            </div>
+
+            <div class="mem-pricing">
+                <div class="mem-tier-box">
+                    <h4>Bậc Tinh Anh (PRO Tier)</h4>
+                    <button class="mem-btn" onclick="buyMem('PRO', 1, 100)"><span>1 Ngày</span> <span>100 Xu</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 30, 2000)"><span>30 Ngày (Tiết kiệm 33%)</span> <span>2.000 Xu</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 365, 15000)"><span>1 Năm (Tiết kiệm 50%)</span> <span>15.000 Xu</span></button>
+                </div>
+                <div class="mem-tier-box ultra-box" style="border-color:var(--warning);">
+                    <h4>Bậc Tối Thượng (ULTRA Tier)</h4>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 1, 300)"><span>1 Ngày</span> <span>300 Xu</span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 30, 6000)"><span>30 Ngày</span> <span>6.000 Xu <span class="mem-badge">🔥 Tiết kiệm 33%</span></span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>50.000 Xu <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
+                </div>
+            </div>
+            
+            <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             
             <div class="shop-grid">
                 <div class="shop-item">
@@ -381,18 +397,24 @@
                     <button id="btn-buy-theme-hacker" class="btn" style="width:100%; justify-content:center; background:#00cc00; color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button>
                 </div>
             </div>
-
+            
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
-
             <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> VÒNG QUAY ĐỊNH MỆNH</h3>
             <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cơ hội nhận giải thưởng lớn hoặc rủi ro mất trắng.</p>
-            
             <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;">
                 <div class="wheel-pointer"></div>
                 <div class="wheel" id="shop-wheel"></div>
             </div>
-            
             <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY (100 Xu)</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="renew-modal" style="z-index: 9999;">
+        <div class="modal" style="border-color: var(--danger); max-width: 450px;">
+            <h3 style="color: var(--danger); margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> Cảnh Báo Trượt Gia Hạn</h3>
+            <p style="font-size: 0.95rem; margin-bottom: 20px;" id="renew-msg-desc"></p>
+            <div style="display:flex; flex-direction:column; gap:10px;" id="renew-options-container">
+            </div>
         </div>
     </div>
 
@@ -404,11 +426,10 @@
             </div>
             <p style="text-align:center; margin-bottom: 5px;">Số dư khả dụng: <strong style="color:var(--warning); font-size:1.2rem;" id="stock-coins-display">0</strong> Xu</p>
             <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-bottom: 20px;">Giá biến động ngẫu nhiên mỗi 5 phút.</p>
-            
             <div id="stock-list-container"></div>
         </div>
     </div>
-
+    
     <div class="modal-overlay" id="bank-modal">
         <div class="modal" style="max-width: 400px; text-align: center;">
             <div class="modal-header" style="color: var(--warning);">
@@ -421,12 +442,10 @@
                 <div class="bank-display" id="bank-interest-display">0.000</div>
                 <button class="btn btn-warning" style="width:100%; justify-content:center; color:black; font-weight:bold;" onclick="harvestBank()">THU HOẠCH LÃI</button>
             </div>
-            
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem;">
                 <div>Vốn đang gửi: <br><strong style="font-size: 1.2rem;" id="bank-capital-display">0</strong> Xu</div>
                 <div>Lãi suất: <br><strong style="font-size: 1.2rem; color:var(--success);"><span id="bank-rate-display">1</span>%/Ngày</strong><br><span style="font-size:0.7rem;">(Dựa theo Chuỗi Kỷ Luật)</span></div>
             </div>
-
             <div style="display:flex; gap:10px;">
                 <input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số lượng...">
                 <button class="btn btn-success" onclick="depositBank()">Gửi Vào</button>
@@ -434,30 +453,28 @@
             </div>
         </div>
     </div>
-
+    
     <div id="punish-overlay">
         <div class="punish-box">
             <h1 style="font-family: 'Black Ops One', cursive; font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"><i class="fas fa-gavel"></i> CẢNH BÁO KỶ LUẬT</h1>
             <p id="punish-reason" style="font-size: 1rem; margin-bottom: 20px;">Lý do: Không hoàn thành nhiệm vụ được giao!</p>
-            
             <h3 style="color: #fca5a5; margin-bottom: 10px;">Mức phạt: Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
             <p style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;"><span id="punish-fine-display">50</span> XU</p>
             <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 20px;">Nộp phạt để Hệ thống xóa cảnh báo. Nếu không nộp, bạn sẽ bị <strong>Trừ 30 XP & Mất Chuỗi Kỷ Luật</strong>.</p>
-            
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 20px;" id="btn-pay-fine" onclick="payFine()">Nộp Phạt</button>
                 <button class="btn btn-outline" style="font-size: 1.1rem; padding: 12px 20px; color: white; border-color: white;" onclick="refuseFine()">Từ chối nộp phạt</button>
             </div>
         </div>
     </div>
-
+    
     <div id="afk-overlay">
         <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
         <p style="font-size: 1.5rem;">Bạn vẫn đang học chứ? Xác nhận ngay!</p>
         <div id="afk-timer">15</div>
         <button class="btn-afk" onclick="afkSuccess()">TÔI VẪN ĐANG HỌC!</button>
     </div>
-
+    
     <div id="fireworks-container"></div>
     
     <div id="zen-overlay">
@@ -467,14 +484,12 @@
             <div class="zen-rank-badge" id="zen-rank">Tân Sinh</div>
             <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div>
             <div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
-            
             <div class="zen-status" id="zen-status">SẴN SÀNG HỌC TẬP</div>
             <div class="zen-timer" id="zen-timer">25:00</div>
-            
             <div class="zen-energy-bar-container" id="zen-energy-bar">
                 <div class="zen-energy-bar-fill" id="zen-energy-fill" style="width: 0%;"></div>
             </div>
-
+            
             <div id="zen-pump-box" style="background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 400px;">
                 <p style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fas fa-chart-line"></i> Tập trung đẩy giá cổ phiếu</p>
                 <select id="pump-stock-select" style="padding: 10px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #3b82f6; width: 100%; font-size: 1rem; margin-bottom: 5px;">
@@ -486,7 +501,7 @@
                 </select>
                 <p style="font-size: 0.8rem; color: #94a3b8;">Hoàn thành 25p để giúp giá cổ phiếu tăng mạnh. Nếu không phản hồi kiểm tra, giá sẽ giảm mạnh!</p>
             </div>
-
+            
             <div id="zen-wheel-box">
                 <div class="zen-status" style="color: #fbbf24; margin-bottom: 10px;"><i class="fas fa-dice"></i> PHẦN THƯỞNG NGẪU NHIÊN <i class="fas fa-dice"></i></div>
                 <div class="wheel-wrapper">
@@ -495,7 +510,7 @@
                 </div>
                 <button class="zen-btn-action" style="background:linear-gradient(45deg, #f59e0b, #ef4444); border:none; box-shadow: 0 0 15px rgba(239,68,68,0.5);" onclick="spinFocusWheel()" id="btn-focus-spin">QUAY THƯỞNG</button>
             </div>
-
+            
             <div class="zen-quote-container" id="zen-quote-box">
                 <span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span>
                 <div class="zen-quote-content">
@@ -512,23 +527,23 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         // ==========================================
         // KHỞI TẠO DỮ LIỆU & HỆ THỐNG
         // ==========================================
-        const REALMS = [ 
-            { name: "Tân Sinh", min: 0, color: {r:156, g:163, b:175} }, 
-            { name: "Tú Tài", min: 25, color: {r:56, g:189, b:248} }, 
-            { name: "Cử Nhân", min: 100, color: {r:52, g:211, b:153} }, 
-            { name: "Thạc Sĩ", min: 300, color: {r:250, g:204, b:21} }, 
-            { name: "Tiến Sĩ", min: 1000, color: {r:192, g:132, b:252} }, 
-            { name: "Phó Giáo Sư", min: 3000, color: {r:248, g:113, b:113} },
+        const REALMS = [
+             { name: "Tân Sinh", min: 0, color: {r:156, g:163, b:175} },
+             { name: "Tú Tài", min: 25, color: {r:56, g:189, b:248} },
+             { name: "Cử Nhân", min: 100, color: {r:52, g:211, b:153} },
+             { name: "Thạc Sĩ", min: 300, color: {r:250, g:204, b:21} },
+             { name: "Tiến Sĩ", min: 1000, color: {r:192, g:132, b:252} },
+             { name: "Phó Giáo Sư", min: 3000, color: {r:248, g:113, b:113} },
             { name: "Giáo Sư", min: 10000, color: {r:251, g:146, b:60} }
         ];
-        const MAX_POINTS = 10000; 
+        const MAX_POINTS = 10000;
         const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v84"; 
+        const STORAGE_KEY = "planner_data_v84_vip"; 
         const TEMPLATE_KEY = "planner_template_v84";
         const THEMES = ['light', 'dark', 'detective', 'nature'];
 
@@ -540,15 +555,16 @@
             lastWeekTotal: 0, currentWeekTotal: 0, lastWeekCompleted: 0, currentWeekCompleted: 0,
             currentTheme: 'light',
             immunity: 0, doubleXp: 0,
-            punishTier: 1, 
-            stocks: { 
-                IEL: { name: "IELTS Corp", price: 100, qty: 0 }, 
-                MUN: { name: "Quỷ Đỏ Old Trafford", price: 50, qty: 0 }, 
-                BYN: { name: "Hùm Xám Bavaria", price: 150, qty: 0 }, 
-                ZHN: { name: "Hán Ngữ Group", price: 30, qty: 0 } 
-            },
+            punishTier: 1,
+            stocks: {
+                 IEL: { name: "IELTS Corp", price: 100, qty: 0 },
+                 MUN: { name: "Quỷ Đỏ Old Trafford", price: 50, qty: 0 },
+                 BYN: { name: "Hùm Xám Bavaria", price: 150, qty: 0 },
+                 ZHN: { name: "Hán Ngữ Group", price: 30, qty: 0 }
+             },
             bankCapital: 0, bankUnclaimed: 0, bankLastUpdate: Date.now(),
-            unlockedThemes: []
+            unlockedThemes: [],
+            mem: { tier: 'BASIC', expire: 0, auto: false, autoTier: 'BASIC', autoDays: 0 }
         };
 
         let sysAudioCtx = null;
@@ -559,6 +575,7 @@
                 return sysAudioCtx;
             } catch(e) { return null; }
         }
+        
         function playAlarmSound() {
             try {
                 const ctx = getAudioCtx(); if (!ctx) return;
@@ -571,40 +588,43 @@
                 }
             } catch(e) {}
         }
+        
         function playChime() { 
-            try {
-                const ctx = getAudioCtx(); if (!ctx) return; 
-                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
-                osc.frequency.setValueAtTime(880, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 1.5); 
-                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5); 
-                osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 1.5); 
-            } catch(e) {}
+             try {
+                const ctx = getAudioCtx(); if (!ctx) return;
+                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(880, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 1.5);
+                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+                osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 1.5);
+             } catch(e) {}
         }
+        
         function playRealisticBoom() { 
-            try {
-                const ctx = getAudioCtx(); if (!ctx) return; 
-                const t = ctx.currentTime; const bufferSize = ctx.sampleRate * 2; 
-                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0); 
-                let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0; 
-                for (let i=0; i<bufferSize; i++) { 
-                    const w = Math.random() * 2 - 1; 
-                    b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520; 
-                    b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980; 
-                    data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362; data[i] *= 0.11; b6 = w * 0.115926; 
-                } 
-                const noise = ctx.createBufferSource(); noise.buffer = buffer; 
-                const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 800; 
-                filter.frequency.exponentialRampToValueAtTime(100, t + 0.3); 
-                const gain = ctx.createGain(); gain.gain.setValueAtTime(1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5); 
-                noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t + 2); 
-            } catch(e) {}
+             try {
+                const ctx = getAudioCtx(); if (!ctx) return;
+                const t = ctx.currentTime; const bufferSize = ctx.sampleRate * 2;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0);
+                let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+                for (let i=0; i<bufferSize; i++) {
+                    const w = Math.random() * 2 - 1;
+                    b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520;
+                    b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
+                    data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362; data[i] *= 0.11; b6 = w * 0.115926;
+                }
+                const noise = ctx.createBufferSource(); noise.buffer = buffer;
+                const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 800;
+                filter.frequency.exponentialRampToValueAtTime(100, t + 0.3);
+                const gain = ctx.createGain(); gain.gain.setValueAtTime(1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+                noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t + 2);
+             } catch(e) {}
         }
+        
         function playTickSound() {
             try {
                 const ctx = getAudioCtx(); if (!ctx) return;
-                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); 
-                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); 
+                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1);
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
                 osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1);
             } catch(e) {}
         }
@@ -613,12 +633,12 @@
         function initFireworks() { 
             try {
                 const container = document.getElementById('fireworks-container');
-                const FW = window.Fireworks || window.Fireworks.default; 
+                const FW = window.Fireworks || window.Fireworks.default;
                 if(FW) { fireworks = new FW(container, { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); }
             } catch(e) { }
         }
         function runBigFireworks() { 
-            try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
+             try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
         }
 
         const quotes = [
@@ -662,9 +682,10 @@
             sys.currentTheme = sys.currentTheme || 'light';
             if(!sys.stocks) sys.stocks = { IEL: {name:"IELTS Corp",price:100,qty:0}, MUN: {name:"Quỷ Đỏ Old Trafford",price:50,qty:0}, BYN: {name:"Hùm Xám Bavaria",price:150,qty:0}, ZHN: {name:"Hán Ngữ Group",price:30,qty:0} };
             if(!sys.unlockedThemes || !Array.isArray(sys.unlockedThemes)) sys.unlockedThemes = [];
+            if(!sys.mem) sys.mem = { tier: 'BASIC', expire: 0, auto: false, autoTier: 'BASIC', autoDays: 0 };
             
             applyTheme(sys.currentTheme);
-            updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket();
+            updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI();
         }
 
         function saveAllData() {
@@ -690,9 +711,9 @@
             let attempts = 0;
             while(attempts < available.length) {
                 if (nextTheme === 'detective' && sys.highestStreak < 7 && sys.streak < 7) {
-                    
+                    // Lock
                 } else if (nextTheme === 'nature' && sys.highestStreak < 14 && sys.streak < 14) {
-                    
+                    // Lock
                 } else {
                     break;
                 }
@@ -700,36 +721,34 @@
                 nextTheme = available[nextIndex];
                 attempts++;
             }
-            
             applyTheme(nextTheme);
         }
 
         // ==========================================
         // UI & KINH TẾ
         // ==========================================
-        function getRealmInfo(points) { 
-            let current = REALMS[0]; let next = REALMS[1]; 
-            for (let i = 0; i < REALMS.length; i++) { if (points >= REALMS[i].min) { current = REALMS[i]; next = REALMS[i+1]; } } 
-            return { current, next }; 
-        }
+        function getRealmInfo(points) {
+             let current = REALMS[0]; let next = REALMS[1];
+             for (let i = 0; i < REALMS.length; i++) { if (points >= REALMS[i].min) { current = REALMS[i]; next = REALMS[i+1]; } }
+             return { current, next };
+         }
 
-        function addTuVi(amount) { 
-            const oldRank = getRealmInfo(sys.points).current.name; 
-            
-            sys.points += amount; if (sys.points < 0) sys.points = 0; 
-            sys.coins += amount; if (sys.coins < 0) sys.coins = 0;
+        function addTuVi(amount) {
+             const oldRank = getRealmInfo(sys.points).current.name;
+             sys.points += amount; if (sys.points < 0) sys.points = 0;
+             sys.coins += amount; if (sys.coins < 0) sys.coins = 0;
 
             const badge = document.getElementById('header-tuvi-badge');
             if(badge) { badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse'); }
             
-            if (amount > 0 && getRealmInfo(sys.points).current.name !== oldRank) { 
-                setTimeout(() => { alert(`Tuyệt vời! Học vị của bạn đã được nâng cấp lên: ${getRealmInfo(sys.points).current.name}!`); runBigFireworks(); playRealisticBoom(); }, 100);
+            if (amount > 0 && getRealmInfo(sys.points).current.name !== oldRank) {
+                 setTimeout(() => { alert(`Tuyệt vời! Học vị của bạn đã được nâng cấp lên: ${getRealmInfo(sys.points).current.name}!`); runBigFireworks(); playRealisticBoom(); }, 100);
             }
-            saveAllData(); 
-        }
+            saveAllData();
+         }
 
         function updateSystemUI() {
-            const { current, next } = getRealmInfo(sys.points); 
+            const { current, next } = getRealmInfo(sys.points);
             
             document.getElementById('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`;
             document.getElementById('ui-coins').innerText = `${Math.floor(sys.coins)} Xu`;
@@ -740,11 +759,11 @@
             
             const rankBadge = document.getElementById('zen-rank');
             if (rankBadge) {
-                rankBadge.innerText = current.name; 
+                rankBadge.innerText = current.name;
                 const colorStr = `rgb(${current.color.r},${current.color.g},${current.color.b})`;
-                rankBadge.style.color = colorStr; rankBadge.style.borderColor = colorStr; 
+                rankBadge.style.color = colorStr; rankBadge.style.borderColor = colorStr;
                 let percent = next ? ((sys.points - current.min) / (next.min - current.min)) * 100 : Math.min(100, ((sys.points - current.min) / (MAX_POINTS - current.min)) * 100);
-                document.getElementById('zen-xp-fill').style.width = `${percent}%`; 
+                document.getElementById('zen-xp-fill').style.width = `${percent}%`;
                 document.getElementById('zen-xp-text').innerText = next ? `${sys.points} / ${next.min} XP` : `${sys.points} / ${MAX_POINTS} (Tối đa)`;
             }
 
@@ -753,6 +772,142 @@
 
             if(document.getElementById('shop-modal').style.display === 'flex') document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
             if(document.getElementById('stock-modal').style.display === 'flex') document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins);
+        }
+
+        // ==========================================
+        // CƠ CHẾ THẺ HỘI VIÊN (MỚI)
+        // ==========================================
+        function updateMemUI() {
+            const card = document.getElementById('mem-card-ui');
+            if(!card) return;
+            card.className = 'mem-card ' + sys.mem.tier.toLowerCase();
+            document.getElementById('ui-mem-tier').innerText = sys.mem.tier;
+
+            if (sys.mem.tier === 'BASIC') {
+                document.getElementById('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn";
+                document.getElementById('ui-mem-toggle-box').style.display = 'none';
+            } else {
+                document.getElementById('ui-mem-toggle-box').style.display = 'flex';
+                document.getElementById('mem-auto-renew').checked = sys.mem.auto;
+                document.getElementById('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`;
+            }
+        }
+
+        function toggleAutoRenew() {
+            sys.mem.auto = document.getElementById('mem-auto-renew').checked;
+            saveAllData();
+        }
+
+        function buyMem(tier, days, cost) {
+            if (sys.coins >= cost) {
+                if(confirm(`Xác nhận mua gói ${tier} (${days} Ngày) với giá ${cost} Xu?`)) {
+                    sys.coins -= cost;
+                    // Cộng dồn thời gian nếu đang dùng cùng Hạng
+                    if(sys.mem.tier === tier && sys.mem.expire > Date.now()) {
+                        sys.mem.expire += days * 86400000;
+                    } else {
+                        sys.mem.tier = tier;
+                        sys.mem.expire = Date.now() + days * 86400000;
+                    }
+                    sys.mem.auto = true;
+                    sys.mem.autoTier = tier;
+                    sys.mem.autoDays = days;
+
+                    saveAllData(); updateMemUI();
+                    alert(`Chúc mừng bệ hạ đã thăng cấp hội viên ${tier}!`);
+                }
+            } else {
+                alert("Ngân khố của bệ hạ không đủ để đăng ký gói cước này!");
+            }
+        }
+
+        function getPackageCost(tier, days) {
+            if(tier === 'PRO') { if(days===1) return 100; if(days===30) return 2000; if(days===365) return 15000; }
+            if(tier === 'ULTRA') { if(days===1) return 300; if(days===30) return 6000; if(days===365) return 50000; }
+            return 999999;
+        }
+
+        // Loop kiểm tra hạn mức thẻ hội viên
+        setInterval(() => {
+            if(sys.mem && sys.mem.tier !== 'BASIC') {
+                let left = sys.mem.expire - Date.now();
+                if(left > 0) {
+                    let d = Math.floor(left / 86400000);
+                    let h = Math.floor((left % 86400000) / 3600000);
+                    let m = Math.floor((left % 3600000) / 60000);
+                    let s = Math.floor((left % 60000) / 1000);
+                    if(document.getElementById('shop-modal').style.display === 'flex') {
+                        document.getElementById('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`;
+                    }
+                } else {
+                    handleMemExpiration();
+                }
+            }
+        }, 1000);
+
+        function handleMemExpiration() {
+            if (sys.mem.auto) {
+                let cost = getPackageCost(sys.mem.autoTier, sys.mem.autoDays);
+                if (sys.coins >= cost) {
+                    sys.coins -= cost;
+                    sys.mem.expire = Date.now() + sys.mem.autoDays * 86400000;
+                    saveAllData();
+                    alert(`Hệ thống đã tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} ngày). Trừ ${cost} Xu.`);
+                } else {
+                    triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, cost);
+                }
+            } else {
+                sys.mem.tier = 'BASIC';
+                sys.mem.expire = 0;
+                saveAllData(); updateMemUI();
+                alert("Thẻ Hội Viên của bệ hạ đã hết hạn. Hệ thống chuyển về bản BASIC.");
+            }
+        }
+
+        function triggerRenewalFallback(targetTier, targetDays, targetCost) {
+            document.getElementById('shop-modal').style.display = 'none';
+            let currentCoins = Math.floor(sys.coins);
+            let htmlOptions = "";
+
+            document.getElementById('renew-msg-desc').innerHTML = `Bệ hạ đang dùng <strong>${targetTier} (${targetDays} Ngày)</strong> (cần ${targetCost} Xu) nhưng ngân khố chỉ còn <strong>${currentCoins} Xu</strong>.`;
+
+            let costPerDayCurrent = getPackageCost(targetTier, 1);
+            let maxDaysCurrent = Math.floor(currentCoins / costPerDayCurrent);
+            if(maxDaysCurrent > 0) {
+                let totalCost = maxDaysCurrent * costPerDayCurrent;
+                htmlOptions += `<button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="executeFallback('${targetTier}', ${maxDaysCurrent}, ${totalCost})">Duy trì ${targetTier} trong ${maxDaysCurrent} Ngày (Tốn ${totalCost} Xu)</button>`;
+            }
+
+            if(targetTier === 'ULTRA') {
+                let costPerDayPro = getPackageCost('PRO', 1);
+                let maxDaysPro = Math.floor(currentCoins / costPerDayPro);
+                if(maxDaysPro > 0) {
+                    let totalCostPro = maxDaysPro * costPerDayPro;
+                    htmlOptions += `<button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--primary); color:var(--primary);" onclick="executeFallback('PRO', ${maxDaysPro}, ${totalCostPro})">Hạ cấp: Mua PRO ${maxDaysPro} Ngày (Tốn ${totalCostPro} Xu)</button>`;
+                }
+            }
+
+            htmlOptions += `<button class="btn btn-outline" style="width:100%; justify-content:center; color:var(--danger); border-color:var(--danger);" onclick="executeFallback('BASIC', 0, 0)">Hủy đăng ký (Quay về bản Basic, bảo toàn Xu)</button>`;
+
+            document.getElementById('renew-options-container').innerHTML = htmlOptions;
+            document.getElementById('renew-modal').style.display = 'flex';
+
+            // Reset tạm thời để không trigger vòng lặp
+            sys.mem.tier = 'BASIC'; sys.mem.expire = 0; sys.mem.auto = false;
+        }
+
+        function executeFallback(newTier, days, cost) {
+            if(newTier === 'BASIC') {
+                alert("Đã hủy gia hạn thành công. Bệ hạ đang sử dụng bản Basic.");
+            } else {
+                sys.coins -= cost;
+                sys.mem.tier = newTier;
+                sys.mem.expire = Date.now() + days * 86400000;
+                sys.mem.auto = false; // Tắt auto renew
+                alert(`Đã trích ${cost} Xu để chuyển sang gói ${newTier} trong ${days} ngày tới. Hãy nhanh chóng hoàn thành việc học để tích lũy thêm Xu!`);
+            }
+            saveAllData(); updateMemUI();
+            document.getElementById('renew-modal').style.display = 'none';
         }
 
         function openWagerModal() {
@@ -791,7 +946,8 @@
             DAYS_OF_WEEK.forEach((dayName, index) => {
                 const tasks = scheduleData[index] || []; const total = tasks.length; const completed = tasks.filter(t => t.completed).length;
                 const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100); const isToday = index === today;
-                const allLocked = total > 0 && tasks.every(t => t.locked || t.missed); 
+                const allLocked = total > 0 && tasks.every(t => t.locked || t.missed);
+                
                 let tasksHTML = tasks.map(task => {
                     const colorClass = `task-${task.color || 'default'}`;
                     const rolloverBadge = task.rolledOver ? `<span class="rollover-badge" title="Dời từ ${task.originalDay}"><i class="fas fa-share"></i> ${task.originalDay}</span>` : '';
@@ -804,7 +960,7 @@
                 }).join('');
                 if(tasks.length === 0) tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
                 let finishBtn = '';
-                if (total > 0 && !allLocked) { finishBtn = `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`; } 
+                if (total > 0 && !allLocked) { finishBtn = `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`; }
                 else if (allLocked) {
                     if (tasks.every(t => !t.missed)) finishBtn = `<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Hoàn thành xuất sắc</div>`;
                     else finishBtn = `<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px; padding: 12px; border: 2px dashed var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.05); line-height: 1.4;"><i class="fas fa-times-circle"></i><br>CẦN CỐ GẮNG HƠN<br><span style="font-size: 0.85rem; font-weight: 500; opacity: 0.9;">Nhiệm vụ còn tồn đọng</span></div>`;
@@ -816,7 +972,7 @@
 
         function openModal(dayIndex, taskId = null) {
             document.getElementById('task-day-index').value = dayIndex; document.getElementById('task-id').value = taskId || '';
-            if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); document.getElementById('task-desc').value = task.text; document.getElementById('task-time').value = task.time || ''; document.querySelector(`input[name="task-color"][value="${task.color || 'default'}"]`).checked = true; } 
+            if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); document.getElementById('task-desc').value = task.text; document.getElementById('task-time').value = task.time || ''; document.querySelector(`input[name="task-color"][value="${task.color || 'default'}"]`).checked = true; }
             else { document.getElementById('task-desc').value = ''; document.getElementById('task-time').value = ''; document.getElementById('color-blue').checked = true; }
             document.getElementById('task-modal').style.display = 'flex'; document.getElementById('task-desc').focus();
         }
@@ -826,24 +982,24 @@
             const dayIndex = document.getElementById('task-day-index').value; const taskId = document.getElementById('task-id').value;
             const text = document.getElementById('task-desc').value.trim(); const time = document.getElementById('task-time').value; const color = document.querySelector('input[name="task-color"]:checked').value;
             if (!text) { alert("Vui lòng nhập tên công việc!"); return; }
-            if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); task.text = text; task.time = time; task.color = color; } 
+            if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); task.text = text; task.time = time; task.color = color; }
             else { scheduleData[dayIndex].push({ id: generateId(), text: text, time: time, color: color, completed: false, rolledOver: false, locked: false, missed: false }); scheduleData[dayIndex].sort((a, b) => { if(!a.time) return 1; if(!b.time) return -1; return a.time.localeCompare(b.time); }); }
             saveAllData(); closeModal('task-modal');
         }
         
         function deleteTask(dayIndex, taskId) {
             if(confirm("Bạn có chắc chắn muốn xóa nhiệm vụ này?")) {
-                const task = scheduleData[dayIndex].find(t => t.id === taskId); if(task.completed && !task.locked) addTuVi(-10); 
-                scheduleData[dayIndex] = scheduleData[dayIndex].filter(t => t.id !== taskId); saveAllData();
+                const task = scheduleData[dayIndex].find(t => t.id === taskId); if(task.completed && !task.locked) addTuVi(-10);
+                scheduleData[dayIndex] = scheduleData[dayIndex].filter(t => t.id !== taskId); saveAllData(); renderBoard();
             }
         }
 
         function toggleComplete(dayIndex, taskId) {
             const task = scheduleData[dayIndex].find(t => t.id === taskId);
-            if (task.locked || task.missed) return; 
+            if (task.locked || task.missed) return;
             task.completed = !task.completed;
-            if (task.completed) addTuVi(10); 
-            else addTuVi(-10);               
+            if (task.completed) addTuVi(10);
+            else addTuVi(-10);
             renderBoard();
         }
 
@@ -861,25 +1017,25 @@
                 let msg = `Hoàn thành xuất sắc toàn bộ mục tiêu! Giữ chuỗi: ${sys.streak} ngày. Thưởng +50 XP & 50 Xu!`;
                 
                 if (sys.wagerAmount > 0) {
-                    let winAmount = sys.wagerAmount * 2; 
-                    addTuVi(winAmount); 
-                    msg += `\nHoàn thành Cam Kết: Nhận lại mức cược nhân đôi (+${winAmount} XP/Xu)!`; 
-                    sys.wagerAmount = 0; 
+                    let winAmount = sys.wagerAmount * 2;
+                    addTuVi(winAmount);
+                    msg += `\nHoàn thành Cam Kết: Nhận lại mức cược nhân đôi (+${winAmount} XP/Xu)!`;
+                    sys.wagerAmount = 0;
                 }
                 
-                addTuVi(50); 
-                tasks.forEach(t => t.locked = true); 
+                addTuVi(50);
+                tasks.forEach(t => t.locked = true);
                 alert(msg); runBigFireworks(); playRealisticBoom();
                 renderBoard(); saveAllData();
             } else {
                 pendingPunishReason = "Chưa hoàn thành kế hoạch trong ngày!";
                 pendingIncompleteTasks = incompleteTasks;
                 pendingDayIndex = dayIndex;
-                completedTasks.forEach(t => t.locked = true); 
+                completedTasks.forEach(t => t.locked = true);
                 
-                if (sys.wagerAmount > 0) { 
-                    alert(`Thất bại Cam Kết: Hệ thống thu hồi ${sys.wagerAmount} XP đã cược!`); 
-                    sys.wagerAmount = 0; 
+                if (sys.wagerAmount > 0) {
+                    alert(`Thất bại Cam Kết: Hệ thống thu hồi ${sys.wagerAmount} XP đã cược!`);
+                    sys.wagerAmount = 0;
                 }
                 showPunishmentModal();
             }
@@ -908,7 +1064,7 @@
             let fineAmount = sys.punishTier * 50;
             if (sys.coins >= fineAmount) {
                 sys.coins -= fineAmount;
-                sys.punishTier++; 
+                sys.punishTier++;
                 alert(`Đã nộp phạt thành công! Hệ thống đã xóa cảnh báo. Bảo toàn điểm XP và chuỗi kỷ luật!`);
                 closePunishmentModal(true);
             }
@@ -916,7 +1072,7 @@
 
         function refuseFine() {
             alert(`CẢNH BÁO: Bạn bị trừ 30 XP và mất chuỗi kỷ luật!`);
-            sys.points = Math.max(0, sys.points - 30); 
+            sys.points = Math.max(0, sys.points - 30);
             sys.streak = 0;
             sys.punishTier++;
             closePunishmentModal(false);
@@ -925,10 +1081,10 @@
         function closePunishmentModal(isForgiven) {
             document.getElementById('punish-overlay').style.display = 'none';
             if (pendingIncompleteTasks.length > 0 && pendingDayIndex !== -1) {
-                const nextDayIndex = (pendingDayIndex + 1) % 7; 
-                pendingIncompleteTasks.forEach(task => { 
-                    scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[pendingDayIndex] }); 
-                    task.missed = true; task.locked = true; 
+                const nextDayIndex = (pendingDayIndex + 1) % 7;
+                pendingIncompleteTasks.forEach(task => {
+                    scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[pendingDayIndex] });
+                    task.missed = true; task.locked = true;
                 });
                 alert("Các công việc dang dở đã bị chuyển sang ngày mai!");
                 pendingIncompleteTasks = []; pendingDayIndex = -1;
@@ -945,9 +1101,9 @@
         }
 
         function resetWeek() {
-            const template = localStorage.getItem(TEMPLATE_KEY); let todayIndex = getRealDayIndex(); 
+            const template = localStorage.getItem(TEMPLATE_KEY); let todayIndex = getRealDayIndex();
             if(confirm("Khởi tạo Tuần Học Mới?\nLịch cũ sẽ bị xóa. Hệ thống sẽ đặt lại mức phạt về 50 Xu.")) {
-                sys.punishTier = 1; 
+                sys.punishTier = 1;
                 sys.lastWeekCompleted = sys.currentWeekCompleted; sys.lastWeekTotal = sys.currentWeekTotal;
                 
                 let pendingTasks = [];
@@ -965,10 +1121,11 @@
         // ==========================================
         // CỬA HÀNG & CHỨNG KHOÁN & THẦN TÀI
         // ==========================================
-        function openShopModal() { 
-            document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins); 
-            updateShopUI(); 
-            document.getElementById('shop-modal').style.display = 'flex'; 
+        function openShopModal() {
+            document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
+            updateShopUI();
+            updateMemUI();
+            document.getElementById('shop-modal').style.display = 'flex';
         }
 
         function updateShopUI() {
@@ -999,28 +1156,63 @@
 
         function buyTheme(themeName, cost) {
             if (sys.unlockedThemes.includes(themeName)) { applyTheme(themeName); alert("Đã áp dụng giao diện này!"); return; }
-            if (sys.coins >= cost) { 
-                sys.coins -= cost; 
-                sys.unlockedThemes.push(themeName); 
-                applyTheme(themeName); 
-                playRealisticBoom(); saveAllData(); 
-                alert("Đã mở khóa giao diện mới!"); 
+            if (sys.coins >= cost) {
+                sys.coins -= cost;
+                sys.unlockedThemes.push(themeName);
+                applyTheme(themeName);
+                playRealisticBoom(); saveAllData();
+                alert("Đã mở khóa giao diện mới!");
                 document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-                updateShopUI(); 
+                updateShopUI();
             } else alert("Bạn cần 1000 Xu để mở khóa giao diện này!");
         }
 
-        const shopGachaOpts = [
-            { n: "🎰 Giải Đặc Biệt", c: "#fbbf24", act: ()=> { addTuVi(1000); alert("CHÚC MỪNG! Nhận ngay +1000 XP/Xu!!"); } },
-            { n: "📦 Phần Thưởng", c: "#8b5cf6", act: ()=> { sys.doubleXp++; alert("Nhận 1 Thẻ Nhân Đôi XP!"); } },
-            { n: "♻️ Hoàn Lại", c: "#10b981", act: ()=> { sys.coins+=100; alert("Hoàn lại 100 Xu!"); } },
-            { n: "🤡 Kém May Mắn", c: "#fca5a5", act: ()=> { sys.coins+=1; alert("Rất tiếc! Bạn suýt trúng thưởng. Nhận 1 Xu an ủi."); } },
-            { n: "💸 Không Trúng", c: "#3b82f6", act: ()=> { alert("Rất tiếc, bạn không trúng thưởng."); } },
-            { n: "💸 Không Trúng", c: "#3b82f6", act: ()=> { alert("Lần sau may mắn hơn nhé."); } },
-            { n: "⚖️ Giảm Trừ 20%", c: "#dc2626", act: ()=> { let tax = Math.floor(sys.coins*0.2); sys.coins-=tax; alert(`Hệ thống trừ 20% số dư hiện tại! Bạn bị trừ ${tax} Xu.`); } },
-            { n: "⛓️ Phạt Tập Trung", c: "#000000", act: ()=> { alert("CẢNH BÁO: Bị phạt tập trung 25 phút (Không nhận phần thưởng)!"); closeModal('shop-modal'); toggleZenMode(); startTimer(true); }}
+       const shopGachaOpts = [
+            { n: "👑 1 Tháng ULTRA", c: "#fbbf24", act: ()=> { 
+                sys.mem.tier = 'ULTRA'; 
+                // Cộng thêm 30 ngày (30 * 24 * 60 * 60 * 1000 = 2592000000 ms)
+                sys.mem.expire = Math.max(sys.mem.expire, Date.now()) + 2592000000; 
+                alert("THÁNH CHỈ! Chúc mừng bệ hạ nhận ngay 1 THÁNG trải nghiệm thẻ ULTRA (Trị giá 6.000 Xu)!"); 
+            }},
+            // ... (Các ô khác giữ nguyên như bản tấu trước)
+            { n: "📈 Rương Cổ Phiếu", c: "#8b5cf6", act: ()=> { 
+                let keys = Object.keys(sys.stocks); 
+                let rKey = keys[Math.floor(Math.random() * keys.length)];
+                sys.stocks[rKey].qty += 5; 
+                alert(`Lộc trời ban! Bệ hạ nhận được 5 cổ phiếu của mã $${rKey}.`); 
+            }},
+            { n: "🛡️ Kim Bài Miễn Tử", c: "#10b981", act: ()=> { 
+                sys.punishTier = 1; sys.immunity++; 
+                alert("Được ân xá! Mức phạt tiền được reset về 1, nhận thêm 1 Thẻ Bảo Hộ."); 
+            }},
+            { n: "💰 Bát Bảo Tụ Tài", c: "#34d399", act: ()=> { 
+                if(sys.bankUnclaimed > 0) { 
+                    let thuHoach = sys.bankUnclaimed * 2;
+                    sys.coins += thuHoach; 
+                    sys.bankUnclaimed = 0; 
+                    sys.bankLastUpdate = Date.now(); 
+                    alert(`Tuyệt vời! Tiền lãi tiết kiệm được nhân đôi. Bệ hạ vừa thu hoạch ${thuHoach.toFixed(2)} Xu!`); 
+                } else { 
+                    sys.coins += 100; 
+                    alert("Quỹ tiết kiệm đang trống rỗng, hệ thống hoàn lại 100 Xu tiền vé."); 
+                }
+            }},
+            { n: "🍀 Tiểu Lộc", c: "#3b82f6", act: ()=> { 
+                sys.coins += 150; alert("Chúc mừng! Bệ hạ quay trúng 150 Xu (Lời 50 Xu)."); 
+            }},
+            { n: "💨 Hư Vô", c: "#94a3b8", act: ()=> { 
+                alert("Cơn gió thoảng qua, bệ hạ không trúng gì cả."); 
+            }},
+            { n: "⚖️ Nộp Thuế 10%", c: "#dc2626", act: ()=> { 
+                let tax = Math.floor(sys.coins * 0.1); 
+                sys.coins -= tax; 
+                alert(`Quốc khố thâm hụt, bệ hạ bắt buộc phải nộp thuế ${tax} Xu.`); 
+            }},
+            { n: "⛓️ Bế Quan", c: "#000000", act: ()=> { 
+                alert("Tâm trí xao nhãng! Bắt buộc bế quan tịnh tâm 25 phút."); 
+                closeModal('shop-modal'); toggleZenMode(); startTimer(true); 
+            }}
         ];
-
         function initShopWheel() {
             const wheel = document.getElementById('shop-wheel'); let deg = 360 / 8; 
             let bgStr = shopGachaOpts.map((opt, i) => `${opt.c} ${i*deg}deg ${(i+1)*deg}deg`).join(', ');
@@ -1073,7 +1265,7 @@
 
         function tradeStock(code, dir) {
             let s = sys.stocks[code];
-            if(dir > 0) { if(sys.coins >= s.price) { sys.coins -= s.price; s.qty++; } else { alert("Số dư không đủ để giao dịch!"); return; } } 
+            if(dir > 0) { if(sys.coins >= s.price) { sys.coins -= s.price; s.qty++; } else { alert("Số dư không đủ để giao dịch!"); return; } }
             else { if(s.qty > 0) { sys.coins += s.price; s.qty--; } else { alert("Số lượng cổ phiếu không đủ để bán!"); return; } }
             playTickSound(); saveAllData(); document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); renderStockMarket();
         }
@@ -1081,9 +1273,9 @@
         function depositBank() {
             let amt = parseInt(document.getElementById('bank-input-amount').value);
             if (isNaN(amt) || amt <= 0) { alert("Vui lòng nhập một số hợp lệ để gửi!"); return; }
-            if (sys.coins >= amt) { 
-                sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now(); 
-                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); 
+            if (sys.coins >= amt) {
+                sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now();
+                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound();
                 alert(`Đã chuyển ${amt} Xu vào Quỹ Tiết Kiệm.`);
             } else {
                 alert("Số dư Xu không đủ!");
@@ -1093,9 +1285,9 @@
         function withdrawBank() {
             let amt = parseInt(document.getElementById('bank-input-amount').value);
             if (isNaN(amt) || amt <= 0) { alert("Vui lòng nhập một số hợp lệ để rút!"); return; }
-            if (sys.bankCapital >= amt) { 
-                sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now(); 
-                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound(); 
+            if (sys.bankCapital >= amt) {
+                sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now();
+                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound();
                 alert(`Đã rút thành công ${amt} Xu.`);
             } else {
                 alert("Số vốn hiện tại ít hơn số tiền muốn rút!");
@@ -1110,7 +1302,7 @@
             if(sys.bankCapital > 0 && sys.streak > 0) {
                 let now = Date.now(); let diffSec = (now - sys.bankLastUpdate) / 1000;
                 if (diffSec >= 1) {
-                    let dailyRate = sys.streak * 0.01; let secRate = dailyRate / 86400; 
+                    let dailyRate = sys.streak * 0.01; let secRate = dailyRate / 86400;
                     sys.bankUnclaimed += (sys.bankCapital * secRate * diffSec); sys.bankLastUpdate = now;
                     if (sys.bankUnclaimed > sys.bankCapital * dailyRate) sys.bankUnclaimed = sys.bankCapital * dailyRate;
                 }
@@ -1144,19 +1336,19 @@
             });
         }
 
-        let zenTimer = null; let isTimerRunning = false; let isWorkSession = true; 
-        let WORK_TIME = 25 * 60; let timeLeft = WORK_TIME; 
-        let targetEndTime = 0; let tuViEarned = 0; 
+        let zenTimer = null; let isTimerRunning = false; let isWorkSession = true;
+        let WORK_TIME = 25 * 60; let timeLeft = WORK_TIME;
+        let targetEndTime = 0; let tuViEarned = 0;
         let afkTriggered = false; let afkCountdown = null; let afkTimeVal = 15;
         let isEndless = false; let endlessSeconds = 0; let endlessTempXp = 0; let startEndlessTime = 0;
         let isCurrentSessionDouble = false; let pumpedStock = "NONE"; let isForcedLabor = false; 
 
         function toggleZenMode() {
             const overlay = document.getElementById('zen-overlay'); const mainBoard = document.getElementById('main-board');
-            if (overlay.classList.contains('active')) { 
+            if (overlay.classList.contains('active')) {
                 overlay.classList.remove('active'); mainBoard.style.filter = 'blur(0)'; document.getElementById('zen-wheel-box').style.display = 'none';
-            } else { 
-                showRandomQuote(); overlay.classList.add('active'); mainBoard.style.filter = 'blur(10px)'; 
+            } else {
+                showRandomQuote(); overlay.classList.add('active'); mainBoard.style.filter = 'blur(10px)';
             }
         }
 
@@ -1165,17 +1357,17 @@
             
             if (isTimerRunning) { clearInterval(zenTimer); isTimerRunning = false; btn.innerText = "Tiếp tục"; document.getElementById('zen-status').innerText = "Đã tạm dừng"; document.getElementById('zen-timer').classList.remove('ticking'); barContainer.classList.remove('active'); return; }
 
-            if(timeLeft === WORK_TIME && isWorkSession && tuViEarned === 0) { 
+            if(timeLeft === WORK_TIME && isWorkSession && tuViEarned === 0) {
                 showRandomQuote(); afkTriggered = false; isForcedLabor = forced;
-                if(!isForcedLabor) { isCurrentSessionDouble = (sys.doubleXp > 0); pumpedStock = document.getElementById('pump-stock-select').value; document.getElementById('zen-pump-box').style.display = 'none'; } 
+                if(!isForcedLabor) { isCurrentSessionDouble = (sys.doubleXp > 0); pumpedStock = document.getElementById('pump-stock-select').value; document.getElementById('zen-pump-box').style.display = 'none'; }
                 else { isCurrentSessionDouble = false; pumpedStock = "NONE"; document.getElementById('zen-pump-box').style.display = 'none'; }
             }
 
-            isTimerRunning = true; btn.innerText = "Tạm dừng"; document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active'); 
+            isTimerRunning = true; btn.innerText = "Tạm dừng"; document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active');
             
             if (isWorkSession) {
                 if(isForcedLabor) document.getElementById('zen-status').innerText = "🔴 ĐANG TRONG PHIÊN PHẠT (KHÔNG CỘNG ĐIỂM)"; else if(pumpedStock !== "NONE") document.getElementById('zen-status').innerText = `📈 ĐANG ĐẨY GIÁ MÃ $${pumpedStock}`; else if(isCurrentSessionDouble) document.getElementById('zen-status').innerText = "✨ ĐANG TẬP TRUNG... (NHÂN ĐÔI)"; else document.getElementById('zen-status').innerText = "ĐANG TRONG PHIÊN TẬP TRUNG";
-                document.getElementById('zen-status').style.color = isForcedLabor ? "red" : (isCurrentSessionDouble ? "#ec4899" : "white"); barContainer.classList.remove('break-mode'); 
+                document.getElementById('zen-status').style.color = isForcedLabor ? "red" : (isCurrentSessionDouble ? "#ec4899" : "white"); barContainer.classList.remove('break-mode');
             } else { document.getElementById('zen-status').innerText = "ĐANG NGHỈ NGƠI..."; document.getElementById('zen-status').style.color = "#10b981"; barContainer.classList.add('break-mode'); }
 
             targetEndTime = Date.now() + (timeLeft * 1000);
@@ -1184,7 +1376,7 @@
                 if (isWorkSession && !afkTriggered && timeLeft < (20*60) && timeLeft > (5*60)) { if (Math.random() < 0.005) triggerAFK(); }
 
                 if (timeLeft <= 0) {
-                    timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active'); 
+                    timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active');
                     
                     if (isWorkSession) {
                         if(isForcedLabor) { alert("Đã hoàn thành phiên phạt. Bạn có thể tiếp tục kế hoạch bình thường."); resetTimer(); toggleZenMode(); return; }
@@ -1192,13 +1384,13 @@
                         runBigFireworks(); playRealisticBoom(); addTuVi(baseReward);
                         
                         if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 1.20); alert(`Giao dịch thành công! Giá cổ phiếu $${pumpedStock} đã tăng +20%.`); saveAllData(); }
-                        document.getElementById('zen-status').innerText = "PHIÊN HỌC TẬP HOÀN TẤT!"; document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none'; 
+                        document.getElementById('zen-status').innerText = "PHIÊN HỌC TẬP HOÀN TẤT!"; document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none';
                         const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; document.getElementById('zen-wheel-box').style.display = 'flex';
                     } else {
                         playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
-                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ. Trở lại công việc."; document.getElementById('zen-status').style.color = "white"; 
-                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; 
-                    } return; 
+                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ. Trở lại công việc."; document.getElementById('zen-status').style.color = "white";
+                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%';
+                    } return;
                 }
                 
                 if(isWorkSession && !isForcedLabor) {
@@ -1206,7 +1398,7 @@
                     if (minutesPassed > tuViEarned) { let earnedMinXp = (minutesPassed - tuViEarned); if (isCurrentSessionDouble) earnedMinXp *= 2; addTuVi(earnedMinXp); tuViEarned = minutesPassed; showRandomQuote(); }
                 }
                 document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`; updateTimerDisplay();
-            }, 500); 
+            }, 500);
         }
 
         let isFocusSpinning = false;
@@ -1214,7 +1406,7 @@
             if(isFocusSpinning) return; isFocusSpinning = true; document.getElementById('btn-focus-spin').innerText = "Đang xử lý...";
             let rand = Math.random() * 100; let sum = 0; let winnerIdx = 0;
             for(let i=0; i<focusWheelOpts.length; i++) { sum += focusWheelOpts[i].prob; if(rand <= sum) { winnerIdx = i; break; } }
-            let winner = focusWheelOpts[winnerIdx]; let sliceDeg = 360 / 10; let offset = 5 + Math.random() * (sliceDeg - 10); let pointInSlice = winnerIdx * sliceDeg + offset; let targetRotation = 360 * 5 + (360 - pointInSlice); 
+            let winner = focusWheelOpts[winnerIdx]; let sliceDeg = 360 / 10; let offset = 5 + Math.random() * (sliceDeg - 10); let pointInSlice = winnerIdx * sliceDeg + offset; let targetRotation = 360 * 5 + (360 - pointInSlice);
             const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; wheel.style.transform = `rotate(${targetRotation}deg)`;
 
             try { const ctx = getAudioCtx(); if(ctx) { let count = 0; let interval = setInterval(() => { if(count >= 20) { clearInterval(interval); return; } count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*20, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1); }, 200 - count*5); } } catch(e) {}
@@ -1223,13 +1415,13 @@
                 isFocusSpinning = false; document.getElementById('btn-focus-spin').innerText = "QUAY THƯỞNG"; let alertMsg = `🎉 Kết quả: ${winner.name}!\n\n`;
                 document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex';
                 
-                if (winner.type === 'work') { alertMsg += `Thử thách: Bắt đầu phiên tập trung ${winner.time} phút!`; alert(alertMsg); isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; updateTimerDisplay(); startTimer(); } 
+                if (winner.type === 'work') { alertMsg += `Thử thách: Bắt đầu phiên tập trung ${winner.time} phút!`; alert(alertMsg); isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; updateTimerDisplay(); startTimer(); }
                 else if (winner.type === 'endless') { alertMsg += `Kích hoạt Chế độ Vô Cực:\nHệ số thưởng tăng dần theo thời gian. Cẩn thận với cảnh báo tập trung.`; alert(alertMsg); startEndlessMode(); }
                 else if (winner.type === 'item_immunity') { sys.immunity++; saveAllData(); alertMsg += `Bạn nhận được 1 Thẻ Bảo Hộ 🛡️.\nĐã cấp cho bạn 5 phút xả hơi.`; alert(alertMsg); startBreak(5); }
                 else if (winner.type === 'item_doublexp') { sys.doubleXp++; saveAllData(); alertMsg += `Bạn nhận được 1 Thẻ Nhân Đôi ✨.\nĐã cấp cho bạn 5 phút xả hơi.`; alert(alertMsg); startBreak(5); }
                 else if (winner.type === 'jackpot') { addTuVi(winner.xp); alertMsg += `Nhận ngay ${winner.xp} phần thưởng!\nĐi nghỉ 5 phút thôi!`; alert(alertMsg); startBreak(5); }
                 else { alertMsg += `Thời gian nghỉ ngơi: ${winner.time} phút.`; alert(alertMsg); startBreak(winner.time); }
-            }, 4000); 
+            }, 4000);
         }
 
         function startEndlessMode() {
@@ -1254,17 +1446,17 @@
         }
 
         function triggerAFK() {
-            afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex'; afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal; playAlarmSound(); 
+            afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex'; afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal; playAlarmSound();
             afkCountdown = setInterval(() => { afkTimeVal--; document.getElementById('afk-timer').innerText = afkTimeVal; if (afkTimeVal <= 5 && afkTimeVal > 0) { playTickSound(); } if(afkTimeVal <= 0) { clearInterval(afkCountdown); afkFail(); } }, 1000);
         }
         function afkSuccess() { clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; }
         function afkFail() {
-            document.getElementById('afk-overlay').style.display = 'none'; 
+            document.getElementById('afk-overlay').style.display = 'none';
             if (isEndless) {
-                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Phiên Vô Cực tự động lưu phần thưởng."); cashOutEndless(); } 
+                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Phiên Vô Cực tự động lưu phần thưởng."); cashOutEndless(); }
                 else { isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; alert(`Không xác nhận tập trung. Hủy phần thưởng tạm tính! Hệ thống đã ghi nhận cảnh báo.`); resetTimer(); toggleZenMode(); showPunishmentModal("Lý do: Không phản hồi kiểm tra tập trung!"); }
             } else {
-                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Miễn cảnh báo, phiên học hiện tại bị hủy."); resetTimer(); } 
+                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Miễn cảnh báo, phiên học hiện tại bị hủy."); resetTimer(); }
                 else { if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 0.5); alert(`Lỗi giao dịch! Mất tập trung khiến cổ phiếu $${pumpedStock} giảm mạnh!`); } resetTimer(); toggleZenMode(); showPunishmentModal("Lý do: Không phản hồi kiểm tra tập trung!"); }
             }
         }
@@ -1274,12 +1466,12 @@
 
         function startBreak(minutes) {
             isWorkSession = false; WORK_TIME = minutes * 60; timeLeft = WORK_TIME; tuViEarned = 0;
-            document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; startTimer(); 
+            document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; startTimer();
         }
 
         function resetTimer() {
             clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isEndless = false; isForcedLabor = false; pumpedStock = "NONE";
-            document.getElementById('zen-status').innerText = "SẴN SÀNG HỌC TẬP"; document.getElementById('zen-status').style.color = "white"; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active'); document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('zen-pump-box').style.display = 'block'; 
+            document.getElementById('zen-status').innerText = "SẴN SÀNG HỌC TẬP"; document.getElementById('zen-status').style.color = "white"; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active'); document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('zen-pump-box').style.display = 'block';
             updateTimerDisplay();
         }
         function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
@@ -1287,18 +1479,18 @@
         // =========================================
         // DOM LOAD & XUẤT NHẬP EXCEL
         // =========================================
-        document.addEventListener('DOMContentLoaded', () => { 
-            loadAllData(); updateTimerDisplay(); initShopWheel(); initFocusWheel();
+        document.addEventListener('DOMContentLoaded', () => {
+             loadAllData(); updateTimerDisplay(); initShopWheel(); initFocusWheel();
         });
 
         function exportExcel() {
             let rows = [["Ngày", "Khung Giờ", "Công việc", "Phân loại", "Trạng thái", "Ghi chú"]];
             DAYS_OF_WEEK.forEach((day, index) => {
                 const tasks = scheduleData[index] || [];
-                tasks.forEach(t => { 
-                    let status = "Chưa"; if(t.completed) status = "Xong"; if(t.missed) status = "Bỏ lỡ";
-                    rows.push([day, t.time || "", t.text, t.color, status, t.rolledOver ? `Dời từ ${t.originalDay}` : ""]); 
-                });
+                tasks.forEach(t => {
+                     let status = "Chưa"; if(t.completed) status = "Xong"; if(t.missed) status = "Bỏ lỡ";
+                    rows.push([day, t.time || "", t.text, t.color, status, t.rolledOver ? `Dời từ ${t.originalDay}` : ""]);
+                 });
             });
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(rows);
             ws['!cols'] = [{wch: 10}, {wch: 10}, {wch: 40}, {wch: 10}, {wch: 10}, {wch: 15}];
@@ -1324,8 +1516,8 @@
                             });
                         }
                     });
-                    scheduleData = newData; saveAllData(); 
-                    alert("Khôi phục thành công! Giao diện đã được làm mới.");
+                    scheduleData = newData; saveAllData();
+                     alert("Khôi phục thành công! Giao diện đã được làm mới.");
                     renderBoard();
                 } catch (err) { alert("Lỗi định dạng tệp."); }
                 event.target.value = '';
