@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
+<!DOCTYPE html><html lang="vi"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Academic Planner V84 - VIP Edition</title>
@@ -22,6 +20,8 @@
         [data-theme="royal"] { --bg-color:#1a1500; --text-main:#ffd700; --text-muted:#b89947; --card-bg:#2a2200; --border-color:#ffd700; --primary:#d4af37; --primary-hover:#f1c40f; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#1a1500; --font-main:'Lora',serif; }
         [data-theme="hacker"] { --bg-color:#000000; --text-main:#00ff00; --text-muted:#006600; --card-bg:#0a0a0a; --border-color:#00ff00; --primary:#00cc00; --primary-hover:#00ff00; --success:#00ff00; --danger:#ff0000; --warning:#ffff00; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#000000; --font-main:'Special Elite',monospace; }
         *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-main);} body{background-color:var(--bg-color);color:var(--text-main);line-height:1.6;padding-bottom:40px;transition:background-color 0.5s,color 0.5s;}
+        body.ultra-led { animation: ultra-border 3s linear infinite; border: 4px solid transparent; background-clip: padding-box, border-box; background-origin: padding-box, border-box; background-image: linear-gradient(var(--bg-color), var(--bg-color)), linear-gradient(90deg, #d4af37, #fef08a, #d4af37, #f59e0b, #d4af37); background-size: 100% 100%, 200% 100%; min-height: 100vh; }
+        @keyframes ultra-border { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
         .header{background:var(--card-bg);padding:15px 30px;box-shadow:0 1px 3px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;transition:background 0.3s;border-bottom:1px solid var(--border-color);flex-wrap:wrap;gap:15px;} .header-title{font-size:1.4rem;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;} .header-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;} .btn{padding:8px 15px;border:none;border-radius:6px;font-weight:600;font-size:0.9rem;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;} .btn-outline{background:transparent;border:1px solid var(--border-color);color:var(--text-main);} .btn-outline:hover{background:var(--border-color);} .btn-primary{background:var(--primary);color:white;} .btn-primary:hover{background:var(--primary-hover);} .btn-success{background:var(--success);color:white;width:100%;justify-content:center;margin-top:15px;}
         #header-tuvi-badge{border-color:var(--primary);color:var(--primary);cursor:default;} #header-tuvi-badge.pulse{animation:tuvi-pulse 0.5s ease-out;} @keyframes tuvi-pulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0.7);}50%{transform:scale(1.1);box-shadow:0 0 0 10px rgba(37,99,235,0);}100%{transform:scale(1);}}
         #header-streak-badge{background:linear-gradient(45deg,#ef4444,#f59e0b);color:white;border:none;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);} #header-wager-badge{border-color:var(--danger);color:var(--danger);} #header-coin-badge{background:linear-gradient(45deg,#f59e0b,#d97706);color:white;border:none;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);} #header-buffs-badge{border-color:#8b5cf6;color:#8b5cf6;cursor:default;display:flex;} .btn-zen{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:white;border:none;} .btn-zen:hover{transform:scale(1.05);}
@@ -37,10 +37,10 @@
         .wheel-wrapper{position:relative;width:320px;height:320px;margin-bottom:20px;} .wheel-pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:30px solid #fbbf24;z-index:10;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.8));} .wheel{width:100%;height:100%;border-radius:50%;border:5px solid #fff;box-shadow:0 0 25px rgba(0,0,0,0.8);overflow:hidden;position:relative;transition:transform 4s cubic-bezier(0.17,0.67,0.1,1);} .wheel-label{position:absolute;top:50%;left:50%;width:50%;height:24px;transform-origin:0% 50%;margin-top:-12px;text-align:right;padding-right:25px;font-size:0.75rem;font-weight:bold;color:white;text-shadow:1px 1px 3px rgba(0,0,0,1);line-height:24px;white-space:nowrap;} #zen-wheel-box{display:none;flex-direction:column;align-items:center;margin-top:20px;animation:slideUp 0.5s ease;}
         #punish-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.95);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;} .punish-box{background:rgba(0,0,0,0.6);padding:30px;border-radius:15px;border:2px solid #fca5a5;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.8);}
         #afk-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.9);z-index:6000;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;animation:flash-red 0.5s infinite alternate;} @keyframes flash-red{0%{background:rgba(220,38,38,0.9);}100%{background:rgba(153,27,27,0.95);}} #afk-overlay h1{font-size:3rem;margin-bottom:10px;text-transform:uppercase;font-family:'Black Ops One',cursive;text-shadow:0 0 20px black;text-align:center;} #afk-timer{font-size:5rem;font-weight:bold;margin:20px 0;} .btn-afk{background:#fff;color:#dc2626;border:none;padding:20px 50px;font-size:2rem;font-weight:bold;border-radius:50px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.5);transition:0.2s;} .btn-afk:hover{transform:scale(1.1);background:#fef08a;}
+        #zen-time-select { padding: 12px 15px; border-radius: 50px; background: rgba(0,0,0,0.3); color: white; border: 2px solid rgba(255,255,255,0.3); font-size: 1.1rem; outline: none; cursor: pointer; }
+        #zen-time-select option { background: #1e293b; color: white; }
         @media (max-width:768px) { .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} }
-    </style>
-</head>
-<body>
+    </style></head><body>
     <div id="main-board">
         <header class="header">
             <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V84 VIP</div>
@@ -101,6 +101,7 @@
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span><button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button></div>
             <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
+            <button class="btn btn-outline" style="width:100%; margin-bottom: 15px; justify-content:center;" onclick="openPrivilegeModal()"><i class="fas fa-gem"></i> Xem Đặc Quyền Hội Viên</button>
             <div id="mem-card-ui" class="mem-card">
                 <div class="mem-status">Đang sử dụng: Hạng <span id="ui-mem-tier">BASIC</span></div>
                 <div class="mem-timer" id="ui-mem-timer">Trạng thái: Miễn phí vĩnh viễn</div>
@@ -129,9 +130,41 @@
             </div>
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> BÁT QUÁI KỲ TRẬN</h3>
-            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cơ hội 2% nhận 1 tháng ULTRA (Trị giá 6.000 Xu).</p>
+            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Vòng quay rủi ro với BASIC, an toàn tuyệt đối với ULTRA.</p>
             <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;"><div class="wheel-pointer"></div><div class="wheel" id="shop-wheel"></div></div>
             <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY (100 Xu)</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="privilege-modal" style="z-index: 1005;">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header" style="color: var(--primary);"><span><i class="fas fa-gem"></i> ĐẶC QUYỀN HỘI VIÊN</span><button class="close-modal" onclick="closeModal('privilege-modal')"><i class="fas fa-times"></i></button></div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color:#64748b;"><i class="fas fa-user"></i> CĂN BẢN (BASIC)</h4>
+                <ul style="padding-left: 20px; font-size: 0.9rem; color:var(--text-main);">
+                    <li>Focus gò bó 25 phút.</li>
+                    <li>Tiết kiệm thu hoạch bằng tay (Quên thu hoạch sau 24h sẽ mất trắng lãi).</li>
+                    <li>Sòng bài tỷ lệ rủi ro cực cao, có ô nộp thuế và bế quan (mất trắng).</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color:#3b82f6;"><i class="fas fa-shield-alt"></i> TINH ANH (PRO)</h4>
+                <ul style="padding-left: 20px; font-size: 0.9rem; color:var(--text-main);">
+                    <li><strong>Giờ linh hoạt:</strong> Chọn Focus 15p hoặc 50p (Deep Work x2.5 phần thưởng).</li>
+                    <li><strong>Dời lịch an toàn:</strong> Tự động dời tối đa 2 việc dang dở sang ngày mai mà KHÔNG bị phạt.</li>
+                    <li><strong>Ngân hàng tự động:</strong> Lãi suất tự động cộng vào ví mỗi ngày, không sợ quên.</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="color:#f59e0b;"><i class="fas fa-crown"></i> TỐI THƯỢNG (ULTRA)</h4>
+                <ul style="padding-left: 20px; font-size: 0.9rem; color:var(--text-main);">
+                    <li>Bao trọn toàn bộ đặc quyền của gói PRO.</li>
+                    <li><strong>Soi Cầu Chứng Khoán:</strong> Tiên tri chính xác 1 mã cổ phiếu tăng mạnh (1 lần/ngày).</li>
+                    <li><strong>Vòng Quay Vàng:</strong> Xóa bỏ hoàn toàn các ô Phạt/Mất trắng trong Sòng bài. Chỉ có Lời và Hòa!</li>
+                    <li><strong>Khiên Kỷ Luật:</strong> Miễn nhiễm tuyệt đối còi báo động AFK trong giờ Focus.</li>
+                    <li><strong>Hào quang LED:</strong> Giao diện viền chạy LED hoàng kim độc quyền khẳng định đẳng cấp.</li>
+                </ul>
+            </div>
         </div>
     </div>
     
@@ -147,6 +180,7 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header" style="color: var(--success);"><span><i class="fas fa-chart-line"></i> THỊ TRƯỜNG CỔ PHIẾU</span><button class="close-modal" onclick="closeModal('stock-modal')"><i class="fas fa-times"></i></button></div>
             <p style="text-align:center; margin-bottom: 5px;">Số dư khả dụng: <strong style="color:var(--warning); font-size:1.2rem;" id="stock-coins-display">0</strong> Xu</p>
+            <button class="btn btn-warning" id="btn-ultra-stock" style="width:100%; margin-bottom: 15px; display:none; justify-content:center; color:black; font-weight:bold;" onclick="soiCauUltra()"><i class="fas fa-eye"></i> Soi Cầu Cổ Phiếu (ULTRA)</button>
             <div id="stock-list-container"></div>
         </div>
     </div>
@@ -183,7 +217,8 @@
         <div class="zen-app-container">
             <div class="zen-mascot" id="zen-mascot">🎓</div><div class="zen-rank-badge" id="zen-rank">Tân Sinh</div>
             <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div><div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
-            <div class="zen-status" id="zen-status">SẴN SÀNG HỌC TẬP</div><div class="zen-timer" id="zen-timer">25:00</div>
+            <div class="zen-status" id="zen-status">SẴN SÀNG HỌC TẬP</div>
+            <div class="zen-timer" id="zen-timer">25:00</div>
             <div class="zen-energy-bar-container" id="zen-energy-bar"><div class="zen-energy-bar-fill" id="zen-energy-fill" style="width:0%;"></div></div>
             
             <div id="zen-pump-box" style="background:rgba(255,255,255,0.05);padding:15px 30px;border-radius:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2);width:100%;max-width:400px;">
@@ -201,7 +236,17 @@
                 <span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span>
                 <div class="zen-quote-content"><div class="zen-quote-en" id="q-en">"Press Start to begin your deep work session."</div><div class="zen-quote-vi" id="q-vi">Kỷ luật sinh tự do, kiên nhẫn tất thành.</div><div class="zen-quote-author" id="q-author">- Hệ thống</div></div>
             </div>
-            <div class="zen-controls" id="zen-controls"><button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button><button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt</button><button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button></div>
+            
+            <div class="zen-controls" id="zen-controls">
+                <select id="zen-time-select">
+                    <option value="25">25 Phút (Cơ bản)</option>
+                    <option value="15" id="opt-15">15 Phút (PRO/ULTRA)</option>
+                    <option value="50" id="opt-50">50 Phút (PRO/ULTRA - Thưởng x2.5)</option>
+                </select>
+                <button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button>
+                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt</button>
+                <button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button>
+            </div>
         </div>
     </div>
     
@@ -212,12 +257,12 @@
         const REALMS = [{name:"Tân Sinh",min:0,color:{r:156,g:163,b:175}},{name:"Tú Tài",min:25,color:{r:56,g:189,b:248}},{name:"Cử Nhân",min:100,color:{r:52,g:211,b:153}},{name:"Thạc Sĩ",min:300,color:{r:250,g:204,b:21}},{name:"Tiến Sĩ",min:1000,color:{r:192,g:132,b:252}},{name:"Phó Giáo Sư",min:3000,color:{r:248,g:113,b:113}},{name:"Giáo Sư",min:10000,color:{r:251,g:146,b:60}}];
         const MAX_POINTS = 10000;
         const DAYS_OF_WEEK = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v84_vip"; 
+        const STORAGE_KEY = "planner_data_v84_vip";
         const TEMPLATE_KEY = "planner_template_v84";
         const THEMES = ['light','dark','detective','nature'];
 
         let scheduleData = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
-        let sys = {points:0, coins:0, streak:0, highestStreak:0, wagerAmount:0, lastWeekTotal:0, currentWeekTotal:0, lastWeekCompleted:0, currentWeekCompleted:0, currentTheme:'light', immunity:0, doubleXp:0, punishTier:1, stocks:{IEL:{name:"IELTS Corp",price:100,qty:0},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0},ZHN:{name:"Hán Ngữ Group",price:30,qty:0}}, bankCapital:0, bankUnclaimed:0, bankLastUpdate:Date.now(), unlockedThemes:[], mem:{tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0}};
+        let sys = {points:0, coins:0, streak:0, highestStreak:0, wagerAmount:0, lastWeekTotal:0, currentWeekTotal:0, lastWeekCompleted:0, currentWeekCompleted:0, currentTheme:'light', immunity:0, doubleXp:0, punishTier:1, stocks:{IEL:{name:"IELTS Corp",price:100,qty:0},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0},ZHN:{name:"Hán Ngữ Group",price:30,qty:0}}, bankCapital:0, bankUnclaimed:0, bankLastHarvest: Date.now(), unlockedThemes:[], mem:{tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0}, lastSoiCau: 0};
 
         let sysAudioCtx = null, fireworks;
         function getAudioCtx() { try { if(!sysAudioCtx){const AC=window.AudioContext||window.webkitAudioContext; if(AC) sysAudioCtx=new AC();} if(sysAudioCtx&&sysAudioCtx.state==='suspended') sysAudioCtx.resume(); return sysAudioCtx; }catch(e){return null;} }
@@ -229,7 +274,7 @@
         function runBigFireworks() { try{if(!fireworks)initFireworks(); if(fireworks){fireworks.start(); setTimeout(()=>fireworks.stop(),8000);}}catch(e){} }
 
         const quotes = [{en:"Education is the most powerful weapon...",vi:"Giáo dục là vũ khí mạnh nhất...",author:"Nelson Mandela"},{en:"Genius is 1% talent and 99% hard work.",vi:"Thiên tài chỉ có 1% năng khiếu...",author:"Einstein"}];
-        let currentQuoteIndex = -1; 
+        let currentQuoteIndex = -1;
         function showRandomQuote() { let idx; do{idx=Math.floor(Math.random()*quotes.length);}while(idx===currentQuoteIndex&&quotes.length>1); currentQuoteIndex=idx; const q=quotes[idx]; if(!$('q-en'))return; $('q-en').style.opacity='0'; $('q-vi').style.opacity='0'; $('q-author').style.opacity='0'; setTimeout(()=>{ $('q-en').innerText=`"${q.en}"`; $('q-vi').innerText=`"${q.vi}"`; $('q-author').innerText=`- ${q.author}`; $('q-en').style.opacity='1'; $('q-vi').style.opacity='1'; $('q-author').style.opacity='1';}, 500); }
         function getRealDayIndex() { let d=new Date().getDay(); return d===0?6:d-1; }
         function generateId() { return Math.random().toString(36).substr(2,9); }
@@ -240,6 +285,8 @@
             sys.points = Number(sys.points)||0; sys.coins = Number(sys.coins)||0; sys.streak = Number(sys.streak)||0; sys.bankCapital = Number(sys.bankCapital)||0; sys.bankUnclaimed = Number(sys.bankUnclaimed)||0; sys.currentTheme = sys.currentTheme||'light';
             if(!sys.stocks) sys.stocks = {IEL:{name:"IELTS Corp",price:100,qty:0},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0},ZHN:{name:"Hán Ngữ Group",price:30,qty:0}};
             if(!sys.unlockedThemes) sys.unlockedThemes = []; if(!sys.mem) sys.mem = {tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0};
+            if(!sys.bankLastHarvest) sys.bankLastHarvest = Date.now();
+            if(!sys.lastSoiCau) sys.lastSoiCau = 0;
             applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI();
         }
 
@@ -261,11 +308,13 @@
         }
 
         /* --- THẺ HỘI VIÊN --- */
+        function openPrivilegeModal() { $('privilege-modal').style.display='flex'; }
+        
         function updateMemUI() {
             const card = $('mem-card-ui');
             if(card) {
                 card.className = 'mem-card ' + sys.mem.tier.toLowerCase(); $('ui-mem-tier').innerText = sys.mem.tier;
-                if(sys.mem.tier === 'BASIC') { $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; $('ui-mem-toggle-box').style.display = 'none'; } 
+                if(sys.mem.tier === 'BASIC') { $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; $('ui-mem-toggle-box').style.display = 'none'; }
                 else { $('ui-mem-toggle-box').style.display = 'flex'; $('mem-auto-renew').checked = sys.mem.auto; $('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`; }
             }
             const badge = $('header-mem-badge');
@@ -274,6 +323,20 @@
                 let t = sys.mem.tier.toLowerCase(); badge.classList.add('tier-'+t);
                 badge.innerHTML = `<i class="fas fa-${t==='basic'?'user':t==='pro'?'shield-alt':'crown'}"></i> <span>${sys.mem.tier}</span>`;
             }
+            
+            // Tier Logic Update (ULTRA LED, PRO Focus)
+            if (sys.mem.tier === 'ULTRA') {
+                document.body.classList.add('ultra-led');
+                $('btn-ultra-stock').style.display = 'flex';
+            } else {
+                document.body.classList.remove('ultra-led');
+                $('btn-ultra-stock').style.display = 'none';
+            }
+            
+            const canFlex = (sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA');
+            if($('opt-15')) $('opt-15').disabled = !canFlex;
+            if($('opt-50')) $('opt-50').disabled = !canFlex;
+            if(!canFlex && $('zen-time-select')) $('zen-time-select').value = "25";
         }
         function toggleAutoRenew() { sys.mem.auto = $('mem-auto-renew').checked; saveAllData(); }
         function buyMem(tier, days, cost) { if(sys.coins>=cost){if(confirm(`Mua gói ${tier} (${days} Ngày) tốn ${cost} Xu?`)){sys.coins-=cost; if(sys.mem.tier===tier&&sys.mem.expire>Date.now())sys.mem.expire+=days*86400000; else{sys.mem.tier=tier; sys.mem.expire=Date.now()+days*86400000;} sys.mem.auto=true; sys.mem.autoTier=tier; sys.mem.autoDays=days; saveAllData(); updateMemUI(); alert(`Thăng cấp hội viên ${tier}!`);}}else alert("Ngân khố không đủ!"); }
@@ -282,13 +345,13 @@
         setInterval(() => {
             if(sys.mem && sys.mem.tier!=='BASIC') {
                 let left = sys.mem.expire - Date.now();
-                if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; } 
+                if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; }
                 else handleMemExpiration();
             }
         }, 1000);
 
         function handleMemExpiration() {
-            if (sys.mem.auto) { let c=getPackageCost(sys.mem.autoTier, sys.mem.autoDays); if(sys.coins>=c){sys.coins-=c; sys.mem.expire=Date.now()+sys.mem.autoDays*86400000; saveAllData(); alert(`Gia hạn gói ${sys.mem.autoTier} thành công. Trừ ${c} Xu.`);} else triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, c); } 
+            if (sys.mem.auto) { let c=getPackageCost(sys.mem.autoTier, sys.mem.autoDays); if(sys.coins>=c){sys.coins-=c; sys.mem.expire=Date.now()+sys.mem.autoDays*86400000; saveAllData(); alert(`Gia hạn gói ${sys.mem.autoTier} thành công. Trừ ${c} Xu.`);} else triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, c); }
             else { sys.mem.tier='BASIC'; sys.mem.expire=0; saveAllData(); updateMemUI(); alert("Thẻ Hội Viên hết hạn. Chuyển về BASIC."); }
         }
         function triggerRenewalFallback(tTier, tDays, tCost) {
@@ -332,8 +395,28 @@
         let pRsn="", pInc=[], pDIdx=-1;
         function finishDay(dIdx) {
             const ts=scheduleData[dIdx], inc=ts.filter(t=>!t.completed&&!t.missed), cmp=ts.filter(t=>t.completed);
-            if(inc.length===0) { sys.streak++; if(sys.streak>sys.highestStreak)sys.highestStreak=sys.streak; let m=`Xuất sắc! Chuỗi: ${sys.streak} ngày. +50 XP/Xu!`; if(sys.wagerAmount>0){let w=sys.wagerAmount*2; addTuVi(w); m+=`\nThắng cược: +${w} XP!`; sys.wagerAmount=0;} addTuVi(50); ts.forEach(t=>t.locked=true); alert(m); runBigFireworks(); playRealisticBoom(); renderBoard(); saveAllData(); } 
-            else { pRsn="Chưa xong việc!"; pInc=inc; pDIdx=dIdx; cmp.forEach(t=>t.locked=true); if(sys.wagerAmount>0){alert(`Thua cược: Mất ${sys.wagerAmount} XP!`); sys.wagerAmount=0;} showPunishmentModal(); }
+            if(inc.length===0) { 
+                sys.streak++; if(sys.streak>sys.highestStreak)sys.highestStreak=sys.streak; 
+                let m=`Xuất sắc! Chuỗi: ${sys.streak} ngày. +50 XP/Xu!`; 
+                if(sys.wagerAmount>0){let w=sys.wagerAmount*2; addTuVi(w); m+=`\nThắng cược: +${w} XP!`; sys.wagerAmount=0;} 
+                addTuVi(50); ts.forEach(t=>t.locked=true); 
+                alert(m); runBigFireworks(); playRealisticBoom(); renderBoard(); saveAllData(); 
+            } else { 
+                if ((sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA') && inc.length <= 2) {
+                    alert(`Đặc quyền ${sys.mem.tier}: Tự động dời ${inc.length} việc dang dở sang ngày mai mà KHÔNG bị phạt!`);
+                    const nD = (dIdx + 1) % 7;
+                    inc.forEach(t => {
+                        scheduleData[nD].push({...t, id:generateId(), rolledOver:true, originalDay:t.originalDay||DAYS_OF_WEEK[dIdx]});
+                        t.missed = true; t.locked = true;
+                    });
+                    cmp.forEach(t=>t.locked=true);
+                    saveAllData(); renderBoard();
+                } else {
+                    pRsn="Chưa xong việc!"; pInc=inc; pDIdx=dIdx; cmp.forEach(t=>t.locked=true); 
+                    if(sys.wagerAmount>0){alert(`Thua cược: Mất ${sys.wagerAmount} XP!`); sys.wagerAmount=0;} 
+                    showPunishmentModal(); 
+                }
+            }
         }
         function showPunishmentModal(rsn=null) { if(rsn)pRsn=rsn; $('punish-overlay').style.display='flex'; $('punish-reason').innerText=`Lý do: ${pRsn}`; $('punish-tier-display').innerText=sys.punishTier; let f=sys.punishTier*50; $('punish-fine-display').innerText=f; const b=$('btn-pay-fine'); if(sys.coins>=f){b.innerText=`Nộp phạt (${f} Xu)`; b.disabled=false;}else{b.innerText=`Thiếu (${Math.floor(sys.coins)}/${f})`; b.disabled=true;} }
         function payFine() { let f=sys.punishTier*50; if(sys.coins>=f){sys.coins-=f; sys.punishTier++; alert(`Đã nộp phạt!`); closePunishmentModal(true);} }
@@ -353,18 +436,25 @@
             {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("THÁNH CHỈ! Nhận 1 THÁNG thẻ ULTRA (Trị giá 6000 Xu)!");}},
             {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}},
             {n:"🛡️ Kim Bài Miễn Tử",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Ân xá! Mức phạt về 1, nhận 1 Thẻ Bảo Hộ.");}},
-            {n:"💰 Bát Bảo Tụ Tài",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastUpdate=Date.now(); alert(`Lãi nhân đôi! Thu hoạch ${th.toFixed(2)} Xu.`);}else{sys.coins+=100; alert("Quỹ trống, hoàn 100 Xu.");}}},
+            {n:"💰 Bát Bảo Tụ Tài",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); alert(`Lãi nhân đôi! Thu hoạch ${th.toFixed(2)} Xu.`);}else{sys.coins+=100; alert("Quỹ trống, hoàn 100 Xu.");}}},
             {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng 150 Xu (Lời 50 Xu).");}},
             {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Cơn gió thoảng qua, không trúng gì.");}},
             {n:"⚖️ Nộp Thuế 10%",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế ${tx} Xu.`);}},
-            {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Tâm trí xao nhãng! Cưỡng chế Focus 25p."); closeModal('shop-modal'); toggleZenMode(); startTimer(true);}}
+            {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Tâm trí xao nhãng! Cưỡng chế Focus 25p."); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}}
         ];
         function initShopWheel() { const w=$('shop-wheel'); let d=360/8, bg=shopGachaOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; shopGachaOpts.forEach((o,i)=>{let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l);}); }
         
         let isShopSpinning = false;
         function spinShopGacha() {
             if(isShopSpinning) return; if(sys.coins<100) return alert("Thiếu Xu!"); sys.coins-=100; saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); isShopSpinning=true; $('btn-shop-spin').innerText="Đang xử lý...";
-            let r=Math.random()*100, idx=r<2?0:r<12?1:r<22?2:r<32?3:r<52?4:r<75?5:r<90?6:7;
+            let r=Math.random()*100, idx;
+            if (sys.mem.tier === 'ULTRA') {
+                 // Golden Wheel Privilege: No penalty or empty. Distribute 100% across good ones.
+                 idx = r<5?0 : r<20?1 : r<35?2 : r<50?3 : 4; 
+            } else {
+                 idx = r<2?0 : r<12?1 : r<22?2 : r<32?3 : r<52?4 : r<75?5 : r<90?6 : 7;
+            }
+            
             const w=$('shop-wheel'); let tR=360*6+(360-(idx*45+22.5)); w.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; w.style.transform=`rotate(${tR}deg)`; playAlarmSound();
             setTimeout(()=>{ isShopSpinning=false; $('btn-shop-spin').innerText="QUAY NGAY (100 Xu)"; w.style.transition='none'; w.style.transform=`rotate(${tR%360}deg)`; shopGachaOpts[idx].act(); saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); updateMemUI(); }, 4000);
         }
@@ -374,11 +464,46 @@
         function openStockModal() { $('stock-coins-display').innerText=Math.floor(sys.coins); $('stock-modal').style.display='flex'; renderStockMarket(); }
         function renderStockMarket() { let c=$('stock-list-container'); if(!c)return; let h=''; Object.keys(sys.stocks).forEach(k=>{let s=sys.stocks[k]; h+=`<div class="stock-item"><div><strong style="color:var(--primary); font-size:1.1rem;">$${k}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${s.name}</span><br><span style="font-size:0.85rem;">Sở hữu: <strong style="color:var(--text-main);">${s.qty}</strong> cổ</span></div><div class="stock-price ${Math.random()>0.5?'up':'down'}">${s.price} Xu</div><div style="display:flex; flex-direction:column; gap:5px;"><button class="btn btn-success" style="padding:4px 10px;" onclick="tradeStock('${k}', 1)">Mua</button><button class="btn btn-danger" style="padding:4px 10px;" onclick="tradeStock('${k}', -1)">Bán</button></div></div>`;}); c.innerHTML=h; }
         function tradeStock(k, d) { let s=sys.stocks[k]; if(d>0){if(sys.coins>=s.price){sys.coins-=s.price; s.qty++;}else return alert("Thiếu Xu!");}else{if(s.qty>0){sys.coins+=s.price; s.qty--;}else return alert("Hết cổ phiếu!");} playTickSound(); saveAllData(); $('stock-coins-display').innerText=Math.floor(sys.coins); renderStockMarket(); }
+        
+        function soiCauUltra() {
+            if(sys.mem.tier !== 'ULTRA') return alert("Chỉ dành cho Tối Thượng (ULTRA)!");
+            let today = new Date().setHours(0,0,0,0);
+            if(sys.lastSoiCau > today) return alert("Bệ hạ đã soi cầu hôm nay rồi! Ngày mai quay lại nhé.");
+            let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)];
+            sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); // Push price immediately
+            sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket();
+            alert(`Thánh chỉ Tiên tri: Mã $${rk} vừa được Mật Thám báo cáo sẽ tăng trưởng cực mạnh. Lập tức thu mua!`);
+        }
+
         function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=sys.bankCapital; $('bank-modal').style.display='flex'; }
-        function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital; $('bank-input-amount').value=''; playTickSound(); alert(`Gửi ${a} Xu.`);}else alert("Thiếu Xu!"); }
-        function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital; $('bank-input-amount').value=''; playTickSound(); alert(`Rút ${a} Xu.`);}else alert("Thiếu Vốn!"); }
-        function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastUpdate=Date.now(); saveAllData(); alert("Nhận lãi!"); playChime();} }
-        setInterval(()=>{if(sys.bankCapital>0&&sys.streak>0){let n=Date.now(), ds=(n-sys.bankLastUpdate)/1000; if(ds>=1){let dr=sys.streak*0.01; sys.bankUnclaimed+=(sys.bankCapital*(dr/86400)*ds); sys.bankLastUpdate=n; if(sys.bankUnclaimed>sys.bankCapital*dr)sys.bankUnclaimed=sys.bankCapital*dr;}} if($('bank-modal').style.display==='flex')$('bank-interest-display').innerText=sys.bankUnclaimed.toFixed(3);}, 1000);
+        function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital; $('bank-input-amount').value=''; playTickSound(); alert(`Gửi ${a} Xu.`);}else alert("Thiếu Xu!"); }
+        function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital; $('bank-input-amount').value=''; playTickSound(); alert(`Rút ${a} Xu.`);}else alert("Thiếu Vốn!"); }
+        function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Nhận lãi!"); playChime();} }
+        
+        setInterval(()=>{
+            let n = Date.now();
+            if(sys.bankCapital>0&&sys.streak>0) {
+                // Add tiny amounts of interest over time using standard interval
+                let dr=sys.streak*0.01;
+                sys.bankUnclaimed += (sys.bankCapital*(dr/86400));
+                if(sys.bankUnclaimed > sys.bankCapital*dr) sys.bankUnclaimed = sys.bankCapital*dr;
+            }
+            // Check 24 hours (86400000ms) logic for BASIC vs PRO/ULTRA
+            if(n - sys.bankLastHarvest >= 86400000) {
+                if(sys.mem.tier === 'BASIC') {
+                    sys.bankUnclaimed = 0;
+                    sys.bankLastHarvest = n;
+                    saveAllData();
+                } else {
+                    // Auto bank for PRO/ULTRA
+                    sys.coins += sys.bankUnclaimed;
+                    sys.bankUnclaimed = 0;
+                    sys.bankLastHarvest = n;
+                    saveAllData();
+                }
+            }
+            if($('bank-modal').style.display==='flex') $('bank-interest-display').innerText=sys.bankUnclaimed.toFixed(3);
+        }, 1000);
 
         /* --- FOCUS ZONE --- */
         const fWheelOpts = [{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:15},{n:"🚶 Nghỉ 10p",t:"break",tm:10,xp:0,c:"#10b981",p:10},{n:"🎮 Nghỉ 15p",t:"break",tm:15,xp:0,c:"#059669",p:10},{n:"📚 Học 15p",t:"work",tm:15,xp:0,c:"#f59e0b",p:10},{n:"🔥 Học 25p(+50)",t:"work",tm:25,xp:50,c:"#dc2626",p:5},{n:"🛡️ Thẻ Bảo Hộ",t:"imm",c:"#6366f1",p:15},{n:"✨ Thẻ x2",t:"dxp",c:"#ec4899",p:10},{n:"♾️ Vô Cực",t:"endl",c:"#8b5cf6",p:10},{n:"🎲 Trúng 100",t:"jack",xp:100,c:"#f5a623",p:5},{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:10}];
@@ -389,27 +514,37 @@
         function startTimer(frc=false) {
             const b=$('btn-zen-start'), bc=$('zen-energy-bar');
             if(isRun) { clearInterval(zTmr); isRun=false; b.innerText="Tiếp tục"; $('zen-status').innerText="Đã tạm dừng"; $('zen-timer').classList.remove('ticking'); bc.classList.remove('active'); return; }
-            if(tL===W_TIME&&isWrk&&tvErn===0) { showRandomQuote(); afkTrg=false; isFrc=frc; if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none';} }
+            
+            let selMins = parseInt($('zen-time-select').value);
+            if(tL===W_TIME&&isWrk&&tvErn===0) { 
+                W_TIME = selMins * 60; tL = W_TIME; // Setup Time Flexibility
+                showRandomQuote(); afkTrg=false; isFrc=frc; 
+                if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} 
+            }
+            
             isRun=true; b.innerText="Tạm dừng"; $('zen-timer').classList.add('ticking'); bc.classList.add('active');
-            if(isWrk) { $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); } 
+            if(isWrk) { $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); }
             else { $('zen-status').innerText="ĐANG NGHỈ NGƠI..."; $('zen-status').style.color="#10b981"; bc.classList.add('break-mode'); }
 
             tEnd = Date.now() + (tL * 1000);
             zTmr = setInterval(() => {
                 tL = Math.max(0, Math.ceil((tEnd - Date.now()) / 1000));
-                if(isWrk && !afkTrg && tL<(20*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); }
+                if(isWrk && !afkTrg && tL<(W_TIME-5*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); }
                 if(tL<=0) {
                     tL=0; updTmr(); clearInterval(zTmr); isRun=false; $('zen-timer').classList.remove('ticking'); $('zen-energy-fill').style.width='100%'; bc.classList.remove('active');
                     if(isWrk) {
                         if(isFrc) { alert("Hoàn thành phạt."); resetTimer(); toggleZenMode(); return; }
-                        let rw = 5; if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Nhân đôi kích hoạt.");}
+                        
+                        let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; 
+                        if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Nhân đôi kích hoạt.");}
                         runBigFireworks(); playRealisticBoom(); addTuVi(rw);
+                        
                         if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); alert(`Cổ phiếu $${pmStk} tăng 20%!`); saveAllData(); }
                         $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none';
                         const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex';
                     } else {
-                        playChime(); isWrk=true; W_TIME=25*60; tL=W_TIME; tvErn=0; afkTrg=false;
-                        $('zen-status').innerText="Trở lại công việc."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%';
+                        playChime(); isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false;
+                        $('zen-status').innerText="Trở lại công việc."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='inline-block'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%';
                     } return;
                 }
                 if(isWrk && !isFrc) { let mp = Math.floor((W_TIME-tL)/60); if(mp>tvErn) { let xp = (mp-tvErn); if(isDbl) xp*=2; addTuVi(xp); tvErn=mp; showRandomQuote(); } }
@@ -436,14 +571,17 @@
             }, 4000);
         }
 
-        function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
+        function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
         function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP. Nghỉ 10p.`); startBreak(10);}else{alert(`Không có thưởng. Nghỉ 5p.`); startBreak(5);} }
-        function triggerAFK() { afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); }
+        function triggerAFK() { 
+            if(sys.mem.tier === 'ULTRA') return; // Miễn nhiễm còi báo động AFK
+            afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); 
+        }
         function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
         function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Lưu Vô Cực."); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Treo máy! Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Hủy phiên."); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm mạnh!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
         document.addEventListener("visibilitychange", ()=>{if(document.hidden&&isRun&&(isWrk||isEndl)){clearInterval(zTmr); isRun=false; if(afkCnt)clearInterval(afkCnt); $('afk-overlay').style.display='none'; afkFail();}});
-        function startBreak(m) { isWrk=false; W_TIME=m*60; tL=W_TIME; tvErn=0; $('zen-controls').style.display='flex'; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; startTimer(); }
-        function resetTimer() { clearInterval(zTmr); isRun=false; isWrk=true; W_TIME=25*60; tL=W_TIME; tvErn=0; afkTrg=false; isEndl=false; isFrc=false; pmStk="NONE"; $('zen-status').innerText="SẴN SÀNG"; $('zen-status').style.color="white"; $('zen-timer').classList.remove('ticking'); $('zen-energy-bar').classList.remove('active'); $('btn-zen-start').innerText="Bắt đầu"; $('btn-zen-start').style.display='inline-block'; $('btn-zen-cashout').style.display='none'; $('btn-zen-reset').style.display='inline-block'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-wheel-box').style.display='none'; $('zen-energy-fill').style.width='0%'; $('zen-pump-box').style.display='block'; updTmr(); }
+        function startBreak(m) { isWrk=false; W_TIME=m*60; tL=W_TIME; tvErn=0; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='none'; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; startTimer(); }
+        function resetTimer() { clearInterval(zTmr); isRun=false; isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; isEndl=false; isFrc=false; pmStk="NONE"; $('zen-status').innerText="SẴN SÀNG"; $('zen-status').style.color="white"; $('zen-timer').classList.remove('ticking'); $('zen-energy-bar').classList.remove('active'); $('btn-zen-start').innerText="Bắt đầu"; $('btn-zen-start').style.display='inline-block'; $('zen-time-select').style.display='inline-block'; $('btn-zen-cashout').style.display='none'; $('btn-zen-reset').style.display='inline-block'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-wheel-box').style.display='none'; $('zen-energy-fill').style.width='0%'; $('zen-pump-box').style.display='block'; updTmr(); }
         function updTmr() { $('zen-timer').innerText=`${Math.floor(tL/60).toString().padStart(2,'0')}:${(tL%60).toString().padStart(2,'0')}`; }
 
         /* --- XUẤT NHẬP EXCEL --- */
@@ -451,5 +589,4 @@
         function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
         function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
     </script>
-</body>
-</html>
+</body></html>
