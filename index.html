@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="vi"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -163,6 +164,7 @@
                     <li><strong>Vòng Quay Vàng:</strong> Xóa bỏ hoàn toàn các ô Phạt/Mất trắng trong Sòng bài. Chỉ có Lời và Hòa!</li>
                     <li><strong>Khiên Kỷ Luật:</strong> Miễn nhiễm tuyệt đối còi báo động AFK trong giờ Focus.</li>
                     <li><strong>Hào quang LED:</strong> Giao diện viền chạy LED hoàng kim độc quyền khẳng định đẳng cấp.</li>
+                    <li><strong>Đa nhiệm tự do:</strong> Thoải mái chuyển tab tra cứu tài liệu mà không bị hệ thống phạt AFK.</li>
                 </ul>
             </div>
         </div>
@@ -630,7 +632,18 @@
         }
         function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
         function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Lưu Vô Cực."); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Treo máy! Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Hủy phiên."); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm mạnh!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
-        document.addEventListener("visibilitychange", ()=>{if(document.hidden&&isRun&&(isWrk||isEndl)){clearInterval(zTmr); isRun=false; if(afkCnt)clearInterval(afkCnt); $('afk-overlay').style.display='none'; afkFail();}});
+        document.addEventListener("visibilitychange", () => {
+    // Miễn nhiễm phạt chuyển tab cho gói ULTRA
+    if (sys.mem.tier === 'ULTRA') return; 
+
+    if (document.hidden && isRun && (isWrk || isEndl)) {
+        clearInterval(zTmr); 
+        isRun = false; 
+        if (afkCnt) clearInterval(afkCnt); 
+        $('afk-overlay').style.display = 'none'; 
+        afkFail();
+    }
+});
         function startBreak(m) { isWrk=false; W_TIME=m*60; tL=W_TIME; tvErn=0; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='none'; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; startTimer(); }
         function resetTimer() { clearInterval(zTmr); isRun=false; isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; isEndl=false; isFrc=false; pmStk="NONE"; $('zen-status').innerText="SẴN SÀNG"; $('zen-status').style.color="white"; $('zen-timer').classList.remove('ticking'); $('zen-energy-bar').classList.remove('active'); $('btn-zen-start').innerText="Bắt đầu"; $('btn-zen-start').style.display='inline-block'; $('zen-time-select').style.display='inline-block'; $('btn-zen-cashout').style.display='none'; $('btn-zen-reset').style.display='inline-block'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-wheel-box').style.display='none'; $('zen-energy-fill').style.width='0%'; $('zen-pump-box').style.display='block'; updTmr(); }
         function updTmr() { $('zen-timer').innerText=`${Math.floor(tL/60).toString().padStart(2,'0')}:${(tL%60).toString().padStart(2,'0')}`; }
