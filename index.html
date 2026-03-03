@@ -273,7 +273,58 @@
         function initFireworks() { try{const c=$('fireworks-container'); const FW=window.Fireworks||window.Fireworks.default; if(FW) fireworks=new FW(c,{autoresize:true,opacity:0.5,acceleration:1.05,friction:0.97,gravity:1.5,particles:150,traceLength:3,traceSpeed:10,explosion:5});}catch(e){} }
         function runBigFireworks() { try{if(!fireworks)initFireworks(); if(fireworks){fireworks.start(); setTimeout(()=>fireworks.stop(),8000);}}catch(e){} }
 
-        const quotes = [{en:"Education is the most powerful weapon...",vi:"Giáo dục là vũ khí mạnh nhất...",author:"Nelson Mandela"},{en:"Genius is 1% talent and 99% hard work.",vi:"Thiên tài chỉ có 1% năng khiếu...",author:"Einstein"}];
+        const quotes = [
+            { 
+                en: "Discipline is the bridge between goals and accomplishment.", 
+                vi: "Kỷ luật là chiếc cầu nối giữa mục tiêu và thành tựu.", 
+                author: "Jim Rohn" 
+            },
+            { 
+                en: "Suffer the pain of discipline or suffer the pain of regret.", 
+                vi: "Chịu đựng nỗi đau của kỷ luật hoặc gánh chịu nỗi đau của sự hối tiếc.", 
+                author: "Jim Rohn" 
+            },
+            { 
+                en: "Don't stop when you're tired. Stop when you're done.", 
+                vi: "Đừng dừng bước khi mệt mỏi. Chỉ dừng lại khi đã hoàn thành.", 
+                author: "David Goggins" 
+            },
+            { 
+                en: "The secret of getting ahead is getting started.", 
+                vi: "Bí quyết để vươn lên dẫn đầu chính là việc bắt đầu hành động.", 
+                author: "Mark Twain" 
+            },
+            { 
+                en: "Success is the sum of small efforts, repeated day-in and day-out.", 
+                vi: "Thành công là tổng hòa của những nỗ lực nhỏ bé, lặp đi lặp lại mỗi ngày.", 
+                author: "Robert Collier" 
+            },
+            { 
+                en: "A year from now you may wish you had started today.", 
+                vi: "Một năm nữa, có thể ngài sẽ ước mình đã bắt đầu từ ngày hôm nay.", 
+                author: "Karen Lamb" 
+            },
+            { 
+                en: "You don't have to be great to start, but you have to start to be great.", 
+                vi: "Không cần phải vĩ đại mới bắt đầu, nhưng phải bắt đầu để trở nên vĩ đại.", 
+                author: "Zig Ziglar" 
+            },
+            { 
+                en: "The future depends on what you do today.", 
+                vi: "Tương lai rực rỡ phụ thuộc vào chính những gì ngài làm hôm nay.", 
+                author: "Mahatma Gandhi" 
+            },
+            { 
+                en: "Motivation is what gets you started. Habit is what keeps you going.", 
+                vi: "Động lực giúp ngài bắt đầu. Thói quen mới là thứ giữ ngài bước tiếp.", 
+                author: "Jim Ryun" 
+            },
+            { 
+                en: "It always seems impossible until it's done.", 
+                vi: "Mọi thứ luôn có vẻ bất khả thi cho đến khi nó được hoàn thành.", 
+                author: "Nelson Mandela" 
+            }
+        ];
         let currentQuoteIndex = -1;
         function showRandomQuote() { let idx; do{idx=Math.floor(Math.random()*quotes.length);}while(idx===currentQuoteIndex&&quotes.length>1); currentQuoteIndex=idx; const q=quotes[idx]; if(!$('q-en'))return; $('q-en').style.opacity='0'; $('q-vi').style.opacity='0'; $('q-author').style.opacity='0'; setTimeout(()=>{ $('q-en').innerText=`"${q.en}"`; $('q-vi').innerText=`"${q.vi}"`; $('q-author').innerText=`- ${q.author}`; $('q-en').style.opacity='1'; $('q-vi').style.opacity='1'; $('q-author').style.opacity='1';}, 500); }
         function getRealDayIndex() { let d=new Date().getDay(); return d===0?6:d-1; }
