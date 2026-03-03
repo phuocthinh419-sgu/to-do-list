@@ -4,360 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Academic Planner V84 - VIP Edition</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e293b">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Black+Ops+One&family=Lora:wght@700&family=Special+Elite&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
-
     <style>
-        /* --- 1. LIGHT MODE --- */
-        :root {
-            --bg-color: #f1f5f9; --text-main: #1e293b; --text-muted: #64748b; --card-bg: #ffffff;
-            --border-color: #e2e8f0; --primary: #2563eb; --primary-hover: #1d4ed8;
-            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --modal-overlay: rgba(15, 23, 42, 0.6); --input-bg: #ffffff;
-            --color-red: #fee2e2; --color-red-border: #fca5a5; --color-blue: #dbeafe; --color-blue-border: #bfdbfe;
-            --color-green: #dcfce7; --color-green-border: #bbf7d0; --color-default: #f8fafc; --color-default-border: #e2e8f0;
-            --font-main: 'Inter', sans-serif;
-        }
-
-        /* --- 2. DARK MODE --- */
-        [data-theme="dark"] {
-            --bg-color: #0f172a; --text-main: #f8fafc; --text-muted: #94a3b8; --card-bg: #1e293b;
-            --border-color: #334155; --primary: #3b82f6; --primary-hover: #60a5fa;
-            --modal-overlay: rgba(0, 0, 0, 0.8); --input-bg: #0f172a;
-            --color-red: rgba(239, 68, 68, 0.15); --color-red-border: #ef4444; --color-blue: rgba(59, 130, 246, 0.15); --color-blue-border: #3b82f6;
-            --color-green: rgba(16, 185, 129, 0.15); --color-green-border: #10b981; --color-default: rgba(148, 163, 184, 0.1); --color-default-border: #475569;
-        }
-
-        /* --- 3. THEME THƯ VIỆN BÍ ẨN --- */
-        [data-theme="detective"] {
-            --bg-color: #121212; --text-main: #d1d5db; --text-muted: #7f1d1d; --card-bg: #1e1e1e;
-            --border-color: #450a0a; --primary: #991b1b; --primary-hover: #b91c1c;
-            --success: #065f46; --danger: #dc2626; --warning: #b45309;
-            --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #000000;
-            --color-red: rgba(220, 38, 38, 0.1); --color-red-border: #991b1b; --color-blue: rgba(59, 130, 246, 0.05); --color-blue-border: #1e3a8a;
-            --color-green: rgba(16, 185, 129, 0.05); --color-green-border: #064e3b; --color-default: rgba(156, 163, 175, 0.05); --color-default-border: #374151;
-            --font-main: 'Special Elite', cursive, 'Inter', sans-serif;
-        }
-
-        /* --- 4. THEME GÓC HỌC TẬP --- */
-        [data-theme="nature"] {
-            --bg-color: #e9ecef; --text-main: #2c3e50; --text-muted: #6c757d; --card-bg: #ffffff;
-            --border-color: #c3e6cb; --primary: #2e7d32; --primary-hover: #1b5e20; 
-            --success: #20c997; --danger: #e07a5f; --warning: #f4a261;
-            --modal-overlay: rgba(44, 62, 80, 0.7); --input-bg: #f8f9fa;
-            --color-red: #fef0f0; --color-red-border: #f5c6cb; --color-blue: #e8f4f8; --color-blue-border: #bee5eb;
-            --color-green: #e6f4ea; --color-green-border: #c3e6cb; --color-default: #fdfdfe; --color-default-border: #dfdfdf;
-            --font-main: 'Lora', serif;
-        }
-
-        /* --- 5. THEME VIP --- */
-        [data-theme="royal"] { --bg-color: #1a1500; --text-main: #ffd700; --text-muted: #b89947; --card-bg: #2a2200; --border-color: #ffd700; --primary: #d4af37; --primary-hover: #f1c40f; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #1a1500; --font-main: 'Lora', serif; }
-        [data-theme="hacker"] { --bg-color: #000000; --text-main: #00ff00; --text-muted: #006600; --card-bg: #0a0a0a; --border-color: #00ff00; --primary: #00cc00; --primary-hover: #00ff00; --success: #00ff00; --danger: #ff0000; --warning: #ffff00; --modal-overlay: rgba(0, 0, 0, 0.9); --input-bg: #000000; --font-main: 'Special Elite', monospace; }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
-        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; transition: background-color 0.5s, color 0.5s; }
-
-        /* HEADER & UI */
-        .header { background: var(--card-bg); padding: 15px 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: background 0.3s; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 15px;}
-        .header-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .btn { padding: 8px 15px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-outline:hover { background: var(--border-color); }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-success { background: var(--success); color: white; width: 100%; justify-content: center; margin-top: 15px; }
-
-        #header-tuvi-badge { border-color: var(--primary); color: var(--primary); cursor: default; }
-        #header-tuvi-badge.pulse { animation: tuvi-pulse 0.5s ease-out; }
-        @keyframes tuvi-pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); } 50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); } 100% { transform: scale(1); } }
-        #header-streak-badge { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
-        #header-wager-badge { border-color: var(--danger); color: var(--danger); }
-        
-        /* TÚI ĐỒ & TIỀN TỆ */
-        #header-coin-badge { background: linear-gradient(45deg, #f59e0b, #d97706); color: white; border: none; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        #header-buffs-badge { border-color: #8b5cf6; color: #8b5cf6; cursor: default; display: flex; }
-        .btn-zen { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; }
-        .btn-zen:hover { transform: scale(1.05); }
-
-        /* BÓNG MA QUÁ KHỨ */
-        .ghost-panel { background: var(--card-bg); margin: 20px 30px 0; padding: 15px 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; }
-        .ghost-title { font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; }
-        .ghost-track { height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; position: relative; }
-        .ghost-fill-past { position: absolute; top: 0; left: 0; height: 100%; background: var(--text-muted); opacity: 0.5; transition: width 1s; z-index: 1;}
-        .ghost-fill-now { position: absolute; top: 0; left: 0; height: 100%; background: var(--success); transition: width 1s; z-index: 2; box-shadow: 0 0 10px var(--success);}
-
-        /* BOARD */
-        #main-board { transition: filter 0.3s; }
-        .board { display: flex; gap: 20px; padding: 20px 30px; overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 150px); }
-        .day-column { background: var(--card-bg); min-width: 300px; max-width: 320px; flex: 1; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: background 0.3s, border 0.3s; }
-        .day-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
-        .day-title { font-weight: 700; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
-        .today-badge { font-size: 0.75rem; background: var(--primary); color: white; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
-        .progress-container { margin-top: 12px; }
-        .progress-text { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 500; }
-        .progress-track { height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s ease; }
-
-        .task-list { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 150px; }
-        .task-item { border: 1px solid; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: flex-start; transition: 0.2s; position: relative; }
-        .task-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .task-item.completed { opacity: 0.5; }
-        .task-item.completed .task-desc { text-decoration: line-through; color: var(--text-muted); }
-        .task-item.missed-task { opacity: 0.5; border-color: var(--danger); background: var(--color-red); }
-        .task-item.missed-task .task-desc { text-decoration: line-through; color: var(--danger); }
-        .task-item.missed-task .task-checkbox { display: none; } 
-        .task-item.locked { pointer-events: none; border-style: dashed; }
-        .task-urgent { background: var(--color-red); border-color: var(--color-red-border); }
-        .task-study { background: var(--color-blue); border-color: var(--color-blue-border); }
-        .task-work { background: var(--color-green); border-color: var(--color-green-border); }
-        .task-default { background: var(--color-default); border-color: var(--color-default-border); }
-
-        .task-checkbox { margin-top: 3px; cursor: pointer; width: 18px; height: 18px; accent-color: var(--success); flex-shrink: 0;}
-        .task-content { flex: 1; }
-        .task-time { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;}
-        .task-desc { font-size: 0.95rem; color: var(--text-main); word-break: break-word; font-weight: 500;}
-        .rollover-badge { font-size: 0.7rem; background: var(--warning); color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
-        .missed-badge { font-size: 0.7rem; color: var(--danger); font-weight: 800; margin-left: auto; }
-        .task-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; position: absolute; right: 10px; top: 10px; }
-        .task-item:not(.locked):hover .task-actions { opacity: 1; }
-        .btn-icon { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; padding: 4px 6px; color: var(--text-muted); font-size: 0.8rem; }
-        .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
-        .btn-icon.delete:hover { color: var(--danger); border-color: var(--danger); }
-
-        .day-footer { padding: 15px; border-top: 1px solid var(--border-color); }
-        .btn-add { width: 100%; border: 1px dashed var(--text-muted); background: transparent; color: var(--text-muted); padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
-        .btn-add:hover { background: var(--border-color); color: var(--primary); border-color: var(--primary); }
-
-        /* MODALS CHUNG */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal { background: var(--card-bg); width: 90%; max-width: 450px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
-        .close-modal { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
-        .form-control { width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; color: var(--text-main); }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .color-options { display: flex; gap: 12px; margin-top: 5px; }
-        .color-radio { display: none; }
-        .color-label { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .color-radio:checked + .color-label { transform: scale(1.2); border-color: var(--primary); box-shadow: 0 0 8px rgba(0,0,0,0.2); }
-        .bg-red { background: #fca5a5; } .bg-blue { background: #93c5fd; } .bg-green { background: #86efac; } .bg-default { background: #cbd5e1; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
-
-        /* --- THẺ HỘI VIÊN VIP (MỚI) --- */
-        .mem-card { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .mem-card.pro { background: linear-gradient(135deg, #2563eb, #1e40af); border-color: #60a5fa; }
-        .mem-card.ultra { background: linear-gradient(135deg, #f59e0b, #b45309); border-color: #fbbf24; }
-        .mem-status { font-size: 1.2rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; }
-        .mem-timer { font-family: 'Special Elite', monospace; font-size: 1.1rem; color: #cbd5e1; margin-bottom: 15px; }
-        .mem-toggle { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; width: fit-content; }
-        .mem-pricing { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-        .mem-tier-box { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; background: var(--input-bg); }
-        .mem-tier-box h4 { font-size: 1.1rem; margin-bottom: 10px; color: var(--primary); text-transform: uppercase; }
-        .mem-tier-box.ultra-box h4 { color: var(--warning); }
-        .mem-btn { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); border-radius: 6px; cursor: pointer; font-weight: 600; text-align: left; display: flex; justify-content: space-between; transition: 0.2s; }
-        .mem-btn:hover { border-color: var(--primary); background: rgba(37,99,235,0.05); }
-        .mem-badge { background: var(--danger); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
-
-        /* UI CỬA HÀNG, CHỨNG KHOÁN, THẦN TÀI */
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .shop-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center; background: var(--input-bg); transition: 0.2s;}
-        .shop-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .shop-item h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 5px;}
-        .shop-item p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; min-height: 35px;}
-        .stock-item { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: var(--input-bg);}
-        .stock-price { font-size: 1.2rem; font-weight: 700; width: 80px; text-align: right;}
-        .stock-price.up { color: var(--success); }
-        .stock-price.down { color: var(--danger); }
-        .bank-display { text-align: center; font-size: 2.5rem; color: var(--warning); font-family: 'Black Ops One', cursive; margin: 20px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.1);}
-
-        /* FOCUS ZONE */
-        #zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: flex-start; backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.5s ease; text-align: center; padding: 30px 20px; box-sizing: border-box; color: #e2e8f0; overflow-y: auto; overflow-x: hidden;}
-        #zen-overlay.active { display: flex; opacity: 1; }
-        #fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5001; }
-        .zen-app-container { width: 100%; max-width: 900px; z-index: 5002; display: flex; flex-direction: column; align-items: center; margin: auto; position: relative;}
-        .zen-btn-exit { position: absolute; top: 20px; right: 20px; background: transparent; border: none; font-size: 2rem; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; z-index: 6005; }
-        .zen-btn-exit:hover { color: #ef4444; transform: rotate(90deg) scale(1.2); }
-        .zen-timer { font-family: 'Black Ops One', cursive; font-size: clamp(5rem, 12vw, 8rem); color: #fff; letter-spacing: 5px; margin: 0 0 10px 0; text-shadow: 4px 4px 0px #000, 8px 8px 20px rgba(0,0,0,0.8); line-height: 1; }
-        @keyframes timer-pulse-zen { 0% { filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)); transform: scale(1.02); } 100% { filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); transform: scale(1); } }
-        .zen-timer.ticking { animation: timer-pulse-zen 1.5s infinite ease-in-out; }
-        .zen-energy-bar-container { width: 100%; height: 14px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; margin: 10px 0 20px; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: visible; }
-        .zen-energy-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #1d4ed8, #3b82f6, #93c5fd); transition: width 0.5s linear; border-radius: 8px; box-shadow: 0 0 10px currentColor; position: relative; }
-        .zen-rank-badge { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.2rem; color: #60a5fa; border: 2px solid #60a5fa; padding: 5px 20px; border-radius: 4px; background: rgba(0,0,0,0.6); margin-bottom: 10px; box-shadow: 0 0 15px rgba(96, 165, 250, 0.3); text-transform: uppercase; letter-spacing: 2px; }
-        .zen-xp-bar-container { width: 100%; max-width: 400px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
-        .zen-xp-bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.5s ease-out; }
-        .zen-xp-text { font-size: 0.9rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
-        .zen-quote-container { margin-top: 10px; max-width: 800px; width: 90%; padding: 25px 30px; border-radius: 12px; position: relative; background: #0f172a; min-height: 120px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .zen-quote-line { position: absolute; display: block; z-index: 1; pointer-events: none; }
-        .zen-quote-line:nth-child(1) { top: 0; left: -100%; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #0ea5e9, #38bdf8); box-shadow: 0 0 10px #38bdf8; animation: led-top 2s linear infinite; animation-delay: 0s; }
-        @keyframes led-top { 0% { left: -100%; } 50%, 100% { left: 100%; } }
-        .zen-quote-line:nth-child(2) { top: -100%; right: 0; width: 4px; height: 100%; background: linear-gradient(180deg, transparent, #a855f7, #c084fc); box-shadow: 0 0 10px #c084fc; animation: led-right 2s linear infinite; animation-delay: -1.5s; }
-        @keyframes led-right { 0% { top: -100%; } 50%, 100% { top: 100%; } }
-        .zen-quote-line:nth-child(3) { bottom: 0; right: -100%; width: 100%; height: 4px; background: linear-gradient(270deg, transparent, #f59e0b, #fbbf24); box-shadow: 0 0 10px #fbbf24; animation: led-bottom 2s linear infinite; animation-delay: -1s; }
-        @keyframes led-bottom { 0% { right: -100%; } 50%, 100% { right: 100%; } }
-        .zen-quote-line:nth-child(4) { bottom: -100%; left: 0; width: 4px; height: 100%; background: linear-gradient(360deg, transparent, #10b981, #34d399); box-shadow: 0 0 10px #34d399; animation: led-left 2s linear infinite; animation-delay: -0.5s; }
-        @keyframes led-left { 0% { bottom: -100%; } 50%, 100% { bottom: 100%; } }
-        .zen-quote-content { position: relative; z-index: 5; }
-        .zen-quote-en { font-size: 1.2rem; font-style: italic; color: #cbd5e1; margin-bottom: 5px; font-family: 'Inter', serif; transition: opacity 0.5s; }
-        .zen-quote-vi { font-size: 1.1rem; color: #a5b4fc; font-weight: 600; margin-bottom: 8px; transition: opacity 0.5s; }
-        .zen-quote-author { font-size: 0.9rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; text-align: right; transition: opacity 0.5s; }
-        .zen-status { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); text-align: center;}
-        .zen-controls { display: flex; gap: 15px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
-        .zen-btn-action { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .zen-btn-action:hover { background: #fff; color: #000; transform: translateY(-3px); }
-
-        /* VÒNG QUAY CHUNG */
-        .wheel-wrapper { position: relative; width: 320px; height: 320px; margin-bottom: 20px;}
-        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fbbf24; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 0 25px rgba(0,0,0,0.8); overflow: hidden; position: relative; transition: transform 4s cubic-bezier(0.17, 0.67, 0.1, 1); }
-        .wheel-label { position: absolute; top: 50%; left: 50%; width: 50%; height: 24px; transform-origin: 0% 50%; margin-top: -12px; text-align: right; padding-right: 25px; font-size: 0.75rem; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,1); line-height: 24px; white-space: nowrap;}
-        #zen-wheel-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; animation: slideUp 0.5s ease; }
-
-        /* OVERLAY KỶ LUẬT */
-        #punish-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(220, 38, 38, 0.95); z-index: 9999; display:none; flex-direction:column; align-items:center; justify-content:center; color: white; text-align: center; padding: 20px;}
-        .punish-box { background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 2px solid #fca5a5; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-
-        /* AFK OVERLAY */
-        #afk-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 38, 38, 0.9); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; animation: flash-red 0.5s infinite alternate; }
-        @keyframes flash-red { 0% { background: rgba(220, 38, 38, 0.9); } 100% { background: rgba(153, 27, 27, 0.95); } }
-        #afk-overlay h1 { font-size: 3rem; margin-bottom: 10px; text-transform: uppercase; font-family: 'Black Ops One', cursive; text-shadow: 0 0 20px black; text-align: center;}
-        #afk-timer { font-size: 5rem; font-weight: bold; margin: 20px 0; }
-        .btn-afk { background: #fff; color: #dc2626; border: none; padding: 20px 50px; font-size: 2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.2s;}
-        .btn-afk:hover { transform: scale(1.1); background: #fef08a; }
-
-        @media (max-width: 768px) { .header { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; } .board { padding: 15px; flex-direction: column; overflow-x: hidden; min-height: auto;} .day-column { min-width: 100%; max-width: 100%; } .task-actions { opacity: 1; position: static; margin-top: 10px; justify-content: flex-end; } .zen-quote-en { font-size: 1rem; } .zen-btn-action { padding: 10px 25px; font-size: 1rem; } .wheel-wrapper {width: 260px; height: 260px;} .wheel-label {font-size: 0.65rem; padding-right: 15px;}}
+        :root { --bg-color:#f1f5f9; --text-main:#1e293b; --text-muted:#64748b; --card-bg:#ffffff; --border-color:#e2e8f0; --primary:#2563eb; --primary-hover:#1d4ed8; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(15,23,42,0.6); --input-bg:#ffffff; --color-red:#fee2e2; --color-red-border:#fca5a5; --color-blue:#dbeafe; --color-blue-border:#bfdbfe; --color-green:#dcfce7; --color-green-border:#bbf7d0; --color-default:#f8fafc; --color-default-border:#e2e8f0; --font-main:'Inter',sans-serif; }
+        [data-theme="dark"] { --bg-color:#0f172a; --text-main:#f8fafc; --text-muted:#94a3b8; --card-bg:#1e293b; --border-color:#334155; --primary:#3b82f6; --primary-hover:#60a5fa; --modal-overlay:rgba(0,0,0,0.8); --input-bg:#0f172a; --color-red:rgba(239,68,68,0.15); --color-red-border:#ef4444; --color-blue:rgba(59,130,246,0.15); --color-blue-border:#3b82f6; --color-green:rgba(16,185,129,0.15); --color-green-border:#10b981; --color-default:rgba(148,163,184,0.1); --color-default-border:#475569; }
+        [data-theme="detective"] { --bg-color:#121212; --text-main:#d1d5db; --text-muted:#7f1d1d; --card-bg:#1e1e1e; --border-color:#450a0a; --primary:#991b1b; --primary-hover:#b91c1c; --success:#065f46; --danger:#dc2626; --warning:#b45309; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#000000; --color-red:rgba(220,38,38,0.1); --color-red-border:#991b1b; --color-blue:rgba(59,130,246,0.05); --color-blue-border:#1e3a8a; --color-green:rgba(16,185,129,0.05); --color-green-border:#064e3b; --color-default:rgba(156,163,175,0.05); --color-default-border:#374151; --font-main:'Special Elite',cursive,'Inter',sans-serif; }
+        [data-theme="nature"] { --bg-color:#e9ecef; --text-main:#2c3e50; --text-muted:#6c757d; --card-bg:#ffffff; --border-color:#c3e6cb; --primary:#2e7d32; --primary-hover:#1b5e20; --success:#20c997; --danger:#e07a5f; --warning:#f4a261; --modal-overlay:rgba(44,62,80,0.7); --input-bg:#f8f9fa; --color-red:#fef0f0; --color-red-border:#f5c6cb; --color-blue:#e8f4f8; --color-blue-border:#bee5eb; --color-green:#e6f4ea; --color-green-border:#c3e6cb; --color-default:#fdfdfe; --color-default-border:#dfdfdf; --font-main:'Lora',serif; }
+        [data-theme="royal"] { --bg-color:#1a1500; --text-main:#ffd700; --text-muted:#b89947; --card-bg:#2a2200; --border-color:#ffd700; --primary:#d4af37; --primary-hover:#f1c40f; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#1a1500; --font-main:'Lora',serif; }
+        [data-theme="hacker"] { --bg-color:#000000; --text-main:#00ff00; --text-muted:#006600; --card-bg:#0a0a0a; --border-color:#00ff00; --primary:#00cc00; --primary-hover:#00ff00; --success:#00ff00; --danger:#ff0000; --warning:#ffff00; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#000000; --font-main:'Special Elite',monospace; }
+        *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-main);} body{background-color:var(--bg-color);color:var(--text-main);line-height:1.6;padding-bottom:40px;transition:background-color 0.5s,color 0.5s;}
+        .header{background:var(--card-bg);padding:15px 30px;box-shadow:0 1px 3px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;transition:background 0.3s;border-bottom:1px solid var(--border-color);flex-wrap:wrap;gap:15px;} .header-title{font-size:1.4rem;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;} .header-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;} .btn{padding:8px 15px;border:none;border-radius:6px;font-weight:600;font-size:0.9rem;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;} .btn-outline{background:transparent;border:1px solid var(--border-color);color:var(--text-main);} .btn-outline:hover{background:var(--border-color);} .btn-primary{background:var(--primary);color:white;} .btn-primary:hover{background:var(--primary-hover);} .btn-success{background:var(--success);color:white;width:100%;justify-content:center;margin-top:15px;}
+        #header-tuvi-badge{border-color:var(--primary);color:var(--primary);cursor:default;} #header-tuvi-badge.pulse{animation:tuvi-pulse 0.5s ease-out;} @keyframes tuvi-pulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0.7);}50%{transform:scale(1.1);box-shadow:0 0 0 10px rgba(37,99,235,0);}100%{transform:scale(1);}}
+        #header-streak-badge{background:linear-gradient(45deg,#ef4444,#f59e0b);color:white;border:none;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);} #header-wager-badge{border-color:var(--danger);color:var(--danger);} #header-coin-badge{background:linear-gradient(45deg,#f59e0b,#d97706);color:white;border:none;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);} #header-buffs-badge{border-color:#8b5cf6;color:#8b5cf6;cursor:default;display:flex;} .btn-zen{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:white;border:none;} .btn-zen:hover{transform:scale(1.05);}
+        #header-mem-badge{font-weight:900;text-transform:uppercase;transition:all 0.4s ease;border:none;letter-spacing:0.5px;} .tier-basic{background:linear-gradient(45deg,#b87333,#d4a373,#b87333);color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);box-shadow:0 2px 4px rgba(184,115,51,0.3);} .tier-pro{background:linear-gradient(45deg,#94a3b8,#f8fafc,#94a3b8);color:#1e293b!important;text-shadow:none;box-shadow:0 2px 4px rgba(148,163,184,0.4);} .tier-ultra{background:linear-gradient(45deg,#d4af37,#fef08a,#d4af37,#f59e0b,#d4af37);background-size:200% 200%;color:#451a03!important;text-shadow:none;box-shadow:0 0 15px rgba(212,175,55,0.8);animation:ultra-sparkle 2s linear infinite;} @keyframes ultra-sparkle{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+        .ghost-panel{background:var(--card-bg);margin:20px 30px 0;padding:15px 25px;border-radius:12px;border:1px solid var(--border-color);box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:10px;} .ghost-title{font-weight:700;color:var(--text-main);display:flex;justify-content:space-between;} .ghost-track{height:8px;background:var(--border-color);border-radius:4px;overflow:hidden;position:relative;} .ghost-fill-past{position:absolute;top:0;left:0;height:100%;background:var(--text-muted);opacity:0.5;transition:width 1s;z-index:1;} .ghost-fill-now{position:absolute;top:0;left:0;height:100%;background:var(--success);transition:width 1s;z-index:2;box-shadow:0 0 10px var(--success);}
+        #main-board{transition:filter 0.3s;} .board{display:flex;gap:20px;padding:20px 30px;overflow-x:auto;align-items:flex-start;min-height:calc(100vh - 150px);} .day-column{background:var(--card-bg);min-width:300px;max-width:320px;flex:1;border-radius:12px;border:1px solid var(--border-color);box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);display:flex;flex-direction:column;transition:background 0.3s,border 0.3s;} .day-header{padding:15px 20px;border-bottom:1px solid var(--border-color);} .day-title{font-weight:700;font-size:1.1rem;display:flex;justify-content:space-between;align-items:center;} .today-badge{font-size:0.75rem;background:var(--primary);color:white;padding:3px 8px;border-radius:12px;font-weight:600;} .progress-container{margin-top:12px;} .progress-text{font-size:0.8rem;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;} .progress-track{height:6px;background:var(--border-color);border-radius:3px;overflow:hidden;} .progress-fill{height:100%;background:var(--success);width:0%;transition:width 0.4s ease;}
+        .task-list{padding:15px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;min-height:150px;} .task-item{border:1px solid;border-radius:8px;padding:12px;display:flex;gap:12px;align-items:flex-start;transition:0.2s;position:relative;} .task-item:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .task-item.completed{opacity:0.5;} .task-item.completed .task-desc{text-decoration:line-through;color:var(--text-muted);} .task-item.missed-task{opacity:0.5;border-color:var(--danger);background:var(--color-red);} .task-item.missed-task .task-desc{text-decoration:line-through;color:var(--danger);} .task-item.missed-task .task-checkbox{display:none;} .task-item.locked{pointer-events:none;border-style:dashed;} .task-urgent{background:var(--color-red);border-color:var(--color-red-border);} .task-study{background:var(--color-blue);border-color:var(--color-blue-border);} .task-work{background:var(--color-green);border-color:var(--color-green-border);} .task-default{background:var(--color-default);border-color:var(--color-default-border);}
+        .task-checkbox{margin-top:3px;cursor:pointer;width:18px;height:18px;accent-color:var(--success);flex-shrink:0;} .task-content{flex:1;} .task-time{font-size:0.8rem;font-weight:700;color:var(--primary);margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;} .task-desc{font-size:0.95rem;color:var(--text-main);word-break:break-word;font-weight:500;} .rollover-badge{font-size:0.7rem;background:var(--warning);color:white;padding:2px 6px;border-radius:4px;margin-left:auto;} .missed-badge{font-size:0.7rem;color:var(--danger);font-weight:800;margin-left:auto;} .task-actions{display:flex;gap:8px;opacity:0;transition:opacity 0.2s;position:absolute;right:10px;top:10px;} .task-item:not(.locked):hover .task-actions{opacity:1;} .btn-icon{background:var(--card-bg);border:1px solid var(--border-color);border-radius:4px;cursor:pointer;padding:4px 6px;color:var(--text-muted);font-size:0.8rem;} .btn-icon:hover{color:var(--primary);border-color:var(--primary);} .btn-icon.delete:hover{color:var(--danger);border-color:var(--danger);} .day-footer{padding:15px;border-top:1px solid var(--border-color);} .btn-add{width:100%;border:1px dashed var(--text-muted);background:transparent;color:var(--text-muted);padding:10px;border-radius:6px;cursor:pointer;transition:0.2s;font-weight:600;} .btn-add:hover{background:var(--border-color);color:var(--primary);border-color:var(--primary);}
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;} .modal{background:var(--card-bg);width:90%;max-width:450px;padding:25px;border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);animation:slideUp 0.3s ease;border:1px solid var(--border-color);max-height:90vh;overflow-y:auto;} @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}} .modal-header{font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;color:var(--text-main);} .close-modal{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);} .form-group{margin-bottom:15px;} .form-group label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--text-muted);} .form-control{width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:6px;font-size:0.95rem;color:var(--text-main);} .form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);} .color-options{display:flex;gap:12px;margin-top:5px;} .color-radio{display:none;} .color-label{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:0.2s;} .color-radio:checked+.color-label{transform:scale(1.2);border-color:var(--primary);box-shadow:0 0 8px rgba(0,0,0,0.2);} .bg-red{background:#fca5a5;} .bg-blue{background:#93c5fd;} .bg-green{background:#86efac;} .bg-default{background:#cbd5e1;} .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:25px;}
+        .mem-card{background:linear-gradient(135deg,#1e293b,#0f172a);color:white;padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid #334155;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.2);} .mem-card.pro{background:linear-gradient(135deg,#2563eb,#1e40af);border-color:#60a5fa;} .mem-card.ultra{background:linear-gradient(135deg,#f59e0b,#b45309);border-color:#fbbf24;} .mem-status{font-size:1.2rem;font-weight:900;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;} .mem-timer{font-family:'Special Elite',monospace;font-size:1.1rem;color:#cbd5e1;margin-bottom:15px;} .mem-toggle{display:flex;align-items:center;gap:10px;font-size:0.9rem;background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:6px;width:fit-content;} .mem-pricing{display:flex;flex-direction:column;gap:15px;margin-bottom:20px;} .mem-tier-box{border:1px solid var(--border-color);padding:15px;border-radius:8px;background:var(--input-bg);} .mem-tier-box h4{font-size:1.1rem;margin-bottom:10px;color:var(--primary);text-transform:uppercase;} .mem-tier-box.ultra-box h4{color:var(--warning);} .mem-btn{width:100%;padding:10px;margin-bottom:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-main);border-radius:6px;cursor:pointer;font-weight:600;text-align:left;display:flex;justify-content:space-between;transition:0.2s;} .mem-btn:hover{border-color:var(--primary);background:rgba(37,99,235,0.05);} .mem-badge{background:var(--danger);color:white;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:bold;}
+        .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;} .shop-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;text-align:center;background:var(--input-bg);transition:0.2s;} .shop-item:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .shop-item h4{font-size:1rem;color:var(--text-main);margin-bottom:5px;} .shop-item p{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;min-height:35px;} .stock-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:var(--input-bg);} .stock-price{font-size:1.2rem;font-weight:700;width:80px;text-align:right;} .stock-price.up{color:var(--success);} .stock-price.down{color:var(--danger);} .bank-display{text-align:center;font-size:2.5rem;color:var(--warning);font-family:'Black Ops One',cursive;margin:20px 0;text-shadow:0 2px 5px rgba(0,0,0,0.1);}
+        #zen-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:5000;display:none;flex-direction:column;align-items:center;justify-content:flex-start;backdrop-filter:blur(15px);opacity:0;transition:opacity 0.5s ease;text-align:center;padding:30px 20px;box-sizing:border-box;color:#e2e8f0;overflow-y:auto;overflow-x:hidden;} #zen-overlay.active{display:flex;opacity:1;} #fireworks-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5001;} .zen-app-container{width:100%;max-width:900px;z-index:5002;display:flex;flex-direction:column;align-items:center;margin:auto;position:relative;} .zen-btn-exit{position:absolute;top:20px;right:20px;background:transparent;border:none;font-size:2rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:0.3s;z-index:6005;} .zen-btn-exit:hover{color:#ef4444;transform:rotate(90deg) scale(1.2);} .zen-timer{font-family:'Black Ops One',cursive;font-size:clamp(5rem,12vw,8rem);color:#fff;letter-spacing:5px;margin:0 0 10px 0;text-shadow:4px 4px 0px #000,8px 8px 20px rgba(0,0,0,0.8);line-height:1;} @keyframes timer-pulse-zen{0%{filter:drop-shadow(0 0 0 rgba(255,215,0,0));transform:scale(1);}50%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.9));transform:scale(1.02);}100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0));transform:scale(1);}} .zen-timer.ticking{animation:timer-pulse-zen 1.5s infinite ease-in-out;} .zen-energy-bar-container{width:100%;height:14px;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.2);border-radius:10px;margin:10px 0 20px;position:relative;box-shadow:inset 0 0 10px rgba(0,0,0,0.8);overflow:visible;} .zen-energy-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#93c5fd);transition:width 0.5s linear;border-radius:8px;box-shadow:0 0 10px currentColor;position:relative;} .zen-rank-badge{font-family:'Inter',sans-serif;font-weight:700;font-size:1.2rem;color:#60a5fa;border:2px solid #60a5fa;padding:5px 20px;border-radius:4px;background:rgba(0,0,0,0.6);margin-bottom:10px;box-shadow:0 0 15px rgba(96,165,250,0.3);text-transform:uppercase;letter-spacing:2px;} .zen-xp-bar-container{width:100%;max-width:400px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);} .zen-xp-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);width:0%;transition:width 0.5s ease-out;} .zen-xp-text{font-size:0.9rem;color:#94a3b8;margin-bottom:5px;font-weight:bold;letter-spacing:1px;} .zen-quote-container{margin-top:10px;max-width:800px;width:90%;padding:25px 30px;border-radius:12px;position:relative;background:#0f172a;min-height:120px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.8);overflow:hidden;border:1px solid rgba(255,255,255,0.05);} .zen-quote-line{position:absolute;display:block;z-index:1;pointer-events:none;} .zen-quote-line:nth-child(1){top:0;left:-100%;width:100%;height:4px;background:linear-gradient(90deg,transparent,#0ea5e9,#38bdf8);box-shadow:0 0 10px #38bdf8;animation:led-top 2s linear infinite;animation-delay:0s;} @keyframes led-top{0%{left:-100%;}50%,100%{left:100%;}} .zen-quote-line:nth-child(2){top:-100%;right:0;width:4px;height:100%;background:linear-gradient(180deg,transparent,#a855f7,#c084fc);box-shadow:0 0 10px #c084fc;animation:led-right 2s linear infinite;animation-delay:-1.5s;} @keyframes led-right{0%{top:-100%;}50%,100%{top:100%;}} .zen-quote-line:nth-child(3){bottom:0;right:-100%;width:100%;height:4px;background:linear-gradient(270deg,transparent,#f59e0b,#fbbf24);box-shadow:0 0 10px #fbbf24;animation:led-bottom 2s linear infinite;animation-delay:-1s;} @keyframes led-bottom{0%{right:-100%;}50%,100%{right:100%;}} .zen-quote-line:nth-child(4){bottom:-100%;left:0;width:4px;height:100%;background:linear-gradient(360deg,transparent,#10b981,#34d399);box-shadow:0 0 10px #34d399;animation:led-left 2s linear infinite;animation-delay:-0.5s;} @keyframes led-left{0%{bottom:-100%;}50%,100%{bottom:100%;}} .zen-quote-content{position:relative;z-index:5;} .zen-quote-en{font-size:1.2rem;font-style:italic;color:#cbd5e1;margin-bottom:5px;font-family:'Inter',serif;transition:opacity 0.5s;} .zen-quote-vi{font-size:1.1rem;color:#a5b4fc;font-weight:600;margin-bottom:8px;transition:opacity 0.5s;} .zen-quote-author{font-size:0.9rem;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;text-align:right;transition:opacity 0.5s;} .zen-status{font-size:1.2rem;text-transform:uppercase;letter-spacing:5px;color:rgba(255,255,255,0.9);margin-top:10px;margin-bottom:5px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.8);text-align:center;} .zen-controls{display:flex;gap:15px;margin-top:20px;justify-content:center;flex-wrap:wrap;} .zen-btn-action{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.5);color:white;padding:12px 40px;border-radius:50px;font-size:1.2rem;font-weight:bold;cursor:pointer;transition:0.2s;box-shadow:0 5px 15px rgba(0,0,0,0.5);} .zen-btn-action:hover{background:#fff;color:#000;transform:translateY(-3px);}
+        .wheel-wrapper{position:relative;width:320px;height:320px;margin-bottom:20px;} .wheel-pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:30px solid #fbbf24;z-index:10;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.8));} .wheel{width:100%;height:100%;border-radius:50%;border:5px solid #fff;box-shadow:0 0 25px rgba(0,0,0,0.8);overflow:hidden;position:relative;transition:transform 4s cubic-bezier(0.17,0.67,0.1,1);} .wheel-label{position:absolute;top:50%;left:50%;width:50%;height:24px;transform-origin:0% 50%;margin-top:-12px;text-align:right;padding-right:25px;font-size:0.75rem;font-weight:bold;color:white;text-shadow:1px 1px 3px rgba(0,0,0,1);line-height:24px;white-space:nowrap;} #zen-wheel-box{display:none;flex-direction:column;align-items:center;margin-top:20px;animation:slideUp 0.5s ease;}
+        #punish-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.95);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;} .punish-box{background:rgba(0,0,0,0.6);padding:30px;border-radius:15px;border:2px solid #fca5a5;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.8);}
+        #afk-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.9);z-index:6000;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;animation:flash-red 0.5s infinite alternate;} @keyframes flash-red{0%{background:rgba(220,38,38,0.9);}100%{background:rgba(153,27,27,0.95);}} #afk-overlay h1{font-size:3rem;margin-bottom:10px;text-transform:uppercase;font-family:'Black Ops One',cursive;text-shadow:0 0 20px black;text-align:center;} #afk-timer{font-size:5rem;font-weight:bold;margin:20px 0;} .btn-afk{background:#fff;color:#dc2626;border:none;padding:20px 50px;font-size:2rem;font-weight:bold;border-radius:50px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.5);transition:0.2s;} .btn-afk:hover{transform:scale(1.1);background:#fef08a;}
+        @media (max-width:768px) { .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} }
     </style>
 </head>
 <body>
     <div id="main-board">
         <header class="header">
-            <div class="header-title">
-                <i class="fas fa-graduation-cap"></i> Academic Planner V84
-            </div>
+            <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V84 VIP</div>
             <div class="header-controls">
-                <div id="header-tuvi-badge" class="btn btn-outline" title="Điểm Kinh Nghiệm (XP)">
-                    <i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span>
-                </div>
-                <div id="header-coin-badge" class="btn" title="Số dư hiện tại (Xu)">
-                    <i class="fas fa-coins"></i> <span id="ui-coins">0 Xu</span>
-                </div>
-                <div id="header-streak-badge" class="btn" title="Chuỗi Kỷ Luật Liên Tiếp">
-                    🔥 <span id="streak-text">0 Ngày</span>
-                </div>
-                <div id="header-buffs-badge" class="btn btn-outline" title="Kho Đồ: Thẻ Bảo Hộ & Thẻ Nhân Đôi XP">
-                    <span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span>
-                </div>
-                <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()" title="Cam Kết Kỷ Luật (Cược XP)">
-                    <i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span>
-                </div>
+                <div id="header-tuvi-badge" class="btn btn-outline"><i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span></div>
+                <div id="header-coin-badge" class="btn"><i class="fas fa-coins"></i> <span id="ui-coins">0 Xu</span></div>
+                <div id="header-streak-badge" class="btn">🔥 <span id="streak-text">0 Ngày</span></div>
+                <div id="header-mem-badge" class="btn tier-basic"><i class="fas fa-user"></i> <span>BASIC</span></div>
+                <div id="header-buffs-badge" class="btn btn-outline"><span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span></div>
+                <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()"><i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span></div>
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
-                <button class="btn btn-outline" id="btn-theme" onclick="toggleThemeCycle()" title="Đổi Giao Diện">
-                    <i class="fas fa-palette"></i>
-                </button>
-                <button class="btn btn-zen" onclick="toggleZenMode()">
-                    <i class="fas fa-fire"></i> Focus Mode
-                </button>
-                <button class="btn btn-outline" onclick="saveTemplate()" title="Lưu Lịch Mẫu"><i class="fas fa-bookmark"></i></button>
-                <button class="btn btn-primary" onclick="resetWeek()" title="Khởi tạo tuần học mới"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
-                <button class="btn btn-outline" onclick="document.getElementById('import-file').click()" title="Nhập Excel"><i class="fas fa-file-import"></i></button>
-                <button class="btn btn-outline" onclick="exportExcel()" title="Xuất Excel"><i class="fas fa-file-export"></i></button>
-                <input type="file" id="import-file" style="display: none;" accept=".xlsx, .xls" onchange="importExcel(event)">
+                <button class="btn btn-outline" onclick="toggleThemeCycle()"><i class="fas fa-palette"></i></button>
+                <button class="btn btn-zen" onclick="toggleZenMode()"><i class="fas fa-fire"></i> Focus Mode</button>
+                <button class="btn btn-outline" onclick="saveTemplate()"><i class="fas fa-bookmark"></i></button>
+                <button class="btn btn-primary" onclick="resetWeek()"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
+                <button class="btn btn-outline" onclick="$('import-file').click()"><i class="fas fa-file-import"></i></button>
+                <button class="btn btn-outline" onclick="exportExcel()"><i class="fas fa-file-export"></i></button>
+                <input type="file" id="import-file" style="display:none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
         <div class="ghost-panel">
-            <div class="ghost-title">
-                <span><i class="fas fa-chart-line"></i> Phân tích Kỷ luật (Tuần này vs Tuần trước)</span>
-                <span id="ghost-status-text">Đang tính toán...</span>
-            </div>
-            <div class="ghost-track">
-                <div class="ghost-fill-past" id="ghost-bar-past" style="width: 0%;" title="Tiến độ Tuần Trước"></div>
-                <div class="ghost-fill-now" id="ghost-bar-now" style="width: 0%;" title="Tiến độ Tuần Này"></div>
-            </div>
+            <div class="ghost-title"><span><i class="fas fa-chart-line"></i> Phân tích Kỷ luật (Tuần này vs Tuần trước)</span><span id="ghost-status-text">Đang tính toán...</span></div>
+            <div class="ghost-track"><div class="ghost-fill-past" id="ghost-bar-past" style="width: 0%;"></div><div class="ghost-fill-now" id="ghost-bar-now" style="width: 0%;"></div></div>
         </div>
         <div class="board" id="board-container"></div>
     </div>
     
     <div class="modal-overlay" id="task-modal">
         <div class="modal">
-            <div class="modal-header">
-                <span id="modal-title">Thêm công việc mới</span>
-                <button class="close-modal" onclick="closeModal('task-modal')"><i class="fas fa-times"></i></button>
-            </div>
-            <input type="hidden" id="task-day-index">
-            <input type="hidden" id="task-id">
-            <div class="form-group">
-                <label>Công việc cần làm <span style="color:var(--danger)">*</span></label>
-                <input type="text" id="task-desc" class="form-control" placeholder="Ví dụ: Hoàn thành Unit 5 IELTS" required>
-            </div>
+            <div class="modal-header"><span id="modal-title">Thêm công việc mới</span><button class="close-modal" onclick="closeModal('task-modal')"><i class="fas fa-times"></i></button></div>
+            <input type="hidden" id="task-day-index"><input type="hidden" id="task-id">
+            <div class="form-group"><label>Công việc cần làm <span style="color:var(--danger)">*</span></label><input type="text" id="task-desc" class="form-control" placeholder="Ví dụ: Hoàn thành Unit 5 IELTS" required></div>
             <div class="form-group"><label>Giờ dự kiến</label><input type="time" id="task-time" class="form-control"></div>
-            <div class="form-group">
-                <label>Phân loại mức độ / Lĩnh vực</label>
+            <div class="form-group"><label>Phân loại mức độ / Lĩnh vực</label>
                 <div class="color-options">
-                    <input type="radio" name="task-color" id="color-blue" value="study" class="color-radio" checked><label for="color-blue" class="color-label bg-blue" title="Học tập / Nghiên cứu"></label>
-                    <input type="radio" name="task-color" id="color-red" value="urgent" class="color-radio"><label for="color-red" class="color-label bg-red" title="Khẩn cấp / Quan trọng"></label>
-                    <input type="radio" name="task-color" id="color-green" value="work" class="color-radio"><label for="color-green" class="color-label bg-green" title="Công việc / Part-time"></label>
+                    <input type="radio" name="task-color" id="color-blue" value="study" class="color-radio" checked><label for="color-blue" class="color-label bg-blue" title="Học tập"></label>
+                    <input type="radio" name="task-color" id="color-red" value="urgent" class="color-radio"><label for="color-red" class="color-label bg-red" title="Khẩn cấp"></label>
+                    <input type="radio" name="task-color" id="color-green" value="work" class="color-radio"><label for="color-green" class="color-label bg-green" title="Công việc"></label>
                     <input type="radio" name="task-color" id="color-default" value="default" class="color-radio"><label for="color-default" class="color-label bg-default" title="Khác"></label>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('task-modal')">Hủy</button>
-                <button class="btn btn-primary" onclick="saveTask()">Lưu công việc</button>
-            </div>
+            <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('task-modal')">Hủy</button><button class="btn btn-primary" onclick="saveTask()">Lưu công việc</button></div>
         </div>
     </div>
     
     <div class="modal-overlay" id="wager-modal">
-        <div class="modal" style="border-color: var(--primary); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);">
-            <div class="modal-header" style="color: var(--primary);">
-                <span><i class="fas fa-handshake"></i> Cam Kết Kỷ Luật</span>
-                <button class="close-modal" onclick="closeWagerModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-main);">
-                Bạn đang có <strong id="wager-max-points">0</strong> Điểm Tích Lũy (XP). Nếu hoàn thành 100% việc trong ngày, bạn sẽ nhận lại vốn và nhân đôi điểm cược. Nếu để sót việc, bạn sẽ mất toàn bộ số điểm này!
-            </div>
-            <div class="form-group">
-                <label>Số Điểm Tích Lũy muốn cam kết:</label>
-                <input type="number" id="wager-amount" class="form-control" min="1" placeholder="Nhập số điểm...">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeWagerModal()">Rút lui</button>
-                <button class="btn btn-primary" onclick="placeWager()">Xác nhận Cam Kết</button>
-            </div>
+        <div class="modal" style="border-color:var(--primary);box-shadow:0 0 20px rgba(37,99,235,0.4);">
+            <div class="modal-header" style="color:var(--primary);"><span><i class="fas fa-handshake"></i> Cam Kết Kỷ Luật</span><button class="close-modal" onclick="closeWagerModal()"><i class="fas fa-times"></i></button></div>
+            <div style="margin-bottom:15px;font-size:0.9rem;color:var(--text-main);">Bạn đang có <strong id="wager-max-points">0</strong> XP. Hoàn thành 100% việc trong ngày nhận gấp đôi, bỏ sót mất sạch!</div>
+            <div class="form-group"><label>Số Điểm cược:</label><input type="number" id="wager-amount" class="form-control" min="1" placeholder="Nhập số điểm..."></div>
+            <div class="modal-footer"><button class="btn btn-outline" onclick="closeWagerModal()">Rút lui</button><button class="btn btn-primary" onclick="placeWager()">Xác nhận</button></div>
         </div>
     </div>
     
     <div class="modal-overlay" id="shop-modal">
         <div class="modal" style="max-width: 600px;">
-            <div class="modal-header" style="color: var(--warning);">
-                <span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span>
-                <button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span><button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button></div>
             <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
-            
             <div id="mem-card-ui" class="mem-card">
                 <div class="mem-status">Đang sử dụng: Hạng <span id="ui-mem-tier">BASIC</span></div>
                 <div class="mem-timer" id="ui-mem-timer">Trạng thái: Miễn phí vĩnh viễn</div>
-                <div class="mem-toggle" id="ui-mem-toggle-box" style="display:none;">
-                    <input type="checkbox" id="mem-auto-renew" onchange="toggleAutoRenew()"> 
-                    <label for="mem-auto-renew" id="ui-mem-renew-label">Tự động gia hạn</label>
-                </div>
+                <div class="mem-toggle" id="ui-mem-toggle-box" style="display:none;"><input type="checkbox" id="mem-auto-renew" onchange="toggleAutoRenew()"> <label for="mem-auto-renew" id="ui-mem-renew-label">Tự động gia hạn</label></div>
             </div>
-
             <div class="mem-pricing">
                 <div class="mem-tier-box">
                     <h4>Bậc Tinh Anh (PRO Tier)</h4>
@@ -372,105 +120,58 @@
                     <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>50.000 Xu <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
                 </div>
             </div>
-            
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
-            
             <div class="shop-grid">
-                <div class="shop-item">
-                    <h4>🛡️ Thẻ Bảo Hộ</h4>
-                    <p>Miễn phạt AFK hoặc bỏ sót công việc 1 lần.</p>
-                    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button>
-                </div>
-                <div class="shop-item">
-                    <h4>✨ Thẻ Nhân Đôi</h4>
-                    <p>Nhân đôi toàn bộ thu nhập (XP/Xu) trong 25 phút Focus tiếp theo.</p>
-                    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="buyItem('doubleXp', 300)">Mua (300 Xu)</button>
-                </div>
-                <div class="shop-item" style="border-color: #d4af37;">
-                    <h4 style="color:#d4af37;">👑 Giao diện Hoàng Cung</h4>
-                    <p>Mở khóa vĩnh viễn giao diện vàng VIP.</p>
-                    <button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%; justify-content:center; background:#d4af37; color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button>
-                </div>
-                <div class="shop-item" style="border-color: #00ff00; background: #0a0a0a;">
-                    <h4 style="color:#00ff00;">💻 Giao diện Hắc Ám</h4>
-                    <p style="color:#006600;">Mở khóa vĩnh viễn giao diện phong cách Hacker.</p>
-                    <button id="btn-buy-theme-hacker" class="btn" style="width:100%; justify-content:center; background:#00cc00; color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button>
-                </div>
+                <div class="shop-item"><h4>🛡️ Thẻ Bảo Hộ</h4><p>Miễn phạt AFK hoặc sót việc 1 lần.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button></div>
+                <div class="shop-item"><h4>✨ Thẻ Nhân Đôi</h4><p>Nhân đôi XP/Xu trong 25p Focus.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('doubleXp', 300)">Mua (300 Xu)</button></div>
+                <div class="shop-item" style="border-color:#d4af37;"><h4 style="color:#d4af37;">👑 Giao diện Hoàng Cung</h4><button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%;justify-content:center;background:#d4af37;color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button></div>
+                <div class="shop-item" style="border-color:#00ff00;background:#0a0a0a;"><h4 style="color:#00ff00;">💻 Giao diện Hắc Ám</h4><button id="btn-buy-theme-hacker" class="btn" style="width:100%;justify-content:center;background:#00cc00;color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button></div>
             </div>
-            
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
-            <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> VÒNG QUAY ĐỊNH MỆNH</h3>
-            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cơ hội nhận giải thưởng lớn hoặc rủi ro mất trắng.</p>
-            <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;">
-                <div class="wheel-pointer"></div>
-                <div class="wheel" id="shop-wheel"></div>
-            </div>
+            <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> BÁT QUÁI KỲ TRẬN</h3>
+            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Cơ hội 2% nhận 1 tháng ULTRA (Trị giá 6.000 Xu).</p>
+            <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;"><div class="wheel-pointer"></div><div class="wheel" id="shop-wheel"></div></div>
             <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY (100 Xu)</button>
         </div>
     </div>
     
-    <div class="modal-overlay" id="renew-modal" style="z-index: 9999;">
-        <div class="modal" style="border-color: var(--danger); max-width: 450px;">
-            <h3 style="color: var(--danger); margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> Cảnh Báo Trượt Gia Hạn</h3>
-            <p style="font-size: 0.95rem; margin-bottom: 20px;" id="renew-msg-desc"></p>
-            <div style="display:flex; flex-direction:column; gap:10px;" id="renew-options-container">
-            </div>
+    <div class="modal-overlay" id="renew-modal" style="z-index:9999;">
+        <div class="modal" style="border-color:var(--danger); max-width:450px;">
+            <h3 style="color:var(--danger); margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i> Cảnh Báo Trượt Gia Hạn</h3>
+            <p style="font-size:0.95rem; margin-bottom:20px;" id="renew-msg-desc"></p>
+            <div style="display:flex; flex-direction:column; gap:10px;" id="renew-options-container"></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="stock-modal">
         <div class="modal" style="max-width: 500px;">
-            <div class="modal-header" style="color: var(--success);">
-                <span><i class="fas fa-chart-line"></i> THỊ TRƯỜNG CỔ PHIẾU</span>
-                <button class="close-modal" onclick="closeModal('stock-modal')"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header" style="color: var(--success);"><span><i class="fas fa-chart-line"></i> THỊ TRƯỜNG CỔ PHIẾU</span><button class="close-modal" onclick="closeModal('stock-modal')"><i class="fas fa-times"></i></button></div>
             <p style="text-align:center; margin-bottom: 5px;">Số dư khả dụng: <strong style="color:var(--warning); font-size:1.2rem;" id="stock-coins-display">0</strong> Xu</p>
-            <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-bottom: 20px;">Giá biến động ngẫu nhiên mỗi 5 phút.</p>
             <div id="stock-list-container"></div>
         </div>
     </div>
     
     <div class="modal-overlay" id="bank-modal">
         <div class="modal" style="max-width: 400px; text-align: center;">
-            <div class="modal-header" style="color: var(--warning);">
-                <span><i class="fas fa-piggy-bank"></i> QUỸ TIẾT KIỆM</span>
-                <button class="close-modal" onclick="closeModal('bank-modal')"><i class="fas fa-times"></i></button>
-            </div>
-            <p style="margin-bottom: 10px;">Gửi Xu vào quỹ để sinh lời tự động!</p>
-            <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--warning); margin-bottom: 20px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Tiền lãi chưa thu hoạch</p>
-                <div class="bank-display" id="bank-interest-display">0.000</div>
-                <button class="btn btn-warning" style="width:100%; justify-content:center; color:black; font-weight:bold;" onclick="harvestBank()">THU HOẠCH LÃI</button>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem;">
-                <div>Vốn đang gửi: <br><strong style="font-size: 1.2rem;" id="bank-capital-display">0</strong> Xu</div>
-                <div>Lãi suất: <br><strong style="font-size: 1.2rem; color:var(--success);"><span id="bank-rate-display">1</span>%/Ngày</strong><br><span style="font-size:0.7rem;">(Dựa theo Chuỗi Kỷ Luật)</span></div>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số lượng...">
-                <button class="btn btn-success" onclick="depositBank()">Gửi Vào</button>
-                <button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button>
-            </div>
+            <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-piggy-bank"></i> QUỸ TIẾT KIỆM</span><button class="close-modal" onclick="closeModal('bank-modal')"><i class="fas fa-times"></i></button></div>
+            <div style="background:var(--input-bg);padding:15px;border-radius:10px;border:1px solid var(--warning);margin-bottom:20px;"><p style="font-size:0.9rem;color:var(--text-muted);">Tiền lãi chưa thu hoạch</p><div class="bank-display" id="bank-interest-display">0.000</div><button class="btn btn-warning" style="width:100%;justify-content:center;color:black;font-weight:bold;" onclick="harvestBank()">THU HOẠCH LÃI</button></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:0.9rem;"><div>Vốn: <strong style="font-size:1.2rem;" id="bank-capital-display">0</strong> Xu</div><div>Lãi suất: <strong style="font-size:1.2rem;color:var(--success);"><span id="bank-rate-display">1</span>%/Ngày</strong></div></div>
+            <div style="display:flex;gap:10px;"><input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số lượng..."><button class="btn btn-success" onclick="depositBank()">Gửi Vào</button><button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button></div>
         </div>
     </div>
     
     <div id="punish-overlay">
         <div class="punish-box">
-            <h1 style="font-family: 'Black Ops One', cursive; font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"><i class="fas fa-gavel"></i> CẢNH BÁO KỶ LUẬT</h1>
-            <p id="punish-reason" style="font-size: 1rem; margin-bottom: 20px;">Lý do: Không hoàn thành nhiệm vụ được giao!</p>
-            <h3 style="color: #fca5a5; margin-bottom: 10px;">Mức phạt: Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
-            <p style="font-size: 2rem; font-weight: bold; margin-bottom: 10px;"><span id="punish-fine-display">50</span> XU</p>
-            <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 20px;">Nộp phạt để Hệ thống xóa cảnh báo. Nếu không nộp, bạn sẽ bị <strong>Trừ 30 XP & Mất Chuỗi Kỷ Luật</strong>.</p>
-            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 20px;" id="btn-pay-fine" onclick="payFine()">Nộp Phạt</button>
-                <button class="btn btn-outline" style="font-size: 1.1rem; padding: 12px 20px; color: white; border-color: white;" onclick="refuseFine()">Từ chối nộp phạt</button>
-            </div>
+            <h1 style="font-family:'Black Ops One',cursive;font-size:2.5rem;margin-bottom:10px;"><i class="fas fa-gavel"></i> CẢNH BÁO KỶ LUẬT</h1>
+            <p id="punish-reason" style="font-size:1rem;margin-bottom:20px;">Lý do: Không hoàn thành nhiệm vụ!</p>
+            <h3 style="color:#fca5a5;margin-bottom:10px;">Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
+            <p style="font-size:2rem;font-weight:bold;margin-bottom:10px;"><span id="punish-fine-display">50</span> XU</p>
+            <div style="display:flex;gap:15px;justify-content:center;"><button class="btn btn-success" id="btn-pay-fine" onclick="payFine()">Nộp Phạt</button><button class="btn btn-outline" style="color:white;" onclick="refuseFine()">Từ chối</button></div>
         </div>
     </div>
     
     <div id="afk-overlay">
         <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
-        <p style="font-size: 1.5rem;">Bạn vẫn đang học chứ? Xác nhận ngay!</p>
         <div id="afk-timer">15</div>
         <button class="btn-afk" onclick="afkSuccess()">TÔI VẪN ĐANG HỌC!</button>
     </div>
@@ -478,1051 +179,277 @@
     <div id="fireworks-container"></div>
     
     <div id="zen-overlay">
-        <button class="zen-btn-exit" onclick="toggleZenMode()" title="Thoát Focus"><i class="fas fa-sign-out-alt"></i></button>
+        <button class="zen-btn-exit" onclick="toggleZenMode()"><i class="fas fa-sign-out-alt"></i></button>
         <div class="zen-app-container">
-            <div class="zen-mascot" id="zen-mascot">🎓</div>
-            <div class="zen-rank-badge" id="zen-rank">Tân Sinh</div>
-            <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div>
-            <div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
-            <div class="zen-status" id="zen-status">SẴN SÀNG HỌC TẬP</div>
-            <div class="zen-timer" id="zen-timer">25:00</div>
-            <div class="zen-energy-bar-container" id="zen-energy-bar">
-                <div class="zen-energy-bar-fill" id="zen-energy-fill" style="width: 0%;"></div>
-            </div>
+            <div class="zen-mascot" id="zen-mascot">🎓</div><div class="zen-rank-badge" id="zen-rank">Tân Sinh</div>
+            <div class="zen-xp-bar-container"><div class="zen-xp-bar-fill" id="zen-xp-fill"></div></div><div class="zen-xp-text" id="zen-xp-text">0 / 25 XP</div>
+            <div class="zen-status" id="zen-status">SẴN SÀNG HỌC TẬP</div><div class="zen-timer" id="zen-timer">25:00</div>
+            <div class="zen-energy-bar-container" id="zen-energy-bar"><div class="zen-energy-bar-fill" id="zen-energy-fill" style="width:0%;"></div></div>
             
-            <div id="zen-pump-box" style="background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 400px;">
-                <p style="margin-bottom: 5px; font-weight: bold; color: var(--warning);"><i class="fas fa-chart-line"></i> Tập trung đẩy giá cổ phiếu</p>
-                <select id="pump-stock-select" style="padding: 10px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #3b82f6; width: 100%; font-size: 1rem; margin-bottom: 5px;">
-                    <option value="NONE">Không can thiệp thị trường</option>
-                    <option value="IEL">Đẩy giá mã $IEL (+20%)</option>
-                    <option value="MUN">Đẩy giá mã $MUN (+20%)</option>
-                    <option value="BYN">Đẩy giá mã $BYN (+20%)</option>
-                    <option value="ZHN">Đẩy giá mã $ZHN (+20%)</option>
-                </select>
-                <p style="font-size: 0.8rem; color: #94a3b8;">Hoàn thành 25p để giúp giá cổ phiếu tăng mạnh. Nếu không phản hồi kiểm tra, giá sẽ giảm mạnh!</p>
+            <div id="zen-pump-box" style="background:rgba(255,255,255,0.05);padding:15px 30px;border-radius:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2);width:100%;max-width:400px;">
+                <p style="margin-bottom:5px;font-weight:bold;color:var(--warning);"><i class="fas fa-chart-line"></i> Tập trung đẩy giá cổ phiếu</p>
+                <select id="pump-stock-select" style="padding:10px;border-radius:6px;background:#1e293b;color:white;width:100%;margin-bottom:5px;"><option value="NONE">Không can thiệp</option><option value="IEL">Đẩy giá mã $IEL (+20%)</option><option value="MUN">Đẩy giá mã $MUN (+20%)</option><option value="BYN">Đẩy giá mã $BYN (+20%)</option><option value="ZHN">Đẩy giá mã $ZHN (+20%)</option></select>
             </div>
             
             <div id="zen-wheel-box">
-                <div class="zen-status" style="color: #fbbf24; margin-bottom: 10px;"><i class="fas fa-dice"></i> PHẦN THƯỞNG NGẪU NHIÊN <i class="fas fa-dice"></i></div>
-                <div class="wheel-wrapper">
-                    <div class="wheel-pointer"></div>
-                    <div class="wheel" id="focus-wheel"></div>
-                </div>
-                <button class="zen-btn-action" style="background:linear-gradient(45deg, #f59e0b, #ef4444); border:none; box-shadow: 0 0 15px rgba(239,68,68,0.5);" onclick="spinFocusWheel()" id="btn-focus-spin">QUAY THƯỞNG</button>
+                <div class="zen-status" style="color:#fbbf24;margin-bottom:10px;"><i class="fas fa-dice"></i> PHẦN THƯỞNG <i class="fas fa-dice"></i></div>
+                <div class="wheel-wrapper"><div class="wheel-pointer"></div><div class="wheel" id="focus-wheel"></div></div>
+                <button class="zen-btn-action" style="background:linear-gradient(45deg,#f59e0b,#ef4444);border:none;" onclick="spinFocusWheel()" id="btn-focus-spin">QUAY THƯỞNG</button>
             </div>
             
             <div class="zen-quote-container" id="zen-quote-box">
                 <span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span><span class="zen-quote-line"></span>
-                <div class="zen-quote-content">
-                    <div class="zen-quote-en" id="q-en">"Press Start to begin your deep work session."</div>
-                    <div class="zen-quote-vi" id="q-vi">Kỷ luật sinh tự do, kiên nhẫn tất thành.</div>
-                    <div class="zen-quote-author" id="q-author">- Hệ thống</div>
-                </div>
+                <div class="zen-quote-content"><div class="zen-quote-en" id="q-en">"Press Start to begin your deep work session."</div><div class="zen-quote-vi" id="q-vi">Kỷ luật sinh tự do, kiên nhẫn tất thành.</div><div class="zen-quote-author" id="q-author">- Hệ thống</div></div>
             </div>
-            
-            <div class="zen-controls" id="zen-controls">
-                <button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button>
-                <button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt kết quả</button>
-                <button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button>
-            </div>
+            <div class="zen-controls" id="zen-controls"><button class="zen-btn-action" id="btn-zen-start" onclick="startTimer()">Bắt đầu</button><button class="zen-btn-action" id="btn-zen-cashout" style="display:none;" onclick="cashOutEndless()">Chốt</button><button class="zen-btn-action" onclick="resetTimer()" id="btn-zen-reset">Đặt lại</button></div>
         </div>
     </div>
     
     <script>
-        // ==========================================
-        // KHỞI TẠO DỮ LIỆU & HỆ THỐNG
-        // ==========================================
-        const REALMS = [
-             { name: "Tân Sinh", min: 0, color: {r:156, g:163, b:175} },
-             { name: "Tú Tài", min: 25, color: {r:56, g:189, b:248} },
-             { name: "Cử Nhân", min: 100, color: {r:52, g:211, b:153} },
-             { name: "Thạc Sĩ", min: 300, color: {r:250, g:204, b:21} },
-             { name: "Tiến Sĩ", min: 1000, color: {r:192, g:132, b:252} },
-             { name: "Phó Giáo Sư", min: 3000, color: {r:248, g:113, b:113} },
-            { name: "Giáo Sư", min: 10000, color: {r:251, g:146, b:60} }
-        ];
+        const $ = id => document.getElementById(id);
+        const $$ = sel => document.querySelector(sel);
+
+        const REALMS = [{name:"Tân Sinh",min:0,color:{r:156,g:163,b:175}},{name:"Tú Tài",min:25,color:{r:56,g:189,b:248}},{name:"Cử Nhân",min:100,color:{r:52,g:211,b:153}},{name:"Thạc Sĩ",min:300,color:{r:250,g:204,b:21}},{name:"Tiến Sĩ",min:1000,color:{r:192,g:132,b:252}},{name:"Phó Giáo Sư",min:3000,color:{r:248,g:113,b:113}},{name:"Giáo Sư",min:10000,color:{r:251,g:146,b:60}}];
         const MAX_POINTS = 10000;
-        const DAYS_OF_WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+        const DAYS_OF_WEEK = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
         const STORAGE_KEY = "planner_data_v84_vip"; 
         const TEMPLATE_KEY = "planner_template_v84";
-        const THEMES = ['light', 'dark', 'detective', 'nature'];
+        const THEMES = ['light','dark','detective','nature'];
 
-        let scheduleData = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
-        
-        let sys = {
-            points: 0, coins: 0,
-            streak: 0, highestStreak: 0, wagerAmount: 0,
-            lastWeekTotal: 0, currentWeekTotal: 0, lastWeekCompleted: 0, currentWeekCompleted: 0,
-            currentTheme: 'light',
-            immunity: 0, doubleXp: 0,
-            punishTier: 1,
-            stocks: {
-                 IEL: { name: "IELTS Corp", price: 100, qty: 0 },
-                 MUN: { name: "Quỷ Đỏ Old Trafford", price: 50, qty: 0 },
-                 BYN: { name: "Hùm Xám Bavaria", price: 150, qty: 0 },
-                 ZHN: { name: "Hán Ngữ Group", price: 30, qty: 0 }
-             },
-            bankCapital: 0, bankUnclaimed: 0, bankLastUpdate: Date.now(),
-            unlockedThemes: [],
-            mem: { tier: 'BASIC', expire: 0, auto: false, autoTier: 'BASIC', autoDays: 0 }
-        };
+        let scheduleData = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
+        let sys = {points:0, coins:0, streak:0, highestStreak:0, wagerAmount:0, lastWeekTotal:0, currentWeekTotal:0, lastWeekCompleted:0, currentWeekCompleted:0, currentTheme:'light', immunity:0, doubleXp:0, punishTier:1, stocks:{IEL:{name:"IELTS Corp",price:100,qty:0},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0},ZHN:{name:"Hán Ngữ Group",price:30,qty:0}}, bankCapital:0, bankUnclaimed:0, bankLastUpdate:Date.now(), unlockedThemes:[], mem:{tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0}};
 
-        let sysAudioCtx = null;
-        function getAudioCtx() {
-            try {
-                if (!sysAudioCtx) { const AudioContext = window.AudioContext || window.webkitAudioContext; if(AudioContext) sysAudioCtx = new AudioContext(); }
-                if(sysAudioCtx && sysAudioCtx.state === 'suspended') sysAudioCtx.resume();
-                return sysAudioCtx;
-            } catch(e) { return null; }
-        }
-        
-        function playAlarmSound() {
-            try {
-                const ctx = getAudioCtx(); if (!ctx) return;
-                for (let i = 0; i < 3; i++) {
-                    const t = ctx.currentTime + i * 0.3;
-                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.type = 'square'; osc.frequency.setValueAtTime(1000, t); 
-                    gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
-                    osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.2);
-                }
-            } catch(e) {}
-        }
-        
-        function playChime() { 
-             try {
-                const ctx = getAudioCtx(); if (!ctx) return;
-                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                osc.frequency.setValueAtTime(880, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 1.5);
-                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
-                osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 1.5);
-             } catch(e) {}
-        }
-        
-        function playRealisticBoom() { 
-             try {
-                const ctx = getAudioCtx(); if (!ctx) return;
-                const t = ctx.currentTime; const bufferSize = ctx.sampleRate * 2;
-                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0);
-                let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
-                for (let i=0; i<bufferSize; i++) {
-                    const w = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520;
-                    b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
-                    data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362; data[i] *= 0.11; b6 = w * 0.115926;
-                }
-                const noise = ctx.createBufferSource(); noise.buffer = buffer;
-                const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 800;
-                filter.frequency.exponentialRampToValueAtTime(100, t + 0.3);
-                const gain = ctx.createGain(); gain.gain.setValueAtTime(1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
-                noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t + 2);
-             } catch(e) {}
-        }
-        
-        function playTickSound() {
-            try {
-                const ctx = getAudioCtx(); if (!ctx) return;
-                const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1);
-                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-                osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1);
-            } catch(e) {}
-        }
+        let sysAudioCtx = null, fireworks;
+        function getAudioCtx() { try { if(!sysAudioCtx){const AC=window.AudioContext||window.webkitAudioContext; if(AC) sysAudioCtx=new AC();} if(sysAudioCtx&&sysAudioCtx.state==='suspended') sysAudioCtx.resume(); return sysAudioCtx; }catch(e){return null;} }
+        function playAlarmSound() { try{const ctx=getAudioCtx(); if(!ctx)return; for(let i=0;i<3;i++){const t=ctx.currentTime+i*0.3; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type='square'; osc.frequency.setValueAtTime(1000,t); gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.2); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+0.2);}}catch(e){} }
+        function playChime() { try{const ctx=getAudioCtx(); if(!ctx)return; const t=ctx.currentTime; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.frequency.setValueAtTime(880,t); osc.frequency.exponentialRampToValueAtTime(0.01,t+1.5); gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.01,t+1.5); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+1.5);}catch(e){} }
+        function playRealisticBoom() { try{const ctx=getAudioCtx(); if(!ctx)return; const t=ctx.currentTime; const bufSz=ctx.sampleRate*2; const buf=ctx.createBuffer(1,bufSz,ctx.sampleRate); const dat=buf.getChannelData(0); let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0; for(let i=0;i<bufSz;i++){const w=Math.random()*2-1; b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759; b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856; b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980; dat[i]=b0+b1+b2+b3+b4+b5+b6+w*0.5362; dat[i]*=0.11; b6=w*0.115926;} const noise=ctx.createBufferSource(); noise.buffer=buf; const filter=ctx.createBiquadFilter(); filter.type="lowpass"; filter.frequency.value=800; filter.frequency.exponentialRampToValueAtTime(100,t+0.3); const gain=ctx.createGain(); gain.gain.setValueAtTime(1,t); gain.gain.exponentialRampToValueAtTime(0.01,t+1.5); noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(t); noise.stop(t+2);}catch(e){} }
+        function playTickSound() { try{const ctx=getAudioCtx(); if(!ctx)return; const t=ctx.currentTime; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type='triangle'; osc.frequency.setValueAtTime(600,t); osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1); gain.gain.setValueAtTime(0.2,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+0.1);}catch(e){} }
+        function initFireworks() { try{const c=$('fireworks-container'); const FW=window.Fireworks||window.Fireworks.default; if(FW) fireworks=new FW(c,{autoresize:true,opacity:0.5,acceleration:1.05,friction:0.97,gravity:1.5,particles:150,traceLength:3,traceSpeed:10,explosion:5});}catch(e){} }
+        function runBigFireworks() { try{if(!fireworks)initFireworks(); if(fireworks){fireworks.start(); setTimeout(()=>fireworks.stop(),8000);}}catch(e){} }
 
-        let fireworks; 
-        function initFireworks() { 
-            try {
-                const container = document.getElementById('fireworks-container');
-                const FW = window.Fireworks || window.Fireworks.default;
-                if(FW) { fireworks = new FW(container, { autoresize: true, opacity: 0.5, acceleration: 1.05, friction: 0.97, gravity: 1.5, particles: 150, traceLength: 3, traceSpeed: 10, explosion: 5, intensity: 30, flickering: 50, lineStyle: 'round', hue: { min: 0, max: 360 }, delay: { min: 15, max: 30 }, rocketsPoint: { min: 0, max: 100 }, lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } }, brightness: { min: 50, max: 80 }, decay: { min: 0.015, max: 0.03 }, mouse: { click: false, move: false, max: 1 } }); }
-            } catch(e) { }
-        }
-        function runBigFireworks() { 
-             try { if (!fireworks) initFireworks(); if(fireworks) { fireworks.start(); setTimeout(() => { fireworks.stop(); }, 8000); } } catch(e) { }
-        }
-
-        const quotes = [
-            { en: "Education is the most powerful weapon which you can use to change the world.", vi: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.", author: "Nelson Mandela" },
-            { en: "The only place where success comes before work is in the dictionary.", vi: "Nơi duy nhất thành công đến trước làm việc là trong từ điển.", author: "Vidal Sassoon" },
-            { en: "It does not matter how slowly you go as long as you do not stop.", vi: "Chậm bao nhiêu không quan trọng, miễn là đừng dừng lại.", author: "Confucius" },
-            { en: "Genius is 1% talent and 99% percent hard work.", vi: "Thiên tài chỉ có 1% là năng khiếu, 99% là khổ luyện.", author: "Albert Einstein" },
-            { en: "Discipline is the bridge between goals and accomplishment.", vi: "Kỷ luật là chiếc cầu nối giữa mục tiêu và thành tựu.", author: "Jim Rohn" },
-            { en: "Learning never exhausts the mind.", vi: "Học tập không bao giờ làm trí óc kiệt sức.", author: "Leonardo da Vinci" },
-            { en: "Don't watch the clock; do what it does. Keep going.", vi: "Đừng nhìn đồng hồ; hãy làm như nó. Cứ đi tiếp.", author: "Sam Levenson" },
-            { en: "The roots of education are bitter, but the fruit is sweet.", vi: "Rễ của học vấn thì đắng cay, nhưng quả của nó thì ngọt ngào.", author: "Aristotle" },
-            { en: "You don't have to be great to start, but you have to start to be great.", vi: "Bạn không cần phải vĩ đại để bắt đầu, nhưng bạn phải bắt đầu để trở nên vĩ đại.", author: "Zig Ziglar" }
-        ];
-
+        const quotes = [{en:"Education is the most powerful weapon...",vi:"Giáo dục là vũ khí mạnh nhất...",author:"Nelson Mandela"},{en:"Genius is 1% talent and 99% hard work.",vi:"Thiên tài chỉ có 1% năng khiếu...",author:"Einstein"}];
         let currentQuoteIndex = -1; 
-        function showRandomQuote() {
-            let idx; do { idx = Math.floor(Math.random() * quotes.length); } while (idx === currentQuoteIndex && quotes.length > 1);
-            currentQuoteIndex = idx; const q = quotes[idx];
-            const qEn = document.getElementById('q-en'); const qVi = document.getElementById('q-vi'); const qAu = document.getElementById('q-author');
-            if(!qEn) return;
-            qEn.style.opacity = '0'; qVi.style.opacity = '0'; qAu.style.opacity = '0';
-            setTimeout(() => { qEn.innerText = `"${q.en}"`; qVi.innerText = `"${q.vi}"`; qAu.innerText = `- ${q.author}`; qEn.style.opacity = '1'; qVi.style.opacity = '1'; qAu.style.opacity = '1'; }, 500);
-        }
-
-        function getRealDayIndex() { let d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
-        function generateId() { return Math.random().toString(36).substr(2, 9) + Date.now().toString(36); }
+        function showRandomQuote() { let idx; do{idx=Math.floor(Math.random()*quotes.length);}while(idx===currentQuoteIndex&&quotes.length>1); currentQuoteIndex=idx; const q=quotes[idx]; if(!$('q-en'))return; $('q-en').style.opacity='0'; $('q-vi').style.opacity='0'; $('q-author').style.opacity='0'; setTimeout(()=>{ $('q-en').innerText=`"${q.en}"`; $('q-vi').innerText=`"${q.vi}"`; $('q-author').innerText=`- ${q.author}`; $('q-en').style.opacity='1'; $('q-vi').style.opacity='1'; $('q-author').style.opacity='1';}, 500); }
+        function getRealDayIndex() { let d=new Date().getDay(); return d===0?6:d-1; }
+        function generateId() { return Math.random().toString(36).substr(2,9); }
 
         function loadAllData() {
             const savedData = localStorage.getItem(STORAGE_KEY);
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                scheduleData = parsed.schedule || scheduleData;
-                sys = { ...sys, ...parsed.sys };
-            }
-            
-            sys.points = Number(sys.points) || 0;
-            sys.coins = Number(sys.coins) || 0;
-            sys.streak = Number(sys.streak) || 0;
-            sys.bankCapital = Number(sys.bankCapital) || 0;
-            sys.bankUnclaimed = Number(sys.bankUnclaimed) || 0;
-            sys.currentTheme = sys.currentTheme || 'light';
-            if(!sys.stocks) sys.stocks = { IEL: {name:"IELTS Corp",price:100,qty:0}, MUN: {name:"Quỷ Đỏ Old Trafford",price:50,qty:0}, BYN: {name:"Hùm Xám Bavaria",price:150,qty:0}, ZHN: {name:"Hán Ngữ Group",price:30,qty:0} };
-            if(!sys.unlockedThemes || !Array.isArray(sys.unlockedThemes)) sys.unlockedThemes = [];
-            if(!sys.mem) sys.mem = { tier: 'BASIC', expire: 0, auto: false, autoTier: 'BASIC', autoDays: 0 };
-            
-            applyTheme(sys.currentTheme);
-            updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI();
+            if (savedData) { const parsed = JSON.parse(savedData); scheduleData = parsed.schedule || scheduleData; sys = { ...sys, ...parsed.sys }; }
+            sys.points = Number(sys.points)||0; sys.coins = Number(sys.coins)||0; sys.streak = Number(sys.streak)||0; sys.bankCapital = Number(sys.bankCapital)||0; sys.bankUnclaimed = Number(sys.bankUnclaimed)||0; sys.currentTheme = sys.currentTheme||'light';
+            if(!sys.stocks) sys.stocks = {IEL:{name:"IELTS Corp",price:100,qty:0},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0},ZHN:{name:"Hán Ngữ Group",price:30,qty:0}};
+            if(!sys.unlockedThemes) sys.unlockedThemes = []; if(!sys.mem) sys.mem = {tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0};
+            applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI();
         }
 
-        function saveAllData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ schedule: scheduleData, sys: sys }));
-            updateSystemUI(); updateGhostBar();
-        }
+        function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); }
+        function applyTheme(tn) { sys.currentTheme=tn; tn==='light'?document.documentElement.removeAttribute('data-theme'):document.documentElement.setAttribute('data-theme',tn); saveAllData(); }
+        function toggleThemeCycle() { let a=[...THEMES,...sys.unlockedThemes], ci=a.indexOf(sys.currentTheme), ni=ci===-1?0:(ci+1)%a.length; applyTheme(a[ni]); }
 
-        function applyTheme(themeName) {
-            sys.currentTheme = themeName;
-            if (themeName === 'light') document.documentElement.removeAttribute('data-theme');
-            else document.documentElement.setAttribute('data-theme', themeName);
-            saveAllData();
-        }
-
-        function toggleThemeCycle() {
-            let available = [...THEMES, ...(sys.unlockedThemes || [])];
-            let currentIndex = available.indexOf(sys.currentTheme);
-            if (currentIndex === -1) currentIndex = 0;
-            
-            let nextIndex = (currentIndex + 1) % available.length;
-            let nextTheme = available[nextIndex];
-            
-            let attempts = 0;
-            while(attempts < available.length) {
-                if (nextTheme === 'detective' && sys.highestStreak < 7 && sys.streak < 7) {
-                    // Lock
-                } else if (nextTheme === 'nature' && sys.highestStreak < 14 && sys.streak < 14) {
-                    // Lock
-                } else {
-                    break;
-                }
-                nextIndex = (nextIndex + 1) % available.length;
-                nextTheme = available[nextIndex];
-                attempts++;
-            }
-            applyTheme(nextTheme);
-        }
-
-        // ==========================================
-        // UI & KINH TẾ
-        // ==========================================
-        function getRealmInfo(points) {
-             let current = REALMS[0]; let next = REALMS[1];
-             for (let i = 0; i < REALMS.length; i++) { if (points >= REALMS[i].min) { current = REALMS[i]; next = REALMS[i+1]; } }
-             return { current, next };
-         }
-
-        function addTuVi(amount) {
-             const oldRank = getRealmInfo(sys.points).current.name;
-             sys.points += amount; if (sys.points < 0) sys.points = 0;
-             sys.coins += amount; if (sys.coins < 0) sys.coins = 0;
-
-            const badge = document.getElementById('header-tuvi-badge');
-            if(badge) { badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse'); }
-            
-            if (amount > 0 && getRealmInfo(sys.points).current.name !== oldRank) {
-                 setTimeout(() => { alert(`Tuyệt vời! Học vị của bạn đã được nâng cấp lên: ${getRealmInfo(sys.points).current.name}!`); runBigFireworks(); playRealisticBoom(); }, 100);
-            }
-            saveAllData();
-         }
+        function getRealmInfo(pts) { let c=REALMS[0], n=REALMS[1]; for(let i=0;i<REALMS.length;i++){if(pts>=REALMS[i].min){c=REALMS[i]; n=REALMS[i+1];}} return {current:c, next:n}; }
+        function addTuVi(amt) { const oldRank = getRealmInfo(sys.points).current.name; sys.points=Math.max(0,sys.points+amt); sys.coins=Math.max(0,sys.coins+amt); const badge = $('header-tuvi-badge'); if(badge){badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse');} if(amt>0 && getRealmInfo(sys.points).current.name!==oldRank){setTimeout(()=>{alert(`Thăng cấp: ${getRealmInfo(sys.points).current.name}!`); runBigFireworks(); playRealisticBoom();},100);} saveAllData(); }
 
         function updateSystemUI() {
-            const { current, next } = getRealmInfo(sys.points);
-            
-            document.getElementById('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`;
-            document.getElementById('ui-coins').innerText = `${Math.floor(sys.coins)} Xu`;
-            document.getElementById('streak-text').innerText = `${sys.streak} Ngày`;
-            
-            const wagerBadge = document.getElementById('wager-text');
-            if (wagerBadge) wagerBadge.innerText = sys.wagerAmount > 0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
-            
-            const rankBadge = document.getElementById('zen-rank');
-            if (rankBadge) {
-                rankBadge.innerText = current.name;
-                const colorStr = `rgb(${current.color.r},${current.color.g},${current.color.b})`;
-                rankBadge.style.color = colorStr; rankBadge.style.borderColor = colorStr;
-                let percent = next ? ((sys.points - current.min) / (next.min - current.min)) * 100 : Math.min(100, ((sys.points - current.min) / (MAX_POINTS - current.min)) * 100);
-                document.getElementById('zen-xp-fill').style.width = `${percent}%`;
-                document.getElementById('zen-xp-text').innerText = next ? `${sys.points} / ${next.min} XP` : `${sys.points} / ${MAX_POINTS} (Tối đa)`;
-            }
-
-            document.getElementById('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`;
-            document.getElementById('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
-
-            if(document.getElementById('shop-modal').style.display === 'flex') document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            if(document.getElementById('stock-modal').style.display === 'flex') document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins);
+            const {current, next} = getRealmInfo(sys.points);
+            $('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`; $('ui-coins').innerText = `${Math.floor(sys.coins)} Xu`; $('streak-text').innerText = `${sys.streak} Ngày`;
+            if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
+            if($('zen-rank')) { $('zen-rank').innerText=current.name; const cStr=`rgb(${current.color.r},${current.color.g},${current.color.b})`; $('zen-rank').style.color=cStr; $('zen-rank').style.borderColor=cStr; $('zen-xp-fill').style.width=next?`${((sys.points-current.min)/(next.min-current.min))*100}%`:'100%'; $('zen-xp-text').innerText=next?`${sys.points} / ${next.min} XP`:`${sys.points} / ${MAX_POINTS} MAX`; }
+            $('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`; $('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
+            if($('shop-modal').style.display==='flex') $('shop-coins-display').innerText = Math.floor(sys.coins);
+            if($('stock-modal').style.display==='flex') $('stock-coins-display').innerText = Math.floor(sys.coins);
         }
 
-        // ==========================================
-        // CƠ CHẾ THẺ HỘI VIÊN (MỚI)
-        // ==========================================
+        /* --- THẺ HỘI VIÊN --- */
         function updateMemUI() {
-            const card = document.getElementById('mem-card-ui');
-            if(!card) return;
-            card.className = 'mem-card ' + sys.mem.tier.toLowerCase();
-            document.getElementById('ui-mem-tier').innerText = sys.mem.tier;
-
-            if (sys.mem.tier === 'BASIC') {
-                document.getElementById('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn";
-                document.getElementById('ui-mem-toggle-box').style.display = 'none';
-            } else {
-                document.getElementById('ui-mem-toggle-box').style.display = 'flex';
-                document.getElementById('mem-auto-renew').checked = sys.mem.auto;
-                document.getElementById('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`;
+            const card = $('mem-card-ui');
+            if(card) {
+                card.className = 'mem-card ' + sys.mem.tier.toLowerCase(); $('ui-mem-tier').innerText = sys.mem.tier;
+                if(sys.mem.tier === 'BASIC') { $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; $('ui-mem-toggle-box').style.display = 'none'; } 
+                else { $('ui-mem-toggle-box').style.display = 'flex'; $('mem-auto-renew').checked = sys.mem.auto; $('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`; }
+            }
+            const badge = $('header-mem-badge');
+            if (badge) {
+                badge.classList.remove('tier-basic','tier-pro','tier-ultra');
+                let t = sys.mem.tier.toLowerCase(); badge.classList.add('tier-'+t);
+                badge.innerHTML = `<i class="fas fa-${t==='basic'?'user':t==='pro'?'shield-alt':'crown'}"></i> <span>${sys.mem.tier}</span>`;
             }
         }
-
-        function toggleAutoRenew() {
-            sys.mem.auto = document.getElementById('mem-auto-renew').checked;
-            saveAllData();
-        }
-
-        function buyMem(tier, days, cost) {
-            if (sys.coins >= cost) {
-                if(confirm(`Xác nhận mua gói ${tier} (${days} Ngày) với giá ${cost} Xu?`)) {
-                    sys.coins -= cost;
-                    // Cộng dồn thời gian nếu đang dùng cùng Hạng
-                    if(sys.mem.tier === tier && sys.mem.expire > Date.now()) {
-                        sys.mem.expire += days * 86400000;
-                    } else {
-                        sys.mem.tier = tier;
-                        sys.mem.expire = Date.now() + days * 86400000;
-                    }
-                    sys.mem.auto = true;
-                    sys.mem.autoTier = tier;
-                    sys.mem.autoDays = days;
-
-                    saveAllData(); updateMemUI();
-                    alert(`Chúc mừng bệ hạ đã thăng cấp hội viên ${tier}!`);
-                }
-            } else {
-                alert("Ngân khố của bệ hạ không đủ để đăng ký gói cước này!");
-            }
-        }
-
-        function getPackageCost(tier, days) {
-            if(tier === 'PRO') { if(days===1) return 100; if(days===30) return 2000; if(days===365) return 15000; }
-            if(tier === 'ULTRA') { if(days===1) return 300; if(days===30) return 6000; if(days===365) return 50000; }
-            return 999999;
-        }
-
-        // Loop kiểm tra hạn mức thẻ hội viên
+        function toggleAutoRenew() { sys.mem.auto = $('mem-auto-renew').checked; saveAllData(); }
+        function buyMem(tier, days, cost) { if(sys.coins>=cost){if(confirm(`Mua gói ${tier} (${days} Ngày) tốn ${cost} Xu?`)){sys.coins-=cost; if(sys.mem.tier===tier&&sys.mem.expire>Date.now())sys.mem.expire+=days*86400000; else{sys.mem.tier=tier; sys.mem.expire=Date.now()+days*86400000;} sys.mem.auto=true; sys.mem.autoTier=tier; sys.mem.autoDays=days; saveAllData(); updateMemUI(); alert(`Thăng cấp hội viên ${tier}!`);}}else alert("Ngân khố không đủ!"); }
+        function getPackageCost(t, d) { if(t==='PRO')return d===1?100:d===30?2000:15000; if(t==='ULTRA')return d===1?300:d===30?6000:50000; return 999999; }
+        
         setInterval(() => {
-            if(sys.mem && sys.mem.tier !== 'BASIC') {
+            if(sys.mem && sys.mem.tier!=='BASIC') {
                 let left = sys.mem.expire - Date.now();
-                if(left > 0) {
-                    let d = Math.floor(left / 86400000);
-                    let h = Math.floor((left % 86400000) / 3600000);
-                    let m = Math.floor((left % 3600000) / 60000);
-                    let s = Math.floor((left % 60000) / 1000);
-                    if(document.getElementById('shop-modal').style.display === 'flex') {
-                        document.getElementById('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`;
-                    }
-                } else {
-                    handleMemExpiration();
-                }
+                if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; } 
+                else handleMemExpiration();
             }
         }, 1000);
 
         function handleMemExpiration() {
-            if (sys.mem.auto) {
-                let cost = getPackageCost(sys.mem.autoTier, sys.mem.autoDays);
-                if (sys.coins >= cost) {
-                    sys.coins -= cost;
-                    sys.mem.expire = Date.now() + sys.mem.autoDays * 86400000;
-                    saveAllData();
-                    alert(`Hệ thống đã tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} ngày). Trừ ${cost} Xu.`);
-                } else {
-                    triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, cost);
-                }
-            } else {
-                sys.mem.tier = 'BASIC';
-                sys.mem.expire = 0;
-                saveAllData(); updateMemUI();
-                alert("Thẻ Hội Viên của bệ hạ đã hết hạn. Hệ thống chuyển về bản BASIC.");
-            }
+            if (sys.mem.auto) { let c=getPackageCost(sys.mem.autoTier, sys.mem.autoDays); if(sys.coins>=c){sys.coins-=c; sys.mem.expire=Date.now()+sys.mem.autoDays*86400000; saveAllData(); alert(`Gia hạn gói ${sys.mem.autoTier} thành công. Trừ ${c} Xu.`);} else triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, c); } 
+            else { sys.mem.tier='BASIC'; sys.mem.expire=0; saveAllData(); updateMemUI(); alert("Thẻ Hội Viên hết hạn. Chuyển về BASIC."); }
         }
-
-        function triggerRenewalFallback(targetTier, targetDays, targetCost) {
-            document.getElementById('shop-modal').style.display = 'none';
-            let currentCoins = Math.floor(sys.coins);
-            let htmlOptions = "";
-
-            document.getElementById('renew-msg-desc').innerHTML = `Bệ hạ đang dùng <strong>${targetTier} (${targetDays} Ngày)</strong> (cần ${targetCost} Xu) nhưng ngân khố chỉ còn <strong>${currentCoins} Xu</strong>.`;
-
-            let costPerDayCurrent = getPackageCost(targetTier, 1);
-            let maxDaysCurrent = Math.floor(currentCoins / costPerDayCurrent);
-            if(maxDaysCurrent > 0) {
-                let totalCost = maxDaysCurrent * costPerDayCurrent;
-                htmlOptions += `<button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="executeFallback('${targetTier}', ${maxDaysCurrent}, ${totalCost})">Duy trì ${targetTier} trong ${maxDaysCurrent} Ngày (Tốn ${totalCost} Xu)</button>`;
-            }
-
-            if(targetTier === 'ULTRA') {
-                let costPerDayPro = getPackageCost('PRO', 1);
-                let maxDaysPro = Math.floor(currentCoins / costPerDayPro);
-                if(maxDaysPro > 0) {
-                    let totalCostPro = maxDaysPro * costPerDayPro;
-                    htmlOptions += `<button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--primary); color:var(--primary);" onclick="executeFallback('PRO', ${maxDaysPro}, ${totalCostPro})">Hạ cấp: Mua PRO ${maxDaysPro} Ngày (Tốn ${totalCostPro} Xu)</button>`;
-                }
-            }
-
-            htmlOptions += `<button class="btn btn-outline" style="width:100%; justify-content:center; color:var(--danger); border-color:var(--danger);" onclick="executeFallback('BASIC', 0, 0)">Hủy đăng ký (Quay về bản Basic, bảo toàn Xu)</button>`;
-
-            document.getElementById('renew-options-container').innerHTML = htmlOptions;
-            document.getElementById('renew-modal').style.display = 'flex';
-
-            // Reset tạm thời để không trigger vòng lặp
-            sys.mem.tier = 'BASIC'; sys.mem.expire = 0; sys.mem.auto = false;
+        function triggerRenewalFallback(tTier, tDays, tCost) {
+            $('shop-modal').style.display='none'; let cCoins=Math.floor(sys.coins); let opts=""; $('renew-msg-desc').innerHTML=`Bệ hạ đang dùng <strong>${tTier} (${tDays} Ngày)</strong> (cần ${tCost} Xu) nhưng ngân khố chỉ còn <strong>${cCoins} Xu</strong>.`;
+            let c1=getPackageCost(tTier,1), m1=Math.floor(cCoins/c1); if(m1>0) opts+=`<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="executeFallback('${tTier}',${m1},${m1*c1})">Duy trì ${tTier} trong ${m1} Ngày (Tốn ${m1*c1} Xu)</button>`;
+            if(tTier==='ULTRA'){let cp=getPackageCost('PRO',1), mp=Math.floor(cCoins/cp); if(mp>0) opts+=`<button class="btn btn-outline" style="width:100%;justify-content:center;border-color:var(--primary);color:var(--primary);" onclick="executeFallback('PRO',${mp},${mp*cp})">Hạ cấp: Mua PRO ${mp} Ngày (Tốn ${mp*cp} Xu)</button>`;}
+            opts+=`<button class="btn btn-outline" style="width:100%;justify-content:center;color:var(--danger);border-color:var(--danger);" onclick="executeFallback('BASIC',0,0)">Hủy đăng ký (Về Basic, bảo toàn Xu)</button>`;
+            $('renew-options-container').innerHTML=opts; $('renew-modal').style.display='flex'; sys.mem.tier='BASIC'; sys.mem.expire=0; sys.mem.auto=false;
         }
+        function executeFallback(nT, d, c) { if(nT==='BASIC')alert("Đã hủy gia hạn."); else { sys.coins-=c; sys.mem.tier=nT; sys.mem.expire=Date.now()+d*86400000; sys.mem.auto=false; alert(`Đã trích ${c} Xu duy trì ${nT} trong ${d} ngày!`); } saveAllData(); updateMemUI(); $('renew-modal').style.display='none'; }
 
-        function executeFallback(newTier, days, cost) {
-            if(newTier === 'BASIC') {
-                alert("Đã hủy gia hạn thành công. Bệ hạ đang sử dụng bản Basic.");
-            } else {
-                sys.coins -= cost;
-                sys.mem.tier = newTier;
-                sys.mem.expire = Date.now() + days * 86400000;
-                sys.mem.auto = false; // Tắt auto renew
-                alert(`Đã trích ${cost} Xu để chuyển sang gói ${newTier} trong ${days} ngày tới. Hãy nhanh chóng hoàn thành việc học để tích lũy thêm Xu!`);
-            }
-            saveAllData(); updateMemUI();
-            document.getElementById('renew-modal').style.display = 'none';
-        }
-
-        function openWagerModal() {
-            if (sys.wagerAmount > 0) { alert(`Bạn đã cam kết ${sys.wagerAmount} XP rồi. Hãy hoàn thành 100% công việc và chốt sổ để nhận thưởng!`); return; }
-            document.getElementById('wager-max-points').innerText = sys.points;
-            document.getElementById('wager-amount').value = ''; document.getElementById('wager-modal').style.display = 'flex';
-        }
-        function closeWagerModal() { document.getElementById('wager-modal').style.display = 'none'; }
-        function placeWager() {
-            let amount = parseInt(document.getElementById('wager-amount').value);
-            if (isNaN(amount) || amount <= 0) { alert("Vui lòng nhập số lượng hợp lệ!"); return; }
-            if (amount > sys.points) { alert("Số dư XP không đủ để thực hiện cam kết này!"); return; }
-            sys.points -= amount; sys.wagerAmount = amount; saveAllData(); closeWagerModal();
-            alert(`Thiết lập cam kết thành công! Trích xuất ${amount} XP. Hoàn thành toàn bộ công việc hôm nay để nhận lại nhân đôi!`);
-        }
+        function openWagerModal() { if(sys.wagerAmount>0)return alert(`Đã cược ${sys.wagerAmount} XP!`); $('wager-max-points').innerText=sys.points; $('wager-amount').value=''; $('wager-modal').style.display='flex'; }
+        function closeWagerModal() { $('wager-modal').style.display='none'; }
+        function placeWager() { let a=parseInt($('wager-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(a>sys.points)return alert("Không đủ XP!"); sys.points-=a; sys.wagerAmount=a; saveAllData(); closeWagerModal(); alert(`Đã cược ${a} XP!`); }
 
         function updateGhostBar() {
-            let completedNow = 0; let totalNow = 0;
-            for(let i=0; i<7; i++) { totalNow += scheduleData[i].length; completedNow += scheduleData[i].filter(t => t.completed).length; }
-            sys.currentWeekCompleted = completedNow; sys.currentWeekTotal = totalNow;
-            const pastPct = sys.lastWeekTotal === 0 ? 0 : Math.round((sys.lastWeekCompleted / sys.lastWeekTotal) * 100);
-            const nowPct = totalNow === 0 ? 0 : Math.round((completedNow / totalNow) * 100);
-            document.getElementById('ghost-bar-past').style.width = `${pastPct}%`; document.getElementById('ghost-bar-now').style.width = `${nowPct}%`;
-            let statusText = "";
-            if (sys.lastWeekTotal === 0) statusText = `Chưa có dữ liệu tuần trước. Tuần này: ${nowPct}%`;
-            else if (nowPct >= pastPct && nowPct > 0) statusText = `<span style="color:var(--success)"><i class="fas fa-arrow-up"></i> Tốt hơn tuần trước (${nowPct}% vs ${pastPct}%)</span>`;
-            else statusText = `<span style="color:var(--danger)"><i class="fas fa-arrow-down"></i> Thụt lùi hơn tuần trước (${nowPct}% vs ${pastPct}%)</span>`;
-            document.getElementById('ghost-status-text').innerHTML = statusText;
+            let cNow=0, tNow=0; for(let i=0;i<7;i++){tNow+=scheduleData[i].length; cNow+=scheduleData[i].filter(t=>t.completed).length;} sys.currentWeekCompleted=cNow; sys.currentWeekTotal=tNow;
+            const pPct=sys.lastWeekTotal===0?0:Math.round((sys.lastWeekCompleted/sys.lastWeekTotal)*100), nPct=tNow===0?0:Math.round((cNow/tNow)*100);
+            $('ghost-bar-past').style.width=`${pPct}%`; $('ghost-bar-now').style.width=`${nPct}%`;
+            $('ghost-status-text').innerHTML=sys.lastWeekTotal===0?`Tuần này: ${nPct}%`:(nPct>=pPct&&nPct>0?`<span style="color:var(--success)"><i class="fas fa-arrow-up"></i> Tốt hơn (${nPct}% vs ${pPct}%)</span>`:`<span style="color:var(--danger)"><i class="fas fa-arrow-down"></i> Thụt lùi (${nPct}% vs ${pPct}%)</span>`);
         }
 
-        // ==========================================
-        // BẢNG KẾ HOẠCH & KỶ LUẬT
-        // ==========================================
+        /* --- BOARD --- */
         function renderBoard() {
-            const board = document.getElementById('board-container'); board.innerHTML = ''; let today = getRealDayIndex();
-            DAYS_OF_WEEK.forEach((dayName, index) => {
-                const tasks = scheduleData[index] || []; const total = tasks.length; const completed = tasks.filter(t => t.completed).length;
-                const progressPct = total === 0 ? 0 : Math.round((completed / total) * 100); const isToday = index === today;
-                const allLocked = total > 0 && tasks.every(t => t.locked || t.missed);
-                
-                let tasksHTML = tasks.map(task => {
-                    const colorClass = `task-${task.color || 'default'}`;
-                    const rolloverBadge = task.rolledOver ? `<span class="rollover-badge" title="Dời từ ${task.originalDay}"><i class="fas fa-share"></i> ${task.originalDay}</span>` : '';
-                    const lockedClass = task.locked ? 'locked' : '';
-                    const disableCheck = task.locked || task.missed ? 'disabled' : '';
-                    const actionButtons = task.locked || task.missed ? '' : `<div class="task-actions"><button class="btn-icon" onclick="openModal(${index}, '${task.id}')"><i class="fas fa-pen"></i></button><button class="btn-icon delete" onclick="deleteTask(${index}, '${task.id}')"><i class="fas fa-trash"></i></button></div>`;
-                    const missedClass = task.missed ? 'missed-task' : '';
-                    const missedLabel = task.missed ? `<span class="missed-badge"><i class="fas fa-exclamation-circle"></i> Trì hoãn</span>` : '';
-                    return `<div class="task-item ${task.completed ? 'completed' : ''} ${colorClass} ${lockedClass} ${missedClass}"><input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} ${disableCheck} onchange="toggleComplete(${index}, '${task.id}')"><div class="task-content"><div class="task-time">${task.time ? `<i class="far fa-clock"></i> ${task.time}` : ``} ${rolloverBadge} ${missedLabel}</div><div class="task-desc">${task.text}</div></div>${actionButtons}</div>`;
-                }).join('');
-                if(tasks.length === 0) tasksHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Chưa có kế hoạch</div>`;
-                let finishBtn = '';
-                if (total > 0 && !allLocked) { finishBtn = `<button class="btn btn-success" onclick="finishDay(${index})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`; }
-                else if (allLocked) {
-                    if (tasks.every(t => !t.missed)) finishBtn = `<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Hoàn thành xuất sắc</div>`;
-                    else finishBtn = `<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px; padding: 12px; border: 2px dashed var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.05); line-height: 1.4;"><i class="fas fa-times-circle"></i><br>CẦN CỐ GẮNG HƠN<br><span style="font-size: 0.85rem; font-weight: 500; opacity: 0.9;">Nhiệm vụ còn tồn đọng</span></div>`;
-                }
-                board.innerHTML += `<div class="day-column" id="col-${index}" ${isToday ? 'style="border: 2px solid var(--primary);"' : ''}><div class="day-header"><div class="day-title">${dayName} ${isToday ? '<span class="today-badge">Hôm nay</span>' : ''}</div><div class="progress-container"><div class="progress-text"><span>Tiến độ</span><span>${completed}/${total} (${progressPct}%)</span></div><div class="progress-track"><div class="progress-fill" style="width: ${progressPct}%"></div></div></div></div><div class="task-list">${tasksHTML}</div><div class="day-footer">${!allLocked ? `<button class="btn-add" onclick="openModal(${index})"><i class="fas fa-plus"></i> Thêm công việc</button>` : ''} ${finishBtn}</div></div>`;
+            const b=$('board-container'); b.innerHTML=''; let tdy=getRealDayIndex();
+            DAYS_OF_WEEK.forEach((dn, idx) => {
+                const ts=scheduleData[idx]||[]; const tot=ts.length; const cmp=ts.filter(t=>t.completed).length; const pct=tot===0?0:Math.round((cmp/tot)*100); const isTd=idx===tdy; const aLck=tot>0&&ts.every(t=>t.locked||t.missed);
+                let html=ts.map(t=>`<div class="task-item ${t.completed?'completed':''} task-${t.color||'default'} ${t.locked?'locked':''} ${t.missed?'missed-task':''}"><input type="checkbox" class="task-checkbox" ${t.completed?'checked':''} ${t.locked||t.missed?'disabled':''} onchange="toggleComplete(${idx}, '${t.id}')"><div class="task-content"><div class="task-time">${t.time?`<i class="far fa-clock"></i> ${t.time}`:``} ${t.rolledOver?`<span class="rollover-badge"><i class="fas fa-share"></i> ${t.originalDay}</span>`:''} ${t.missed?`<span class="missed-badge">Trì hoãn</span>`:''}</div><div class="task-desc">${t.text}</div></div>${t.locked||t.missed?'':`<div class="task-actions"><button class="btn-icon" onclick="openModal(${idx}, '${t.id}')"><i class="fas fa-pen"></i></button><button class="btn-icon delete" onclick="deleteTask(${idx}, '${t.id}')"><i class="fas fa-trash"></i></button></div>`}</div>`).join('');
+                if(ts.length===0) html=`<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Trống</div>`;
+                let fBtn=tot>0&&!aLck?`<button class="btn btn-success" onclick="finishDay(${idx})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`:(aLck?(ts.every(t=>!t.missed)?`<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Xuất sắc</div>`:`<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px;">CẦN CỐ GẮNG HƠN</div>`):'');
+                b.innerHTML+=`<div class="day-column" id="col-${idx}" ${isTd?'style="border: 2px solid var(--primary);"':''}><div class="day-header"><div class="day-title">${dn} ${isTd?'<span class="today-badge">Hôm nay</span>':''}</div><div class="progress-container"><div class="progress-text"><span>Tiến độ</span><span>${cmp}/${tot} (${pct}%)</span></div><div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div></div></div><div class="task-list">${html}</div><div class="day-footer">${!aLck?`<button class="btn-add" onclick="openModal(${idx})"><i class="fas fa-plus"></i> Thêm việc</button>`:''} ${fBtn}</div></div>`;
             });
-            if(!window.scrolledToToday) { const todayCol = document.getElementById(`col-${today}`); if(todayCol) { todayCol.scrollIntoView({ behavior: 'smooth', inline: 'center' }); window.scrolledToToday = true; } }
+            if(!window.scrolledToToday){const tC=$(`col-${tdy}`); if(tC){tC.scrollIntoView({behavior:'smooth',inline:'center'}); window.scrolledToToday=true;}}
         }
+        function openModal(dIdx, tId=null) { $('task-day-index').value=dIdx; $('task-id').value=tId||''; if(tId){const t=scheduleData[dIdx].find(x=>x.id===tId); $('task-desc').value=t.text; $('task-time').value=t.time||''; $$(`input[name="task-color"][value="${t.color||'default'}"]`).checked=true;}else{$('task-desc').value=''; $('task-time').value=''; $('color-blue').checked=true;} $('task-modal').style.display='flex'; $('task-desc').focus(); }
+        function closeModal(mId) { $(mId||'task-modal').style.display='none'; }
+        function saveTask() { const d=$('task-day-index').value, id=$('task-id').value, txt=$('task-desc').value.trim(), tm=$('task-time').value, col=$$('input[name="task-color"]:checked').value; if(!txt)return alert("Nhập tên việc!"); if(id){const t=scheduleData[d].find(x=>x.id===id); t.text=txt; t.time=tm; t.color=col;}else{scheduleData[d].push({id:generateId(),text:txt,time:tm,color:col,completed:false,rolledOver:false,locked:false,missed:false}); scheduleData[d].sort((a,b)=>!a.time?1:!b.time?-1:a.time.localeCompare(b.time));} saveAllData(); closeModal('task-modal'); }
+        function deleteTask(dIdx, tId) { if(confirm("Xóa?")){const t=scheduleData[dIdx].find(x=>x.id===tId); if(t.completed&&!t.locked)addTuVi(-10); scheduleData[dIdx]=scheduleData[dIdx].filter(x=>x.id!==tId); saveAllData(); renderBoard();} }
+        function toggleComplete(dIdx, tId) { const t=scheduleData[dIdx].find(x=>x.id===tId); if(t.locked||t.missed)return; t.completed=!t.completed; addTuVi(t.completed?10:-10); renderBoard(); }
 
-        function openModal(dayIndex, taskId = null) {
-            document.getElementById('task-day-index').value = dayIndex; document.getElementById('task-id').value = taskId || '';
-            if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); document.getElementById('task-desc').value = task.text; document.getElementById('task-time').value = task.time || ''; document.querySelector(`input[name="task-color"][value="${task.color || 'default'}"]`).checked = true; }
-            else { document.getElementById('task-desc').value = ''; document.getElementById('task-time').value = ''; document.getElementById('color-blue').checked = true; }
-            document.getElementById('task-modal').style.display = 'flex'; document.getElementById('task-desc').focus();
+        let pRsn="", pInc=[], pDIdx=-1;
+        function finishDay(dIdx) {
+            const ts=scheduleData[dIdx], inc=ts.filter(t=>!t.completed&&!t.missed), cmp=ts.filter(t=>t.completed);
+            if(inc.length===0) { sys.streak++; if(sys.streak>sys.highestStreak)sys.highestStreak=sys.streak; let m=`Xuất sắc! Chuỗi: ${sys.streak} ngày. +50 XP/Xu!`; if(sys.wagerAmount>0){let w=sys.wagerAmount*2; addTuVi(w); m+=`\nThắng cược: +${w} XP!`; sys.wagerAmount=0;} addTuVi(50); ts.forEach(t=>t.locked=true); alert(m); runBigFireworks(); playRealisticBoom(); renderBoard(); saveAllData(); } 
+            else { pRsn="Chưa xong việc!"; pInc=inc; pDIdx=dIdx; cmp.forEach(t=>t.locked=true); if(sys.wagerAmount>0){alert(`Thua cược: Mất ${sys.wagerAmount} XP!`); sys.wagerAmount=0;} showPunishmentModal(); }
         }
-        function closeModal(modalId) { document.getElementById(modalId || 'task-modal').style.display = 'none'; }
-        
-        function saveTask() {
-            const dayIndex = document.getElementById('task-day-index').value; const taskId = document.getElementById('task-id').value;
-            const text = document.getElementById('task-desc').value.trim(); const time = document.getElementById('task-time').value; const color = document.querySelector('input[name="task-color"]:checked').value;
-            if (!text) { alert("Vui lòng nhập tên công việc!"); return; }
-            if (taskId) { const task = scheduleData[dayIndex].find(t => t.id === taskId); task.text = text; task.time = time; task.color = color; }
-            else { scheduleData[dayIndex].push({ id: generateId(), text: text, time: time, color: color, completed: false, rolledOver: false, locked: false, missed: false }); scheduleData[dayIndex].sort((a, b) => { if(!a.time) return 1; if(!b.time) return -1; return a.time.localeCompare(b.time); }); }
-            saveAllData(); closeModal('task-modal');
-        }
-        
-        function deleteTask(dayIndex, taskId) {
-            if(confirm("Bạn có chắc chắn muốn xóa nhiệm vụ này?")) {
-                const task = scheduleData[dayIndex].find(t => t.id === taskId); if(task.completed && !task.locked) addTuVi(-10);
-                scheduleData[dayIndex] = scheduleData[dayIndex].filter(t => t.id !== taskId); saveAllData(); renderBoard();
-            }
-        }
+        function showPunishmentModal(rsn=null) { if(rsn)pRsn=rsn; $('punish-overlay').style.display='flex'; $('punish-reason').innerText=`Lý do: ${pRsn}`; $('punish-tier-display').innerText=sys.punishTier; let f=sys.punishTier*50; $('punish-fine-display').innerText=f; const b=$('btn-pay-fine'); if(sys.coins>=f){b.innerText=`Nộp phạt (${f} Xu)`; b.disabled=false;}else{b.innerText=`Thiếu (${Math.floor(sys.coins)}/${f})`; b.disabled=true;} }
+        function payFine() { let f=sys.punishTier*50; if(sys.coins>=f){sys.coins-=f; sys.punishTier++; alert(`Đã nộp phạt!`); closePunishmentModal(true);} }
+        function refuseFine() { alert(`CẢNH BÁO: Trừ 30 XP & Mất chuỗi!`); sys.points=Math.max(0,sys.points-30); sys.streak=0; sys.punishTier++; closePunishmentModal(false); }
+        function closePunishmentModal() { $('punish-overlay').style.display='none'; if(pInc.length>0&&pDIdx!==-1){const nD=(pDIdx+1)%7; pInc.forEach(t=>{scheduleData[nD].push({...t,id:generateId(),rolledOver:true,originalDay:t.originalDay||DAYS_OF_WEEK[pDIdx]}); t.missed=true; t.locked=true;}); alert("Việc dang dở đã chuyển sang hôm sau!"); pInc=[]; pDIdx=-1;} saveAllData(); renderBoard(); }
 
-        function toggleComplete(dayIndex, taskId) {
-            const task = scheduleData[dayIndex].find(t => t.id === taskId);
-            if (task.locked || task.missed) return;
-            task.completed = !task.completed;
-            if (task.completed) addTuVi(10);
-            else addTuVi(-10);
-            renderBoard();
-        }
+        function saveTemplate() { if(confirm("Lưu Bản Mẫu?")){let d=JSON.parse(JSON.stringify(scheduleData)); for(let i=0;i<7;i++)d[i].forEach(t=>{t.completed=false;t.rolledOver=false;t.originalDay=null;t.locked=false;t.missed=false;}); localStorage.setItem(TEMPLATE_KEY,JSON.stringify(d)); alert("Đã lưu!");} }
+        function resetWeek() { const tmpl=localStorage.getItem(TEMPLATE_KEY); let tI=getRealDayIndex(); if(confirm("Khởi tạo Tuần Học Mới?")){sys.punishTier=1; sys.lastWeekCompleted=sys.currentWeekCompleted; sys.lastWeekTotal=sys.currentWeekTotal; let pend=[]; for(let i=0;i<7;i++)scheduleData[i].forEach(t=>{if(!t.completed&&!t.locked&&!t.missed)pend.push({...t,id:generateId(),rolledOver:true,originalDay:t.originalDay||DAYS_OF_WEEK[i]});}); if(tmpl)scheduleData=JSON.parse(tmpl); else for(let i=0;i<7;i++)scheduleData[i]=[]; if(pend.length>0)scheduleData[tI]=[...pend,...scheduleData[tI]]; saveAllData(); renderBoard(); alert(`Đã sang Tuần Mới!`);} }
 
-        let pendingPunishReason = "";
-        let pendingIncompleteTasks = [];
-        let pendingDayIndex = -1;
+        /* --- SHOP & GACHA --- */
+        function openShopModal() { $('shop-coins-display').innerText=Math.floor(sys.coins); updateShopUI(); updateMemUI(); $('shop-modal').style.display='flex'; }
+        function updateShopUI() { const r=$('btn-buy-theme-royal'); if(r&&sys.unlockedThemes.includes('royal')){r.innerText="👑 Đã Mở";r.disabled=true;r.style.opacity="0.5";} const h=$('btn-buy-theme-hacker'); if(h&&sys.unlockedThemes.includes('hacker')){h.innerText="💻 Đã Mở";h.disabled=true;h.style.opacity="0.5";} }
+        function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins);}else alert("Không đủ Xu!"); }
+        function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins); updateShopUI();}else alert("Thiếu Xu!"); }
 
-        function finishDay(dayIndex) {
-            const tasks = scheduleData[dayIndex];
-            const incompleteTasks = tasks.filter(t => !t.completed && !t.missed);
-            const completedTasks = tasks.filter(t => t.completed);
-
-            if (incompleteTasks.length === 0) {
-                sys.streak += 1; if (sys.streak > sys.highestStreak) sys.highestStreak = sys.streak;
-                let msg = `Hoàn thành xuất sắc toàn bộ mục tiêu! Giữ chuỗi: ${sys.streak} ngày. Thưởng +50 XP & 50 Xu!`;
-                
-                if (sys.wagerAmount > 0) {
-                    let winAmount = sys.wagerAmount * 2;
-                    addTuVi(winAmount);
-                    msg += `\nHoàn thành Cam Kết: Nhận lại mức cược nhân đôi (+${winAmount} XP/Xu)!`;
-                    sys.wagerAmount = 0;
-                }
-                
-                addTuVi(50);
-                tasks.forEach(t => t.locked = true);
-                alert(msg); runBigFireworks(); playRealisticBoom();
-                renderBoard(); saveAllData();
-            } else {
-                pendingPunishReason = "Chưa hoàn thành kế hoạch trong ngày!";
-                pendingIncompleteTasks = incompleteTasks;
-                pendingDayIndex = dayIndex;
-                completedTasks.forEach(t => t.locked = true);
-                
-                if (sys.wagerAmount > 0) {
-                    alert(`Thất bại Cam Kết: Hệ thống thu hồi ${sys.wagerAmount} XP đã cược!`);
-                    sys.wagerAmount = 0;
-                }
-                showPunishmentModal();
-            }
-        }
-
-        function showPunishmentModal(reason = null) {
-            if(reason) pendingPunishReason = reason;
-            document.getElementById('punish-overlay').style.display = 'flex';
-            document.getElementById('punish-reason').innerText = `Lý do: ${pendingPunishReason}`;
-            document.getElementById('punish-tier-display').innerText = sys.punishTier;
-            
-            let fineAmount = sys.punishTier * 50;
-            document.getElementById('punish-fine-display').innerText = fineAmount;
-            
-            const btnPay = document.getElementById('btn-pay-fine');
-            if (sys.coins >= fineAmount) {
-                btnPay.innerText = `Nộp phạt (${fineAmount} Xu)`;
-                btnPay.disabled = false; btnPay.style.opacity = 1;
-            } else {
-                btnPay.innerText = `Số dư không đủ (${Math.floor(sys.coins)}/${fineAmount})`;
-                btnPay.disabled = true; btnPay.style.opacity = 0.5;
-            }
-        }
-
-        function payFine() {
-            let fineAmount = sys.punishTier * 50;
-            if (sys.coins >= fineAmount) {
-                sys.coins -= fineAmount;
-                sys.punishTier++;
-                alert(`Đã nộp phạt thành công! Hệ thống đã xóa cảnh báo. Bảo toàn điểm XP và chuỗi kỷ luật!`);
-                closePunishmentModal(true);
-            }
-        }
-
-        function refuseFine() {
-            alert(`CẢNH BÁO: Bạn bị trừ 30 XP và mất chuỗi kỷ luật!`);
-            sys.points = Math.max(0, sys.points - 30);
-            sys.streak = 0;
-            sys.punishTier++;
-            closePunishmentModal(false);
-        }
-
-        function closePunishmentModal(isForgiven) {
-            document.getElementById('punish-overlay').style.display = 'none';
-            if (pendingIncompleteTasks.length > 0 && pendingDayIndex !== -1) {
-                const nextDayIndex = (pendingDayIndex + 1) % 7;
-                pendingIncompleteTasks.forEach(task => {
-                    scheduleData[nextDayIndex].push({ ...task, id: generateId(), rolledOver: true, originalDay: task.originalDay || DAYS_OF_WEEK[pendingDayIndex] });
-                    task.missed = true; task.locked = true;
-                });
-                alert("Các công việc dang dở đã bị chuyển sang ngày mai!");
-                pendingIncompleteTasks = []; pendingDayIndex = -1;
-            }
-            saveAllData(); renderBoard();
-        }
-
-        function saveTemplate() {
-            if(confirm("Lưu lịch trình hiện tại làm 'Bản Mẫu' cố định cho các tuần tiếp theo?")) {
-                let templateData = JSON.parse(JSON.stringify(scheduleData));
-                for(let i=0; i<7; i++) { templateData[i].forEach(t => { t.completed = false; t.rolledOver = false; t.originalDay = null; t.locked = false; t.missed = false; }); }
-                localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templateData)); alert("Đã lưu Bản Mẫu lịch trình thành công!");
-            }
-        }
-
-        function resetWeek() {
-            const template = localStorage.getItem(TEMPLATE_KEY); let todayIndex = getRealDayIndex();
-            if(confirm("Khởi tạo Tuần Học Mới?\nLịch cũ sẽ bị xóa. Hệ thống sẽ đặt lại mức phạt về 50 Xu.")) {
-                sys.punishTier = 1;
-                sys.lastWeekCompleted = sys.currentWeekCompleted; sys.lastWeekTotal = sys.currentWeekTotal;
-                
-                let pendingTasks = [];
-                for(let i=0; i<7; i++) {
-                    scheduleData[i].forEach(t => { if(!t.completed && !t.locked && !t.missed) { pendingTasks.push({ ...t, id: generateId(), rolledOver: true, originalDay: t.originalDay || DAYS_OF_WEEK[i] }); } });
-                }
-                if (template) { scheduleData = JSON.parse(template); } else { for(let i=0; i<7; i++) scheduleData[i] = []; }
-                if(pendingTasks.length > 0) scheduleData[todayIndex] = [...pendingTasks, ...scheduleData[todayIndex]];
-                
-                saveAllData(); renderBoard();
-                alert(`Đã sang Tuần Mới! Dữ liệu đã được làm mới.`);
-            }
-        }
-
-        // ==========================================
-        // CỬA HÀNG & CHỨNG KHOÁN & THẦN TÀI
-        // ==========================================
-        function openShopModal() {
-            document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            updateShopUI();
-            updateMemUI();
-            document.getElementById('shop-modal').style.display = 'flex';
-        }
-
-        function updateShopUI() {
-            const btnRoyal = document.getElementById('btn-buy-theme-royal');
-            if (btnRoyal && sys.unlockedThemes.includes('royal')) {
-                btnRoyal.innerText = "👑 Đã Mở Khóa";
-                btnRoyal.disabled = true;
-                btnRoyal.style.opacity = "0.5";
-                btnRoyal.style.cursor = "not-allowed";
-            }
-            
-            const btnHacker = document.getElementById('btn-buy-theme-hacker');
-            if (btnHacker && sys.unlockedThemes.includes('hacker')) {
-                btnHacker.innerText = "💻 Đã Mở Khóa";
-                btnHacker.disabled = true;
-                btnHacker.style.opacity = "0.5";
-                btnHacker.style.cursor = "not-allowed";
-            }
-        }
-
-        function openStockModal() { document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); document.getElementById('stock-modal').style.display = 'flex'; renderStockMarket(); }
-        function openBankModal() { document.getElementById('bank-rate-display').innerText = Math.max(1, sys.streak); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-modal').style.display = 'flex'; }
-
-        function buyItem(itemType, cost) {
-            if (sys.coins >= cost) { sys.coins -= cost; sys[itemType]++; playTickSound(); saveAllData(); alert("Giao dịch thành công!"); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            } else alert("Số dư không đủ!");
-        }
-
-        function buyTheme(themeName, cost) {
-            if (sys.unlockedThemes.includes(themeName)) { applyTheme(themeName); alert("Đã áp dụng giao diện này!"); return; }
-            if (sys.coins >= cost) {
-                sys.coins -= cost;
-                sys.unlockedThemes.push(themeName);
-                applyTheme(themeName);
-                playRealisticBoom(); saveAllData();
-                alert("Đã mở khóa giao diện mới!");
-                document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-                updateShopUI();
-            } else alert("Bạn cần 1000 Xu để mở khóa giao diện này!");
-        }
-
-       const shopGachaOpts = [
-            { n: "👑 1 Tháng ULTRA", c: "#fbbf24", act: ()=> { 
-                sys.mem.tier = 'ULTRA'; 
-                // Cộng thêm 30 ngày (30 * 24 * 60 * 60 * 1000 = 2592000000 ms)
-                sys.mem.expire = Math.max(sys.mem.expire, Date.now()) + 2592000000; 
-                alert("THÁNH CHỈ! Chúc mừng bệ hạ nhận ngay 1 THÁNG trải nghiệm thẻ ULTRA (Trị giá 6.000 Xu)!"); 
-            }},
-            // ... (Các ô khác giữ nguyên như bản tấu trước)
-            { n: "📈 Rương Cổ Phiếu", c: "#8b5cf6", act: ()=> { 
-                let keys = Object.keys(sys.stocks); 
-                let rKey = keys[Math.floor(Math.random() * keys.length)];
-                sys.stocks[rKey].qty += 5; 
-                alert(`Lộc trời ban! Bệ hạ nhận được 5 cổ phiếu của mã $${rKey}.`); 
-            }},
-            { n: "🛡️ Kim Bài Miễn Tử", c: "#10b981", act: ()=> { 
-                sys.punishTier = 1; sys.immunity++; 
-                alert("Được ân xá! Mức phạt tiền được reset về 1, nhận thêm 1 Thẻ Bảo Hộ."); 
-            }},
-            { n: "💰 Bát Bảo Tụ Tài", c: "#34d399", act: ()=> { 
-                if(sys.bankUnclaimed > 0) { 
-                    let thuHoach = sys.bankUnclaimed * 2;
-                    sys.coins += thuHoach; 
-                    sys.bankUnclaimed = 0; 
-                    sys.bankLastUpdate = Date.now(); 
-                    alert(`Tuyệt vời! Tiền lãi tiết kiệm được nhân đôi. Bệ hạ vừa thu hoạch ${thuHoach.toFixed(2)} Xu!`); 
-                } else { 
-                    sys.coins += 100; 
-                    alert("Quỹ tiết kiệm đang trống rỗng, hệ thống hoàn lại 100 Xu tiền vé."); 
-                }
-            }},
-            { n: "🍀 Tiểu Lộc", c: "#3b82f6", act: ()=> { 
-                sys.coins += 150; alert("Chúc mừng! Bệ hạ quay trúng 150 Xu (Lời 50 Xu)."); 
-            }},
-            { n: "💨 Hư Vô", c: "#94a3b8", act: ()=> { 
-                alert("Cơn gió thoảng qua, bệ hạ không trúng gì cả."); 
-            }},
-            { n: "⚖️ Nộp Thuế 10%", c: "#dc2626", act: ()=> { 
-                let tax = Math.floor(sys.coins * 0.1); 
-                sys.coins -= tax; 
-                alert(`Quốc khố thâm hụt, bệ hạ bắt buộc phải nộp thuế ${tax} Xu.`); 
-            }},
-            { n: "⛓️ Bế Quan", c: "#000000", act: ()=> { 
-                alert("Tâm trí xao nhãng! Bắt buộc bế quan tịnh tâm 25 phút."); 
-                closeModal('shop-modal'); toggleZenMode(); startTimer(true); 
-            }}
+        const shopGachaOpts = [
+            {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("THÁNH CHỈ! Nhận 1 THÁNG thẻ ULTRA (Trị giá 6000 Xu)!");}},
+            {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}},
+            {n:"🛡️ Kim Bài Miễn Tử",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Ân xá! Mức phạt về 1, nhận 1 Thẻ Bảo Hộ.");}},
+            {n:"💰 Bát Bảo Tụ Tài",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastUpdate=Date.now(); alert(`Lãi nhân đôi! Thu hoạch ${th.toFixed(2)} Xu.`);}else{sys.coins+=100; alert("Quỹ trống, hoàn 100 Xu.");}}},
+            {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng 150 Xu (Lời 50 Xu).");}},
+            {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Cơn gió thoảng qua, không trúng gì.");}},
+            {n:"⚖️ Nộp Thuế 10%",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế ${tx} Xu.`);}},
+            {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Tâm trí xao nhãng! Cưỡng chế Focus 25p."); closeModal('shop-modal'); toggleZenMode(); startTimer(true);}}
         ];
-        function initShopWheel() {
-            const wheel = document.getElementById('shop-wheel'); let deg = 360 / 8; 
-            let bgStr = shopGachaOpts.map((opt, i) => `${opt.c} ${i*deg}deg ${(i+1)*deg}deg`).join(', ');
-            if(!wheel) return; wheel.style.background = `conic-gradient(from 0deg, ${bgStr})`; wheel.innerHTML = '';
-            shopGachaOpts.forEach((opt, i) => {
-                let label = document.createElement('div'); label.className = 'wheel-label'; label.innerText = opt.n;
-                label.style.transform = `rotate(${-90 + (deg/2) + (i * deg)}deg)`; wheel.appendChild(label);
-            });
-        }
-
+        function initShopWheel() { const w=$('shop-wheel'); let d=360/8, bg=shopGachaOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; shopGachaOpts.forEach((o,i)=>{let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l);}); }
+        
         let isShopSpinning = false;
         function spinShopGacha() {
-            if(isShopSpinning) return;
-            if(sys.coins < 100) { alert("Số dư không đủ 100 Xu để thực hiện!"); return; }
-            sys.coins -= 100; saveAllData(); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            isShopSpinning = true; document.getElementById('btn-shop-spin').innerText = "Đang xử lý...";
-
-            let r = Math.random() * 100; let idx = 4;
-            if(r < 1) idx = 0; else if(r < 15) idx = 1; else if(r < 30) idx = 2; else if(r < 45) idx = 3; else if(r < 55) idx = 6; else if(r < 70) idx = 7; else idx = (Math.random() > 0.5) ? 4 : 5;
-
-            const wheel = document.getElementById('shop-wheel');
-            let targetRotation = 360 * 6 + (360 - (idx * 45 + 22.5));
-            wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; wheel.style.transform = `rotate(${targetRotation}deg)`;
-            playAlarmSound();
-
-            setTimeout(() => {
-                isShopSpinning = false; document.getElementById('btn-shop-spin').innerText = "QUAY NGAY (100 Xu)";
-                wheel.style.transition = 'none'; wheel.style.transform = `rotate(${targetRotation % 360}deg)`;
-                shopGachaOpts[idx].act(); saveAllData(); document.getElementById('shop-coins-display').innerText = Math.floor(sys.coins);
-            }, 4000);
+            if(isShopSpinning) return; if(sys.coins<100) return alert("Thiếu Xu!"); sys.coins-=100; saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); isShopSpinning=true; $('btn-shop-spin').innerText="Đang xử lý...";
+            let r=Math.random()*100, idx=r<2?0:r<12?1:r<22?2:r<32?3:r<52?4:r<75?5:r<90?6:7;
+            const w=$('shop-wheel'); let tR=360*6+(360-(idx*45+22.5)); w.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; w.style.transform=`rotate(${tR}deg)`; playAlarmSound();
+            setTimeout(()=>{ isShopSpinning=false; $('btn-shop-spin').innerText="QUAY NGAY (100 Xu)"; w.style.transition='none'; w.style.transform=`rotate(${tR%360}deg)`; shopGachaOpts[idx].act(); saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); updateMemUI(); }, 4000);
         }
 
-        function updateStockPrices() {
-            Object.keys(sys.stocks).forEach(k => {
-                let s = sys.stocks[k]; let change = (Math.random() * 20 - 10);
-                s.price = Math.max(5, Math.floor(s.price * (1 + change/100)));
-            });
-            saveAllData(); if(document.getElementById('stock-modal').style.display === 'flex') renderStockMarket();
-        }
-        setInterval(updateStockPrices, 5 * 60 * 1000); 
+        /* --- STOCK & BANK --- */
+        function updateStockPrices() { Object.keys(sys.stocks).forEach(k=>{let s=sys.stocks[k], c=(Math.random()*20-10); s.price=Math.max(5,Math.floor(s.price*(1+c/100)));}); saveAllData(); if($('stock-modal').style.display==='flex')renderStockMarket(); } setInterval(updateStockPrices, 300000);
+        function openStockModal() { $('stock-coins-display').innerText=Math.floor(sys.coins); $('stock-modal').style.display='flex'; renderStockMarket(); }
+        function renderStockMarket() { let c=$('stock-list-container'); if(!c)return; let h=''; Object.keys(sys.stocks).forEach(k=>{let s=sys.stocks[k]; h+=`<div class="stock-item"><div><strong style="color:var(--primary); font-size:1.1rem;">$${k}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${s.name}</span><br><span style="font-size:0.85rem;">Sở hữu: <strong style="color:var(--text-main);">${s.qty}</strong> cổ</span></div><div class="stock-price ${Math.random()>0.5?'up':'down'}">${s.price} Xu</div><div style="display:flex; flex-direction:column; gap:5px;"><button class="btn btn-success" style="padding:4px 10px;" onclick="tradeStock('${k}', 1)">Mua</button><button class="btn btn-danger" style="padding:4px 10px;" onclick="tradeStock('${k}', -1)">Bán</button></div></div>`;}); c.innerHTML=h; }
+        function tradeStock(k, d) { let s=sys.stocks[k]; if(d>0){if(sys.coins>=s.price){sys.coins-=s.price; s.qty++;}else return alert("Thiếu Xu!");}else{if(s.qty>0){sys.coins+=s.price; s.qty--;}else return alert("Hết cổ phiếu!");} playTickSound(); saveAllData(); $('stock-coins-display').innerText=Math.floor(sys.coins); renderStockMarket(); }
+        function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=sys.bankCapital; $('bank-modal').style.display='flex'; }
+        function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital; $('bank-input-amount').value=''; playTickSound(); alert(`Gửi ${a} Xu.`);}else alert("Thiếu Xu!"); }
+        function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital; $('bank-input-amount').value=''; playTickSound(); alert(`Rút ${a} Xu.`);}else alert("Thiếu Vốn!"); }
+        function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastUpdate=Date.now(); saveAllData(); alert("Nhận lãi!"); playChime();} }
+        setInterval(()=>{if(sys.bankCapital>0&&sys.streak>0){let n=Date.now(), ds=(n-sys.bankLastUpdate)/1000; if(ds>=1){let dr=sys.streak*0.01; sys.bankUnclaimed+=(sys.bankCapital*(dr/86400)*ds); sys.bankLastUpdate=n; if(sys.bankUnclaimed>sys.bankCapital*dr)sys.bankUnclaimed=sys.bankCapital*dr;}} if($('bank-modal').style.display==='flex')$('bank-interest-display').innerText=sys.bankUnclaimed.toFixed(3);}, 1000);
 
-        function renderStockMarket() {
-            let container = document.getElementById('stock-list-container'); if(!container) return;
-            let html = '';
-            Object.keys(sys.stocks).forEach(k => {
-                let s = sys.stocks[k];
-                html += `<div class="stock-item"><div><strong style="color:var(--primary); font-size:1.1rem;">$${k}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${s.name}</span><br><span style="font-size:0.85rem;">Sở hữu: <strong style="color:var(--text-main);">${s.qty}</strong> cổ</span></div><div class="stock-price ${Math.random() > 0.5 ? 'up':'down'}">${s.price} Xu</div><div style="display:flex; flex-direction:column; gap:5px;"><button class="btn btn-success" style="padding:4px 10px; justify-content:center;" onclick="tradeStock('${k}', 1)">Mua</button><button class="btn btn-danger" style="padding:4px 10px; justify-content:center;" onclick="tradeStock('${k}', -1)">Bán</button></div></div>`;
-            }); container.innerHTML = html;
-        }
+        /* --- FOCUS ZONE --- */
+        const fWheelOpts = [{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:15},{n:"🚶 Nghỉ 10p",t:"break",tm:10,xp:0,c:"#10b981",p:10},{n:"🎮 Nghỉ 15p",t:"break",tm:15,xp:0,c:"#059669",p:10},{n:"📚 Học 15p",t:"work",tm:15,xp:0,c:"#f59e0b",p:10},{n:"🔥 Học 25p(+50)",t:"work",tm:25,xp:50,c:"#dc2626",p:5},{n:"🛡️ Thẻ Bảo Hộ",t:"imm",c:"#6366f1",p:15},{n:"✨ Thẻ x2",t:"dxp",c:"#ec4899",p:10},{n:"♾️ Vô Cực",t:"endl",c:"#8b5cf6",p:10},{n:"🎲 Trúng 100",t:"jack",xp:100,c:"#f5a623",p:5},{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:10}];
+        function initFocusWheel() { const w=$('focus-wheel'); let d=360/10, bg=fWheelOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; fWheelOpts.forEach((o,i)=>{let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l);}); }
 
-        function tradeStock(code, dir) {
-            let s = sys.stocks[code];
-            if(dir > 0) { if(sys.coins >= s.price) { sys.coins -= s.price; s.qty++; } else { alert("Số dư không đủ để giao dịch!"); return; } }
-            else { if(s.qty > 0) { sys.coins += s.price; s.qty--; } else { alert("Số lượng cổ phiếu không đủ để bán!"); return; } }
-            playTickSound(); saveAllData(); document.getElementById('stock-coins-display').innerText = Math.floor(sys.coins); renderStockMarket();
-        }
+        let zTmr=null, isRun=false, isWrk=true, W_TIME=25*60, tL=W_TIME, tEnd=0, tvErn=0, afkTrg=false, afkCnt=null, afkV=15, isEndl=false, endSec=0, endXp=0, stEndl=0, isDbl=false, pmStk="NONE", isFrc=false;
+        function toggleZenMode() { const o=$('zen-overlay'), m=$('main-board'); if(o.classList.contains('active')){o.classList.remove('active'); m.style.filter='blur(0)'; $('zen-wheel-box').style.display='none';}else{showRandomQuote(); o.classList.add('active'); m.style.filter='blur(10px)';} }
+        function startTimer(frc=false) {
+            const b=$('btn-zen-start'), bc=$('zen-energy-bar');
+            if(isRun) { clearInterval(zTmr); isRun=false; b.innerText="Tiếp tục"; $('zen-status').innerText="Đã tạm dừng"; $('zen-timer').classList.remove('ticking'); bc.classList.remove('active'); return; }
+            if(tL===W_TIME&&isWrk&&tvErn===0) { showRandomQuote(); afkTrg=false; isFrc=frc; if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none';} }
+            isRun=true; b.innerText="Tạm dừng"; $('zen-timer').classList.add('ticking'); bc.classList.add('active');
+            if(isWrk) { $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); } 
+            else { $('zen-status').innerText="ĐANG NGHỈ NGƠI..."; $('zen-status').style.color="#10b981"; bc.classList.add('break-mode'); }
 
-        function depositBank() {
-            let amt = parseInt(document.getElementById('bank-input-amount').value);
-            if (isNaN(amt) || amt <= 0) { alert("Vui lòng nhập một số hợp lệ để gửi!"); return; }
-            if (sys.coins >= amt) {
-                sys.coins -= amt; sys.bankCapital += amt; sys.bankLastUpdate = Date.now();
-                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound();
-                alert(`Đã chuyển ${amt} Xu vào Quỹ Tiết Kiệm.`);
-            } else {
-                alert("Số dư Xu không đủ!");
-            }
-        }
-        
-        function withdrawBank() {
-            let amt = parseInt(document.getElementById('bank-input-amount').value);
-            if (isNaN(amt) || amt <= 0) { alert("Vui lòng nhập một số hợp lệ để rút!"); return; }
-            if (sys.bankCapital >= amt) {
-                sys.coins += amt; sys.bankCapital -= amt; sys.bankLastUpdate = Date.now();
-                saveAllData(); document.getElementById('bank-capital-display').innerText = sys.bankCapital; document.getElementById('bank-input-amount').value=''; playTickSound();
-                alert(`Đã rút thành công ${amt} Xu.`);
-            } else {
-                alert("Số vốn hiện tại ít hơn số tiền muốn rút!");
-            }
-        }
-        
-        function harvestBank() {
-            if(sys.bankUnclaimed > 0) { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastUpdate = Date.now(); saveAllData(); alert("Đã nhận tiền lãi thành công!"); playChime(); }
-        }
-        
-        setInterval(() => {
-            if(sys.bankCapital > 0 && sys.streak > 0) {
-                let now = Date.now(); let diffSec = (now - sys.bankLastUpdate) / 1000;
-                if (diffSec >= 1) {
-                    let dailyRate = sys.streak * 0.01; let secRate = dailyRate / 86400;
-                    sys.bankUnclaimed += (sys.bankCapital * secRate * diffSec); sys.bankLastUpdate = now;
-                    if (sys.bankUnclaimed > sys.bankCapital * dailyRate) sys.bankUnclaimed = sys.bankCapital * dailyRate;
-                }
-            }
-            if(document.getElementById('bank-modal').style.display === 'flex') { document.getElementById('bank-interest-display').innerText = sys.bankUnclaimed.toFixed(3); }
-        }, 1000);
-
-        // ==========================================
-        // ZEN MODE & VÒNG QUAY 10 Ô CUỐI GIỜ
-        // ==========================================
-        const focusWheelOpts = [
-            { id: 0, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 15 },
-            { id: 1, name: "🚶 Nghỉ 10p", type: "break", time: 10, xp: 0, color: "#10b981", prob: 10 },
-            { id: 2, name: "🎮 Nghỉ 15p", type: "break", time: 15, xp: 0, color: "#059669", prob: 10 },
-            { id: 3, name: "📚 Học 15p", type: "work", time: 15, xp: 0, color: "#f59e0b", prob: 10 },
-            { id: 4, name: "🔥 Học 25p(+50)", type: "work", time: 25, xp: 50, color: "#dc2626", prob: 5 },
-            { id: 5, name: "🛡️ Thẻ Bảo Hộ", type: "item_immunity", color: "#6366f1", prob: 15 },
-            { id: 6, name: "✨ Thẻ Nhân Đôi", type: "item_doublexp", color: "#ec4899", prob: 10 },
-            { id: 7, name: "♾️ Tập Trung Vô Cực", type: "endless", color: "#8b5cf6", prob: 10 },
-            { id: 8, name: "🎲 Phần Thưởng (+100)", type: "jackpot", xp: 100, color: "#f5a623", prob: 5 },
-            { id: 9, name: "🍵 Nghỉ 5p", type: "break", time: 5, xp: 0, color: "#3b82f6", prob: 10 }
-        ];
-
-        function initFocusWheel() {
-            const wheel = document.getElementById('focus-wheel'); let sliceDeg = 360 / 10;
-            let bgStr = focusWheelOpts.map((opt, i) => `${opt.color} ${i*sliceDeg}deg ${(i+1)*sliceDeg}deg`).join(', ');
-            if(!wheel) return; wheel.style.background = `conic-gradient(from 0deg, ${bgStr})`; wheel.innerHTML = '';
-            focusWheelOpts.forEach((opt, i) => {
-                let label = document.createElement('div'); label.className = 'wheel-label'; label.innerText = opt.name;
-                label.style.transform = `rotate(${-90 + (sliceDeg / 2) + (i * sliceDeg)}deg)`; wheel.appendChild(label);
-            });
-        }
-
-        let zenTimer = null; let isTimerRunning = false; let isWorkSession = true;
-        let WORK_TIME = 25 * 60; let timeLeft = WORK_TIME;
-        let targetEndTime = 0; let tuViEarned = 0;
-        let afkTriggered = false; let afkCountdown = null; let afkTimeVal = 15;
-        let isEndless = false; let endlessSeconds = 0; let endlessTempXp = 0; let startEndlessTime = 0;
-        let isCurrentSessionDouble = false; let pumpedStock = "NONE"; let isForcedLabor = false; 
-
-        function toggleZenMode() {
-            const overlay = document.getElementById('zen-overlay'); const mainBoard = document.getElementById('main-board');
-            if (overlay.classList.contains('active')) {
-                overlay.classList.remove('active'); mainBoard.style.filter = 'blur(0)'; document.getElementById('zen-wheel-box').style.display = 'none';
-            } else {
-                showRandomQuote(); overlay.classList.add('active'); mainBoard.style.filter = 'blur(10px)';
-            }
-        }
-
-        function startTimer(forced = false) {
-            const btn = document.getElementById('btn-zen-start'); const barContainer = document.getElementById('zen-energy-bar');
-            
-            if (isTimerRunning) { clearInterval(zenTimer); isTimerRunning = false; btn.innerText = "Tiếp tục"; document.getElementById('zen-status').innerText = "Đã tạm dừng"; document.getElementById('zen-timer').classList.remove('ticking'); barContainer.classList.remove('active'); return; }
-
-            if(timeLeft === WORK_TIME && isWorkSession && tuViEarned === 0) {
-                showRandomQuote(); afkTriggered = false; isForcedLabor = forced;
-                if(!isForcedLabor) { isCurrentSessionDouble = (sys.doubleXp > 0); pumpedStock = document.getElementById('pump-stock-select').value; document.getElementById('zen-pump-box').style.display = 'none'; }
-                else { isCurrentSessionDouble = false; pumpedStock = "NONE"; document.getElementById('zen-pump-box').style.display = 'none'; }
-            }
-
-            isTimerRunning = true; btn.innerText = "Tạm dừng"; document.getElementById('zen-timer').classList.add('ticking'); barContainer.classList.add('active');
-            
-            if (isWorkSession) {
-                if(isForcedLabor) document.getElementById('zen-status').innerText = "🔴 ĐANG TRONG PHIÊN PHẠT (KHÔNG CỘNG ĐIỂM)"; else if(pumpedStock !== "NONE") document.getElementById('zen-status').innerText = `📈 ĐANG ĐẨY GIÁ MÃ $${pumpedStock}`; else if(isCurrentSessionDouble) document.getElementById('zen-status').innerText = "✨ ĐANG TẬP TRUNG... (NHÂN ĐÔI)"; else document.getElementById('zen-status').innerText = "ĐANG TRONG PHIÊN TẬP TRUNG";
-                document.getElementById('zen-status').style.color = isForcedLabor ? "red" : (isCurrentSessionDouble ? "#ec4899" : "white"); barContainer.classList.remove('break-mode');
-            } else { document.getElementById('zen-status').innerText = "ĐANG NGHỈ NGƠI..."; document.getElementById('zen-status').style.color = "#10b981"; barContainer.classList.add('break-mode'); }
-
-            targetEndTime = Date.now() + (timeLeft * 1000);
-            zenTimer = setInterval(() => {
-                const now = Date.now(); timeLeft = Math.max(0, Math.ceil((targetEndTime - now) / 1000));
-                if (isWorkSession && !afkTriggered && timeLeft < (20*60) && timeLeft > (5*60)) { if (Math.random() < 0.005) triggerAFK(); }
-
-                if (timeLeft <= 0) {
-                    timeLeft = 0; updateTimerDisplay(); clearInterval(zenTimer); isTimerRunning = false; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-fill').style.width = '100%'; barContainer.classList.remove('active');
-                    
-                    if (isWorkSession) {
-                        if(isForcedLabor) { alert("Đã hoàn thành phiên phạt. Bạn có thể tiếp tục kế hoạch bình thường."); resetTimer(); toggleZenMode(); return; }
-                        let baseReward = 5; if (isCurrentSessionDouble) { baseReward *= 2; sys.doubleXp--; saveAllData(); alert("Hoàn thành phiên tập trung! Bù phần thưởng đã được nhân đôi."); }
-                        runBigFireworks(); playRealisticBoom(); addTuVi(baseReward);
-                        
-                        if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 1.20); alert(`Giao dịch thành công! Giá cổ phiếu $${pumpedStock} đã tăng +20%.`); saveAllData(); }
-                        document.getElementById('zen-status').innerText = "PHIÊN HỌC TẬP HOÀN TẤT!"; document.getElementById('zen-controls').style.display = 'none'; document.getElementById('zen-quote-box').style.display = 'none';
-                        const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)'; document.getElementById('zen-wheel-box').style.display = 'flex';
+            tEnd = Date.now() + (tL * 1000);
+            zTmr = setInterval(() => {
+                tL = Math.max(0, Math.ceil((tEnd - Date.now()) / 1000));
+                if(isWrk && !afkTrg && tL<(20*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); }
+                if(tL<=0) {
+                    tL=0; updTmr(); clearInterval(zTmr); isRun=false; $('zen-timer').classList.remove('ticking'); $('zen-energy-fill').style.width='100%'; bc.classList.remove('active');
+                    if(isWrk) {
+                        if(isFrc) { alert("Hoàn thành phạt."); resetTimer(); toggleZenMode(); return; }
+                        let rw = 5; if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Nhân đôi kích hoạt.");}
+                        runBigFireworks(); playRealisticBoom(); addTuVi(rw);
+                        if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); alert(`Cổ phiếu $${pmStk} tăng 20%!`); saveAllData(); }
+                        $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none';
+                        const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex';
                     } else {
-                        playChime(); isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false;
-                        document.getElementById('zen-status').innerText = "Hết giờ nghỉ. Trở lại công việc."; document.getElementById('zen-status').style.color = "white";
-                        btn.innerText = "Bắt đầu"; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%';
+                        playChime(); isWrk=true; W_TIME=25*60; tL=W_TIME; tvErn=0; afkTrg=false;
+                        $('zen-status').innerText="Trở lại công việc."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%';
                     } return;
                 }
-                
-                if(isWorkSession && !isForcedLabor) {
-                    const minutesPassed = Math.floor((WORK_TIME - timeLeft) / 60);
-                    if (minutesPassed > tuViEarned) { let earnedMinXp = (minutesPassed - tuViEarned); if (isCurrentSessionDouble) earnedMinXp *= 2; addTuVi(earnedMinXp); tuViEarned = minutesPassed; showRandomQuote(); }
-                }
-                document.getElementById('zen-energy-fill').style.width = `${((WORK_TIME - timeLeft) / WORK_TIME) * 100}%`; updateTimerDisplay();
+                if(isWrk && !isFrc) { let mp = Math.floor((W_TIME-tL)/60); if(mp>tvErn) { let xp = (mp-tvErn); if(isDbl) xp*=2; addTuVi(xp); tvErn=mp; showRandomQuote(); } }
+                $('zen-energy-fill').style.width=`${((W_TIME-tL)/W_TIME)*100}%`; updTmr();
             }, 500);
         }
 
-        let isFocusSpinning = false;
+        let isFSpn = false;
         function spinFocusWheel() {
-            if(isFocusSpinning) return; isFocusSpinning = true; document.getElementById('btn-focus-spin').innerText = "Đang xử lý...";
-            let rand = Math.random() * 100; let sum = 0; let winnerIdx = 0;
-            for(let i=0; i<focusWheelOpts.length; i++) { sum += focusWheelOpts[i].prob; if(rand <= sum) { winnerIdx = i; break; } }
-            let winner = focusWheelOpts[winnerIdx]; let sliceDeg = 360 / 10; let offset = 5 + Math.random() * (sliceDeg - 10); let pointInSlice = winnerIdx * sliceDeg + offset; let targetRotation = 360 * 5 + (360 - pointInSlice);
-            const wheel = document.getElementById('focus-wheel'); wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; wheel.style.transform = `rotate(${targetRotation}deg)`;
-
-            try { const ctx = getAudioCtx(); if(ctx) { let count = 0; let interval = setInterval(() => { if(count >= 20) { clearInterval(interval); return; } count++; const t = ctx.currentTime; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(400 + count*20, t); osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t + 0.1); }, 200 - count*5); } } catch(e) {}
-
-            setTimeout(() => {
-                isFocusSpinning = false; document.getElementById('btn-focus-spin').innerText = "QUAY THƯỞNG"; let alertMsg = `🎉 Kết quả: ${winner.name}!\n\n`;
-                document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex';
-                
-                if (winner.type === 'work') { alertMsg += `Thử thách: Bắt đầu phiên tập trung ${winner.time} phút!`; alert(alertMsg); isWorkSession = true; WORK_TIME = winner.time * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; updateTimerDisplay(); startTimer(); }
-                else if (winner.type === 'endless') { alertMsg += `Kích hoạt Chế độ Vô Cực:\nHệ số thưởng tăng dần theo thời gian. Cẩn thận với cảnh báo tập trung.`; alert(alertMsg); startEndlessMode(); }
-                else if (winner.type === 'item_immunity') { sys.immunity++; saveAllData(); alertMsg += `Bạn nhận được 1 Thẻ Bảo Hộ 🛡️.\nĐã cấp cho bạn 5 phút xả hơi.`; alert(alertMsg); startBreak(5); }
-                else if (winner.type === 'item_doublexp') { sys.doubleXp++; saveAllData(); alertMsg += `Bạn nhận được 1 Thẻ Nhân Đôi ✨.\nĐã cấp cho bạn 5 phút xả hơi.`; alert(alertMsg); startBreak(5); }
-                else if (winner.type === 'jackpot') { addTuVi(winner.xp); alertMsg += `Nhận ngay ${winner.xp} phần thưởng!\nĐi nghỉ 5 phút thôi!`; alert(alertMsg); startBreak(5); }
-                else { alertMsg += `Thời gian nghỉ ngơi: ${winner.time} phút.`; alert(alertMsg); startBreak(winner.time); }
+            if(isFSpn) return; isFSpn=true; $('btn-focus-spin').innerText="Đang xử lý...";
+            let r=Math.random()*100, s=0, wIdx=0; for(let i=0;i<fWheelOpts.length;i++){s+=fWheelOpts[i].p; if(r<=s){wIdx=i;break;}}
+            let wn=fWheelOpts[wIdx], sl=360/10, o=5+Math.random()*(sl-10), tR=360*5+(360-(wIdx*sl+o));
+            const w=$('focus-wheel'); w.style.transition='transform 4s cubic-bezier(0.17,0.67,0.1,1)'; w.style.transform=`rotate(${tR}deg)`;
+            try{const ctx=getAudioCtx(); if(ctx){let c=0, iv=setInterval(()=>{if(c>=20){clearInterval(iv);return;}c++;const t=ctx.currentTime;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(400+c*20,t);osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1);gain.gain.setValueAtTime(0.1,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.1);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);},200-c*5);}}catch(e){}
+            setTimeout(()=>{
+                isFSpn=false; $('btn-focus-spin').innerText="QUAY THƯỞNG"; let m=`🎉 Kết quả: ${wn.n}!\n`;
+                $('zen-wheel-box').style.display='none'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex';
+                if(wn.t==='work'){m+=`Bắt đầu ${wn.tm}p!`;alert(m); isWrk=true; W_TIME=wn.tm*60; tL=W_TIME; tvErn=0; afkTrg=false; isFrc=false; pmStk="NONE"; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; updTmr(); startTimer();}
+                else if(wn.t==='endl'){m+=`Kích hoạt Vô Cực!`;alert(m); startEndlessMode();}
+                else if(wn.t==='imm'){sys.immunity++; saveAllData(); m+=`Nhận Thẻ Bảo Hộ. Nghỉ 5p.`;alert(m); startBreak(5);}
+                else if(wn.t==='dxp'){sys.doubleXp++; saveAllData(); m+=`Nhận Thẻ x2. Nghỉ 5p.`;alert(m); startBreak(5);}
+                else if(wn.t==='jack'){addTuVi(wn.xp); m+=`Nhận ${wn.xp} XP. Nghỉ 5p.`;alert(m); startBreak(5);}
+                else {m+=`Nghỉ ${wn.tm}p.`;alert(m); startBreak(wn.tm);}
             }, 4000);
         }
 
-        function startEndlessMode() {
-            isEndless = true; isTimerRunning = true; endlessSeconds = 0; endlessTempXp = 0; afkTriggered = false; isForcedLabor = false; pumpedStock = "NONE"; startEndlessTime = Date.now();
-            document.getElementById('btn-zen-start').style.display = 'none'; document.getElementById('btn-zen-cashout').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'none'; document.getElementById('zen-pump-box').style.display = 'none';
-            document.getElementById('zen-timer').classList.add('ticking'); document.getElementById('zen-energy-bar').classList.remove('break-mode'); document.getElementById('zen-energy-bar').classList.add('active');
-            zenTimer = setInterval(() => {
-                const now = Date.now(); endlessSeconds = Math.floor((now - startEndlessTime) / 1000);
-                if (!afkTriggered && endlessSeconds > 5 * 60) { if (Math.random() < 0.005) triggerAFK(); }
-                let mins = Math.floor(endlessSeconds / 60); let tempXp = 0;
-                if(mins <= 15) tempXp = mins * 1; else if(mins <= 30) tempXp = 15 * 1 + (mins - 15) * 2; else tempXp = 15 * 1 + 15 * 2 + (mins - 30) * 3;
-                endlessTempXp = tempXp; document.getElementById('zen-status').innerText = `🔥 TẬP TRUNG VÔ CỰC - Tạm tính: +${tempXp} XP`; document.getElementById('zen-status').style.color = "#f5a623";
-                let secInMin = endlessSeconds % 60; document.getElementById('zen-energy-fill').style.width = `${(secInMin / 60) * 100}%`;
-                let m = Math.floor(endlessSeconds / 60); let s = endlessSeconds % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            }, 1000);
-        }
+        function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
+        function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP. Nghỉ 10p.`); startBreak(10);}else{alert(`Không có thưởng. Nghỉ 5p.`); startBreak(5);} }
+        function triggerAFK() { afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); }
+        function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
+        function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Lưu Vô Cực."); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Treo máy! Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Hủy phiên."); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm mạnh!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
+        document.addEventListener("visibilitychange", ()=>{if(document.hidden&&isRun&&(isWrk||isEndl)){clearInterval(zTmr); isRun=false; if(afkCnt)clearInterval(afkCnt); $('afk-overlay').style.display='none'; afkFail();}});
+        function startBreak(m) { isWrk=false; W_TIME=m*60; tL=W_TIME; tvErn=0; $('zen-controls').style.display='flex'; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; startTimer(); }
+        function resetTimer() { clearInterval(zTmr); isRun=false; isWrk=true; W_TIME=25*60; tL=W_TIME; tvErn=0; afkTrg=false; isEndl=false; isFrc=false; pmStk="NONE"; $('zen-status').innerText="SẴN SÀNG"; $('zen-status').style.color="white"; $('zen-timer').classList.remove('ticking'); $('zen-energy-bar').classList.remove('active'); $('btn-zen-start').innerText="Bắt đầu"; $('btn-zen-start').style.display='inline-block'; $('btn-zen-cashout').style.display='none'; $('btn-zen-reset').style.display='inline-block'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-wheel-box').style.display='none'; $('zen-energy-fill').style.width='0%'; $('zen-pump-box').style.display='block'; updTmr(); }
+        function updTmr() { $('zen-timer').innerText=`${Math.floor(tL/60).toString().padStart(2,'0')}:${(tL%60).toString().padStart(2,'0')}`; }
 
-        function cashOutEndless() {
-            clearInterval(zenTimer); isTimerRunning = false; isEndless = false;
-            document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block';
-            if (endlessTempXp > 0) { addTuVi(endlessTempXp); runBigFireworks(); playRealisticBoom(); alert(`Hoàn thành xuất sắc!\nĐã lưu lại ${endlessTempXp} XP từ Phiên Vô Cực. Chuyển sang giờ nghỉ 10 phút.`); startBreak(10); } else { alert(`Phiên kết thúc sớm, không có phần thưởng.\nChuyển sang giờ nghỉ 5 phút.`); startBreak(5); }
-        }
-
-        function triggerAFK() {
-            afkTriggered = true; document.getElementById('afk-overlay').style.display = 'flex'; afkTimeVal = 15; document.getElementById('afk-timer').innerText = afkTimeVal; playAlarmSound();
-            afkCountdown = setInterval(() => { afkTimeVal--; document.getElementById('afk-timer').innerText = afkTimeVal; if (afkTimeVal <= 5 && afkTimeVal > 0) { playTickSound(); } if(afkTimeVal <= 0) { clearInterval(afkCountdown); afkFail(); } }, 1000);
-        }
-        function afkSuccess() { clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; }
-        function afkFail() {
-            document.getElementById('afk-overlay').style.display = 'none';
-            if (isEndless) {
-                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Phiên Vô Cực tự động lưu phần thưởng."); cashOutEndless(); }
-                else { isEndless = false; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; alert(`Không xác nhận tập trung. Hủy phần thưởng tạm tính! Hệ thống đã ghi nhận cảnh báo.`); resetTimer(); toggleZenMode(); showPunishmentModal("Lý do: Không phản hồi kiểm tra tập trung!"); }
-            } else {
-                if (sys.immunity > 0) { sys.immunity--; saveAllData(); alert("Thẻ Bảo Hộ đã kích hoạt! Miễn cảnh báo, phiên học hiện tại bị hủy."); resetTimer(); }
-                else { if(pumpedStock !== "NONE" && sys.stocks[pumpedStock]) { sys.stocks[pumpedStock].price = Math.floor(sys.stocks[pumpedStock].price * 0.5); alert(`Lỗi giao dịch! Mất tập trung khiến cổ phiếu $${pumpedStock} giảm mạnh!`); } resetTimer(); toggleZenMode(); showPunishmentModal("Lý do: Không phản hồi kiểm tra tập trung!"); }
-            }
-        }
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && isTimerRunning && (isWorkSession || isEndless)) { clearInterval(zenTimer); isTimerRunning = false; if(afkCountdown) clearInterval(afkCountdown); document.getElementById('afk-overlay').style.display = 'none'; afkFail(); }
-        });
-
-        function startBreak(minutes) {
-            isWorkSession = false; WORK_TIME = minutes * 60; timeLeft = WORK_TIME; tuViEarned = 0;
-            document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('btn-zen-start').innerText = "Tạm dừng"; startTimer();
-        }
-
-        function resetTimer() {
-            clearInterval(zenTimer); isTimerRunning = false; isWorkSession = true; WORK_TIME = 25 * 60; timeLeft = WORK_TIME; tuViEarned = 0; afkTriggered = false; isEndless = false; isForcedLabor = false; pumpedStock = "NONE";
-            document.getElementById('zen-status').innerText = "SẴN SÀNG HỌC TẬP"; document.getElementById('zen-status').style.color = "white"; document.getElementById('zen-timer').classList.remove('ticking'); document.getElementById('zen-energy-bar').classList.remove('active'); document.getElementById('btn-zen-start').innerText = "Bắt đầu"; document.getElementById('btn-zen-start').style.display = 'inline-block'; document.getElementById('btn-zen-cashout').style.display = 'none'; document.getElementById('btn-zen-reset').style.display = 'inline-block'; document.getElementById('zen-controls').style.display = 'flex'; document.getElementById('zen-quote-box').style.display = 'flex'; document.getElementById('zen-wheel-box').style.display = 'none'; document.getElementById('zen-energy-fill').style.width = '0%'; document.getElementById('zen-pump-box').style.display = 'block';
-            updateTimerDisplay();
-        }
-        function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; document.getElementById('zen-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
-
-        // =========================================
-        // DOM LOAD & XUẤT NHẬP EXCEL
-        // =========================================
-        document.addEventListener('DOMContentLoaded', () => {
-             loadAllData(); updateTimerDisplay(); initShopWheel(); initFocusWheel();
-        });
-
-        function exportExcel() {
-            let rows = [["Ngày", "Khung Giờ", "Công việc", "Phân loại", "Trạng thái", "Ghi chú"]];
-            DAYS_OF_WEEK.forEach((day, index) => {
-                const tasks = scheduleData[index] || [];
-                tasks.forEach(t => {
-                     let status = "Chưa"; if(t.completed) status = "Xong"; if(t.missed) status = "Bỏ lỡ";
-                    rows.push([day, t.time || "", t.text, t.color, status, t.rolledOver ? `Dời từ ${t.originalDay}` : ""]);
-                 });
-            });
-            const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(rows);
-            ws['!cols'] = [{wch: 10}, {wch: 10}, {wch: 40}, {wch: 10}, {wch: 10}, {wch: 15}];
-            XLSX.utils.book_append_sheet(wb, ws, "Planner");
-            XLSX.writeFile(wb, `Planner_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
-        }
-
-        function importExcel(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'});
-                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                    let newData = { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
-                    jsonData.forEach(row => {
-                        const dayIndex = DAYS_OF_WEEK.indexOf(row["Ngày"]);
-                        if(dayIndex !== -1) {
-                            newData[dayIndex].push({
-                                id: generateId(), text: row["Công việc"] || "", time: row["Khung Giờ"] || "", color: row["Phân loại"] || "default",
-                                completed: row["Trạng thái"] === "Xong", rolledOver: !!row["Ghi chú"], originalDay: row["Ghi chú"] ? row["Ghi chú"].replace("Dời từ ", "") : null,
-                                locked: row["Trạng thái"] === "Xong" || row["Trạng thái"] === "Bỏ lỡ", missed: row["Trạng thái"] === "Bỏ lỡ"
-                            });
-                        }
-                    });
-                    scheduleData = newData; saveAllData();
-                     alert("Khôi phục thành công! Giao diện đã được làm mới.");
-                    renderBoard();
-                } catch (err) { alert("Lỗi định dạng tệp."); }
-                event.target.value = '';
-            }; reader.readAsArrayBuffer(file);
-        }
+        /* --- XUẤT NHẬP EXCEL --- */
+        document.addEventListener('DOMContentLoaded', ()=>{loadAllData(); updTmr(); initShopWheel(); initFocusWheel();});
+        function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
+        function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
     </script>
 </body>
 </html>
