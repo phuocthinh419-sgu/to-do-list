@@ -60,6 +60,7 @@
                 <button class="btn btn-primary" onclick="resetWeek()"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
                 <button class="btn btn-outline" onclick="$('import-file').click()"><i class="fas fa-file-import"></i></button>
                 <button class="btn btn-outline" onclick="exportExcel()"><i class="fas fa-file-export"></i></button>
+                <button id="btn-install-app" class="btn btn-primary" style="display: none;"><i class="fas fa-download"></i> Cài Đặt App</button>
                 <input type="file" id="import-file" style="display:none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
@@ -252,6 +253,14 @@
     </div>
     
     <script>
+        /* --- ĐĂNG KÝ SERVICE WORKER --- */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Khởi bẩm: Service Worker đã túc trực!', reg.scope))
+                    .catch(err => console.error('Lỗi điều động Service Worker:', err));
+            });
+        }
         const $ = id => document.getElementById(id);
         const $$ = sel => document.querySelector(sel);
 
@@ -674,5 +683,37 @@
         document.addEventListener('DOMContentLoaded', ()=>{loadAllData(); updTmr(); initShopWheel(); initFocusWheel();});
         function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
         function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
+        let deferredPrompt;
+const installBtn = $('btn-install-app');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Ngăn trình duyệt hiện popup mặc định
+    e.preventDefault();
+    // Lưu lại event để gọi khi bấm nút
+    deferredPrompt = e;
+    // Hiện nút cài đặt cho bệ hạ
+    if(installBtn) installBtn.style.display = 'flex';
+});
+
+if(installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // Hiển thị bảng hỏi cài đặt
+            deferredPrompt.prompt();
+            // Đợi bệ hạ phản hồi
+            const { outcome } = await deferredPrompt.userChoice;
+            // Dọn dẹp sau khi phản hồi
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        }
+    });
+}
+
+// Ẩn nút hẳn nếu app đã được cài đặt thành công
+window.addEventListener('appinstalled', () => {
+    if(installBtn) installBtn.style.display = 'none';
+    deferredPrompt = null;
+    alert("Thông báo: Đã cài đặt ứng dụng thành công!");
+});
     </script>
 </body></html>
