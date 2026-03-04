@@ -715,5 +715,45 @@ window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
     alert("Thông báo: Đã cài đặt ứng dụng thành công!");
 });
+
+/* --- MẬT THÁM BÁO GIỜ (NOTIFICATIONS) --- */
+function requestNotificationPermission() {
+    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+}
+
+function checkTaskNotifications() {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    let tdy = getRealDayIndex();
+    let now = new Date();
+    let currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (!scheduleData[tdy]) return;
+    
+    scheduleData[tdy].forEach(t => {
+        if (t.time && !t.completed && !t.missed && !t.notified) {
+            let [tH, tM] = t.time.split(':').map(Number);
+            let taskTimeInMinutes = tH * 60 + tM;
+
+            // Báo trước đúng 15 phút
+            if (taskTimeInMinutes - currentTimeInMinutes === 15) {
+                new Notification("Mật thám báo cáo 📜", {
+                    body: `Bẩm bệ hạ, 15 phút nữa đến giờ: ${t.text}`,
+                    icon: "https://img.icons8.com/color/192/000000/calendar--v1.png",
+                    silent: true 
+                });
+                t.notified = true; 
+                saveAllData();
+            }
+        }
+    });
+}
+
+// Khởi động mật thám ngay khi tải xong giao diện
+requestNotificationPermission();
+setInterval(checkTaskNotifications, 60000);
+
     </script>
 </body></html>
