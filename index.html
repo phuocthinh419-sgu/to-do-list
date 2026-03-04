@@ -32,7 +32,7 @@
         .task-checkbox{margin-top:3px;cursor:pointer;width:18px;height:18px;accent-color:var(--success);flex-shrink:0;} .task-content{flex:1;} .task-time{font-size:0.8rem;font-weight:700;color:var(--primary);margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;} .task-desc{font-size:0.95rem;color:var(--text-main);word-break:break-word;font-weight:500;} .rollover-badge{font-size:0.7rem;background:var(--warning);color:white;padding:2px 6px;border-radius:4px;margin-left:auto;} .missed-badge{font-size:0.7rem;color:var(--danger);font-weight:800;margin-left:auto;} .task-actions{display:flex;gap:8px;opacity:0;transition:opacity 0.2s;position:absolute;right:10px;top:10px;} .task-item:not(.locked):hover .task-actions{opacity:1;} .btn-icon{background:var(--card-bg);border:1px solid var(--border-color);border-radius:4px;cursor:pointer;padding:4px 6px;color:var(--text-muted);font-size:0.8rem;} .btn-icon:hover{color:var(--primary);border-color:var(--primary);} .btn-icon.delete:hover{color:var(--danger);border-color:var(--danger);} .day-footer{padding:15px;border-top:1px solid var(--border-color);} .btn-add{width:100%;border:1px dashed var(--text-muted);background:transparent;color:var(--text-muted);padding:10px;border-radius:6px;cursor:pointer;transition:0.2s;font-weight:600;} .btn-add:hover{background:var(--border-color);color:var(--primary);border-color:var(--primary);}
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;} .modal{background:var(--card-bg);width:90%;max-width:450px;padding:25px;border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);animation:slideUp 0.3s ease;border:1px solid var(--border-color);max-height:90vh;overflow-y:auto;} @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}} .modal-header{font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;color:var(--text-main);} .close-modal{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);} .form-group{margin-bottom:15px;} .form-group label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--text-muted);} .form-control{width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:6px;font-size:0.95rem;color:var(--text-main);} .form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);} .color-options{display:flex;gap:12px;margin-top:5px;} .color-radio{display:none;} .color-label{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:0.2s;} .color-radio:checked+.color-label{transform:scale(1.2);border-color:var(--primary);box-shadow:0 0 8px rgba(0,0,0,0.2);} .bg-red{background:#fca5a5;} .bg-blue{background:#93c5fd;} .bg-green{background:#86efac;} .bg-default{background:#cbd5e1;} .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:25px;}
         .mem-card{background:linear-gradient(135deg,#1e293b,#0f172a);color:white;padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid #334155;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.2);} .mem-card.pro{background:linear-gradient(135deg,#2563eb,#1e40af);border-color:#60a5fa;} .mem-card.ultra{background:linear-gradient(135deg,#f59e0b,#b45309);border-color:#fbbf24;} .mem-status{font-size:1.2rem;font-weight:900;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;} .mem-timer{font-family:'Special Elite',monospace;font-size:1.1rem;color:#cbd5e1;margin-bottom:15px;} .mem-toggle{display:flex;align-items:center;gap:10px;font-size:0.9rem;background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:6px;width:fit-content;} .mem-pricing{display:flex;flex-direction:column;gap:15px;margin-bottom:20px;} .mem-tier-box{border:1px solid var(--border-color);padding:15px;border-radius:8px;background:var(--input-bg);} .mem-tier-box h4{font-size:1.1rem;margin-bottom:10px;color:var(--primary);text-transform:uppercase;} .mem-tier-box.ultra-box h4{color:var(--warning);} .mem-btn{width:100%;padding:10px;margin-bottom:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-main);border-radius:6px;cursor:pointer;font-weight:600;text-align:left;display:flex;justify-content:space-between;transition:0.2s;} .mem-btn:hover{border-color:var(--primary);background:rgba(37,99,235,0.05);} .mem-badge{background:var(--danger);color:white;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:bold;}
-        .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;} .shop-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;text-align:center;background:var(--input-bg);transition:0.2s;} .shop-item:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .shop-item h4{font-size:1rem;color:var(--text-main);margin-bottom:5px;} .shop-item p{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;min-height:35px;} .stock-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:var(--input-bg);} .stock-price{font-size:1.2rem;font-weight:700;width:80px;text-align:right;} .stock-price.up{color:var(--success);} .stock-price.down{color:var(--danger);} .bank-display{text-align:center;font-size:2.5rem;color:var(--warning);font-family:'Black Ops One',cursive;margin:20px 0;text-shadow:0 2px 5px rgba(0,0,0,0.1);}
+        .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;} .shop-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;text-align:center;background:var(--input-bg);transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;} .shop-item:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .shop-item h4{font-size:1rem;color:var(--text-main);margin-bottom:5px;} .shop-item p{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;min-height:35px;} .stock-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:var(--input-bg);} .stock-price{font-size:1.2rem;font-weight:700;width:80px;text-align:right;} .stock-price.up{color:var(--success);} .stock-price.down{color:var(--danger);} .bank-display{text-align:center;font-size:2.5rem;color:var(--warning);font-family:'Black Ops One',cursive;margin:20px 0;text-shadow:0 2px 5px rgba(0,0,0,0.1);}
         #zen-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:5000;display:none;flex-direction:column;align-items:center;justify-content:flex-start;backdrop-filter:blur(15px);opacity:0;transition:opacity 0.5s ease;text-align:center;padding:30px 20px;box-sizing:border-box;color:#e2e8f0;overflow-y:auto;overflow-x:hidden;} #zen-overlay.active{display:flex;opacity:1;} #fireworks-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5001;} .zen-app-container{width:100%;max-width:900px;z-index:5002;display:flex;flex-direction:column;align-items:center;margin:auto;position:relative;} .zen-btn-exit{position:absolute;top:20px;right:20px;background:transparent;border:none;font-size:2rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:0.3s;z-index:6005;} .zen-btn-exit:hover{color:#ef4444;transform:rotate(90deg) scale(1.2);} .zen-timer{font-family:'Black Ops One',cursive;font-size:clamp(5rem,12vw,8rem);color:#fff;letter-spacing:5px;margin:0 0 10px 0;text-shadow:4px 4px 0px #000,8px 8px 20px rgba(0,0,0,0.8);line-height:1;} @keyframes timer-pulse-zen{0%{filter:drop-shadow(0 0 0 rgba(255,215,0,0));transform:scale(1);}50%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.9));transform:scale(1.02);}100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0));transform:scale(1);}} .zen-timer.ticking{animation:timer-pulse-zen 1.5s infinite ease-in-out;} .zen-energy-bar-container{width:100%;height:14px;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.2);border-radius:10px;margin:10px 0 20px;position:relative;box-shadow:inset 0 0 10px rgba(0,0,0,0.8);overflow:visible;} .zen-energy-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#93c5fd);transition:width 0.5s linear;border-radius:8px;box-shadow:0 0 10px currentColor;position:relative;} .zen-rank-badge{font-family:'Inter',sans-serif;font-weight:700;font-size:1.2rem;color:#60a5fa;border:2px solid #60a5fa;padding:5px 20px;border-radius:4px;background:rgba(0,0,0,0.6);margin-bottom:10px;box-shadow:0 0 15px rgba(96,165,250,0.3);text-transform:uppercase;letter-spacing:2px;} .zen-xp-bar-container{width:100%;max-width:400px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);} .zen-xp-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);width:0%;transition:width 0.5s ease-out;} .zen-xp-text{font-size:0.9rem;color:#94a3b8;margin-bottom:5px;font-weight:bold;letter-spacing:1px;} .zen-quote-container{margin-top:10px;max-width:800px;width:90%;padding:25px 30px;border-radius:12px;position:relative;background:#0f172a;min-height:120px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.8);overflow:hidden;border:1px solid rgba(255,255,255,0.05);} .zen-quote-line{position:absolute;display:block;z-index:1;pointer-events:none;} .zen-quote-line:nth-child(1){top:0;left:-100%;width:100%;height:4px;background:linear-gradient(90deg,transparent,#0ea5e9,#38bdf8);box-shadow:0 0 10px #38bdf8;animation:led-top 2s linear infinite;animation-delay:0s;} @keyframes led-top{0%{left:-100%;}50%,100%{left:100%;}} .zen-quote-line:nth-child(2){top:-100%;right:0;width:4px;height:100%;background:linear-gradient(180deg,transparent,#a855f7,#c084fc);box-shadow:0 0 10px #c084fc;animation:led-right 2s linear infinite;animation-delay:-1.5s;} @keyframes led-right{0%{top:-100%;}50%,100%{top:100%;}} .zen-quote-line:nth-child(3){bottom:0;right:-100%;width:100%;height:4px;background:linear-gradient(270deg,transparent,#f59e0b,#fbbf24);box-shadow:0 0 10px #fbbf24;animation:led-bottom 2s linear infinite;animation-delay:-1s;} @keyframes led-bottom{0%{right:-100%;}50%,100%{right:100%;}} .zen-quote-line:nth-child(4){bottom:-100%;left:0;width:4px;height:100%;background:linear-gradient(360deg,transparent,#10b981,#34d399);box-shadow:0 0 10px #34d399;animation:led-left 2s linear infinite;animation-delay:-0.5s;} @keyframes led-left{0%{bottom:-100%;}50%,100%{bottom:100%;}} .zen-quote-content{position:relative;z-index:5;} .zen-quote-en{font-size:1.2rem;font-style:italic;color:#cbd5e1;margin-bottom:5px;font-family:'Inter',serif;transition:opacity 0.5s;} .zen-quote-vi{font-size:1.1rem;color:#a5b4fc;font-weight:600;margin-bottom:8px;transition:opacity 0.5s;} .zen-quote-author{font-size:0.9rem;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;text-align:right;transition:opacity 0.5s;} .zen-status{font-size:1.2rem;text-transform:uppercase;letter-spacing:5px;color:rgba(255,255,255,0.9);margin-top:10px;margin-bottom:5px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.8);text-align:center;} .zen-controls{display:flex;gap:15px;margin-top:20px;justify-content:center;flex-wrap:wrap;} .zen-btn-action{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.5);color:white;padding:12px 40px;border-radius:50px;font-size:1.2rem;font-weight:bold;cursor:pointer;transition:0.2s;box-shadow:0 5px 15px rgba(0,0,0,0.5);} .zen-btn-action:hover{background:#fff;color:#000;transform:translateY(-3px);}
         .wheel-wrapper{position:relative;width:320px;height:320px;margin-bottom:20px;} .wheel-pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:30px solid #fbbf24;z-index:10;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.8));} .wheel{width:100%;height:100%;border-radius:50%;border:5px solid #fff;box-shadow:0 0 25px rgba(0,0,0,0.8);overflow:hidden;position:relative;transition:transform 4s cubic-bezier(0.17,0.67,0.1,1);} .wheel-label{position:absolute;top:50%;left:50%;width:50%;height:24px;transform-origin:0% 50%;margin-top:-12px;text-align:right;padding-right:25px;font-size:0.75rem;font-weight:bold;color:white;text-shadow:1px 1px 3px rgba(0,0,0,1);line-height:24px;white-space:nowrap;} #zen-wheel-box{display:none;flex-direction:column;align-items:center;margin-top:20px;animation:slideUp 0.5s ease;}
         #punish-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.95);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;} .punish-box{background:rgba(0,0,0,0.6);padding:30px;border-radius:15px;border:2px solid #fca5a5;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.8);}
@@ -60,7 +60,7 @@
                 <button class="btn btn-primary" onclick="resetWeek()"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
                 <button class="btn btn-outline" onclick="$('import-file').click()"><i class="fas fa-file-import"></i></button>
                 <button class="btn btn-outline" onclick="exportExcel()"><i class="fas fa-file-export"></i></button>
-                <button id="btn-install-app" class="btn btn-primary" style="display: none;"><i class="fas fa-download"></i> Cài Đặt App</button>
+                <button id="btn-install-app" class="btn btn-primary" style="display: none; justify-content: center;"><i class="fas fa-download"></i> Cài Đặt App</button>
                 <input type="file" id="import-file" style="display:none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
@@ -122,6 +122,7 @@
                     <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>50.000 Xu <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
                 </div>
             </div>
+            
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <div class="shop-grid">
                 <div class="shop-item"><h4>🛡️ Thẻ Bảo Hộ</h4><p>Miễn phạt AFK hoặc sót việc 1 lần.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button></div>
@@ -129,6 +130,16 @@
                 <div class="shop-item" style="border-color:#d4af37;"><h4 style="color:#d4af37;">👑 Giao diện Hoàng Cung</h4><button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%;justify-content:center;background:#d4af37;color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button></div>
                 <div class="shop-item" style="border-color:#00ff00;background:#0a0a0a;"><h4 style="color:#00ff00;">💻 Giao diện Hắc Ám</h4><button id="btn-buy-theme-hacker" class="btn" style="width:100%;justify-content:center;background:#00cc00;color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button></div>
             </div>
+
+            <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
+            <h3 style="text-align:center; color:var(--primary); margin-bottom:10px;"><i class="fas fa-paint-brush"></i> NGOẠI TRANG CHUỖI (STREAK)</h3>
+            <div class="shop-grid">
+                <div class="shop-item"><h4>❄️ Băng Tâm</h4><p>Hoa tuyết tĩnh lặng.</p><button id="btn-buy-icon-snow" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#38bdf8;color:#38bdf8;" onclick="buyIcon('❄️', 10000)">Mua (10.000 Xu)</button></div>
+                <div class="shop-item"><h4>🏆 Quán Quân</h4><p>Cúp vàng danh giá.</p><button id="btn-buy-icon-cup" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#fbbf24;color:#fbbf24;" onclick="buyIcon('🏆', 10000)">Mua (10.000 Xu)</button></div>
+                <div class="shop-item"><h4>🎓 Học Giả</h4><p>Đỉnh cao tri thức.</p><button id="btn-buy-icon-hat" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#a855f7;color:#a855f7;" onclick="buyIcon('🎓', 5000)">Mua (5.000 Xu)</button></div>
+                <div class="shop-item"><h4>💎 Kim Cương</h4><p>Kỷ luật thép bất diệt.</p><button id="btn-buy-icon-diamond" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#22d3ee;color:#22d3ee;" onclick="buyIcon('💎', 25000)">Mua (25.000 Xu)</button></div>
+            </div>
+
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> BÁT QUÁI KỲ TRẬN</h3>
             <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Vòng quay rủi ro với BASIC, an toàn tuyệt đối với ULTRA.</p>
@@ -261,6 +272,7 @@
                     .catch(err => console.error('Lỗi điều động Service Worker:', err));
             });
         }
+
         const $ = id => document.getElementById(id);
         const $$ = sel => document.querySelector(sel);
 
@@ -308,6 +320,8 @@
             if(!sys.unlockedThemes) sys.unlockedThemes = []; if(!sys.mem) sys.mem = {tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0};
             if(!sys.bankLastHarvest) sys.bankLastHarvest = Date.now();
             if(!sys.lastSoiCau) sys.lastSoiCau = 0;
+            if(!sys.streakIcon) sys.streakIcon = '🔥';
+            if(!sys.unlockedIcons) sys.unlockedIcons = ['🔥'];
             applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI();
         }
 
@@ -320,7 +334,10 @@
 
         function updateSystemUI() {
             const {current, next} = getRealmInfo(sys.points);
-            $('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`; $('ui-coins').innerText = `${Math.floor(sys.coins)} Xu`; $('streak-text').innerText = `${sys.streak} Ngày`;
+            $('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`; 
+            $('ui-coins').innerText = `${Math.floor(sys.coins)} Xu`; 
+            $('header-streak-badge').innerHTML = `${sys.streakIcon} <span id="streak-text">${sys.streak} Ngày</span>`;
+            
             if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
             if($('zen-rank')) { $('zen-rank').innerText=current.name; const cStr=`rgb(${current.color.r},${current.color.g},${current.color.b})`; $('zen-rank').style.color=cStr; $('zen-rank').style.borderColor=cStr; $('zen-xp-fill').style.width=next?`${((sys.points-current.min)/(next.min-current.min))*100}%`:'100%'; $('zen-xp-text').innerText=next?`${sys.points} / ${next.min} XP`:`${sys.points} / ${MAX_POINTS} MAX`; }
             $('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`; $('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
@@ -510,9 +527,56 @@
 
         /* --- SHOP & GACHA --- */
         function openShopModal() { $('shop-coins-display').innerText=Math.floor(sys.coins); updateShopUI(); updateMemUI(); $('shop-modal').style.display='flex'; }
-        function updateShopUI() { const r=$('btn-buy-theme-royal'); if(r&&sys.unlockedThemes.includes('royal')){r.innerText="👑 Đã Mở";r.disabled=true;r.style.opacity="0.5";} const h=$('btn-buy-theme-hacker'); if(h&&sys.unlockedThemes.includes('hacker')){h.innerText="💻 Đã Mở";h.disabled=true;h.style.opacity="0.5";} }
+        function updateShopUI() { 
+            const r=$('btn-buy-theme-royal'); if(r&&sys.unlockedThemes.includes('royal')){r.innerText="👑 Đã Mở";r.disabled=true;r.style.opacity="0.5";} 
+            const h=$('btn-buy-theme-hacker'); if(h&&sys.unlockedThemes.includes('hacker')){h.innerText="💻 Đã Mở";h.disabled=true;h.style.opacity="0.5";} 
+            
+            // Cập nhật trạng thái nút mua Icon
+            const icons = [
+                { id: 'btn-buy-icon-snow', icon: '❄️' },
+                { id: 'btn-buy-icon-cup', icon: '🏆' },
+                { id: 'btn-buy-icon-hat', icon: '🎓' },
+                { id: 'btn-buy-icon-diamond', icon: '💎' }
+            ];
+            icons.forEach(item => {
+                const btn = $(item.id);
+                if (btn) {
+                    if (sys.unlockedIcons.includes(item.icon)) {
+                        if (sys.streakIcon === item.icon) {
+                            btn.innerText = "Đang dùng"; btn.disabled = true; btn.style.opacity = "0.5";
+                        } else {
+                            btn.innerText = "Trang bị"; btn.disabled = false; btn.style.opacity = "1";
+                        }
+                    }
+                }
+            });
+        }
         function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins);}else alert("Không đủ Xu!"); }
         function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins); updateShopUI();}else alert("Thiếu Xu!"); }
+        
+        function buyIcon(icon, price) {
+            if (sys.unlockedIcons.includes(icon)) {
+                sys.streakIcon = icon;
+                saveAllData();
+                updateSystemUI();
+                updateShopUI();
+                alert("Đã khoác ngoại trang mới!");
+            } else {
+                if (sys.coins >= price) {
+                    sys.coins -= price;
+                    sys.unlockedIcons.push(icon);
+                    sys.streakIcon = icon;
+                    playRealisticBoom();
+                    saveAllData();
+                    $('shop-coins-display').innerText = Math.floor(sys.coins);
+                    updateSystemUI();
+                    updateShopUI();
+                    alert("Giao dịch thành công! Đã tự động trang bị.");
+                } else {
+                    alert("Ngân khố cạn kiệt, không đủ Xu!");
+                }
+            }
+        }
 
         const shopGachaOpts = [
             {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("THÁNH CHỈ! Nhận 1 THÁNG thẻ ULTRA (Trị giá 6000 Xu)!");}},
@@ -531,7 +595,6 @@
             if(isShopSpinning) return; if(sys.coins<100) return alert("Thiếu Xu!"); sys.coins-=100; saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); isShopSpinning=true; $('btn-shop-spin').innerText="Đang xử lý...";
             let r=Math.random()*100, idx;
             if (sys.mem.tier === 'ULTRA') {
-                 // Golden Wheel Privilege: No penalty or empty. Distribute 100% across good ones.
                  idx = r<5?0 : r<20?1 : r<35?2 : r<50?3 : 4; 
             } else {
                  idx = r<2?0 : r<12?1 : r<22?2 : r<32?3 : r<52?4 : r<75?5 : r<90?6 : 7;
@@ -552,7 +615,7 @@
             let today = new Date().setHours(0,0,0,0);
             if(sys.lastSoiCau > today) return alert("Bệ hạ đã soi cầu hôm nay rồi! Ngày mai quay lại nhé.");
             let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)];
-            sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); // Push price immediately
+            sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); 
             sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket();
             alert(`Thánh chỉ Tiên tri: Mã $${rk} vừa được Mật Thám báo cáo sẽ tăng trưởng cực mạnh. Lập tức thu mua!`);
         }
@@ -565,19 +628,16 @@
         setInterval(()=>{
             let n = Date.now();
             if(sys.bankCapital>0&&sys.streak>0) {
-                // Add tiny amounts of interest over time using standard interval
                 let dr=sys.streak*0.01;
                 sys.bankUnclaimed += (sys.bankCapital*(dr/86400));
                 if(sys.bankUnclaimed > sys.bankCapital*dr) sys.bankUnclaimed = sys.bankCapital*dr;
             }
-            // Check 24 hours (86400000ms) logic for BASIC vs PRO/ULTRA
             if(n - sys.bankLastHarvest >= 86400000) {
                 if(sys.mem.tier === 'BASIC') {
                     sys.bankUnclaimed = 0;
                     sys.bankLastHarvest = n;
                     saveAllData();
                 } else {
-                    // Auto bank for PRO/ULTRA
                     sys.coins += sys.bankUnclaimed;
                     sys.bankUnclaimed = 0;
                     sys.bankLastHarvest = n;
@@ -599,7 +659,7 @@
             
             let selMins = parseInt($('zen-time-select').value);
             if(tL===W_TIME&&isWrk&&tvErn===0) { 
-                W_TIME = selMins * 60; tL = W_TIME; // Setup Time Flexibility
+                W_TIME = selMins * 60; tL = W_TIME; 
                 showRandomQuote(); afkTrg=false; isFrc=frc; 
                 if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} 
             }
@@ -655,17 +715,16 @@
 
         function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
         function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP. Nghỉ 10p.`); startBreak(10);}else{alert(`Không có thưởng. Nghỉ 5p.`); startBreak(5);} }
+        
         function triggerAFK() { 
-            if(sys.mem.tier === 'ULTRA') return; // Miễn nhiễm còi báo động AFK
+            if(sys.mem.tier === 'ULTRA') return; 
             afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); 
         }
         function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
         function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Lưu Vô Cực."); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Treo máy! Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ! Hủy phiên."); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm mạnh!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
         
         document.addEventListener("visibilitychange", () => {
-            // Miễn nhiễm phạt chuyển tab cho gói ULTRA
             if (sys.mem.tier === 'ULTRA') return; 
-
             if (document.hidden && isRun && (isWrk || isEndl)) {
                 clearInterval(zTmr); 
                 isRun = false; 
@@ -683,77 +742,71 @@
         document.addEventListener('DOMContentLoaded', ()=>{loadAllData(); updTmr(); initShopWheel(); initFocusWheel();});
         function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
         function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
+
+        /* --- CÀI ĐẶT PWA --- */
         let deferredPrompt;
-const installBtn = $('btn-install-app');
+        const installBtn = $('btn-install-app');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Ngăn trình duyệt hiện popup mặc định
-    e.preventDefault();
-    // Lưu lại event để gọi khi bấm nút
-    deferredPrompt = e;
-    // Hiện nút cài đặt cho bệ hạ
-    if(installBtn) installBtn.style.display = 'flex';
-});
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if(installBtn) installBtn.style.display = 'flex';
+        });
 
-if(installBtn) {
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            // Hiển thị bảng hỏi cài đặt
-            deferredPrompt.prompt();
-            // Đợi bệ hạ phản hồi
-            const { outcome } = await deferredPrompt.userChoice;
-            // Dọn dẹp sau khi phản hồi
-            deferredPrompt = null;
-            installBtn.style.display = 'none';
+        if(installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                }
+            });
         }
-    });
-}
 
-// Ẩn nút hẳn nếu app đã được cài đặt thành công
-window.addEventListener('appinstalled', () => {
-    if(installBtn) installBtn.style.display = 'none';
-    deferredPrompt = null;
-    alert("Thông báo: Đã cài đặt ứng dụng thành công!");
-});
+        window.addEventListener('appinstalled', () => {
+            if(installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+            alert("Thông báo: Đã cài đặt ứng dụng thành công!");
+        });
 
-/* --- MẬT THÁM BÁO GIỜ (NOTIFICATIONS) --- */
-function requestNotificationPermission() {
-    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission();
-    }
-}
-
-function checkTaskNotifications() {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-
-    let tdy = getRealDayIndex();
-    let now = new Date();
-    let currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-
-    if (!scheduleData[tdy]) return;
-    
-    scheduleData[tdy].forEach(t => {
-        if (t.time && !t.completed && !t.missed && !t.notified) {
-            let [tH, tM] = t.time.split(':').map(Number);
-            let taskTimeInMinutes = tH * 60 + tM;
-
-            // Báo trước đúng 15 phút
-            if (taskTimeInMinutes - currentTimeInMinutes === 15) {
-                new Notification("Mật thám báo cáo 📜", {
-                    body: `Bẩm bệ hạ, 15 phút nữa đến giờ: ${t.text}`,
-                    icon: "https://img.icons8.com/color/192/000000/calendar--v1.png",
-                    silent: true 
-                });
-                t.notified = true; 
-                saveAllData();
+        /* --- MẬT THÁM BÁO GIỜ (NOTIFICATIONS) --- */
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
             }
         }
-    });
-}
 
-// Khởi động mật thám ngay khi tải xong giao diện
-requestNotificationPermission();
-setInterval(checkTaskNotifications, 60000);
+        function checkTaskNotifications() {
+            if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+            let tdy = getRealDayIndex();
+            let now = new Date();
+            let currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+            if (!scheduleData[tdy]) return;
+            
+            scheduleData[tdy].forEach(t => {
+                if (t.time && !t.completed && !t.missed && !t.notified) {
+                    let [tH, tM] = t.time.split(':').map(Number);
+                    let taskTimeInMinutes = tH * 60 + tM;
+
+                    // Báo trước đúng 15 phút
+                    if (taskTimeInMinutes - currentTimeInMinutes === 15) {
+                        new Notification("Mật thám báo cáo 📜", {
+                            body: `Bẩm bệ hạ, 15 phút nữa đến giờ: ${t.text}`,
+                            icon: "https://img.icons8.com/color/192/000000/calendar--v1.png",
+                            silent: true 
+                        });
+                        t.notified = true; 
+                        saveAllData();
+                    }
+                }
+            });
+        }
+
+        requestNotificationPermission();
+        setInterval(checkTaskNotifications, 60000);
 
     </script>
 </body></html>
