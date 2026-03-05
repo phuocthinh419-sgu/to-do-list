@@ -22,14 +22,18 @@
     transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67) !important;
 }
 
-/* Hiệu ứng tia sáng lướt chéo qua thẻ (Ánh kim) */
+/* Hiệu ứng tia sáng lướt chéo qua thẻ (Ánh kim) - Quét chậm 4 giây, nghỉ 2 giây */
 .mem-card::before {
     content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
     background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-25deg); animation: card-shine 3s infinite; z-index: 1;
+    transform: skewX(-25deg); 
+    animation: card-shine 6s infinite linear; /* Tổng chu kỳ 6s, dùng linear để ánh sáng trôi đều đặn */
+    z-index: 1;
 }
 @keyframes card-shine {
-    0% { left: -150%; } 20% { left: 200%; } 100% { left: 200%; }
+    0% { left: -150%; } 
+    50% { left: 200%; } /* Dành đúng 50% thời gian (tương đương 3 giây) để quét qua chậm rãi */
+    100% { left: 200%; } /* Đứng im nghỉ ngơi 3 giây còn lại */
 }
 
 /* Hoa văn chìm (Watermark) */
@@ -201,7 +205,7 @@
             }
             if(!confirm("Xác nhận chi 10.000 Xu mua vé số này?")) return;
             sys.coins -= 10000; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: new Date().toDateString() };
-            saveAllData(); alert("Mua vé thành công! Kết quả sẽ sổ lúc 16:00."); updateLottoUI();
+            saveAllData(); alert("Mua vé thành công! Kết quả sẽ xổ lúc 16:00."); updateLottoUI();
         }
         function checkLottoResult() {
             let now = new Date(); let todayStr = now.toDateString();
