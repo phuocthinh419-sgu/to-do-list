@@ -99,7 +99,7 @@
     const s = Math.floor((diff % 60000) / 1000);
 
     const timeStr = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    timerElem.innerText = "SỔ SỐ SAU: " + timeStr;
+    timerElem.innerText = "XỔ SỐ SAU: " + timeStr;
 
     // Hiệu ứng màu sắc khi sắp đến giờ
     if (h === 0 && m < 60) {
