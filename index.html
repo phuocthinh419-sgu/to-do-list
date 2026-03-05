@@ -290,4 +290,38 @@
         function requestNotificationPermission() { if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") { Notification.requestPermission(); } }
         function checkTaskNotifications() { if (!("Notification" in window) || Notification.permission !== "granted") return; let tdy = getRealDayIndex(); let now = new Date(); let currentTimeInMinutes = now.getHours() * 60 + now.getMinutes(); if (!scheduleData[tdy]) return; scheduleData[tdy].forEach(t => { if (t.time && !t.completed && !t.missed && !t.notified) { let [tH, tM] = t.time.split(':').map(Number); let taskTimeInMinutes = tH * 60 + tM; if (taskTimeInMinutes - currentTimeInMinutes === 15) { new Notification("Nhắc nhở công việc 📜", { body: `Thông báo: 15 phút nữa đến giờ thực hiện: ${t.text}`, icon: "https://img.icons8.com/color/192/000000/calendar--v1.png", silent: true }); t.notified = true; saveAllData(); } } }); }
         requestNotificationPermission(); setInterval(checkTaskNotifications, 60000);
+        /* --- LOGIC HIỂN THỊ NÚT CÀI ĐẶT APP --- */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Ngăn trình duyệt tự động hiện bảng cài đặt mặc định
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Hiển thị nút cài đặt của bệ hạ
+    const installBtn = document.getElementById('btn-install-app');
+    if (installBtn) {
+        installBtn.style.display = 'flex'; // Cho nút hiện ra
+        
+        installBtn.addEventListener('click', async () => {
+            // Ẩn nút đi sau khi bấm
+            installBtn.style.display = 'none';
+            // Hiển thị bảng hỏi cài đặt
+            deferredPrompt.prompt();
+            // Chờ người dùng phản hồi
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('Bệ hạ đã chấp thuận cài đặt');
+            }
+            deferredPrompt = null;
+        });
+    }
+});
+
+// Ẩn nút nếu app đã được cài đặt thành công
+window.addEventListener('appinstalled', () => {
+    const installBtn = document.getElementById('btn-install-app');
+    if (installBtn) installBtn.style.display = 'none';
+    deferredPrompt = null;
+    console.log('PWA đã được cài đặt thành công');
+});            
     </script></body></html>
