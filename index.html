@@ -592,16 +592,52 @@
         
         let isShopSpinning = false;
         function spinShopGacha() {
-            if(isShopSpinning) return; if(sys.coins<100) return alert("Thiếu Xu!"); sys.coins-=100; saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); isShopSpinning=true; $('btn-shop-spin').innerText="Đang xử lý...";
-            let r=Math.random()*100, idx;
+            if(isShopSpinning) return;
+            
+            // Thiết lập bộ đếm ngày
+            let today = new Date().toDateString();
+            if(sys.lastSpinDate !== today) {
+                sys.dailySpins = 0;
+                sys.lastSpinDate = today;
+            }
+            
+            // CHẶN ĐỨNG: Tối đa 3 lượt/ngày cho TẤT CẢ các hạng
+            if(sys.dailySpins >= 3) {
+                return alert("Thánh chỉ đã ban: Sướng quá sinh tật! Hôm nay ngài đã quay đủ 3 lượt, xin dời gót ngọc sang ngày mai để giữ gìn kỷ cương!");
+            }
+            
+            if(sys.coins < 100) return alert("Ngân khố không đủ 100 Xu!"); 
+            
+            sys.coins -= 100; 
+            sys.dailySpins++; // Ghi nhận 1 lượt quay
+            saveAllData(); 
+            $('shop-coins-display').innerText = Math.floor(sys.coins); 
+            isShopSpinning = true; 
+            $('btn-shop-spin').innerText = `Đang xử lý... (${3 - sys.dailySpins} lượt còn lại)`;
+            
+            let r = Math.random() * 100, idx;
+            // Xác suất trúng: ULTRA vẫn được an toàn tuyệt đối, nhưng không được quay vô hạn nữa
             if (sys.mem.tier === 'ULTRA') {
                  idx = r<5?0 : r<20?1 : r<35?2 : r<50?3 : 4; 
             } else {
                  idx = r<2?0 : r<12?1 : r<22?2 : r<32?3 : r<52?4 : r<75?5 : r<90?6 : 7;
             }
             
-            const w=$('shop-wheel'); let tR=360*6+(360-(idx*45+22.5)); w.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; w.style.transform=`rotate(${tR}deg)`; playAlarmSound();
-            setTimeout(()=>{ isShopSpinning=false; $('btn-shop-spin').innerText="QUAY NGAY (100 Xu)"; w.style.transition='none'; w.style.transform=`rotate(${tR%360}deg)`; shopGachaOpts[idx].act(); saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins); updateMemUI(); }, 4000);
+            const w=$('shop-wheel'); 
+            let tR=360*6+(360-(idx*45+22.5)); 
+            w.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; 
+            w.style.transform=`rotate(${tR}deg)`; 
+            
+            setTimeout(()=>{ 
+                isShopSpinning=false; 
+                $('btn-shop-spin').innerText=`QUAY NGAY (100 Xu)`; 
+                w.style.transition='none'; 
+                w.style.transform=`rotate(${tR%360}deg)`; 
+                shopGachaOpts[idx].act(); 
+                saveAllData(); 
+                $('shop-coins-display').innerText=Math.floor(sys.coins); 
+                updateMemUI(); 
+            }, 4000);
         }
 
         /* --- STOCK & BANK --- */
