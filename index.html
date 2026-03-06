@@ -16,6 +16,8 @@
         .vkt-panel { display: none; margin-top: 20px; animation: slideUp 0.3s ease; }
         .vkt-panel.active { display: block; }
         .vkt-card { background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s; }
+        .vkt-card:hover { border-color: var(--warning); transform: translateY(-2px); }
+        .vkt-card h4 { color: var(--primary); margin-bottom: 5px; font-size: 1.1rem; }
         .vkt-progress-bar { width: 100%; height: 22px; background: rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; margin: 15px 0; border: 1px solid var(--border-color); position: relative; }
         .vkt-progress-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #d4af37, #fef08a); width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .vkt-revenue-box { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid #fbbf24; border-radius: 12px; padding: 25px; text-align: center; color: #fbbf24; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
@@ -53,6 +55,19 @@
         .mem-card.ultra { background: linear-gradient(135deg, #d4af37, #b45309) !important; border-color: #fde047 !important; box-shadow: 0 0 25px rgba(245, 158, 11, 0.5) !important; }
         .mem-card.ultra::after { content: '\f521'; opacity: 0.15; }
 
+        /* CSS CHO VIỆN KIẾN THÀNH */
+        .vkt-tab-btn { padding: 12px; background: transparent; border: 1px solid var(--primary); color: var(--primary); border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; transition: 0.2s; text-align: center; }
+        .vkt-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
+        .vkt-panel { display: none; margin-top: 20px; animation: slideUp 0.3s ease; }
+        .vkt-panel.active { display: block; }
+        .vkt-card { background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s; }
+        .vkt-card:hover { border-color: var(--warning); transform: translateY(-2px); }
+        .vkt-card h4 { color: var(--primary); margin-bottom: 5px; font-size: 1.1rem; }
+        .vkt-progress-bar { width: 100%; height: 22px; background: rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; margin: 15px 0; border: 1px solid var(--border-color); position: relative; }
+        .vkt-progress-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #d4af37, #fef08a); width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .vkt-revenue-box { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid #fbbf24; border-radius: 12px; padding: 25px; text-align: center; color: #fbbf24; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+        .vkt-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 5; color: white; font-weight: bold; flex-direction: column; gap: 10px; text-align: center; }
+
         /* --- CSS MỚI: BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC (SOLEMN/ROYAL DESIGN) --- */
         .countdown-panel { 
             background: linear-gradient(180deg, #0f172a 0%, #020617 100%); 
@@ -74,7 +89,7 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 10rem; color: #d4af37; opacity: 0.03; z-index: 0; pointer-events: none;
         }
-        /* Ánh sáng lướt chéo hoàng kim */
+        /* Tia sáng lướt chéo hoàng kim (tái sử dụng thuật toán card-shine) */
         .countdown-panel::after {
             content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(212,175,55,0.15) 50%, rgba(255,255,255,0) 100%);
@@ -203,7 +218,7 @@
             <div class="form-group"><label>Ngày Giờ Phán Xét <span style="color:var(--danger)">*</span></label><input type="datetime-local" id="cd-input-date" class="form-control"></div>
             <div class="modal-footer" style="justify-content: space-between; margin-top: 30px;">
                 <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger);" onclick="clearCountdown()"><i class="fas fa-trash"></i> Phá Bia Đá</button>
-                <button class="btn btn-warning" style="color:black; font-weight:bold;" onclick="saveCountdown()">Lập Chỉ</button>
+                <button class="btn btn-warning" style="color:black; font-weight:bold; background:#d4af37; border:none;" onclick="saveCountdown()">Lập Chỉ</button>
             </div>
         </div>
     </div>
@@ -225,7 +240,6 @@
             <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('task-modal')">Hủy</button><button class="btn btn-primary" onclick="saveTask()">Lưu công việc</button></div>
         </div>
     </div>
-
     <div class="modal-overlay" id="wager-modal">
         <div class="modal" style="border-color:var(--primary);box-shadow:0 0 20px rgba(37,99,235,0.4);">
             <div class="modal-header" style="color:var(--primary);"><span><i class="fas fa-handshake"></i> Cam Kết Kỷ Luật</span><button class="close-modal" onclick="closeWagerModal()"><i class="fas fa-times"></i></button></div>
@@ -234,7 +248,6 @@
             <div class="modal-footer"><button class="btn btn-outline" onclick="closeWagerModal()">Rút lui</button><button class="btn btn-primary" onclick="placeWager()">Xác nhận</button></div>
         </div>
     </div>
-
     <div class="modal-overlay" id="shop-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span><button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button></div>
@@ -259,7 +272,6 @@
                     <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>50.000 Xu <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
                 </div>
             </div>
-            
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <div class="shop-grid">
                 <div class="shop-item"><h4>🛡️ Thẻ Bảo Hộ</h4><p>Miễn phạt AFK hoặc sót việc 1 lần.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button></div>
@@ -275,7 +287,6 @@
                 <div class="shop-item"><h4>🎓 Học Giả</h4><p>Đỉnh cao tri thức.</p><button id="btn-buy-icon-hat" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#a855f7;color:#a855f7;" onclick="buyIcon('🎓', 5000)">Mua (5.000 Xu)</button></div>
                 <div class="shop-item"><h4>💎 Kim Cương</h4><p>Kỷ luật thép bất diệt.</p><button id="btn-buy-icon-diamond" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#22d3ee;color:#22d3ee;" onclick="buyIcon('💎', 25000)">Mua (25.000 Xu)</button></div>
             </div>
-
             <div style="border: 2px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; margin: 20px 0;">
                 <h3 style="color:#8b5cf6; text-align:center; margin-bottom:5px;"><i class="fas fa-ticket-alt"></i> XỔ SỐ MAY MẮN 6/45</h3>
                 <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 5px;">Giá vé: 10.000 Xu | Jackpot: 2.000.000 Xu</p>
@@ -295,7 +306,6 @@
                     <div id="lotto-history-balls" style="text-align:center; margin-top:5px;"></div>
                 </div>
             </div>
-
             <div class="shop-section" style="border: 1px solid #ff4757; background: rgba(255, 71, 87, 0.05); padding: 15px; border-radius: 8px; margin-top: 15px;">
                 <h3 style="color: #ff4757; text-align: center; margin-bottom: 5px;"><i class="fas fa-skull-crossbones"></i> CHỢ ĐEN BÁT QUÁI <i class="fas fa-skull-crossbones"></i></h3>
                 <p style="text-align: center; color: #aaa; font-size: 0.85em; margin-bottom: 10px; margin-top: 0;">(Mua thêm lượt quay VIP)</p>
@@ -304,7 +314,6 @@
                     <button class="btn btn-outline" style="flex: 1; border-color: #ff4757; color: #ff4757; display:flex; flex-direction:column; align-items:center;" onclick="buyExtraSpins(10, 5000)"><span>10 Lượt</span><b>5.000 Xu</b></button>
                 </div>
             </div>
-
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> BÁT QUÁI KỲ TRẬN</h3>
             <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Vòng quay rủi ro với BASIC, an toàn tuyệt đối với ULTRA.</p>
@@ -312,7 +321,7 @@
             <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY (100 Xu)</button>
         </div>
     </div>
-
+    
     <div class="modal-overlay" id="vkt-modal">
         <div class="modal" style="max-width: 650px; border-color:var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);">
             <div class="modal-header" style="color: var(--warning);">
@@ -320,27 +329,16 @@
                 <button class="close-modal" onclick="closeModal('vkt-modal')"><i class="fas fa-times"></i></button>
             </div>
             <p style="text-align:center; margin-bottom: 15px;">Ngân khố: <strong style="color:var(--warning); font-size:1.3rem;" id="vkt-coins-display">0</strong> Xu</p>
-            
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button class="vkt-tab-btn active" onclick="switchVktTab('land')">1. Sàn BĐS</button>
                 <button class="vkt-tab-btn" onclick="switchVktTab('blueprint')">2. Phòng Bản Vẽ</button>
                 <button class="vkt-tab-btn" onclick="switchVktTab('build')">3. Đại Bản Doanh</button>
             </div>
-
-            <div id="vkt-land-panel" class="vkt-panel active">
-                <div id="vkt-land-list"></div>
-            </div>
-            
-            <div id="vkt-blueprint-panel" class="vkt-panel">
-                <div id="vkt-blueprint-list"></div>
-            </div>
-            
-            <div id="vkt-build-panel" class="vkt-panel">
-                <div id="vkt-build-content"></div>
-            </div>
+            <div id="vkt-land-panel" class="vkt-panel active"><div id="vkt-land-list"></div></div>
+            <div id="vkt-blueprint-panel" class="vkt-panel"><div id="vkt-blueprint-list"></div></div>
+            <div id="vkt-build-panel" class="vkt-panel"><div id="vkt-build-content"></div></div>
         </div>
     </div>
-
     <div class="modal-overlay" id="privilege-modal" style="z-index: 1005;">
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header" style="color: var(--primary);"><span><i class="fas fa-gem"></i> ĐẶC QUYỀN HỘI VIÊN</span><button class="close-modal" onclick="closeModal('privilege-modal')"><i class="fas fa-times"></i></button></div>
@@ -373,7 +371,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="renew-modal" style="z-index:9999;">
         <div class="modal" style="border-color:var(--danger); max-width:450px;">
             <h3 style="color:var(--danger); margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i> Cảnh Báo Trượt Gia Hạn</h3>
@@ -381,7 +378,6 @@
             <div style="display:flex; flex-direction:column; gap:10px;" id="renew-options-container"></div>
         </div>
     </div>
-
     <div class="modal-overlay" id="stock-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--success);"><span><i class="fas fa-chart-line"></i> THỊ TRƯỜNG CỔ PHIẾU</span><button class="close-modal" onclick="closeModal('stock-modal')"><i class="fas fa-times"></i></button></div>
@@ -390,7 +386,6 @@
             <div id="stock-list-container"></div>
         </div>
     </div>
-
     <div class="modal-overlay" id="bank-modal">
         <div class="modal" style="max-width: 400px; text-align: center;">
             <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-piggy-bank"></i> QUỸ TIẾT KIỆM</span><button class="close-modal" onclick="closeModal('bank-modal')"><i class="fas fa-times"></i></button></div>
@@ -399,7 +394,6 @@
             <div style="display:flex;gap:10px;"><input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số lượng..."><button class="btn btn-success" onclick="depositBank()">Gửi Vào</button><button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button></div>
         </div>
     </div>
-
     <div id="punish-overlay">
         <div class="punish-box">
             <h1 style="font-family:'Black Ops One',cursive;font-size:2.5rem;margin-bottom:10px;"><i class="fas fa-gavel"></i> CẢNH BÁO KỶ LUẬT</h1>
@@ -409,13 +403,11 @@
             <div style="display:flex;gap:15px;justify-content:center;"><button class="btn btn-success" id="btn-pay-fine" onclick="payFine()">Nộp Phạt</button><button class="btn btn-outline" style="color:white;" onclick="refuseFine()">Từ chối</button></div>
         </div>
     </div>
-
     <div id="afk-overlay">
         <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
         <div id="afk-timer">15</div>
         <button class="btn-afk" onclick="afkSuccess()">TÔI VẪN ĐANG HỌC!</button>
     </div>
-
     <div id="zen-overlay">
         <button class="zen-btn-exit" onclick="toggleZenMode()"><i class="fas fa-sign-out-alt"></i></button>
         <div class="zen-app-container">
@@ -465,7 +457,6 @@
         const TEMPLATE_KEY = "planner_template_v84";
         const THEMES = ['light','dark','detective','nature'];
 
-        /* --- DATA VIỆN KIẾN THÀNH --- */
         const VKT_LANDS = [
             { id: 'land-ngoai-o', name: 'Đất Ngoại Ô', price: 2000000, desc: 'Rộng lớn, hoang sơ.' },
             { id: 'land-nam', name: 'TT Phía Nam', price: 3000000, desc: 'Phồn hoa, vượng khí.' },
@@ -474,10 +465,10 @@
         ];
 
         const VKT_BLUEPRINTS = [
-            { id: 'bp-thuvien', name: 'Thư Viện Hoàng Gia', price: 1000000, buildCost: 8000000, desc: 'Khai thác du lịch: Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' },
-            { id: 'bp-dautruong', name: 'Đấu Trường La Mã', price: 1500000, buildCost: 12500000, desc: 'Khai thác du lịch: Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' },
-            { id: 'bp-kimtuthap', name: 'Kim Tự Tháp', price: 2000000, buildCost: 15000000, desc: 'Khai thác du lịch: Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' },
-            { id: 'bp-truongthanh', name: 'Vạn Lý Trường Thành', price: 3000000, buildCost: 12000000, desc: 'Khai thác du lịch: Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' }
+            { id: 'bp-thuvien', name: 'Thư Viện Hoàng Gia', price: 1000000, buildCost: 8000000, desc: 'Khai thác du lịch: Đón khách tham quan thu lợi nhuận (Vé 3.000 Xu).' },
+            { id: 'bp-dautruong', name: 'Đấu Trường La Mã', price: 1500000, buildCost: 12500000, desc: 'Khai thác du lịch: Đón khách tham quan thu lợi nhuận (Vé 3.000 Xu).' },
+            { id: 'bp-kimtuthap', name: 'Kim Tự Tháp', price: 2000000, buildCost: 15000000, desc: 'Khai thác du lịch: Đón khách tham quan thu lợi nhuận (Vé 3.000 Xu).' },
+            { id: 'bp-truongthanh', name: 'Vạn Lý Trường Thành', price: 3000000, buildCost: 12000000, desc: 'Khai thác du lịch: Đón khách tham quan thu lợi nhuận (Vé 3.000 Xu).' }
         ];
 
         let scheduleData = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
@@ -866,6 +857,126 @@
                 isShopSpinning=false; updateSpinButtonUI(); w.style.transition='none'; w.style.transform=`rotate(${tR%360}deg)`; 
                 shopGachaOpts[idx].act(); saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); updateMemUI(); 
             }, 4000);
+        }
+
+        /* --- VIỆN KIẾN THÀNH LOGIC --- */
+        function checkVktDailyReset() {
+            let t = new Date().toDateString();
+            if(sys.vkt.lastInvestDate !== t) { sys.vkt.dailyInvest = 0; sys.vkt.lastInvestDate = t; }
+            if(sys.vkt.lastVisitorDate !== t) { sys.vkt.lastVisitorDate = t; sys.vkt.collectedToday = []; }
+            saveAllData();
+        }
+
+        function openVienKienThanh() {
+            checkVktDailyReset();
+            $('vkt-coins-display').innerText = Math.floor(sys.coins).toLocaleString();
+            $('vkt-modal').style.display = 'flex';
+            switchVktTab('land');
+        }
+
+        function switchVktTab(tab) {
+            document.querySelectorAll('.vkt-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.vkt-panel').forEach(p => p.classList.remove('active'));
+            if(event) event.target.classList.add('active');
+            $(`vkt-${tab}-panel`).classList.add('active');
+            if(tab === 'land') renderVktLands();
+            if(tab === 'blueprint') renderVktBlueprints();
+            if(tab === 'build') renderVktBuild();
+        }
+
+        function renderVktLands() {
+            let h = '';
+            VKT_LANDS.forEach(l => {
+                let owned = sys.vkt.lands.includes(l.id);
+                h += `<div class="vkt-card"><div><h4>${l.name}</h4><p style="font-size:0.8rem;color:var(--text-muted);">${l.desc}</p></div><div>${owned?`<button class="btn btn-outline" disabled>Đã Sở Hữu</button>`:`<button class="btn btn-primary" onclick="buyVktLand('${l.id}', ${l.price})">${(l.price/1000000).toFixed(1)}M</button>`}</div></div>`;
+            });
+            $('vkt-land-list').innerHTML = h;
+        }
+
+        function renderVktBlueprints() {
+            let h = '';
+            VKT_BLUEPRINTS.forEach(b => {
+                let owned = sys.vkt.blueprints.includes(b.id);
+                h += `<div class="vkt-card"><div><h4>${b.name}</h4><p style="font-size:0.8rem;color:var(--text-muted);">Vốn xây: ${(b.buildCost/1000000).toFixed(1)}M</p></div><div>${owned?`<button class="btn btn-outline" disabled>Đã Có</button>`:`<button class="btn btn-primary" onclick="buyVktBlueprint('${b.id}', ${b.price})">${(b.price/1000000).toFixed(1)}M</button>`}</div></div>`;
+            });
+            $('vkt-blueprint-list').innerHTML = h;
+        }
+
+        function buyVktLand(id, price) { if(sys.coins < price) return alert("Ngân khố không đủ!"); if(confirm("Xác nhận chi " + (price/1000000).toFixed(1) + "M Xu mua Sổ Đỏ này?")) { sys.coins -= price; sys.vkt.lands.push(id); saveAllData(); renderVktLands(); playRealisticBoom(); } }
+        function buyVktBlueprint(id, price) { if(sys.coins < price) return alert("Ngân khố không đủ!"); if(confirm("Xác nhận chi " + (price/1000000).toFixed(1) + "M Xu mua Bản Vẽ này?")) { sys.coins -= price; sys.vkt.blueprints.push(id); saveAllData(); renderVktBlueprints(); playRealisticBoom(); } }
+
+        function renderVktBuild() {
+            checkVktDailyReset();
+            let c = $('vkt-build-content'), h = '';
+            let now = new Date(), hour = now.getHours();
+            let isGoldenHour = (hour >= 22 && hour <= 23);
+
+            if(sys.vkt.completed.length > 0) {
+                h += `<h4 style="text-align:center; color:var(--success); margin-bottom:15px;"><i class="fas fa-ticket-alt"></i> QUẦY THU VÉ THAM QUAN</h4>`;
+                sys.vkt.completed.forEach(bpId => {
+                    let bp = VKT_BLUEPRINTS.find(x => x.id === bpId);
+                    let collected = sys.vkt.collectedToday.includes(bpId);
+                    
+                    h += `<div class="vkt-revenue-box"><i class="fas fa-monument" style="font-size:2.5rem; margin-bottom:10px;"></i><h4>${bp.name}</h4>`;
+                    
+                    if (collected) {
+                        h += `<p style="color:#10b981; font-weight:bold;"><i class="fas fa-check-circle"></i> Đã chốt sổ xong.</p>`;
+                    } else if (isGoldenHour) {
+                        h += `<p style="color:#fbbf24; font-size:0.9rem;">Mật Nghị Công Bộ: Giờ kiểm kê đã điểm!</p>
+                              <button class="btn btn-success" style="width:100%; font-weight:900; padding:15px; margin-top:10px;" onclick="chotSoVkt('${bpId}')">💰 CHỐT SỔ & THU TIỀN</button>`;
+                    } else {
+                        h += `<div class="vkt-lock-overlay"><i class="fas fa-users" style="font-size:2rem;"></i><span>Du khách đang đổ về nườm nượp...</span><small style="color:#fbbf24;">Quay lại vào 22h00 - 23h59 để chốt sổ!</small></div>`;
+                    }
+                    h += `</div>`;
+                });
+            }
+            if(sys.vkt.activeProject) {
+                let p = sys.vkt.activeProject, pct = (p.invested / p.totalCost) * 100, rem = 200000 - sys.vkt.dailyInvest;
+                h += `<hr style="border: 1px solid var(--border-color); margin: 20px 0;"><h3 style="text-align:center; color:var(--warning);">${p.name}</h3><div class="vkt-progress-bar"><div class="vkt-progress-fill" style="width:${pct}%"></div></div><p style="text-align:center; font-size:0.8rem;">Hôm nay còn được rót: <b>${rem.toLocaleString()} Xu</b></p><div style="display:flex;gap:10px;"><input type="number" id="vkt-invest-amt" class="form-control" placeholder="Số xu (Max 200k)..."><button class="btn btn-warning" style="font-weight:bold; color:black;" onclick="investVktProject()">Rót Vốn</button></div>`;
+            } else {
+                let avL = sys.vkt.lands, avB = sys.vkt.blueprints.filter(b => !sys.vkt.completed.includes(b));
+                if(avL.length && avB.length) {
+                    h += `<hr style="border: 1px solid var(--border-color); margin: 20px 0;"><p style="text-align:center; font-weight:bold; color:var(--primary);">🚀 KHỞI CÔNG DỰ ÁN MỚI</p><div class="form-group"><select id="vkt-sel-bp" class="form-control">${avB.map(id => `<option value="${id}">${VKT_BLUEPRINTS.find(x=>x.id===id).name}</option>`).join('')}</select></div><div class="form-group"><select id="vkt-sel-land" class="form-control">${avL.map(id => `<option value="${id}">${VKT_LANDS.find(x=>x.id===id).name}</option>`).join('')}</select></div><button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="startVktProject()">LỄ ĐỘNG THỔ</button>`;
+                }
+            }
+            c.innerHTML = h;
+        }
+
+        function startVktProject() {
+            let bpId = $('vkt-sel-bp').value, landId = $('vkt-sel-land').value, d = VKT_BLUEPRINTS.find(x=>x.id===bpId);
+            if(confirm("Xác nhận động thổ dự án " + d.name + "?")) { sys.vkt.activeProject = { bpId: bpId, landId: landId, invested: 0, totalCost: d.buildCost, name: d.name }; saveAllData(); playRealisticBoom(); renderVktBuild(); }
+        }
+
+        function investVktProject() {
+            let amt = parseInt($('vkt-invest-amt').value), p = sys.vkt.activeProject, rem = 200000 - sys.vkt.dailyInvest;
+            if(isNaN(amt) || amt <= 0) return alert("Sai số lượng!");
+            if(sys.coins < amt) return alert("Ngân khố không đủ!");
+            if(amt > rem) return alert(`Hạn mức rót vốn hôm nay chỉ còn ${rem.toLocaleString()} Xu!`);
+            if(amt > (p.totalCost - p.invested)) amt = p.totalCost - p.invested;
+            
+            sys.coins -= amt; sys.vkt.dailyInvest += amt; p.invested += amt; saveAllData();
+            if(p.invested >= p.totalCost) { 
+                sys.vkt.completed.push(p.bpId); let pName = p.name; sys.vkt.activeProject = null; saveAllData(); runBigFireworks(); playRealisticBoom(); 
+                alert(`🎉 CHÚC MỪNG BỆ HẠ! Đại công trình ${pName} đã khánh thành!\nQuầy bán vé tham quan đã chính thức mở cửa!`); 
+            } else { playTickSound(); alert(`Đã rót thành công ${amt.toLocaleString()} Xu!`); }
+            renderVktBuild(); updateSystemUI();
+        }
+
+        function chotSoVkt(bpId) {
+            if(sys.vkt.collectedToday.includes(bpId)) return;
+            let visitors = Math.floor(Math.random() * 400) + 10; 
+            let isDaiLe = Math.random() < 0.05;
+            if (isDaiLe) visitors += Math.floor(Math.random() * 3000) + 500; 
+            
+            let total = visitors * 3000;
+            sys.coins += total; sys.vkt.collectedToday.push(bpId); saveAllData();
+            
+            playChime();
+            if (isDaiLe) { runBigFireworks(); alert(`👑 ĐẠI LỄ HOÀNG GIA! Du khách đổ về như trảy hội!`); }
+            
+            $('vkt-coins-display').innerText = Math.floor(sys.coins).toLocaleString();
+            updateSystemUI(); renderVktBuild();
+            alert(`📜 KIỂM KÊ NGÂN KHỐ [${VKT_BLUEPRINTS.find(x=>x.id===bpId).name}]:\n\n🎯 Khách: ${visitors.toLocaleString()} người\n💰 Doanh thu: +${total.toLocaleString()} Xu`);
         }
 
         /* --- STOCK & BANK --- */
