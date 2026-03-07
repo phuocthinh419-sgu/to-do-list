@@ -15,7 +15,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
     <style>
-        /* --- GIỮ NGUYÊN CSS NỀN TẢNG CỦA BỆ HẠ --- */
+        /* --- CSS NỀN TẢNG --- */
         :root { --bg-color:#f1f5f9; --text-main:#1e293b; --text-muted:#64748b; --card-bg:#ffffff; --border-color:#e2e8f0; --primary:#2563eb; --primary-hover:#1d4ed8; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(15,23,42,0.6); --input-bg:#ffffff; --color-red:#fee2e2; --color-red-border:#fca5a5; --color-blue:#dbeafe; --color-blue-border:#bfdbfe; --color-green:#dcfce7; --color-green-border:#bbf7d0; --color-default:#f8fafc; --color-default-border:#e2e8f0; --font-main:'Inter',sans-serif; }
         [data-theme="dark"] { --bg-color:#0f172a; --text-main:#f8fafc; --text-muted:#94a3b8; --card-bg:#1e293b; --border-color:#334155; --primary:#3b82f6; --primary-hover:#60a5fa; --modal-overlay:rgba(0,0,0,0.8); --input-bg:#0f172a; --color-red:rgba(239,68,68,0.15); --color-red-border:#ef4444; --color-blue:rgba(59,130,246,0.15); --color-blue-border:#3b82f6; --color-green:rgba(16,185,129,0.15); --color-green-border:#10b981; --color-default:rgba(148,163,184,0.1); --color-default-border:#475569; }
         [data-theme="detective"] { --bg-color:#121212; --text-main:#d1d5db; --text-muted:#7f1d1d; --card-bg:#1e1e1e; --border-color:#450a0a; --primary:#991b1b; --primary-hover:#b91c1c; --success:#065f46; --danger:#dc2626; --warning:#b45309; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#000000; --color-red:rgba(220,38,38,0.1); --color-red-border:#991b1b; --color-blue:rgba(59,130,246,0.05); --color-blue-border:#1e3a8a; --color-green:rgba(16,185,129,0.05); --color-green-border:#064e3b; --color-default:rgba(156,163,175,0.05); --color-default-border:#374151; --font-main:'Special Elite',cursive,'Inter',sans-serif; }
@@ -34,121 +34,145 @@
         .task-list{padding:15px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;min-height:150px;} .task-item{border:1px solid;border-radius:8px;padding:12px;display:flex;gap:12px;align-items:flex-start;transition:0.2s;position:relative;} .task-item:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .task-item.completed{opacity:0.5;} .task-item.completed .task-desc{text-decoration:line-through;color:var(--text-muted);} .task-item.missed-task{opacity:0.5;border-color:var(--danger);background:var(--color-red);} .task-item.missed-task .task-desc{text-decoration:line-through;color:var(--danger);} .task-item.missed-task .task-checkbox{display:none;} .task-item.locked{pointer-events:none;border-style:dashed;} .task-urgent{background:var(--color-red);border-color:var(--color-red-border);} .task-study{background:var(--color-blue);border-color:var(--color-blue-border);} .task-work{background:var(--color-green);border-color:var(--color-green-border);} .task-default{background:var(--color-default);border-color:var(--color-default-border);}
         .task-checkbox{margin-top:3px;cursor:pointer;width:18px;height:18px;accent-color:var(--success);flex-shrink:0;} .task-content{flex:1;} .task-time{font-size:0.8rem;font-weight:700;color:var(--primary);margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;} .task-desc{font-size:0.95rem;color:var(--text-main);word-break:break-word;font-weight:500;} .rollover-badge{font-size:0.7rem;background:var(--warning);color:white;padding:2px 6px;border-radius:4px;margin-left:auto;} .missed-badge{font-size:0.7rem;color:var(--danger);font-weight:800;margin-left:auto;} .task-actions{display:flex;gap:8px;opacity:0;transition:opacity 0.2s;position:absolute;right:10px;top:10px;} .task-item:not(.locked):hover .task-actions{opacity:1;} .btn-icon{background:var(--card-bg);border:1px solid var(--border-color);border-radius:4px;cursor:pointer;padding:4px 6px;color:var(--text-muted);font-size:0.8rem;} .btn-icon:hover{color:var(--primary);border-color:var(--primary);} .btn-icon.delete:hover{color:var(--danger);border-color:var(--danger);} .day-footer{padding:15px;border-top:1px solid var(--border-color);} .btn-add{width:100%;border:1px dashed var(--text-muted);background:transparent;color:var(--text-muted);padding:10px;border-radius:6px;cursor:pointer;transition:0.2s;font-weight:600;} .btn-add:hover{background:var(--border-color);color:var(--primary);border-color:var(--primary);}
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;} .modal{background:var(--card-bg);width:90%;max-width:450px;padding:25px;border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);animation:slideUp 0.3s ease;border:1px solid var(--border-color);max-height:90vh;overflow-y:auto;} @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}} .modal-header{font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;color:var(--text-main);} .close-modal{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);} .form-group{margin-bottom:15px;} .form-group label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--text-muted);} .form-control{width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:6px;font-size:0.95rem;color:var(--text-main);} .form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);} .color-options{display:flex;gap:12px;margin-top:5px;} .color-radio{display:none;} .color-label{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:0.2s;} .color-radio:checked+.color-label{transform:scale(1.2);border-color:var(--primary);box-shadow:0 0 8px rgba(0,0,0,0.2);} .bg-red{background:#fca5a5;} .bg-blue{background:#93c5fd;} .bg-green{background:#86efac;} .bg-default{background:#cbd5e1;} .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:25px;}
-        .mem-card{background:linear-gradient(135deg,#1e293b,#0f172a);color:white;padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid #334155;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.2);} .mem-card.pro{background:linear-gradient(135deg,#2563eb,#1e40af);border-color:#60a5fa;} .mem-card.ultra{background:linear-gradient(135deg,#f59e0b,#b45309);border-color:#fbbf24;} .mem-status{font-size:1.2rem;font-weight:900;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;} .mem-timer{font-family:'Special Elite',monospace;font-size:1.1rem;color:#cbd5e1;margin-bottom:15px;} .mem-toggle{display:flex;align-items:center;gap:10px;font-size:0.9rem;background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:6px;width:fit-content;} .mem-pricing{display:flex;flex-direction:column;gap:15px;margin-bottom:20px;} .mem-tier-box{border:1px solid var(--border-color);padding:15px;border-radius:8px;background:var(--input-bg);} .mem-tier-box h4{font-size:1.1rem;margin-bottom:10px;color:var(--primary);text-transform:uppercase;} .mem-tier-box.ultra-box h4{color:var(--warning);} .mem-btn{width:100%;padding:10px;margin-bottom:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-main);border-radius:6px;cursor:pointer;font-weight:600;text-align:left;display:flex;justify-content:space-between;transition:0.2s;} .mem-btn:hover{border-color:var(--primary);background:rgba(37,99,235,0.05);} .mem-badge{background:var(--danger);color:white;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:bold;}
-        .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;} .shop-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;text-align:center;background:var(--input-bg);transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;} .shop-item:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .shop-item h4{font-size:1rem;color:var(--text-main);margin-bottom:5px;} .shop-item p{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;min-height:35px;}
-        
-        .bank-display{text-align:center;font-size:2.5rem;color:var(--warning);font-family:'Black Ops One',cursive;margin:20px 0;text-shadow:0 2px 5px rgba(0,0,0,0.1);}
-        #zen-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:5000;display:none;flex-direction:column;align-items:center;justify-content:flex-start;backdrop-filter:blur(15px);opacity:0;transition:opacity 0.5s ease;text-align:center;padding:30px 20px;box-sizing:border-box;color:#e2e8f0;overflow-y:auto;overflow-x:hidden;} #zen-overlay.active{display:flex;opacity:1;} #fireworks-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5001;} .zen-app-container{width:100%;max-width:900px;z-index:5002;display:flex;flex-direction:column;align-items:center;margin:auto;position:relative;} .zen-btn-exit{position:absolute;top:20px;right:20px;background:transparent;border:none;font-size:2rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:0.3s;z-index:6005;} .zen-btn-exit:hover{color:#ef4444;transform:rotate(90deg) scale(1.2);} .zen-timer{font-family:'Black Ops One',cursive;font-size:clamp(5rem,12vw,8rem);color:#fff;letter-spacing:5px;margin:0 0 10px 0;text-shadow:4px 4px 0px #000,8px 8px 20px rgba(0,0,0,0.8);line-height:1;} @keyframes timer-pulse-zen{0%{filter:drop-shadow(0 0 0 rgba(255,215,0,0));transform:scale(1);}50%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.9));transform:scale(1.02);}100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0));transform:scale(1);}} .zen-timer.ticking{animation:timer-pulse-zen 1.5s infinite ease-in-out;} .zen-energy-bar-container{width:100%;height:14px;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.2);border-radius:10px;margin:10px 0 20px;position:relative;box-shadow:inset 0 0 10px rgba(0,0,0,0.8);overflow:visible;} .zen-energy-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#93c5fd);transition:width 0.5s linear;border-radius:8px;box-shadow:0 0 10px currentColor;position:relative;} .zen-rank-badge{font-family:'Inter',sans-serif;font-weight:700;font-size:1.2rem;color:#60a5fa;border:2px solid #60a5fa;padding:5px 20px;border-radius:4px;background:rgba(0,0,0,0.6);margin-bottom:10px;box-shadow:0 0 15px rgba(96,165,250,0.3);text-transform:uppercase;letter-spacing:2px;} .zen-xp-bar-container{width:100%;max-width:400px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);} .zen-xp-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);width:0%;transition:width 0.5s ease-out;} .zen-xp-text{font-size:0.9rem;color:#94a3b8;margin-bottom:5px;font-weight:bold;letter-spacing:1px;} .zen-quote-container{margin-top:10px;max-width:800px;width:90%;padding:25px 30px;border-radius:12px;position:relative;background:#0f172a;min-height:120px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.8);overflow:hidden;border:1px solid rgba(255,255,255,0.05);} .zen-quote-line{position:absolute;display:block;z-index:1;pointer-events:none;} .zen-quote-line:nth-child(1){top:0;left:-100%;width:100%;height:4px;background:linear-gradient(90deg,transparent,#0ea5e9,#38bdf8);box-shadow:0 0 10px #38bdf8;animation:led-top 2s linear infinite;animation-delay:0s;} @keyframes led-top{0%{left:-100%;}50%,100%{left:100%;}} .zen-quote-line:nth-child(2){top:-100%;right:0;width:4px;height:100%;background:linear-gradient(180deg,transparent,#a855f7,#c084fc);box-shadow:0 0 10px #c084fc;animation:led-right 2s linear infinite;animation-delay:-1.5s;} @keyframes led-right{0%{top:-100%;}50%,100%{top:100%;}} .zen-quote-line:nth-child(3){bottom:0;right:-100%;width:100%;height:4px;background:linear-gradient(270deg,transparent,#f59e0b,#fbbf24);box-shadow:0 0 10px #fbbf24;animation:led-bottom 2s linear infinite;animation-delay:-1s;} @keyframes led-bottom{0%{right:-100%;}50%,100%{right:100%;}} .zen-quote-line:nth-child(4){bottom:-100%;left:0;width:4px;height:100%;background:linear-gradient(360deg,transparent,#10b981,#34d399);box-shadow:0 0 10px #34d399;animation:led-left 2s linear infinite;animation-delay:-0.5s;} @keyframes led-left{0%{bottom:-100%;}50%,100%{bottom:100%;}} .zen-quote-content{position:relative;z-index:5;} .zen-quote-en{font-size:1.2rem;font-style:italic;color:#cbd5e1;margin-bottom:5px;font-family:'Inter',serif;transition:opacity 0.5s;} .zen-quote-vi{font-size:1.1rem;color:#a5b4fc;font-weight:600;margin-bottom:8px;transition:opacity 0.5s;} .zen-quote-author{font-size:0.9rem;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;text-align:right;transition:opacity 0.5s;} .zen-status{font-size:1.2rem;text-transform:uppercase;letter-spacing:5px;color:rgba(255,255,255,0.9);margin-top:10px;margin-bottom:5px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.8);text-align:center;} .zen-controls{display:flex;gap:15px;margin-top:20px;justify-content:center;flex-wrap:wrap;} .zen-btn-action{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.5);color:white;padding:12px 40px;border-radius:50px;font-size:1.2rem;font-weight:bold;cursor:pointer;transition:0.2s;box-shadow:0 5px 15px rgba(0,0,0,0.5);} .zen-btn-action:hover{background:#fff;color:#000;transform:translateY(-3px);}
-        .wheel-wrapper{position:relative;width:320px;height:320px;margin-bottom:20px;} .wheel-pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:30px solid #fbbf24;z-index:10;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.8));} .wheel{width:100%;height:100%;border-radius:50%;border:5px solid #fff;box-shadow:0 0 25px rgba(0,0,0,0.8);overflow:hidden;position:relative;transition:transform 4s cubic-bezier(0.17,0.67,0.1,1);} .wheel-label{position:absolute;top:50%;left:50%;width:50%;height:24px;transform-origin:0% 50%;margin-top:-12px;text-align:right;padding-right:25px;font-size:0.75rem;font-weight:bold;color:white;text-shadow:1px 1px 3px rgba(0,0,0,1);line-height:24px;white-space:nowrap;} #zen-wheel-box{display:none;flex-direction:column;align-items:center;margin-top:20px;animation:slideUp 0.5s ease;}
-        #punish-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.95);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;} .punish-box{background:rgba(0,0,0,0.6);padding:30px;border-radius:15px;border:2px solid #fca5a5;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.8);}
-        #afk-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.9);z-index:6000;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;animation:flash-red 0.5s infinite alternate;} @keyframes flash-red{0%{background:rgba(220,38,38,0.9);}100%{background:rgba(153,27,27,0.95);}} #afk-overlay h1{font-size:3rem;margin-bottom:10px;text-transform:uppercase;font-family:'Black Ops One',cursive;text-shadow:0 0 20px black;text-align:center;} #afk-timer{font-size:5rem;font-weight:bold;margin:20px 0;} .btn-afk{background:#fff;color:#dc2626;border:none;padding:20px 50px;font-size:2rem;font-weight:bold;border-radius:50px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.5);transition:0.2s;} .btn-afk:hover{transform:scale(1.1);background:#fef08a;}
-        #zen-time-select { padding: 12px 15px; border-radius: 50px; background: rgba(0,0,0,0.3); color: white; border: 2px solid rgba(255,255,255,0.3); font-size: 1.1rem; outline: none; cursor: pointer; } #zen-time-select option { background: #1e293b; color: white; }
 
-        /* NÂNG CẤP GIAO DIỆN THẺ HỘI VIÊN VIP */
-        .mem-card { background: linear-gradient(135deg, #1e293b, #0f172a) !important; color: white !important; padding: 20px !important; border-radius: 16px !important; margin-bottom: 20px !important; border: 1px solid #334155 !important; position: relative !important; overflow: hidden !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important; transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67) !important; }
-        .mem-card::before { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: card-shine 6s infinite linear; z-index: 1; }
-        @keyframes card-shine { 0% { left: -150%; } 50% { left: 200%; } 100% { left: 200%; } }
-        .mem-card::after { content: '\f007'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: -15px; bottom: -25px; font-size: 8rem; color: #ffffff; opacity: 0.03; z-index: 0; transform: rotate(-15deg); }
-        .mem-status, .mem-timer, .mem-toggle { position: relative; z-index: 2; }
-        .mem-card.pro { background: linear-gradient(135deg, #1d4ed8, #1e3a8a) !important; border-color: #60a5fa !important; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3) !important; }
-        .mem-card.pro::after { content: '\f3ed'; opacity: 0.08; }
-        .mem-card.ultra { background: linear-gradient(135deg, #d4af37, #b45309) !important; border-color: #fde047 !important; box-shadow: 0 0 25px rgba(245, 158, 11, 0.5) !important; }
-        .mem-card.ultra::after { content: '\f521'; opacity: 0.15; }
-
-        /* --- BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC --- */
-        .countdown-panel { 
-            background: linear-gradient(180deg, #0f172a 0%, #020617 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid #475569; border-top: 3px solid #d4af37; box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; display: none; 
-        }
+        /* BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC */
+        .countdown-panel { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid #475569; border-top: 3px solid #d4af37; box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; display: none; }
         .countdown-panel::before { content: '\f252'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10rem; color: #d4af37; opacity: 0.03; z-index: 0; pointer-events: none; }
-        .countdown-panel::after { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(212,175,55,0.15) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: card-shine 6s infinite linear; z-index: 0; pointer-events: none; }
         .cd-event-container { display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; z-index: 1; }
         .cd-event-container::-webkit-scrollbar { display: none; }
         .cd-event { flex: 0 0 auto; width: min(100%, 360px); background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
         .countdown-title { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700; color: #d4af37; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 2px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; }
-        .countdown-title::before, .countdown-title::after { content: ''; height: 1px; width: 25px; background: linear-gradient(90deg, transparent, #d4af37, transparent); }
         .countdown-timer { display: flex; justify-content: center; gap: 10px; width: 100%; font-family: 'Black Ops One', cursive; }
         .cd-box { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-bottom: 2px solid #ef4444; box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 2px 5px rgba(0,0,0,0.6); flex: 1; padding: 10px 2px; border-radius: 10px; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .cd-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40%; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); border-radius: 10px 10px 0 0; pointer-events: none; }
         .cd-num { font-size: 2rem; line-height: 1; background: -webkit-linear-gradient(#f8fafc, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); }
-        .cd-box:last-child .cd-num { background: -webkit-linear-gradient(#fca5a5, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse-sec-royal 1s infinite; }
         .cd-lbl { font-family: 'Inter', sans-serif; font-size: 0.65rem; color: #94a3b8; font-weight: 600; letter-spacing: 1px; margin-top: 8px; }
         .cd-btn-edit { position: absolute; top: 15px; right: 15px; background: rgba(212, 175, 55, 0.05); border: 1px solid #d4af37; color: #d4af37; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.8rem; z-index: 10; font-weight: bold; }
-        .cd-btn-edit:hover { background: #d4af37; color: #000; box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
-        /* --- CSS VIỆN KIẾN THÀNH GỐC CỦA BỆ HẠ --- */
+        /* ==================================================
+           VIỆN KIẾN THÀNH - GIAO DIỆN GỐC KẾT HỢP SÂN VẬN ĐỘNG
+           ================================================== */
         .vkt-tab-btn { padding: 12px; background: transparent; border: 1px solid var(--primary); color: var(--primary); border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; transition: 0.2s; text-align: center; }
         .vkt-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
         .vkt-panel { display: none; margin-top: 20px; animation: slideUp 0.3s ease; }
         .vkt-panel.active { display: block; }
         .vkt-card { background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s; }
-        .vkt-card:hover { border-color: var(--warning); transform: translateY(-2px); }
-        .vkt-card h4 { color: var(--primary); margin-bottom: 5px; font-size: 1.1rem; }
+        
         .vkt-grid-map { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .vkt-plot { border: 2px dashed #475569; background: #0f172a; border-radius: 10px; min-height: 160px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        
+        /* GIAO DIỆN Ô ĐẤT NGUYÊN BẢN CỦA BỆ HẠ */
+        .vkt-plot { border: 2px dashed #475569; background: #0f172a; border-radius: 10px; min-height: 160px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: transform 0.2s;}
         .plot-fog { position: absolute; inset: 0; background: radial-gradient(circle, #334155 0%, #0f172a 100%); opacity: 0.8; z-index: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #94a3b8; }
         .plot-empty { color: #64748b; font-size: 0.8rem; z-index: 2; position: relative;}
         .plot-construction { color: #f59e0b; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 10px; z-index:2; position: relative;}
         .plot-completed { display: flex; flex-direction: column; align-items: center; width: 100%; position: relative; height: 100%; justify-content: center; z-index:2;}
         .scaffold { font-size: 2.5rem; animation: swing 2s infinite ease-in-out alternate; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .vkt-building-icon { font-size: 3.5rem; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
-        .anim-library { position: absolute; inset: 0; background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%); animation: pulse-light 3s infinite alternate; z-index:0;}
-        .anim-colosseum { position: absolute; bottom: 0; width: 100%; height: 60px; background: linear-gradient(to top, rgba(239,68,68,0.4), transparent); animation: fire-flicker 0.5s infinite alternate; z-index:0;}
-        .anim-pyramid { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 80px solid transparent; border-right: 80px solid transparent; border-bottom: 120px solid rgba(250,204,21,0.1); animation: sun-ray 4s infinite linear; z-index:0;}
-        .anim-greatwall { position: absolute; bottom: 10px; width: 200%; left: -50%; height: 30px; background: rgba(255,255,255,0.05); filter: blur(8px); animation: cloud-move 15s infinite linear; z-index:0;}
-        .vkt-collect-btn { z-index: 10; position: relative; margin-top: 10px; font-size:0.85rem; padding:8px 15px; border: none; font-weight: bold; background: var(--success); color: white; border-radius: 6px; cursor: pointer; animation: pulse-collect 1s infinite; }
+        .vkt-collect-btn { z-index: 10; position: relative; margin-top: 10px; font-size:0.8rem; padding:8px 12px; border: none; font-weight: bold; background: var(--success); color: white; border-radius: 6px; cursor: pointer; animation: pulse-collect 1s infinite; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; }
+
+        @keyframes swing { 0% { transform: rotate(-10deg); } 100% { transform: rotate(10deg); } }
+        @keyframes pulse-collect { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(16,185,129,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+
+        /* ---------------------------------------------------
+           MÔ HÌNH SÂN VẬN ĐỘNG 3D CSS
+           --------------------------------------------------- */
+        .stadium-wrapper { perspective: 1000px; margin-bottom: 10px; z-index: 5; display: flex; align-items: center; justify-content: center; width: 100%; height: 80px; }
+        .css-stadium { width: 90px; height: 60px; border-radius: 30px; position: relative; transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(-35deg); box-shadow: -4px 8px 0 var(--stad-depth), -8px 12px 10px rgba(0,0,0,0.6); background: var(--stad-bg); display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); border: 1px solid rgba(255,255,255,0.1); }
+        .vkt-plot:hover .css-stadium { transform: rotateX(55deg) rotateZ(-35deg) translateZ(10px); box-shadow: -4px 12px 0 var(--stad-depth), -12px 20px 15px rgba(0,0,0,0.5); }
+        .css-stadium-inner { width: 75px; height: 45px; border-radius: 25px; background: var(--stad-inner-border); display: flex; align-items: center; justify-content: center; box-shadow: inset -2px 5px 10px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); }
+        .css-stadium-pitch { width: 60px; height: 32px; border-radius: 16px; background: repeating-linear-gradient(0deg, #166534, #166534 4px, #15803d 4px, #15803d 8px); position: relative; border: 1px solid rgba(255,255,255,0.7); }
+        .css-stadium-pitch::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(255,255,255,0.7); transform: translateX(-50%); }
+        .css-stadium-pitch::after { content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 1px solid rgba(255,255,255,0.7); border-radius: 50%; transform: translate(-50%, -50%); }
+        .stad-light { position: absolute; width: 3px; height: 3px; background: #fff; border-radius: 50%; box-shadow: 0 0 8px 3px rgba(255,255,255,0.8); z-index: 10; animation: flicker 3s infinite alternate; }
+        .l-1 { top: 3px; left: 12px; } .l-2 { top: 3px; right: 12px; } .l-3 { bottom: 3px; left: 12px; } .l-4 { bottom: 3px; right: 12px; }
+        .bp-mydinh { --stad-bg: #fbbf24; --stad-depth: #b45309; --stad-inner-border: #ef4444; }
+        .bp-wembley { --stad-bg: #f8fafc; --stad-depth: #94a3b8; --stad-inner-border: #e2e8f0; }
+        .bp-allianz { --stad-bg: #ef4444; --stad-depth: #991b1b; --stad-inner-border: #1e3a8a; box-shadow: -4px 8px 0 var(--stad-depth), 0 0 15px #ef4444, -8px 12px 10px rgba(0,0,0,0.6); }
+        .vkt-plot:hover .bp-allianz { box-shadow: -4px 12px 0 var(--stad-depth), 0 0 25px #ef4444, -12px 20px 15px rgba(0,0,0,0.5); }
+        .bp-oldtrafford { --stad-bg: #b91c1c; --stad-depth: #7f1d1d; --stad-inner-border: #dc2626; border-radius: 6px; }
+        .bp-oldtrafford .css-stadium-inner { border-radius: 3px; width: 70px; height: 40px; }
+        .bp-oldtrafford .css-stadium-pitch { border-radius: 0; width: 60px; height: 32px; background: repeating-linear-gradient(90deg, #166534, #166534 4px, #15803d 4px, #15803d 8px); }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+
+        /* ==================================================
+           CÔNG NGHỆ MỚI: PHÒNG ĐIỀU HÀNH VIP (VIEW XUỐNG SÂN)
+           ================================================== */
+        #vip-room-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: #000;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: flex-end; /* Đẩy Dashboard xuống dưới */
+            padding-bottom: 40px;
+            overflow: hidden; 
+            transition: background-image 0.5s ease;
+        }
+        /* Lớp Gradient tối màu để text ở dưới dễ đọc, ở trên vẫn thấy rõ sân */
+        #vip-room-overlay::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.8) 100%);
+            z-index: 1; pointer-events: none;
+        }
+
+        /* Bảng điều khiển kính mờ (Glassmorphism) */
+        .vip-room-container { 
+            background: rgba(15, 23, 42, 0.65); 
+            backdrop-filter: blur(12px);
+            width: 90%; max-width: 800px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); 
+            position: relative; padding: 30px; text-align: center; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.05); 
+            z-index: 10; 
+            animation: slideUpVIP 0.5s ease-out forwards;
+        }
+        @keyframes slideUpVIP { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .vip-close-btn { position: absolute; top: -50px; right: 0; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; }
+        .vip-close-btn:hover { background: #ef4444; border-color: #ef4444; transform: rotate(90deg); }
+        
+        .vip-title { font-family: 'Black Ops One', cursive; font-size: 2.5rem; color: #fbbf24; margin-bottom: 5px; letter-spacing: 2px; text-shadow: 0 4px 10px rgba(0,0,0,0.9); text-transform: uppercase;}
+        .vip-subtitle { font-family: 'Inter', sans-serif; font-size: 1rem; color: #e2e8f0; margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        
+        .vip-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .vip-stat-box { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.3); }
+        .vip-stat-label { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; font-weight: 900; margin-bottom: 5px; letter-spacing: 1px; }
+        .vip-stat-value { font-family: 'Special Elite', monospace; font-size: 3rem; font-weight: bold; color: white; line-height: 1; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .vip-stat-value.money { color: #10b981; text-shadow: 0 0 20px rgba(16,185,129,0.6); }
+        
+        .btn-whistle { background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); border: 1px solid #fca5a5; color: white; font-family: 'Black Ops One', cursive; font-size: 1.5rem; padding: 15px 40px; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 30px rgba(220,38,38,0.5), 0 6px 0 #7f1d1d; transition: all 0.1s; letter-spacing: 2px; }
+        .btn-whistle:active { transform: translateY(6px); box-shadow: 0 4px 10px rgba(220,38,38,0.5), 0 0 0 #7f1d1d; }
+        .btn-whistle:disabled { background: #475569; border-color: #64748b; box-shadow: 0 6px 0 #334155; cursor: not-allowed; color: #94a3b8; transform: translateY(6px); box-shadow: 0 0 0 #334155; }
+        
+        /* Hiệu ứng chớp đèn Flash máy ảnh (Paparazzi) */
+        .camera-flash { position: absolute; width: 100%; height: 100%; background: white; z-index: 8000; pointer-events: none; opacity: 0; }
+        @keyframes flash-anim { 0% { opacity: 1; } 100% { opacity: 0; } }
 
         /* =========================================
-           NÂNG CẤP BẢNG ĐIỆN TỬ CHỨNG KHOÁN (CYBER-FINANCE)
+           CHỨNG KHOÁN CYBER-FINANCE
            ========================================= */
         .stock-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; } 
-        
-        .stock-card { 
-            background: linear-gradient(145deg, #1e293b, #0f172a); 
-            border: 2px solid #334155; 
-            border-radius: 12px; 
-            padding: 15px; 
-            position: relative; 
-            overflow: hidden; 
-            transition: transform 0.2s, box-shadow 0.2s; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .stock-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .stock-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #334155; border-radius: 12px; padding: 15px; position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
         .stock-card.trend-up { border-color: rgba(16, 185, 129, 0.5); box-shadow: 0 0 15px rgba(16, 185, 129, 0.1); }
         .stock-card.trend-down { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 15px rgba(239, 68, 68, 0.1); }
-
         .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; z-index: 2; position: relative;}
         .stock-symbol { font-family: 'Black Ops One', cursive; font-size: 1.3rem; letter-spacing: 1px; }
-        .stock-card.trend-up .stock-symbol { color: #10b981; text-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
-        .stock-card.trend-down .stock-symbol { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
-
+        .stock-card.trend-up .stock-symbol { color: #10b981; } .stock-card.trend-down .stock-symbol { color: #ef4444; }
         .trend-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; color: white; }
         .badge-up { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
         .badge-down { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
         .badge-pump { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #fbbf24; animation: pulse-badge 1s infinite alternate; }
         @keyframes pulse-badge { from { box-shadow: 0 0 5px rgba(245,158,11,0.5); } to { box-shadow: 0 0 15px rgba(245,158,11,1); } }
-
-        .stock-price-box { 
-            background: rgba(0,0,0,0.4); border-radius: 8px; padding: 15px 10px; text-align: center; margin-bottom: 12px; position: relative; z-index: 2; border: 1px solid rgba(255,255,255,0.05);
-        }
+        .stock-price-box { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 15px 10px; text-align: center; margin-bottom: 12px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
         .stock-price-val { font-family: 'Special Elite', monospace; font-size: 1.8rem; font-weight: bold; color: white; line-height: 1; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        
         .sparkline { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; z-index: 0; opacity: 0.2; pointer-events: none; }
         .sparkline-up { background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 30" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polyline points="0,30 20,20 40,25 60,10 80,15 100,0" fill="none" stroke="%2310b981" stroke-width="2"/></svg>') no-repeat bottom center/100% 100%; }
         .sparkline-down { background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 30" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polyline points="0,0 20,10 40,5 60,20 80,15 100,30" fill="none" stroke="%23ef4444" stroke-width="2"/></svg>') no-repeat bottom center/100% 100%; }
-
-        .stock-portfolio { font-size: 0.85rem; color: #cbd5e1; text-align: center; margin-bottom: 15px; z-index: 2; position: relative; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;}
-        .stock-portfolio strong { color: #f8fafc; font-size: 1rem; }
-        .stock-value { color: #fbbf24; font-weight: bold; font-family: 'Black Ops One', cursive; font-size: 0.95rem; letter-spacing: 1px;}
-
+        .stock-portfolio { font-size: 0.85rem; color: #cbd5e1; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;}
+        .stock-value { color: #fbbf24; font-weight: bold; font-family: 'Black Ops One', cursive;}
         .stock-btns { display: flex; gap: 8px; z-index: 2; position: relative;}
-        .stock-btn-action { flex: 1; padding: 10px; font-size: 0.9rem; font-weight: 900; border-radius: 6px; cursor: pointer; border: none; color: white; text-transform: uppercase; transition: all 0.1s; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .btn-buy { background: linear-gradient(180deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 0 #047857, 0 5px 10px rgba(0,0,0,0.3); }
-        .btn-buy:active { transform: translateY(4px); box-shadow: 0 0 0 #047857, 0 2px 5px rgba(0,0,0,0.3); }
-        .btn-sell { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 0 #b91c1c, 0 5px 10px rgba(0,0,0,0.3); }
-        .btn-sell:active { transform: translateY(4px); box-shadow: 0 0 0 #b91c1c, 0 2px 5px rgba(0,0,0,0.3); }
+        .stock-btn-action { flex: 1; padding: 10px; font-size: 0.9rem; font-weight: 900; border-radius: 6px; cursor: pointer; border: none; color: white; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-buy { background: linear-gradient(180deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 0 #047857; } .btn-buy:active { transform: translateY(4px); box-shadow: 0 0 0 #047857; }
+        .btn-sell { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 0 #b91c1c; } .btn-sell:active { transform: translateY(4px); box-shadow: 0 0 0 #b91c1c; }
 
-        @media (max-width:768px) { .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} .countdown-timer { gap: 5px; } .cd-box { min-width: 50px; padding: 5px 2px; } .cd-num { font-size: 1.5rem; } .countdown-title { font-size: 0.9rem; } .countdown-title::before, .countdown-title::after { width: 15px; } }
+        @media (max-width:768px) { .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;} .day-column{min-width:100%;max-width:100%;} .zen-quote-en{font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .cd-box { min-width: 50px; padding: 5px 2px; } .cd-num { font-size: 1.5rem; } .vip-dashboard{grid-template-columns: 1fr; gap:10px;} .vip-stat-value {font-size: 2.5rem;} .vip-title {font-size: 2rem;} }
     </style>
 </head>
 <body>
@@ -158,7 +182,7 @@
             <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V84 VIP</div>
             <div class="header-controls">
                 <div id="header-tuvi-badge" class="btn btn-outline"><i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span></div>
-                <div id="header-coin-badge" class="btn">🪙 <span id="ui-coins">0 Xu</span></div>
+                <div id="header-coin-badge" class="btn">💵 <span id="ui-coins">$0</span></div>
                 <div id="header-streak-badge" class="btn">🔥 <span id="streak-text">0 Ngày</span></div>
                 <div id="header-mem-badge" class="btn tier-basic"><i class="fas fa-user"></i> <span>BASIC</span></div>
                 <div id="header-buffs-badge" class="btn btn-outline"><span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span></div>
@@ -166,7 +190,7 @@
                 
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
-                <button class="btn btn-outline" onclick="openVienKienThanh()"><i class="fas fa-university" style="color:#fbbf24;"></i> Viện Kiến Thành</button>
+                <button class="btn btn-outline" onclick="openVienKienThanh()"><i class="fas fa-futbol" style="color:#fbbf24;"></i> Tổ Hợp Thể Thao</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
                 <button class="btn btn-outline" onclick="toggleThemeCycle()"><i class="fas fa-palette"></i></button>
@@ -175,31 +199,51 @@
                 <button class="btn btn-primary" onclick="resetWeek()"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
                 <button class="btn btn-outline" onclick="$('import-file').click()"><i class="fas fa-file-import"></i></button>
                 <button class="btn btn-outline" onclick="exportExcel()"><i class="fas fa-file-export"></i></button>
-                <button id="btn-install-app" class="btn btn-primary" style="display: none; justify-content: center;"><i class="fas fa-download"></i> Cài Đặt App</button>
                 <input type="file" id="import-file" style="display:none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
 
         <div id="countdown-wrapper" class="countdown-panel">
             <button class="cd-btn-edit" onclick="openCountdownModal()"><i class="fas fa-pen"></i> Chỉnh tấu</button>
-            <div id="countdown-events-container" class="cd-event-container">
-                </div>
+            <div id="countdown-events-container" class="cd-event-container"></div>
         </div>
 
         <div class="ghost-panel">
-            <div class="ghost-title"><span><i class="fas fa-chart-line"></i> Phân tích Kỷ luật (Tuần này vs Tuần trước)</span><span id="ghost-status-text">Đang tính toán...</span></div>
+            <div class="ghost-title"><span><i class="fas fa-chart-line"></i> Phân tích Kỷ luật</span><span id="ghost-status-text">Đang tính toán...</span></div>
             <div class="ghost-track"><div class="ghost-fill-past" id="ghost-bar-past" style="width: 0%;"></div><div class="ghost-fill-now" id="ghost-bar-now" style="width: 0%;"></div></div>
         </div>
         <div class="board" id="board-container"></div>
     </div>
 
+    <div id="vip-room-overlay">
+        <div id="flash-layer-1" class="camera-flash"></div>
+        <div id="flash-layer-2" class="camera-flash" style="background:rgba(255,255,255,0.8);"></div>
+        <div id="flash-layer-3" class="camera-flash" style="background:rgba(255,255,255,0.6);"></div>
+
+        <div class="vip-room-container">
+            <button class="vip-close-btn" onclick="closeVipRoom()"><i class="fas fa-times"></i></button>
+            <div class="vip-title" id="vip-stad-name">OLD TRAFFORD</div>
+            <div class="vip-subtitle"><i class="fas fa-eye"></i> GÓC NHÌN TỪ PHÒNG ĐIỀU HÀNH VIP</div>
+            
+            <div class="vip-dashboard">
+                <div class="vip-stat-box">
+                    <div class="vip-stat-label"><i class="fas fa-users"></i> Lượng Khán Giả</div>
+                    <div class="vip-stat-value" id="vip-spectators">0</div>
+                </div>
+                <div class="vip-stat-box">
+                    <div class="vip-stat-label"><i class="fas fa-money-bill-wave"></i> Doanh thu vé (USD)</div>
+                    <div class="vip-stat-value money" id="vip-revenue">0</div>
+                </div>
+            </div>
+            
+            <button id="btn-start-match" class="btn-whistle" onclick="triggerMatch()">⚽ THỔI CÒI KHAI MẠC</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="countdown-modal">
         <div class="modal" style="border-color:#d4af37; box-shadow:0 0 30px rgba(212,175,55,0.3); max-width: 500px;">
             <div class="modal-header" style="color:#d4af37;"><span><i class="fas fa-hourglass-half"></i> Khắc Bia Đá Mục Tiêu</span><button class="close-modal" onclick="closeModal('countdown-modal')"><i class="fas fa-times"></i></button></div>
-            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px; font-style:italic;">Thiết lập tối đa 5 ngày định mệnh để thiêu đốt sự lười biếng. Có thể cuộn ngang để xem tất cả.</p>
-            
             <div id="cd-list" style="margin-bottom: 20px;"></div>
-            
             <div id="cd-add-form">
                 <div class="form-group"><label>Tên Sự Kiện <span style="color:var(--danger)">*</span></label><input type="text" id="cd-input-name" class="form-control" placeholder="Ví dụ: KỲ THI IELTS..." style="text-transform: uppercase;"></div>
                 <div class="form-group"><label>Ngày Giờ Phán Xét <span style="color:var(--danger)">*</span></label><input type="datetime-local" id="cd-input-date" class="form-control"></div>
@@ -212,17 +256,17 @@
     </div>
 
     <div class="modal-overlay" id="vkt-modal">
-        <div class="modal" style="max-width: 650px; border-color:var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);">
-            <div class="modal-header" style="color: var(--warning);">
-                <span><i class="fas fa-university"></i> VIỆN KIẾN THÀNH</span>
+        <div class="modal" style="max-width: 650px; border-color:var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); background: #0f172a;">
+            <div class="modal-header" style="color: var(--warning); border-bottom: 1px solid #334155; padding-bottom: 10px;">
+                <span><i class="fas fa-futbol"></i> TỔ HỢP THỂ THAO HOÀNG GIA</span>
                 <button class="close-modal" onclick="closeModal('vkt-modal')"><i class="fas fa-times"></i></button>
             </div>
-            <p style="text-align:center; margin-bottom: 15px;">Ngân khố: <strong style="color:var(--warning); font-size:1.3rem;" id="vkt-coins-display">0</strong> Xu</p>
+            <p style="text-align:center; margin-bottom: 15px; color: #94a3b8;">Ngân khố: <strong style="color:var(--warning); font-size:1.5rem; font-family:'Black Ops One', cursive;">$<span id="vkt-coins-display">0</span></strong></p>
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button class="vkt-tab-btn active" id="btn-vkt-tab-land" onclick="switchVktTab('land')">1. Sàn BĐS</button>
-                <button class="vkt-tab-btn" id="btn-vkt-tab-blueprint" onclick="switchVktTab('blueprint')">2. Phòng Bản Vẽ</button>
-                <button class="vkt-tab-btn" id="btn-vkt-tab-build" onclick="switchVktTab('build')">3. Đại Bản Doanh</button>
+                <button class="vkt-tab-btn" id="btn-vkt-tab-blueprint" onclick="switchVktTab('blueprint')">2. Bản Vẽ Sân</button>
+                <button class="vkt-tab-btn" id="btn-vkt-tab-build" onclick="switchVktTab('build')">3. Thi Công</button>
             </div>
 
             <div id="vkt-land-panel" class="vkt-panel active"><div id="vkt-land-list"></div></div>
@@ -261,7 +305,7 @@
     <div class="modal-overlay" id="shop-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span><button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button></div>
-            <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">0</strong> Xu</p>
+            <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;">$<span id="shop-coins-display">0</span></strong></p>
             <button class="btn btn-outline" style="width:100%; margin-bottom: 15px; justify-content:center;" onclick="openPrivilegeModal()"><i class="fas fa-gem"></i> Xem Đặc Quyền Hội Viên</button>
             <div id="mem-card-ui" class="mem-card">
                 <div class="mem-status">Thẻ hội viên: <span id="ui-mem-tier">BASIC</span></div>
@@ -271,35 +315,35 @@
             <div class="mem-pricing">
                 <div class="mem-tier-box">
                     <h4>Bậc Tinh Anh (PRO Tier)</h4>
-                    <button class="mem-btn" onclick="buyMem('PRO', 1, 100)"><span>1 Ngày</span> <span>100 Xu</span></button>
-                    <button class="mem-btn" onclick="buyMem('PRO', 30, 2000)"><span>30 Ngày (Tiết kiệm 33%)</span> <span>2.000 Xu</span></button>
-                    <button class="mem-btn" onclick="buyMem('PRO', 365, 15000)"><span>1 Năm (Tiết kiệm 50%)</span> <span>15.000 Xu</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 1, 100)"><span>1 Ngày</span> <span>$100</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 30, 2000)"><span>30 Ngày (Tiết kiệm 33%)</span> <span>$2,000</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 365, 15000)"><span>1 Năm (Tiết kiệm 50%)</span> <span>$15,000</span></button>
                 </div>
                 <div class="mem-tier-box ultra-box" style="border-color:var(--warning);">
                     <h4>Bậc Tối Thượng (ULTRA Tier)</h4>
-                    <button class="mem-btn" onclick="buyMem('ULTRA', 1, 300)"><span>1 Ngày</span> <span>300 Xu</span></button>
-                    <button class="mem-btn" onclick="buyMem('ULTRA', 30, 6000)"><span>30 Ngày</span> <span>6.000 Xu <span class="mem-badge">🔥 Tiết kiệm 33%</span></span></button>
-                    <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>50.000 Xu <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 1, 300)"><span>1 Ngày</span> <span>$300</span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 30, 6000)"><span>30 Ngày</span> <span>$6,000 <span class="mem-badge">🔥 Tiết kiệm 33%</span></span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>$50,000 <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
                 </div>
             </div>
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <div class="shop-grid">
-                <div class="shop-item"><h4>🛡️ Thẻ Bảo Hộ</h4><p>Miễn phạt AFK hoặc sót việc 1 lần.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('immunity', 150)">Mua (150 Xu)</button></div>
-                <div class="shop-item"><h4>✨ Thẻ Nhân Đôi</h4><p>Nhân đôi XP/Xu trong 25p Focus.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('doubleXp', 300)">Mua (300 Xu)</button></div>
-                <div class="shop-item" style="border-color:#d4af37;"><h4 style="color:#d4af37;">👑 Giao diện Hoàng Cung</h4><button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%;justify-content:center;background:#d4af37;color:black;" onclick="buyTheme('royal', 1000)">Mua (1000 Xu)</button></div>
-                <div class="shop-item" style="border-color:#00ff00;background:#0a0a0a;"><h4 style="color:#00ff00;">💻 Giao diện Hắc Ám</h4><button id="btn-buy-theme-hacker" class="btn" style="width:100%;justify-content:center;background:#00cc00;color:black;" onclick="buyTheme('hacker', 1000)">Mua (1000 Xu)</button></div>
+                <div class="shop-item"><h4>🛡️ Thẻ Bảo Hộ</h4><p>Miễn phạt AFK hoặc sót việc 1 lần.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('immunity', 150)">Mua ($150)</button></div>
+                <div class="shop-item"><h4>✨ Thẻ Nhân Đôi</h4><p>Nhân đôi XP/USD trong 25p Focus.</p><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="buyItem('doubleXp', 300)">Mua ($300)</button></div>
+                <div class="shop-item" style="border-color:#d4af37;"><h4 style="color:#d4af37;">👑 Giao diện Hoàng Cung</h4><button id="btn-buy-theme-royal" class="btn btn-warning" style="width:100%;justify-content:center;background:#d4af37;color:black;" onclick="buyTheme('royal', 1000)">Mua ($1,000)</button></div>
+                <div class="shop-item" style="border-color:#00ff00;background:#0a0a0a;"><h4 style="color:#00ff00;">💻 Giao diện Hắc Ám</h4><button id="btn-buy-theme-hacker" class="btn" style="width:100%;justify-content:center;background:#00cc00;color:black;" onclick="buyTheme('hacker', 1000)">Mua ($1,000)</button></div>
             </div>
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <h3 style="text-align:center; color:var(--primary); margin-bottom:10px;"><i class="fas fa-paint-brush"></i> NGOẠI TRANG CHUỖI (STREAK)</h3>
             <div class="shop-grid">
-                <div class="shop-item"><h4>❄️ Băng Tâm</h4><p>Hoa tuyết tĩnh lặng.</p><button id="btn-buy-icon-snow" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#38bdf8;color:#38bdf8;" onclick="buyIcon('❄️', 10000)">Mua (10.000 Xu)</button></div>
-                <div class="shop-item"><h4>🏆 Quán Quân</h4><p>Cúp vàng danh giá.</p><button id="btn-buy-icon-cup" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#fbbf24;color:#fbbf24;" onclick="buyIcon('🏆', 10000)">Mua (10.000 Xu)</button></div>
-                <div class="shop-item"><h4>🎓 Học Giả</h4><p>Đỉnh cao tri thức.</p><button id="btn-buy-icon-hat" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#a855f7;color:#a855f7;" onclick="buyIcon('🎓', 5000)">Mua (5.000 Xu)</button></div>
-                <div class="shop-item"><h4>💎 Kim Cương</h4><p>Kỷ luật thép bất diệt.</p><button id="btn-buy-icon-diamond" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#22d3ee;color:#22d3ee;" onclick="buyIcon('💎', 25000)">Mua (25.000 Xu)</button></div>
+                <div class="shop-item"><h4>❄️ Băng Tâm</h4><p>Hoa tuyết tĩnh lặng.</p><button id="btn-buy-icon-snow" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#38bdf8;color:#38bdf8;" onclick="buyIcon('❄️', 10000)">Mua ($10,000)</button></div>
+                <div class="shop-item"><h4>🏆 Quán Quân</h4><p>Cúp vàng danh giá.</p><button id="btn-buy-icon-cup" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#fbbf24;color:#fbbf24;" onclick="buyIcon('🏆', 10000)">Mua ($10,000)</button></div>
+                <div class="shop-item"><h4>🎓 Học Giả</h4><p>Đỉnh cao tri thức.</p><button id="btn-buy-icon-hat" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#a855f7;color:#a855f7;" onclick="buyIcon('🎓', 5000)">Mua ($5,000)</button></div>
+                <div class="shop-item"><h4>💎 Kim Cương</h4><p>Kỷ luật thép bất diệt.</p><button id="btn-buy-icon-diamond" class="btn btn-outline" style="width:100%;justify-content:center;border-color:#22d3ee;color:#22d3ee;" onclick="buyIcon('💎', 25000)">Mua ($25,000)</button></div>
             </div>
             <div style="border: 2px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; margin: 20px 0;">
                 <h3 style="color:#8b5cf6; text-align:center; margin-bottom:5px;"><i class="fas fa-ticket-alt"></i> XỔ SỐ MAY MẮN 6/45</h3>
-                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 5px;">Giá vé: 10.000 Xu | Jackpot: 2.000.000 Xu</p>
+                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 5px;">Giá vé: $10,000 | Jackpot: $2,000,000</p>
                 <div id="lotto-timer" style="text-align:center; font-family:'Black Ops One', cursive; font-size:1.2rem; color:#8b5cf6; margin-bottom:15px; letter-spacing:2px;">ĐANG TÍNH TOÁN GIỜ SỔ...</div>
                 <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin: 15px 0;">
                     <input type="number" class="form-control" id="lt-1" min="1" max="45" placeholder="00" style="text-align:center; padding:8px;">
@@ -320,15 +364,15 @@
                 <h3 style="color: #ff4757; text-align: center; margin-bottom: 5px;"><i class="fas fa-skull-crossbones"></i> CHỢ ĐEN BÁT QUÁI <i class="fas fa-skull-crossbones"></i></h3>
                 <p style="text-align: center; color: #aaa; font-size: 0.85em; margin-bottom: 10px; margin-top: 0;">(Mua thêm lượt quay VIP)</p>
                 <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; border-color: #ff4757; color: #ff4757; display:flex; flex-direction:column; align-items:center;" onclick="buyExtraSpins(3, 1500)"><span>3 Lượt</span><b>1.500 Xu</b></button>
-                    <button class="btn btn-outline" style="flex: 1; border-color: #ff4757; color: #ff4757; display:flex; flex-direction:column; align-items:center;" onclick="buyExtraSpins(10, 5000)"><span>10 Lượt</span><b>5.000 Xu</b></button>
+                    <button class="btn btn-outline" style="flex: 1; border-color: #ff4757; color: #ff4757; display:flex; flex-direction:column; align-items:center;" onclick="buyExtraSpins(3, 1500)"><span>3 Lượt</span><b>$1,500</b></button>
+                    <button class="btn btn-outline" style="flex: 1; border-color: #ff4757; color: #ff4757; display:flex; flex-direction:column; align-items:center;" onclick="buyExtraSpins(10, 5000)"><span>10 Lượt</span><b>$5,000</b></button>
                 </div>
             </div>
             <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
             <h3 style="text-align:center; color:var(--danger); margin-bottom:10px;"><i class="fas fa-dice"></i> BÁT QUÁI KỲ TRẬN</h3>
-            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với 100 Xu. Vòng quay rủi ro với BASIC, an toàn tuyệt đối với ULTRA.</p>
+            <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Thử vận may với $100. Vòng quay rủi ro với BASIC, an toàn tuyệt đối với ULTRA.</p>
             <div id="shop-wheel-wrapper" class="wheel-wrapper" style="margin: 0 auto 20px;"><div class="wheel-pointer"></div><div class="wheel" id="shop-wheel"></div></div>
-            <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY (100 Xu)</button>
+            <button class="btn btn-danger" style="width:100%; padding:15px; font-size:1.2rem; justify-content:center; font-weight:bold;" onclick="spinShopGacha()" id="btn-shop-spin">QUAY NGAY ($100)</button>
         </div>
     </div>
 
@@ -380,7 +424,7 @@
             </div>
             <div style="text-align:center; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px;">
                 <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Số dư khả dụng</p>
-                <strong style="color:var(--warning); font-size:1.8rem; font-family: 'Black Ops One', cursive;" id="stock-coins-display">0</strong> <span style="color:#fbbf24">Xu</span>
+                <strong style="color:var(--warning); font-size:1.8rem; font-family: 'Black Ops One', cursive;">$<span id="stock-coins-display">0</span></strong>
             </div>
             <button class="btn btn-warning" id="btn-ultra-stock" style="width:100%; margin-bottom: 15px; display:none; justify-content:center; color:black; font-weight:bold; box-shadow: 0 0 15px rgba(245,158,11,0.5);" onclick="soiCauUltra()"><i class="fas fa-eye"></i> Tầm Nhìn ULTRA: Soi Cầu Mã Tăng Mạnh</button>
             <div id="stock-list-container"></div>
@@ -391,19 +435,21 @@
         <div class="modal" style="max-width: 400px; text-align: center;">
             <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-piggy-bank"></i> QUỸ TIẾT KIỆM</span><button class="close-modal" onclick="closeModal('bank-modal')"><i class="fas fa-times"></i></button></div>
             <div style="background:var(--input-bg);padding:15px;border-radius:10px;border:1px solid var(--warning);margin-bottom:20px;"><p style="font-size:0.9rem;color:var(--text-muted);">Tiền lãi chưa thu hoạch</p><div class="bank-display" id="bank-interest-display">0.000</div><button class="btn btn-warning" style="width:100%;justify-content:center;color:black;font-weight:bold;" onclick="harvestBank()">THU HOẠCH LÃI</button></div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:0.9rem;"><div>Vốn: <strong style="font-size:1.2rem;" id="bank-capital-display">0</strong> Xu</div><div>Lãi suất: <strong style="font-size:1.2rem;color:var(--success);"><span id="bank-rate-display">1</span>%/Ngày</strong></div></div>
-            <div style="display:flex;gap:10px;"><input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số lượng..."><button class="btn btn-success" onclick="depositBank()">Gửi Vào</button><button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:0.9rem;"><div>Vốn: <strong style="font-size:1.2rem;">$<span id="bank-capital-display">0</span></strong></div><div>Lãi suất: <strong style="font-size:1.2rem;color:var(--success);"><span id="bank-rate-display">1</span>%/Ngày</strong></div></div>
+            <div style="display:flex;gap:10px;"><input type="number" id="bank-input-amount" class="form-control" placeholder="Nhập số USD..."><button class="btn btn-success" onclick="depositBank()">Gửi Vào</button><button class="btn btn-outline" onclick="withdrawBank()">Rút Ra</button></div>
         </div>
     </div>
+    
     <div id="punish-overlay">
         <div class="punish-box">
             <h1 style="font-family:'Black Ops One',cursive;font-size:2.5rem;margin-bottom:10px;"><i class="fas fa-gavel"></i> CẢNH BÁO KỶ LUẬT</h1>
             <p id="punish-reason" style="font-size:1rem;margin-bottom:20px;">Lý do: Không hoàn thành nhiệm vụ!</p>
             <h3 style="color:#fca5a5;margin-bottom:10px;">Vi phạm lần <span id="punish-tier-display">1</span> trong tuần</h3>
-            <p style="font-size:2rem;font-weight:bold;margin-bottom:10px;"><span id="punish-fine-display">50</span> XU</p>
+            <p style="font-size:2rem;font-weight:bold;margin-bottom:10px; color:#ef4444;">$<span id="punish-fine-display">50</span></p>
             <div style="display:flex;gap:15px;justify-content:center;"><button class="btn btn-success" id="btn-pay-fine" onclick="payFine()">Nộp Phạt</button><button class="btn btn-outline" style="color:white;" onclick="refuseFine()">Từ chối</button></div>
         </div>
     </div>
+    
     <div id="afk-overlay">
         <h1><i class="fas fa-stopwatch"></i> KIỂM TRA TẬP TRUNG <i class="fas fa-stopwatch"></i></h1>
         <div id="afk-timer">15</div>
@@ -465,11 +511,12 @@
             { id: 'land-bac', name: 'TT Phía Bắc', price: 5000000, desc: 'Huyết mạch hoàng thành.' }
         ];
 
+        /* DỮ LIỆU SÂN VẬN ĐỘNG (KÈM ẢNH NỀN ĐỜI THỰC ĐỂ VIP ROOM HIỂN THỊ) */
         const VKT_BLUEPRINTS = [
-            { id: 'bp-thuvien', name: 'Thư Viện Hoàng Gia', price: 1000000, buildCost: 8000000, desc: 'Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' },
-            { id: 'bp-dautruong', name: 'Đấu Trường La Mã', price: 1500000, buildCost: 12500000, desc: 'Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' },
-            { id: 'bp-kimtuthap', name: 'Kim Tự Tháp', price: 2000000, buildCost: 15000000, desc: 'Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' },
-            { id: 'bp-truongthanh', name: 'Vạn Lý Trường Thành', price: 3000000, buildCost: 12000000, desc: 'Khách KHÔNG GIỚI HẠN (Vé 3.000 Xu).' }
+            { id: 'bp-mydinh', name: 'SVĐ QG Mỹ Đình', price: 1000000, buildCost: 8000000, maxSpec: 40000, ticket: 3000, bgImg: 'https://images.unsplash.com/photo-1556816214-cb337d1d2b86?auto=format&fit=crop&w=1920&q=80' },
+            { id: 'bp-wembley', name: 'SVĐ Wembley', price: 1500000, buildCost: 12500000, maxSpec: 90000, ticket: 3000, bgImg: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?auto=format&fit=crop&w=1920&q=80' },
+            { id: 'bp-allianz', name: 'Allianz Arena', price: 2000000, buildCost: 15000000, maxSpec: 75000, ticket: 3000, bgImg: 'https://images.unsplash.com/photo-1518605368461-1ee7e5302062?auto=format&fit=crop&w=1920&q=80' },
+            { id: 'bp-oldtrafford', name: 'Old Trafford', price: 3000000, buildCost: 20000000, maxSpec: 74000, ticket: 3000, bgImg: 'https://images.unsplash.com/photo-1614632537190-23e4146777f9?auto=format&fit=crop&w=1920&q=80' }
         ];
 
         let scheduleData = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
@@ -495,11 +542,7 @@
             sys.points = Number(sys.points)||0; sys.coins = Number(sys.coins)||0; sys.streak = Number(sys.streak)||0; sys.bankCapital = Number(sys.bankCapital)||0; sys.bankUnclaimed = Number(sys.bankUnclaimed)||0; sys.currentTheme = sys.currentTheme||'light';
             
             if(!sys.stocks) sys.stocks = {IEL:{name:"IELTS Corp",price:100,qty:0},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0},ZHN:{name:"Hán Ngữ Group",price:30,qty:0}};
-            
-            // PATCH: Khởi tạo giá cũ cho thuật toán Bảng Điện Tử
-            Object.keys(sys.stocks).forEach(k => {
-                if (sys.stocks[k].prevPrice === undefined) sys.stocks[k].prevPrice = sys.stocks[k].price;
-            });
+            Object.keys(sys.stocks).forEach(k => { if (sys.stocks[k].prevPrice === undefined) sys.stocks[k].prevPrice = sys.stocks[k].price; });
 
             if(!sys.unlockedThemes) sys.unlockedThemes = []; if(!sys.mem) sys.mem = {tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0};
             if(!sys.bankLastHarvest) sys.bankLastHarvest = Date.now();
@@ -508,9 +551,14 @@
             if(!sys.vkt) sys.vkt = {lands:[], blueprints:[], activeProject:null, completed:[], dailyInvest:0, lastInvestDate:"", ticketRevenue:{}, lastVisitorDate:"", collectedToday:[]};
             if(!sys.targetEvents) sys.targetEvents = [];
 
-            checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); 
-            renderCountdownLayout(); 
-            processBankInterest();
+            /* TỰ ĐỘNG CHUYỂN ĐỔI KỲ QUAN CŨ SANG SÂN VẬN ĐỘNG MỚI ĐỂ TRÁNH LỖI MẤT ĐẤT */
+            const idMap = { 'bp-thuvien': 'bp-mydinh', 'bp-dautruong': 'bp-wembley', 'bp-kimtuthap': 'bp-allianz', 'bp-truongthanh': 'bp-oldtrafford' };
+            if (sys.vkt.completed && sys.vkt.completed.length > 0) { sys.vkt.completed = sys.vkt.completed.map(id => idMap[id] || id); }
+            if (sys.vkt.activeProject && idMap[sys.vkt.activeProject.bpId]) { sys.vkt.activeProject.bpId = idMap[sys.vkt.activeProject.bpId]; }
+            if (sys.vkt.collectedToday && sys.vkt.collectedToday.length > 0) { sys.vkt.collectedToday = sys.vkt.collectedToday.map(id => idMap[id] || id); }
+            sys.vkt.completed = sys.vkt.completed.filter(id => VKT_BLUEPRINTS.find(b => b.id === id));
+
+            checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); renderCountdownLayout(); processBankInterest();
         }
 
         function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); }
@@ -528,27 +576,23 @@
         function updateSystemUI() {
             const {current, next} = getRealmInfo(sys.points);
             $('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`;
-             if($('ui-coins')) $('ui-coins').innerText = `${Math.floor(sys.coins).toLocaleString()} Xu`;
-             $('header-streak-badge').innerHTML = `${sys.streakIcon} <span id="streak-text">${sys.streak} Ngày</span>`;
-                        if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
+            if($('ui-coins')) $('ui-coins').innerText = '$' + Math.floor(sys.coins).toLocaleString();
+            $('header-streak-badge').innerHTML = `${sys.streakIcon} <span id="streak-text">${sys.streak} Ngày</span>`;
+            if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
             if($('zen-rank')) { $('zen-rank').innerText=current.name; const cStr=`rgb(${current.color.r},${current.color.g},${current.color.b})`; $('zen-rank').style.color=cStr; $('zen-rank').style.borderColor=cStr; $('zen-xp-fill').style.width=next?`${((sys.points-current.min)/(next.min-current.min))*100}%`:'100%'; $('zen-xp-text').innerText=next?`${sys.points} / ${next.min} XP`:`${sys.points} / ${MAX_POINTS} MAX`; }
             $('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`; $('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
             if($('shop-modal').style.display==='flex') $('shop-coins-display').innerText = Math.floor(sys.coins).toLocaleString();
             if($('stock-modal').style.display==='flex') $('stock-coins-display').innerText = Math.floor(sys.coins).toLocaleString();
         }
 
-        /* --- LOGIC ĐỒNG HỒ SINH TỬ ĐA MỤC TIÊU --- */
         function openCountdownModal() { renderCountdownModalList(); $('countdown-modal').style.display = 'flex'; }
         function renderCountdownModalList() {
-            let h = '';
-            sys.targetEvents.forEach((ev, i) => { h += `<div style="display:flex; justify-content:space-between; background:var(--input-bg); padding:10px; border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; align-items:center;"><div style="flex:1; text-align:left;"><strong style="color:var(--primary); font-size:0.9rem;">${ev.name}</strong><br><small style="color:var(--text-muted);">${new Date(ev.date).toLocaleString('vi-VN')}</small></div><button class="btn-icon delete" style="border:none; padding:8px;" onclick="deleteCountdownEvent(${i})"><i class="fas fa-trash"></i></button></div>`; });
-            $('cd-list').innerHTML = h;
+            let h = ''; sys.targetEvents.forEach((ev, i) => { h += `<div style="display:flex; justify-content:space-between; background:var(--input-bg); padding:10px; border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; align-items:center;"><div style="flex:1; text-align:left;"><strong style="color:var(--primary); font-size:0.9rem;">${ev.name}</strong><br><small style="color:var(--text-muted);">${new Date(ev.date).toLocaleString('vi-VN')}</small></div><button class="btn-icon delete" style="border:none; padding:8px;" onclick="deleteCountdownEvent(${i})"><i class="fas fa-trash"></i></button></div>`; }); $('cd-list').innerHTML = h;
             if(sys.targetEvents.length >= 5) $('cd-add-form').style.display = 'none'; else { $('cd-add-form').style.display = 'block'; $('cd-input-name').value = ''; $('cd-input-date').value = ''; }
         }
         function addCountdownEvent() {
             if(sys.targetEvents.length >= 5) return alert("Chỉ được lập tối đa 5 thánh chỉ!");
-            const n = $('cd-input-name').value.trim(), d = $('cd-input-date').value;
-            if(!n || !d) return alert("Bệ hạ vui lòng nhập đầy đủ Tên Mục Tiêu và Ngày Giờ!");
+            const n = $('cd-input-name').value.trim(), d = $('cd-input-date').value; if(!n || !d) return alert("Bệ hạ vui lòng nhập đầy đủ Tên Mục Tiêu và Ngày Giờ!");
             sys.targetEvents.push({ name: n, date: d }); saveAllData(); renderCountdownModalList(); renderCountdownLayout(); playRealisticBoom(); alert("Đã khắc thêm Bia Đá Mục Tiêu thành công!");
         }
         function deleteCountdownEvent(idx) { if(confirm("Xác nhận đập bỏ thánh chỉ này?")) { sys.targetEvents.splice(idx, 1); saveAllData(); renderCountdownModalList(); renderCountdownLayout(); } }
@@ -564,8 +608,7 @@
             if(!sys.targetEvents || sys.targetEvents.length === 0) return;
             const now = new Date().getTime(); let allExpired = true;
             sys.targetEvents.forEach((ev, i) => {
-                const diff = new Date(ev.date).getTime() - now;
-                if (diff > 0) allExpired = false;
+                const diff = new Date(ev.date).getTime() - now; if (diff > 0) allExpired = false;
                 const d = diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0, h = diff > 0 ? Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0, m = diff > 0 ? Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)) : 0, s = diff > 0 ? Math.floor((diff % (1000 * 60)) / 1000) : 0;
                 const elD = $('cd-d-'+i), elH = $('cd-h-'+i), elM = $('cd-m-'+i), elS = $('cd-s-'+i);
                 if(elD) elD.innerText = d.toString().padStart(2, '0'); if(elH) elH.innerText = h.toString().padStart(2, '0'); if(elM) elM.innerText = m.toString().padStart(2, '0'); if(elS) elS.innerText = s.toString().padStart(2, '0');
@@ -573,7 +616,9 @@
             const w = $('countdown-wrapper'); if(w) w.style.animation = allExpired ? 'pulse-border 0.5s infinite' : 'pulse-border 2s infinite';
         }
 
-        /* --- HÀM CỦA VIỆN KIẾN THÀNH GỐC CỦA BỆ HẠ --- */
+        /* ==========================================================
+           TỔ HỢP THỂ THAO HOÀNG GIA - TÍCH HỢP PHÒNG ĐIỀU HÀNH VIP
+           ========================================================== */
         function openVienKienThanh() { $('vkt-coins-display').innerText = Math.floor(sys.coins).toLocaleString(); $('vkt-modal').style.display = 'flex'; switchVktTab('land', document.getElementById('btn-vkt-tab-land')); }
         function switchVktTab(tab, element) {
             document.querySelectorAll('.vkt-tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.vkt-panel').forEach(p => p.classList.remove('active'));
@@ -582,116 +627,177 @@
             if(tab === 'land') renderVktLands(); if(tab === 'blueprint') renderVktBlueprints(); if(tab === 'build') renderVktBuild();
         }
         function renderVktLands() {
-            let h = '';
-            VKT_LANDS.forEach(l => { let owned = sys.vkt.lands.includes(l.id); h += `<div class="vkt-card"><div><h4>${l.name}</h4><p style="font-size:0.8rem;color:var(--text-muted);">${l.desc}</p></div><div>${owned?`<button class="btn btn-outline" disabled>Đã Sở Hữu</button>`:`<button class="btn btn-primary" onclick="buyVktLand('${l.id}', ${l.price})">${(l.price/1000000).toFixed(1)}M</button>`}</div></div>`; });
-            $('vkt-land-list').innerHTML = h;
+            let h = ''; VKT_LANDS.forEach(l => { let owned = sys.vkt.lands.includes(l.id); h += `<div class="vkt-card"><div><h4>${l.name}</h4><p style="font-size:0.8rem;color:var(--text-muted);">${l.desc}</p></div><div>${owned?`<button class="btn btn-outline" disabled>Đã Sở Hữu</button>`:`<button class="btn btn-primary" onclick="buyVktLand('${l.id}', ${l.price})">$${(l.price/1000000).toFixed(1)}M</button>`}</div></div>`; }); $('vkt-land-list').innerHTML = h;
         }
         function renderVktBlueprints() {
-            let h = '';
-            VKT_BLUEPRINTS.forEach(b => { let owned = sys.vkt.blueprints.includes(b.id); h += `<div class="vkt-card"><div><h4>${b.name}</h4><p style="font-size:0.8rem;color:var(--text-muted);">Vốn xây: ${(b.buildCost/1000000).toFixed(1)}M</p></div><div>${owned?`<button class="btn btn-outline" disabled>Đã Có</button>`:`<button class="btn btn-primary" onclick="buyVktBlueprint('${b.id}', ${b.price})">${(b.price/1000000).toFixed(1)}M</button>`}</div></div>`; });
-            $('vkt-blueprint-list').innerHTML = h;
+            let h = ''; VKT_BLUEPRINTS.forEach(b => { let owned = sys.vkt.blueprints.includes(b.id); h += `<div class="vkt-card"><div><h4>${b.name}</h4><p style="font-size:0.8rem;color:var(--text-muted);">Vốn xây: $${(b.buildCost/1000000).toFixed(1)}M</p></div><div>${owned?`<button class="btn btn-outline" disabled>Đã Có</button>`:`<button class="btn btn-primary" onclick="buyVktBlueprint('${b.id}', ${b.price})">$${(b.price/1000000).toFixed(1)}M</button>`}</div></div>`; }); $('vkt-blueprint-list').innerHTML = h;
         }
-        function buyVktLand(id, price) { if(sys.coins < price) return alert("Ngân khố không đủ!"); if(confirm("Xác nhận chi " + (price/1000000).toFixed(1) + "M Xu mua Sổ Đỏ này?")) { sys.coins -= price; sys.vkt.lands.push(id); saveAllData(); renderVktLands(); playRealisticBoom(); } }
-        function buyVktBlueprint(id, price) { if(sys.coins < price) return alert("Ngân khố không đủ!"); if(confirm("Xác nhận chi " + (price/1000000).toFixed(1) + "M Xu mua Bản Vẽ này?")) { sys.coins -= price; sys.vkt.blueprints.push(id); saveAllData(); renderVktBlueprints(); playRealisticBoom(); } }
+        function buyVktLand(id, price) { if(sys.coins < price) return alert("Ngân khố không đủ USD!"); if(confirm("Xác nhận chi $" + (price/1000000).toFixed(1) + "M mua Sổ Đỏ này?")) { sys.coins -= price; sys.vkt.lands.push(id); saveAllData(); renderVktLands(); playRealisticBoom(); } }
+        function buyVktBlueprint(id, price) { if(sys.coins < price) return alert("Ngân khố không đủ USD!"); if(confirm("Xác nhận chi $" + (price/1000000).toFixed(1) + "M mua Bản Vẽ này?")) { sys.coins -= price; sys.vkt.blueprints.push(id); saveAllData(); renderVktBlueprints(); playRealisticBoom(); } }
+        
         function renderVktBuild() {
             let c = $('vkt-build-content'), h = '';
-            let now = new Date(), hour = now.getHours(); let isGoldenHour = (hour >= 22 && hour <= 23);
+            let now = new Date(), hour = now.getHours(); let isGoldenHour = (hour >= 22 && hour <= 23) || window.cheatTime; // CheatTime để ngài test
+            
             h += `<div class="vkt-grid-map">`;
             VKT_LANDS.forEach((land) => {
-                let isOwned = sys.vkt.lands.includes(land.id); let landIndex = sys.vkt.lands.indexOf(land.id);
+                let isOwned = sys.vkt.lands.includes(land.id); 
+                let landIndex = sys.vkt.lands.indexOf(land.id);
                 let builtBpId = landIndex !== -1 && landIndex < sys.vkt.completed.length ? sys.vkt.completed[landIndex] : null;
                 let isBuildingHere = sys.vkt.activeProject && sys.vkt.activeProject.landId === land.id;
-                h += `<div class="vkt-plot" style="border-color: ${isOwned?'var(--primary)':'#475569'};"><span style="position:absolute; top:5px; left:5px; font-size:0.65rem; color:white; background:var(--primary); padding:2px 6px; border-radius:4px; font-weight:bold; z-index:10;">${land.name}</span>`;
-                if (!isOwned) { h += `<div class="plot-fog"><i class="fas fa-lock" style="font-size:2rem; margin-bottom:5px;"></i><span>Chưa sở hữu</span></div>`; } 
+
+                h += `<div class="vkt-plot" style="border-color: ${isOwned?'var(--primary)':'#475569'};">`;
+                h += `<span style="position:absolute; top:5px; left:5px; font-size:0.65rem; color:white; background:var(--primary); padding:2px 6px; border-radius:4px; font-weight:bold; z-index:10;">${land.name}</span>`;
+                
+                if (!isOwned) { 
+                    h += `<div class="plot-fog"><i class="fas fa-lock" style="font-size:2rem; margin-bottom:5px;"></i><span>Chưa sở hữu</span></div>`; 
+                } 
                 else if (builtBpId) {
-                    let bp = VKT_BLUEPRINTS.find(x => x.id === builtBpId); let collected = sys.vkt.collectedToday.includes(builtBpId);
-                    if(builtBpId === 'bp-thuvien') h += `<div class="anim-library"></div>`; if(builtBpId === 'bp-dautruong') h += `<div class="anim-colosseum"></div>`; if(builtBpId === 'bp-kimtuthap') h += `<div class="anim-pyramid"></div>`; if(builtBpId === 'bp-truongthanh') h += `<div class="anim-greatwall"></div>`;
-                    h += `<div class="plot-completed"><i class="fas fa-monument vkt-building-icon" style="color:var(--warning);"></i><strong style="color:var(--text-main); font-size:0.85rem; line-height:1.2; z-index:2; margin-top:5px;">${bp.name}</strong>`;
-                    if (isGoldenHour && !collected) h += `<button class="vkt-collect-btn" onclick="chotSoVkt('${builtBpId}')">💰 Thu Tiền</button>`; else if (collected) h += `<span style="margin-top:10px; font-size:0.75rem; color:var(--success); z-index:2; font-weight:bold;"><i class="fas fa-check-circle"></i> Đã chốt</span>`; else h += `<span style="margin-top:10px; font-size:0.7rem; color:var(--danger); z-index:2; background:rgba(0,0,0,0.7); padding:2px 5px; border-radius:4px;">Chờ 22:00</span>`;
+                    let bp = VKT_BLUEPRINTS.find(x => x.id === builtBpId); 
+                    if(!bp) bp = { name: "Sân vận động" };
+                    let collected = sys.vkt.collectedToday.includes(builtBpId);
+                    
+                    h += `<div class="plot-completed">`;
+                    h += `<div class="stadium-wrapper">
+                            <div class="css-stadium ${builtBpId}">
+                                <div class="css-stadium-inner"><div class="css-stadium-pitch"></div></div>
+                                <div class="stad-light l-1"></div><div class="stad-light l-2"></div>
+                                <div class="stad-light l-3"></div><div class="stad-light l-4"></div>
+                            </div>
+                          </div>`;
+                    h += `<strong style="color:var(--text-main); font-size:0.85rem; line-height:1.2; z-index:2; margin-top:5px; background:rgba(255,255,255,0.8); padding:2px 5px; border-radius:4px;">${bp.name}</strong>`;
+                    
+                    // NÚT VÀO PHÒNG VIP ĐIỀU HÀNH
+                    if (isGoldenHour && !collected) h += `<button class="vkt-collect-btn" onclick="openVipRoom('${builtBpId}')">⚽ VÀO PHÒNG ĐIỀU HÀNH</button>`; 
+                    else if (collected) h += `<span style="margin-top:10px; font-size:0.75rem; color:var(--success); z-index:2; font-weight:bold;"><i class="fas fa-check-circle"></i> Trận đấu đã kết thúc</span>`; 
+                    else h += `<span style="margin-top:10px; font-size:0.7rem; color:var(--danger); z-index:2; background:rgba(0,0,0,0.7); padding:2px 5px; border-radius:4px;">Chờ 22h00 thi đấu</span>`;
                     h += `</div>`;
                 } else if (isBuildingHere) {
                     let pct = (sys.vkt.activeProject.invested / sys.vkt.activeProject.totalCost) * 100;
                     h += `<div class="plot-construction"><i class="fas fa-hammer scaffold"></i><span style="font-size:0.8rem; margin-top:8px; font-weight:bold;">Đang thi công<br>${pct.toFixed(1)}%</span></div>`;
-                } else { h += `<div class="plot-empty"><i class="fas fa-map-marker-alt" style="font-size:2rem; color:var(--primary); opacity:0.5; margin-bottom:5px;"></i><br>Đất trống</div>`; }
+                } else { 
+                    h += `<div class="plot-empty"><i class="fas fa-map-marker-alt" style="font-size:2rem; color:var(--primary); opacity:0.5; margin-bottom:5px;"></i><br>Đất trống</div>`; 
+                }
                 h += `</div>`;
             });
             h += `</div>`;
+            
             if (sys.vkt.activeProject) {
                 let p = sys.vkt.activeProject, rem = 200000 - sys.vkt.dailyInvest;
-                h += `<div style="background:var(--input-bg); border:2px solid var(--warning); padding:15px; border-radius:10px; margin-top:15px;"><h4 style="text-align:center; color:var(--warning); margin-bottom:10px;">🚧 ${p.name}</h4><p style="text-align:center; font-size:0.85rem; margin-bottom:10px;">Hạn mức rót vốn hôm nay: <b>${rem.toLocaleString()} Xu</b></p><div style="display:flex;gap:10px;"><input type="number" id="vkt-invest-amt" class="form-control" placeholder="Nhập Xu (Max 200k)..."><button class="btn btn-warning" style="font-weight:bold; color:black; white-space:nowrap;" onclick="investVktProject()">Rót Vốn</button></div></div>`;
+                h += `<div style="background:var(--input-bg); border:2px solid var(--warning); padding:15px; border-radius:10px; margin-top:15px;"><h4 style="text-align:center; color:var(--warning); margin-bottom:10px;">🚧 ${p.name}</h4><p style="text-align:center; font-size:0.85rem; margin-bottom:10px;">Hạn mức rót vốn hôm nay: <b style="color:var(--danger)">$${rem.toLocaleString()}</b></p><div style="display:flex;gap:10px;"><input type="number" id="vkt-invest-amt" class="form-control" placeholder="Nhập USD (Max 200k)..."><button class="btn btn-warning" style="font-weight:bold; color:black; white-space:nowrap; box-shadow: 0 4px 0 #b45309; border:1px solid #b45309;" onclick="investVktProject()">Rót Vốn</button></div></div>`;
             } else {
                 let avL = sys.vkt.lands.filter(lId => { let lIdx = sys.vkt.lands.indexOf(lId); return lIdx >= sys.vkt.completed.length; }); 
                 let avB = sys.vkt.blueprints.filter(b => !sys.vkt.completed.includes(b));
                 if (sys.vkt.lands.length === 0) h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Bệ hạ chưa có Sổ Đỏ! Hãy sang [Sàn BĐS] để mua đất trước.</div>`;
-                else if (avB.length === 0) h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Hãy sang [Phòng Bản Vẽ] mua thiết kế Kỳ Quan!</div>`;
+                else if (avB.length === 0) h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Tất cả Sân vận động đã được xây dựng!</div>`;
                 else if (avL.length === 0) h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Đã hết đất trống! Hãy mua thêm Sổ Đỏ!</div>`;
                 else {
                     let lOpts = avL.map(id => `<option value="${id}">${VKT_LANDS.find(x=>x.id===id).name}</option>`).join(''), bOpts = avB.map(id => `<option value="${id}">${VKT_BLUEPRINTS.find(x=>x.id===id).name}</option>`).join('');
-                    h += `<div style="background:var(--input-bg); border:2px solid var(--primary); padding:15px; border-radius:10px; margin-top:15px;"><p style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:15px;">🚀 KHỞI CÔNG DỰ ÁN MỚI</p><div class="form-group"><label>Bản Vẽ (Kỳ quan):</label><select id="vkt-sel-bp" class="form-control">${bOpts}</select></div><div class="form-group"><label>Khu Đất (Sổ Đỏ):</label><select id="vkt-sel-land" class="form-control">${lOpts}</select></div><button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:1.1rem; margin-top:5px;" onclick="startVktProject()">LỄ ĐỘNG THỔ</button></div>`;
+                    h += `<div style="background:var(--input-bg); border:2px solid var(--primary); padding:15px; border-radius:10px; margin-top:15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"><p style="text-align:center; font-weight:900; color:var(--primary); margin-bottom:15px; letter-spacing:1px;">🚀 LỆNH KHỞI CÔNG</p><div class="form-group"><label>Bản Vẽ Sân (Quy mô):</label><select id="vkt-sel-bp" class="form-control" style="border:2px solid var(--primary);">${bOpts}</select></div><div class="form-group"><label>Khu Đất (Sổ Đỏ):</label><select id="vkt-sel-land" class="form-control" style="border:2px solid var(--primary);">${lOpts}</select></div><button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:1.1rem; margin-top:5px; font-weight:900; box-shadow: 0 4px 0 #1e3a8a;" onclick="startVktProject()">LỄ ĐỘNG THỔ</button></div>`;
                 }
             }
             c.innerHTML = h;
         }
+        
         function startVktProject() { let bpId = $('vkt-sel-bp').value, landId = $('vkt-sel-land').value, d = VKT_BLUEPRINTS.find(x=>x.id===bpId); if(confirm("Xác nhận động thổ dự án " + d.name + "?")) { sys.vkt.activeProject = { bpId: bpId, landId: landId, invested: 0, totalCost: d.buildCost, name: d.name }; saveAllData(); playRealisticBoom(); renderVktBuild(); } }
         function investVktProject() {
             let amt = parseInt($('vkt-invest-amt').value), p = sys.vkt.activeProject, rem = 200000 - sys.vkt.dailyInvest;
-            if(isNaN(amt) || amt <= 0) return alert("Sai số lượng!"); if(sys.coins < amt) return alert("Ngân khố không đủ!"); if(amt > rem) return alert(`Hạn mức rót vốn hôm nay chỉ còn ${rem.toLocaleString()} Xu!`); if(amt > (p.totalCost - p.invested)) amt = p.totalCost - p.invested;
+            if(isNaN(amt) || amt <= 0) return alert("Sai số lượng!"); if(sys.coins < amt) return alert("Ngân khố không đủ USD!"); if(amt > rem) return alert(`Hạn mức rót vốn hôm nay chỉ còn $${rem.toLocaleString()}!`); if(amt > (p.totalCost - p.invested)) amt = p.totalCost - p.invested;
             sys.coins -= amt; sys.vkt.dailyInvest += amt; p.invested += amt; saveAllData();
-            if(p.invested >= p.totalCost) { sys.vkt.completed.push(p.bpId); let pName = p.name; sys.vkt.activeProject = null; saveAllData(); runBigFireworks(); playRealisticBoom(); alert(`🎉 CHÚC MỪNG BỆ HẠ! Đại công trình ${pName} đã khánh thành!\nQuầy bán vé tham quan đã chính thức mở cửa!`); } 
-            else { playTickSound(); alert(`Đã rót thành công ${amt.toLocaleString()} Xu!`); } renderVktBuild(); updateSystemUI();
-        }
-        function chotSoVkt(bpId) {
-            if(sys.vkt.collectedToday.includes(bpId)) return;
-            let visitors = Math.floor(Math.random() * 400) + 10, isDaiLe = Math.random() < 0.05;
-            if (isDaiLe) { visitors += Math.floor(Math.random() * 3000) + 500; alert("👑 ĐẠI LỄ HOÀNG GIA! Khách đông vô tận!"); }
-            let total = visitors * 3000; sys.coins += total; sys.vkt.collectedToday.push(bpId); saveAllData(); playChime(); if (isDaiLe) runBigFireworks();
-            $('vkt-coins-display').innerText = Math.floor(sys.coins).toLocaleString(); updateSystemUI(); renderVktBuild(); alert(`📜 KIỂM KÊ NGÂN KHỐ [${VKT_BLUEPRINTS.find(x=>x.id===bpId).name}]:\n\n🎯 Khách: ${visitors.toLocaleString()} người\n💰 Doanh thu: +${total.toLocaleString()} Xu`);
+            if(p.invested >= p.totalCost) { sys.vkt.completed.push(p.bpId); let pName = p.name; sys.vkt.activeProject = null; saveAllData(); runBigFireworks(); playRealisticBoom(); alert(`🎉 CHÚC MỪNG BỆ HẠ! Cắt băng khánh thành thánh địa túc cầu ${pName}!\nPhòng vé đã mở cửa chờ đón khán giả!`); } 
+            else { playTickSound(); alert(`Đã rót thành công $${amt.toLocaleString()}!`); } renderVktBuild(); updateSystemUI();
         }
 
-        function openPrivilegeModal() { $('privilege-modal').style.display='flex'; }
-        function updateMemUI() {
-            const card = $('mem-card-ui');
-            if(card) { card.className = 'mem-card ' + sys.mem.tier.toLowerCase(); $('ui-mem-tier').innerText = sys.mem.tier; if(sys.mem.tier === 'BASIC') { $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; $('ui-mem-toggle-box').style.display = 'none'; } else { $('ui-mem-toggle-box').style.display = 'flex'; $('mem-auto-renew').checked = sys.mem.auto; $('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`; } }
-            const badge = $('header-mem-badge'); if (badge) { badge.classList.remove('tier-basic','tier-pro','tier-ultra'); let t = sys.mem.tier.toLowerCase(); badge.classList.add('tier-'+t); badge.innerHTML = `<i class="fas fa-${t==='basic'?'user':t==='pro'?'shield-alt':'crown'}"></i> <span>${sys.mem.tier}</span>`; }
-            if (sys.mem.tier === 'ULTRA') { document.body.classList.add('ultra-led'); $('btn-ultra-stock').style.display = 'flex'; } else { document.body.classList.remove('ultra-led'); $('btn-ultra-stock').style.display = 'none'; }
-            const canFlex = (sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA'); if($('opt-15')) $('opt-15').disabled = !canFlex; if($('opt-50')) $('opt-50').disabled = !canFlex; if(!canFlex && $('zen-time-select')) $('zen-time-select').value = "25";
-        }
-        function toggleAutoRenew() { sys.mem.auto = $('mem-auto-renew').checked; saveAllData(); }
-        function buyMem(tier, days, cost) { if(sys.coins>=cost){if(confirm(`Xác nhận mua gói ${tier} (${days} Ngày) với giá ${cost} Xu?`)){sys.coins-=cost; if(sys.mem.tier===tier&&sys.mem.expire>Date.now())sys.mem.expire+=days*86400000; else{sys.mem.tier=tier; sys.mem.expire=Date.now()+days*86400000;} sys.mem.auto=true; sys.mem.autoTier=tier; sys.mem.autoDays=days; saveAllData(); updateMemUI(); alert(`Thăng cấp thành công hội viên ${tier}!`);}}else alert("Số dư không đủ!"); }
-        function getPackageCost(t, d) { if(t==='PRO')return d===1?100:d===30?2000:15000; if(t==='ULTRA')return d===1?300:d===30?6000:50000; return 999999; }
-        
-        setInterval(() => {
-            if(sys.mem && sys.mem.tier!=='BASIC') {
-                let left = sys.mem.expire - Date.now();
-                if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; }
-                else handleMemExpiration();
-            }
-        }, 1000);
-
-        function handleMemExpiration() {
-            if (sys.mem.auto) { let c=getPackageCost(sys.mem.autoTier, sys.mem.autoDays); if(sys.coins>=c){sys.coins-=c; sys.mem.expire=Date.now()+sys.mem.autoDays*86400000; saveAllData(); alert(`Gia hạn gói ${sys.mem.autoTier} thành công. Khấu trừ ${c} Xu.`);} else triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, c); }
-            else { sys.mem.tier='BASIC'; sys.mem.expire=0; saveAllData(); updateMemUI(); alert("Thẻ Hội Viên đã hết hạn. Hệ thống chuyển về mức BASIC."); }
-        }
-        function triggerRenewalFallback(tTier, tDays, tCost) {
-            $('shop-modal').style.display='none'; let cCoins=Math.floor(sys.coins); let opts=""; $('renew-msg-desc').innerHTML=`Bạn đang dùng gói <strong>${tTier} (${tDays} Ngày)</strong> (cần ${tCost} Xu) nhưng tài khoản chỉ còn <strong>${cCoins} Xu</strong>.`;
-            let c1=getPackageCost(tTier,1), m1=Math.floor(cCoins/c1); if(m1>0) opts+=`<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="executeFallback('${tTier}',${m1},${m1*c1})">Duy trì ${tTier} trong ${m1} Ngày (Tốn ${m1*c1} Xu)</button>`;
-            if(tTier==='ULTRA'){let cp=getPackageCost('PRO',1), mp=Math.floor(cCoins/cp); if(mp>0) opts+=`<button class="btn btn-outline" style="width:100%;justify-content:center;border-color:var(--primary);color:var(--primary);" onclick="executeFallback('PRO',${mp},${mp*cp})">Hạ cấp: Mua gói PRO ${mp} Ngày (Tốn ${mp*cp} Xu)</button>`;}
-            opts+=`<button class="btn btn-outline" style="width:100%;justify-content:center;color:var(--danger);border-color:var(--danger);" onclick="executeFallback('BASIC',0,0)">Hủy đăng ký (Chuyển về Basic)</button>`;
-            $('renew-options-container').innerHTML=opts; $('renew-modal').style.display='flex'; sys.mem.tier='BASIC'; sys.mem.expire=0; sys.mem.auto=false;
-        }
-        function executeFallback(nT, d, c) { if(nT==='BASIC')alert("Đã hủy gia hạn."); else { sys.coins-=c; sys.mem.tier=nT; sys.mem.expire=Date.now()+d*86400000; sys.mem.auto=false; alert(`Đã trích ${c} Xu duy trì ${nT} trong ${d} ngày!`); } saveAllData(); updateMemUI(); $('renew-modal').style.display='none'; }
-
-        function openWagerModal() { if(sys.wagerAmount>0)return alert(`Đã cược ${sys.wagerAmount} XP!`); $('wager-max-points').innerText=sys.points; $('wager-amount').value=''; $('wager-modal').style.display='flex'; }
-        function closeWagerModal() { $('wager-modal').style.display='none'; }
-        function placeWager() { let a=parseInt($('wager-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(a>sys.points)return alert("Không đủ điểm XP!"); sys.points-=a; sys.wagerAmount=a; saveAllData(); closeWagerModal(); alert(`Đã xác nhận cược ${a} XP!`); }
-
-        function updateGhostBar() {
-            let cNow=0, tNow=0; for(let i=0;i<7;i++){tNow+=scheduleData[i].length; cNow+=scheduleData[i].filter(t=>t.completed).length;} sys.currentWeekCompleted=cNow; sys.currentWeekTotal=tNow;
-            const pPct=sys.lastWeekTotal===0?0:Math.round((sys.lastWeekCompleted/sys.lastWeekTotal)*100), nPct=tNow===0?0:Math.round((cNow/tNow)*100);
-            $('ghost-bar-past').style.width=`${pPct}%`; $('ghost-bar-now').style.width=`${nPct}%`;
-            $('ghost-status-text').innerHTML=sys.lastWeekTotal===0?`Tuần này: ${nPct}%`:(nPct>=pPct&&nPct>0?`<span style="color:var(--success)"><i class="fas fa-arrow-up"></i> Tốt hơn (${nPct}% vs ${pPct}%)</span>`:`<span style="color:var(--danger)"><i class="fas fa-arrow-down"></i> Thụt lùi (${nPct}% vs ${pPct}%)</span>`);
+        /* CHỨC NĂNG PHÒNG ĐIỀU HÀNH VIP (THAY THẾ CHỐT SỔ CŨ) */
+        let currentMatchBpId = null;
+        function openVipRoom(bpId) {
+            closeModal('vkt-modal');
+            currentMatchBpId = bpId;
+            let bp = VKT_BLUEPRINTS.find(x => x.id === bpId);
+            
+            // TRÁNG GƯƠNG HÌNH NỀN SÂN VẬN ĐỘNG ĐỜI THỰC
+            $('vip-room-overlay').style.backgroundImage = `url('${bp.bgImg}')`;
+            
+            $('vip-stad-name').innerText = bp.name;
+            $('vip-spectators').innerText = '0';
+            $('vip-revenue').innerText = '0';
+            $('btn-start-match').disabled = false;
+            $('btn-start-match').innerText = "⚽ THỔI CÒI KHAI MẠC";
+            $('vip-room-overlay').style.display = 'flex';
         }
 
+        function closeVipRoom() {
+            $('vip-room-overlay').style.display = 'none';
+            openVienKienThanh(); // Quay lại sảnh
+        }
+
+        function triggerMatch() {
+            let bpId = currentMatchBpId;
+            if(!bpId) return;
+            let bp = VKT_BLUEPRINTS.find(x => x.id === bpId);
+            $('btn-start-match').disabled = true;
+            $('btn-start-match').innerText = "ĐANG THI ĐẤU...";
+            
+            // Âm thanh còi & Bùng nổ
+            playChime();
+            setTimeout(playRealisticBoom, 500);
+
+            // Flash Paparazzi
+            $('flash-layer-1').style.animation = 'flash-anim 0.2s 5 alternate';
+            setTimeout(() => { $('flash-layer-2').style.animation = 'flash-anim 0.1s 10 alternate'; }, 300);
+            setTimeout(() => { $('flash-layer-3').style.animation = 'flash-anim 0.3s 3 alternate'; }, 600);
+
+            // Tính toán lợi nhuận
+            let fillRate = 0.5 + (Math.random() * 0.5); // 50% đến 100% lấp đầy
+            let isDaiLe = Math.random() < 0.05;
+            if (isDaiLe) fillRate = 1.2; // Vỡ sân 120%
+            
+            let finalSpectators = Math.floor(bp.maxSpec * fillRate);
+            let finalRevenue = finalSpectators * bp.ticket;
+
+            // Hiệu ứng cuộn số (Rolling Numbers)
+            animateValue('vip-spectators', 0, finalSpectators, 3000);
+            animateValue('vip-revenue', 0, finalRevenue, 3000);
+
+            // Kết thúc trận đấu
+            setTimeout(() => {
+                $('flash-layer-1').style.animation = 'none';
+                $('flash-layer-2').style.animation = 'none';
+                $('flash-layer-3').style.animation = 'none';
+                
+                $('btn-start-match').innerText = "✔️ TRẬN ĐẤU KẾT THÚC";
+                if(isDaiLe) runBigFireworks();
+                
+                // Cộng tiền vào tài khoản
+                sys.coins += finalRevenue;
+                sys.vkt.collectedToday.push(bpId);
+                saveAllData();
+                updateSystemUI();
+                
+                setTimeout(() => {
+                    alert(`📜 BÁO CÁO DOANH THU TRẬN ĐẤU:\n\n🏟️ Khán giả: ${finalSpectators.toLocaleString()} người\n💰 Lợi nhuận phòng vé: +$${finalRevenue.toLocaleString()}\n\nTiền đã được chuyển thẳng vào Ngân khố Hoàng Gia!`);
+                }, 500);
+
+            }, 3000);
+        }
+
+        // Hàm hỗ trợ cuộn số tăng dần
+        function animateValue(id, start, end, duration) {
+            let obj = $(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+
+        /* --- CÁC HÀM CÒN LẠI --- */
         function renderBoard() {
             const b=$('board-container'); b.innerHTML=''; let tdy=getRealDayIndex(); let changed = false;
             for (let i = 0; i < tdy; i++) { scheduleData[i].forEach(t => { if (!t.locked) { t.locked = true; if (!t.completed) t.missed = true; changed = true; } }); }
@@ -706,28 +812,23 @@
             });
             if(!window.scrolledToToday){const tC=$(`col-${tdy}`); if(tC){tC.scrollIntoView({behavior:'smooth',inline:'center'}); window.scrolledToToday=true;}}
         }
-
         function openModal(dIdx, tId=null) { if (dIdx < getRealDayIndex()) return alert("Không thể thao tác ngày đã qua!"); $('task-day-index').value=dIdx; $('task-id').value=tId||''; if(tId){ const t=scheduleData[dIdx].find(x=>x.id===tId); $('task-desc').value=t.text; $('task-time').value=t.time||''; $$(`input[name="task-color"][value="${t.color||'default'}"]`).checked=true; } else { $('task-desc').value=''; $('task-time').value=''; $('color-blue').checked=true; } $('task-modal').style.display='flex'; $('task-desc').focus(); }
         function closeModal(mId) { $(mId||'task-modal').style.display='none'; }
-        
         function saveTask() { 
             const dIdx=$('task-day-index').value, id=$('task-id').value, txt=$('task-desc').value.trim(), tm=$('task-time').value, col=document.querySelector('input[name="task-color"]:checked').value; 
             if(!txt)return alert("Vui lòng nhập tên công việc!"); 
-            if(!id && scheduleData[dIdx].length >= 10) { if(sys.coins < 20) return alert("Số dư không đủ 20 Xu để khởi tạo thêm công việc vượt định mức!"); if(!confirm("CẢNH BÁO: Đã đạt định mức 10 việc/ngày. Tạo thêm việc này sẽ bị thu phí 20 Xu. Bạn chắc chắn chứ?")) return; sys.coins -= 20; }
+            if(!id && scheduleData[dIdx].length >= 10) { if(sys.coins < 20) return alert("Số dư không đủ $20 để khởi tạo thêm công việc vượt định mức!"); if(!confirm("CẢNH BÁO: Đã đạt định mức 10 việc/ngày. Tạo thêm việc này sẽ bị thu phí $20. Bạn chắc chắn chứ?")) return; sys.coins -= 20; }
             if(id){const t=scheduleData[dIdx].find(x=>x.id===id); t.text=txt; t.time=tm; t.color=col;} else{scheduleData[dIdx].push({id:generateId(),text:txt,time:tm,color:col,completed:false,rolledOver:false,locked:false,missed:false}); scheduleData[dIdx].sort((a,b)=>!a.time?1:!b.time?-1:a.time.localeCompare(b.time));} 
             saveAllData(); closeModal('task-modal'); renderBoard();
         }
-
         function deleteTask(dIdx, tId) { if (dIdx < getRealDayIndex()) return alert("Không thể xóa công việc cũ!"); if(confirm("Xác nhận xóa?")){ const t=scheduleData[dIdx].find(x=>x.id===tId); if(t.completed&&!t.locked)addTuVi(-10); scheduleData[dIdx]=scheduleData[dIdx].filter(x=>x.id!==tId); saveAllData(); renderBoard(); } }
         function toggleComplete(dIdx, tId) { let tdy = getRealDayIndex(); if (dIdx > tdy) return alert("Chưa tới ngày thực hiện!"); if (dIdx < tdy) return alert("Ngày này đã chốt sổ!"); const t=scheduleData[dIdx].find(x=>x.id===tId); if(t.locked||t.missed)return; t.completed=!t.completed; addTuVi(t.completed?10:-10); renderBoard(); }
-        
-        let pRsn="", pInc=[], pDIdx=-1;
         function finishDay(dIdx) { 
             if (dIdx !== getRealDayIndex()) return alert("Chỉ có thể kết thúc ngày hiện tại!"); 
             const ts=scheduleData[dIdx], inc=ts.filter(t=>!t.completed&&!t.missed), cmp=ts.filter(t=>t.completed); const tomorrowIdx = (dIdx + 1) % 7;
             if(inc.length===0) { 
                 sys.streak++; if(sys.streak>sys.highestStreak)sys.highestStreak=sys.streak; 
-                let m=`Hoàn thành xuất sắc! Chuỗi: ${sys.streak} ngày. Thưởng +50 XP/Xu!`; 
+                let m=`Hoàn thành xuất sắc! Chuỗi: ${sys.streak} ngày. Thưởng +50 XP / $50!`; 
                 if(sys.wagerAmount>0){let w=sys.wagerAmount*2; addTuVi(w); m+=`\nThắng cược: +${w} XP!`; sys.wagerAmount=0;} 
                 addTuVi(50); ts.forEach(t=>t.locked=true); alert(m); runBigFireworks(); playRealisticBoom(); renderBoard(); saveAllData(); 
             } else { 
@@ -735,210 +836,86 @@
                 if (totalPotentialTomorrow > 10) { let taxedAmount = Math.min(inc.length, totalPotentialTomorrow - 10); extraFee = taxedAmount * 20; }
                 let msg = `BÁO CÁO KẾT THÚC NGÀY:\nCòn ${inc.length} việc chưa xong.\n`;
                 if(exemptCount > 0) msg += `- Đặc quyền ${sys.mem.tier}: Miễn phạt ${exemptCount} việc.\n`;
-                if(fine > 0) msg += `- Phạt sót việc (${penalizedCount} việc): -${fine} Xu\n`;
-                if(extraFee > 0) msg += `- Phụ thu quá tải ngày mai: -${extraFee} Xu\n`;
-                msg += `Tổng khấu trừ: ${fine + extraFee} Xu. Xác nhận dời việc?`;
+                if(fine > 0) msg += `- Phạt sót việc (${penalizedCount} việc): -$${fine}\n`;
+                if(extraFee > 0) msg += `- Phụ thu quá tải ngày mai: -$${extraFee}\n`;
+                msg += `Tổng khấu trừ: $${fine + extraFee}. Xác nhận dời việc?`;
                 if(confirm(msg)) { sys.coins = Math.max(0, sys.coins - (fine + extraFee)); inc.forEach(t => { scheduleData[tomorrowIdx].push({...t, id:generateId(), rolledOver:true, originalDay:DAYS_OF_WEEK[dIdx]}); t.missed = true; t.locked = true; }); cmp.forEach(t=>t.locked=true); if(penalizedCount > 0) { sys.punishTier++; sys.streak=0; } if(sys.wagerAmount>0) sys.wagerAmount=0; saveAllData(); renderBoard(); }
             } 
         }
 
-        function showPunishmentModal(rsn=null) { if(rsn)pRsn=rsn; $('punish-overlay').style.display='flex'; $('punish-reason').innerText=`Lý do: ${pRsn}`; $('punish-tier-display').innerText=sys.punishTier; let f=sys.punishTier*50; $('punish-fine-display').innerText=f; const b=$('btn-pay-fine'); if(sys.coins>=f){b.innerText=`Xác nhận (${f} Xu)`; b.disabled=false;}else{b.innerText=`Không đủ (${Math.floor(sys.coins)}/${f})`; b.disabled=true;} }
+        function openPrivilegeModal() { $('privilege-modal').style.display='flex'; }
+        function updateMemUI() {
+            const card = $('mem-card-ui');
+            if(card) { card.className = 'mem-card ' + sys.mem.tier.toLowerCase(); $('ui-mem-tier').innerText = sys.mem.tier; if(sys.mem.tier === 'BASIC') { $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; $('ui-mem-toggle-box').style.display = 'none'; } else { $('ui-mem-toggle-box').style.display = 'flex'; $('mem-auto-renew').checked = sys.mem.auto; $('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`; } }
+            const badge = $('header-mem-badge'); if (badge) { badge.classList.remove('tier-basic','tier-pro','tier-ultra'); let t = sys.mem.tier.toLowerCase(); badge.classList.add('tier-'+t); badge.innerHTML = `<i class="fas fa-${t==='basic'?'user':t==='pro'?'shield-alt':'crown'}"></i> <span>${sys.mem.tier}</span>`; }
+            if (sys.mem.tier === 'ULTRA') { document.body.classList.add('ultra-led'); $('btn-ultra-stock').style.display = 'flex'; } else { document.body.classList.remove('ultra-led'); $('btn-ultra-stock').style.display = 'none'; }
+            const canFlex = (sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA'); if($('opt-15')) $('opt-15').disabled = !canFlex; if($('opt-50')) $('opt-50').disabled = !canFlex; if(!canFlex && $('zen-time-select')) $('zen-time-select').value = "25";
+        }
+        function toggleAutoRenew() { sys.mem.auto = $('mem-auto-renew').checked; saveAllData(); }
+        function buyMem(tier, days, cost) { if(sys.coins>=cost){if(confirm(`Xác nhận mua gói ${tier} (${days} Ngày) với giá $${cost}?`)){sys.coins-=cost; if(sys.mem.tier===tier&&sys.mem.expire>Date.now())sys.mem.expire+=days*86400000; else{sys.mem.tier=tier; sys.mem.expire=Date.now()+days*86400000;} sys.mem.auto=true; sys.mem.autoTier=tier; sys.mem.autoDays=days; saveAllData(); updateMemUI(); alert(`Thăng cấp thành công hội viên ${tier}!`);}}else alert("Số dư không đủ USD!"); }
+        function getPackageCost(t, d) { if(t==='PRO')return d===1?100:d===30?2000:15000; if(t==='ULTRA')return d===1?300:d===30?6000:50000; return 999999; }
+        setInterval(() => { if(sys.mem && sys.mem.tier!=='BASIC') { let left = sys.mem.expire - Date.now(); if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; } else handleMemExpiration(); } }, 1000);
+        function handleMemExpiration() { if (sys.mem.auto) { let c=getPackageCost(sys.mem.autoTier, sys.mem.autoDays); if(sys.coins>=c){sys.coins-=c; sys.mem.expire=Date.now()+sys.mem.autoDays*86400000; saveAllData(); alert(`Gia hạn gói ${sys.mem.autoTier} thành công. Khấu trừ $${c}.`);} else triggerRenewalFallback(sys.mem.autoTier, sys.mem.autoDays, c); } else { sys.mem.tier='BASIC'; sys.mem.expire=0; saveAllData(); updateMemUI(); alert("Thẻ Hội Viên đã hết hạn. Hệ thống chuyển về mức BASIC."); } }
+        function triggerRenewalFallback(tTier, tDays, tCost) { $('shop-modal').style.display='none'; let cCoins=Math.floor(sys.coins); let opts=""; $('renew-msg-desc').innerHTML=`Bạn đang dùng gói <strong>${tTier} (${tDays} Ngày)</strong> (cần $${tCost}) nhưng tài khoản chỉ còn <strong>$${cCoins}</strong>.`; let c1=getPackageCost(tTier,1), m1=Math.floor(cCoins/c1); if(m1>0) opts+=`<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="executeFallback('${tTier}',${m1},${m1*c1})">Duy trì ${tTier} trong ${m1} Ngày (Tốn $${m1*c1})</button>`; if(tTier==='ULTRA'){let cp=getPackageCost('PRO',1), mp=Math.floor(cCoins/cp); if(mp>0) opts+=`<button class="btn btn-outline" style="width:100%;justify-content:center;border-color:var(--primary);color:var(--primary);" onclick="executeFallback('PRO',${mp},${mp*cp})">Hạ cấp: Mua gói PRO ${mp} Ngày (Tốn $${mp*cp})</button>`;} opts+=`<button class="btn btn-outline" style="width:100%;justify-content:center;color:var(--danger);border-color:var(--danger);" onclick="executeFallback('BASIC',0,0)">Hủy đăng ký (Chuyển về Basic)</button>`; $('renew-options-container').innerHTML=opts; $('renew-modal').style.display='flex'; sys.mem.tier='BASIC'; sys.mem.expire=0; sys.mem.auto=false; }
+        function executeFallback(nT, d, c) { if(nT==='BASIC')alert("Đã hủy gia hạn."); else { sys.coins-=c; sys.mem.tier=nT; sys.mem.expire=Date.now()+d*86400000; sys.mem.auto=false; alert(`Đã trích $${c} duy trì ${nT} trong ${d} ngày!`); } saveAllData(); updateMemUI(); $('renew-modal').style.display='none'; }
+        function openWagerModal() { if(sys.wagerAmount>0)return alert(`Đã cược ${sys.wagerAmount} XP!`); $('wager-max-points').innerText=sys.points; $('wager-amount').value=''; $('wager-modal').style.display='flex'; }
+        function closeWagerModal() { $('wager-modal').style.display='none'; }
+        function placeWager() { let a=parseInt($('wager-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(a>sys.points)return alert("Không đủ điểm XP!"); sys.points-=a; sys.wagerAmount=a; saveAllData(); closeWagerModal(); alert(`Đã xác nhận cược ${a} XP!`); }
+        function updateGhostBar() { let cNow=0, tNow=0; for(let i=0;i<7;i++){tNow+=scheduleData[i].length; cNow+=scheduleData[i].filter(t=>t.completed).length;} sys.currentWeekCompleted=cNow; sys.currentWeekTotal=tNow; const pPct=sys.lastWeekTotal===0?0:Math.round((sys.lastWeekCompleted/sys.lastWeekTotal)*100), nPct=tNow===0?0:Math.round((cNow/tNow)*100); $('ghost-bar-past').style.width=`${pPct}%`; $('ghost-bar-now').style.width=`${nPct}%`; $('ghost-status-text').innerHTML=sys.lastWeekTotal===0?`Tuần này: ${nPct}%`:(nPct>=pPct&&nPct>0?`<span style="color:var(--success)"><i class="fas fa-arrow-up"></i> Tốt hơn (${nPct}% vs ${pPct}%)</span>`:`<span style="color:var(--danger)"><i class="fas fa-arrow-down"></i> Thụt lùi (${nPct}% vs ${pPct}%)</span>`); }
+
+        function showPunishmentModal(rsn=null) { if(rsn)pRsn=rsn; $('punish-overlay').style.display='flex'; $('punish-reason').innerText=`Lý do: ${pRsn}`; $('punish-tier-display').innerText=sys.punishTier; let f=sys.punishTier*50; $('punish-fine-display').innerText=f; const b=$('btn-pay-fine'); if(sys.coins>=f){b.innerText=`Xác nhận ($${f})`; b.disabled=false;}else{b.innerText=`Không đủ ($${Math.floor(sys.coins)}/$${f})`; b.disabled=true;} }
         function payFine() { let f=sys.punishTier*50; if(sys.coins>=f){sys.coins-=f; sys.punishTier++; alert(`Đã nộp phạt thành công!`); closePunishmentModal(true);} }
         function refuseFine() { alert(`CẢNH BÁO: Khấu trừ 30 XP & Mất chuỗi Streak!`); sys.points=Math.max(0,sys.points-30); sys.streak=0; sys.punishTier++; closePunishmentModal(false); }
         function closePunishmentModal() { $('punish-overlay').style.display='none'; if(pInc.length>0&&pDIdx!==-1){const nD=(pDIdx+1)%7; pInc.forEach(t=>{scheduleData[nD].push({...t,id:generateId(),rolledOver:true,originalDay:t.originalDay||DAYS_OF_WEEK[pDIdx]}); t.missed=true; t.locked=true;}); alert("Công việc dang dở đã được dời sang hôm sau!"); pInc=[]; pDIdx=-1;} saveAllData(); renderBoard(); }
         function saveTemplate() { if(confirm("Lưu bản mẫu hiện tại?")){let d=JSON.parse(JSON.stringify(scheduleData)); for(let i=0;i<7;i++)d[i].forEach(t=>{t.completed=false;t.rolledOver=false;t.originalDay=null;t.locked=false;t.missed=false;}); localStorage.setItem(TEMPLATE_KEY,JSON.stringify(d)); alert("Đã lưu thành công!");} }
-        function resetWeek() { 
-            const tmpl=localStorage.getItem(TEMPLATE_KEY); let tI=getRealDayIndex(); 
-            if(confirm("Khởi tạo tuần làm việc mới?")){
-                sys.punishTier=1; sys.lastWeekCompleted=sys.currentWeekCompleted; sys.lastWeekTotal=sys.currentWeekTotal; 
-                let pend=[]; for(let i=0;i<7;i++)scheduleData[i].forEach(t=>{if(!t.completed&&!t.locked&&!t.missed)pend.push({...t,id:generateId(),rolledOver:true,originalDay:t.originalDay||DAYS_OF_WEEK[i]});}); 
-                if(tmpl)scheduleData=JSON.parse(tmpl); else for(let i=0;i<7;i++)scheduleData[i]=[]; 
-                if(pend.length>0)scheduleData[tI]=[...pend,...scheduleData[tI]]; 
-                saveAllData(); renderBoard(); alert(`Đã chuyển sang tuần mới!`);
-            } 
-        }
+        function resetWeek() { const tmpl=localStorage.getItem(TEMPLATE_KEY); let tI=getRealDayIndex(); if(confirm("Khởi tạo tuần làm việc mới?")){ sys.punishTier=1; sys.lastWeekCompleted=sys.currentWeekCompleted; sys.lastWeekTotal=sys.currentWeekTotal; let pend=[]; for(let i=0;i<7;i++)scheduleData[i].forEach(t=>{if(!t.completed&&!t.locked&&!t.missed)pend.push({...t,id:generateId(),rolledOver:true,originalDay:t.originalDay||DAYS_OF_WEEK[i]});}); if(tmpl)scheduleData=JSON.parse(tmpl); else for(let i=0;i<7;i++)scheduleData[i]=[]; if(pend.length>0)scheduleData[tI]=[...pend,...scheduleData[tI]]; saveAllData(); renderBoard(); alert(`Đã chuyển sang tuần mới!`); } }
 
-        /* --- LOGIC CẬP NHẬT THỊ TRƯỜNG CHỨNG KHOÁN CYBER-FINANCE --- */
-        function updateStockPrices() { 
-            Object.keys(sys.stocks).forEach(k=>{
-                let s=sys.stocks[k]; 
-                s.prevPrice = s.price; // Lưu lại giá cũ trước khi chém
-                let c=(Math.random()*20-10); 
-                s.price=Math.max(5,Math.floor(s.price*(1+c/100)));
-            }); 
-            saveAllData(); 
-            if($('stock-modal').style.display==='flex') renderStockMarket(); 
-        } 
+        function updateStockPrices() { Object.keys(sys.stocks).forEach(k=>{ let s=sys.stocks[k]; s.prevPrice = s.price; let c=(Math.random()*20-10); s.price=Math.max(5,Math.floor(s.price*(1+c/100))); }); saveAllData(); if($('stock-modal').style.display==='flex') renderStockMarket(); } 
         setInterval(updateStockPrices, 300000);
-        
         function openStockModal() { $('stock-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); $('stock-modal').style.display='flex'; renderStockMarket(); }
-        
         function renderStockMarket() { 
-            let container = $('stock-list-container'); if(!container) return; 
-            let html = `<div class="stock-grid-container">`;
+            let container = $('stock-list-container'); if(!container) return; let html = `<div class="stock-grid-container">`;
             Object.keys(sys.stocks).forEach(k => {
-                let s = sys.stocks[k]; 
-                let isUp = s.price >= s.prevPrice;
-                let trendClass = isUp ? 'trend-up' : 'trend-down';
-                
-                // Hiển thị Nhãn dán tùy theo trạng thái
+                let s = sys.stocks[k]; let isUp = s.price >= s.prevPrice; let trendClass = isUp ? 'trend-up' : 'trend-down';
                 let badgeHtml = s.pumped ? `<span class="trend-badge badge-pump">🚀 PUMPED</span>` : (isUp ? `<span class="trend-badge badge-up">▲ TĂNG</span>` : `<span class="trend-badge badge-down">▼ GIẢM</span>`);
-                let sparklineClass = isUp ? 'sparkline-up' : 'sparkline-down';
-                let totalVal = s.price * s.qty;
-
-                html += `
-                <div class="stock-card ${trendClass}">
-                    <div class="stock-header">
-                        <div class="stock-symbol">$${k}</div>
-                        ${badgeHtml}
-                    </div>
-                    <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; z-index:2; position:relative;">${s.name}</div>
-                    
-                    <div class="stock-price-box">
-                        <div class="sparkline ${sparklineClass}"></div>
-                        <div class="stock-price-val">${s.price.toLocaleString()}</div>
-                        <div style="font-size: 0.65rem; color: #94a3b8; text-transform:uppercase;">Xu / Cổ phiếu</div>
-                    </div>
-                    
-                    <div class="stock-portfolio">
-                        Đang giữ: <strong>${s.qty}</strong> cổ<br>
-                        Trị giá: <span class="stock-value">${totalVal > 0 ? totalVal.toLocaleString() : 0} Xu</span>
-                    </div>
-                    
-                    <div class="stock-btns">
-                        <button class="stock-btn-action btn-buy" onclick="tradeStock('${k}', 1)">MUA</button>
-                        <button class="stock-btn-action btn-sell" onclick="tradeStock('${k}', -1)">BÁN</button>
-                    </div>
-                </div>`;
-                s.pumped = false; // Reset cờ Pump sau khi hiển thị 1 lần
-            });
-            html += `</div>`; container.innerHTML = html; 
+                let sparklineClass = isUp ? 'sparkline-up' : 'sparkline-down'; let totalVal = s.price * s.qty;
+                html += `<div class="stock-card ${trendClass}"><div class="stock-header"><div class="stock-symbol">$${k}</div>${badgeHtml}</div><div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; z-index:2; position:relative;">${s.name}</div><div class="stock-price-box"><div class="sparkline ${sparklineClass}"></div><div class="stock-price-val">$${s.price.toLocaleString()}</div><div style="font-size: 0.65rem; color: #94a3b8; text-transform:uppercase;">USD / Cổ phiếu</div></div><div class="stock-portfolio">Đang giữ: <strong>${s.qty}</strong> cổ<br>Trị giá: <span class="stock-value">$${totalVal > 0 ? totalVal.toLocaleString() : 0}</span></div><div class="stock-btns"><button class="stock-btn-action btn-buy" onclick="tradeStock('${k}', 1)">MUA</button><button class="stock-btn-action btn-sell" onclick="tradeStock('${k}', -1)">BÁN</button></div></div>`;
+                s.pumped = false;
+            }); html += `</div>`; container.innerHTML = html; 
         }
-
-        function tradeStock(k, d) { let s=sys.stocks[k]; if(d>0){if(sys.coins>=s.price){sys.coins-=s.price; s.qty++;}else return alert("Ngân khố không đủ Xu!");}else{if(s.qty>0){sys.coins+=s.price; s.qty--;}else return alert("Hết cổ phiếu để bán!");} playTickSound(); saveAllData(); $('stock-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); renderStockMarket(); }                
-        
-        function soiCauUltra() { 
-            if(sys.mem.tier !== 'ULTRA') return alert("Đặc quyền chỉ dành cho hội viên Tối Thượng (ULTRA)!"); 
-            let today = new Date().setHours(0,0,0,0); 
-            if(sys.lastSoiCau > today) return alert("Hôm nay bệ hạ đã dùng Tầm Nhìn ULTRA rồi!"); 
-            
-            let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; 
-            sys.stocks[rk].prevPrice = sys.stocks[rk].price; // Lưu giá cũ
-            sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); 
-            sys.stocks[rk].pumped = true; // Gắn cờ bơm giá
-            
-            sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket(); 
-            alert(`Tầm Nhìn ULTRA: Cổ phiếu mã $${rk} vừa được tiên tri và đã tăng vọt 50% giá trị!`); 
-        }
+        function tradeStock(k, d) { let s=sys.stocks[k]; if(d>0){if(sys.coins>=s.price){sys.coins-=s.price; s.qty++;}else return alert("Ngân khố không đủ USD!");}else{if(s.qty>0){sys.coins+=s.price; s.qty--;}else return alert("Hết cổ phiếu để bán!");} playTickSound(); saveAllData(); $('stock-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); renderStockMarket(); }                
+        function soiCauUltra() { if(sys.mem.tier !== 'ULTRA') return alert("Đặc quyền chỉ dành cho hội viên Tối Thượng (ULTRA)!"); let today = new Date().setHours(0,0,0,0); if(sys.lastSoiCau > today) return alert("Hôm nay bệ hạ đã dùng Tầm Nhìn ULTRA rồi!"); let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].prevPrice = sys.stocks[rk].price; sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); sys.stocks[rk].pumped = true; sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket(); alert(`Tầm Nhìn ULTRA: Cổ phiếu mã $${rk} vừa được tiên tri và đã tăng vọt 50% giá trị!`); }
 
         function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); processBankInterest(); $('bank-modal').style.display='flex'; }
-        function depositBank() { processBankInterest(); let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi ${a.toLocaleString()} Xu.`);}else alert("Thiếu Xu!"); }
-        function withdrawBank() { processBankInterest(); let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút ${a.toLocaleString()} Xu.`);}else alert("Vốn không đủ!"); }
+        function depositBank() { processBankInterest(); let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi $${a.toLocaleString()}`);}else alert("Thiếu USD!"); }
+        function withdrawBank() { processBankInterest(); let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút $${a.toLocaleString()}`);}else alert("Vốn không đủ!"); }
         function harvestBank() { processBankInterest(); if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công!"); playChime();} }
-        
         function processBankInterest() { let now = Date.now(); if (!sys.lastBankUpdate || sys.lastBankUpdate > now) sys.lastBankUpdate = now; if (!sys.bankLastHarvest || sys.bankLastHarvest > now) sys.bankLastHarvest = now; let elapsedMs = now - sys.lastBankUpdate; let isBasic = (sys.mem.tier === 'BASIC'); if (elapsedMs > 0 && sys.bankCapital > 0 && sys.streak > 0) { let dr = sys.streak * 0.01; let dailyInt = sys.bankCapital * dr; sys.bankUnclaimed += dailyInt * (elapsedMs / 86400000); if (isBasic && sys.bankUnclaimed > dailyInt) sys.bankUnclaimed = dailyInt; } sys.lastBankUpdate = now; let cycles = Math.floor((now - sys.bankLastHarvest) / 86400000); if (cycles > 0) { sys.bankLastHarvest += cycles * 86400000; if (isBasic) { sys.bankUnclaimed = 0; } else { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; } saveAllData(); } if ($('bank-modal') && $('bank-modal').style.display === 'flex') { let disp = $('bank-interest-display'); if (disp) disp.innerText = sys.bankUnclaimed.toFixed(3); } }
         setInterval(processBankInterest, 1000);
         window.addEventListener('beforeunload', () => { sys.lastBankUpdate = Date.now(); saveAllData(); });
 
-        function updateLottoCountdown() {
-            const timerElem = $('lotto-timer'); if (!timerElem) return;
-            const now = new Date(); const target = new Date(); target.setHours(16, 0, 0, 0);
-            if (now > target) target.setDate(target.getDate() + 1);
-            const diff = target - now;
-            const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-            timerElem.innerText = `XỔ SỐ SAU: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            if (h === 0 && m < 60) timerElem.style.color = "#ef4444"; else timerElem.style.color = "#8b5cf6";
-            
-            let todayStr = now.toDateString();
-            if (now.getHours() >= 16 && sys.lottoTicket && sys.lottoTicket.date === todayStr && sys.lastLottoDate !== todayStr) { checkLottoResult(); } else if (now.getHours() >= 16) { const titleElem = $('lotto-history-title'); if (titleElem && titleElem.innerText.indexOf(now.toLocaleDateString('vi-VN')) === -1) { checkLottoResult(); } }
-        }
+        function updateLottoCountdown() { const timerElem = $('lotto-timer'); if (!timerElem) return; const now = new Date(); const target = new Date(); target.setHours(16, 0, 0, 0); if (now > target) target.setDate(target.getDate() + 1); const diff = target - now; const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000); timerElem.innerText = `XỔ SỐ SAU: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; if (h === 0 && m < 60) timerElem.style.color = "#ef4444"; else timerElem.style.color = "#8b5cf6"; let todayStr = now.toDateString(); if (now.getHours() >= 16 && sys.lottoTicket && sys.lottoTicket.date === todayStr && sys.lastLottoDate !== todayStr) { checkLottoResult(); } else if (now.getHours() >= 16) { const titleElem = $('lotto-history-title'); if (titleElem && titleElem.innerText.indexOf(now.toLocaleDateString('vi-VN')) === -1) { checkLottoResult(); } } }
         function updateLottoUI() { const st = $('lotto-status'); if (!st) return; if (sys.lottoTicket) st.innerHTML = `Vé hiện tại: <span style="color:#8b5cf6">${sys.lottoTicket.numbers.join(' - ')}</span>`; else st.innerText = "Bạn chưa mua vé cho hôm nay."; }
-        function buyLottoTicket() {
-            if(sys.coins < 10000) return alert("Số dư không đủ 10.000 Xu!");
-            if(sys.lottoTicket) return alert("Bạn đã mua vé cho ngày hôm nay rồi!");
-            let nums = [];
-            for(let i=1; i<=6; i++) { let v = parseInt($(`lt-${i}`).value); if(isNaN(v) || v < 1 || v > 45) return alert("Vui lòng chọn đủ 6 số từ 01-45!"); if(nums.includes(v)) return alert("Các số không được trùng nhau!"); nums.push(v); }
-            if(!confirm("Xác nhận chi 10.000 Xu mua vé số này?")) return;
-            sys.coins -= 10000; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: new Date().toDateString() };
-            saveAllData(); alert("Mua vé thành công! Kết quả sẽ xổ lúc 16:00."); updateLottoUI();
-        }
-        function checkLottoResult() {
-            let now = new Date(); let todayStr = now.toDateString();
-            let getResultForDate = (dateStr) => { let res = []; let seed = new Date(dateStr).getTime(); let rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; while(res.length < 6) { let n = Math.floor(rand() * 45) + 1; if(!res.includes(n)) res.push(n); } return res.sort((a,b)=>a-b); };
-            const histContainer = $('lotto-history-balls'), titleElem = $('lotto-history-title');
-            let targetDate = new Date(); if (now.getHours() < 16) { targetDate.setDate(targetDate.getDate() - 1); }
-            if(histContainer) { let dateStrFormatted = targetDate.toLocaleDateString('vi-VN'); if(titleElem) titleElem.innerText = `KẾT QUẢ KỲ QUAY (${dateStrFormatted}):`; let lastRes = getResultForDate(targetDate.toDateString()); histContainer.innerHTML = lastRes.map(n => `<span style="display:inline-block; width:28px; height:28px; line-height:28px; border-radius:50%; background:#8b5cf6; color:white; margin:2px; font-size:0.75rem; font-weight:bold; text-align:center;">${n}</span>`).join(''); }
-            
-            if(!sys.lottoTicket || sys.lastLottoDate === todayStr) return;
-            if(now.getHours() < 16 && sys.lottoTicket.date === todayStr) return;
-            
-            let result = getResultForDate(sys.lottoTicket.date); let match = sys.lottoTicket.numbers.filter(n => result.includes(n)).length;
-            let win = 0; let taxMsg = "";
-            if(match === 6) { win = 2000000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 5) { win = 50000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 4) win = 5000; else if(match === 3) win = 500;
-            let msg = `KẾT QUẢ XỔ SỐ KỲ QUAY ${new Date(sys.lottoTicket.date).toLocaleDateString('vi-VN')}:\n🎯 Số trúng: ${result.join(' - ')}\n🎫 Vé của bạn: ${sys.lottoTicket.numbers.join(' - ')}\n✨ Kết quả: Trúng ${match} số!`;
-            if(win > 0) { sys.coins += win; alert(`${msg}\nChúc mừng! Bạn nhận được ${Math.floor(win).toLocaleString()} Xu ${taxMsg}!`); runBigFireworks(); playRealisticBoom(); } else alert(`${msg}\nChúc bạn may mắn lần sau!`);
-            sys.lottoTicket = null; sys.lastLottoDate = todayStr; saveAllData(); updateLottoUI();
-        }
+        function buyLottoTicket() { if(sys.coins < 10000) return alert("Số dư không đủ $10,000!"); if(sys.lottoTicket) return alert("Bạn đã mua vé cho ngày hôm nay rồi!"); let nums = []; for(let i=1; i<=6; i++) { let v = parseInt($(`lt-${i}`).value); if(isNaN(v) || v < 1 || v > 45) return alert("Vui lòng chọn đủ 6 số từ 01-45!"); if(nums.includes(v)) return alert("Các số không được trùng nhau!"); nums.push(v); } if(!confirm("Xác nhận chi $10,000 mua vé số này?")) return; sys.coins -= 10000; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: new Date().toDateString() }; saveAllData(); alert("Mua vé thành công! Kết quả sẽ xổ lúc 16:00."); updateLottoUI(); }
+        function checkLottoResult() { let now = new Date(); let todayStr = now.toDateString(); let getResultForDate = (dateStr) => { let res = []; let seed = new Date(dateStr).getTime(); let rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; while(res.length < 6) { let n = Math.floor(rand() * 45) + 1; if(!res.includes(n)) res.push(n); } return res.sort((a,b)=>a-b); }; const histContainer = $('lotto-history-balls'), titleElem = $('lotto-history-title'); let targetDate = new Date(); if (now.getHours() < 16) { targetDate.setDate(targetDate.getDate() - 1); } if(histContainer) { let dateStrFormatted = targetDate.toLocaleDateString('vi-VN'); if(titleElem) titleElem.innerText = `KẾT QUẢ KỲ QUAY (${dateStrFormatted}):`; let lastRes = getResultForDate(targetDate.toDateString()); histContainer.innerHTML = lastRes.map(n => `<span style="display:inline-block; width:28px; height:28px; line-height:28px; border-radius:50%; background:#8b5cf6; color:white; margin:2px; font-size:0.75rem; font-weight:bold; text-align:center;">${n}</span>`).join(''); } if(!sys.lottoTicket || sys.lastLottoDate === todayStr) return; if(now.getHours() < 16 && sys.lottoTicket.date === todayStr) return; let result = getResultForDate(sys.lottoTicket.date); let match = sys.lottoTicket.numbers.filter(n => result.includes(n)).length; let win = 0; let taxMsg = ""; if(match === 6) { win = 2000000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 5) { win = 50000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 4) win = 5000; else if(match === 3) win = 500; let msg = `KẾT QUẢ XỔ SỐ KỲ QUAY ${new Date(sys.lottoTicket.date).toLocaleDateString('vi-VN')}:\n🎯 Số trúng: ${result.join(' - ')}\n🎫 Vé của bạn: ${sys.lottoTicket.numbers.join(' - ')}\n✨ Kết quả: Trúng ${match} số!`; if(win > 0) { sys.coins += win; alert(`${msg}\nChúc mừng! Bạn nhận được $${Math.floor(win).toLocaleString()} ${taxMsg}!`); runBigFireworks(); playRealisticBoom(); } else alert(`${msg}\nChúc bạn may mắn lần sau!`); sys.lottoTicket = null; sys.lastLottoDate = todayStr; saveAllData(); updateLottoUI(); }
         function buyExtraSpins(amount, cost) { if(sys.coins < cost) return alert("Số dư không đủ thực hiện giao dịch!"); sys.extraSpins = (sys.extraSpins || 0) + amount; sys.coins -= cost; saveAllData(); updateSpinButtonUI(); alert(`Giao dịch thành công! Bạn đã mua ${amount} lượt quay VIP.`); }
-        function updateSpinButtonUI() { let t = new Date().toDateString(); if(sys.lastSpinDate !== t) { sys.dailySpins = 0; sys.lastSpinDate = t; } sys.extraSpins = sys.extraSpins || 0; let rm = sys.dailySpins >= 3 ? `Lượt VIP: ${sys.extraSpins}` : `Miễn phí: ${3 - sys.dailySpins}`; if($('btn-shop-spin')) $('btn-shop-spin').innerText = `QUAY NGAY (100 Xu) - ${rm}`; }
-
+        function updateSpinButtonUI() { let t = new Date().toDateString(); if(sys.lastSpinDate !== t) { sys.dailySpins = 0; sys.lastSpinDate = t; } sys.extraSpins = sys.extraSpins || 0; let rm = sys.dailySpins >= 3 ? `Lượt VIP: ${sys.extraSpins}` : `Miễn phí: ${3 - sys.dailySpins}`; if($('btn-shop-spin')) $('btn-shop-spin').innerText = `QUAY NGAY ($100) - ${rm}`; }
         function openShopModal() { $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); updateShopUI(); updateSpinButtonUI(); updateMemUI(); $('shop-modal').style.display='flex'; }
         function updateShopUI() { const r=$('btn-buy-theme-royal'); if(r&&sys.unlockedThemes.includes('royal')){r.innerText="👑 Đã Mở";r.disabled=true;r.style.opacity="0.5";} const h=$('btn-buy-theme-hacker'); if(h&&sys.unlockedThemes.includes('hacker')){h.innerText="💻 Đã Mở";h.disabled=true;h.style.opacity="0.5";} const icons = [ { id: 'btn-buy-icon-snow', icon: '❄️' }, { id: 'btn-buy-icon-cup', icon: '🏆' }, { id: 'btn-buy-icon-hat', icon: '🎓' }, { id: 'btn-buy-icon-diamond', icon: '💎' } ]; icons.forEach(item => { const btn = $(item.id); if (btn) { if (sys.unlockedIcons.includes(item.icon)) { if (sys.streakIcon === item.icon) { btn.innerText = "Đang dùng"; btn.disabled = true; btn.style.opacity = "0.5"; } else { btn.innerText = "Trang bị"; btn.disabled = false; btn.style.opacity = "1"; } } } }); }
-        function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString();}else alert("Không đủ Xu!"); }
-        function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); updateShopUI();}else alert("Thiếu Xu!"); }
-        function buyIcon(icon, price) { if (sys.unlockedIcons.includes(icon)) { sys.streakIcon = icon; saveAllData(); updateSystemUI(); updateShopUI(); alert("Đã trang bị thành công!"); } else { if (sys.coins >= price) { sys.coins -= price; sys.unlockedIcons.push(icon); sys.streakIcon = icon; playRealisticBoom(); saveAllData(); $('shop-coins-display').innerText = Math.floor(sys.coins).toLocaleString(); updateSystemUI(); updateShopUI(); alert("Mua thành công!"); } else alert("Tài khoản không đủ Xu!"); } }
+        function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString();}else alert("Không đủ USD!"); }
+        function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); updateShopUI();}else alert("Thiếu USD!"); }
+        function buyIcon(icon, price) { if (sys.unlockedIcons.includes(icon)) { sys.streakIcon = icon; saveAllData(); updateSystemUI(); updateShopUI(); alert("Đã trang bị thành công!"); } else { if (sys.coins >= price) { sys.coins -= price; sys.unlockedIcons.push(icon); sys.streakIcon = icon; playRealisticBoom(); saveAllData(); $('shop-coins-display').innerText = Math.floor(sys.coins).toLocaleString(); updateSystemUI(); updateShopUI(); alert("Mua thành công!"); } else alert("Tài khoản không đủ USD!"); } }
         
-        const shopGachaOpts = [ {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("Nhận 1 THÁNG gói ULTRA!");}}, {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}}, {n:"🛡️ Kim Bài Miễn Tử",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Mức phạt được reset, nhận 1 Thẻ Bảo Hộ.");}}, {n:"💰 Bát Bảo Tụ Tài",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); alert(`Lãi nhân đôi! Nhận được ${th.toFixed(2)} Xu.`);}else{sys.coins+=100; alert("Quỹ tiết kiệm trống, hoàn lại 100 Xu phí quay.");}}}, {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng thưởng 150 Xu.");}}, {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Không trúng thưởng.");}}, {n:"⚖️ Nộp Thuế 10%",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế hệ thống ${tx} Xu.`);}}, {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}} ];
+        const shopGachaOpts = [ {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("Nhận 1 THÁNG gói ULTRA!");}}, {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}}, {n:"🛡️ Kim Bài Miễn Tử",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Mức phạt được reset, nhận 1 Thẻ Bảo Hộ.");}}, {n:"💰 Bát Bảo Tụ Tài",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); alert(`Lãi nhân đôi! Nhận được $${th.toFixed(2)}.`);}else{sys.coins+=100; alert("Quỹ tiết kiệm trống, hoàn lại $100 phí quay.");}}}, {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng thưởng $150.");}}, {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Không trúng thưởng.");}}, {n:"⚖️ Nộp Thuế 10%",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế hệ thống $${tx}.`);}}, {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}} ];
         function initShopWheel() { const w=$('shop-wheel'); let d=360/8, bg=shopGachaOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; shopGachaOpts.forEach((o,i)=>{let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l);}); }
         let isShopSpinning = false;
-        function spinShopGacha() {
-            if(isShopSpinning) return; updateSpinButtonUI(); let uVIP = false;
-            if(sys.dailySpins >= 3) { if(sys.extraSpins > 0) uVIP = true; else return alert("Đã hết 3 lượt thường! Hãy mua lượt VIP tại Chợ Đen."); }
-            if(sys.coins < 100) return alert("Ngân khố không đủ 100 Xu!"); sys.coins -= 100; uVIP ? sys.extraSpins-- : sys.dailySpins++;
-            saveAllData(); $('shop-coins-display').innerText = Math.floor(sys.coins).toLocaleString(); isShopSpinning = true; $('btn-shop-spin').innerText = `Đang xử lý...`;
-            let r = Math.random() * 100, idx; if (sys.mem.tier === 'ULTRA') idx = r<5?0 : r<20?1 : r<35?2 : r<50?3 : 4; else idx = r<2?0 : r<12?1 : r<22?2 : r<32?3 : r<52?4 : r<75?5 : r<90?6 : 7;
-            const w=$('shop-wheel'); let tR=360*6+(360-(idx*45+22.5)); w.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; w.style.transform=`rotate(${tR}deg)`;
-            setTimeout(()=>{ isShopSpinning=false; updateSpinButtonUI(); w.style.transition='none'; w.style.transform=`rotate(${tR%360}deg)`; shopGachaOpts[idx].act(); saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); updateMemUI(); }, 4000);
-        }
+        function spinShopGacha() { if(isShopSpinning) return; updateSpinButtonUI(); let uVIP = false; if(sys.dailySpins >= 3) { if(sys.extraSpins > 0) uVIP = true; else return alert("Đã hết 3 lượt thường! Hãy mua lượt VIP tại Chợ Đen."); } if(sys.coins < 100) return alert("Ngân khố không đủ $100!"); sys.coins -= 100; uVIP ? sys.extraSpins-- : sys.dailySpins++; saveAllData(); $('shop-coins-display').innerText = Math.floor(sys.coins).toLocaleString(); isShopSpinning = true; $('btn-shop-spin').innerText = `Đang xử lý...`; let r = Math.random() * 100, idx; if (sys.mem.tier === 'ULTRA') idx = r<5?0 : r<20?1 : r<35?2 : r<50?3 : 4; else idx = r<2?0 : r<12?1 : r<22?2 : r<32?3 : r<52?4 : r<75?5 : r<90?6 : 7; const w=$('shop-wheel'); let tR=360*6+(360-(idx*45+22.5)); w.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.1, 1)'; w.style.transform=`rotate(${tR}deg)`; setTimeout(()=>{ isShopSpinning=false; updateSpinButtonUI(); w.style.transition='none'; w.style.transform=`rotate(${tR%360}deg)`; shopGachaOpts[idx].act(); saveAllData(); $('shop-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); updateMemUI(); }, 4000); }
 
-        const fWheelOpts = [{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:15},{n:"🚶 Nghỉ 10p",t:"break",tm:10,xp:0,c:"#10b981",p:10},{n:"🎮 Nghỉ 15p",t:"break",tm:15,xp:0,c:"#059669",p:10},{n:"📚 Học 15p",t:"work",tm:15,xp:0,c:"#f59e0b",p:10},{n:"🔥 Học 25p(+50)",t:"work",tm:25,xp:50,c:"#dc2626",p:5},{n:"🛡️ Thẻ Bảo Hộ",t:"imm",c:"#6366f1",p:15},{n:"✨ Thẻ x2",t:"dxp",c:"#ec4899",p:10},{n:"♾️ Vô Cực",t:"endl",c:"#8b5cf6",p:10},{n:"🎲 Trúng 100",t:"jack",xp:100,c:"#f5a623",p:5},{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:10}];
+        const fWheelOpts = [{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:15},{n:"🚶 Nghỉ 10p",t:"break",tm:10,xp:0,c:"#10b981",p:10},{n:"🎮 Nghỉ 15p",t:"break",tm:15,xp:0,c:"#059669",p:10},{n:"📚 Học 15p",t:"work",tm:15,xp:0,c:"#f59e0b",p:10},{n:"🔥 Học 25p(+50)",t:"work",tm:25,xp:50,c:"#dc2626",p:5},{n:"🛡️ Thẻ Bảo Hộ",t:"imm",c:"#6366f1",p:15},{n:"✨ Thẻ x2",t:"dxp",c:"#ec4899",p:10},{n:"♾️ Vô Cực",t:"endl",c:"#8b5cf6",p:10},{n:"🎲 Trúng 100 XP",t:"jack",xp:100,c:"#f5a623",p:5},{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:10}];
         function initFocusWheel() { const w=$('focus-wheel'); let d=360/10, bg=fWheelOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; fWheelOpts.forEach((o,i)=>{let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l);}); }
         let zTmr=null, isRun=false, isWrk=true, W_TIME=25*60, tL=W_TIME, tEnd=0, tvErn=0, afkTrg=false, afkCnt=null, afkV=15, isEndl=false, endSec=0, endXp=0, stEndl=0, isDbl=false, pmStk="NONE", isFrc=false;
         function toggleZenMode() { const o=$('zen-overlay'), m=$('main-board'); if(o.classList.contains('active')){o.classList.remove('active'); m.style.filter='blur(0)'; $('zen-wheel-box').style.display='none';}else{showRandomQuote(); o.classList.add('active'); m.style.filter='blur(10px)';} }
-        function startTimer(frc=false) { 
-            const b=$('btn-zen-start'), bc=$('zen-energy-bar'); 
-            if(isRun) { clearInterval(zTmr); isRun=false; b.innerText="Tiếp tục"; $('zen-status').innerText="Tạm dừng"; $('zen-timer').classList.remove('ticking'); bc.classList.remove('active'); return; } 
-            let selMins = parseInt($('zen-time-select').value); 
-            if(tL===W_TIME&&isWrk&&tvErn===0) { W_TIME = selMins * 60; tL = W_TIME; showRandomQuote(); afkTrg=false; isFrc=frc; if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} } 
-            isRun=true; b.innerText="Tạm dừng"; $('zen-timer').classList.add('ticking'); bc.classList.add('active'); 
-            if(isWrk) { $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); } else { $('zen-status').innerText="ĐANG NGHỈ NGƠI..."; $('zen-status').style.color="#10b981"; bc.classList.add('break-mode'); } 
-            tEnd = Date.now() + (tL * 1000); 
-            zTmr = setInterval(() => { 
-                tL = Math.max(0, Math.ceil((tEnd - Date.now()) / 1000)); 
-                if(isWrk && !afkTrg && tL<(W_TIME-5*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); } 
-                if(tL<=0) { 
-                    tL=0; updTmr(); clearInterval(zTmr); isRun=false; $('zen-timer').classList.remove('ticking'); $('zen-energy-fill').style.width='100%'; bc.classList.remove('active'); 
-                    if(isWrk) { 
-                        if(isFrc) { alert("Hoàn thành phiên phạt."); resetTimer(); toggleZenMode(); return; } 
-                        let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; 
-                        if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Xp nhân đôi.");} 
-                        runBigFireworks(); playRealisticBoom(); addTuVi(rw); 
-                        if(pmStk!=="NONE" && sys.stocks[pmStk]) { 
-                            sys.stocks[pmStk].prevPrice = sys.stocks[pmStk].price; // PATCH BẢNG ĐIỆN TỬ
-                            sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); 
-                            sys.stocks[pmStk].pumped = true; // Bật huy hiệu
-                            alert(`Mã $${pmStk} đã tăng 20%!`); saveAllData(); 
-                        } 
-                        $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none'; const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex'; 
-                    } else { 
-                        playChime(); isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; $('zen-status').innerText="Bắt đầu phiên học."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='inline-block'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%'; 
-                    } 
-                    return; 
-                } 
-                if(isWrk && !isFrc) { let mp = Math.floor((W_TIME-tL)/60); if(mp>tvErn) { let xp = (mp-tvErn); if(isDbl) xp*=2; addTuVi(xp); tvErn=mp; showRandomQuote(); } } 
-                $('zen-energy-fill').style.width=`${((W_TIME-tL)/W_TIME)*100}%`; updTmr(); 
-            }, 500); 
-        }
+        function startTimer(frc=false) { const b=$('btn-zen-start'), bc=$('zen-energy-bar'); if(isRun) { clearInterval(zTmr); isRun=false; b.innerText="Tiếp tục"; $('zen-status').innerText="Tạm dừng"; $('zen-timer').classList.remove('ticking'); bc.classList.remove('active'); return; } let selMins = parseInt($('zen-time-select').value); if(tL===W_TIME&&isWrk&&tvErn===0) { W_TIME = selMins * 60; tL = W_TIME; showRandomQuote(); afkTrg=false; isFrc=frc; if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} } isRun=true; b.innerText="Tạm dừng"; $('zen-timer').classList.add('ticking'); bc.classList.add('active'); if(isWrk) { $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); } else { $('zen-status').innerText="ĐANG NGHỈ NGƠI..."; $('zen-status').style.color="#10b981"; bc.classList.add('break-mode'); } tEnd = Date.now() + (tL * 1000); zTmr = setInterval(() => { tL = Math.max(0, Math.ceil((tEnd - Date.now()) / 1000)); if(isWrk && !afkTrg && tL<(W_TIME-5*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); } if(tL<=0) { tL=0; updTmr(); clearInterval(zTmr); isRun=false; $('zen-timer').classList.remove('ticking'); $('zen-energy-fill').style.width='100%'; bc.classList.remove('active'); if(isWrk) { if(isFrc) { alert("Hoàn thành phiên phạt."); resetTimer(); toggleZenMode(); return; } let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! XP nhân đôi.");} runBigFireworks(); playRealisticBoom(); addTuVi(rw); if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].prevPrice = sys.stocks[pmStk].price; sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); sys.stocks[pmStk].pumped = true; alert(`Mã $${pmStk} đã tăng 20%!`); saveAllData(); } $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none'; const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex'; } else { playChime(); isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; $('zen-status').innerText="Bắt đầu phiên học."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='inline-block'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%'; } return; } if(isWrk && !isFrc) { let mp = Math.floor((W_TIME-tL)/60); if(mp>tvErn) { let xp = (mp-tvErn); if(isDbl) xp*=2; addTuVi(xp); tvErn=mp; showRandomQuote(); } } $('zen-energy-fill').style.width=`${((W_TIME-tL)/W_TIME)*100}%`; updTmr(); }, 500); }
         let isFSpn = false; function spinFocusWheel() { if(isFSpn) return; isFSpn=true; $('btn-focus-spin').innerText="Đang quay..."; let r=Math.random()*100, s=0, wIdx=0; for(let i=0;i<fWheelOpts.length;i++){s+=fWheelOpts[i].p; if(r<=s){wIdx=i;break;}} let wn=fWheelOpts[wIdx], sl=360/10, o=5+Math.random()*(sl-10), tR=360*5+(360-(wIdx*sl+o)); const w=$('focus-wheel'); w.style.transition='transform 4s cubic-bezier(0.17,0.67,0.1,1)'; w.style.transform=`rotate(${tR}deg)`; try{const ctx=getAudioCtx(); if(ctx){let c=0, iv=setInterval(()=>{if(c>=20){clearInterval(iv);return;}c++;const t=ctx.currentTime;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(400+c*20,t);osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1);gain.gain.setValueAtTime(0.1,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.1);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);},200-c*5);}}catch(e){} setTimeout(()=>{ isFSpn=false; $('btn-focus-spin').innerText="QUAY THƯỞNG"; let m=`Kết quả: ${wn.n}!\n`; $('zen-wheel-box').style.display='none'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; if(wn.t==='work'){m+=`Bắt đầu học ${wn.tm}p!`;alert(m); isWrk=true; W_TIME=wn.tm*60; tL=W_TIME; tvErn=0; afkTrg=false; isFrc=false; pmStk="NONE"; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; updTmr(); startTimer();} else if(wn.t==='endl'){m+=`Chế độ Vô Cực!`;alert(m); startEndlessMode();} else if(wn.t==='imm'){sys.immunity++; saveAllData(); m+=`Nhận Thẻ Bảo Hộ. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='dxp'){sys.doubleXp++; saveAllData(); m+=`Nhận Thẻ x2. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='jack'){addTuVi(wn.xp); m+=`Nhận ${wn.xp} XP. Nghỉ 5p.`;alert(m); startBreak(5);} else {m+=`Nghỉ ngơi ${wn.tm}p.`;alert(m); startBreak(wn.tm);} }, 4000); }
         function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
         function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
