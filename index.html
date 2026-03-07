@@ -15,7 +15,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
     <style>
-        /* --- GIỮ NGUYÊN TOÀN BỘ CSS GỐC CỦA BỆ HẠ --- */
+        /* --- GIỮ NGUYÊN TẤT CẢ CSS NỀN TẢNG CỦA BỆ HẠ --- */
         :root { --bg-color:#f1f5f9; --text-main:#1e293b; --text-muted:#64748b; --card-bg:#ffffff; --border-color:#e2e8f0; --primary:#2563eb; --primary-hover:#1d4ed8; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(15,23,42,0.6); --input-bg:#ffffff; --color-red:#fee2e2; --color-red-border:#fca5a5; --color-blue:#dbeafe; --color-blue-border:#bfdbfe; --color-green:#dcfce7; --color-green-border:#bbf7d0; --color-default:#f8fafc; --color-default-border:#e2e8f0; --font-main:'Inter',sans-serif; }
         [data-theme="dark"] { --bg-color:#0f172a; --text-main:#f8fafc; --text-muted:#94a3b8; --card-bg:#1e293b; --border-color:#334155; --primary:#3b82f6; --primary-hover:#60a5fa; --modal-overlay:rgba(0,0,0,0.8); --input-bg:#0f172a; --color-red:rgba(239,68,68,0.15); --color-red-border:#ef4444; --color-blue:rgba(59,130,246,0.15); --color-blue-border:#3b82f6; --color-green:rgba(16,185,129,0.15); --color-green-border:#10b981; --color-default:rgba(148,163,184,0.1); --color-default-border:#475569; }
         [data-theme="detective"] { --bg-color:#121212; --text-main:#d1d5db; --text-muted:#7f1d1d; --card-bg:#1e1e1e; --border-color:#450a0a; --primary:#991b1b; --primary-hover:#b91c1c; --success:#065f46; --danger:#dc2626; --warning:#b45309; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#000000; --color-red:rgba(220,38,38,0.1); --color-red-border:#991b1b; --color-blue:rgba(59,130,246,0.05); --color-blue-border:#1e3a8a; --color-green:rgba(16,185,129,0.05); --color-green-border:#064e3b; --color-default:rgba(156,163,175,0.05); --color-default-border:#374151; --font-main:'Special Elite',cursive,'Inter',sans-serif; }
@@ -55,7 +55,7 @@
         .mem-card.ultra { background: linear-gradient(135deg, #d4af37, #b45309) !important; border-color: #fde047 !important; box-shadow: 0 0 25px rgba(245, 158, 11, 0.5) !important; }
         .mem-card.ultra::after { content: '\f521'; opacity: 0.15; }
 
-        /* --- BẢN VÁ DUY NHẤT: BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC (TỐI ĐA 5 MỤC TIÊU - CUỘN NGANG) --- */
+        /* --- BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC (NÂNG CẤP TỐI ĐA 5 MỤC TIÊU - CUỘN NGANG) --- */
         .countdown-panel { 
             background: linear-gradient(180deg, #0f172a 0%, #020617 100%); 
             margin: 20px 30px 0; 
@@ -169,7 +169,7 @@
         }
         .cd-btn-edit:hover { background: #d4af37; color: #000; box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
-        /* --- CSS VIỆN KIẾN THÀNH GỐC CỦA BỆ HẠ (SAO CHÉP Y NGUYÊN TỪ ĐOẠN MÃ CỦA NGÀI) --- */
+        /* --- CSS VIỆN KIẾN THÀNH GỐC CỦA BỆ HẠ --- */
         .vkt-tab-btn { padding: 12px; background: transparent; border: 1px solid var(--primary); color: var(--primary); border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; transition: 0.2s; text-align: center; }
         .vkt-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
         .vkt-panel { display: none; margin-top: 20px; animation: slideUp 0.3s ease; }
@@ -178,27 +178,24 @@
         .vkt-card:hover { border-color: var(--warning); transform: translateY(-2px); }
         .vkt-card h4 { color: var(--primary); margin-bottom: 5px; font-size: 1.1rem; }
         
+        /* SA BÀN 2x2 CỦA ĐẠI BẢN DOANH */
         .vkt-grid-map { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .vkt-plot { border: 2px dashed #475569; background: #0f172a; border-radius: 10px; min-height: 160px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .plot-fog { position: absolute; inset: 0; background: radial-gradient(circle, #334155 0%, #0f172a 100%); opacity: 0.8; z-index: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #94a3b8; }
         .plot-empty { color: #64748b; font-size: 0.8rem; z-index: 2; position: relative;}
         .plot-construction { color: #f59e0b; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 10px; z-index:2; position: relative;}
         .plot-completed { display: flex; flex-direction: column; align-items: center; width: 100%; position: relative; height: 100%; justify-content: center; z-index:2;}
-        
         .scaffold { font-size: 2.5rem; animation: swing 2s infinite ease-in-out alternate; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         @keyframes swing { 0% { transform: rotate(-10deg); } 100% { transform: rotate(10deg); } }
-        
         .vkt-building-icon { font-size: 3.5rem; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
         .anim-library { position: absolute; inset: 0; background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%); animation: pulse-light 3s infinite alternate; z-index:0;}
         .anim-colosseum { position: absolute; bottom: 0; width: 100%; height: 60px; background: linear-gradient(to top, rgba(239,68,68,0.4), transparent); animation: fire-flicker 0.5s infinite alternate; z-index:0;}
         .anim-pyramid { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 80px solid transparent; border-right: 80px solid transparent; border-bottom: 120px solid rgba(250,204,21,0.1); animation: sun-ray 4s infinite linear; z-index:0;}
         .anim-greatwall { position: absolute; bottom: 10px; width: 200%; left: -50%; height: 30px; background: rgba(255,255,255,0.05); filter: blur(8px); animation: cloud-move 15s infinite linear; z-index:0;}
-        
         @keyframes pulse-light { 0% { opacity: 0.4; } 100% { opacity: 1; } }
         @keyframes fire-flicker { 0% { opacity: 0.6; transform: translateY(2px); } 100% { opacity: 1; transform: translateY(-2px); } }
         @keyframes sun-ray { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
         @keyframes cloud-move { 0% { transform: translateX(0); } 100% { transform: translateX(50px); } }
-        
         .vkt-collect-btn { z-index: 10; position: relative; margin-top: 10px; font-size:0.85rem; padding:8px 15px; border: none; font-weight: bold; background: var(--success); color: white; border-radius: 6px; cursor: pointer; animation: pulse-collect 1s infinite; }
         @keyframes pulse-collect { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(16,185,129,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
 
@@ -219,7 +216,6 @@
                 <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()"><i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span></div>
                 
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
-                
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
                 <button class="btn btn-outline" onclick="openVienKienThanh()"><i class="fas fa-university" style="color:#fbbf24;"></i> Viện Kiến Thành</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
@@ -275,9 +271,9 @@
             <p style="text-align:center; margin-bottom: 15px;">Ngân khố: <strong style="color:var(--warning); font-size:1.3rem;" id="vkt-coins-display">0</strong> Xu</p>
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button class="vkt-tab-btn active" id="btn-vkt-tab-land" onclick="switchVktTab('land')">1. Sàn BĐS</button>
-                <button class="vkt-tab-btn" id="btn-vkt-tab-blueprint" onclick="switchVktTab('blueprint')">2. Phòng Bản Vẽ</button>
-                <button class="vkt-tab-btn" id="btn-vkt-tab-build" onclick="switchVktTab('build')">3. Đại Bản Doanh</button>
+                <button class="vkt-tab-btn active" id="btn-vkt-tab-land" onclick="switchVktTab('land', this)">1. Sàn BĐS</button>
+                <button class="vkt-tab-btn" id="btn-vkt-tab-blueprint" onclick="switchVktTab('blueprint', this)">2. Phòng Bản Vẽ</button>
+                <button class="vkt-tab-btn" id="btn-vkt-tab-build" onclick="switchVktTab('build', this)">3. Đại Bản Doanh</button>
             </div>
 
             <div id="vkt-land-panel" class="vkt-panel active"><div id="vkt-land-list"></div></div>
@@ -495,7 +491,7 @@
     </div>
 
     <script>
-        /* --- GIỮ NGUYÊN HOÀN TOÀN CÁC BIẾN VÀ HÀM GỐC CỦA BỆ HẠ --- */
+        /* --- GIỮ NGUYÊN HOÀN TOÀN CÁC BIẾN VÀ HÀM GỐC --- */
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').then(reg => console.log('Service Worker hoạt động!', reg.scope)); }); }
         const $ = id => document.getElementById(id);
         const $$ = sel => document.querySelectorAll(sel);
@@ -702,7 +698,16 @@
         function openVienKienThanh() {
             $('vkt-coins-display').innerText = Math.floor(sys.coins).toLocaleString();
             $('vkt-modal').style.display = 'flex';
-            switchVktTab('land', document.getElementById('btn-vkt-tab-land'));
+            
+            // Xử lý nút khởi tạo bằng JS thuần tuý để không lỗi event
+            document.querySelectorAll('.vkt-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.vkt-panel').forEach(p => p.classList.remove('active'));
+            let firstBtn = document.getElementById('btn-vkt-tab-land');
+            if(firstBtn) firstBtn.classList.add('active');
+            let firstPanel = document.getElementById('vkt-land-panel');
+            if(firstPanel) firstPanel.classList.add('active');
+            
+            renderVktLands();
         }
 
         function switchVktTab(tab, element) {
@@ -752,7 +757,7 @@
             let now = new Date(), hour = now.getHours();
             let isGoldenHour = (hour >= 22 && hour <= 23);
 
-            // BẢN VÁ: RENDER SA BÀN 2x2 CỦA BỆ HẠ
+            // RENDER SA BÀN 2x2 CỦA BỆ HẠ
             h += `<div class="vkt-grid-map">`;
             VKT_LANDS.forEach((land) => {
                 let isOwned = sys.vkt.lands.includes(land.id);
@@ -769,6 +774,7 @@
                     let bp = VKT_BLUEPRINTS.find(x => x.id === builtBpId);
                     let collected = sys.vkt.collectedToday.includes(builtBpId);
                     
+                    // ANIMATION HƠI THỞ KỲ QUAN
                     if(builtBpId === 'bp-thuvien') h += `<div class="anim-library"></div>`;
                     if(builtBpId === 'bp-dautruong') h += `<div class="anim-colosseum"></div>`;
                     if(builtBpId === 'bp-kimtuthap') h += `<div class="anim-pyramid"></div>`;
@@ -799,7 +805,8 @@
             });
             h += `</div>`;
 
-            if(sys.vkt.activeProject) {
+            // BẢNG ĐIỀU KHIỂN BÊN DƯỚI
+            if (sys.vkt.activeProject) {
                 let p = sys.vkt.activeProject, rem = 200000 - sys.vkt.dailyInvest;
                 h += `<div style="background:var(--input-bg); border:2px solid var(--warning); padding:15px; border-radius:10px; margin-top:15px;">
                     <h4 style="text-align:center; color:var(--warning); margin-bottom:10px;">🚧 ${p.name}</h4>
@@ -956,7 +963,8 @@
         let pRsn="", pInc=[], pDIdx=-1;
         function finishDay(dIdx) { 
             if (dIdx !== getRealDayIndex()) return alert("Chỉ có thể kết thúc ngày hiện tại!"); 
-            const ts=scheduleData[dIdx], inc=ts.filter(t=>t.completed&&!t.missed), cmp=ts.filter(t=>t.completed); 
+            // ĐÃ SỬA LỖI LỌC: CHỈ LỌC VIỆC CHƯA HOÀN THÀNH
+            const ts=scheduleData[dIdx], inc=ts.filter(t=>!t.completed&&!t.missed), cmp=ts.filter(t=>t.completed); 
             const tomorrowIdx = (dIdx + 1) % 7;
 
             if(inc.length===0) { 
