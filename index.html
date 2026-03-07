@@ -15,7 +15,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
     <style>
-        /* --- GIỮ NGUYÊN TẤT CẢ CSS NỀN TẢNG CỦA BỆ HẠ --- */
+        /* --- GIỮ NGUYÊN TOÀN BỘ CSS GỐC CỦA BỆ HẠ --- */
         :root { --bg-color:#f1f5f9; --text-main:#1e293b; --text-muted:#64748b; --card-bg:#ffffff; --border-color:#e2e8f0; --primary:#2563eb; --primary-hover:#1d4ed8; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(15,23,42,0.6); --input-bg:#ffffff; --color-red:#fee2e2; --color-red-border:#fca5a5; --color-blue:#dbeafe; --color-blue-border:#bfdbfe; --color-green:#dcfce7; --color-green-border:#bbf7d0; --color-default:#f8fafc; --color-default-border:#e2e8f0; --font-main:'Inter',sans-serif; }
         [data-theme="dark"] { --bg-color:#0f172a; --text-main:#f8fafc; --text-muted:#94a3b8; --card-bg:#1e293b; --border-color:#334155; --primary:#3b82f6; --primary-hover:#60a5fa; --modal-overlay:rgba(0,0,0,0.8); --input-bg:#0f172a; --color-red:rgba(239,68,68,0.15); --color-red-border:#ef4444; --color-blue:rgba(59,130,246,0.15); --color-blue-border:#3b82f6; --color-green:rgba(16,185,129,0.15); --color-green-border:#10b981; --color-default:rgba(148,163,184,0.1); --color-default-border:#475569; }
         [data-theme="detective"] { --bg-color:#121212; --text-main:#d1d5db; --text-muted:#7f1d1d; --card-bg:#1e1e1e; --border-color:#450a0a; --primary:#991b1b; --primary-hover:#b91c1c; --success:#065f46; --danger:#dc2626; --warning:#b45309; --modal-overlay:rgba(0,0,0,0.9); --input-bg:#000000; --color-red:rgba(220,38,38,0.1); --color-red-border:#991b1b; --color-blue:rgba(59,130,246,0.05); --color-blue-border:#1e3a8a; --color-green:rgba(16,185,129,0.05); --color-green-border:#064e3b; --color-default:rgba(156,163,175,0.05); --color-default-border:#374151; --font-main:'Special Elite',cursive,'Inter',sans-serif; }
@@ -55,7 +55,7 @@
         .mem-card.ultra { background: linear-gradient(135deg, #d4af37, #b45309) !important; border-color: #fde047 !important; box-shadow: 0 0 25px rgba(245, 158, 11, 0.5) !important; }
         .mem-card.ultra::after { content: '\f521'; opacity: 0.15; }
 
-        /* --- BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC (NÂNG CẤP TỐI ĐA 5 MỤC TIÊU - CUỘN NGANG) --- */
+        /* --- BẢN VÁ DUY NHẤT: BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC (TỐI ĐA 5 MỤC TIÊU - CUỘN NGANG) --- */
         .countdown-panel { 
             background: linear-gradient(180deg, #0f172a 0%, #020617 100%); 
             margin: 20px 30px 0; 
@@ -169,7 +169,7 @@
         }
         .cd-btn-edit:hover { background: #d4af37; color: #000; box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
-        /* --- CSS VIỆN KIẾN THÀNH GỐC CỦA BỆ HẠ --- */
+        /* --- CSS VIỆN KIẾN THÀNH GỐC CỦA BỆ HẠ (SAO CHÉP Y NGUYÊN TỪ ĐOẠN MÃ CỦA NGÀI) --- */
         .vkt-tab-btn { padding: 12px; background: transparent; border: 1px solid var(--primary); color: var(--primary); border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; transition: 0.2s; text-align: center; }
         .vkt-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
         .vkt-panel { display: none; margin-top: 20px; animation: slideUp 0.3s ease; }
@@ -178,24 +178,27 @@
         .vkt-card:hover { border-color: var(--warning); transform: translateY(-2px); }
         .vkt-card h4 { color: var(--primary); margin-bottom: 5px; font-size: 1.1rem; }
         
-        /* SA BÀN 2x2 CỦA ĐẠI BẢN DOANH */
         .vkt-grid-map { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .vkt-plot { border: 2px dashed #475569; background: #0f172a; border-radius: 10px; min-height: 160px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .plot-fog { position: absolute; inset: 0; background: radial-gradient(circle, #334155 0%, #0f172a 100%); opacity: 0.8; z-index: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #94a3b8; }
         .plot-empty { color: #64748b; font-size: 0.8rem; z-index: 2; position: relative;}
         .plot-construction { color: #f59e0b; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 10px; z-index:2; position: relative;}
         .plot-completed { display: flex; flex-direction: column; align-items: center; width: 100%; position: relative; height: 100%; justify-content: center; z-index:2;}
+        
         .scaffold { font-size: 2.5rem; animation: swing 2s infinite ease-in-out alternate; color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         @keyframes swing { 0% { transform: rotate(-10deg); } 100% { transform: rotate(10deg); } }
+        
         .vkt-building-icon { font-size: 3.5rem; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
         .anim-library { position: absolute; inset: 0; background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%); animation: pulse-light 3s infinite alternate; z-index:0;}
         .anim-colosseum { position: absolute; bottom: 0; width: 100%; height: 60px; background: linear-gradient(to top, rgba(239,68,68,0.4), transparent); animation: fire-flicker 0.5s infinite alternate; z-index:0;}
         .anim-pyramid { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 80px solid transparent; border-right: 80px solid transparent; border-bottom: 120px solid rgba(250,204,21,0.1); animation: sun-ray 4s infinite linear; z-index:0;}
         .anim-greatwall { position: absolute; bottom: 10px; width: 200%; left: -50%; height: 30px; background: rgba(255,255,255,0.05); filter: blur(8px); animation: cloud-move 15s infinite linear; z-index:0;}
+        
         @keyframes pulse-light { 0% { opacity: 0.4; } 100% { opacity: 1; } }
         @keyframes fire-flicker { 0% { opacity: 0.6; transform: translateY(2px); } 100% { opacity: 1; transform: translateY(-2px); } }
         @keyframes sun-ray { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
         @keyframes cloud-move { 0% { transform: translateX(0); } 100% { transform: translateX(50px); } }
+        
         .vkt-collect-btn { z-index: 10; position: relative; margin-top: 10px; font-size:0.85rem; padding:8px 15px; border: none; font-weight: bold; background: var(--success); color: white; border-radius: 6px; cursor: pointer; animation: pulse-collect 1s infinite; }
         @keyframes pulse-collect { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(16,185,129,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
 
@@ -271,9 +274,9 @@
             <p style="text-align:center; margin-bottom: 15px;">Ngân khố: <strong style="color:var(--warning); font-size:1.3rem;" id="vkt-coins-display">0</strong> Xu</p>
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button class="vkt-tab-btn active" id="btn-vkt-tab-land" onclick="switchVktTab('land', this)">1. Sàn BĐS</button>
-                <button class="vkt-tab-btn" id="btn-vkt-tab-blueprint" onclick="switchVktTab('blueprint', this)">2. Phòng Bản Vẽ</button>
-                <button class="vkt-tab-btn" id="btn-vkt-tab-build" onclick="switchVktTab('build', this)">3. Đại Bản Doanh</button>
+                <button class="vkt-tab-btn active" id="btn-vkt-tab-land" onclick="switchVktTab('land')">1. Sàn BĐS</button>
+                <button class="vkt-tab-btn" id="btn-vkt-tab-blueprint" onclick="switchVktTab('blueprint')">2. Phòng Bản Vẽ</button>
+                <button class="vkt-tab-btn" id="btn-vkt-tab-build" onclick="switchVktTab('build')">3. Đại Bản Doanh</button>
             </div>
 
             <div id="vkt-land-panel" class="vkt-panel active"><div id="vkt-land-list"></div></div>
@@ -556,6 +559,7 @@
 
             checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); 
             renderCountdownLayout(); 
+            processBankInterest();
         }
 
         function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); }
@@ -757,87 +761,32 @@
             let now = new Date(), hour = now.getHours();
             let isGoldenHour = (hour >= 22 && hour <= 23);
 
-            // RENDER SA BÀN 2x2 CỦA BỆ HẠ
-            h += `<div class="vkt-grid-map">`;
-            VKT_LANDS.forEach((land) => {
-                let isOwned = sys.vkt.lands.includes(land.id);
-                let landIndex = sys.vkt.lands.indexOf(land.id);
-                let builtBpId = landIndex !== -1 && landIndex < sys.vkt.completed.length ? sys.vkt.completed[landIndex] : null;
-                let isBuildingHere = sys.vkt.activeProject && sys.vkt.activeProject.landId === land.id;
-
-                h += `<div class="vkt-plot" style="border-color: ${isOwned?'var(--primary)':'#475569'};">`;
-                h += `<span style="position:absolute; top:5px; left:5px; font-size:0.65rem; color:white; background:var(--primary); padding:2px 6px; border-radius:4px; font-weight:bold; z-index:10;">${land.name}</span>`;
-
-                if (!isOwned) {
-                    h += `<div class="plot-fog"><i class="fas fa-lock" style="font-size:2rem; margin-bottom:5px;"></i><span>Chưa sở hữu</span></div>`;
-                } else if (builtBpId) {
-                    let bp = VKT_BLUEPRINTS.find(x => x.id === builtBpId);
-                    let collected = sys.vkt.collectedToday.includes(builtBpId);
+            if(sys.vkt.completed.length > 0) {
+                h += `<h4 style="text-align:center; color:var(--success); margin-bottom:15px;"><i class="fas fa-ticket-alt"></i> QUẦY THU VÉ THAM QUAN</h4>`;
+                sys.vkt.completed.forEach(bpId => {
+                    let bp = VKT_BLUEPRINTS.find(x => x.id === bpId);
+                    let collected = sys.vkt.collectedToday.includes(bpId);
                     
-                    // ANIMATION HƠI THỞ KỲ QUAN
-                    if(builtBpId === 'bp-thuvien') h += `<div class="anim-library"></div>`;
-                    if(builtBpId === 'bp-dautruong') h += `<div class="anim-colosseum"></div>`;
-                    if(builtBpId === 'bp-kimtuthap') h += `<div class="anim-pyramid"></div>`;
-                    if(builtBpId === 'bp-truongthanh') h += `<div class="anim-greatwall"></div>`;
-
-                    h += `<div class="plot-completed">`;
-                    h += `<i class="fas fa-monument vkt-building-icon" style="color:var(--warning);"></i>`;
-                    h += `<strong style="color:var(--text-main); font-size:0.85rem; line-height:1.2; z-index:2; margin-top:5px;">${bp.name}</strong>`;
+                    h += `<div class="vkt-revenue-box"><i class="fas fa-monument" style="font-size:2.5rem; margin-bottom:10px;"></i><h4>${bp.name}</h4>`;
                     
-                    if (isGoldenHour && !collected) {
-                        h += `<button class="vkt-collect-btn" onclick="chotSoVkt('${builtBpId}')">💰 Thu Tiền</button>`;
-                    } else if (collected) {
-                        h += `<span style="margin-top:10px; font-size:0.75rem; color:var(--success); z-index:2; font-weight:bold;"><i class="fas fa-check-circle"></i> Đã chốt</span>`;
+                    if (collected) {
+                        h += `<p style="color:#10b981; font-weight:bold;"><i class="fas fa-check-circle"></i> Đã chốt sổ xong.</p>`;
+                    } else if (isGoldenHour) {
+                        h += `<p style="color:#fbbf24; font-size:0.9rem;">Mật Nghị Công Bộ: Giờ kiểm kê đã điểm!</p>
+                              <button class="btn btn-success" style="width:100%; font-weight:900; padding:15px; margin-top:10px;" onclick="chotSoVkt('${bpId}')">💰 CHỐT SỔ & THU TIỀN</button>`;
                     } else {
-                        h += `<span style="margin-top:10px; font-size:0.7rem; color:var(--danger); z-index:2; background:rgba(0,0,0,0.7); padding:2px 5px; border-radius:4px;">Chờ 22:00</span>`;
+                        h += `<div class="vkt-lock-overlay"><i class="fas fa-users" style="font-size:2rem;"></i><span>Du khách đang đổ về nườm nượp...</span><small style="color:#fbbf24;">Quay lại vào 22h00 - 23h59 để chốt sổ!</small></div>`;
                     }
                     h += `</div>`;
-                } else if (isBuildingHere) {
-                    let pct = (sys.vkt.activeProject.invested / sys.vkt.activeProject.totalCost) * 100;
-                    h += `<div class="plot-construction">`;
-                    h += `<i class="fas fa-hammer scaffold"></i>`;
-                    h += `<span style="font-size:0.8rem; margin-top:8px; font-weight:bold;">Đang thi công<br>${pct.toFixed(1)}%</span>`;
-                    h += `</div>`;
-                } else {
-                    h += `<div class="plot-empty"><i class="fas fa-map-marker-alt" style="font-size:2rem; color:var(--primary); opacity:0.5; margin-bottom:5px;"></i><br>Đất trống</div>`;
-                }
-                h += `</div>`;
-            });
-            h += `</div>`;
-
-            // BẢNG ĐIỀU KHIỂN BÊN DƯỚI
-            if (sys.vkt.activeProject) {
-                let p = sys.vkt.activeProject, rem = 200000 - sys.vkt.dailyInvest;
-                h += `<div style="background:var(--input-bg); border:2px solid var(--warning); padding:15px; border-radius:10px; margin-top:15px;">
-                    <h4 style="text-align:center; color:var(--warning); margin-bottom:10px;">🚧 ${p.name}</h4>
-                    <p style="text-align:center; font-size:0.85rem; margin-bottom:10px;">Hạn mức rót vốn hôm nay: <b>${rem.toLocaleString()} Xu</b></p>
-                    <div style="display:flex;gap:10px;">
-                        <input type="number" id="vkt-invest-amt" class="form-control" placeholder="Nhập Xu (Max 200k)...">
-                        <button class="btn btn-warning" style="font-weight:bold; color:black; white-space:nowrap;" onclick="investVktProject()">Rót Vốn</button>
-                    </div>
-                </div>`;
+                });
+            }
+            if(sys.vkt.activeProject) {
+                let p = sys.vkt.activeProject, pct = (p.invested / p.totalCost) * 100, rem = 200000 - sys.vkt.dailyInvest;
+                h += `<hr style="border: 1px solid var(--border-color); margin: 20px 0;"><h3 style="text-align:center; color:var(--warning);">${p.name}</h3><div class="vkt-progress-bar"><div class="vkt-progress-fill" style="width:${pct}%"></div></div><p style="text-align:center; font-size:0.8rem;">Hôm nay còn được rót: <b>${rem.toLocaleString()} Xu</b></p><div style="display:flex;gap:10px;"><input type="number" id="vkt-invest-amt" class="form-control" placeholder="Số xu (Max 200k)..."><button class="btn btn-warning" style="font-weight:bold; color:black;" onclick="investVktProject()">Rót Vốn</button></div>`;
             } else {
-                let avL = sys.vkt.lands.filter(lId => {
-                    let lIdx = sys.vkt.lands.indexOf(lId);
-                    return lIdx >= sys.vkt.completed.length; 
-                }); 
-                let avB = sys.vkt.blueprints.filter(b => !sys.vkt.completed.includes(b));
-                
-                if (sys.vkt.lands.length === 0) {
-                    h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Bệ hạ chưa có Sổ Đỏ! Hãy sang [Sàn BĐS] để mua đất trước.</div>`;
-                } else if (avB.length === 0) {
-                    h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Hãy sang [Phòng Bản Vẽ] mua thiết kế Kỳ Quan!</div>`;
-                } else if (avL.length === 0) {
-                    h += `<div style="text-align:center; padding:15px; color:var(--danger); border:2px dashed var(--danger); border-radius:10px; font-weight:bold; margin-top:15px;">Đã hết đất trống! Hãy mua thêm Sổ Đỏ!</div>`;
-                } else {
-                    let lOpts = avL.map(id => `<option value="${id}">${VKT_LANDS.find(x=>x.id===id).name}</option>`).join('');
-                    let bOpts = avB.map(id => `<option value="${id}">${VKT_BLUEPRINTS.find(x=>x.id===id).name}</option>`).join('');
-                    h += `<div style="background:var(--input-bg); border:2px solid var(--primary); padding:15px; border-radius:10px; margin-top:15px;">
-                        <p style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:15px;">🚀 KHỞI CÔNG DỰ ÁN MỚI</p>
-                        <div class="form-group"><label>Bản Vẽ (Kỳ quan):</label><select id="vkt-sel-bp" class="form-control">${bOpts}</select></div>
-                        <div class="form-group"><label>Khu Đất (Sổ Đỏ):</label><select id="vkt-sel-land" class="form-control">${lOpts}</select></div>
-                        <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:1.1rem; margin-top:5px;" onclick="startVktProject()">LỄ ĐỘNG THỔ</button>
-                    </div>`;
+                let avL = sys.vkt.lands, avB = sys.vkt.blueprints.filter(b => !sys.vkt.completed.includes(b));
+                if(avL.length && avB.length) {
+                    h += `<hr style="border: 1px solid var(--border-color); margin: 20px 0;"><p style="text-align:center; font-weight:bold; color:var(--primary);">🚀 KHỞI CÔNG DỰ ÁN MỚI</p><div class="form-group"><select id="vkt-sel-bp" class="form-control">${avB.map(id => `<option value="${id}">${VKT_BLUEPRINTS.find(x=>x.id===id).name}</option>`).join('')}</select></div><div class="form-group"><select id="vkt-sel-land" class="form-control">${avL.map(id => `<option value="${id}">${VKT_LANDS.find(x=>x.id===id).name}</option>`).join('')}</select></div><button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="startVktProject()">LỄ ĐỘNG THỔ</button>`;
                 }
             }
             c.innerHTML = h;
@@ -1038,23 +987,14 @@
         }
         function tradeStock(k, d) { let s=sys.stocks[k]; if(d>0){if(sys.coins>=s.price){sys.coins-=s.price; s.qty++;}else return alert("Thiếu Xu!");}else{if(s.qty>0){sys.coins+=s.price; s.qty--;}else return alert("Hết cổ phiếu!");} playTickSound(); saveAllData(); $('stock-coins-display').innerText=Math.floor(sys.coins).toLocaleString(); renderStockMarket(); }                
         function soiCauUltra() { if(sys.mem.tier !== 'ULTRA') return alert("Chỉ dành cho hội viên ULTRA!"); let today = new Date().setHours(0,0,0,0); if(sys.lastSoiCau > today) return alert("Bạn đã soi cầu hôm nay rồi!"); let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket(); alert(`Phân tích: Mã $${rk} dự kiến sẽ tăng mạnh. Hãy cân nhắc đầu tư!`); }
-        function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-modal').style.display='flex'; }
-        function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi ${a.toLocaleString()} Xu.`);}else alert("Thiếu Xu!"); }
-        function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút ${a.toLocaleString()} Xu.`);}else alert("Vốn không đủ!"); }
-        function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công!"); playChime();} }
-        setInterval(()=>{ 
-            let n = Date.now(); 
-            if(sys.bankCapital>0&&sys.streak>0) { 
-                let dr=sys.streak*0.01; 
-                sys.bankUnclaimed += (sys.bankCapital*(dr/86400)); 
-                if(sys.bankUnclaimed > sys.bankCapital*dr) sys.bankUnclaimed = sys.bankCapital*dr; 
-            } 
-            if(n - sys.bankLastHarvest >= 86400000) { 
-                if(sys.mem.tier === 'BASIC') { sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } 
-                else { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } 
-            } 
-            if($('bank-modal').style.display==='flex') $('bank-interest-display').innerText=sys.bankUnclaimed.toFixed(3); 
-        }, 1000);
+        function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); processBankInterest(); $('bank-modal').style.display='flex'; }
+        function depositBank() { processBankInterest(); let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi ${a.toLocaleString()} Xu.`);}else alert("Thiếu Xu!"); }
+        function withdrawBank() { processBankInterest(); let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); $('bank-capital-display').innerText=sys.bankCapital.toLocaleString(); $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút ${a.toLocaleString()} Xu.`);}else alert("Vốn không đủ!"); }
+        function harvestBank() { processBankInterest(); if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); sys.lastBankUpdate=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công!"); playChime();} }
+        
+        function processBankInterest() { let now = Date.now(); if (!sys.lastBankUpdate || sys.lastBankUpdate > now) sys.lastBankUpdate = now; if (!sys.bankLastHarvest || sys.bankLastHarvest > now) sys.bankLastHarvest = now; let elapsedMs = now - sys.lastBankUpdate; let isBasic = (sys.mem.tier === 'BASIC'); if (elapsedMs > 0 && sys.bankCapital > 0 && sys.streak > 0) { let dr = sys.streak * 0.01; let dailyInt = sys.bankCapital * dr; sys.bankUnclaimed += dailyInt * (elapsedMs / 86400000); if (isBasic && sys.bankUnclaimed > dailyInt) sys.bankUnclaimed = dailyInt; } sys.lastBankUpdate = now; let cycles = Math.floor((now - sys.bankLastHarvest) / 86400000); if (cycles > 0) { sys.bankLastHarvest += cycles * 86400000; if (isBasic) { sys.bankUnclaimed = 0; } else { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; } saveAllData(); } if ($('bank-modal') && $('bank-modal').style.display === 'flex') { let disp = $('bank-interest-display'); if (disp) disp.innerText = sys.bankUnclaimed.toFixed(3); } }
+        setInterval(processBankInterest, 1000);
+        window.addEventListener('beforeunload', () => { sys.lastBankUpdate = Date.now(); saveAllData(); });
 
         function updateLottoCountdown() {
             const timerElem = $('lotto-timer'); if (!timerElem) return;
