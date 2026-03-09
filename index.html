@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.0/dist/index.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <style>
         :root { --bg-color:#f1f5f9; --text-main:#1e293b; --text-muted:#64748b; --card-bg:#ffffff; --border-color:#e2e8f0; --primary:#2563eb; --primary-hover:#1d4ed8; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --modal-overlay:rgba(15,23,42,0.6); --input-bg:#ffffff; --color-red:#fee2e2; --color-red-border:#fca5a5; --color-blue:#dbeafe; --color-blue-border:#bfdbfe; --color-green:#dcfce7; --color-green-border:#bbf7d0; --color-default:#f8fafc; --color-default-border:#e2e8f0; --font-main:'Inter',sans-serif; }
         [data-theme="dark"] { --bg-color:#0f172a; --text-main:#f8fafc; --text-muted:#94a3b8; --card-bg:#1e293b; --border-color:#334155; --primary:#3b82f6; --primary-hover:#60a5fa; --modal-overlay:rgba(0,0,0,0.8); --input-bg:#0f172a; --color-red:rgba(239,68,68,0.15); --color-red-border:#ef4444; --color-blue:rgba(59,130,246,0.15); --color-blue-border:#3b82f6; --color-green:rgba(16,185,129,0.15); --color-green-border:#10b981; --color-default:rgba(148,163,184,0.1); --color-default-border:#475569; }
@@ -29,7 +29,6 @@
         #header-tuvi-badge{border-color:var(--primary);color:var(--primary);cursor:default;} #header-tuvi-badge.pulse{animation:tuvi-pulse 0.5s ease-out;} @keyframes tuvi-pulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0.7);}50%{transform:scale(1.1);box-shadow:0 0 0 10px rgba(37,99,235,0);}100%{transform:scale(1);}}
         #header-streak-badge{background:linear-gradient(45deg,#ef4444,#f59e0b);color:white;border:none;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);} #header-wager-badge{border-color:var(--danger);color:var(--danger);} #header-coin-badge{background:linear-gradient(45deg,#f59e0b,#d97706);color:white;border:none;font-weight:bold;text-shadow:0 1px 2px rgba(0,0,0,0.5);} #header-buffs-badge{border-color:#8b5cf6;color:#8b5cf6;cursor:default;display:flex;} .btn-zen{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:white;border:none;} .btn-zen:hover{transform:scale(1.05);}
         
-        /* CẢI CÁCH MÀU SẮC HUY HIỆU TRÊN HEADER */
         #header-mem-badge { font-weight: 900; text-transform: uppercase; transition: all 0.4s ease; border: none; letter-spacing: 0.5px; position: relative; overflow: hidden; }
         .tier-basic { background: linear-gradient(45deg, #b87333, #d4a373, #8a5a19); color: white !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); box-shadow: 0 2px 4px rgba(184,115,51,0.4); border: 1px solid #d4a373; }
         .tier-pro { background: linear-gradient(45deg, #94a3b8, #e2e8f0, #64748b); color: #0f172a !important; text-shadow: none; box-shadow: 0 2px 4px rgba(148,163,184,0.5); border: 1px solid #e2e8f0; }
@@ -38,7 +37,6 @@
         .tier-ultra::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: ultra-shine-effect 3s infinite linear; z-index: 1; pointer-events: none; }
         @keyframes ultra-shine-effect { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-        /* --- BIA ĐÁ HOÀNG GIA ĐẾM NGƯỢC --- */
         .countdown-panel { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid #475569; border-top: 3px solid #d4af37; box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; display: none; }
         .countdown-panel::before { content: '\f252'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10rem; color: #d4af37; opacity: 0.03; z-index: 0; pointer-events: none; }
         .countdown-panel::after { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(212,175,55,0.15) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: card-shine 6s infinite linear; z-index: 0; pointer-events: none; }
@@ -64,13 +62,11 @@
         
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;} .modal{background:var(--card-bg);width:90%;max-width:450px;padding:25px;border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);animation:slideUp 0.3s ease;border:1px solid var(--border-color);max-height:90vh;overflow-y:auto;} @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}} .modal-header{font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;color:var(--text-main);} .close-modal{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);} .form-group{margin-bottom:15px;} .form-group label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--text-muted);} .form-control{width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:6px;font-size:0.95rem;color:var(--text-main);} .form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1);} .color-options{display:flex;gap:12px;margin-top:5px;} .color-radio{display:none;} .color-label{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:0.2s;} .color-radio:checked+.color-label{transform:scale(1.2);border-color:var(--primary);box-shadow:0 0 8px rgba(0,0,0,0.2);} .bg-red{background:#fca5a5;} .bg-blue{background:#93c5fd;} .bg-green{background:#86efac;} .bg-default{background:#cbd5e1;} .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:25px;}
         
-        /* --- GIAO DIỆN THẺ HỘI VIÊN TRONG SHOP --- */
         .mem-card { padding: 20px; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
         .mem-card.basic { background: linear-gradient(45deg, #b87333, #d4a373, #8a5a19); color: white; border: 1px solid #d4a373; box-shadow: 0 4px 15px rgba(184,115,51,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
         .mem-card.pro { background: linear-gradient(45deg, #94a3b8, #e2e8f0, #64748b); color: #0f172a; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(148,163,184,0.5); text-shadow: none; }
         .mem-card.ultra { background: linear-gradient(45deg, #d4af37, #fff6a3, #d4af37, #f59e0b, #d4af37); background-size: 300% 300%; color: #451a03; border: 1px solid #fef08a; box-shadow: 0 0 20px rgba(212,175,55,0.7); animation: ultra-sparkle-bg 2s linear infinite; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
         .mem-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: mem-card-sweep 3s infinite linear; z-index: 1; pointer-events: none; }
-        @keyframes mem-card-sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
         .mem-card::after { font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: -15px; bottom: -25px; font-size: 8rem; opacity: 0.1; z-index: 0; transform: rotate(-15deg); pointer-events: none; }
         .mem-card.basic::after { content: '\f007'; color: #ffffff; }
         .mem-card.pro::after { content: '\f3ed'; color: #ffffff; }
@@ -80,7 +76,6 @@
         .mem-status{font-size:1.2rem;font-weight:900;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;} .mem-timer{font-family:'Special Elite',monospace;font-size:1.1rem;margin-bottom:15px;} .mem-toggle{display:flex;align-items:center;gap:10px;font-size:0.9rem;background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:6px;width:fit-content; color:white; text-shadow: none;} .mem-pricing{display:flex;flex-direction:column;gap:15px;margin-bottom:20px;} .mem-tier-box{border:1px solid var(--border-color);padding:15px;border-radius:8px;background:var(--input-bg);} .mem-tier-box h4{font-size:1.1rem;margin-bottom:10px;color:var(--primary);text-transform:uppercase;} .mem-tier-box.ultra-box h4{color:var(--warning);} .mem-btn{width:100%;padding:10px;margin-bottom:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-main);border-radius:6px;cursor:pointer;font-weight:600;text-align:left;display:flex;justify-content:space-between;transition:0.2s;} .mem-btn:hover{border-color:var(--primary);background:rgba(37,99,235,0.05);} .mem-badge{background:var(--danger);color:white;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:bold;}
         .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;} .shop-item{border:1px solid var(--border-color);padding:15px;border-radius:8px;text-align:center;background:var(--input-bg);transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;} .shop-item:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(0,0,0,0.05);} .shop-item h4{font-size:1rem;color:var(--text-main);margin-bottom:5px;} .shop-item p{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;min-height:35px;}
         
-        /* GIAO DIỆN CHỨNG KHOÁN NÂNG CẤP V2 */
         .stock-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; } 
         .stock-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; transition: 0.2s; overflow: hidden; } 
         .stock-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-color: var(--primary); }
@@ -90,49 +85,17 @@
         .stock-btns { display: flex; gap: 8px; } .stock-btn-action { flex: 1; padding: 8px; font-size: 0.9rem; font-weight:bold; border-radius:6px; cursor:pointer; border:none; color:white; transition: 0.2s; }
         .stock-btn-action:hover { opacity: 0.8; transform: scale(1.05); }
         
-        /* P&L và Giá vốn */
         .pnl-box { font-size: 0.85rem; margin-bottom: 12px; text-align: center; background: var(--bg-color); padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color); }
         .pnl-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
         .pnl-row strong { color: var(--text-main); }
         .profit-text { color: var(--success); font-weight: bold; }
         .loss-text { color: var(--danger); font-weight: bold; }
-
-        /* SVG Line Chart */
         .svg-chart { width: 100%; height: 40px; margin-top: 10px; overflow: visible; }
         .chart-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         .chart-area { opacity: 0.2; }
-
         .ticker-wrap { overflow: hidden; white-space: nowrap; background: #0f172a; color: #fff; padding: 8px; border-radius: 6px; font-family: 'Black Ops One', cursive; border: 1px solid #334155; margin-bottom: 15px; width: 100%; display: flex; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .ticker-move { display: inline-block; white-space: nowrap; animation: ticker 20s linear infinite; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* CHIÊU HIỀN CÁC & TRI KỶ CHATBOT */
-        .companion-card { border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden; text-align: center; transition: 0.3s; background: var(--card-bg); }
-        .companion-card:hover { border-color: var(--primary); transform: scale(1.02); }
-        .comp-header { padding: 15px; color: white; font-weight: bold; font-size: 1.1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .comp-body { padding: 15px; font-size: 0.85rem; color: var(--text-main); height: 90px; }
-        
-        #zen-chat-container { position: absolute; right: 20px; bottom: 20px; width: 350px; height: 450px; background: rgba(15, 23, 42, 0.85); border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 6002; overflow: hidden; backdrop-filter: blur(10px); }
-        .chat-header { background: rgba(0,0,0,0.5); padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .chat-header-info { display: flex; align-items: center; gap: 10px; }
-        .chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        .chat-name { color: white; font-weight: bold; font-size: 1rem; }
-        .chat-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-        .chat-close:hover { color: #ef4444; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; word-wrap: break-word; }
-        .msg.bot { background: rgba(59, 130, 246, 0.2); color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .msg.bot p { margin-bottom: 8px; }
-        .msg.bot p:last-child { margin-bottom: 0; }
-        .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-input-area { padding: 10px; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px; }
-        .chat-input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 20px; color: white; outline: none; }
-        .chat-input:focus { border-color: var(--primary); }
-        .chat-send-btn { background: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .chat-send-btn:hover { background: var(--primary-hover); transform: scale(1.1); }
-        
-        #btn-open-chat { position: absolute; right: 20px; bottom: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: 2px solid rgba(255,255,255,0.2); font-size: 1.5rem; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 6001; transition: 0.3s; display: none; align-items: center; justify-content: center; }
-        #btn-open-chat:hover { transform: scale(1.1); }
 
         .bank-display{text-align:center;font-size:2.5rem;color:var(--warning);font-family:'Black Ops One',cursive;margin:20px 0;text-shadow:0 2px 5px rgba(0,0,0,0.1);}
         #zen-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:5000;display:none;flex-direction:column;align-items:center;justify-content:flex-start;backdrop-filter:blur(15px);opacity:0;transition:opacity 0.5s ease;text-align:center;padding:30px 20px;box-sizing:border-box;color:#e2e8f0;overflow-y:auto;overflow-x:hidden;} #zen-overlay.active{display:flex;opacity:1;} #fireworks-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5001;} .zen-app-container{width:100%;max-width:900px;z-index:5002;display:flex;flex-direction:column;align-items:center;margin:auto;position:relative;} .zen-btn-exit{position:absolute;top:20px;right:20px;background:transparent;border:none;font-size:2rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:0.3s;z-index:6005;} .zen-btn-exit:hover{color:#ef4444;transform:rotate(90deg) scale(1.2);} .zen-timer{font-family:'Black Ops One',cursive;font-size:clamp(5rem,12vw,8rem);color:#fff;letter-spacing:5px;margin:0 0 10px 0;text-shadow:4px 4px 0px #000,8px 8px 20px rgba(0,0,0,0.8);line-height:1;} @keyframes timer-pulse-zen{0%{filter:drop-shadow(0 0 0 rgba(255,215,0,0));transform:scale(1);}50%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.9));transform:scale(1.02);}100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0));transform:scale(1);}} .zen-timer.ticking{animation:timer-pulse-zen 1.5s infinite ease-in-out;} .zen-energy-bar-container{width:100%;height:14px;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.2);border-radius:10px;margin:10px 0 20px;position:relative;box-shadow:inset 0 0 10px rgba(0,0,0,0.8);overflow:visible;} .zen-energy-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#93c5fd);transition:width 0.5s linear;border-radius:8px;box-shadow:0 0 10px currentColor;position:relative;} .zen-rank-badge{font-family:'Inter',sans-serif;font-weight:700;font-size:1.2rem;color:#60a5fa;border:2px solid #60a5fa;padding:5px 20px;border-radius:4px;background:rgba(0,0,0,0.6);margin-bottom:10px;box-shadow:0 0 15px rgba(96,165,250,0.3);text-transform:uppercase;letter-spacing:2px;} .zen-xp-bar-container{width:100%;max-width:400px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);} .zen-xp-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);width:0%;transition:width 0.5s ease-out;} .zen-xp-text{font-size:0.9rem;color:#94a3b8;margin-bottom:5px;font-weight:bold;letter-spacing:1px;} .zen-quote-container{margin-top:10px;max-width:800px;width:90%;padding:25px 30px;border-radius:12px;position:relative;background:#0f172a;min-height:120px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.8);overflow:hidden;border:1px solid rgba(255,255,255,0.05);} .zen-quote-line{position:absolute;display:block;z-index:1;pointer-events:none;} .zen-quote-line:nth-child(1){top:0;left:-100%;width:100%;height:4px;background:linear-gradient(90deg,transparent,#0ea5e9,#38bdf8);box-shadow:0 0 10px #38bdf8;animation:led-top 2s linear infinite;animation-delay:0s;} @keyframes led-top{0%{left:-100%;}50%,100%{left:100%;}} .zen-quote-line:nth-child(2){top:-100%;right:0;width:4px;height:100%;background:linear-gradient(180deg,transparent,#a855f7,#c084fc);box-shadow:0 0 10px #c084fc;animation:led-right 2s linear infinite;animation-delay:-1.5s;} @keyframes led-right{0%{top:-100%;}50%,100%{top:100%;}} .zen-quote-line:nth-child(3){bottom:0;right:-100%;width:100%;height:4px;background:linear-gradient(270deg,transparent,#f59e0b,#fbbf24);box-shadow:0 0 10px #fbbf24;animation:led-bottom 2s linear infinite;animation-delay:-1s;} @keyframes led-bottom{0%{right:-100%;}50%,100%{right:100%;}} .zen-quote-line:nth-child(4){bottom:-100%;left:0;width:4px;height:100%;background:linear-gradient(360deg,transparent,#10b981,#34d399);box-shadow:0 0 10px #34d399;animation:led-left 2s linear infinite;animation-delay:-0.5s;} @keyframes led-left{0%{bottom:-100%;}50%,100%{bottom:100%;}} .zen-quote-content{position:relative;z-index:5;} .zen-quote-en{font-size:1.2rem;font-style:italic;color:#cbd5e1;margin-bottom:5px;font-family:'Inter',serif;transition:opacity 0.5s;} .zen-quote-vi{font-size:1.1rem;color:#a5b4fc;font-weight:600;margin-bottom:8px;transition:opacity 0.5s;} .zen-quote-author{font-size:0.9rem;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;text-align:right;transition:opacity 0.5s;} .zen-status{font-size:1.2rem;text-transform:uppercase;letter-spacing:5px;color:rgba(255,255,255,0.9);margin-top:10px;margin-bottom:5px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.8);text-align:center;} .zen-controls{display:flex;gap:15px;margin-top:20px;justify-content:center;flex-wrap:wrap;} .zen-btn-action{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.5);color:white;padding:12px 40px;border-radius:50px;font-size:1.2rem;font-weight:bold;cursor:pointer;transition:0.2s;box-shadow:0 5px 15px rgba(0,0,0,0.5);} .zen-btn-action:hover{background:#fff;color:#000;transform:translateY(-3px);}
@@ -141,17 +104,92 @@
         #afk-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(220,38,38,0.9);z-index:6000;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;animation:flash-red 0.5s infinite alternate;} @keyframes flash-red{0%{background:rgba(220,38,38,0.9);}100%{background:rgba(153,27,27,0.95);}} #afk-overlay h1{font-size:3rem;margin-bottom:10px;text-transform:uppercase;font-family:'Black Ops One',cursive;text-shadow:0 0 20px black;text-align:center;} #afk-timer{font-size:5rem;font-weight:bold;margin:20px 0;} .btn-afk{background:#fff;color:#dc2626;border:none;padding:20px 50px;font-size:2rem;font-weight:bold;border-radius:50px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.5);transition:0.2s;} .btn-afk:hover{transform:scale(1.1);background:#fef08a;}
         #zen-time-select { padding: 12px 15px; border-radius: 50px; background: rgba(0,0,0,0.3); color: white; border: 2px solid rgba(255,255,255,0.3); font-size: 1.1rem; outline: none; cursor: pointer; } #zen-time-select option { background: #1e293b; color: white; }
 
-        /* KHUNG TRANH NGỰ UYỂN - NÂNG CẤP LÊN GÓC TRÊN TRÁI */
         #zen-image-card { position:absolute; top:40px; left:40px; border-radius:16px; background-size:cover; background-position:center; box-shadow:0 15px 30px rgba(0,0,0,0.6); border:2px solid rgba(255,255,255,0.1); z-index:6000; transition: transform 0.3s; display:none; }
         #zen-image-card.orient-vertical { width:220px; height:300px; }
         #zen-image-card.orient-horizontal { width:350px; height:200px; }
         #zen-image-card:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.5); }
+        
+        /* CÁC GÓI NGỰ ÂM CÁC TRONG SHOP */
+        .music-tier-box { border:1px solid var(--border-color); padding:15px; border-radius:8px; background:var(--input-bg); margin-bottom: 10px; }
+        .music-tier-box h4 { font-size:1.1rem; margin-bottom:10px; text-transform:uppercase; }
+        .music-tier-plus h4 { color: #a855f7; }
+        .music-tier-premium h4 { color: #fbbf24; }
+        .music-tier-plus { border-color: #a855f7; }
+        .music-tier-premium { border-color: #fbbf24; }
+        
+        /* MÁY NGHE NHẠC TRONG FOCUS MODE (V2 LỘT XÁC) */
+        .music-player { position: absolute; bottom: 20px; right: 20px; background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.2); padding: 20px; border-radius: 12px; display:flex; flex-direction:column; width: 340px; z-index: 6001; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s; }
+        .music-player:hover { border-color: rgba(255,255,255,0.5); }
+        
+        .player-top-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .player-visual { flex-shrink: 0; display:flex; justify-content:center; align-items:center; width: 70px; height: 70px; }
+        .player-info-container { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+        
+        .player-status-text { font-size: 0.65rem; color: var(--success); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; font-weight: bold; }
+        .player-info { color: white; font-size: 1rem; font-weight: bold; overflow: hidden; white-space: nowrap; margin-bottom: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        
+        /* Trục âm lượng */
+        .volume-control { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.8rem; }
+        .volume-control input[type="range"] { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); appearance: none; outline: none; }
+        .volume-control input[type="range"]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: white; cursor: pointer; }
+        
+        /* Thanh sinh mệnh (Progress Bar) */
+        .progress-container-music { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px; font-family: monospace; }
+        .progress-container-music input[type="range"] { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.2); appearance: none; outline: none; cursor: pointer; transition: 0.2s; }
+        .progress-container-music input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        
+        /* Dàn nút điều khiển */
+        .player-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+        .player-controls button { background: transparent; border: none; color: white; font-size: 1.2rem; cursor: pointer; transition: 0.2s; padding: 5px; display: flex; justify-content: center; align-items: center; }
+        .player-controls button:hover { transform: scale(1.1); }
+        .player-controls button.active { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+        .player-controls button.disabled { color: #475569; pointer-events: none; }
+        #btn-play { font-size: 1.8rem; color: white; } 
+
+        /* MẶC ĐỊNH */
+        .default-skin .progress-container-music input[type="range"]::-webkit-slider-thumb { background: var(--primary); }
+        .default-skin .volume-control input[type="range"]::-webkit-slider-thumb { background: var(--primary); }
+        .default-skin #btn-play:hover { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+
+        /* GIAO DIỆN ĐĨA THAN (VINYL) */
+        .skin-vinyl .vinyl-record { width: 70px; height: 70px; border-radius: 50%; background: repeating-radial-gradient(#111 0, #111 2px, #222 3px, #222 4px); border: 3px solid #444; box-shadow: 0 5px 15px rgba(0,0,0,0.8); animation: spin-vinyl 4s linear infinite; animation-play-state: paused; position: relative; }
+        .skin-vinyl .vinyl-record::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:15px; height:15px; background:#ef4444; border-radius:50%; border: 2px solid #fff; }
+        .skin-vinyl.playing .vinyl-record { animation-play-state: running; }
+        @keyframes spin-vinyl { 100% { transform: rotate(360deg); } }
+        .skin-vinyl .progress-container-music input[type="range"]::-webkit-slider-thumb { background: #ef4444; }
+        .skin-vinyl .volume-control input[type="range"]::-webkit-slider-thumb { background: #ef4444; }
+        .skin-vinyl #btn-play { color: #ef4444; } .skin-vinyl #btn-play:hover { text-shadow: 0 0 10px #ef4444; }
+        .skin-vinyl button.active { color: #ef4444; text-shadow: 0 0 10px #ef4444; }
+
+        /* GIAO DIỆN CYBERPUNK */
+        .skin-cyberpunk { background: rgba(10, 10, 20, 0.95); border: 2px solid #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.4), inset 0 0 10px rgba(0,255,255,0.2); }
+        .skin-cyberpunk .player-controls button { color: #0ff; text-shadow: 0 0 5px #0ff; }
+        .skin-cyberpunk button.active { color: #f0f; text-shadow: 0 0 10px #f0f; }
+        .skin-cyberpunk #btn-play { color: #f0f; text-shadow: 0 0 10px #f0f; }
+        .skin-cyberpunk .player-info { font-family: 'Special Elite', monospace; color: #f0f; text-shadow: 0 0 5px #f0f; }
+        .skin-cyberpunk .player-status-text { color: #0ff; text-shadow: 0 0 5px #0ff; }
+        
+        .skin-cyberpunk .progress-container-music input[type="range"]::-webkit-slider-thumb { background: #0ff; box-shadow: 0 0 10px #0ff; }
+        .skin-cyberpunk .volume-control input[type="range"]::-webkit-slider-thumb { background: #f0f; box-shadow: 0 0 10px #f0f; }
+
+        /* Cyberpunk Visualizer Bars */
+        .cyber-bars { display:flex; justify-content:center; align-items:flex-end; gap:4px; height: 40px; width: 100%; }
+        .cyber-bars .bar { width: 10px; background: #0ff; box-shadow: 0 0 8px #0ff; animation: cyber-bounce 0.5s infinite alternate; border-radius: 2px 2px 0 0; }
+        .skin-cyberpunk.playing .cyber-bars .bar { animation-play-state: running; }
+        .skin-cyberpunk:not(.playing) .cyber-bars .bar { animation-play-state: paused; height: 5px !important; }
+        .cyber-bars .bar:nth-child(1) { animation-delay: 0.1s; } .cyber-bars .bar:nth-child(2) { animation-delay: 0.3s; } .cyber-bars .bar:nth-child(3) { animation-delay: 0s; } .cyber-bars .bar:nth-child(4) { animation-delay: 0.2s; } .cyber-bars .bar:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes cyber-bounce { 0% { height: 5px; } 100% { height: 40px; } }
+        
+        /* Playlist Item */
+        .playlist-item { display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; }
+        .playlist-item-name { font-size:0.9rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 250px; }
+        .playlist-item.playing { border-color:var(--primary); background:rgba(37,99,235,0.1); }
 
         @media (max-width:768px) { 
             .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} .countdown-timer { gap: 5px; } .cd-box { min-width: 55px; padding: 5px 2px; } .cd-num { font-size: 1.5rem; } .countdown-title { font-size: 0.9rem; } .countdown-title::before, .countdown-title::after { width: 15px; } 
             #zen-image-card.orient-vertical { width:120px; height:160px; top:20px; left:20px; border-radius:10px; } 
             #zen-image-card.orient-horizontal { width:180px; height:100px; top:20px; left:20px; border-radius:10px; } 
-            #zen-chat-container { width: 90%; right: 5%; bottom: 85px; height: 400px; }
+            .music-player { width: 90%; right: 5%; bottom: 85px; }
         }
     </style>
 </head>
@@ -169,7 +207,6 @@
                 <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()"><i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span></div>
                 
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
-                
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
@@ -243,54 +280,59 @@
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header" style="color: var(--warning);"><span><i class="fas fa-store"></i> CỬA HÀNG & HỘI VIÊN</span><button class="close-modal" onclick="closeModal('shop-modal')"><i class="fas fa-times"></i></button></div>
             <p style="text-align:center; margin-bottom: 20px;">Số dư hiện tại: <strong style="color:var(--warning); font-size:1.5rem;" id="shop-coins-display">$0</strong></p>
-            <button class="btn btn-outline" style="width:100%; margin-bottom: 15px; justify-content:center;" onclick="openPrivilegeModal()"><i class="fas fa-gem"></i> Xem Đặc Quyền Hội Viên</button>
+            <button class="btn btn-outline" style="width:100%; margin-bottom: 15px; justify-content:center;" onclick="openPrivilegeModal()"><i class="fas fa-gem"></i> Xem Đặc Quyền Hội Viên Chung</button>
             <div id="mem-card-ui" class="mem-card basic">
                 <div class="mem-status">Thẻ hội viên: <span id="ui-mem-tier">BASIC</span></div>
                 <div class="mem-timer" id="ui-mem-timer">Trạng thái: Miễn phí vĩnh viễn</div>
                 <div class="mem-toggle" id="ui-mem-toggle-box" style="display:none;"><input type="checkbox" id="mem-auto-renew" onchange="toggleAutoRenew()"> <label for="mem-auto-renew" id="ui-mem-renew-label">Tự động gia hạn</label></div>
             </div>
-            <div class="mem-pricing">
-                <div class="mem-tier-box">
-                    <h4>Bậc Tinh Anh (PRO Tier)</h4>
-                    <button class="mem-btn" onclick="buyMem('PRO', 1, 100)"><span>1 Ngày</span> <span>$100</span></button>
-                    <button class="mem-btn" onclick="buyMem('PRO', 30, 2000)"><span>30 Ngày (Tiết kiệm 33%)</span> <span>$2.000</span></button>
-                    <button class="mem-btn" onclick="buyMem('PRO', 365, 15000)"><span>1 Năm (Tiết kiệm 50%)</span> <span>$15.000</span></button>
-                </div>
-                <div class="mem-tier-box ultra-box" style="border-color:var(--warning);">
-                    <h4>Bậc Tối Thượng (ULTRA Tier)</h4>
-                    <button class="mem-btn" onclick="buyMem('ULTRA', 1, 300)"><span>1 Ngày</span> <span>$300</span></button>
-                    <button class="mem-btn" onclick="buyMem('ULTRA', 30, 6000)"><span>30 Ngày</span> <span>$6.000 <span class="mem-badge">🔥 Tiết kiệm 33%</span></span></button>
-                    <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>$50.000 <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
-                </div>
-            </div>
             
             <div style="border: 2px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 15px; border-radius: 12px; margin: 20px 0;">
-                <h3 style="color:#ec4899; text-align:center; margin-bottom:5px;"><i class="fas fa-heart"></i> CHIÊU HIỀN CÁC (AI TRI KỶ)</h3>
-                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Bỏ tiền chuộc Tri kỷ, tự đặt tên và trò chuyện trực tiếp trong Focus Mode.</p>
+                <h3 style="color:#ec4899; text-align:center; margin-bottom:5px;"><i class="fas fa-music"></i> NGỰ ÂM CÁC (NHẠC VIỆN HOÀNG GIA)</h3>
+                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Nghe nhạc xuyên suốt lúc học. Nâng cấp để trải nghiệm xa hoa.</p>
                 
-                <div id="companion-shop-list" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-                    <div class="companion-card">
-                        <div class="comp-header" style="background: linear-gradient(45deg, #1d4ed8, #3b82f6);">Học giả Anh Quốc</div>
-                        <div class="comp-body">Bậc thầy IELTS, giao tiếp tiếng Anh chuẩn quý tộc.</div>
-                        <button class="btn btn-primary" style="width:100%; border-radius:0 0 10px 10px;" onclick="initBuyCompanion('UK', 3000000)">Chuộc ($3.000.000)</button>
+                <div style="background:var(--input-bg); border:1px solid var(--border-color); padding:10px; border-radius:8px; text-align:center; margin-bottom:15px;">
+                    <div style="font-weight:bold; color:var(--text-main); font-size:1.1rem; margin-bottom:5px;">Gói hiện tại: <span id="music-tier-display" style="color:var(--primary);">BASIC</span></div>
+                    <div id="music-expire-display" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">Giới hạn 20 bài, không có Trộn/Lặp bài.</div>
+                    <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="openPlaylistModal()"><i class="fas fa-list-music"></i> Mở Danh Sách Nhạc</button>
+                </div>
+
+                <div class="music-pricing" style="display:flex; flex-direction:column; gap:10px;">
+                    <div class="music-tier-box music-tier-plus">
+                        <h4><i class="fas fa-compact-disc"></i> Nhạc Viện PLUS (Tối đa 50 bài + Shuffle/Loop)</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PLUS', 1, 50, 'hour')"><span>1 Giờ</span><span>$50</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PLUS', 1, 300, 'day')"><span>1 Ngày</span><span>$300</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PLUS', 7, 1500, 'day')"><span>1 Tuần</span><span>$1.500</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PLUS', 30, 5000, 'day')"><span>1 Tháng</span><span>$5.000</span></button>
+                            <button class="mem-btn" style="grid-column: span 2; margin-bottom:0;" onclick="buyMusic('PLUS', 365, 45000, 'day')"><span>1 Năm</span><span>$45.000</span></button>
+                        </div>
                     </div>
-                    <div class="companion-card">
-                        <div class="comp-header" style="background: linear-gradient(45deg, #b91c1c, #ef4444);">Tài tử Trung Hoa</div>
-                        <div class="comp-body">Bậc thầy Hán Ngữ, am hiểu thi ca, thành ngữ.</div>
-                        <button class="btn btn-danger" style="width:100%; border-radius:0 0 10px 10px;" onclick="initBuyCompanion('CN', 4000000)">Chuộc ($4.000.000)</button>
-                    </div>
-                    <div class="companion-card" style="grid-column: span 2;">
-                        <div class="comp-header" style="background: linear-gradient(45deg, #047857, #10b981);">Tri kỷ Việt Nam</div>
-                        <div class="comp-body">Người bạn tâm giao, an ủi động viên, giải tỏa áp lực học hành.</div>
-                        <button class="btn btn-success" style="width:100%; border-radius:0 0 10px 10px;" onclick="initBuyCompanion('VN', 2000000)">Chuộc ($2.000.000)</button>
+                    <div class="music-tier-box music-tier-premium">
+                        <h4><i class="fas fa-crown"></i> Ngự Âm PREMIUM (Vô hạn bài + AutoPlay)</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PREMIUM', 1, 150, 'hour')"><span>1 Giờ</span><span>$150</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PREMIUM', 1, 800, 'day')"><span>1 Ngày</span><span>$800</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PREMIUM', 7, 4000, 'day')"><span>1 Tuần</span><span>$4.000</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PREMIUM', 30, 15000, 'day')"><span>1 Tháng</span><span>$15.000</span></button>
+                            <button class="mem-btn" style="margin-bottom:0;" onclick="buyMusic('PREMIUM', 365, 120000, 'day')"><span>1 Năm</span><span>$120.000</span></button>
+                            <button class="btn btn-warning" style="margin-bottom:0; justify-content:space-between; font-weight:bold; color:black;" onclick="buyMusicLifetime()"><span>💎 Trọn Đời</span><span>$5.000.000</span></button>
+                        </div>
                     </div>
                 </div>
-                
-                <div id="my-companion-box" style="display:none; background:var(--input-bg); border:1px solid var(--border-color); padding:15px; border-radius:8px; text-align:center;">
-                    <img id="my-comp-img" src="" style="width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:10px; border:2px solid #ec4899;">
-                    <h4 id="my-comp-name" style="color:var(--text-main); margin-bottom:5px;"></h4>
-                    <p id="my-comp-type" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;"></p>
-                    <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger); width:100%; justify-content:center;" onclick="fireCompanion()"><i class="fas fa-user-slash"></i> Sa thải (Mất trắng tiền chuộc)</button>
+
+                <div style="border-top: 1px dashed rgba(236, 72, 153, 0.5); padding-top: 15px; margin-top: 15px;">
+                    <h4 style="color:#ec4899; text-align:center; margin-bottom:10px;"><i class="fas fa-paint-roller"></i> LÒ RÈN GIAO DIỆN (SKINS)</h4>
+                    <div style="display:flex; gap:10px;">
+                        <button id="btn-skin-vinyl" class="btn btn-outline" style="flex:1; justify-content:center; flex-direction:column; padding:10px;" onclick="equipOrBuySkin('vinyl', 2000000)">
+                            <i class="fas fa-record-vinyl" style="font-size:1.5rem; margin-bottom:5px; color:#475569;"></i><br>
+                            <span style="font-size:0.8rem;">Đĩa Than Cổ Điển</span><br><b>$2.000.000</b>
+                        </button>
+                        <button id="btn-skin-cyberpunk" class="btn btn-outline" style="flex:1; justify-content:center; flex-direction:column; padding:10px; border-color:#0ff; color:#0ff;" onclick="equipOrBuySkin('cyberpunk', 4000000)">
+                            <i class="fas fa-wave-square" style="font-size:1.5rem; margin-bottom:5px;"></i><br>
+                            <span style="font-size:0.8rem;">Neon Cyberpunk</span><br><b>$4.000.000</b>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -309,9 +351,23 @@
                     <button class="btn btn-primary" onclick="setCustomFocusImage()">Treo ($500)</button>
                 </div>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn btn-outline" style="flex:1; justify-content:center; border-color:#dc2626; color:#dc2626; padding:8px 5px;" onclick="buyPresetImage('Bayern Munich', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/2048px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png', 1000)"><i class="fas fa-futbol"></i> Bayern ($1000)</button>
-                    <button class="btn btn-outline" style="flex:1; justify-content:center; border-color:#94a3b8; color:#94a3b8; padding:8px 5px;" onclick="buyPresetImage('Trinh Thám', 'https://i.pinimg.com/736x/88/35/6b/88356b23b18a1a9eecdd5e37fdf807da.jpg', 1000)"><i class="fas fa-user-secret"></i> Mystery ($1000)</button>
                     <button class="btn btn-outline" style="flex:1; justify-content:center; color:var(--danger); border-color:var(--danger); padding:8px 5px;" onclick="removeFocusImage()"><i class="fas fa-trash"></i> Tháo ảnh</button>
+                </div>
+            </div>
+
+            <hr style="border: 1px solid var(--border-color); margin: 20px 0;">
+            <div class="mem-pricing">
+                <div class="mem-tier-box">
+                    <h4>Bậc Tinh Anh Thường (PRO Tier)</h4>
+                    <button class="mem-btn" onclick="buyMem('PRO', 1, 100)"><span>1 Ngày</span> <span>$100</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 30, 2000)"><span>30 Ngày (Tiết kiệm 33%)</span> <span>$2.000</span></button>
+                    <button class="mem-btn" onclick="buyMem('PRO', 365, 15000)"><span>1 Năm (Tiết kiệm 50%)</span> <span>$15.000</span></button>
+                </div>
+                <div class="mem-tier-box ultra-box" style="border-color:var(--warning);">
+                    <h4>Bậc Tối Thượng (ULTRA Tier)</h4>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 1, 300)"><span>1 Ngày</span> <span>$300</span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 30, 6000)"><span>30 Ngày</span> <span>$6.000 <span class="mem-badge">🔥 Tiết kiệm 33%</span></span></button>
+                    <button class="mem-btn" onclick="buyMem('ULTRA', 365, 50000)"><span>1 Năm</span> <span>$50.000 <span class="mem-badge">💎 Tiết kiệm 55%</span></span></button>
                 </div>
             </div>
 
@@ -365,45 +421,36 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="companion-modal" style="z-index: 1005;">
+    <div class="modal-overlay" id="playlist-modal" style="z-index: 7000;">
         <div class="modal" style="max-width: 500px; border-color:#ec4899; box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);">
             <div class="modal-header" style="color: #ec4899;">
-                <span><i class="fas fa-file-signature"></i> SẮC PHONG TRI KỶ</span>
-                <button class="close-modal" onclick="closeModal('companion-modal')"><i class="fas fa-times"></i></button>
+                <span><i class="fas fa-list-music"></i> NGỰ ÂM KHÚC (PLAYLIST)</span>
+                <button class="close-modal" onclick="closeModal('playlist-modal')"><i class="fas fa-times"></i></button>
             </div>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 15px; line-height:1.5;">Hệ thống cần chìa khóa AI (Gemini API Key) để thổi hồn vào nhân vật. API Key này hoàn toàn miễn phí và chỉ lưu trữ bảo mật trên thiết bị của bạn.</p>
             
-            <div style="background:rgba(59, 130, 246, 0.1); border-left:4px solid #3b82f6; padding:10px; border-radius:4px; margin-bottom:15px; font-size:0.8rem;">
-                <strong>Cách lấy chìa khóa (API Key):</strong><br>
-                1. Truy cập <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#3b82f6; font-weight:bold;">Google AI Studio</a>.<br>
-                2. Đăng nhập bằng tài khoản Google.<br>
-                3. Bấm nút <b>"Create API key"</b> màu xanh.<br>
-                4. Copy đoạn mã bắt đầu bằng <i>AIzaSy...</i> và dán vào ô bên dưới.
+            <div style="margin-bottom:15px;">
+                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 5px; display:flex; justify-content:space-between;">
+                    <span>Sức chứa hiện tại:</span> <strong id="pl-capacity-text" style="color:var(--primary);">0/20 Bài</strong>
+                </div>
+                <div class="progress-track"><div class="progress-fill" id="pl-capacity-bar" style="width: 0%; background:#ec4899;"></div></div>
             </div>
 
-            <input type="hidden" id="comp-buy-type">
-            <input type="hidden" id="comp-buy-price">
-            
-            <div class="form-group">
-                <label>Gemini API Key <span style="color:var(--danger)">*</span></label>
-                <input type="password" id="comp-input-api" class="form-control" placeholder="AIzaSyA...">
+            <div style="background:rgba(59, 130, 246, 0.05); border:1px solid #3b82f6; padding:15px; border-radius:8px; margin-bottom:20px;">
+                <h4 style="color:#3b82f6; margin-bottom:10px; font-size:0.9rem; text-align:center;"><i class="fas fa-upload"></i> Nạp Nhạc Từ Thiết Bị (Offline)</h4>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:15px; text-align:center;">File MP3 sẽ được cất giấu sâu trong hầm ngầm của trình duyệt. Bệ hạ có thể nghe nhạc mượt mà ngay cả khi không có Internet!</p>
+                <input type="file" id="pl-file-upload" accept="audio/mp3, audio/wav, audio/ogg, audio/m4a, audio/aac" style="display:none;" onchange="handleFileUpload(event)">
+                <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:1rem;" onclick="$('pl-file-upload').click()"><i class="fas fa-folder-open"></i> Chọn File Âm Thanh Để Nạp</button>
             </div>
-            <div class="form-group">
-                <label>Ban danh xưng (Tên gọi) <span style="color:var(--danger)">*</span></label>
-                <input type="text" id="comp-input-name" class="form-control" placeholder="Ví dụ: Arthur, Uyển Nhi...">
-            </div>
-            <div class="form-group">
-                <label>Dung mạo (Link ảnh URL) - Tùy chọn</label>
-                <input type="text" id="comp-input-avatar" class="form-control" placeholder="https://...">
-            </div>
-            
-            <button class="btn btn-primary" style="width:100%; background:#ec4899; justify-content:center; margin-top:10px; font-weight:bold;" onclick="finalizeBuyCompanion()">XÁC NHẬN CHUỘC THÂN</button>
+
+            <h4 style="color:var(--text-main); font-size:1rem; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:5px;">Danh sách bài hát</h4>
+            <div id="playlist-container" style="max-height: 250px; overflow-y: auto;">
+                </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="privilege-modal" style="z-index: 1005;">
         <div class="modal" style="max-width: 500px;">
-            <div class="modal-header" style="color: var(--primary);"><span><i class="fas fa-gem"></i> ĐẶC QUYỀN HỘI VIÊN</span><button class="close-modal" onclick="closeModal('privilege-modal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-header" style="color: var(--primary);"><span><i class="fas fa-gem"></i> ĐẶC QUYỀN HỘI VIÊN CHUNG</span><button class="close-modal" onclick="closeModal('privilege-modal')"><i class="fas fa-times"></i></button></div>
             <div style="margin-bottom: 20px;">
                 <h4 style="color:#64748b;"><i class="fas fa-user"></i> CĂN BẢN (BASIC)</h4>
                 <ul style="padding-left: 20px; font-size: 0.9rem; color:var(--text-main);">
@@ -512,24 +559,37 @@
             </div>
         </div>
         
-        <button id="btn-open-chat" onclick="toggleChatWindow()"><i class="fas fa-comment-dots"></i></button>
-        <div id="zen-chat-container">
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <img id="chat-avatar-ui" src="" class="chat-avatar">
-                    <div>
-                        <div class="chat-name" id="chat-name-ui">Tri Kỷ</div>
-                        <div style="font-size:0.7rem; color:#10b981;">Đang kết nối tâm giao...</div>
+        <div id="zen-music-player" class="music-player default-skin">
+            <div class="player-top-row">
+                <div class="player-visual" id="m-visual">
+                   </div>
+                <div class="player-info-container">
+                    <div class="player-status-text" id="m-status-text">TRẠNG THÁI: TẠM DỪNG</div>
+                    <div class="player-info">
+                       <marquee id="m-track-name" scrollamount="4">Chưa có bài hát nào</marquee>
+                    </div>
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up"></i>
+                        <input type="range" id="m-volume" min="0" max="1" step="0.05" value="1" title="Âm lượng">
                     </div>
                 </div>
-                <button class="chat-close" onclick="toggleChatWindow()"><i class="fas fa-times"></i></button>
             </div>
-            <div class="chat-messages" id="chat-messages-area">
-                </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input-box" class="chat-input" placeholder="Tâm sự cùng tri kỷ..." onkeypress="handleChatEnter(event)">
-                <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            
+            <div class="progress-container-music">
+                <span id="m-time-current">00:00</span>
+                <input type="range" id="m-progress" min="0" max="100" value="0" title="Tua nhạc">
+                <span id="m-time-total">00:00</span>
             </div>
+
+            <div class="player-controls">
+                <button onclick="playPrev()" title="Bài trước"><i class="fas fa-step-backward"></i></button>
+                <button onclick="toggleMusicPlay()" id="btn-play" title="Phát/Dừng"><i class="fas fa-play"></i></button>
+                <button onclick="playNext()" title="Bài sau"><i class="fas fa-step-forward"></i></button>
+                <button onclick="toggleShuffle()" id="btn-shuffle" class="disabled" title="Trộn bài ngẫu nhiên"><i class="fas fa-random"></i></button>
+                <button onclick="toggleLoop()" id="btn-loop" class="disabled" title="Lặp bài hiện tại"><i class="fas fa-redo"></i></button>
+                <button onclick="openPlaylistModal()" title="Mở danh sách nhạc"><i class="fas fa-list"></i></button>
+            </div>
+            <audio id="core-audio" style="display:none;" onended="handleTrackEnd()"></audio>
         </div>
     </div>
 
@@ -546,7 +606,6 @@
 
         let scheduleData = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
         
-        // DỮ LIỆU HỆ THỐNG MỞ RỘNG
         let sys = {
             points:0, coins:0, streak:0, highestStreak:0, wagerAmount:0, 
             lastWeekTotal:0, currentWeekTotal:0, lastWeekCompleted:0, currentWeekCompleted:0, 
@@ -564,9 +623,30 @@
             marketNews: "Thị trường bình ổn. Không có biến động vĩ mô nào đáng chú ý.", 
             focusImage: "", focusImageOrientation: "vertical",
             
-            // HỆ THỐNG TRI KỶ
-            companion: null 
+            music: {
+                tier: 'BASIC', 
+                expire: 0,
+                lifetime: false,
+                skin: 'default', 
+                unlockedSkins: ['default'],
+                tracks: [], 
+                currentIdx: 0,
+                shuffle: false,
+                loop: false
+            }
         };
+
+        // --- KHÔI PHỤC VÒNG QUAY BÁT QUÁI (SHOP GACHA) ---
+        const shopGachaOpts = [
+            {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("Nhận 1 THÁNG gói ULTRA!");}},
+            {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}},
+            {n:"🛡️ Thẻ Bảo Hộ",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Mức phạt được reset, nhận 1 Thẻ Bảo Hộ.");}},
+            {n:"💰 Bát Bảo Tụ",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); alert(`Lãi nhân đôi! Nhận được $${th.toFixed(2)}.`);}else{sys.coins+=100; alert("Quỹ tiết kiệm trống, hoàn lại $100 phí quay.");}}},
+            {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng thưởng $150.");}},
+            {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Không trúng thưởng.");}},
+            {n:"⚖️ Nộp Thuế",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế hệ thống $${tx}.`);}},
+            {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}}
+        ];
 
         let sysAudioCtx = null, fireworks;
         function getAudioCtx() { try { if(!sysAudioCtx){const AC=window.AudioContext||window.webkitAudioContext; if(AC) sysAudioCtx=new AC();} if(sysAudioCtx&&sysAudioCtx.state==='suspended') sysAudioCtx.resume(); return sysAudioCtx; }catch(e){return null;} }
@@ -589,7 +669,6 @@
             sys.points = Number(sys.points)||0; sys.coins = Number(sys.coins)||0; sys.streak = Number(sys.streak)||0; sys.bankCapital = Number(sys.bankCapital)||0; sys.bankUnclaimed = Number(sys.bankUnclaimed)||0; sys.currentTheme = sys.currentTheme||'light';
             
             if(!sys.stocks) sys.stocks = {IEL:{name:"IELTS Corp",price:100,qty:0,avgCost:0,history:[]},MUN:{name:"Quỷ Đỏ Old Trafford",price:50,qty:0,avgCost:0,history:[]},BYN:{name:"Hùm Xám Bavaria",price:150,qty:0,avgCost:0,history:[]},ZHN:{name:"Hán Ngữ Group",price:30,qty:0,avgCost:0,history:[]}};
-            
             Object.keys(sys.stocks).forEach(k => {
                 if(!sys.stocks[k].history || sys.stocks[k].history.length === 0) sys.stocks[k].history = Array(10).fill(sys.stocks[k].price);
                 if(sys.stocks[k].avgCost === undefined) sys.stocks[k].avgCost = sys.stocks[k].price; 
@@ -597,7 +676,6 @@
             if(!sys.marketNews) sys.marketNews = "Thị trường bình ổn. Không có biến động vĩ mô nào đáng chú ý.";
             if(!sys.focusImage) sys.focusImage = "";
             if(!sys.focusImageOrientation) sys.focusImageOrientation = "vertical";
-            if(sys.companion === undefined) sys.companion = null;
 
             if(!sys.unlockedThemes) sys.unlockedThemes = []; if(!sys.mem) sys.mem = {tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0};
             if(!sys.bankLastHarvest) sys.bankLastHarvest = Date.now();
@@ -606,8 +684,16 @@
             if(sys.targetEvent) { if(sys.targetEvent.name) sys.targetEvents = [sys.targetEvent]; delete sys.targetEvent; }
             if(!sys.targetEvents) sys.targetEvents = [];
 
+            if(!sys.music || !sys.music.tracks) {
+                sys.music = { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false };
+            }
+
             checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); 
-            renderCountdownLayout(); updateCompanionUI();
+            renderCountdownLayout(); 
+            
+            checkMusicExpiration();
+            applyMusicSkin();
+            initMusicPlayer();
         }
 
         function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); }
@@ -630,112 +716,45 @@
                         if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
             if($('zen-rank')) { $('zen-rank').innerText=current.name; const cStr=`rgb(${current.color.r},${current.color.g},${current.color.b})`; $('zen-rank').style.color=cStr; $('zen-rank').style.borderColor=cStr; $('zen-xp-fill').style.width=next?`${((sys.points-current.min)/(next.min-current.min))*100}%`:'100%'; $('zen-xp-text').innerText=next?`${sys.points} / ${next.min} XP`:`${sys.points} / ${MAX_POINTS} MAX`; }
             $('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`; $('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
-            if($('shop-modal').style.display==='flex') $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+            if($('shop-modal').style.display==='flex') {
+                $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+                updateMusicShopUI();
+            }
             if($('stock-modal').style.display==='flex') renderStockMarket();
         }
 
-        /* --- BỘ SƯU TẬP NGỰ UYỂN CỦA BỆ HẠ --- */
-        function setFocusImageOrientation() {
-            sys.focusImageOrientation = $('focus-img-orient').value;
-            saveAllData();
-        }
+        /* --- BỘ SƯU TẬP NGỰ UYỂN --- */
+        function setFocusImageOrientation() { sys.focusImageOrientation = $('focus-img-orient').value; saveAllData(); }
+        function setCustomFocusImage() { let url = $('custom-img-url').value.trim(); if(!url) return alert("Người dùng vui lòng dán Link ảnh vào ô trống trước!"); if(sys.coins < 500) return alert("Tài khoản không đủ $500!"); sys.coins -= 500; sys.focusImage = url; saveAllData(); $('custom-img-url').value = ''; alert("Đã treo bức họa mới thành công!"); }
+        function buyPresetImage(name, url, price) { if(sys.coins < price) return alert(`Tài khoản không đủ $${price}!`); sys.coins -= price; sys.focusImage = url; saveAllData(); alert(`Đã mua đứt và treo bức họa ${name} thành công!`); }
+        function removeFocusImage() { sys.focusImage = ""; saveAllData(); alert("Đã tháo tranh xuống!"); }
 
-        function setCustomFocusImage() {
-            let url = $('custom-img-url').value.trim();
-            if(!url) return alert("Người dùng vui lòng dán Link ảnh vào ô trống trước!");
-            if(sys.coins < 500) return alert("Tài khoản không đủ $500!");
-            sys.coins -= 500;
-            sys.focusImage = url;
-            saveAllData();
-            $('custom-img-url').value = '';
-            alert("Đã treo bức họa mới thành công! Khởi động Focus Mode để chiêm ngưỡng.");
-        }
-
-        function buyPresetImage(name, url, price) {
-            if(sys.coins < price) return alert(`Tài khoản không đủ $${price}!`);
-            sys.coins -= price;
-            sys.focusImage = url;
-            saveAllData();
-            alert(`Đã mua đứt và treo bức họa ${name} thành công!`);
-        }
-
-        function removeFocusImage() {
-            sys.focusImage = "";
-            saveAllData();
-            alert("Đã tháo tranh xuống!");
-        }
-
-        /* --- LOGIC ĐỒNG HỒ SINH TỬ ĐA MỤC TIÊU --- */
+        /* --- LOGIC ĐỒNG HỒ SINH TỬ --- */
         function openCountdownModal() { renderCountdownModalList(); $('countdown-modal').style.display = 'flex'; }
         function renderCountdownModalList() {
-            let h = '';
-            sys.targetEvents.forEach((ev, i) => {
-                h += `<div style="display:flex; justify-content:space-between; background:var(--input-bg); padding:10px; border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; align-items:center;">
-                    <div style="flex:1; text-align:left;">
-                        <strong style="color:var(--primary); font-size:0.9rem;">${ev.name}</strong><br>
-                        <small style="color:var(--text-muted);">${new Date(ev.date).toLocaleString('vi-VN')}</small>
-                    </div>
-                    <button class="btn-icon delete" style="border:none; padding:8px;" onclick="deleteCountdownEvent(${i})"><i class="fas fa-trash"></i></button>
-                </div>`;
-            });
-            $('cd-list').innerHTML = h;
-            if(sys.targetEvents.length >= 5) { $('cd-add-form').style.display = 'none'; } else { $('cd-add-form').style.display = 'block'; $('cd-input-name').value = ''; $('cd-input-date').value = ''; }
+            let h = ''; sys.targetEvents.forEach((ev, i) => { h += `<div style="display:flex; justify-content:space-between; background:var(--input-bg); padding:10px; border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; align-items:center;"><div style="flex:1; text-align:left;"><strong style="color:var(--primary); font-size:0.9rem;">${ev.name}</strong><br><small style="color:var(--text-muted);">${new Date(ev.date).toLocaleString('vi-VN')}</small></div><button class="btn-icon delete" style="border:none; padding:8px;" onclick="deleteCountdownEvent(${i})"><i class="fas fa-trash"></i></button></div>`; });
+            $('cd-list').innerHTML = h; if(sys.targetEvents.length >= 5) { $('cd-add-form').style.display = 'none'; } else { $('cd-add-form').style.display = 'block'; $('cd-input-name').value = ''; $('cd-input-date').value = ''; }
         }
-        function addCountdownEvent() {
-            if(sys.targetEvents.length >= 5) return alert("Chỉ được lập tối đa 5 sự kiện!");
-            const n = $('cd-input-name').value.trim(); const d = $('cd-input-date').value;
-            if(!n || !d) return alert("Vui lòng nhập đầy đủ Tên Mục Tiêu và Ngày Giờ!");
-            sys.targetEvents.push({ name: n, date: d }); saveAllData(); renderCountdownModalList(); renderCountdownLayout(); playRealisticBoom(); alert("Khởi tạo thành công!");
-        }
+        function addCountdownEvent() { if(sys.targetEvents.length >= 5) return alert("Chỉ được lập tối đa 5 sự kiện!"); const n = $('cd-input-name').value.trim(); const d = $('cd-input-date').value; if(!n || !d) return alert("Vui lòng nhập đầy đủ Tên Mục Tiêu và Ngày Giờ!"); sys.targetEvents.push({ name: n, date: d }); saveAllData(); renderCountdownModalList(); renderCountdownLayout(); playRealisticBoom(); alert("Khởi tạo thành công!"); }
         function deleteCountdownEvent(idx) { if(confirm("Xác nhận xóa bỏ mục tiêu này?")) { sys.targetEvents.splice(idx, 1); saveAllData(); renderCountdownModalList(); renderCountdownLayout(); } }
         function clearCountdown() { if(confirm("Xác nhận xóa toàn bộ Bia Đá Mục Tiêu hiện tại?")) { sys.targetEvents = []; saveAllData(); closeModal('countdown-modal'); renderCountdownLayout(); } }
 
         function renderCountdownLayout() {
-            const w = $('countdown-wrapper'), c = $('countdown-events-container');
-            if(!sys.targetEvents || sys.targetEvents.length === 0) { w.style.display = 'none'; return; }
-            w.style.display = 'block'; let h = '';
-            sys.targetEvents.forEach((ev, i) => {
-                h += `<div class="cd-event"><div class="countdown-title">${ev.name}</div><div class="countdown-timer"><div class="cd-box"><span class="cd-num" id="cd-d-${i}">00</span><span class="cd-lbl">NGÀY</span></div><div class="cd-box"><span class="cd-num" id="cd-h-${i}">00</span><span class="cd-lbl">GIỜ</span></div><div class="cd-box"><span class="cd-num" id="cd-m-${i}">00</span><span class="cd-lbl">PHÚT</span></div><div class="cd-box"><span class="cd-num" id="cd-s-${i}">00</span><span class="cd-lbl">GIÂY</span></div></div></div>`;
-            });
+            const w = $('countdown-wrapper'), c = $('countdown-events-container'); if(!sys.targetEvents || sys.targetEvents.length === 0) { w.style.display = 'none'; return; } w.style.display = 'block'; let h = '';
+            sys.targetEvents.forEach((ev, i) => { h += `<div class="cd-event"><div class="countdown-title">${ev.name}</div><div class="countdown-timer"><div class="cd-box"><span class="cd-num" id="cd-d-${i}">00</span><span class="cd-lbl">NGÀY</span></div><div class="cd-box"><span class="cd-num" id="cd-h-${i}">00</span><span class="cd-lbl">GIỜ</span></div><div class="cd-box"><span class="cd-num" id="cd-m-${i}">00</span><span class="cd-lbl">PHÚT</span></div><div class="cd-box"><span class="cd-num" id="cd-s-${i}">00</span><span class="cd-lbl">GIÂY</span></div></div></div>`; });
             c.innerHTML = h; updateCountdownUI();
         }
         function updateCountdownUI() {
-            if(!sys.targetEvents || sys.targetEvents.length === 0) return;
-            const now = new Date().getTime(); let allExpired = true;
-            sys.targetEvents.forEach((ev, i) => {
-                const targetTime = new Date(ev.date).getTime(); const diff = targetTime - now;
-                if (diff > 0) allExpired = false;
-                const d = diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0; const h = diff > 0 ? Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0; const m = diff > 0 ? Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)) : 0; const s = diff > 0 ? Math.floor((diff % (1000 * 60)) / 1000) : 0;
-                const elD = $('cd-d-'+i), elH = $('cd-h-'+i), elM = $('cd-m-'+i), elS = $('cd-s-'+i);
-                if(elD) elD.innerText = d.toString().padStart(2, '0'); if(elH) elH.innerText = h.toString().padStart(2, '0'); if(elM) elM.innerText = m.toString().padStart(2, '0'); if(elS) elS.innerText = s.toString().padStart(2, '0');
-            });
+            if(!sys.targetEvents || sys.targetEvents.length === 0) return; const now = new Date().getTime(); let allExpired = true;
+            sys.targetEvents.forEach((ev, i) => { const targetTime = new Date(ev.date).getTime(); const diff = targetTime - now; if (diff > 0) allExpired = false; const d = diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0; const h = diff > 0 ? Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0; const m = diff > 0 ? Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)) : 0; const s = diff > 0 ? Math.floor((diff % (1000 * 60)) / 1000) : 0; const elD = $('cd-d-'+i), elH = $('cd-h-'+i), elM = $('cd-m-'+i), elS = $('cd-s-'+i); if(elD) elD.innerText = d.toString().padStart(2, '0'); if(elH) elH.innerText = h.toString().padStart(2, '0'); if(elM) elM.innerText = m.toString().padStart(2, '0'); if(elS) elS.innerText = s.toString().padStart(2, '0'); });
             const w = $('countdown-wrapper'); if(w) w.style.animation = allExpired ? 'pulse-border 0.5s infinite' : 'pulse-border 2s infinite';
         }
 
         function openPrivilegeModal() { $('privilege-modal').style.display='flex'; }
         function updateMemUI() {
             const card = $('mem-card-ui');
-            if(card) { 
-                card.className = 'mem-card ' + sys.mem.tier.toLowerCase(); 
-                $('ui-mem-tier').innerText = sys.mem.tier; 
-                if(sys.mem.tier === 'BASIC') { 
-                    $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; 
-                    $('ui-mem-toggle-box').style.display = 'none'; 
-                } else { 
-                    $('ui-mem-toggle-box').style.display = 'flex'; 
-                    $('mem-auto-renew').checked = sys.mem.auto; 
-                    $('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`; 
-                } 
-            }
-            
-            const badge = $('header-mem-badge'); 
-            if (badge) { 
-                badge.classList.remove('tier-basic','tier-pro','tier-ultra'); 
-                let t = sys.mem.tier.toLowerCase(); 
-                badge.classList.add('tier-'+t); 
-                badge.innerHTML = `<i class="fas fa-${t==='basic'?'user':t==='pro'?'shield-alt':'crown'}"></i> <span>${sys.mem.tier}</span>`; 
-            }
-            
+            if(card) { card.className = 'mem-card ' + sys.mem.tier.toLowerCase(); $('ui-mem-tier').innerText = sys.mem.tier; if(sys.mem.tier === 'BASIC') { $('ui-mem-timer').innerText = "Trạng thái: Miễn phí vĩnh viễn"; $('ui-mem-toggle-box').style.display = 'none'; } else { $('ui-mem-toggle-box').style.display = 'flex'; $('mem-auto-renew').checked = sys.mem.auto; $('ui-mem-renew-label').innerText = `Tự động gia hạn gói ${sys.mem.autoTier} (${sys.mem.autoDays} Ngày)`; } }
+            const badge = $('header-mem-badge'); if (badge) { badge.classList.remove('tier-basic','tier-pro','tier-ultra'); let t = sys.mem.tier.toLowerCase(); badge.classList.add('tier-'+t); badge.innerHTML = `<i class="fas fa-${t==='basic'?'user':t==='pro'?'shield-alt':'crown'}"></i> <span>${sys.mem.tier}</span>`; }
             if (sys.mem.tier === 'ULTRA') { document.body.classList.add('ultra-led'); $('btn-ultra-stock').style.display = 'flex'; } else { document.body.classList.remove('ultra-led'); $('btn-ultra-stock').style.display = 'none'; }
             const canFlex = (sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA'); if($('opt-15')) $('opt-15').disabled = !canFlex; if($('opt-50')) $('opt-50').disabled = !canFlex; if(!canFlex && $('zen-time-select')) $('zen-time-select').value = "25";
         }
@@ -744,11 +763,8 @@
         function getPackageCost(t, d) { if(t==='PRO')return d===1?100:d===30?2000:15000; if(t==='ULTRA')return d===1?300:d===30?6000:50000; return 999999; }
         
         setInterval(() => {
-            if(sys.mem && sys.mem.tier!=='BASIC') {
-                let left = sys.mem.expire - Date.now();
-                if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; }
-                else handleMemExpiration();
-            }
+            if(sys.mem && sys.mem.tier!=='BASIC') { let left = sys.mem.expire - Date.now(); if(left > 0) { let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000); if($('shop-modal').style.display==='flex') $('ui-mem-timer').innerText = `Hết hạn sau: ${d} Ngày ${h} Giờ ${m} Phút ${s}s`; } else handleMemExpiration(); }
+            checkMusicExpiration(); 
         }, 1000);
 
         function handleMemExpiration() {
@@ -764,9 +780,430 @@
         }
         function executeFallback(nT, d, c) { if(nT==='BASIC')alert("Đã hủy gia hạn."); else { sys.coins-=c; sys.mem.tier=nT; sys.mem.expire=Date.now()+d*86400000; sys.mem.auto=false; alert(`Đã trích $${c} duy trì ${nT} trong ${d} ngày!`); } saveAllData(); updateMemUI(); $('renew-modal').style.display='none'; }
 
-        function openWagerModal() { if(sys.wagerAmount>0)return alert(`Đã cược ${sys.wagerAmount} XP!`); $('wager-max-points').innerText=sys.points; $('wager-amount').value=''; $('wager-modal').style.display='flex'; }
-        function closeWagerModal() { $('wager-modal').style.display='none'; }
-        function placeWager() { let a=parseInt($('wager-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(a>sys.points)return alert("Không đủ điểm XP!"); sys.points-=a; sys.wagerAmount=a; saveAllData(); closeWagerModal(); alert(`Đã xác nhận cược ${a} XP!`); }
+        function openShopModal() { 
+            $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`; 
+            if($('focus-img-orient')) $('focus-img-orient').value = sys.focusImageOrientation || "vertical";
+            updateMusicShopUI();
+            updateShopUI(); 
+            updateSpinButtonUI(); 
+            updateMemUI(); 
+            $('shop-modal').style.display='flex'; 
+        }
+        
+        function updateShopUI() {
+            const r=$('btn-buy-theme-royal'); if(r&&sys.unlockedThemes.includes('royal')){r.innerText="👑 Đã Mở";r.disabled=true;r.style.opacity="0.5";}
+            const h=$('btn-buy-theme-hacker'); if(h&&sys.unlockedThemes.includes('hacker')){h.innerText="💻 Đã Mở";h.disabled=true;h.style.opacity="0.5";}
+            const icons = [ { id: 'btn-buy-icon-snow', icon: '❄️' }, { id: 'btn-buy-icon-cup', icon: '🏆' }, { id: 'btn-buy-icon-hat', icon: '🎓' }, { id: 'btn-buy-icon-diamond', icon: '💎' } ];
+            icons.forEach(item => { const btn = $(item.id); if (btn) { if (sys.unlockedIcons.includes(item.icon)) { if (sys.streakIcon === item.icon) { btn.innerText = "Đang dùng"; btn.disabled = true; btn.style.opacity = "0.5"; } else { btn.innerText = "Trang bị"; btn.disabled = false; btn.style.opacity = "1"; } } } });
+        }
+        
+        function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`;}else alert("Không đủ USD!"); }
+        function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`; updateShopUI();}else alert("Thiếu USD!"); }
+        function buyIcon(icon, price) { if (sys.unlockedIcons.includes(icon)) { sys.streakIcon = icon; saveAllData(); updateSystemUI(); updateShopUI(); alert("Đã trang bị thành công!"); } else { if (sys.coins >= price) { sys.coins -= price; sys.unlockedIcons.push(icon); sys.streakIcon = icon; playRealisticBoom(); saveAllData(); $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`; updateSystemUI(); updateShopUI(); alert("Mua thành công!"); } else alert("Tài khoản không đủ USD!"); } }
+
+        /* --- LOGIC NGỰ ÂM CÁC (MUSIC STREAMING) V2 - VÁ LỖI CHUYỂN BÀI --- */
+        
+        function checkMusicExpiration() {
+            if(!sys.music) return;
+            if(sys.music.tier !== 'BASIC' && !sys.music.lifetime) {
+                if(Date.now() > sys.music.expire) {
+                    sys.music.tier = 'BASIC';
+                    sys.music.shuffle = false;
+                    sys.music.loop = false;
+                    sys.music.skin = 'default';
+                    if(sys.music.tracks.length > 20) {
+                        let removed = sys.music.tracks.slice(20);
+                        removed.forEach(t => { if(t.isLocal) { try{ localforage.removeItem(t.url); } catch(e){} } });
+                        sys.music.tracks = sys.music.tracks.slice(0, 20);
+                        alert("Gói nghe nhạc đã hết hạn! Về Basic. Kho nhạc bị giảm xuống 20 bài.");
+                    } else {
+                        alert("Gói nghe nhạc đã hết hạn! Về Basic.");
+                    }
+                    saveAllData();
+                    initMusicPlayer();
+                }
+            }
+            if($('shop-modal').style.display==='flex') updateMusicShopUI();
+        }
+
+        function updateMusicShopUI() {
+            $('music-tier-display').innerText = sys.music.tier;
+            let expr = "";
+            if(sys.music.lifetime) expr = "Thẻ Vĩnh Cửu (Không bao giờ hết hạn).";
+            else if(sys.music.tier === 'BASIC') expr = "Giới hạn 20 bài, không có Trộn/Lặp bài.";
+            else {
+                let left = sys.music.expire - Date.now();
+                if(left > 0) {
+                    let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000);
+                    expr = `Còn lại: ${d} ngày ${h}h ${m}m ${s}s`;
+                }
+            }
+            $('music-expire-display').innerText = expr;
+
+            ['vinyl', 'cyberpunk'].forEach(s => {
+                let btn = $('btn-skin-' + s);
+                if(!btn) return;
+                if(sys.music.unlockedSkins.includes(s)) {
+                    if(sys.music.skin === s) { btn.innerHTML = "Đang dùng"; btn.disabled = true; btn.style.opacity = 0.5; }
+                    else { btn.innerHTML = "Trang bị"; btn.disabled = false; btn.style.opacity = 1; }
+                }
+            });
+        }
+
+        function buyMusic(tier, duration, cost, type) {
+            if(sys.music.lifetime) return alert("Bệ hạ đã có Thẻ Vĩnh Cửu, không cần mua gói lẻ nữa!");
+            if(sys.coins < cost) return alert(`Ngân khố không đủ $${cost.toLocaleString()}!`);
+            if(!confirm(`Xác nhận chi $${cost.toLocaleString()} mua gói ${tier} trong ${duration} ${type==='hour'?'Giờ':'Ngày'}?`)) return;
+
+            sys.coins -= cost;
+            let msAdd = type === 'hour' ? duration * 3600000 : duration * 86400000;
+            
+            if(sys.music.tier === tier && sys.music.expire > Date.now()) {
+                sys.music.expire += msAdd;
+            } else {
+                sys.music.tier = tier;
+                sys.music.expire = Date.now() + msAdd;
+            }
+            saveAllData();
+            updateSystemUI();
+            initMusicPlayer();
+            playRealisticBoom();
+            alert(`Mua gói nhạc ${tier} thành công!`);
+        }
+
+        function buyMusicLifetime() {
+            let cost = 5000000;
+            if(sys.music.lifetime) return alert("Đã sở hữu Thẻ Vĩnh Cửu!");
+            if(sys.coins < cost) return alert(`Ngân khố không đủ $${cost.toLocaleString()}!`);
+            if(!confirm(`Xác nhận chi $5.000.000 USD mua Thẻ Premium Vĩnh Cửu?`)) return;
+
+            sys.coins -= cost;
+            sys.music.tier = 'PREMIUM';
+            sys.music.lifetime = true;
+            saveAllData();
+            updateSystemUI();
+            initMusicPlayer();
+            playRealisticBoom();
+            alert(`Hoàng ân mênh mông! Bệ hạ đã mua đứt quyền lực Ngự Âm Các vĩnh viễn!`);
+        }
+
+        function equipOrBuySkin(skinName, cost) {
+            if(sys.music.tier === 'BASIC') return alert("Giao diện xịn chỉ dành cho gói Plus hoặc Premium!");
+            if(sys.music.unlockedSkins.includes(skinName)) {
+                sys.music.skin = skinName;
+                saveAllData();
+                applyMusicSkin();
+                updateMusicShopUI();
+                alert("Đã trang bị giao diện thành công!");
+            } else {
+                if(sys.coins < cost) return alert(`Cần $${cost.toLocaleString()} để đúc giao diện này!`);
+                if(confirm(`Chi $${cost.toLocaleString()} mua đứt giao diện này?`)) {
+                    sys.coins -= cost;
+                    sys.music.unlockedSkins.push(skinName);
+                    sys.music.skin = skinName;
+                    saveAllData();
+                    applyMusicSkin();
+                    updateSystemUI();
+                    playRealisticBoom();
+                    alert("Mua giao diện thành công!");
+                }
+            }
+        }
+
+        function applyMusicSkin() {
+            let player = $('zen-music-player');
+            if(!player) return;
+            player.className = 'music-player'; 
+            let vis = $('m-visual');
+            vis.innerHTML = ''; 
+            
+            if(sys.music.skin === 'vinyl') {
+                player.classList.add('skin-vinyl');
+                vis.innerHTML = '<div class="vinyl-record"></div>';
+            } else if (sys.music.skin === 'cyberpunk') {
+                player.classList.add('skin-cyberpunk');
+                vis.innerHTML = '<div class="cyber-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>';
+            } else {
+                player.classList.add('default-skin');
+                vis.innerHTML = '<i class="fas fa-compact-disc" style="font-size:2rem; color:var(--text-muted);"></i>';
+            }
+        }
+
+        function formatTime(sec) {
+            if(isNaN(sec) || sec < 0) return "00:00";
+            let m = Math.floor(sec / 60);
+            let s = Math.floor(sec % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function setupAudioEvents() {
+            audioEl = $('core-audio');
+            const prog = $('m-progress');
+            const curTime = $('m-time-current');
+            const totTime = $('m-time-total');
+            const vol = $('m-volume');
+
+            if(!audioEl || !prog) return;
+
+            audioEl.addEventListener('timeupdate', () => {
+                if(!audioEl.duration) return;
+                prog.value = (audioEl.currentTime / audioEl.duration) * 100;
+                curTime.innerText = formatTime(audioEl.currentTime);
+            });
+
+            audioEl.addEventListener('loadedmetadata', () => {
+                totTime.innerText = formatTime(audioEl.duration);
+            });
+
+            prog.addEventListener('input', () => {
+                if(!audioEl.duration) return;
+                audioEl.currentTime = (prog.value / 100) * audioEl.duration;
+            });
+
+            vol.addEventListener('input', () => {
+                audioEl.volume = vol.value;
+            });
+        }
+
+        async function initMusicPlayer() {
+            if(!audioEl) return;
+            
+            let btnShuf = $('btn-shuffle');
+            let btnLoop = $('btn-loop');
+            
+            if(sys.music.tier === 'BASIC') {
+                sys.music.shuffle = false; sys.music.loop = false;
+                btnShuf.classList.add('disabled'); btnLoop.classList.add('disabled');
+            } else {
+                btnShuf.classList.remove('disabled'); btnLoop.classList.remove('disabled');
+            }
+            
+            if(sys.music.shuffle) btnShuf.classList.add('active'); else btnShuf.classList.remove('active');
+            if(sys.music.loop) btnLoop.classList.add('active'); else btnLoop.classList.remove('active');
+
+            if(sys.music.tracks.length > 0) {
+                if(sys.music.currentIdx >= sys.music.tracks.length) sys.music.currentIdx = 0;
+                let t = sys.music.tracks[sys.music.currentIdx];
+                $('m-track-name').innerText = t.name;
+                
+                if(audioEl.paused) {
+                    if(t.isLocal) {
+                        try {
+                            let blob = await localforage.getItem(t.url);
+                            if(blob) {
+                                let oldSrc = audioEl.src;
+                                audioEl.src = URL.createObjectURL(blob);
+                                if(oldSrc && oldSrc.startsWith('blob:')) {
+                                    setTimeout(()=>URL.revokeObjectURL(oldSrc), 1000);
+                                }
+                            }
+                        } catch(e){}
+                    } else {
+                        if(!audioEl.src || !audioEl.src.includes(t.url)) {
+                            audioEl.src = t.url;
+                        }
+                    }
+                }
+            } else {
+                $('m-track-name').innerText = "Chưa có bài hát nào";
+                audioEl.removeAttribute('src');
+                $('m-time-total').innerText = "00:00";
+            }
+            
+            $('m-status-text').innerText = audioEl.paused ? "TRẠNG THÁI: TẠM DỪNG" : "TRẠNG THÁI: ĐANG PHÁT";
+        }
+
+        function toggleMusicPlay() {
+            if(sys.music.tracks.length === 0) return alert("Danh sách nhạc trống!");
+            let player = $('zen-music-player');
+            let btn = $('btn-play');
+            
+            if(audioEl.paused) {
+                if(!audioEl.src || audioEl.src === window.location.href) {
+                    loadAndPlayCurrent();
+                    return;
+                }
+                audioEl.play().then(() => {
+                    btn.innerHTML = '<i class="fas fa-pause"></i>';
+                    player.classList.add('playing');
+                    $('m-status-text').innerText = sys.music.tier === 'PREMIUM' ? "TRẠNG THÁI: PREMIUM VIP" : "TRẠNG THÁI: ĐANG PHÁT";
+                }).catch(e => {
+                    console.log(e);
+                    loadAndPlayCurrent(); 
+                });
+            } else {
+                audioEl.pause();
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+                player.classList.remove('playing');
+                $('m-status-text').innerText = "TRẠNG THÁI: TẠM DỪNG";
+            }
+        }
+
+        function playNext() {
+            if(sys.music.tracks.length === 0) return;
+            if(sys.music.shuffle) {
+                sys.music.currentIdx = Math.floor(Math.random() * sys.music.tracks.length);
+            } else {
+                sys.music.currentIdx = (sys.music.currentIdx + 1) % sys.music.tracks.length;
+            }
+            saveAllData();
+            loadAndPlayCurrent();
+        }
+
+        function playPrev() {
+            if(sys.music.tracks.length === 0) return;
+            sys.music.currentIdx = (sys.music.currentIdx - 1 + sys.music.tracks.length) % sys.music.tracks.length;
+            saveAllData();
+            loadAndPlayCurrent();
+        }
+
+        async function loadAndPlayCurrent() {
+            if(sys.music.tracks.length === 0) return;
+            let t = sys.music.tracks[sys.music.currentIdx];
+            
+            $('m-track-name').innerText = t.name;
+            $('m-status-text').innerText = "ĐANG NẠP DỮ LIỆU...";
+            
+            try {
+                if(t.isLocal) {
+                    let blob = await localforage.getItem(t.url);
+                    if(blob) {
+                        let newSrc = URL.createObjectURL(blob);
+                        let oldSrc = audioEl.src;
+                        audioEl.src = newSrc;
+                        // Phải hoãn xóa file rác cũ 1 chút để trình duyệt kịp nạp file mới
+                        if(oldSrc && oldSrc.startsWith('blob:')) {
+                            setTimeout(() => URL.revokeObjectURL(oldSrc), 1500); 
+                        }
+                    } else {
+                        $('m-status-text').innerText = "LỖI FILE (TỰ ĐỘNG BỎ QUA)";
+                        setTimeout(playNext, 1500); 
+                        return;
+                    }
+                } else {
+                    audioEl.src = t.url;
+                }
+
+                let playPromise = audioEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        $('btn-play').innerHTML = '<i class="fas fa-pause"></i>';
+                        $('zen-music-player').classList.add('playing');
+                        $('m-status-text').innerText = sys.music.tier === 'PREMIUM' ? "TRẠNG THÁI: PREMIUM VIP" : "TRẠNG THÁI: ĐANG PHÁT";
+                    })
+                    .catch(error => {
+                        console.error("Lỗi tự động phát nhạc:", error);
+                        $('m-status-text').innerText = "CHỜ BẤM PLAY (BỊ CHẶN BỞI BROWSER)";
+                        $('btn-play').innerHTML = '<i class="fas fa-play"></i>';
+                        $('zen-music-player').classList.remove('playing');
+                    });
+                }
+                
+            } catch(e) {
+                console.error(e);
+                $('m-status-text').innerText = "LỖI KHÔNG XÁC ĐỊNH";
+            }
+        }
+
+        function handleTrackEnd() {
+            if(sys.music.loop) {
+                audioEl.currentTime = 0;
+                audioEl.play();
+            } else {
+                playNext();
+            }
+        }
+
+        function toggleShuffle() {
+            if(sys.music.tier === 'BASIC') return;
+            sys.music.shuffle = !sys.music.shuffle;
+            $('btn-shuffle').classList.toggle('active');
+            saveAllData();
+        }
+
+        function toggleLoop() {
+            if(sys.music.tier === 'BASIC') return;
+            sys.music.loop = !sys.music.loop;
+            $('btn-loop').classList.toggle('active');
+            saveAllData();
+        }
+
+        function openPlaylistModal() {
+            renderPlaylist();
+            $('playlist-modal').style.display = 'flex';
+        }
+
+        function renderPlaylist() {
+            let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : "Vô hạn");
+            let count = sys.music.tracks.length;
+            
+            $('pl-capacity-text').innerText = `${count} / ${limit} Bài`;
+            if(limit !== "Vô hạn") {
+                $('pl-capacity-bar').style.width = `${(count/limit)*100}%`;
+            } else {
+                $('pl-capacity-bar').style.width = `100%`;
+                $('pl-capacity-bar').style.background = '#fbbf24';
+            }
+
+            let html = '';
+            sys.music.tracks.forEach((t, i) => {
+                let isPlaying = i === sys.music.currentIdx;
+                let iconLocal = `<i class="fas fa-hdd" style="color:#10b981; font-size:0.7rem; margin-right:5px;" title="File lưu nội bộ"></i>`;
+                html += `<div class="playlist-item ${isPlaying ? 'playing' : ''}">
+                    <div class="playlist-item-name">${iconLocal} ${i+1}. ${t.name}</div>
+                    <div>
+                        <button class="btn-icon" style="color:${isPlaying ? 'var(--primary)' : 'var(--text-muted)'}" onclick="jumpToTrack(${i})"><i class="fas fa-play"></i></button>
+                        <button class="btn-icon delete" onclick="removeMusicTrack(${i})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            });
+            if(count === 0) html = `<div style="text-align:center; padding: 20px; color:var(--text-muted);">Kho nhạc trống rỗng</div>`;
+            $('playlist-container').innerHTML = html;
+        }
+
+        async function handleFileUpload(e) {
+            let file = e.target.files[0];
+            if(!file) return;
+            
+            let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : 99999);
+            if(sys.music.tracks.length >= limit) return alert("Đã đạt giới hạn dung lượng của gói hiện tại! Vui lòng nâng cấp để chứa thêm.");
+
+            let uniqueId = 'track_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+            
+            try {
+                await localforage.setItem(uniqueId, file);
+                sys.music.tracks.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: uniqueId, isLocal: true });
+                saveAllData();
+                renderPlaylist();
+                initMusicPlayer();
+                alert("Nạp âm khúc thành công vào kho lưu trữ nội bộ! (Ngắt mạng vẫn nghe được)");
+            } catch (err) {
+                alert("Lỗi khi cất giấu file vào hầm ngầm: " + err);
+            }
+            e.target.value = ''; 
+        }
+
+        async function removeMusicTrack(idx) {
+            if(confirm("Bệ hạ chắc chắn muốn xóa bài hát này khỏi Ngự Âm Các?")) {
+                let t = sys.music.tracks[idx];
+                if(t.isLocal) {
+                    try { await localforage.removeItem(t.url); } catch(e){}
+                }
+                
+                sys.music.tracks.splice(idx, 1);
+                if(sys.music.currentIdx >= sys.music.tracks.length) sys.music.currentIdx = 0;
+                saveAllData();
+                renderPlaylist();
+                initMusicPlayer();
+            }
+        }
+
+        function jumpToTrack(idx) {
+            sys.music.currentIdx = idx;
+            saveAllData();
+            renderPlaylist();
+            loadAndPlayCurrent();
+        }
 
         function updateGhostBar() {
             let cNow=0, tNow=0; for(let i=0;i<7;i++){tNow+=scheduleData[i].length; cNow+=scheduleData[i].filter(t=>t.completed).length;} sys.currentWeekCompleted=cNow; sys.currentWeekTotal=tNow;
@@ -875,7 +1312,6 @@
             } 
         }
 
-        // --- HỆ THỐNG TIN TỨC VĨ MÔ & CHỨNG KHOÁN LINE CHART ---
         const MARKET_NEWS = [
             { text: "🚨 Tin dữ: HLV Bayern Munich đối diện nguy cơ sa thải!", stock: 'BYN', mult: 0.7 },
             { text: "📈 Quỷ Đỏ đại thắng! Cổ động viên ăn mừng cuồng nhiệt.", stock: 'MUN', mult: 1.35 },
@@ -916,15 +1352,11 @@
             let max = Math.max(...history);
             if (max === min) max += 10;
             const stepX = width / (history.length - 1);
-            
             let path = `M 0 ${height - ((history[0] - min) / (max - min) * height)}`;
             let areaPath = `${path}`;
-            
             for (let i = 1; i < history.length; i++) {
-                let x = i * stepX;
-                let y = height - ((history[i] - min) / (max - min) * height);
-                path += ` L ${x} ${y}`;
-                areaPath += ` L ${x} ${y}`;
+                let x = i * stepX; let y = height - ((history[i] - min) / (max - min) * height);
+                path += ` L ${x} ${y}`; areaPath += ` L ${x} ${y}`;
             }
             areaPath += ` L ${width} ${height} L 0 ${height} Z`;
             return { path, areaPath };
@@ -932,7 +1364,6 @@
 
         function renderStockMarket() { 
             let container = $('stock-list-container'); if(!container) return; 
-            
             let totalAsset = sys.coins;
             let tickerHTML = Object.keys(sys.stocks).map(k => {
                 let s = sys.stocks[k];
@@ -965,36 +1396,25 @@
                 let trendUp = s.price >= oldP;
                 let strokeCol = trendUp ? '#10b981' : '#ef4444';
                 let fillCol = trendUp ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
-
                 let pnl = s.qty > 0 ? (s.price - s.avgCost) * s.qty : 0;
                 let pnlPct = s.qty > 0 && s.avgCost > 0 ? ((s.price / s.avgCost) - 1) * 100 : 0;
                 let pnlClass = pnl >= 0 ? 'profit-text' : 'loss-text';
                 let pnlSign = pnl >= 0 ? '+' : '';
-
                 const { path, areaPath } = getSvgChartPath(s.history, 200, 40);
 
                 html += `<div class="stock-card">
                     <div class="stock-symbol"><span><i class="fas fa-chart-line" style="color: ${strokeCol}"></i> $${k}</span></div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">${s.name}</div>
-                    
                     <div class="stock-price-box">
                         <div class="stock-price-val">$${s.price.toLocaleString()}</div>
-                        <svg class="svg-chart" viewBox="0 0 200 40" preserveAspectRatio="none">
-                            <path class="chart-area" d="${areaPath}" fill="${fillCol}" />
-                            <path class="chart-line" d="${path}" stroke="${strokeCol}" />
-                        </svg>
+                        <svg class="svg-chart" viewBox="0 0 200 40" preserveAspectRatio="none"><path class="chart-area" d="${areaPath}" fill="${fillCol}" /><path class="chart-line" d="${path}" stroke="${strokeCol}" /></svg>
                     </div>
-
                     <div class="pnl-box">
                         <div class="pnl-row"><span>Kho:</span> <strong>${s.qty}</strong></div>
                         <div class="pnl-row"><span>Giá vốn TB:</span> <strong>$${s.qty > 0 ? Math.floor(s.avgCost).toLocaleString() : 0}</strong></div>
                         <div class="pnl-row"><span>Lãi/Lỗ:</span> <span class="${pnlClass}">${pnlSign}$${Math.floor(pnl).toLocaleString()} (${pnlSign}${pnlPct.toFixed(1)}%)</span></div>
                     </div>
-
-                    <div class="stock-btns">
-                        <button class="stock-btn-action btn-success" onclick="tradeStock('${k}', 1)">MUA</button>
-                        <button class="stock-btn-action btn-danger" onclick="tradeStock('${k}', -1)">BÁN</button>
-                    </div>
+                    <div class="stock-btns"><button class="stock-btn-action btn-success" onclick="tradeStock('${k}', 1)">MUA</button><button class="stock-btn-action btn-danger" onclick="tradeStock('${k}', -1)">BÁN</button></div>
                 </div>`;
             });
             html += `</div>`; container.innerHTML = html; 
@@ -1005,18 +1425,13 @@
             if(d>0){
                 let cost = sys.mem.tier === 'ULTRA' ? s.price : Math.floor(s.price * 1.02); 
                 if(sys.coins>=cost){
-                    sys.coins-=cost; 
-                    // Update Average Cost
-                    s.avgCost = ((s.avgCost * s.qty) + s.price) / (s.qty + 1);
-                    s.qty++;
+                    sys.coins-=cost; s.avgCost = ((s.avgCost * s.qty) + s.price) / (s.qty + 1); s.qty++;
                     if(sys.mem.tier !== 'ULTRA') alert(`Đã thu 2% phí giao dịch. Tổng chi: $${cost}`);
                 } else return alert("Tài khoản không đủ USD!");
             } else {
                 if(s.qty>0){
                     let rev = sys.mem.tier === 'ULTRA' ? s.price : Math.floor(s.price * 0.98); 
-                    sys.coins+=rev; 
-                    s.qty--;
-                    if(s.qty === 0) s.avgCost = 0; // Reset avg cost if empty
+                    sys.coins+=rev; s.qty--; if(s.qty === 0) s.avgCost = 0; 
                     if(sys.mem.tier !== 'ULTRA') alert(`Đã thu 2% phí giao dịch. Thực nhận: $${rev}`);
                 } else return alert("Kho đã hết cổ phiếu!");
             } 
@@ -1030,15 +1445,8 @@
         function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công!"); playChime();} }
         setInterval(()=>{ 
             let n = Date.now(); 
-            if(sys.bankCapital>0&&sys.streak>0) { 
-                let dr=sys.streak*0.01; 
-                sys.bankUnclaimed += (sys.bankCapital*(dr/86400)); 
-                if(sys.bankUnclaimed > sys.bankCapital*dr) sys.bankUnclaimed = sys.bankCapital*dr; 
-            } 
-            if(n - sys.bankLastHarvest >= 86400000) { 
-                if(sys.mem.tier === 'BASIC') { sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } 
-                else { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } 
-            } 
+            if(sys.bankCapital>0&&sys.streak>0) { let dr=sys.streak*0.01; sys.bankUnclaimed += (sys.bankCapital*(dr/86400)); if(sys.bankUnclaimed > sys.bankCapital*dr) sys.bankUnclaimed = sys.bankCapital*dr; } 
+            if(n - sys.bankLastHarvest >= 86400000) { if(sys.mem.tier === 'BASIC') { sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } else { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } } 
             if($('bank-modal').style.display==='flex') $('bank-interest-display').innerText=`$${sys.bankUnclaimed.toFixed(3)}`; 
         }, 1000);
 
@@ -1050,28 +1458,18 @@
             const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
             timerElem.innerText = `XỔ SỐ SAU: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             if (h === 0 && m < 60) timerElem.style.color = "#ef4444"; else timerElem.style.color = "#8b5cf6";
-
-            // AUTO-SCANNER: KIỂM TRA KẾT QUẢ TỰ ĐỘNG
             if (sys.lottoTicket) {
-                let ticketTargetDate = new Date(sys.lottoTicket.date);
-                ticketTargetDate.setHours(16, 0, 0, 0);
-                if (now >= ticketTargetDate && !window.isCheckingLotto) {
-                    window.isCheckingLotto = true;
-                    checkLottoResult();
-                    window.isCheckingLotto = false;
-                }
+                let ticketTargetDate = new Date(sys.lottoTicket.date); ticketTargetDate.setHours(16, 0, 0, 0);
+                if (now >= ticketTargetDate && !window.isCheckingLotto) { window.isCheckingLotto = true; checkLottoResult(); window.isCheckingLotto = false; }
             }
         }
 
         function updateLottoUI() {
             const st = $('lotto-status'); if (!st) return;
             if (sys.lottoTicket) {
-                let d = new Date(sys.lottoTicket.date);
-                let dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
+                let d = new Date(sys.lottoTicket.date); let dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
                 st.innerHTML = `Vé kỳ ${dateStr}: <span style="color:#8b5cf6">${sys.lottoTicket.numbers.map(x=>x.toString().padStart(2,'0')).join(' - ')}</span>`;
-            } else {
-                st.innerText = "Bạn chưa mua vé cho kỳ tới.";
-            }
+            } else { st.innerText = "Bạn chưa mua vé cho kỳ tới."; }
         }
         function buyLottoTicket() {
             if(sys.coins < 10000) return alert("Số dư không đủ $10.000!");
@@ -1080,81 +1478,31 @@
             for(let i=1; i<=6; i++) {
                 let v = parseInt($(`lt-${i}`).value);
                 if(isNaN(v) || v < 1 || v > 45) return alert("Vui lòng chọn đủ 6 số từ 01-45!");
-                if(nums.includes(v)) return alert("Các số không được trùng nhau!");
-                nums.push(v);
+                if(nums.includes(v)) return alert("Các số không được trùng nhau!"); nums.push(v);
             }
             if(!confirm("Xác nhận chi $10.000 mua vé số này?")) return;
-            
-            let targetDate = new Date();
-            if (targetDate.getHours() >= 16) {
-                targetDate.setDate(targetDate.getDate() + 1);
-            }
-            
-            sys.coins -= 10000; 
-            sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: targetDate.toDateString() };
-            saveAllData(); 
-            
+            let targetDate = new Date(); if (targetDate.getHours() >= 16) { targetDate.setDate(targetDate.getDate() + 1); }
+            sys.coins -= 10000; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: targetDate.toDateString() }; saveAllData(); 
             let dStr = `${targetDate.getDate().toString().padStart(2,'0')}/${(targetDate.getMonth()+1).toString().padStart(2,'0')}`;
-            alert(`Mua vé thành công! Kết quả sẽ xổ lúc 16:00 ngày ${dStr}.`); 
-            updateLottoUI();
+            alert(`Mua vé thành công! Kết quả sẽ xổ lúc 16:00 ngày ${dStr}.`); updateLottoUI();
         }
         function checkLottoResult() {
-            const histContainer = $('lotto-history-balls');
-            let now = new Date(); 
-            
-            let getResultForDate = (dateStr) => {
-                let res = []; let seed = new Date(dateStr).getTime();
-                let rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
-                while(res.length < 6) { let n = Math.floor(rand() * 45) + 1; if(!res.includes(n)) res.push(n); }
-                return res.sort((a,b)=>a-b);
-            };
-
-            if(histContainer) {
-                let lastDrawDate = new Date(); 
-                if(now.getHours() < 16) lastDrawDate.setDate(lastDrawDate.getDate() - 1);
-                let lastRes = getResultForDate(lastDrawDate.toDateString());
-                histContainer.innerHTML = lastRes.map(n => `<span style="display:inline-block; width:28px; height:28px; line-height:28px; border-radius:50%; background:#8b5cf6; color:white; margin:2px; font-size:0.75rem; font-weight:bold; text-align:center;">${n.toString().padStart(2,'0')}</span>`).join('');
-            }
-
+            const histContainer = $('lotto-history-balls'); let now = new Date(); 
+            let getResultForDate = (dateStr) => { let res = []; let seed = new Date(dateStr).getTime(); let rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; while(res.length < 6) { let n = Math.floor(rand() * 45) + 1; if(!res.includes(n)) res.push(n); } return res.sort((a,b)=>a-b); };
+            if(histContainer) { let lastDrawDate = new Date(); if(now.getHours() < 16) lastDrawDate.setDate(lastDrawDate.getDate() - 1); let lastRes = getResultForDate(lastDrawDate.toDateString()); histContainer.innerHTML = lastRes.map(n => `<span style="display:inline-block; width:28px; height:28px; line-height:28px; border-radius:50%; background:#8b5cf6; color:white; margin:2px; font-size:0.75rem; font-weight:bold; text-align:center;">${n.toString().padStart(2,'0')}</span>`).join(''); }
             if(!sys.lottoTicket) return;
-            
-            let ticketTargetDate = new Date(sys.lottoTicket.date);
-            ticketTargetDate.setHours(16, 0, 0, 0);
-
+            let ticketTargetDate = new Date(sys.lottoTicket.date); ticketTargetDate.setHours(16, 0, 0, 0);
             if(now < ticketTargetDate) return; 
-
-            let result = getResultForDate(sys.lottoTicket.date);
-            let match = sys.lottoTicket.numbers.filter(n => result.includes(n)).length;
-            let win = 0; let taxMsg = "";
-            if(match === 6) { win = 2000000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; }
-            else if(match === 5) { win = 50000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; }
-            else if(match === 4) win = 5000;
-            else if(match === 3) win = 500;
-            
-            let dObj = new Date(sys.lottoTicket.date);
-            let dStr = `${dObj.getDate().toString().padStart(2,'0')}/${(dObj.getMonth()+1).toString().padStart(2,'0')}`;
+            let result = getResultForDate(sys.lottoTicket.date); let match = sys.lottoTicket.numbers.filter(n => result.includes(n)).length; let win = 0; let taxMsg = "";
+            if(match === 6) { win = 2000000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 5) { win = 50000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 4) win = 5000; else if(match === 3) win = 500;
+            let dObj = new Date(sys.lottoTicket.date); let dStr = `${dObj.getDate().toString().padStart(2,'0')}/${(dObj.getMonth()+1).toString().padStart(2,'0')}`;
             let msg = `KẾT QUẢ XỔ SỐ KỲ ${dStr}:\n🎯 Số trúng: ${result.map(x=>x.toString().padStart(2,'0')).join(' - ')}\n🎫 Vé của bạn: ${sys.lottoTicket.numbers.map(x=>x.toString().padStart(2,'0')).join(' - ')}\n✨ Kết quả: Trúng ${match} số!`;
-            
-            // Xóa vé ngay trước khi cộng thưởng và bật Alert để chặn vòng lặp Auto-Scanner
-            sys.lottoTicket = null; 
-            if(win > 0) sys.coins += win;
-            
-            saveAllData(); 
-            updateLottoUI();
-            updateSystemUI();
-
-            if(win > 0) { 
-                alert(`${msg}\nChúc mừng! Bạn nhận được $${Math.floor(win).toLocaleString()} ${taxMsg}!`); 
-                runBigFireworks(); 
-                playRealisticBoom(); 
-            } else { 
-                alert(`${msg}\nChúc bạn may mắn lần sau!`); 
-            }
+            sys.lottoTicket = null; if(win > 0) sys.coins += win; saveAllData(); updateLottoUI(); updateSystemUI();
+            if(win > 0) { alert(`${msg}\nChúc mừng! Bạn nhận được $${Math.floor(win).toLocaleString()} ${taxMsg}!`); runBigFireworks(); playRealisticBoom(); } else { alert(`${msg}\nChúc bạn may mắn lần sau!`); }
         }
         function buyExtraSpins(amount, cost) {
             if(sys.coins < cost) return alert("Số dư không đủ thực hiện giao dịch!");
-            sys.extraSpins = (sys.extraSpins || 0) + amount; sys.coins -= cost;
-            saveAllData(); updateSpinButtonUI(); alert(`Giao dịch thành công! Bạn đã mua ${amount} lượt quay VIP.`);
+            sys.extraSpins = (sys.extraSpins || 0) + amount; sys.coins -= cost; saveAllData(); updateSpinButtonUI(); alert(`Giao dịch thành công! Bạn đã mua ${amount} lượt quay VIP.`);
         }
         function updateSpinButtonUI() {
             let t = new Date().toDateString(); if(sys.lastSpinDate !== t) { sys.dailySpins = 0; sys.lastSpinDate = t; }
@@ -1163,206 +1511,10 @@
             if($('btn-shop-spin')) $('btn-shop-spin').innerText = `QUAY NGAY ($100) - ${rm}`;
         }
 
-        /* --- HỆ THỐNG TRI KỶ (AI COMPANIONS) --- */
-        function updateCompanionUI() {
-            if(sys.companion) {
-                $('companion-shop-list').style.display = 'none';
-                $('my-companion-box').style.display = 'block';
-                $('my-comp-img').src = sys.companion.avatar || 'https://img.icons8.com/bubbles/100/000000/user.png';
-                $('my-comp-name').innerText = sys.companion.name;
-                $('my-comp-type').innerText = sys.companion.type === 'UK' ? "Học giả Anh Quốc" : sys.companion.type === 'CN' ? "Tài tử Trung Hoa" : "Tri kỷ Việt Nam";
-            } else {
-                $('companion-shop-list').style.display = 'grid';
-                $('my-companion-box').style.display = 'none';
-            }
-        }
-
-        function initBuyCompanion(type, price) {
-            if(sys.coins < price) return alert(`Tài khoản không đủ $${price.toLocaleString()}!`);
-            $('comp-buy-type').value = type;
-            $('comp-buy-price').value = price;
-            $('comp-input-api').value = '';
-            $('comp-input-name').value = '';
-            $('comp-input-avatar').value = '';
-            $('companion-modal').style.display = 'flex';
-        }
-
-        function finalizeBuyCompanion() {
-            let type = $('comp-buy-type').value;
-            let price = parseInt($('comp-buy-price').value);
-            let api = $('comp-input-api').value.trim();
-            let name = $('comp-input-name').value.trim();
-            let ava = $('comp-input-avatar').value.trim();
-
-            if(!api || !name) return alert("Vui lòng điền đủ API Key và Danh xưng!");
-            if(sys.coins < price) return alert("Lỗi giao dịch: Tài khoản không đủ tiền!");
-
-            sys.coins -= price;
-            sys.companion = {
-                type: type,
-                name: name,
-                avatar: ava || 'https://img.icons8.com/bubbles/100/000000/user.png',
-                apiKey: api,
-                chatHistory: []
-            };
-            saveAllData();
-            closeModal('companion-modal');
-            updateCompanionUI();
-            updateSystemUI();
-            playRealisticBoom();
-            alert(`Sắc phong thành công! Hãy vào Focus Mode để gặp ${name}.`);
-        }
-
-        function fireCompanion() {
-            if(confirm("Lưu ý: Sa thải tri kỷ sẽ mất toàn bộ tiền đã chuộc. Chắc chắn sa thải?")) {
-                sys.companion = null;
-                saveAllData();
-                updateCompanionUI();
-                alert("Đã tiễn khách!");
-            }
-        }
-
-        function toggleChatWindow() {
-            const chatBox = $('zen-chat-container');
-            if(chatBox.style.display === 'flex') {
-                chatBox.style.display = 'none';
-            } else {
-                if(!sys.companion) return alert("Chưa có Tri kỷ! Vui lòng vào Cửa hàng sắc phong trước.");
-                if(sys.coins < 2000) return alert("Không đủ $2.000 cước phí mở khung đàm đạo!");
-                sys.coins -= 2000; saveAllData(); updateSystemUI();
-                
-                $('chat-avatar-ui').src = sys.companion.avatar;
-                $('chat-name-ui').innerText = sys.companion.name;
-                chatBox.style.display = 'flex';
-                renderChatHistory();
-            }
-        }
-
-        function renderChatHistory() {
-            const area = $('chat-messages-area');
-            if(!sys.companion.chatHistory || sys.companion.chatHistory.length === 0) {
-                area.innerHTML = `<div class="msg bot">Cần học tập hay tâm sự gì cứ nhắn tin nhé.</div>`;
-                return;
-            }
-            area.innerHTML = sys.companion.chatHistory.map(m => {
-                let htmlMsg = marked.parse(m.text); 
-                return `<div class="msg ${m.role === 'user' ? 'user' : 'bot'}">${htmlMsg}</div>`;
-            }).join('');
-            area.scrollTop = area.scrollHeight;
-        }
-
-        function handleChatEnter(e) {
-            if(e.key === 'Enter') sendChatMessage();
-        }
-
-        async function sendChatMessage() {
-            let input = $('chat-input-box');
-            let text = input.value.trim();
-            if(!text) return;
-
-            if(sys.coins < 100) return alert("Không đủ $100 cước viễn thông để gửi tin nhắn!");
-            sys.coins -= 100; saveAllData(); updateSystemUI();
-
-            input.value = '';
-            
-            if(!sys.companion.chatHistory) sys.companion.chatHistory = [];
-            sys.companion.chatHistory.push({role: 'user', text: text});
-            renderChatHistory();
-
-            let systemPrompt = "";
-            if(sys.companion.type === 'UK') {
-                systemPrompt = `You are a highly educated British Oxford scholar named ${sys.companion.name}. Your role is a study companion for the user. Speak in elegant, formal English. Correct their English grammar if they make mistakes. Motivate them to study for IELTS and keep up their focus. Keep responses under 3 paragraphs.`;
-            } else if(sys.companion.type === 'CN') {
-                systemPrompt = `Bạn là một học giả Trung Hoa uyên bác tên là ${sys.companion.name}. Bạn đóng vai trò là tri kỷ học tập của người dùng. Hãy nói chuyện bằng tiếng Việt pha lẫn một chút phong cách cổ trang hoặc thành ngữ Hán Việt. Hỗ trợ họ ôn luyện tiếng Trung nếu họ hỏi. Khích lệ tinh thần học tập. Trả lời ngắn gọn dưới 3 đoạn.`;
-            } else {
-                systemPrompt = `Bạn là một người bạn tâm giao người Việt Nam, trẻ trung, tâm lý, tên là ${sys.companion.name}. Bạn đóng vai trò "study date". Hãy lắng nghe, an ủi, và động viên người dùng học tập khi họ mệt mỏi. Xưng hô thân mật, gần gũi. Trả lời ngắn gọn dưới 3 đoạn.`;
-            }
-
-            // Lọc mảng hội thoại để tránh lỗi dồn 2 tin nhắn User liên tiếp của Gemini
-            let validContents = [];
-            let lastRole = '';
-            for (let m of sys.companion.chatHistory) {
-                let currentRole = m.role === 'user' ? 'user' : 'model';
-                if (currentRole !== lastRole) {
-                    validContents.push({ role: currentRole, parts: [{text: m.text}] });
-                    lastRole = currentRole;
-                }
-            }
-
-            const area = $('chat-messages-area');
-            let typingId = 'typing-' + Date.now();
-            area.innerHTML += `<div id="${typingId}" class="msg bot"><em>Đang suy nghĩ...</em></div>`;
-            area.scrollTop = area.scrollHeight;
-
-            try {
-                // SỬ DỤNG BỘ NÃO AI GEMINI 2.5 FLASH MỚI NHẤT
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${sys.companion.apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        system_instruction: { parts: [{text: systemPrompt}] },
-                        contents: validContents
-                    })
-                });
-
-                const data = await response.json();
-                
-                if(!response.ok) {
-                    throw new Error(data.error ? data.error.message : 'Unknown API Error');
-                }
-                
-                let replyText = data.candidates[0].content.parts[0].text;
-                sys.companion.chatHistory.push({role: 'model', text: replyText});
-                saveAllData();
-                
-                const el = document.getElementById(typingId);
-                if(el) el.outerHTML = `<div class="msg bot">${marked.parse(replyText)}</div>`;
-                area.scrollTop = area.scrollHeight;
-
-            } catch (err) {
-                console.error(err);
-                sys.companion.chatHistory.pop(); // Xóa tin nhắn rác để không bị kẹt
-                saveAllData();
-                const el = document.getElementById(typingId);
-                if(el) el.innerHTML = `<span style="color:red; font-weight:bold;">Lỗi API: ${err.message}</span><br><br><span style="font-size:0.8rem">Gợi ý: Hãy kiểm tra lại API Key. Nếu API Key đúng mà vẫn lỗi, hãy vào Cửa hàng -> Sa thải người bạn này, sau đó tự cấp tiền và "Chuộc" lại để làm sạch lịch sử chat bị kẹt.</span>`;
-            }
-        }
-
-        /* --- SHOP & GACHA CORE --- */
-        function openShopModal() { 
-            $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`; 
-            if($('focus-img-orient')) $('focus-img-orient').value = sys.focusImageOrientation || "vertical";
-            updateShopUI(); updateSpinButtonUI(); updateMemUI(); $('shop-modal').style.display='flex'; 
-        }
-        function updateShopUI() { const r=$('btn-buy-theme-royal'); if(r&&sys.unlockedThemes.includes('royal')){r.innerText="👑 Đã Mở";r.disabled=true;r.style.opacity="0.5";} const h=$('btn-buy-theme-hacker'); if(h&&sys.unlockedThemes.includes('hacker')){h.innerText="💻 Đã Mở";h.disabled=true;h.style.opacity="0.5";} const icons = [ { id: 'btn-buy-icon-snow', icon: '❄️' }, { id: 'btn-buy-icon-cup', icon: '🏆' }, { id: 'btn-buy-icon-hat', icon: '🎓' }, { id: 'btn-buy-icon-diamond', icon: '💎' } ]; icons.forEach(item => { const btn = $(item.id); if (btn) { if (sys.unlockedIcons.includes(item.icon)) { if (sys.streakIcon === item.icon) { btn.innerText = "Đang dùng"; btn.disabled = true; btn.style.opacity = "0.5"; } else { btn.innerText = "Trang bị"; btn.disabled = false; btn.style.opacity = "1"; } } } }); }
-        function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`;}else alert("Không đủ USD!"); }
-        function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`; updateShopUI();}else alert("Thiếu USD!"); }
-        function buyIcon(icon, price) { if (sys.unlockedIcons.includes(icon)) { sys.streakIcon = icon; saveAllData(); updateSystemUI(); updateShopUI(); alert("Đã trang bị thành công!"); } else { if (sys.coins >= price) { sys.coins -= price; sys.unlockedIcons.push(icon); sys.streakIcon = icon; playRealisticBoom(); saveAllData(); $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`; updateSystemUI(); updateShopUI(); alert("Mua thành công!"); } else alert("Tài khoản không đủ USD!"); } }
-        
-        const shopGachaOpts = [ 
-            {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("Nhận 1 THÁNG gói ULTRA!");}}, 
-            {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}}, 
-            {n:"🛡️ Kim Bài Miễn Tử",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Mức phạt được reset, nhận 1 Thẻ Bảo Hộ.");}}, 
-            {n:"💰 Bát Bảo Tụ Tài",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); alert(`Lãi nhân đôi! Nhận được $${th.toFixed(2)}.`);}else{sys.coins+=100; alert("Quỹ tiết kiệm trống, hoàn lại $100 phí quay.");}}}, 
-            {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng thưởng $150.");}}, 
-            {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Không trúng thưởng.");}}, 
-            {n:"⚖️ Nộp Thuế 10%",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế hệ thống $${tx}.`);}}, 
-            {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}} 
-        ];
-        
         function initShopWheel() { 
-            const w=$('shop-wheel'); 
-            let d=360/8, bg=shopGachaOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); 
-            if(!w)return; 
-            w.style.background=`conic-gradient(from 0deg, ${bg})`; 
-            w.innerHTML=''; 
-            shopGachaOpts.forEach((o,i)=>{
-                let l=document.createElement('div'); 
-                l.className='wheel-label'; 
-                l.innerText=o.n; 
-                l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; 
-                w.appendChild(l);
-            }); 
+            const w=$('shop-wheel'); let d=360/8, bg=shopGachaOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); 
+            if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; 
+            shopGachaOpts.forEach((o,i)=>{ let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l); }); 
         }
 
         let isShopSpinning = false;
@@ -1386,7 +1538,6 @@
             }, 4000);
         }
 
-        /* --- FOCUS ZONE CORE --- */
         const fWheelOpts = [{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:15},{n:"🚶 Nghỉ 10p",t:"break",tm:10,xp:0,c:"#10b981",p:10},{n:"🎮 Nghỉ 15p",t:"break",tm:15,xp:0,c:"#059669",p:10},{n:"📚 Học 15p",t:"work",tm:15,xp:0,c:"#f59e0b",p:10},{n:"🔥 Học 25p(+50)",t:"work",tm:25,xp:50,c:"#dc2626",p:5},{n:"🛡️ Thẻ Bảo Hộ",t:"imm",c:"#6366f1",p:15},{n:"✨ Thẻ x2",t:"dxp",c:"#ec4899",p:10},{n:"♾️ Vô Cực",t:"endl",c:"#8b5cf6",p:10},{n:"🎲 Trúng 100",t:"jack",xp:100,c:"#f5a623",p:5},{n:"🍵 Nghỉ 5p",t:"break",tm:5,xp:0,c:"#3b82f6",p:10}];
         function initFocusWheel() { const w=$('focus-wheel'); let d=360/10, bg=fWheelOpts.map((o,i)=>`${o.c} ${i*d}deg ${(i+1)*d}deg`).join(', '); if(!w)return; w.style.background=`conic-gradient(from 0deg, ${bg})`; w.innerHTML=''; fWheelOpts.forEach((o,i)=>{let l=document.createElement('div'); l.className='wheel-label'; l.innerText=o.n; l.style.transform=`rotate(${-90+(d/2)+(i*d)}deg)`; w.appendChild(l);}); }
         let zTmr=null, isRun=false, isWrk=true, W_TIME=25*60, tL=W_TIME, tEnd=0, tvErn=0, afkTrg=false, afkCnt=null, afkV=15, isEndl=false, endSec=0, endXp=0, stEndl=0, isDbl=false, pmStk="NONE", isFrc=false;
@@ -1397,8 +1548,6 @@
                 o.classList.remove('active'); 
                 m.style.filter='blur(0)'; 
                 $('zen-wheel-box').style.display='none';
-                $('btn-open-chat').style.display='none';
-                $('zen-chat-container').style.display='none';
             }else{
                 showRandomQuote(); 
                 o.classList.add('active'); m.style.filter='blur(10px)';
@@ -1412,13 +1561,53 @@
                 } else {
                     $('zen-image-card').style.display = 'none';
                 }
-
-                if(sys.companion) {
-                    $('btn-open-chat').style.display='flex';
-                }
             } 
         }
-        function startTimer(frc=false) { const b=$('btn-zen-start'), bc=$('zen-energy-bar'); if(isRun) { clearInterval(zTmr); isRun=false; b.innerText="Tiếp tục"; $('zen-status').innerText="Tạm dừng"; $('zen-timer').classList.remove('ticking'); bc.classList.remove('active'); return; } let selMins = parseInt($('zen-time-select').value); if(tL===W_TIME&&isWrk&&tvErn===0) { W_TIME = selMins * 60; tL = W_TIME; showRandomQuote(); afkTrg=false; isFrc=frc; if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} } isRun=true; b.innerText="Tạm dừng"; $('zen-timer').classList.add('ticking'); bc.classList.add('active'); if(isWrk) { $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); } else { $('zen-status').innerText="ĐANG NGHỈ NGƠI..."; $('zen-status').style.color="#10b981"; bc.classList.add('break-mode'); } tEnd = Date.now() + (tL * 1000); zTmr = setInterval(() => { tL = Math.max(0, Math.ceil((tEnd - Date.now()) / 1000)); if(isWrk && !afkTrg && tL<(W_TIME-5*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); } if(tL<=0) { tL=0; updTmr(); clearInterval(zTmr); isRun=false; $('zen-timer').classList.remove('ticking'); $('zen-energy-fill').style.width='100%'; bc.classList.remove('active'); if(isWrk) { if(isFrc) { alert("Hoàn thành phiên phạt."); resetTimer(); toggleZenMode(); return; } let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Xp nhân đôi.");} runBigFireworks(); playRealisticBoom(); addTuVi(rw); if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); alert(`Mã $${pmStk} đã tăng 20%!`); saveAllData(); } $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none'; const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex'; } else { playChime(); isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; $('zen-status').innerText="Bắt đầu phiên học."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='inline-block'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%'; } return; } if(isWrk && !isFrc) { let mp = Math.floor((W_TIME-tL)/60); if(mp>tvErn) { let xp = (mp-tvErn); if(isDbl) xp*=2; addTuVi(xp); tvErn=mp; showRandomQuote(); } } $('zen-energy-fill').style.width=`${((W_TIME-tL)/W_TIME)*100}%`; updTmr(); }, 500); }
+        function startTimer(frc=false) { 
+            const b=$('btn-zen-start'), bc=$('zen-energy-bar'); 
+            if(isRun) { 
+                clearInterval(zTmr); isRun=false; b.innerText="Tiếp tục"; $('zen-status').innerText="Tạm dừng"; $('zen-timer').classList.remove('ticking'); bc.classList.remove('active'); 
+                if(!audioEl.paused) { toggleMusicPlay(); }
+                return; 
+            } 
+            let selMins = parseInt($('zen-time-select').value); 
+            if(tL===W_TIME&&isWrk&&tvErn===0) { 
+                W_TIME = selMins * 60; tL = W_TIME; showRandomQuote(); afkTrg=false; isFrc=frc; 
+                if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} 
+                
+                if(sys.music.tier === 'PREMIUM' && audioEl.paused && sys.music.tracks.length > 0) {
+                    toggleMusicPlay();
+                }
+            } 
+            isRun=true; b.innerText="Tạm dừng"; $('zen-timer').classList.add('ticking'); bc.classList.add('active'); 
+            if(isWrk) { 
+                $('zen-status').innerText=isFrc?"🔴 PHIÊN PHẠT":pmStk!=="NONE"?`📈 ĐẨY $${pmStk}`:isDbl?"✨ TẬP TRUNG (x2)":"ĐANG TẬP TRUNG"; 
+                $('zen-status').style.color=isFrc?"red":isDbl?"#ec4899":"white"; bc.classList.remove('break-mode'); 
+            } else { 
+                $('zen-status').innerText="ĐANG NGHỈ NGƠI..."; $('zen-status').style.color="#10b981"; bc.classList.add('break-mode'); 
+            } 
+            tEnd = Date.now() + (tL * 1000); 
+            zTmr = setInterval(() => { 
+                tL = Math.max(0, Math.ceil((tEnd - Date.now()) / 1000)); 
+                if(isWrk && !afkTrg && tL<(W_TIME-5*60) && tL>(5*60)) { if(Math.random()<0.005) triggerAFK(); } 
+                if(tL<=0) { 
+                    tL=0; updTmr(); clearInterval(zTmr); isRun=false; $('zen-timer').classList.remove('ticking'); $('zen-energy-fill').style.width='100%'; bc.classList.remove('active'); 
+                    if(isWrk) { 
+                        if(isFrc) { alert("Hoàn thành phiên phạt."); resetTimer(); toggleZenMode(); return; } 
+                        let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; 
+                        if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Xp nhân đôi.");} 
+                        runBigFireworks(); playRealisticBoom(); addTuVi(rw); 
+                        if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); alert(`Mã $${pmStk} đã tăng 20%!`); saveAllData(); } 
+                        $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none'; const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex'; 
+                    } else { 
+                        playChime(); isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; $('zen-status').innerText="Bắt đầu phiên học."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='inline-block'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%'; 
+                    } 
+                    return; 
+                } 
+                if(isWrk && !isFrc) { let mp = Math.floor((W_TIME-tL)/60); if(mp>tvErn) { let xp = (mp-tvErn); if(isDbl) xp*=2; addTuVi(xp); tvErn=mp; showRandomQuote(); } } 
+                $('zen-energy-fill').style.width=`${((W_TIME-tL)/W_TIME)*100}%`; updTmr(); 
+            }, 500); 
+        }
         let isFSpn = false; function spinFocusWheel() { if(isFSpn) return; isFSpn=true; $('btn-focus-spin').innerText="Đang quay..."; let r=Math.random()*100, s=0, wIdx=0; for(let i=0;i<fWheelOpts.length;i++){s+=fWheelOpts[i].p; if(r<=s){wIdx=i;break;}} let wn=fWheelOpts[wIdx], sl=360/10, o=5+Math.random()*(sl-10), tR=360*5+(360-(wIdx*sl+o)); const w=$('focus-wheel'); w.style.transition='transform 4s cubic-bezier(0.17,0.67,0.1,1)'; w.style.transform=`rotate(${tR}deg)`; try{const ctx=getAudioCtx(); if(ctx){let c=0, iv=setInterval(()=>{if(c>=20){clearInterval(iv);return;}c++;const t=ctx.currentTime;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(400+c*20,t);osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1);gain.gain.setValueAtTime(0.1,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.1);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);},200-c*5);}}catch(e){} setTimeout(()=>{ isFSpn=false; $('btn-focus-spin').innerText="QUAY THƯỞNG"; let m=`Kết quả: ${wn.n}!\n`; $('zen-wheel-box').style.display='none'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; if(wn.t==='work'){m+=`Bắt đầu học ${wn.tm}p!`;alert(m); isWrk=true; W_TIME=wn.tm*60; tL=W_TIME; tvErn=0; afkTrg=false; isFrc=false; pmStk="NONE"; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; updTmr(); startTimer();} else if(wn.t==='endl'){m+=`Chế độ Vô Cực!`;alert(m); startEndlessMode();} else if(wn.t==='imm'){sys.immunity++; saveAllData(); m+=`Nhận Thẻ Bảo Hộ. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='dxp'){sys.doubleXp++; saveAllData(); m+=`Nhận Thẻ x2. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='jack'){addTuVi(wn.xp); m+=`Nhận ${wn.xp} XP. Nghỉ 5p.`;alert(m); startBreak(5);} else {m+=`Nghỉ ngơi ${wn.tm}p.`;alert(m); startBreak(wn.tm);} }, 4000); }
         function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
         function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
@@ -1445,6 +1634,7 @@
             updTmr(); 
             initShopWheel(); 
             initFocusWheel(); 
+            setupAudioEvents();
             setInterval(updateLottoCountdown, 1000);
             setInterval(updateCountdownUI, 1000); 
             requestNotificationPermission(); 
