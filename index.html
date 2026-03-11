@@ -437,7 +437,7 @@
 
             <div style="background:rgba(59, 130, 246, 0.05); border:1px solid #3b82f6; padding:15px; border-radius:8px; margin-bottom:20px;">
                 <h4 style="color:#3b82f6; margin-bottom:10px; font-size:0.9rem; text-align:center;"><i class="fas fa-upload"></i> Nạp Nhạc Từ Thiết Bị (Offline)</h4>
-                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:15px; text-align:center;">File MP3 sẽ được cất giấu sâu trong hầm ngầm của trình duyệt. Bạn hoàn toàn có thể nghe nhạc mượt mà ngay cả khi không có Internet!</p>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:15px; text-align:center;">File MP3 sẽ được cất giấu sâu trong hầm ngầm của trình duyệt. Bệ hạ có thể nghe nhạc mượt mà ngay cả khi không có Internet!</p>
                 <input type="file" id="pl-file-upload" accept="audio/mp3, audio/wav, audio/ogg, audio/m4a, audio/aac" style="display:none;" onchange="handleFileUpload(event)">
                 <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:1rem;" onclick="$('pl-file-upload').click()"><i class="fas fa-folder-open"></i> Chọn File Âm Thanh Để Nạp</button>
             </div>
@@ -648,7 +648,8 @@
             {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}}
         ];
 
-        let sysAudioCtx = null, fireworks;
+        let sysAudioCtx = null, fireworks, audioEl = null; // Fix 1: Đã thêm let audioEl = null
+
         function getAudioCtx() { try { if(!sysAudioCtx){const AC=window.AudioContext||window.webkitAudioContext; if(AC) sysAudioCtx=new AC();} if(sysAudioCtx&&sysAudioCtx.state==='suspended') sysAudioCtx.resume(); return sysAudioCtx; }catch(e){return null;} }
         function playAlarmSound() { try{const ctx=getAudioCtx(); if(!ctx)return; for(let i=0;i<3;i++){const t=ctx.currentTime+i*0.3; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type='square'; osc.frequency.setValueAtTime(1000,t); gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.2); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+0.2);}}catch(e){} }
         function playChime() { try{const ctx=getAudioCtx(); if(!ctx)return; const t=ctx.currentTime; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.frequency.setValueAtTime(880,t); osc.frequency.exponentialRampToValueAtTime(0.01,t+1.5); gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.01,t+1.5); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+1.5);}catch(e){} }
@@ -687,6 +688,31 @@
             if(!sys.music || !sys.music.tracks) {
                 sys.music = { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false };
             }
+
+            // --- BẮT ĐẦU TRUY THU LÃI OFFLINE (Fix 2) ---
+            let now = Date.now();
+            let timeDiff = now - sys.bankLastHarvest;
+            
+            if (sys.bankCapital > 0 && sys.streak > 0 && timeDiff > 0) {
+                let dr = sys.streak * 0.01; 
+                let offlineInterest = sys.bankCapital * (dr / 86400) * (timeDiff / 1000); 
+                sys.bankUnclaimed += offlineInterest;
+                
+                if (sys.bankUnclaimed > sys.bankCapital * dr) {
+                    sys.bankUnclaimed = sys.bankCapital * dr;
+                }
+            }
+
+            if (timeDiff >= 86400000) {
+                if (sys.mem.tier === 'BASIC') {
+                    sys.bankUnclaimed = 0; 
+                } else {
+                    sys.coins += sys.bankUnclaimed; 
+                    sys.bankUnclaimed = 0;
+                }
+                sys.bankLastHarvest = now;
+            }
+            // --- KẾT THÚC TRUY THU ---
 
             checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); 
             renderCountdownLayout(); 
@@ -1630,11 +1656,11 @@
 
         /* KÍCH HOẠT ĐỒNG LOẠT CÁC HỆ THỐNG THỜI GIAN CỦA BỆ HẠ */
         document.addEventListener('DOMContentLoaded', ()=>{
+            setupAudioEvents(); // Bệ hạ nhìn này, Ngự Âm Các đã được ưu tiên nạp trước!
             loadAllData(); 
             updTmr(); 
             initShopWheel(); 
             initFocusWheel(); 
-            setupAudioEvents();
             setInterval(updateLottoCountdown, 1000);
             setInterval(updateCountdownUI, 1000); 
             requestNotificationPermission(); 
