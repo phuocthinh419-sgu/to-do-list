@@ -184,6 +184,20 @@
         .playlist-item { display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; }
         .playlist-item-name { font-size:0.9rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 250px; }
         .playlist-item.playing { border-color:var(--primary); background:rgba(37,99,235,0.1); }
+        
+        /* HUYẾT KHẾ STYLES */
+        .blood-pact-container { background: rgba(220, 38, 38, 0.1); border: 1px solid #dc2626; border-radius: 8px; padding: 15px; margin-bottom: 20px; width: 100%; max-width: 400px; text-align: left; position: relative; overflow: hidden; }
+        .blood-pact-title { color: #fca5a5; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; text-align: center; text-transform: uppercase; font-family: 'Black Ops One', cursive; letter-spacing: 2px; text-shadow: 0 2px 5px rgba(220, 38, 38, 0.8);}
+        .blood-pact-form { display: flex; flex-direction: column; gap: 10px; }
+        .blood-pact-input { background: rgba(0,0,0,0.5); border: 1px solid #dc2626; color: white; padding: 8px 12px; border-radius: 4px; outline: none; transition: 0.2s; }
+        .blood-pact-input:focus { box-shadow: 0 0 10px rgba(220, 38, 38, 0.5); }
+        .blood-pact-bar-bg { background: rgba(0,0,0,0.5); height: 12px; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid #7f1d1d; margin: 10px 0; }
+        .blood-pact-bar-fill { background: linear-gradient(90deg, #991b1b, #ef4444, #fca5a5); height: 100%; width: 0%; transition: width 0.5s; box-shadow: 0 0 10px #ef4444; }
+        .blood-pact-stats { font-size: 0.85rem; color: #fca5a5; display: flex; justify-content: space-between; font-family: monospace; margin-bottom: 5px; }
+        .btn-blood { background: linear-gradient(45deg, #7f1d1d, #dc2626); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-shadow: 0 1px 2px black; box-shadow: 0 4px 10px rgba(220,38,38,0.4); text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; }
+        .btn-blood:hover { transform: scale(1.03); filter: brightness(1.2); }
+        .btn-blood:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
+        .btn-blood-cashout { background: linear-gradient(45deg, #fbbf24, #d97706); color: black; text-shadow: none; animation: pulse-sec-royal 1.5s infinite; }
 
         @media (max-width:768px) { 
             .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} .countdown-timer { gap: 5px; } .cd-box { min-width: 55px; padding: 5px 2px; } .cd-num { font-size: 1.5rem; } .countdown-title { font-size: 0.9rem; } .countdown-title::before, .countdown-title::after { width: 15px; } 
@@ -531,6 +545,25 @@
             <div class="zen-timer" id="zen-timer">25:00</div>
             <div class="zen-energy-bar-container" id="zen-energy-bar"><div class="zen-energy-bar-fill" id="zen-energy-fill" style="width:0%;"></div></div>
             
+            <div class="blood-pact-container" id="blood-pact-box">
+                <div class="blood-pact-title"><i class="fas fa-tint"></i> Huyết Khế Kỳ Hạn</div>
+                <div id="bp-setup-ui" class="blood-pact-form">
+                    <input type="date" id="bp-date" class="blood-pact-input" title="Ngày Đáo Hạn">
+                    <input type="number" id="bp-hours" class="blood-pact-input" placeholder="Số giờ cam kết (Tối thiểu 1h)" min="1">
+                    <input type="number" id="bp-wager" class="blood-pact-input" placeholder="Tiền cược ($)" min="1">
+                    <button class="btn-blood" onclick="signBloodPact()">Ký Khế Ước</button>
+                </div>
+                <div id="bp-track-ui" style="display:none;">
+                    <div style="font-size:0.9rem; color:#f8fafc; margin-bottom:5px; text-align:center;">Mục tiêu: <strong id="bp-target-text"></strong></div>
+                    <div class="blood-pact-bar-bg"><div class="blood-pact-bar-fill" id="bp-bar"></div></div>
+                    <div class="blood-pact-stats">
+                        <span id="bp-min-text">0 / 60 Phút</span>
+                        <span id="bp-profit-text">Lãi dự kiến: $0</span>
+                    </div>
+                    <button id="bp-btn-cashout" class="btn-blood btn-blood-cashout" style="width:100%; margin-top:10px;" disabled onclick="cashOutBloodPact()">THU HỒI LỢI NHUẬN</button>
+                </div>
+            </div>
+
             <div id="zen-pump-box" style="background:rgba(255,255,255,0.05);padding:15px 30px;border-radius:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2);width:100%;max-width:400px;">
                 <p style="margin-bottom:5px;font-weight:bold;color:var(--warning);"><i class="fas fa-chart-line"></i> Tập trung đẩy giá cổ phiếu</p>
                 <select id="pump-stock-select" style="padding:10px;border-radius:6px;background:#1e293b;color:white;width:100%;margin-bottom:5px;"><option value="NONE">Không can thiệp</option><option value="IEL">Đẩy giá mã $IEL (+20%)</option><option value="MUN">Đẩy giá mã $MUN (+20%)</option><option value="BYN">Đẩy giá mã $BYN (+20%)</option><option value="ZHN">Đẩy giá mã $ZHN (+20%)</option></select>
@@ -633,10 +666,11 @@
                 currentIdx: 0,
                 shuffle: false,
                 loop: false
-            }
+            },
+            
+            bloodPact: { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 }
         };
 
-        // --- KHÔI PHỤC VÒNG QUAY BÁT QUÁI (SHOP GACHA) ---
         const shopGachaOpts = [
             {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("Nhận 1 THÁNG gói ULTRA!");}},
             {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}},
@@ -648,7 +682,7 @@
             {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}}
         ];
 
-        let sysAudioCtx = null, fireworks, audioEl = null; // Fix 1: Đã thêm let audioEl = null
+        let sysAudioCtx = null, fireworks, audioEl = null; 
 
         function getAudioCtx() { try { if(!sysAudioCtx){const AC=window.AudioContext||window.webkitAudioContext; if(AC) sysAudioCtx=new AC();} if(sysAudioCtx&&sysAudioCtx.state==='suspended') sysAudioCtx.resume(); return sysAudioCtx; }catch(e){return null;} }
         function playAlarmSound() { try{const ctx=getAudioCtx(); if(!ctx)return; for(let i=0;i<3;i++){const t=ctx.currentTime+i*0.3; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type='square'; osc.frequency.setValueAtTime(1000,t); gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.2); osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+0.2);}}catch(e){} }
@@ -688,8 +722,10 @@
             if(!sys.music || !sys.music.tracks) {
                 sys.music = { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false };
             }
+            if(!sys.bloodPact) {
+                sys.bloodPact = { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 };
+            }
 
-            // --- BẮT ĐẦU TRUY THU LÃI OFFLINE (Fix 2) ---
             let now = Date.now();
             let timeDiff = now - sys.bankLastHarvest;
             
@@ -712,7 +748,6 @@
                 }
                 sys.bankLastHarvest = now;
             }
-            // --- KẾT THÚC TRUY THU ---
 
             checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); 
             renderCountdownLayout(); 
@@ -720,6 +755,7 @@
             checkMusicExpiration();
             applyMusicSkin();
             initMusicPlayer();
+            updateBloodPactUI();
         }
 
         function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); }
@@ -749,12 +785,6 @@
             if($('stock-modal').style.display==='flex') renderStockMarket();
         }
 
-        /* --- BỘ SƯU TẬP NGỰ UYỂN --- */
-        function setFocusImageOrientation() { sys.focusImageOrientation = $('focus-img-orient').value; saveAllData(); }
-        function setCustomFocusImage() { let url = $('custom-img-url').value.trim(); if(!url) return alert("Người dùng vui lòng dán Link ảnh vào ô trống trước!"); if(sys.coins < 500) return alert("Tài khoản không đủ $500!"); sys.coins -= 500; sys.focusImage = url; saveAllData(); $('custom-img-url').value = ''; alert("Đã treo bức họa mới thành công!"); }
-        function buyPresetImage(name, url, price) { if(sys.coins < price) return alert(`Tài khoản không đủ $${price}!`); sys.coins -= price; sys.focusImage = url; saveAllData(); alert(`Đã mua đứt và treo bức họa ${name} thành công!`); }
-        function removeFocusImage() { sys.focusImage = ""; saveAllData(); alert("Đã tháo tranh xuống!"); }
-
         /* --- LOGIC ĐỒNG HỒ SINH TỬ --- */
         function openCountdownModal() { renderCountdownModalList(); $('countdown-modal').style.display = 'flex'; }
         function renderCountdownModalList() {
@@ -776,6 +806,445 @@
             const w = $('countdown-wrapper'); if(w) w.style.animation = allExpired ? 'pulse-border 0.5s infinite' : 'pulse-border 2s infinite';
         }
 
+        /* --- LOGIC NGỰ ÂM CÁC --- */
+        function checkMusicExpiration() {
+            if(!sys.music) return;
+            if(sys.music.tier !== 'BASIC' && !sys.music.lifetime) {
+                if(Date.now() > sys.music.expire) {
+                    sys.music.tier = 'BASIC'; sys.music.shuffle = false; sys.music.loop = false; sys.music.skin = 'default';
+                    if(sys.music.tracks.length > 20) {
+                        let removed = sys.music.tracks.slice(20);
+                        removed.forEach(t => { if(t.isLocal) { try{ localforage.removeItem(t.url); } catch(e){} } });
+                        sys.music.tracks = sys.music.tracks.slice(0, 20);
+                        alert("Gói nghe nhạc đã hết hạn! Về Basic. Kho nhạc bị giảm xuống 20 bài.");
+                    } else { alert("Gói nghe nhạc đã hết hạn! Về Basic."); }
+                    saveAllData(); initMusicPlayer();
+                }
+            }
+            if($('shop-modal').style.display==='flex') updateMusicShopUI();
+        }
+
+        function updateMusicShopUI() {
+            $('music-tier-display').innerText = sys.music.tier;
+            let expr = "";
+            if(sys.music.lifetime) expr = "Thẻ Vĩnh Cửu (Không bao giờ hết hạn).";
+            else if(sys.music.tier === 'BASIC') expr = "Giới hạn 20 bài, không có Trộn/Lặp bài.";
+            else {
+                let left = sys.music.expire - Date.now();
+                if(left > 0) {
+                    let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000);
+                    expr = `Còn lại: ${d} ngày ${h}h ${m}m ${s}s`;
+                }
+            }
+            $('music-expire-display').innerText = expr;
+
+            ['vinyl', 'cyberpunk'].forEach(s => {
+                let btn = $('btn-skin-' + s);
+                if(!btn) return;
+                if(sys.music.unlockedSkins.includes(s)) {
+                    if(sys.music.skin === s) { btn.innerHTML = "Đang dùng"; btn.disabled = true; btn.style.opacity = 0.5; }
+                    else { btn.innerHTML = "Trang bị"; btn.disabled = false; btn.style.opacity = 1; }
+                }
+            });
+        }
+
+        function buyMusic(tier, duration, cost, type) {
+            if(sys.music.lifetime) return alert("Bệ hạ đã có Thẻ Vĩnh Cửu, không cần mua gói lẻ nữa!");
+            if(sys.coins < cost) return alert(`Ngân khố không đủ $${cost.toLocaleString()}!`);
+            if(!confirm(`Xác nhận chi $${cost.toLocaleString()} mua gói ${tier} trong ${duration} ${type==='hour'?'Giờ':'Ngày'}?`)) return;
+
+            sys.coins -= cost;
+            let msAdd = type === 'hour' ? duration * 3600000 : duration * 86400000;
+            if(sys.music.tier === tier && sys.music.expire > Date.now()) sys.music.expire += msAdd;
+            else { sys.music.tier = tier; sys.music.expire = Date.now() + msAdd; }
+            saveAllData(); updateSystemUI(); initMusicPlayer(); playRealisticBoom(); alert(`Mua gói nhạc ${tier} thành công!`);
+        }
+
+        function buyMusicLifetime() {
+            let cost = 5000000;
+            if(sys.music.lifetime) return alert("Đã sở hữu Thẻ Vĩnh Cửu!");
+            if(sys.coins < cost) return alert(`Ngân khố không đủ $${cost.toLocaleString()}!`);
+            if(!confirm(`Xác nhận chi $5.000.000 USD mua Thẻ Premium Vĩnh Cửu?`)) return;
+
+            sys.coins -= cost; sys.music.tier = 'PREMIUM'; sys.music.lifetime = true;
+            saveAllData(); updateSystemUI(); initMusicPlayer(); playRealisticBoom();
+            alert(`Hoàng ân mênh mông! Bệ hạ đã mua đứt quyền lực Ngự Âm Các vĩnh viễn!`);
+        }
+
+        function equipOrBuySkin(skinName, cost) {
+            if(sys.music.tier === 'BASIC') return alert("Giao diện xịn chỉ dành cho gói Plus hoặc Premium!");
+            if(sys.music.unlockedSkins.includes(skinName)) {
+                sys.music.skin = skinName; saveAllData(); applyMusicSkin(); updateMusicShopUI(); alert("Đã trang bị giao diện thành công!");
+            } else {
+                if(sys.coins < cost) return alert(`Cần $${cost.toLocaleString()} để đúc giao diện này!`);
+                if(confirm(`Chi $${cost.toLocaleString()} mua đứt giao diện này?`)) {
+                    sys.coins -= cost; sys.music.unlockedSkins.push(skinName); sys.music.skin = skinName;
+                    saveAllData(); applyMusicSkin(); updateSystemUI(); playRealisticBoom(); alert("Mua giao diện thành công!");
+                }
+            }
+        }
+
+        function applyMusicSkin() {
+            let player = $('zen-music-player'); if(!player) return;
+            player.className = 'music-player'; 
+            let vis = $('m-visual'); vis.innerHTML = ''; 
+            if(sys.music.skin === 'vinyl') {
+                player.classList.add('skin-vinyl');
+                vis.innerHTML = '<div class="vinyl-record"></div>';
+            } else if (sys.music.skin === 'cyberpunk') {
+                player.classList.add('skin-cyberpunk');
+                vis.innerHTML = '<div class="cyber-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>';
+            } else {
+                player.classList.add('default-skin');
+                vis.innerHTML = '<i class="fas fa-compact-disc" style="font-size:2rem; color:var(--text-muted);"></i>';
+            }
+        }
+
+        function formatTime(sec) {
+            if(isNaN(sec) || sec < 0) return "00:00";
+            let m = Math.floor(sec / 60); let s = Math.floor(sec % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function setupAudioEvents() {
+            audioEl = $('core-audio');
+            const prog = $('m-progress'); const curTime = $('m-time-current'); const totTime = $('m-time-total'); const vol = $('m-volume');
+            if(!audioEl || !prog) return;
+
+            audioEl.addEventListener('timeupdate', () => {
+                if(!audioEl.duration) return;
+                prog.value = (audioEl.currentTime / audioEl.duration) * 100;
+                curTime.innerText = formatTime(audioEl.currentTime);
+            });
+            audioEl.addEventListener('loadedmetadata', () => { totTime.innerText = formatTime(audioEl.duration); });
+            prog.addEventListener('input', () => {
+                if(!audioEl.duration) return;
+                audioEl.currentTime = (prog.value / 100) * audioEl.duration;
+            });
+            vol.addEventListener('input', () => { audioEl.volume = vol.value; });
+        }
+
+        async function initMusicPlayer() {
+            if(!audioEl) return;
+            let btnShuf = $('btn-shuffle'); let btnLoop = $('btn-loop');
+            
+            if(sys.music.tier === 'BASIC') {
+                sys.music.shuffle = false; sys.music.loop = false;
+                btnShuf.classList.add('disabled'); btnLoop.classList.add('disabled');
+            } else {
+                btnShuf.classList.remove('disabled'); btnLoop.classList.remove('disabled');
+            }
+            
+            if(sys.music.shuffle) btnShuf.classList.add('active'); else btnShuf.classList.remove('active');
+            if(sys.music.loop) btnLoop.classList.add('active'); else btnLoop.classList.remove('active');
+
+            if(sys.music.tracks.length > 0) {
+                if(sys.music.currentIdx >= sys.music.tracks.length) sys.music.currentIdx = 0;
+                let t = sys.music.tracks[sys.music.currentIdx];
+                $('m-track-name').innerText = t.name;
+                
+                if(audioEl.paused) {
+                    if(t.isLocal) {
+                        try {
+                            let blob = await localforage.getItem(t.url);
+                            if(blob) {
+                                let oldSrc = audioEl.src;
+                                audioEl.src = URL.createObjectURL(blob);
+                                if(oldSrc && oldSrc.startsWith('blob:')) setTimeout(()=>URL.revokeObjectURL(oldSrc), 1000);
+                            }
+                        } catch(e){}
+                    } else {
+                        if(!audioEl.src || !audioEl.src.includes(t.url)) audioEl.src = t.url;
+                    }
+                }
+            } else {
+                $('m-track-name').innerText = "Chưa có bài hát nào";
+                audioEl.removeAttribute('src');
+                $('m-time-total').innerText = "00:00";
+            }
+            $('m-status-text').innerText = audioEl.paused ? "TRẠNG THÁI: TẠM DỪNG" : "TRẠNG THÁI: ĐANG PHÁT";
+        }
+
+        function toggleMusicPlay() {
+            if(sys.music.tracks.length === 0) return alert("Danh sách nhạc trống!");
+            let player = $('zen-music-player'); let btn = $('btn-play');
+            
+            if(audioEl.paused) {
+                if(!audioEl.src || audioEl.src === window.location.href) { loadAndPlayCurrent(); return; }
+                audioEl.play().then(() => {
+                    btn.innerHTML = '<i class="fas fa-pause"></i>';
+                    player.classList.add('playing');
+                    $('m-status-text').innerText = sys.music.tier === 'PREMIUM' ? "TRẠNG THÁI: PREMIUM VIP" : "TRẠNG THÁI: ĐANG PHÁT";
+                }).catch(e => { loadAndPlayCurrent(); });
+            } else {
+                audioEl.pause();
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+                player.classList.remove('playing');
+                $('m-status-text').innerText = "TRẠNG THÁI: TẠM DỪNG";
+            }
+        }
+
+        function playNext() {
+            if(sys.music.tracks.length === 0) return;
+            if(sys.music.shuffle) sys.music.currentIdx = Math.floor(Math.random() * sys.music.tracks.length);
+            else sys.music.currentIdx = (sys.music.currentIdx + 1) % sys.music.tracks.length;
+            saveAllData(); loadAndPlayCurrent();
+        }
+
+        function playPrev() {
+            if(sys.music.tracks.length === 0) return;
+            sys.music.currentIdx = (sys.music.currentIdx - 1 + sys.music.tracks.length) % sys.music.tracks.length;
+            saveAllData(); loadAndPlayCurrent();
+        }
+
+        async function loadAndPlayCurrent() {
+            if(sys.music.tracks.length === 0) return;
+            let t = sys.music.tracks[sys.music.currentIdx];
+            
+            $('m-track-name').innerText = t.name;
+            $('m-status-text').innerText = "ĐANG NẠP DỮ LIỆU...";
+            
+            try {
+                if(t.isLocal) {
+                    let blob = await localforage.getItem(t.url);
+                    if(blob) {
+                        let newSrc = URL.createObjectURL(blob); let oldSrc = audioEl.src;
+                        audioEl.src = newSrc;
+                        if(oldSrc && oldSrc.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(oldSrc), 1500); 
+                    } else {
+                        $('m-status-text').innerText = "LỖI FILE (TỰ ĐỘNG BỎ QUA)";
+                        setTimeout(playNext, 1500); return;
+                    }
+                } else audioEl.src = t.url;
+
+                let playPromise = audioEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        $('btn-play').innerHTML = '<i class="fas fa-pause"></i>';
+                        $('zen-music-player').classList.add('playing');
+                        $('m-status-text').innerText = sys.music.tier === 'PREMIUM' ? "TRẠNG THÁI: PREMIUM VIP" : "TRẠNG THÁI: ĐANG PHÁT";
+                    }).catch(error => {
+                        $('m-status-text').innerText = "CHỜ BẤM PLAY";
+                        $('btn-play').innerHTML = '<i class="fas fa-play"></i>';
+                        $('zen-music-player').classList.remove('playing');
+                    });
+                }
+            } catch(e) { $('m-status-text').innerText = "LỖI KHÔNG XÁC ĐỊNH"; }
+        }
+
+        function handleTrackEnd() {
+            if(sys.music.loop) { audioEl.currentTime = 0; audioEl.play(); } else playNext();
+        }
+
+        function toggleShuffle() {
+            if(sys.music.tier === 'BASIC') return;
+            sys.music.shuffle = !sys.music.shuffle;
+            $('btn-shuffle').classList.toggle('active');
+            saveAllData();
+        }
+
+        function toggleLoop() {
+            if(sys.music.tier === 'BASIC') return;
+            sys.music.loop = !sys.music.loop;
+            $('btn-loop').classList.toggle('active');
+            saveAllData();
+        }
+
+        function openPlaylistModal() { renderPlaylist(); $('playlist-modal').style.display = 'flex'; }
+
+        function renderPlaylist() {
+            let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : "Vô hạn");
+            let count = sys.music.tracks.length;
+            
+            $('pl-capacity-text').innerText = `${count} / ${limit} Bài`;
+            if(limit !== "Vô hạn") $('pl-capacity-bar').style.width = `${(count/limit)*100}%`;
+            else { $('pl-capacity-bar').style.width = `100%`; $('pl-capacity-bar').style.background = '#fbbf24'; }
+
+            let html = '';
+            sys.music.tracks.forEach((t, i) => {
+                let isPlaying = i === sys.music.currentIdx;
+                let iconLocal = `<i class="fas fa-hdd" style="color:#10b981; font-size:0.7rem; margin-right:5px;" title="File lưu nội bộ"></i>`;
+                html += `<div class="playlist-item ${isPlaying ? 'playing' : ''}">
+                    <div class="playlist-item-name">${iconLocal} ${i+1}. ${t.name}</div>
+                    <div>
+                        <button class="btn-icon" style="color:${isPlaying ? 'var(--primary)' : 'var(--text-muted)'}" onclick="jumpToTrack(${i})"><i class="fas fa-play"></i></button>
+                        <button class="btn-icon delete" onclick="removeMusicTrack(${i})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            });
+            if(count === 0) html = `<div style="text-align:center; padding: 20px; color:var(--text-muted);">Kho nhạc trống rỗng</div>`;
+            $('playlist-container').innerHTML = html;
+        }
+
+        async function handleFileUpload(e) {
+            let file = e.target.files[0]; if(!file) return;
+            let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : 99999);
+            if(sys.music.tracks.length >= limit) return alert("Đã đạt giới hạn dung lượng của gói hiện tại! Vui lòng nâng cấp để chứa thêm.");
+            let uniqueId = 'track_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+            try {
+                await localforage.setItem(uniqueId, file);
+                sys.music.tracks.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: uniqueId, isLocal: true });
+                saveAllData(); renderPlaylist(); initMusicPlayer();
+                alert("Nạp âm khúc thành công vào kho lưu trữ nội bộ! (Ngắt mạng vẫn nghe được)");
+            } catch (err) { alert("Lỗi khi cất giấu file vào hầm ngầm: " + err); }
+            e.target.value = ''; 
+        }
+
+        async function removeMusicTrack(idx) {
+            if(confirm("Bệ hạ chắc chắn muốn xóa bài hát này khỏi Ngự Âm Các?")) {
+                let t = sys.music.tracks[idx];
+                if(t.isLocal) { try { await localforage.removeItem(t.url); } catch(e){} }
+                sys.music.tracks.splice(idx, 1);
+                if(sys.music.currentIdx >= sys.music.tracks.length) sys.music.currentIdx = 0;
+                saveAllData(); renderPlaylist(); initMusicPlayer();
+            }
+        }
+
+        function jumpToTrack(idx) {
+            sys.music.currentIdx = idx; saveAllData(); renderPlaylist(); loadAndPlayCurrent();
+        }
+
+        /* --- HUYẾT KHẾ KỲ HẠN THUẬT TOÁN --- */
+        function getBloodPactReward(committedHours, extraMins, wager) {
+            let baseRate = 0.3;
+            if(committedHours >= 4) baseRate = 1.8;
+            else if(committedHours >= 3) baseRate = 1.2;
+            else if(committedHours >= 2) baseRate = 0.7;
+
+            let baseProfit = wager * baseRate;
+            let extraBlocks = Math.floor(extraMins / 30);
+            let feverRate = 0;
+            let step = 0.10;
+            for(let i = 0; i < extraBlocks; i++) {
+                feverRate += step;
+                step += 0.05;
+            }
+            let feverProfit = wager * feverRate;
+            
+            return {
+                basePct: Math.round(baseRate * 100),
+                feverPct: Math.round(feverRate * 100),
+                totalReturn: wager + baseProfit + feverProfit
+            };
+        }
+
+        function signBloodPact() {
+            if (sys.bloodPact.active) return alert("Đang có một Huyết Khế chờ xử lý!");
+            let dateVal = $('bp-date').value;
+            let hours = parseInt($('bp-hours').value);
+            let wager = parseInt($('bp-wager').value);
+
+            if (!dateVal) return alert("Vui lòng chọn Ngày đáo hạn!");
+            let targetD = new Date(dateVal);
+            targetD.setHours(23, 59, 59, 999);
+            if (targetD.getTime() < Date.now()) return alert("Không thể chọn ngày trong quá khứ!");
+
+            if (isNaN(hours) || hours < 1) return alert("Phải cam kết tối thiểu 1 giờ!");
+            if (isNaN(wager) || wager <= 0) return alert("Số tiền cược không hợp lệ!");
+            if (sys.coins < wager) return alert(`Ngân khố không đủ $${wager.toLocaleString()} để cược!`);
+
+            if (!confirm(`XÁC NHẬN GIAO ƯỚC SINH TỬ?\n\n- Ngày: ${dateVal}\n- Mục tiêu: ${hours} Giờ\n- Tiền cược: $${wager.toLocaleString()}\n\nQuá 23:59 ngày này mà chưa làm đủ sẽ MẤT TRẮNG và nộp phạt $100!`)) return;
+
+            sys.coins -= wager;
+            sys.bloodPact = {
+                active: true,
+                targetDate: dateVal,
+                targetMins: hours * 60,
+                wager: wager,
+                currentMins: 0
+            };
+            saveAllData();
+            updateBloodPactUI();
+            playRealisticBoom();
+            alert("ĐÃ KÝ HUYẾT KHẾ! Cùng nhau rèn kỷ luật thép nào!");
+        }
+
+        function updateBloodPactUI() {
+            let bp = sys.bloodPact;
+            if (!bp || !bp.active) {
+                $('bp-setup-ui').style.display = 'flex';
+                $('bp-track-ui').style.display = 'none';
+                let n = new Date();
+                let tzStr = n.getFullYear() + "-" + (n.getMonth()+1).toString().padStart(2,'0') + "-" + n.getDate().toString().padStart(2,'0');
+                if($('bp-date')) $('bp-date').value = tzStr;
+                return;
+            }
+
+            $('bp-setup-ui').style.display = 'none';
+            $('bp-track-ui').style.display = 'block';
+
+            let dParts = bp.targetDate.split('-');
+            let fDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+            $('bp-target-text').innerText = `${fDate} - ${bp.targetMins / 60} Giờ`;
+            $('bp-min-text').innerText = `${Math.floor(bp.currentMins)} / ${bp.targetMins} Phút`;
+
+            let pct = Math.min(100, (bp.currentMins / bp.targetMins) * 100);
+            $('bp-bar').style.width = pct + '%';
+
+            let btn = $('bp-btn-cashout');
+            let committedHours = bp.targetMins / 60;
+            let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
+            
+            let reward = getBloodPactReward(committedHours, extraMins, bp.wager);
+
+            if (bp.currentMins >= bp.targetMins) {
+                btn.disabled = false;
+                btn.innerText = `THU HỒI $${Math.floor(reward.totalReturn).toLocaleString()}`;
+                $('bp-profit-text').innerText = `Lãi nền: ${reward.basePct}% | Vượt mốc: +${reward.feverPct}%`;
+                $('bp-profit-text').style.color = '#fbbf24';
+            } else {
+                btn.disabled = true;
+                btn.innerText = `CHƯA ĐẠT MỤC TIÊU`;
+                $('bp-profit-text').innerText = `Lãi nếu đạt: ${reward.basePct}%`;
+                $('bp-profit-text').style.color = '#fca5a5';
+            }
+        }
+
+        function cashOutBloodPact() {
+            let bp = sys.bloodPact;
+            if (!bp.active || bp.currentMins < bp.targetMins) return;
+
+            let committedHours = bp.targetMins / 60;
+            let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
+            let reward = getBloodPactReward(committedHours, extraMins, bp.wager);
+
+            sys.coins += reward.totalReturn;
+            sys.bloodPact.active = false;
+            
+            saveAllData();
+            updateBloodPactUI();
+            updateSystemUI();
+            runBigFireworks();
+            playRealisticBoom();
+            alert(`🔥 CHIẾN THẮNG HUYẾT KHẾ!\n\nBệ hạ đã cày cuốc không ngừng nghỉ và thu về $${Math.floor(reward.totalReturn).toLocaleString()} (Gốc + Lãi)!\nQuả là một ý chí thép!`);
+        }
+
+        function checkBloodPactPenalty() {
+            let bp = sys.bloodPact;
+            if (!bp || !bp.active) return;
+            
+            let now = new Date();
+            let targetD = new Date(bp.targetDate);
+            targetD.setHours(23, 59, 59, 999);
+
+            if (now.getTime() > targetD.getTime()) {
+                let w = bp.wager;
+                let dStr = bp.targetDate;
+                sys.coins = Math.max(0, sys.coins - 100); 
+                sys.bloodPact.active = false;
+                saveAllData();
+                updateBloodPactUI();
+                updateSystemUI();
+                
+                if($('zen-overlay').classList.contains('active')) {
+                    alert(`💀 CẢNH BÁO: CHÁY HUYẾT KHẾ!\n\nĐã qua ngày ${dStr} mà bệ hạ chưa hoàn thành cam kết.\nHệ thống đã thiêu rụi $${w.toLocaleString()} tiền cược và nộp phạt $100 vào công quỹ!`);
+                } else {
+                    showPunishmentModal(`Cháy Huyết Khế ngày ${dStr}! Mất trắng cược và nộp phạt $100.`);
+                }
+            }
+        }
+
+        /* --- THE REST --- */
         function openPrivilegeModal() { $('privilege-modal').style.display='flex'; }
         function updateMemUI() {
             const card = $('mem-card-ui');
@@ -826,410 +1295,6 @@
         function buyItem(t,c) { if(sys.coins>=c){sys.coins-=c; sys[t]++; playTickSound(); saveAllData(); alert("Mua thành công!"); $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`;}else alert("Không đủ USD!"); }
         function buyTheme(t,c) { if(sys.unlockedThemes.includes(t))return alert("Đã áp dụng!"); if(sys.coins>=c){sys.coins-=c; sys.unlockedThemes.push(t); applyTheme(t); playRealisticBoom(); alert("Mở khóa thành công!"); $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`; updateShopUI();}else alert("Thiếu USD!"); }
         function buyIcon(icon, price) { if (sys.unlockedIcons.includes(icon)) { sys.streakIcon = icon; saveAllData(); updateSystemUI(); updateShopUI(); alert("Đã trang bị thành công!"); } else { if (sys.coins >= price) { sys.coins -= price; sys.unlockedIcons.push(icon); sys.streakIcon = icon; playRealisticBoom(); saveAllData(); $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`; updateSystemUI(); updateShopUI(); alert("Mua thành công!"); } else alert("Tài khoản không đủ USD!"); } }
-
-        /* --- LOGIC NGỰ ÂM CÁC (MUSIC STREAMING) V2 - VÁ LỖI CHUYỂN BÀI --- */
-        
-        function checkMusicExpiration() {
-            if(!sys.music) return;
-            if(sys.music.tier !== 'BASIC' && !sys.music.lifetime) {
-                if(Date.now() > sys.music.expire) {
-                    sys.music.tier = 'BASIC';
-                    sys.music.shuffle = false;
-                    sys.music.loop = false;
-                    sys.music.skin = 'default';
-                    if(sys.music.tracks.length > 20) {
-                        let removed = sys.music.tracks.slice(20);
-                        removed.forEach(t => { if(t.isLocal) { try{ localforage.removeItem(t.url); } catch(e){} } });
-                        sys.music.tracks = sys.music.tracks.slice(0, 20);
-                        alert("Gói nghe nhạc đã hết hạn! Về Basic. Kho nhạc bị giảm xuống 20 bài.");
-                    } else {
-                        alert("Gói nghe nhạc đã hết hạn! Về Basic.");
-                    }
-                    saveAllData();
-                    initMusicPlayer();
-                }
-            }
-            if($('shop-modal').style.display==='flex') updateMusicShopUI();
-        }
-
-        function updateMusicShopUI() {
-            $('music-tier-display').innerText = sys.music.tier;
-            let expr = "";
-            if(sys.music.lifetime) expr = "Thẻ Vĩnh Cửu (Không bao giờ hết hạn).";
-            else if(sys.music.tier === 'BASIC') expr = "Giới hạn 20 bài, không có Trộn/Lặp bài.";
-            else {
-                let left = sys.music.expire - Date.now();
-                if(left > 0) {
-                    let d=Math.floor(left/86400000), h=Math.floor((left%86400000)/3600000), m=Math.floor((left%3600000)/60000), s=Math.floor((left%60000)/1000);
-                    expr = `Còn lại: ${d} ngày ${h}h ${m}m ${s}s`;
-                }
-            }
-            $('music-expire-display').innerText = expr;
-
-            ['vinyl', 'cyberpunk'].forEach(s => {
-                let btn = $('btn-skin-' + s);
-                if(!btn) return;
-                if(sys.music.unlockedSkins.includes(s)) {
-                    if(sys.music.skin === s) { btn.innerHTML = "Đang dùng"; btn.disabled = true; btn.style.opacity = 0.5; }
-                    else { btn.innerHTML = "Trang bị"; btn.disabled = false; btn.style.opacity = 1; }
-                }
-            });
-        }
-
-        function buyMusic(tier, duration, cost, type) {
-            if(sys.music.lifetime) return alert("Bệ hạ đã có Thẻ Vĩnh Cửu, không cần mua gói lẻ nữa!");
-            if(sys.coins < cost) return alert(`Ngân khố không đủ $${cost.toLocaleString()}!`);
-            if(!confirm(`Xác nhận chi $${cost.toLocaleString()} mua gói ${tier} trong ${duration} ${type==='hour'?'Giờ':'Ngày'}?`)) return;
-
-            sys.coins -= cost;
-            let msAdd = type === 'hour' ? duration * 3600000 : duration * 86400000;
-            
-            if(sys.music.tier === tier && sys.music.expire > Date.now()) {
-                sys.music.expire += msAdd;
-            } else {
-                sys.music.tier = tier;
-                sys.music.expire = Date.now() + msAdd;
-            }
-            saveAllData();
-            updateSystemUI();
-            initMusicPlayer();
-            playRealisticBoom();
-            alert(`Mua gói nhạc ${tier} thành công!`);
-        }
-
-        function buyMusicLifetime() {
-            let cost = 5000000;
-            if(sys.music.lifetime) return alert("Đã sở hữu Thẻ Vĩnh Cửu!");
-            if(sys.coins < cost) return alert(`Ngân khố không đủ $${cost.toLocaleString()}!`);
-            if(!confirm(`Xác nhận chi $5.000.000 USD mua Thẻ Premium Vĩnh Cửu?`)) return;
-
-            sys.coins -= cost;
-            sys.music.tier = 'PREMIUM';
-            sys.music.lifetime = true;
-            saveAllData();
-            updateSystemUI();
-            initMusicPlayer();
-            playRealisticBoom();
-            alert(`Hoàng ân mênh mông! Bệ hạ đã mua đứt quyền lực Ngự Âm Các vĩnh viễn!`);
-        }
-
-        function equipOrBuySkin(skinName, cost) {
-            if(sys.music.tier === 'BASIC') return alert("Giao diện xịn chỉ dành cho gói Plus hoặc Premium!");
-            if(sys.music.unlockedSkins.includes(skinName)) {
-                sys.music.skin = skinName;
-                saveAllData();
-                applyMusicSkin();
-                updateMusicShopUI();
-                alert("Đã trang bị giao diện thành công!");
-            } else {
-                if(sys.coins < cost) return alert(`Cần $${cost.toLocaleString()} để đúc giao diện này!`);
-                if(confirm(`Chi $${cost.toLocaleString()} mua đứt giao diện này?`)) {
-                    sys.coins -= cost;
-                    sys.music.unlockedSkins.push(skinName);
-                    sys.music.skin = skinName;
-                    saveAllData();
-                    applyMusicSkin();
-                    updateSystemUI();
-                    playRealisticBoom();
-                    alert("Mua giao diện thành công!");
-                }
-            }
-        }
-
-        function applyMusicSkin() {
-            let player = $('zen-music-player');
-            if(!player) return;
-            player.className = 'music-player'; 
-            let vis = $('m-visual');
-            vis.innerHTML = ''; 
-            
-            if(sys.music.skin === 'vinyl') {
-                player.classList.add('skin-vinyl');
-                vis.innerHTML = '<div class="vinyl-record"></div>';
-            } else if (sys.music.skin === 'cyberpunk') {
-                player.classList.add('skin-cyberpunk');
-                vis.innerHTML = '<div class="cyber-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>';
-            } else {
-                player.classList.add('default-skin');
-                vis.innerHTML = '<i class="fas fa-compact-disc" style="font-size:2rem; color:var(--text-muted);"></i>';
-            }
-        }
-
-        function formatTime(sec) {
-            if(isNaN(sec) || sec < 0) return "00:00";
-            let m = Math.floor(sec / 60);
-            let s = Math.floor(sec % 60);
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function setupAudioEvents() {
-            audioEl = $('core-audio');
-            const prog = $('m-progress');
-            const curTime = $('m-time-current');
-            const totTime = $('m-time-total');
-            const vol = $('m-volume');
-
-            if(!audioEl || !prog) return;
-
-            audioEl.addEventListener('timeupdate', () => {
-                if(!audioEl.duration) return;
-                prog.value = (audioEl.currentTime / audioEl.duration) * 100;
-                curTime.innerText = formatTime(audioEl.currentTime);
-            });
-
-            audioEl.addEventListener('loadedmetadata', () => {
-                totTime.innerText = formatTime(audioEl.duration);
-            });
-
-            prog.addEventListener('input', () => {
-                if(!audioEl.duration) return;
-                audioEl.currentTime = (prog.value / 100) * audioEl.duration;
-            });
-
-            vol.addEventListener('input', () => {
-                audioEl.volume = vol.value;
-            });
-        }
-
-        async function initMusicPlayer() {
-            if(!audioEl) return;
-            
-            let btnShuf = $('btn-shuffle');
-            let btnLoop = $('btn-loop');
-            
-            if(sys.music.tier === 'BASIC') {
-                sys.music.shuffle = false; sys.music.loop = false;
-                btnShuf.classList.add('disabled'); btnLoop.classList.add('disabled');
-            } else {
-                btnShuf.classList.remove('disabled'); btnLoop.classList.remove('disabled');
-            }
-            
-            if(sys.music.shuffle) btnShuf.classList.add('active'); else btnShuf.classList.remove('active');
-            if(sys.music.loop) btnLoop.classList.add('active'); else btnLoop.classList.remove('active');
-
-            if(sys.music.tracks.length > 0) {
-                if(sys.music.currentIdx >= sys.music.tracks.length) sys.music.currentIdx = 0;
-                let t = sys.music.tracks[sys.music.currentIdx];
-                $('m-track-name').innerText = t.name;
-                
-                if(audioEl.paused) {
-                    if(t.isLocal) {
-                        try {
-                            let blob = await localforage.getItem(t.url);
-                            if(blob) {
-                                let oldSrc = audioEl.src;
-                                audioEl.src = URL.createObjectURL(blob);
-                                if(oldSrc && oldSrc.startsWith('blob:')) {
-                                    setTimeout(()=>URL.revokeObjectURL(oldSrc), 1000);
-                                }
-                            }
-                        } catch(e){}
-                    } else {
-                        if(!audioEl.src || !audioEl.src.includes(t.url)) {
-                            audioEl.src = t.url;
-                        }
-                    }
-                }
-            } else {
-                $('m-track-name').innerText = "Chưa có bài hát nào";
-                audioEl.removeAttribute('src');
-                $('m-time-total').innerText = "00:00";
-            }
-            
-            $('m-status-text').innerText = audioEl.paused ? "TRẠNG THÁI: TẠM DỪNG" : "TRẠNG THÁI: ĐANG PHÁT";
-        }
-
-        function toggleMusicPlay() {
-            if(sys.music.tracks.length === 0) return alert("Danh sách nhạc trống!");
-            let player = $('zen-music-player');
-            let btn = $('btn-play');
-            
-            if(audioEl.paused) {
-                if(!audioEl.src || audioEl.src === window.location.href) {
-                    loadAndPlayCurrent();
-                    return;
-                }
-                audioEl.play().then(() => {
-                    btn.innerHTML = '<i class="fas fa-pause"></i>';
-                    player.classList.add('playing');
-                    $('m-status-text').innerText = sys.music.tier === 'PREMIUM' ? "TRẠNG THÁI: PREMIUM VIP" : "TRẠNG THÁI: ĐANG PHÁT";
-                }).catch(e => {
-                    console.log(e);
-                    loadAndPlayCurrent(); 
-                });
-            } else {
-                audioEl.pause();
-                btn.innerHTML = '<i class="fas fa-play"></i>';
-                player.classList.remove('playing');
-                $('m-status-text').innerText = "TRẠNG THÁI: TẠM DỪNG";
-            }
-        }
-
-        function playNext() {
-            if(sys.music.tracks.length === 0) return;
-            if(sys.music.shuffle) {
-                sys.music.currentIdx = Math.floor(Math.random() * sys.music.tracks.length);
-            } else {
-                sys.music.currentIdx = (sys.music.currentIdx + 1) % sys.music.tracks.length;
-            }
-            saveAllData();
-            loadAndPlayCurrent();
-        }
-
-        function playPrev() {
-            if(sys.music.tracks.length === 0) return;
-            sys.music.currentIdx = (sys.music.currentIdx - 1 + sys.music.tracks.length) % sys.music.tracks.length;
-            saveAllData();
-            loadAndPlayCurrent();
-        }
-
-        async function loadAndPlayCurrent() {
-            if(sys.music.tracks.length === 0) return;
-            let t = sys.music.tracks[sys.music.currentIdx];
-            
-            $('m-track-name').innerText = t.name;
-            $('m-status-text').innerText = "ĐANG NẠP DỮ LIỆU...";
-            
-            try {
-                if(t.isLocal) {
-                    let blob = await localforage.getItem(t.url);
-                    if(blob) {
-                        let newSrc = URL.createObjectURL(blob);
-                        let oldSrc = audioEl.src;
-                        audioEl.src = newSrc;
-                        // Phải hoãn xóa file rác cũ 1 chút để trình duyệt kịp nạp file mới
-                        if(oldSrc && oldSrc.startsWith('blob:')) {
-                            setTimeout(() => URL.revokeObjectURL(oldSrc), 1500); 
-                        }
-                    } else {
-                        $('m-status-text').innerText = "LỖI FILE (TỰ ĐỘNG BỎ QUA)";
-                        setTimeout(playNext, 1500); 
-                        return;
-                    }
-                } else {
-                    audioEl.src = t.url;
-                }
-
-                let playPromise = audioEl.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        $('btn-play').innerHTML = '<i class="fas fa-pause"></i>';
-                        $('zen-music-player').classList.add('playing');
-                        $('m-status-text').innerText = sys.music.tier === 'PREMIUM' ? "TRẠNG THÁI: PREMIUM VIP" : "TRẠNG THÁI: ĐANG PHÁT";
-                    })
-                    .catch(error => {
-                        console.error("Lỗi tự động phát nhạc:", error);
-                        $('m-status-text').innerText = "CHỜ BẤM PLAY (BỊ CHẶN BỞI BROWSER)";
-                        $('btn-play').innerHTML = '<i class="fas fa-play"></i>';
-                        $('zen-music-player').classList.remove('playing');
-                    });
-                }
-                
-            } catch(e) {
-                console.error(e);
-                $('m-status-text').innerText = "LỖI KHÔNG XÁC ĐỊNH";
-            }
-        }
-
-        function handleTrackEnd() {
-            if(sys.music.loop) {
-                audioEl.currentTime = 0;
-                audioEl.play();
-            } else {
-                playNext();
-            }
-        }
-
-        function toggleShuffle() {
-            if(sys.music.tier === 'BASIC') return;
-            sys.music.shuffle = !sys.music.shuffle;
-            $('btn-shuffle').classList.toggle('active');
-            saveAllData();
-        }
-
-        function toggleLoop() {
-            if(sys.music.tier === 'BASIC') return;
-            sys.music.loop = !sys.music.loop;
-            $('btn-loop').classList.toggle('active');
-            saveAllData();
-        }
-
-        function openPlaylistModal() {
-            renderPlaylist();
-            $('playlist-modal').style.display = 'flex';
-        }
-
-        function renderPlaylist() {
-            let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : "Vô hạn");
-            let count = sys.music.tracks.length;
-            
-            $('pl-capacity-text').innerText = `${count} / ${limit} Bài`;
-            if(limit !== "Vô hạn") {
-                $('pl-capacity-bar').style.width = `${(count/limit)*100}%`;
-            } else {
-                $('pl-capacity-bar').style.width = `100%`;
-                $('pl-capacity-bar').style.background = '#fbbf24';
-            }
-
-            let html = '';
-            sys.music.tracks.forEach((t, i) => {
-                let isPlaying = i === sys.music.currentIdx;
-                let iconLocal = `<i class="fas fa-hdd" style="color:#10b981; font-size:0.7rem; margin-right:5px;" title="File lưu nội bộ"></i>`;
-                html += `<div class="playlist-item ${isPlaying ? 'playing' : ''}">
-                    <div class="playlist-item-name">${iconLocal} ${i+1}. ${t.name}</div>
-                    <div>
-                        <button class="btn-icon" style="color:${isPlaying ? 'var(--primary)' : 'var(--text-muted)'}" onclick="jumpToTrack(${i})"><i class="fas fa-play"></i></button>
-                        <button class="btn-icon delete" onclick="removeMusicTrack(${i})"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-            });
-            if(count === 0) html = `<div style="text-align:center; padding: 20px; color:var(--text-muted);">Kho nhạc trống rỗng</div>`;
-            $('playlist-container').innerHTML = html;
-        }
-
-        async function handleFileUpload(e) {
-            let file = e.target.files[0];
-            if(!file) return;
-            
-            let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : 99999);
-            if(sys.music.tracks.length >= limit) return alert("Đã đạt giới hạn dung lượng của gói hiện tại! Vui lòng nâng cấp để chứa thêm.");
-
-            let uniqueId = 'track_' + Date.now() + '_' + Math.floor(Math.random()*1000);
-            
-            try {
-                await localforage.setItem(uniqueId, file);
-                sys.music.tracks.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: uniqueId, isLocal: true });
-                saveAllData();
-                renderPlaylist();
-                initMusicPlayer();
-                alert("Nạp âm khúc thành công vào kho lưu trữ nội bộ! (Ngắt mạng vẫn nghe được)");
-            } catch (err) {
-                alert("Lỗi khi cất giấu file vào hầm ngầm: " + err);
-            }
-            e.target.value = ''; 
-        }
-
-        async function removeMusicTrack(idx) {
-            if(confirm("Bệ hạ chắc chắn muốn xóa bài hát này khỏi Ngự Âm Các?")) {
-                let t = sys.music.tracks[idx];
-                if(t.isLocal) {
-                    try { await localforage.removeItem(t.url); } catch(e){}
-                }
-                
-                sys.music.tracks.splice(idx, 1);
-                if(sys.music.currentIdx >= sys.music.tracks.length) sys.music.currentIdx = 0;
-                saveAllData();
-                renderPlaylist();
-                initMusicPlayer();
-            }
-        }
-
-        function jumpToTrack(idx) {
-            sys.music.currentIdx = idx;
-            saveAllData();
-            renderPlaylist();
-            loadAndPlayCurrent();
-        }
 
         function updateGhostBar() {
             let cNow=0, tNow=0; for(let i=0;i<7;i++){tNow+=scheduleData[i].length; cNow+=scheduleData[i].filter(t=>t.completed).length;} sys.currentWeekCompleted=cNow; sys.currentWeekTotal=tNow;
@@ -1469,13 +1534,7 @@
         function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi $${a.toLocaleString()}.`);}else alert("Thiếu USD!"); }
         function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút $${a.toLocaleString()}.`);}else alert("Vốn không đủ!"); }
         function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công!"); playChime();} }
-        setInterval(()=>{ 
-            let n = Date.now(); 
-            if(sys.bankCapital>0&&sys.streak>0) { let dr=sys.streak*0.01; sys.bankUnclaimed += (sys.bankCapital*(dr/86400)); if(sys.bankUnclaimed > sys.bankCapital*dr) sys.bankUnclaimed = sys.bankCapital*dr; } 
-            if(n - sys.bankLastHarvest >= 86400000) { if(sys.mem.tier === 'BASIC') { sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } else { sys.coins += sys.bankUnclaimed; sys.bankUnclaimed = 0; sys.bankLastHarvest = n; saveAllData(); } } 
-            if($('bank-modal').style.display==='flex') $('bank-interest-display').innerText=`$${sys.bankUnclaimed.toFixed(3)}`; 
-        }, 1000);
-
+        
         function updateLottoCountdown() {
             const timerElem = $('lotto-timer'); if (!timerElem) return;
             const now = new Date(); const target = new Date(); target.setHours(16, 0, 0, 0);
@@ -1587,6 +1646,7 @@
                 } else {
                     $('zen-image-card').style.display = 'none';
                 }
+                updateBloodPactUI();
             } 
         }
         function startTimer(frc=false) { 
@@ -1599,7 +1659,7 @@
             let selMins = parseInt($('zen-time-select').value); 
             if(tL===W_TIME&&isWrk&&tvErn===0) { 
                 W_TIME = selMins * 60; tL = W_TIME; showRandomQuote(); afkTrg=false; isFrc=frc; 
-                if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('zen-time-select').style.display='none';} 
+                if(!isFrc){isDbl=(sys.doubleXp>0); pmStk=$('pump-stock-select').value; $('zen-pump-box').style.display='none'; $('blood-pact-box').style.display='none'; $('zen-time-select').style.display='none';}else{isDbl=false; pmStk="NONE"; $('zen-pump-box').style.display='none'; $('blood-pact-box').style.display='none'; $('zen-time-select').style.display='none';} 
                 
                 if(sys.music.tier === 'PREMIUM' && audioEl.paused && sys.music.tracks.length > 0) {
                     toggleMusicPlay();
@@ -1624,7 +1684,19 @@
                         if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Xp nhân đôi.");} 
                         runBigFireworks(); playRealisticBoom(); addTuVi(rw); 
                         if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); alert(`Mã $${pmStk} đã tăng 20%!`); saveAllData(); } 
-                        $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none'; const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex'; 
+                        
+                        // CẬP NHẬT HUYẾT KHẾ
+                        if (sys.bloodPact && sys.bloodPact.active) {
+                            let n = new Date();
+                            let tzStr = n.getFullYear() + "-" + (n.getMonth()+1).toString().padStart(2,'0') + "-" + n.getDate().toString().padStart(2,'0');
+                            if (sys.bloodPact.targetDate === tzStr) {
+                                sys.bloodPact.currentMins += (W_TIME / 60);
+                                updateBloodPactUI();
+                                saveAllData();
+                            }
+                        }
+
+                        $('zen-status').innerText="HOÀN TẤT!"; $('zen-controls').style.display='none'; $('zen-quote-box').style.display='none'; const w=$('focus-wheel'); w.style.transition='none'; w.style.transform='rotate(0deg)'; $('zen-wheel-box').style.display='flex'; $('blood-pact-box').style.display='block';
                     } else { 
                         playChime(); isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; $('zen-status').innerText="Bắt đầu phiên học."; $('zen-status').style.color="white"; b.innerText="Bắt đầu"; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='inline-block'; $('zen-quote-box').style.display='flex'; $('zen-energy-fill').style.width='0%'; 
                     } 
@@ -1635,14 +1707,14 @@
             }, 500); 
         }
         let isFSpn = false; function spinFocusWheel() { if(isFSpn) return; isFSpn=true; $('btn-focus-spin').innerText="Đang quay..."; let r=Math.random()*100, s=0, wIdx=0; for(let i=0;i<fWheelOpts.length;i++){s+=fWheelOpts[i].p; if(r<=s){wIdx=i;break;}} let wn=fWheelOpts[wIdx], sl=360/10, o=5+Math.random()*(sl-10), tR=360*5+(360-(wIdx*sl+o)); const w=$('focus-wheel'); w.style.transition='transform 4s cubic-bezier(0.17,0.67,0.1,1)'; w.style.transform=`rotate(${tR}deg)`; try{const ctx=getAudioCtx(); if(ctx){let c=0, iv=setInterval(()=>{if(c>=20){clearInterval(iv);return;}c++;const t=ctx.currentTime;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(400+c*20,t);osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1);gain.gain.setValueAtTime(0.1,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.1);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);},200-c*5);}}catch(e){} setTimeout(()=>{ isFSpn=false; $('btn-focus-spin').innerText="QUAY THƯỞNG"; let m=`Kết quả: ${wn.n}!\n`; $('zen-wheel-box').style.display='none'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; if(wn.t==='work'){m+=`Bắt đầu học ${wn.tm}p!`;alert(m); isWrk=true; W_TIME=wn.tm*60; tL=W_TIME; tvErn=0; afkTrg=false; isFrc=false; pmStk="NONE"; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; updTmr(); startTimer();} else if(wn.t==='endl'){m+=`Chế độ Vô Cực!`;alert(m); startEndlessMode();} else if(wn.t==='imm'){sys.immunity++; saveAllData(); m+=`Nhận Thẻ Bảo Hộ. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='dxp'){sys.doubleXp++; saveAllData(); m+=`Nhận Thẻ x2. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='jack'){addTuVi(wn.xp); m+=`Nhận ${wn.xp} XP. Nghỉ 5p.`;alert(m); startBreak(5);} else {m+=`Nghỉ ngơi ${wn.tm}p.`;alert(m); startBreak(wn.tm);} }, 4000); }
-        function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
+        function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('blood-pact-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
         function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
         function triggerAFK() { if(sys.mem.tier === 'ULTRA') return; afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); }
         function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
         function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ!"); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ!"); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm giá!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
         document.addEventListener("visibilitychange", () => { if (sys.mem.tier === 'ULTRA') return; if (document.hidden && isRun && (isWrk || isEndl)) { clearInterval(zTmr); isRun = false; if (afkCnt) clearInterval(afkCnt); $('afk-overlay').style.display = 'none'; afkFail(); } });
         function startBreak(m) { isWrk=false; W_TIME=m*60; tL=W_TIME; tvErn=0; $('zen-controls').style.display='flex'; $('zen-time-select').style.display='none'; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; startTimer(); }
-        function resetTimer() { clearInterval(zTmr); isRun=false; isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; isEndl=false; isFrc=false; pmStk="NONE"; $('zen-status').innerText="SẴN SÀNG"; $('zen-status').style.color="white"; $('zen-timer').classList.remove('ticking'); $('zen-energy-bar').classList.remove('active'); $('btn-zen-start').innerText="Bắt đầu"; $('btn-zen-start').style.display='inline-block'; $('zen-time-select').style.display='inline-block'; $('btn-zen-cashout').style.display='none'; $('btn-zen-reset').style.display='inline-block'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-wheel-box').style.display='none'; $('zen-energy-fill').style.width='0%'; $('zen-pump-box').style.display='block'; updTmr(); }
+        function resetTimer() { clearInterval(zTmr); isRun=false; isWrk=true; W_TIME=parseInt($('zen-time-select').value)*60; tL=W_TIME; tvErn=0; afkTrg=false; isEndl=false; isFrc=false; pmStk="NONE"; $('zen-status').innerText="SẴN SÀNG"; $('zen-status').style.color="white"; $('zen-timer').classList.remove('ticking'); $('zen-energy-bar').classList.remove('active'); $('btn-zen-start').innerText="Bắt đầu"; $('btn-zen-start').style.display='inline-block'; $('zen-time-select').style.display='inline-block'; $('btn-zen-cashout').style.display='none'; $('btn-zen-reset').style.display='inline-block'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; $('zen-wheel-box').style.display='none'; $('zen-energy-fill').style.width='0%'; $('zen-pump-box').style.display='block'; $('blood-pact-box').style.display='block'; updTmr(); }
         function updTmr() { $('zen-timer').innerText=`${Math.floor(tL/60).toString().padStart(2,'0')}:${(tL%60).toString().padStart(2,'0')}`; }
         
         function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
@@ -1656,7 +1728,7 @@
 
         /* KÍCH HOẠT ĐỒNG LOẠT CÁC HỆ THỐNG THỜI GIAN CỦA BỆ HẠ */
         document.addEventListener('DOMContentLoaded', ()=>{
-            setupAudioEvents(); // Bệ hạ nhìn này, Ngự Âm Các đã được ưu tiên nạp trước!
+            setupAudioEvents(); 
             loadAllData(); 
             updTmr(); 
             initShopWheel(); 
@@ -1665,6 +1737,9 @@
             setInterval(updateCountdownUI, 1000); 
             requestNotificationPermission(); 
             setInterval(checkTaskNotifications, 60000);
+            
+            // Lệnh tuần tra: Kiểm tra cháy Huyết Khế mỗi 60 giây
+            setInterval(checkBloodPactPenalty, 60000);
         });
     </script>
 </body>
