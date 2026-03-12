@@ -388,7 +388,7 @@
             </div>
             <div style="border: 2px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; margin: 20px 0;">
                 <h3 style="color:#8b5cf6; text-align:center; margin-bottom:5px;"><i class="fas fa-ticket-alt"></i> XỔ SỐ MAY MẮN 6/45</h3>
-                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 5px;">Giá vé: $10.000 | Jackpot: $2.000.000</p>
+                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 5px;">Giá vé: $10 | Jackpot: $2.000.000</p>
                 <div id="lotto-timer" style="text-align:center; font-family:'Black Ops One', cursive; font-size:1.2rem; color:#8b5cf6; margin-bottom:15px; letter-spacing:2px;">ĐANG TÍNH TOÁN GIỜ SỔ...</div>
                 <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin: 15px 0;">
                     <input type="number" class="form-control" id="lt-1" min="1" max="45" placeholder="00" style="text-align:center; padding:8px;">
@@ -1498,7 +1498,7 @@
             } else { st.innerText = "Bạn chưa mua vé cho kỳ tới."; }
         }
         function buyLottoTicket() {
-            if(sys.coins < 10000) return alert("Số dư không đủ $10.000!");
+            if(sys.coins < 10) return alert("Số dư không đủ $10!");
             if(sys.lottoTicket) return alert("Bạn đã có vé chưa dò! Vui lòng chờ kết quả.");
             let nums = [];
             for(let i=1; i<=6; i++) {
@@ -1506,9 +1506,9 @@
                 if(isNaN(v) || v < 1 || v > 45) return alert("Vui lòng chọn đủ 6 số từ 01-45!");
                 if(nums.includes(v)) return alert("Các số không được trùng nhau!"); nums.push(v);
             }
-            if(!confirm("Xác nhận chi $10.000 mua vé số này?")) return;
+            if(!confirm("Xác nhận chi $10 mua vé số này?")) return;
             let targetDate = new Date(); if (targetDate.getHours() >= 16) { targetDate.setDate(targetDate.getDate() + 1); }
-            sys.coins -= 10000; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: targetDate.toDateString() }; saveAllData(); 
+            sys.coins -= 10; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: targetDate.toDateString() }; saveAllData(); 
             let dStr = `${targetDate.getDate().toString().padStart(2,'0')}/${(targetDate.getMonth()+1).toString().padStart(2,'0')}`;
             alert(`Mua vé thành công! Kết quả sẽ xổ lúc 16:00 ngày ${dStr}.`); updateLottoUI();
         }
