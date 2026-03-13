@@ -290,8 +290,8 @@
 
         <div id="tax-banner" class="tax-alert">
             <div class="tax-info">
-                <strong><i class="fas fa-file-invoice-dollar"></i> CHIẾU CHỈ NỘP THUẾ (MÙNG 5)</strong>
-                <span id="tax-banner-desc">Bạn đang nợ thuế hệ thống. Nếu không nộp trước 23:59 hôm nay, tài sản sẽ bị cưỡng chế x2!</span>
+                <strong><i class="fas fa-file-invoice-dollar"></i> THÔNG BÁO ĐẾN HẠN THANH TOÁN THUẾ TNCN (NGÀY 5 HÀNG THÁNG)</strong>
+                <span id="tax-banner-desc">Bạn chưa thanh toán thuế thu nhập cá nhân trên hệ thống. Vui lòng thanh toán ngay. Nếu không hoàn thành nghĩa vụ nộp thuế trước 23:59 hôm nay, tài sản của bạn sẽ bị cưỡng chế x2!</span>
             </div>
             <button class="btn-pay-tax" onclick="payTax()"><span id="tax-amount-btn">$0</span> - NỘP NGAY</button>
         </div>
@@ -312,11 +312,11 @@
                     <div class="hof-val gold" id="hof-total-time">0h 0m</div>
                 </div>
                 <div class="hof-box">
-                    <div class="hof-lbl">Số phiên nhập định</div>
+                    <div class="hof-lbl">Tổng số phiên Focus</div>
                     <div class="hof-val" id="hof-total-sessions">0</div>
                 </div>
                 <div class="hof-box">
-                    <div class="hof-lbl">Kỷ lục ngày bế quan</div>
+                    <div class="hof-lbl">Số giờ Focus kỷ lục </div>
                     <div class="hof-val gold" id="hof-best-day">0h 0m</div>
                 </div>
                 <div class="hof-box">
@@ -953,7 +953,6 @@
         function checkTaxDay() {
             let now = new Date();
             let day = now.getDate();
-            let currentMonthStr = now.getFullYear() + "-" + now.getMonth();
             
             // Xử lý banner Tháng Hoàng Kim
             if (checkTaxHoliday()) {
@@ -970,18 +969,16 @@
                 $('tax-holiday-banner').style.display = 'none';
             }
 
-            // Ngày mùng 5 - Treo cờ đòi nợ
+            // Ngày mùng 5 - Ngày nộp thuế
             if (day === 5 && sys.tax.owed > 0) {
                 $('tax-banner').style.display = 'flex';
                 $('tax-amount-btn').innerText = `$${Math.floor(sys.tax.owed).toLocaleString()}`;
-                sys.tax.isDueMonth = currentMonthStr; // Đánh dấu tháng này ĐÃ ĐÒI
-                saveAllData();
             } else {
                 $('tax-banner').style.display = 'none';
             }
 
-            // Trốn thuế: Qua ngày 5 mà chưa nộp CỦA THÁNG ĐÃ BỊ ĐÒI
-            if (day > 5 && sys.tax.owed > 0 && sys.tax.isDueMonth === currentMonthStr) {
+            // Xử lý trốn thuế (Sang ngày 6 mà vẫn còn nợ thuế của tháng trước)
+            if (day > 5 && sys.tax.owed > 0) {
                 let penalty = sys.tax.owed * 2;
                 if (sys.coins >= penalty) {
                     sys.coins -= penalty;
@@ -989,9 +986,8 @@
                     sys.coins = 0; // Tịch thu toàn bộ nếu không đủ trả nợ x2
                 }
                 sys.tax.owed = 0;
-                sys.tax.isDueMonth = ""; // Xóa án tích sau khi phạt
                 saveAllData();
-                alert(`💀 ÁN PHẠT TRỐN THUẾ!\n\nĐã qua ngày mùng 5 mà bệ hạ không nộp thuế! Hệ thống đã cưỡng chế tịch thu $${Math.floor(penalty).toLocaleString()} (x2 Sổ Nợ) từ ngân khố!`);
+                alert(`💀 ÁN PHẠT TRỐN THUẾ!\n\nĐã qua ngày mùng 5 mà bạn chưa nộp thuế! Hệ thống đã cưỡng chế tịch thu $${Math.floor(penalty).toLocaleString()} (x2 Sổ Nợ) từ tài khoản!`);
             }
         }
         setInterval(checkTaxDay, 1000);
@@ -999,16 +995,16 @@
         function payTax() {
             if (sys.tax.owed <= 0) return;
             if (sys.coins < sys.tax.owed) {
-                alert("Ngân khố không đủ tiền mặt! Bệ hạ phải bán tháo cổ phiếu hoặc chốt sổ tiết kiệm để lấy tiền nộp thuế!");
+                alert("Tài khoản không đủ tiền! Bạn phải bán tháo cổ phiếu hoặc chốt sổ tiết kiệm để lấy tiền nộp thuế!");
                 return;
             }
-            if (confirm(`Xác nhận rút $${Math.floor(sys.tax.owed).toLocaleString()} từ ngân khố để nộp thuế cho triều đình?`)) {
+            if (confirm(`Xác nhận rút $${Math.floor(sys.tax.owed).toLocaleString()} từ tài khoản để nộp thuế cho nhà nước?`)) {
                 sys.coins -= sys.tax.owed;
                 sys.tax.owed = 0;
                 saveAllData();
                 updateSystemUI();
                 playRealisticBoom();
-                alert("Đã hoàn tất nghĩa vụ thuế! Triều đình ghi nhận sự cống hiến của bệ hạ!");
+                alert("Đã hoàn tất nghĩa vụ thuế! Nhà nước ghi nhận sự cống hiến của bạn!");
             }
         }
 
