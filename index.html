@@ -55,6 +55,27 @@
         .cd-btn-edit { position: absolute; top: 15px; right: 15px; background: rgba(212, 175, 55, 0.05); border: 1px solid #d4af37; color: #d4af37; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.8rem; z-index: 10; font-weight: bold; }
         .cd-btn-edit:hover { background: #d4af37; color: #000; box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
+        /* HOÀNG BẢNG THƯỜNG NHẬT (Nhiệm Vụ Hàng Ngày) */
+        #btn-quest-board { border-color: #ef4444; color: #ef4444; font-weight: bold; }
+        #btn-quest-board.pulse { animation: quest-pulse 1.5s infinite; }
+        @keyframes quest-pulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        
+        .quest-item { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.3s; }
+        .quest-item.completed { border-color: var(--success); background: rgba(16,185,129,0.05); }
+        .quest-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1rem; color: var(--text-main); margin-bottom: 8px; }
+        .quest-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+        .quest-prog-container { display: flex; align-items: center; gap: 10px; }
+        .quest-prog-bg { flex: 1; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; }
+        .quest-prog-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); width: 0%; transition: width 0.5s ease; }
+        .quest-item.completed .quest-prog-fill { background: var(--success); }
+        .quest-text-status { font-size: 0.8rem; font-family: monospace; font-weight: bold; width: 60px; text-align: right; }
+        .quest-btn-claim { background: var(--primary); color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; margin-top: 10px; width: 100%; text-transform: uppercase; transition: 0.2s; display: none; }
+        .quest-btn-claim:hover { background: var(--primary-hover); transform: scale(1.02); }
+        
+        .jackpot-box { border: 2px dashed #fbbf24; background: rgba(245,158,11,0.1); padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
+        .jackpot-btn { background: linear-gradient(45deg, #d4af37, #f59e0b); color: black; border: none; padding: 10px 20px; font-weight: bold; font-size: 1rem; border-radius: 6px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
+        .jackpot-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; border: none; }
+
         /* LĂNG KÍNH DANH VỌNG (Hall of Fame) */
         .hof-panel { background: linear-gradient(135deg, var(--card-bg) 0%, rgba(212,175,55,0.05) 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); border-top: 3px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
         .hof-title { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 700; color: #d4af37; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; }
@@ -220,27 +241,6 @@
         .btn-blood:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
         .btn-blood-cashout { background: linear-gradient(45deg, #fbbf24, #d97706); color: black; text-shadow: none; animation: pulse-sec-royal 1.5s infinite; }
 
-        /* LĂNG KÍNH DANH VỌNG (Hall of Fame) */
-        .hof-panel { background: linear-gradient(135deg, var(--card-bg) 0%, rgba(212,175,55,0.05) 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); border-top: 3px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
-        .hof-title { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 700; color: #d4af37; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; }
-        .hof-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        .hof-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); transition: 0.3s; }
-        .hof-box:hover { border-color: #d4af37; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212,175,55,0.2); }
-        .hof-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
-        .hof-val { font-size: 1.4rem; font-weight: 900; color: var(--text-main); font-family: 'Black Ops One', cursive; }
-        .hof-val.gold { color: #d4af37; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        
-        /* GIAO DIỆN THUẾ MÙNG 5 */
-        .tax-alert { background: linear-gradient(45deg, #7f1d1d, #dc2626); color: white; padding: 15px 30px; margin: 20px 30px 0; border-radius: 8px; border: 1px solid #fca5a5; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(220,38,38,0.5); animation: tax-pulse 2s infinite; display: none; }
-        @keyframes tax-pulse { 0% { box-shadow: 0 0 10px rgba(220,38,38,0.5); } 50% { box-shadow: 0 0 30px rgba(220,38,38,0.9); } 100% { box-shadow: 0 0 10px rgba(220,38,38,0.5); } }
-        .tax-info { display: flex; flex-direction: column; }
-        .tax-info strong { font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
-        .tax-info span { font-size: 0.85rem; opacity: 0.9; }
-        .btn-pay-tax { background: #fff; color: #dc2626; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.5); text-transform: uppercase; }
-        .btn-pay-tax:hover { background: #fef08a; transform: scale(1.05); }
-        
-        .tax-holiday-alert { background: linear-gradient(45deg, #d4af37, #f59e0b); color: black; padding: 15px 30px; margin: 20px 30px 0; border-radius: 8px; border: 1px solid #fef08a; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(212,175,55,0.5); display: none; font-weight: bold;}
-
         @media (max-width:768px) { 
             .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} .countdown-timer { gap: 5px; } .cd-box { min-width: 55px; padding: 5px 2px; } .cd-num { font-size: 1.5rem; } .countdown-title { font-size: 0.9rem; } .countdown-title::before, .countdown-title::after { width: 15px; } 
             #zen-image-card.orient-vertical { width:120px; height:160px; top:20px; left:20px; border-radius:10px; } 
@@ -265,6 +265,7 @@
                 <div id="header-buffs-badge" class="btn btn-outline"><span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span></div>
                 <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()"><i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span></div>
                 
+                <button id="btn-quest-board" class="btn btn-outline" onclick="openQuestModal()"><i class="fas fa-scroll"></i> Hoàng Bảng</button>
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
@@ -290,8 +291,8 @@
 
         <div id="tax-banner" class="tax-alert">
             <div class="tax-info">
-                <strong><i class="fas fa-file-invoice-dollar"></i> THÔNG BÁO ĐẾN HẠN THANH TOÁN THUẾ TNCN (NGÀY 5 HÀNG THÁNG)</strong>
-                <span id="tax-banner-desc">Bạn chưa thanh toán thuế thu nhập cá nhân trên hệ thống. Vui lòng thanh toán ngay. Nếu không hoàn thành nghĩa vụ nộp thuế trước 23:59 hôm nay, tài sản của bạn sẽ bị cưỡng chế x2!</span>
+                <strong><i class="fas fa-file-invoice-dollar"></i> CHIẾU CHỈ NỘP THUẾ (MÙNG 5)</strong>
+                <span id="tax-banner-desc">Bạn đang nợ thuế hệ thống. Nếu không nộp trước 23:59 hôm nay, tài sản sẽ bị cưỡng chế x2!</span>
             </div>
             <button class="btn-pay-tax" onclick="payTax()"><span id="tax-amount-btn">$0</span> - NỘP NGAY</button>
         </div>
@@ -316,7 +317,7 @@
                     <div class="hof-val" id="hof-total-sessions">0</div>
                 </div>
                 <div class="hof-box">
-                    <div class="hof-lbl">Số giờ Focus kỷ lục </div>
+                    <div class="hof-lbl">Số giờ Focus kỷ lục</div>
                     <div class="hof-val gold" id="hof-best-day">0h 0m</div>
                 </div>
                 <div class="hof-box">
@@ -335,6 +336,26 @@
             <div class="ghost-track"><div class="ghost-fill-past" id="ghost-bar-past" style="width: 0%;"></div><div class="ghost-fill-now" id="ghost-bar-now" style="width: 0%;"></div></div>
         </div>
         <div class="board" id="board-container"></div>
+    </div>
+
+    <div class="modal-overlay" id="quest-modal" style="z-index: 1005;">
+        <div class="modal" style="max-width: 500px; border-color: #ef4444; box-shadow: 0 0 30px rgba(239,68,68,0.3);">
+            <div class="modal-header" style="color: #ef4444;">
+                <span><i class="fas fa-scroll"></i> HOÀNG BẢNG THƯỜNG NHẬT</span>
+                <button class="close-modal" onclick="closeModal('quest-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; font-style: italic;">
+                Hệ thống Thiên Nhãn tự động giám sát. Bỏ dở bất kỳ nhiệm vụ nào lúc qua ngày mới sẽ bị <b>tịch thu 10% tổng ngân khố</b>.
+            </p>
+            <div id="quest-list-container">
+                </div>
+            
+            <div id="quest-jackpot-container" class="jackpot-box" style="display: none;">
+                <h4 style="color: #d4af37; margin-bottom: 5px;"><i class="fas fa-treasure-chest"></i> RƯƠNG HOÀN MỸ</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Phần thưởng tối thượng cho kẻ chinh phục hoàn toàn Hoàng Bảng hôm nay.</p>
+                <button id="btn-claim-jackpot" class="jackpot-btn" onclick="claimJackpot()" disabled>Nhận $20,000 + Thẻ Bảo Hộ</button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="countdown-modal">
@@ -758,24 +779,14 @@
             marketNews: "Thị trường bình ổn. Không có biến động vĩ mô nào đáng chú ý.", 
             focusImage: "", focusImageOrientation: "vertical",
             
-            music: {
-                tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false
-            },
-            
+            music: { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false },
             bloodPact: { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 },
 
-            // DỮ LIỆU V100: LĂNG KÍNH DANH VỌNG & THUẾ
-            hof: {
-                totalFocusMins: 0,
-                totalSessions: 0,
-                bestDayMins: 0,
-                todayMins: 0,
-                lastFocusDate: ""
-            },
-            tax: {
-                owed: 0,
-                holidayUntil: 0
-            }
+            hof: { totalFocusMins: 0, totalSessions: 0, bestDayMins: 0, todayMins: 0, lastFocusDate: "" },
+            tax: { owed: 0, holidayUntil: 0, isDueMonth: "" },
+
+            // HOÀNG BẢNG THƯỜNG NHẬT
+            quests: { date: "", list: [], jackpotClaimed: false }
         };
 
         const shopGachaOpts = [
@@ -807,13 +818,6 @@
 
         /* MIGRATION & INIT */
         function loadAllData() {
-            // Chuyển đổi dữ liệu cũ nếu dùng bản V84
-            const oldData = localStorage.getItem("planner_data_v84_vip");
-            if (oldData && !localStorage.getItem(STORAGE_KEY)) {
-                localStorage.setItem(STORAGE_KEY, oldData);
-                localStorage.removeItem("planner_data_v84_vip");
-            }
-
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) { const parsed = JSON.parse(savedData); scheduleData = parsed.schedule || scheduleData; sys = { ...sys, ...parsed.sys }; }
             sys.points = Number(sys.points)||0; sys.coins = Number(sys.coins)||0; sys.streak = Number(sys.streak)||0; sys.bankCapital = Number(sys.bankCapital)||0; sys.bankUnclaimed = Number(sys.bankUnclaimed)||0; sys.currentTheme = sys.currentTheme||'light';
@@ -835,18 +839,31 @@
             if(!sys.music || !sys.music.tracks) { sys.music = { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false }; }
             if(!sys.bloodPact) { sys.bloodPact = { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 }; }
             if(!sys.hof) { sys.hof = { totalFocusMins: 0, totalSessions: 0, bestDayMins: 0, todayMins: 0, lastFocusDate: "" }; }
-            if(!sys.tax) { sys.tax = { owed: 0, holidayUntil: 0 }; }
+            if(!sys.tax) { sys.tax = { owed: 0, holidayUntil: 0, isDueMonth: "" }; }
+            if(!sys.quests) { sys.quests = { date: "", list: [], jackpotClaimed: false }; }
 
-            // Reset Daily Mins nếu sang ngày mới
             let tStr = new Date().toDateString();
             if(sys.hof.lastFocusDate !== tStr) {
                 sys.hof.todayMins = 0;
                 sys.hof.lastFocusDate = tStr;
             }
 
+            // HOÀNG BẢNG - CHECK RESET & PENALTY
+            if(sys.quests.date !== tStr) {
+                if(sys.quests.list && sys.quests.list.length > 0) {
+                    let failed = sys.quests.list.some(q => q.current < q.target);
+                    if(failed) {
+                        let penalty = sys.coins * 0.1;
+                        sys.coins -= penalty;
+                        alert(`💀 TRÁT ĐOẠT MỆNH (HOÀNG BẢNG)!\n\nBệ hạ đã bỏ dở bảng nhiệm vụ ngày hôm qua! Hệ thống giáng tội Kháng Chỉ, tịch thu 10% tổng ngân khố ($-${Math.floor(penalty).toLocaleString()})!`);
+                    }
+                }
+                generateDailyQuests();
+                sys.quests.date = tStr;
+            }
+
             let now = Date.now();
             let timeDiff = now - sys.bankLastHarvest;
-            
             if (sys.bankCapital > 0 && sys.streak > 0 && timeDiff > 0) {
                 let dr = sys.streak * 0.01; 
                 let offlineInterest = sys.bankCapital * (dr / 86400) * (timeDiff / 1000); 
@@ -855,30 +872,19 @@
             }
 
             if (timeDiff >= 86400000) {
-                if (sys.mem.tier === 'BASIC') {
-                    sys.bankUnclaimed = 0; 
-                } else {
-                    processTax(sys.bankUnclaimed, "Lãi suất Tiết kiệm qua đêm");
-                    sys.bankUnclaimed = 0;
-                }
+                if (sys.mem.tier === 'BASIC') { sys.bankUnclaimed = 0; } 
+                else { processTax(sys.bankUnclaimed, "Lãi suất Tiết kiệm qua đêm"); sys.bankUnclaimed = 0; }
                 sys.bankLastHarvest = now;
             }
 
             checkLottoResult(); updateLottoUI(); updateSpinButtonUI(); applyTheme(sys.currentTheme); updateSystemUI(); renderBoard(); updateGhostBar(); renderStockMarket(); updateMemUI(); 
             renderCountdownLayout(); 
-            
-            checkMusicExpiration();
-            applyMusicSkin();
-            initMusicPlayer();
-            updateBloodPactUI();
-            updateHallOfFameUI();
-            checkTaxDay();
+            checkMusicExpiration(); applyMusicSkin(); initMusicPlayer(); updateBloodPactUI(); updateHallOfFameUI(); checkTaxDay(); updateQuestBoardUI();
         }
 
-        function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); updateHallOfFameUI(); }
+        function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); updateHallOfFameUI(); updateQuestBoardUI(); }
         function applyTheme(tn) { sys.currentTheme=tn; tn==='light'?document.documentElement.removeAttribute('data-theme'):document.documentElement.setAttribute('data-theme',tn); saveAllData(); }
         function toggleThemeCycle() { let a=[...THEMES,...sys.unlockedThemes], ci=a.indexOf(sys.currentTheme), ni=ci===-1?0:(ci+1)%a.length; applyTheme(a[ni]); }
-
         function getRealmInfo(pts) { let c=REALMS[0], n=REALMS[1]; for(let i=0;i<REALMS.length;i++){if(pts>=REALMS[i].min){c=REALMS[i]; n=REALMS[i+1];}} return {current:c, next:n}; }
         
         function addTuVi(amt) {
@@ -900,13 +906,153 @@
             if($('shop-modal').style.display==='flex') {
                 $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
                 updateMusicShopUI();
-                
-                // Update Tax Display in Shop
                 if($('shop-tax-debt')) $('shop-tax-debt').innerText = `$${Math.floor(sys.tax.owed).toLocaleString()}`;
                 let discount = getTaxDiscount();
                 if($('shop-tax-discount')) $('shop-tax-discount').innerText = discount > 0 ? `Giảm ${discount}%` : "0%";
             }
             if($('stock-modal').style.display==='flex') renderStockMarket();
+            
+            // Update Quest Button Badge
+            let qBtn = $('btn-quest-board');
+            if (qBtn && sys.quests && sys.quests.list) {
+                let comp = sys.quests.list.filter(q => q.current >= q.target).length;
+                let tot = sys.quests.list.length;
+                let unclaimed = sys.quests.list.some(q => q.current >= q.target && !q.claimed) || (comp === tot && tot > 0 && !sys.quests.jackpotClaimed);
+                qBtn.innerHTML = `<i class="fas fa-scroll"></i> Nhiệm Vụ (${comp}/${tot})`;
+                if (unclaimed || comp < tot) qBtn.classList.add('pulse'); else qBtn.classList.remove('pulse');
+            }
+        }
+
+        /* --- HOÀNG BẢNG THƯỜNG NHẬT --- */
+        function generateDailyQuests() {
+            let numQuests = Math.floor(Math.random() * 5) + 1; // 1 to 5
+            let pool = ['sessions', 'time', 'economy', 'deep_work'];
+            let selectedTypes = pool.sort(() => 0.5 - Math.random()).slice(0, numQuests);
+            let newList = [];
+
+            selectedTypes.forEach((t, index) => {
+                if(t === 'sessions') {
+                    let target = Math.floor(Math.random() * 5) + 2; // 2 to 6
+                    newList.push({ id: index, type: t, target: target, current: 0, reward: target * 1000, claimed: false, desc: `Hoàn thành ${target} phiên Focus` });
+                }
+                else if(t === 'time') {
+                    let opts = [45, 60, 90, 120, 180];
+                    let target = opts[Math.floor(Math.random() * opts.length)];
+                    newList.push({ id: index, type: t, target: target, current: 0, reward: target * 50, claimed: false, desc: `Tích lũy ${target} phút Focus` });
+                }
+                else if(t === 'economy') {
+                    let isLotto = Math.random() > 0.5;
+                    newList.push({ id: index, type: 'economy', subType: isLotto ? 'lotto' : 'gacha', target: 1, current: 0, reward: 2000, claimed: false, desc: isLotto ? `Mua 1 vé số 6/45` : `Thử vận may quay Bát Quái 1 lần` });
+                }
+                else if(t === 'deep_work') {
+                    let target = Math.floor(Math.random() * 2) + 1; // 1 or 2
+                    newList.push({ id: index, type: t, target: target, current: 0, reward: target * 5000, claimed: false, desc: `Hoàn thành ${target} phiên Học Sâu (50 phút)` });
+                }
+            });
+            sys.quests.list = newList;
+            sys.quests.jackpotClaimed = false;
+        }
+
+        function trackQuest(type, amount, subType = null) {
+            if(!sys.quests || !sys.quests.list || sys.quests.list.length === 0) return;
+            let updated = false;
+            sys.quests.list.forEach(q => {
+                if(q.type === type) {
+                    if(type === 'economy' && q.subType !== subType) return;
+                    if(q.current < q.target) {
+                        q.current = Math.min(q.target, q.current + amount);
+                        updated = true;
+                    }
+                }
+            });
+            if(updated) saveAllData();
+        }
+
+        function openQuestModal() {
+            $('quest-modal').style.display = 'flex';
+            updateQuestBoardUI();
+        }
+
+        function updateQuestBoardUI() {
+            let container = $('quest-list-container');
+            if (!container || !sys.quests || !sys.quests.list) return;
+            
+            if (sys.quests.list.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 20px; color:var(--text-muted); font-style:italic;">Hoàng Bảng hôm nay trống không! Bệ hạ hãy nghỉ ngơi!</div>`;
+                $('quest-jackpot-container').style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            let allDone = true;
+
+            sys.quests.list.forEach((q, i) => {
+                let pct = Math.min(100, (q.current / q.target) * 100);
+                let isDone = q.current >= q.target;
+                if (!isDone) allDone = false;
+
+                html += `
+                <div class="quest-item ${isDone ? 'completed' : ''}">
+                    <div class="quest-header">
+                        <span>${q.desc}</span>
+                        <span style="color:var(--warning); font-size:0.85rem;"><i class="fas fa-coins"></i> $${q.reward.toLocaleString()}</span>
+                    </div>
+                    <div class="quest-prog-container">
+                        <div class="quest-prog-bg"><div class="quest-prog-fill" style="width: ${pct}%"></div></div>
+                        <div class="quest-text-status">${q.current}/${q.target}</div>
+                    </div>
+                    ${isDone && !q.claimed ? `<button class="quest-btn-claim" style="display:block;" onclick="claimQuestReward(${i})">NHẬN THƯỞNG</button>` : ''}
+                    ${isDone && q.claimed ? `<div style="text-align:center; font-size:0.8rem; color:var(--success); font-weight:bold; margin-top:8px;"><i class="fas fa-check"></i> ĐÃ NHẬN</div>` : ''}
+                </div>`;
+            });
+            container.innerHTML = html;
+
+            let jBox = $('quest-jackpot-container');
+            let jBtn = $('btn-claim-jackpot');
+            jBox.style.display = 'block';
+            
+            if (allDone) {
+                if (sys.quests.jackpotClaimed) {
+                    jBtn.innerText = "ĐÃ NHẬN RƯƠNG HOÀN MỸ";
+                    jBtn.disabled = true;
+                    jBox.style.opacity = '0.5';
+                } else {
+                    jBtn.innerText = "MỞ RƯƠNG HOÀN MỸ NGAY!";
+                    jBtn.disabled = false;
+                    jBox.style.opacity = '1';
+                    jBox.style.animation = 'tax-pulse 2s infinite';
+                }
+            } else {
+                jBtn.innerText = "Hoàn thành tất cả để mở Rương";
+                jBtn.disabled = true;
+                jBox.style.animation = 'none';
+                jBox.style.opacity = '0.8';
+            }
+        }
+
+        function claimQuestReward(index) {
+            let q = sys.quests.list[index];
+            if (!q || q.current < q.target || q.claimed) return;
+            
+            q.claimed = true;
+            sys.coins += q.reward; // Thưởng nhiệm vụ nhỏ không tính thuế
+            playTickSound();
+            saveAllData();
+        }
+
+        function claimJackpot() {
+            if (sys.quests.jackpotClaimed) return;
+            let allDone = sys.quests.list.every(q => q.current >= q.target);
+            if (!allDone) return;
+
+            sys.quests.jackpotClaimed = true;
+            sys.coins += 20000;
+            sys.immunity += 1;
+            
+            runBigFireworks();
+            playRealisticBoom();
+            saveAllData();
+            alert("🎉 CHÚC MỪNG BỆ HẠ! Ngài đã phá đảo Hoàng Bảng!\nNhận $20,000 và 1 Thẻ Bảo Hộ vào kho đồ!");
         }
 
         /* --- THUẾ HOÀNG GIA (TAX SYSTEM) V100 --- */
@@ -924,7 +1070,7 @@
 
         function processTax(profit, sourceDesc) {
             if (profit <= 0) return;
-            sys.coins += profit; // Nhận tiền vào túi trước
+            sys.coins += profit; 
 
             if (checkTaxHoliday()) {
                 console.log(`Miễn thuế cho khoản lãi $${profit} từ ${sourceDesc} do đang trong Tháng Hoàng Kim.`);
@@ -943,7 +1089,6 @@
                 
                 if (taxAmount > 0) {
                     sys.tax.owed += taxAmount;
-                    console.log(`Ghi sổ nợ thuế: $${taxAmount} (${finalTaxRate}%) từ khoản lãi $${profit} (${sourceDesc})`);
                 }
             }
             saveAllData();
@@ -955,7 +1100,6 @@
             let day = now.getDate();
             let currentMonthStr = now.getFullYear() + "-" + now.getMonth();
             
-            // Xử lý banner Tháng Hoàng Kim
             if (checkTaxHoliday()) {
                 $('tax-holiday-banner').style.display = 'flex';
                 let diff = sys.tax.holidayUntil - Date.now();
@@ -970,70 +1114,70 @@
                 $('tax-holiday-banner').style.display = 'none';
             }
 
-            // Ngày mùng 5 - Treo cờ đòi nợ
             if (day === 5 && sys.tax.owed > 0) {
                 $('tax-banner').style.display = 'flex';
                 $('tax-amount-btn').innerText = `$${Math.floor(sys.tax.owed).toLocaleString()}`;
-                sys.tax.isDueMonth = currentMonthStr; // Đánh dấu tháng này ĐÃ ĐÒI
+                sys.tax.isDueMonth = currentMonthStr; 
                 saveAllData();
             } else {
                 $('tax-banner').style.display = 'none';
             }
 
-            // Trốn thuế: Qua ngày 5 mà chưa nộp CỦA THÁNG ĐÃ BỊ ĐÒI
             if (day > 5 && sys.tax.owed > 0 && sys.tax.isDueMonth === currentMonthStr) {
                 let penalty = sys.tax.owed * 2;
                 if (sys.coins >= penalty) {
                     sys.coins -= penalty;
                 } else {
-                    sys.coins = 0; // Tịch thu toàn bộ nếu không đủ trả nợ x2
+                    sys.coins = 0; 
                 }
                 sys.tax.owed = 0;
-                sys.tax.isDueMonth = ""; // Xóa án tích sau khi phạt
+                sys.tax.isDueMonth = ""; 
                 saveAllData();
                 alert(`💀 ÁN PHẠT TRỐN THUẾ!\n\nĐã qua ngày mùng 5 mà bạn chưa nộp thuế! Hệ thống đã cưỡng chế tịch thu $${Math.floor(penalty).toLocaleString()} (x2 Sổ Nợ) từ tài khoản!`);
             }
         }
+        setInterval(checkTaxDay, 1000);
+
+        function payTax() {
+            if (sys.tax.owed <= 0) return;
+            if (sys.coins < sys.tax.owed) {
+                alert("Tài khoản không đủ tiền! Bạn phải bán tháo cổ phiếu hoặc chốt sổ tiết kiệm để lấy tiền nộp thuế!");
+                return;
+            }
+            if (confirm(`Xác nhận rút $${Math.floor(sys.tax.owed).toLocaleString()} từ tài khoản để nộp thuế cho nhà nước?`)) {
+                sys.coins -= sys.tax.owed;
+                sys.tax.owed = 0;
+                saveAllData();
+                updateSystemUI();
+                playRealisticBoom();
+                alert("Đã hoàn tất nghĩa vụ thuế! Nhà nước ghi nhận sự cống hiến của bạn!");
+            }
+        }
 
         function checkStreakRewards(newStreak) {
-            let msg = "";
-            let gotReward = false;
-
-            // Mốc 7 Ngày: 3 Ngày PRO
+            let msg = ""; let gotReward = false;
             if (newStreak === 7) {
                 let msAdd = 3 * 86400000;
                 if(sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA') sys.mem.expire = Math.max(Date.now(), sys.mem.expire) + msAdd;
                 else { sys.mem.tier = 'PRO'; sys.mem.expire = Date.now() + msAdd; }
-                msg += "🎁 Mốc 7 Ngày: Được ban thưởng 3 Ngày thẻ PRO!\n";
-                gotReward = true;
+                msg += "🎁 Mốc 7 Ngày: Được ban thưởng 3 Ngày thẻ PRO!\n"; gotReward = true;
             }
-            // Mốc 14 Ngày: 1 Ngày ULTRA
             if (newStreak === 14) {
                 let msAdd = 1 * 86400000;
                 if(sys.mem.tier === 'ULTRA') sys.mem.expire = Math.max(Date.now(), sys.mem.expire) + msAdd;
                 else { sys.mem.tier = 'ULTRA'; sys.mem.expire = Date.now() + msAdd; }
-                msg += "🎁 Mốc 14 Ngày: Được ban thưởng 1 Ngày thẻ TỐI THƯỢNG (ULTRA)!\n";
-                gotReward = true;
+                msg += "🎁 Mốc 14 Ngày: Được ban thưởng 1 Ngày thẻ TỐI THƯỢNG (ULTRA)!\n"; gotReward = true;
             }
-            // Mốc 30, 60, 100 đã chuyển thành Giảm Thuế (Passive), không cần popup vật phẩm.
-
-            // Vòng lặp Miễn Thuế (150, 200, 250...)
             if (newStreak > 100 && newStreak % 50 === 0) {
-                sys.tax.holidayUntil = Date.now() + (30 * 86400000); // 30 ngày
-                msg += "👑 MỐC CHUỖI VĨ ĐẠI!\nTriều đình ban phát 1 THÁNG MIỄN THUẾ 100% cho mọi giao dịch!\n";
-                gotReward = true;
+                sys.tax.holidayUntil = Date.now() + (30 * 86400000); 
+                msg += "👑 MỐC CHUỖI VĨ ĐẠI!\nTriều đình ban phát 1 THÁNG MIỄN THUẾ 100% cho mọi giao dịch!\n"; gotReward = true;
             }
-
-            if (gotReward) {
-                saveAllData(); updateMemUI(); alert(msg); runBigFireworks();
-            }
+            if (gotReward) { saveAllData(); updateMemUI(); alert(msg); runBigFireworks(); }
         }
-
 
         /* --- LĂNG KÍNH DANH VỌNG UI --- */
         function formatHofTime(mins) {
-            let h = Math.floor(mins / 60);
-            let m = Math.floor(mins % 60);
+            let h = Math.floor(mins / 60); let m = Math.floor(mins % 60);
             return `${h}h ${m}m`;
         }
 
@@ -1050,15 +1194,9 @@
             sys.hof.totalSessions += 1;
             
             let tStr = new Date().toDateString();
-            if(sys.hof.lastFocusDate !== tStr) {
-                sys.hof.todayMins = 0;
-                sys.hof.lastFocusDate = tStr;
-            }
+            if(sys.hof.lastFocusDate !== tStr) { sys.hof.todayMins = 0; sys.hof.lastFocusDate = tStr; }
             sys.hof.todayMins += mins;
-            
-            if (sys.hof.todayMins > sys.hof.bestDayMins) {
-                sys.hof.bestDayMins = sys.hof.todayMins;
-            }
+            if (sys.hof.todayMins > sys.hof.bestDayMins) { sys.hof.bestDayMins = sys.hof.todayMins; }
             saveAllData();
         }
 
@@ -1309,30 +1447,14 @@
             } catch(e) { $('m-status-text').innerText = "LỖI KHÔNG XÁC ĐỊNH"; }
         }
 
-        function handleTrackEnd() {
-            if(sys.music.loop) { audioEl.currentTime = 0; audioEl.play(); } else playNext();
-        }
-
-        function toggleShuffle() {
-            if(sys.music.tier === 'BASIC') return;
-            sys.music.shuffle = !sys.music.shuffle;
-            $('btn-shuffle').classList.toggle('active');
-            saveAllData();
-        }
-
-        function toggleLoop() {
-            if(sys.music.tier === 'BASIC') return;
-            sys.music.loop = !sys.music.loop;
-            $('btn-loop').classList.toggle('active');
-            saveAllData();
-        }
-
+        function handleTrackEnd() { if(sys.music.loop) { audioEl.currentTime = 0; audioEl.play(); } else playNext(); }
+        function toggleShuffle() { if(sys.music.tier === 'BASIC') return; sys.music.shuffle = !sys.music.shuffle; $('btn-shuffle').classList.toggle('active'); saveAllData(); }
+        function toggleLoop() { if(sys.music.tier === 'BASIC') return; sys.music.loop = !sys.music.loop; $('btn-loop').classList.toggle('active'); saveAllData(); }
         function openPlaylistModal() { renderPlaylist(); $('playlist-modal').style.display = 'flex'; }
 
         function renderPlaylist() {
             let limit = sys.music.tier === 'BASIC' ? 20 : (sys.music.tier === 'PLUS' ? 50 : "Vô hạn");
             let count = sys.music.tracks.length;
-            
             $('pl-capacity-text').innerText = `${count} / ${limit} Bài`;
             if(limit !== "Vô hạn") $('pl-capacity-bar').style.width = `${(count/limit)*100}%`;
             else { $('pl-capacity-bar').style.width = `100%`; $('pl-capacity-bar').style.background = '#fbbf24'; }
@@ -1341,13 +1463,7 @@
             sys.music.tracks.forEach((t, i) => {
                 let isPlaying = i === sys.music.currentIdx;
                 let iconLocal = `<i class="fas fa-hdd" style="color:#10b981; font-size:0.7rem; margin-right:5px;" title="File lưu nội bộ"></i>`;
-                html += `<div class="playlist-item ${isPlaying ? 'playing' : ''}">
-                    <div class="playlist-item-name">${iconLocal} ${i+1}. ${t.name}</div>
-                    <div>
-                        <button class="btn-icon" style="color:${isPlaying ? 'var(--primary)' : 'var(--text-muted)'}" onclick="jumpToTrack(${i})"><i class="fas fa-play"></i></button>
-                        <button class="btn-icon delete" onclick="removeMusicTrack(${i})"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
+                html += `<div class="playlist-item ${isPlaying ? 'playing' : ''}"><div class="playlist-item-name">${iconLocal} ${i+1}. ${t.name}</div><div><button class="btn-icon" style="color:${isPlaying ? 'var(--primary)' : 'var(--text-muted)'}" onclick="jumpToTrack(${i})"><i class="fas fa-play"></i></button><button class="btn-icon delete" onclick="removeMusicTrack(${i})"><i class="fas fa-trash"></i></button></div></div>`;
             });
             if(count === 0) html = `<div style="text-align:center; padding: 20px; color:var(--text-muted);">Kho nhạc trống rỗng</div>`;
             $('playlist-container').innerHTML = html;
@@ -1362,7 +1478,7 @@
                 await localforage.setItem(uniqueId, file);
                 sys.music.tracks.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: uniqueId, isLocal: true });
                 saveAllData(); renderPlaylist(); initMusicPlayer();
-                alert("Nạp âm khúc thành công vào kho lưu trữ nội bộ! (Ngắt mạng vẫn nghe được)");
+                alert("Nạp âm khúc thành công vào kho lưu trữ nội bộ!");
             } catch (err) { alert("Lỗi khi cất giấu file vào hầm ngầm: " + err); }
             e.target.value = ''; 
         }
@@ -1376,10 +1492,7 @@
                 saveAllData(); renderPlaylist(); initMusicPlayer();
             }
         }
-
-        function jumpToTrack(idx) {
-            sys.music.currentIdx = idx; saveAllData(); renderPlaylist(); loadAndPlayCurrent();
-        }
+        function jumpToTrack(idx) { sys.music.currentIdx = idx; saveAllData(); renderPlaylist(); loadAndPlayCurrent(); }
 
         /* --- HUYẾT KHẾ KỲ HẠN THUẬT TOÁN --- */
         function getBloodPactReward(committedHours, extraMins, wager) {
@@ -1387,140 +1500,77 @@
             if(committedHours >= 4) baseRate = 1.8;
             else if(committedHours >= 3) baseRate = 1.2;
             else if(committedHours >= 2) baseRate = 0.7;
-
             let baseProfit = wager * baseRate;
             let extraBlocks = Math.floor(extraMins / 30);
-            let feverRate = 0;
-            let step = 0.10;
-            for(let i = 0; i < extraBlocks; i++) {
-                feverRate += step;
-                step += 0.05;
-            }
+            let feverRate = 0; let step = 0.10;
+            for(let i = 0; i < extraBlocks; i++) { feverRate += step; step += 0.05; }
             let feverProfit = wager * feverRate;
-            
-            return {
-                basePct: Math.round(baseRate * 100),
-                feverPct: Math.round(feverRate * 100),
-                profitValue: baseProfit + feverProfit, // CHỈ TRẢ VỀ LÃI
-                totalReturn: wager + baseProfit + feverProfit
-            };
+            return { basePct: Math.round(baseRate * 100), feverPct: Math.round(feverRate * 100), profitValue: baseProfit + feverProfit, totalReturn: wager + baseProfit + feverProfit };
         }
 
         function signBloodPact() {
             if (sys.bloodPact.active) return alert("Đang có một Huyết Khế chờ xử lý!");
-            let dateVal = $('bp-date').value;
-            let hours = parseInt($('bp-hours').value);
-            let wager = parseInt($('bp-wager').value);
-
+            let dateVal = $('bp-date').value; let hours = parseInt($('bp-hours').value); let wager = parseInt($('bp-wager').value);
             if (!dateVal) return alert("Vui lòng chọn Ngày đáo hạn!");
-            let targetD = new Date(dateVal);
-            targetD.setHours(23, 59, 59, 999);
+            let targetD = new Date(dateVal); targetD.setHours(23, 59, 59, 999);
             if (targetD.getTime() < Date.now()) return alert("Không thể chọn ngày trong quá khứ!");
-
             if (isNaN(hours) || hours < 1) return alert("Phải cam kết tối thiểu 1 giờ!");
             if (isNaN(wager) || wager <= 0) return alert("Số tiền cược không hợp lệ!");
             if (sys.coins < wager) return alert(`Ngân khố không đủ $${wager.toLocaleString()} để cược!`);
-
             if (!confirm(`XÁC NHẬN GIAO ƯỚC SINH TỬ?\n\n- Ngày: ${dateVal}\n- Mục tiêu: ${hours} Giờ\n- Tiền cược: $${wager.toLocaleString()}\n\nQuá 23:59 ngày này mà chưa làm đủ sẽ MẤT TRẮNG và nộp phạt $100!`)) return;
-
             sys.coins -= wager;
-            sys.bloodPact = {
-                active: true,
-                targetDate: dateVal,
-                targetMins: hours * 60,
-                wager: wager,
-                currentMins: 0
-            };
-            saveAllData();
-            updateBloodPactUI();
-            playRealisticBoom();
-            alert("ĐÃ KÝ HUYẾT KHẾ! Cùng nhau rèn kỷ luật thép nào!");
+            sys.bloodPact = { active: true, targetDate: dateVal, targetMins: hours * 60, wager: wager, currentMins: 0 };
+            saveAllData(); updateBloodPactUI(); playRealisticBoom(); alert("ĐÃ KÝ HUYẾT KHẾ! Cùng nhau rèn kỷ luật thép nào!");
         }
 
         function updateBloodPactUI() {
             let bp = sys.bloodPact;
             if (!bp || !bp.active) {
-                $('bp-setup-ui').style.display = 'flex';
-                $('bp-track-ui').style.display = 'none';
-                let n = new Date();
-                let tzStr = n.getFullYear() + "-" + (n.getMonth()+1).toString().padStart(2,'0') + "-" + n.getDate().toString().padStart(2,'0');
+                $('bp-setup-ui').style.display = 'flex'; $('bp-track-ui').style.display = 'none';
+                let n = new Date(); let tzStr = n.getFullYear() + "-" + (n.getMonth()+1).toString().padStart(2,'0') + "-" + n.getDate().toString().padStart(2,'0');
                 if($('bp-date')) $('bp-date').value = tzStr;
                 return;
             }
-
-            $('bp-setup-ui').style.display = 'none';
-            $('bp-track-ui').style.display = 'block';
-
-            let dParts = bp.targetDate.split('-');
-            let fDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+            $('bp-setup-ui').style.display = 'none'; $('bp-track-ui').style.display = 'block';
+            let dParts = bp.targetDate.split('-'); let fDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
             $('bp-target-text').innerText = `${fDate} - ${bp.targetMins / 60} Giờ`;
             $('bp-min-text').innerText = `${Math.floor(bp.currentMins)} / ${bp.targetMins} Phút`;
-
             let pct = Math.min(100, (bp.currentMins / bp.targetMins) * 100);
             $('bp-bar').style.width = pct + '%';
-
             let btn = $('bp-btn-cashout');
-            let committedHours = bp.targetMins / 60;
-            let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
-            
+            let committedHours = bp.targetMins / 60; let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
             let reward = getBloodPactReward(committedHours, extraMins, bp.wager);
-
             if (bp.currentMins >= bp.targetMins) {
-                btn.disabled = false;
-                btn.innerText = `THU HỒI $${Math.floor(reward.totalReturn).toLocaleString()}`;
-                $('bp-profit-text').innerText = `Lãi nền: ${reward.basePct}% | Vượt mốc: +${reward.feverPct}%`;
-                $('bp-profit-text').style.color = '#fbbf24';
+                btn.disabled = false; btn.innerText = `THU HỒI $${Math.floor(reward.totalReturn).toLocaleString()}`;
+                $('bp-profit-text').innerText = `Lãi nền: ${reward.basePct}% | Vượt mốc: +${reward.feverPct}%`; $('bp-profit-text').style.color = '#fbbf24';
             } else {
-                btn.disabled = true;
-                btn.innerText = `CHƯA ĐẠT MỤC TIÊU`;
-                $('bp-profit-text').innerText = `Lãi nếu đạt: ${reward.basePct}%`;
-                $('bp-profit-text').style.color = '#fca5a5';
+                btn.disabled = true; btn.innerText = `CHƯA ĐẠT MỤC TIÊU`;
+                $('bp-profit-text').innerText = `Lãi nếu đạt: ${reward.basePct}%`; $('bp-profit-text').style.color = '#fca5a5';
             }
         }
 
         function cashOutBloodPact() {
             let bp = sys.bloodPact;
             if (!bp.active || bp.currentMins < bp.targetMins) return;
-
-            let committedHours = bp.targetMins / 60;
-            let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
+            let committedHours = bp.targetMins / 60; let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
             let reward = getBloodPactReward(committedHours, extraMins, bp.wager);
-
-            sys.coins += bp.wager; // Trả lại vốn không tính thuế
-            processTax(reward.profitValue, "Lãi Huyết Khế Kỳ Hạn"); // Chỉ đánh thuế phần LÃI
-            
+            sys.coins += bp.wager; 
+            processTax(reward.profitValue, "Lãi Huyết Khế Kỳ Hạn"); 
             sys.bloodPact.active = false;
-            
-            saveAllData();
-            updateBloodPactUI();
-            updateSystemUI();
-            runBigFireworks();
-            playRealisticBoom();
+            saveAllData(); updateBloodPactUI(); updateSystemUI(); runBigFireworks(); playRealisticBoom();
             alert(`🔥 CHIẾN THẮNG HUYẾT KHẾ!\n\nBệ hạ đã cày cuốc không ngừng nghỉ và thu hồi vốn $${bp.wager.toLocaleString()} cùng phần lãi khổng lồ!\n(Lãi suất đã được chuyển vào hệ thống xử lý thuế)`);
         }
 
         function checkBloodPactPenalty() {
             let bp = sys.bloodPact;
             if (!bp || !bp.active) return;
-            
-            let now = new Date();
-            let targetD = new Date(bp.targetDate);
-            targetD.setHours(23, 59, 59, 999);
-
+            let now = new Date(); let targetD = new Date(bp.targetDate); targetD.setHours(23, 59, 59, 999);
             if (now.getTime() > targetD.getTime()) {
-                let w = bp.wager;
-                let dStr = bp.targetDate;
-                sys.coins = Math.max(0, sys.coins - 100); 
-                sys.bloodPact.active = false;
-                saveAllData();
-                updateBloodPactUI();
-                updateSystemUI();
-                
+                let w = bp.wager; let dStr = bp.targetDate; sys.coins = Math.max(0, sys.coins - 100); 
+                sys.bloodPact.active = false; saveAllData(); updateBloodPactUI(); updateSystemUI();
                 if($('zen-overlay').classList.contains('active')) {
                     alert(`💀 CẢNH BÁO: CHÁY HUYẾT KHẾ!\n\nĐã qua ngày ${dStr} mà bệ hạ chưa hoàn thành cam kết.\nHệ thống đã thiêu rụi $${w.toLocaleString()} tiền cược và nộp phạt $100 vào công quỹ!`);
-                } else {
-                    showPunishmentModal(`Cháy Huyết Khế ngày ${dStr}! Mất trắng cược và nộp phạt $100.`);
-                }
+                } else showPunishmentModal(`Cháy Huyết Khế ngày ${dStr}! Mất trắng cược và nộp phạt $100.`);
             }
         }
 
@@ -1558,10 +1608,7 @@
         function openShopModal() { 
             $('shop-coins-display').innerText=`$${Math.floor(sys.coins).toLocaleString()}`; 
             if($('focus-img-orient')) $('focus-img-orient').value = sys.focusImageOrientation || "vertical";
-            updateMusicShopUI();
-            updateShopUI(); 
-            updateSpinButtonUI(); 
-            updateMemUI(); 
+            updateMusicShopUI(); updateShopUI(); updateSpinButtonUI(); updateMemUI(); 
             $('shop-modal').style.display='flex'; 
         }
         
@@ -1590,8 +1637,8 @@
             DAYS_OF_WEEK.forEach((dn, idx) => {
                 const ts=scheduleData[idx]||[]; const tot=ts.length; const cmp=ts.filter(t=>t.completed).length; const pct=tot===0?0:Math.round((cmp/tot)*100); const isTd=idx===tdy; const aLck=tot>0&&ts.every(t=>t.locked||t.missed);
                 let html=ts.map(t=>`<div class="task-item ${t.completed?'completed':''} task-${t.color||'default'} ${t.locked?'locked':''} ${t.missed?'missed-task':''}"><input type="checkbox" class="task-checkbox" ${t.completed?'checked':''} ${t.locked||t.missed||idx!==tdy?'disabled':''} onchange="toggleComplete(${idx}, '${t.id}')"><div class="task-content"><div class="task-time">${t.time?`<i class="far fa-clock"></i> ${t.time}`:``} ${t.rolledOver?`<span class="rollover-badge"><i class="fas fa-share"></i> ${t.originalDay}</span>`:''} ${t.missed?`<span class="missed-badge">Trì hoãn</span>`:''}</div><div class="task-desc">${t.text}</div></div>${t.locked||t.missed||idx!==tdy?'':`<div class="task-actions"><button class="btn-icon" onclick="openModal(${idx}, '${t.id}')"><i class="fas fa-pen"></i></button><button class="btn-icon delete" onclick="deleteTask(${idx}, '${t.id}')"><i class="fas fa-trash"></i></button></div>`}</div>`).join('');
-                                if(ts.length===0) html=`<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Trống</div>`;
-                                let fBtn=''; if(idx === tdy && tot>0 && !aLck) { fBtn = `<button class="btn btn-success" onclick="finishDay(${idx})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`; } else if (aLck && tot>0) { fBtn = ts.every(t=>!t.missed)?`<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Xuất sắc</div>`:`<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px;">CẦN CỐ GẮNG HƠN</div>`; }
+                if(ts.length===0) html=`<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-top: 20px; font-style: italic;">Trống</div>`;
+                let fBtn=''; if(idx === tdy && tot>0 && !aLck) { fBtn = `<button class="btn btn-success" onclick="finishDay(${idx})"><i class="fas fa-check-circle"></i> Kết thúc ngày</button>`; } else if (aLck && tot>0) { fBtn = ts.every(t=>!t.missed)?`<div style="text-align:center; color: var(--success); font-weight: bold; margin-top:15px;"><i class="fas fa-medal"></i> Xuất sắc</div>`:`<div style="text-align:center; color: var(--danger); font-weight: bold; margin-top:15px;">CẦN CỐ GẮNG HƠN</div>`; }
                 let addBtn = (idx >= tdy && !aLck) ? `<button class="btn-add" onclick="openModal(${idx})"><i class="fas fa-plus"></i> Thêm việc</button>` : '';
                 b.innerHTML+=`<div class="day-column" id="col-${idx}" ${isTd?'style="border: 2px solid var(--primary);"':''}><div class="day-header"><div class="day-title">${dn} ${isTd?'<span class="today-badge">Hôm nay</span>':''}</div><div class="progress-container"><div class="progress-text"><span>Tiến độ</span><span>${cmp}/${tot} (${pct}%)</span></div><div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div></div></div><div class="task-list">${html}</div><div class="day-footer">${addBtn} ${fBtn}</div></div>`;
             });
@@ -1622,6 +1669,19 @@
         let pRsn="", pInc=[], pDIdx=-1;
         function finishDay(dIdx) { 
             if (dIdx !== getRealDayIndex()) return alert("Chỉ có thể kết thúc ngày hiện tại!"); 
+
+            // KIỂM TRA ÁN PHẠT HOÀNG BẢNG 10% TRƯỚC TIÊN
+            if(sys.quests && sys.quests.list && sys.quests.list.length > 0) {
+                let failedQuests = sys.quests.list.some(q => q.current < q.target);
+                if(failedQuests) {
+                     let penalty = sys.coins * 0.1;
+                     sys.coins -= penalty;
+                     sys.quests.list.forEach(q => q.current = q.target); // Xóa sổ để không phạt đúp
+                     saveAllData();
+                     alert(`💀 KHÁNG CHỈ HOÀNG BẢNG!\n\nChưa xong nhiệm vụ ngày mà dám kết thúc ngày! Tịch thu ngay 10% tổng ngân khố ($-${Math.floor(penalty).toLocaleString()})!`);
+                }
+            }
+
             const ts=scheduleData[dIdx], inc=ts.filter(t=>!t.completed&&!t.missed), cmp=ts.filter(t=>t.completed); 
             const tomorrowIdx = (dIdx + 1) % 7;
 
@@ -1636,15 +1696,10 @@
                 let exemptCount = (sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA') ? Math.min(inc.length, 2) : 0;
                 let penalizedCount = inc.length - exemptCount;
                 let fine = penalizedCount > 0 ? (sys.punishTier * 50) : 0;
-
                 let tomorrowCount = scheduleData[tomorrowIdx].length;
                 let totalPotentialTomorrow = tomorrowCount + inc.length;
                 let extraFee = 0;
-                
-                if (totalPotentialTomorrow > 10) {
-                    let taxedAmount = Math.min(inc.length, totalPotentialTomorrow - 10);
-                    extraFee = taxedAmount * 20;
-                }
+                if (totalPotentialTomorrow > 10) { let taxedAmount = Math.min(inc.length, totalPotentialTomorrow - 10); extraFee = taxedAmount * 20; }
 
                 let msg = `BÁO CÁO KẾT THÚC NGÀY:\nCòn ${inc.length} việc chưa xong.\n`;
                 if(exemptCount > 0) msg += `- Đặc quyền ${sys.mem.tier}: Miễn phạt ${exemptCount} việc.\n`;
@@ -1853,7 +1908,9 @@
             }
             if(!confirm("Xác nhận chi $10 mua vé số này?")) return;
             let targetDate = new Date(); if (targetDate.getHours() >= 16) { targetDate.setDate(targetDate.getDate() + 1); }
-            sys.coins -= 10; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: targetDate.toDateString() }; saveAllData(); 
+            sys.coins -= 10; sys.lottoTicket = { numbers: nums.sort((a,b)=>a-b), date: targetDate.toDateString() }; 
+            trackQuest('economy', 1, 'lotto');
+            saveAllData(); 
             let dStr = `${targetDate.getDate().toString().padStart(2,'0')}/${(targetDate.getMonth()+1).toString().padStart(2,'0')}`;
             alert(`Mua vé thành công! Kết quả sẽ xổ lúc 16:00 ngày ${dStr}.`); updateLottoUI();
         }
@@ -1898,6 +1955,10 @@
             if(sys.dailySpins >= 3) { if(sys.extraSpins > 0) uVIP = true; else return alert("Đã hết 3 lượt thường! Hãy mua lượt VIP tại Chợ Đen."); }
             if(sys.coins < 100) return alert("Ngân khố không đủ $100!"); 
             sys.coins -= 100; uVIP ? sys.extraSpins-- : sys.dailySpins++;
+            
+            // THIÊN NHÃN GIÁM SÁT: Quay Gacha
+            trackQuest('economy', 1, 'gacha');
+
             saveAllData(); $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`; isShopSpinning = true; 
             $('btn-shop-spin').innerText = `Đang xử lý...`;
             let r = Math.random() * 100, idx;
@@ -1970,8 +2031,12 @@
                         if(isFrc) { alert("Hoàn thành phiên phạt."); resetTimer(); toggleZenMode(); return; } 
                         let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; 
                         
-                        // LƯU LĂNG KÍNH DANH VỌNG
-                        recordFocusSession(W_TIME / 60);
+                        // LƯU LĂNG KÍNH DANH VỌNG & HOÀNG BẢNG
+                        let minsDone = W_TIME / 60;
+                        recordFocusSession(minsDone);
+                        trackQuest('time', minsDone);
+                        trackQuest('sessions', 1);
+                        if (minsDone === 50) trackQuest('deep_work', 1);
 
                         if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Xp nhân đôi.");} 
                         runBigFireworks(); playRealisticBoom(); addTuVi(rw); 
@@ -2000,7 +2065,7 @@
         }
         let isFSpn = false; function spinFocusWheel() { if(isFSpn) return; isFSpn=true; $('btn-focus-spin').innerText="Đang quay..."; let r=Math.random()*100, s=0, wIdx=0; for(let i=0;i<fWheelOpts.length;i++){s+=fWheelOpts[i].p; if(r<=s){wIdx=i;break;}} let wn=fWheelOpts[wIdx], sl=360/10, o=5+Math.random()*(sl-10), tR=360*5+(360-(wIdx*sl+o)); const w=$('focus-wheel'); w.style.transition='transform 4s cubic-bezier(0.17,0.67,0.1,1)'; w.style.transform=`rotate(${tR}deg)`; try{const ctx=getAudioCtx(); if(ctx){let c=0, iv=setInterval(()=>{if(c>=20){clearInterval(iv);return;}c++;const t=ctx.currentTime;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(400+c*20,t);osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1);gain.gain.setValueAtTime(0.1,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.1);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);},200-c*5);}}catch(e){} setTimeout(()=>{ isFSpn=false; $('btn-focus-spin').innerText="QUAY THƯỞNG"; let m=`Kết quả: ${wn.n}!\n`; $('zen-wheel-box').style.display='none'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; if(wn.t==='work'){m+=`Bắt đầu học ${wn.tm}p!`;alert(m); isWrk=true; W_TIME=wn.tm*60; tL=W_TIME; tvErn=0; afkTrg=false; isFrc=false; pmStk="NONE"; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; updTmr(); startTimer();} else if(wn.t==='endl'){m+=`Chế độ Vô Cực!`;alert(m); startEndlessMode();} else if(wn.t==='imm'){sys.immunity++; saveAllData(); m+=`Nhận Thẻ Bảo Hộ. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='dxp'){sys.doubleXp++; saveAllData(); m+=`Nhận Thẻ x2. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='jack'){addTuVi(wn.xp); m+=`Nhận ${wn.xp} XP. Nghỉ 5p.`;alert(m); startBreak(5);} else {m+=`Nghỉ ngơi ${wn.tm}p.`;alert(m); startBreak(wn.tm);} }, 4000); }
         function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('blood-pact-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
-        function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); recordFocusSession(Math.floor(endSec/60)); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
+        function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); let minsDone = Math.floor(endSec/60); recordFocusSession(minsDone); trackQuest('time', minsDone); trackQuest('sessions', 1); if(endXp >= 45) trackQuest('deep_work', 1); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
         function triggerAFK() { if(sys.mem.tier === 'ULTRA') return; afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); }
         function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
         function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ!"); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ!"); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm giá!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
@@ -2010,8 +2075,7 @@
         function updTmr() { $('zen-timer').innerText=`${Math.floor(tL/60).toString().padStart(2,'0')}:${(tL%60).toString().padStart(2,'0')}`; }
         
         function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
-        function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed
-:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
+        function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
         
         function requestNotificationPermission() { if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") { Notification.requestPermission(); } }
         function checkTaskNotifications() { if (!("Notification" in window) || Notification.permission !== "granted") return; let tdy = getRealDayIndex(); let now = new Date(); let currentTimeInMinutes = now.getHours() * 60 + now.getMinutes(); if (!scheduleData[tdy]) return; scheduleData[tdy].forEach(t => { if (t.time && !t.completed && !t.missed && !t.notified) { let [tH, tM] = t.time.split(':').map(Number); let taskTimeInMinutes = tH * 60 + tM; if (taskTimeInMinutes - currentTimeInMinutes === 15) { new Notification("Nhắc nhở công việc 📜", { body: `Thông báo: 15 phút nữa đến giờ thực hiện: ${t.text}`, icon: "https://img.icons8.com/color/192/000000/calendar--v1.png", silent: true }); t.notified = true; saveAllData(); } } }); }
