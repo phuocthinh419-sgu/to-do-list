@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Planner V84 - VIP Edition</title>
+    <title>Academic Planner V100 - Kỷ Nguyên Bá Đồ</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -54,6 +54,27 @@
         .cd-lbl { font-family: 'Inter', sans-serif; font-size: 0.65rem; color: #94a3b8; font-weight: 600; letter-spacing: 1px; margin-top: 8px; }
         .cd-btn-edit { position: absolute; top: 15px; right: 15px; background: rgba(212, 175, 55, 0.05); border: 1px solid #d4af37; color: #d4af37; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.8rem; z-index: 10; font-weight: bold; }
         .cd-btn-edit:hover { background: #d4af37; color: #000; box-shadow: 0 0 10px rgba(212,175,55,0.5); }
+
+        /* LĂNG KÍNH DANH VỌNG (Hall of Fame) */
+        .hof-panel { background: linear-gradient(135deg, var(--card-bg) 0%, rgba(212,175,55,0.05) 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); border-top: 3px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+        .hof-title { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 700; color: #d4af37; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; }
+        .hof-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .hof-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); transition: 0.3s; }
+        .hof-box:hover { border-color: #d4af37; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212,175,55,0.2); }
+        .hof-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .hof-val { font-size: 1.4rem; font-weight: 900; color: var(--text-main); font-family: 'Black Ops One', cursive; }
+        .hof-val.gold { color: #d4af37; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        
+        /* GIAO DIỆN THUẾ MÙNG 5 */
+        .tax-alert { background: linear-gradient(45deg, #7f1d1d, #dc2626); color: white; padding: 15px 30px; margin: 20px 30px 0; border-radius: 8px; border: 1px solid #fca5a5; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(220,38,38,0.5); animation: tax-pulse 2s infinite; display: none; }
+        @keyframes tax-pulse { 0% { box-shadow: 0 0 10px rgba(220,38,38,0.5); } 50% { box-shadow: 0 0 30px rgba(220,38,38,0.9); } 100% { box-shadow: 0 0 10px rgba(220,38,38,0.5); } }
+        .tax-info { display: flex; flex-direction: column; }
+        .tax-info strong { font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
+        .tax-info span { font-size: 0.85rem; opacity: 0.9; }
+        .btn-pay-tax { background: #fff; color: #dc2626; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.5); text-transform: uppercase; }
+        .btn-pay-tax:hover { background: #fef08a; transform: scale(1.05); }
+        
+        .tax-holiday-alert { background: linear-gradient(45deg, #d4af37, #f59e0b); color: black; padding: 15px 30px; margin: 20px 30px 0; border-radius: 8px; border: 1px solid #fef08a; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(212,175,55,0.5); display: none; font-weight: bold;}
 
         .ghost-panel{background:var(--card-bg);margin:20px 30px 0;padding:15px 25px;border-radius:12px;border:1px solid var(--border-color);box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:10px;} .ghost-title{font-weight:700;color:var(--text-main);display:flex;justify-content:space-between;} .ghost-track{height:8px;background:var(--border-color);border-radius:4px;overflow:hidden;position:relative;} .ghost-fill-past{position:absolute;top:0;left:0;height:100%;background:var(--text-muted);opacity:0.5;transition:width 1s;z-index:1;} .ghost-fill-now{position:absolute;top:0;left:0;height:100%;background:var(--success);transition:width 1s;z-index:2;box-shadow:0 0 10px var(--success);}
         #main-board{transition:filter 0.3s;} .board{display:flex;gap:20px;padding:20px 30px;overflow-x:auto;align-items:flex-start;min-height:calc(100vh - 150px);} .day-column{background:var(--card-bg);min-width:300px;max-width:320px;flex:1;border-radius:12px;border:1px solid var(--border-color);box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);display:flex;flex-direction:column;transition:background 0.3s,border 0.3s;} .day-header{padding:15px 20px;border-bottom:1px solid var(--border-color);} .day-title{font-weight:700;font-size:1.1rem;display:flex;justify-content:space-between;align-items:center;} .today-badge{font-size:0.75rem;background:var(--primary);color:white;padding:3px 8px;border-radius:12px;font-weight:600;} .progress-container{margin-top:12px;} .progress-text{font-size:0.8rem;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;} .progress-track{height:6px;background:var(--border-color);border-radius:3px;overflow:hidden;} .progress-fill{height:100%;background:var(--success);width:0%;transition:width 0.4s ease;}
@@ -199,11 +220,35 @@
         .btn-blood:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
         .btn-blood-cashout { background: linear-gradient(45deg, #fbbf24, #d97706); color: black; text-shadow: none; animation: pulse-sec-royal 1.5s infinite; }
 
+        /* LĂNG KÍNH DANH VỌNG (Hall of Fame) */
+        .hof-panel { background: linear-gradient(135deg, var(--card-bg) 0%, rgba(212,175,55,0.05) 100%); margin: 20px 30px 0; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); border-top: 3px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+        .hof-title { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 700; color: #d4af37; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; }
+        .hof-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .hof-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); transition: 0.3s; }
+        .hof-box:hover { border-color: #d4af37; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212,175,55,0.2); }
+        .hof-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .hof-val { font-size: 1.4rem; font-weight: 900; color: var(--text-main); font-family: 'Black Ops One', cursive; }
+        .hof-val.gold { color: #d4af37; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        
+        /* GIAO DIỆN THUẾ MÙNG 5 */
+        .tax-alert { background: linear-gradient(45deg, #7f1d1d, #dc2626); color: white; padding: 15px 30px; margin: 20px 30px 0; border-radius: 8px; border: 1px solid #fca5a5; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(220,38,38,0.5); animation: tax-pulse 2s infinite; display: none; }
+        @keyframes tax-pulse { 0% { box-shadow: 0 0 10px rgba(220,38,38,0.5); } 50% { box-shadow: 0 0 30px rgba(220,38,38,0.9); } 100% { box-shadow: 0 0 10px rgba(220,38,38,0.5); } }
+        .tax-info { display: flex; flex-direction: column; }
+        .tax-info strong { font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
+        .tax-info span { font-size: 0.85rem; opacity: 0.9; }
+        .btn-pay-tax { background: #fff; color: #dc2626; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.5); text-transform: uppercase; }
+        .btn-pay-tax:hover { background: #fef08a; transform: scale(1.05); }
+        
+        .tax-holiday-alert { background: linear-gradient(45deg, #d4af37, #f59e0b); color: black; padding: 15px 30px; margin: 20px 30px 0; border-radius: 8px; border: 1px solid #fef08a; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(212,175,55,0.5); display: none; font-weight: bold;}
+
         @media (max-width:768px) { 
             .header{padding:15px 20px;flex-direction:column;gap:15px;align-items:flex-start;} .board{padding:15px;flex-direction:column;overflow-x:hidden;min-height:auto;} .day-column{min-width:100%;max-width:100%;} .task-actions{opacity:1;position:static;margin-top:10px;justify-content:flex-end;} .zen-quote-en{font-size:1rem;} .zen-btn-action{padding:10px 25px;font-size:1rem;} .wheel-wrapper{width:260px;height:260px;} .wheel-label{font-size:0.65rem;padding-right:15px;} .countdown-timer { gap: 5px; } .cd-box { min-width: 55px; padding: 5px 2px; } .cd-num { font-size: 1.5rem; } .countdown-title { font-size: 0.9rem; } .countdown-title::before, .countdown-title::after { width: 15px; } 
             #zen-image-card.orient-vertical { width:120px; height:160px; top:20px; left:20px; border-radius:10px; } 
             #zen-image-card.orient-horizontal { width:180px; height:100px; top:20px; left:20px; border-radius:10px; } 
             .music-player { width: 90%; right: 5%; bottom: 85px; }
+            .hof-grid { grid-template-columns: 1fr 1fr; }
+            .tax-alert, .tax-holiday-alert { flex-direction: column; gap: 15px; text-align: center; }
+            .btn-pay-tax { width: 100%; }
         }
     </style>
 </head>
@@ -211,7 +256,7 @@
 
     <div id="main-board">
         <header class="header">
-            <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V84 VIP</div>
+            <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V100 VIP</div>
             <div class="header-controls">
                 <div id="header-tuvi-badge" class="btn btn-outline"><i class="fas fa-star"></i> <span id="header-tuvi-text">0 XP</span></div>
                 <div id="header-coin-badge" class="btn">🪙 <span id="ui-coins">$0</span></div>
@@ -234,10 +279,55 @@
                 <input type="file" id="import-file" style="display:none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
+        
+        <div id="tax-holiday-banner" class="tax-holiday-alert">
+            <div class="tax-info">
+                <strong><i class="fas fa-crown"></i> THÁNG HOÀNG KIM: MIỄN THUẾ 100%</strong>
+                <span>Mọi giao dịch sinh lời sẽ không bị tính thuế. Hãy tận dụng!</span>
+            </div>
+            <div style="font-family: 'Black Ops One', cursive; font-size: 1.5rem;" id="tax-holiday-countdown">30 NGÀY 00:00:00</div>
+        </div>
+
+        <div id="tax-banner" class="tax-alert">
+            <div class="tax-info">
+                <strong><i class="fas fa-file-invoice-dollar"></i> CHIẾU CHỈ NỘP THUẾ (MÙNG 5)</strong>
+                <span id="tax-banner-desc">Bạn đang nợ thuế hệ thống. Nếu không nộp trước 23:59 hôm nay, tài sản sẽ bị cưỡng chế x2!</span>
+            </div>
+            <button class="btn-pay-tax" onclick="payTax()"><span id="tax-amount-btn">$0</span> - NỘP NGAY</button>
+        </div>
 
         <div id="countdown-wrapper" class="countdown-panel">
             <button class="cd-btn-edit" onclick="openCountdownModal()"><i class="fas fa-pen"></i> Chỉnh tấu</button>
             <div id="countdown-events-container" class="cd-event-container"></div>
+        </div>
+        
+        <div class="hof-panel">
+            <div class="hof-title">
+                <span><i class="fas fa-monument"></i> Lăng Kính Danh Vọng</span>
+                <span style="font-size: 0.8rem; font-family: 'Inter', sans-serif; text-transform: none; color: var(--text-muted);"><i class="fas fa-info-circle"></i> Di sản bất diệt của bậc Đế vương</span>
+            </div>
+            <div class="hof-grid">
+                <div class="hof-box">
+                    <div class="hof-lbl">Tổng giờ Focus</div>
+                    <div class="hof-val gold" id="hof-total-time">0h 0m</div>
+                </div>
+                <div class="hof-box">
+                    <div class="hof-lbl">Số phiên nhập định</div>
+                    <div class="hof-val" id="hof-total-sessions">0</div>
+                </div>
+                <div class="hof-box">
+                    <div class="hof-lbl">Kỷ lục ngày bế quan</div>
+                    <div class="hof-val gold" id="hof-best-day">0h 0m</div>
+                </div>
+                <div class="hof-box">
+                    <div class="hof-lbl">Chuỗi Kỷ Lục</div>
+                    <div class="hof-val" id="hof-best-streak" style="color: #ef4444;">0 Ngày</div>
+                </div>
+                <div class="hof-box">
+                    <div class="hof-lbl">Chuỗi Hiện Tại</div>
+                    <div class="hof-val" id="hof-curr-streak" style="color: #10b981;">0 Ngày</div>
+                </div>
+            </div>
         </div>
 
         <div class="ghost-panel">
@@ -299,6 +389,18 @@
                 <div class="mem-status">Thẻ hội viên: <span id="ui-mem-tier">BASIC</span></div>
                 <div class="mem-timer" id="ui-mem-timer">Trạng thái: Miễn phí vĩnh viễn</div>
                 <div class="mem-toggle" id="ui-mem-toggle-box" style="display:none;"><input type="checkbox" id="mem-auto-renew" onchange="toggleAutoRenew()"> <label for="mem-auto-renew" id="ui-mem-renew-label">Tự động gia hạn</label></div>
+            </div>
+            
+            <div style="background: rgba(220,38,38,0.05); border: 1px dashed #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="color:#ef4444; margin-bottom:10px;"><i class="fas fa-file-invoice-dollar"></i> Sổ Nợ Thuế Triều Đình</h4>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem;">
+                    <span>Thuế đang nợ (Phải nộp vào mùng 5):</span>
+                    <strong style="color:#ef4444; font-size:1.1rem;" id="shop-tax-debt">$0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
+                    <span>Mức giảm thuế (Do Streak):</span>
+                    <strong style="color:var(--success);" id="shop-tax-discount">0%</strong>
+                </div>
             </div>
             
             <div style="border: 2px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 15px; border-radius: 12px; margin: 20px 0;">
@@ -633,8 +735,8 @@
         const REALMS = [{name:"Tân Sinh",min:0,color:{r:156,g:163,b:175}},{name:"Tú Tài",min:25,color:{r:56,g:189,b:248}},{name:"Cử Nhân",min:100,color:{r:52,g:211,b:153}},{name:"Thạc Sĩ",min:300,color:{r:250,g:204,b:21}},{name:"Tiến Sĩ",min:1000,color:{r:192,g:132,b:252}},{name:"Phó Giáo Sư",min:3000,color:{r:248,g:113,b:113}},{name:"Giáo Sư",min:10000,color:{r:251,g:146,b:60}}];
         const MAX_POINTS = 10000;
         const DAYS_OF_WEEK = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
-        const STORAGE_KEY = "planner_data_v84_vip";
-        const TEMPLATE_KEY = "planner_template_v84";
+        const STORAGE_KEY = "planner_data_v100_vip";
+        const TEMPLATE_KEY = "planner_template_v100";
         const THEMES = ['light','dark','detective','nature'];
 
         let scheduleData = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
@@ -657,28 +759,33 @@
             focusImage: "", focusImageOrientation: "vertical",
             
             music: {
-                tier: 'BASIC', 
-                expire: 0,
-                lifetime: false,
-                skin: 'default', 
-                unlockedSkins: ['default'],
-                tracks: [], 
-                currentIdx: 0,
-                shuffle: false,
-                loop: false
+                tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false
             },
             
-            bloodPact: { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 }
+            bloodPact: { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 },
+
+            // DỮ LIỆU V100: LĂNG KÍNH DANH VỌNG & THUẾ
+            hof: {
+                totalFocusMins: 0,
+                totalSessions: 0,
+                bestDayMins: 0,
+                todayMins: 0,
+                lastFocusDate: ""
+            },
+            tax: {
+                owed: 0,
+                holidayUntil: 0
+            }
         };
 
         const shopGachaOpts = [
             {n:"👑 1 Tháng ULTRA",c:"#fbbf24",act:()=>{sys.mem.tier='ULTRA'; sys.mem.expire=Math.max(sys.mem.expire,Date.now())+2592000000; alert("Nhận 1 THÁNG gói ULTRA!");}},
             {n:"📈 Rương Cổ Phiếu",c:"#8b5cf6",act:()=>{let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].qty+=5; alert(`Nhận 5 cổ phiếu mã $${rk}.`);}},
             {n:"🛡️ Thẻ Bảo Hộ",c:"#10b981",act:()=>{sys.punishTier=1; sys.immunity++; alert("Mức phạt được reset, nhận 1 Thẻ Bảo Hộ.");}},
-            {n:"💰 Bát Bảo Tụ",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; sys.coins+=th; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); alert(`Lãi nhân đôi! Nhận được $${th.toFixed(2)}.`);}else{sys.coins+=100; alert("Quỹ tiết kiệm trống, hoàn lại $100 phí quay.");}}},
+            {n:"💰 Bát Bảo Tụ",c:"#34d399",act:()=>{if(sys.bankUnclaimed>0){let th=sys.bankUnclaimed*2; processTax(th, "Quỹ Tiết Kiệm (X2)"); sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now();}else{sys.coins+=100; alert("Quỹ tiết kiệm trống, hoàn lại $100 phí quay.");}}},
             {n:"🍀 Tiểu Lộc",c:"#3b82f6",act:()=>{sys.coins+=150; alert("Trúng thưởng $150.");}},
             {n:"💨 Hư Vô",c:"#94a3b8",act:()=>{alert("Không trúng thưởng.");}},
-            {n:"⚖️ Nộp Thuế",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Nộp thuế hệ thống $${tx}.`);}},
+            {n:"⚖️ Nộp Thuế",c:"#dc2626",act:()=>{let tx=Math.floor(sys.coins*0.1); sys.coins-=tx; alert(`Sòng bài thu phí $${tx.toLocaleString()}.`);}},
             {n:"⛓️ Bế Quan",c:"#000000",act:()=>{alert("Cưỡng chế phiên tập trung 25 phút!"); closeModal('shop-modal'); toggleZenMode(); $('zen-time-select').value="25"; startTimer(true);}}
         ];
 
@@ -698,7 +805,15 @@
         function getRealDayIndex() { let d=new Date().getDay(); return d===0?6:d-1; }
         function generateId() { return Math.random().toString(36).substr(2,9); }
 
+        /* MIGRATION & INIT */
         function loadAllData() {
+            // Chuyển đổi dữ liệu cũ nếu dùng bản V84
+            const oldData = localStorage.getItem("planner_data_v84_vip");
+            if (oldData && !localStorage.getItem(STORAGE_KEY)) {
+                localStorage.setItem(STORAGE_KEY, oldData);
+                localStorage.removeItem("planner_data_v84_vip");
+            }
+
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) { const parsed = JSON.parse(savedData); scheduleData = parsed.schedule || scheduleData; sys = { ...sys, ...parsed.sys }; }
             sys.points = Number(sys.points)||0; sys.coins = Number(sys.coins)||0; sys.streak = Number(sys.streak)||0; sys.bankCapital = Number(sys.bankCapital)||0; sys.bankUnclaimed = Number(sys.bankUnclaimed)||0; sys.currentTheme = sys.currentTheme||'light';
@@ -715,15 +830,18 @@
             if(!sys.unlockedThemes) sys.unlockedThemes = []; if(!sys.mem) sys.mem = {tier:'BASIC',expire:0,auto:false,autoTier:'BASIC',autoDays:0};
             if(!sys.bankLastHarvest) sys.bankLastHarvest = Date.now();
             if(!sys.lastSoiCau) sys.lastSoiCau = 0; if(!sys.streakIcon) sys.streakIcon = '🔥'; if(!sys.unlockedIcons) sys.unlockedIcons = ['🔥'];
-            
-            if(sys.targetEvent) { if(sys.targetEvent.name) sys.targetEvents = [sys.targetEvent]; delete sys.targetEvent; }
             if(!sys.targetEvents) sys.targetEvents = [];
 
-            if(!sys.music || !sys.music.tracks) {
-                sys.music = { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false };
-            }
-            if(!sys.bloodPact) {
-                sys.bloodPact = { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 };
+            if(!sys.music || !sys.music.tracks) { sys.music = { tier: 'BASIC', expire: 0, lifetime: false, skin: 'default', unlockedSkins: ['default'], tracks: [], currentIdx: 0, shuffle: false, loop: false }; }
+            if(!sys.bloodPact) { sys.bloodPact = { active: false, targetDate: "", targetMins: 0, wager: 0, currentMins: 0 }; }
+            if(!sys.hof) { sys.hof = { totalFocusMins: 0, totalSessions: 0, bestDayMins: 0, todayMins: 0, lastFocusDate: "" }; }
+            if(!sys.tax) { sys.tax = { owed: 0, holidayUntil: 0 }; }
+
+            // Reset Daily Mins nếu sang ngày mới
+            let tStr = new Date().toDateString();
+            if(sys.hof.lastFocusDate !== tStr) {
+                sys.hof.todayMins = 0;
+                sys.hof.lastFocusDate = tStr;
             }
 
             let now = Date.now();
@@ -733,17 +851,14 @@
                 let dr = sys.streak * 0.01; 
                 let offlineInterest = sys.bankCapital * (dr / 86400) * (timeDiff / 1000); 
                 sys.bankUnclaimed += offlineInterest;
-                
-                if (sys.bankUnclaimed > sys.bankCapital * dr) {
-                    sys.bankUnclaimed = sys.bankCapital * dr;
-                }
+                if (sys.bankUnclaimed > sys.bankCapital * dr) sys.bankUnclaimed = sys.bankCapital * dr;
             }
 
             if (timeDiff >= 86400000) {
                 if (sys.mem.tier === 'BASIC') {
                     sys.bankUnclaimed = 0; 
                 } else {
-                    sys.coins += sys.bankUnclaimed; 
+                    processTax(sys.bankUnclaimed, "Lãi suất Tiết kiệm qua đêm");
                     sys.bankUnclaimed = 0;
                 }
                 sys.bankLastHarvest = now;
@@ -756,9 +871,11 @@
             applyMusicSkin();
             initMusicPlayer();
             updateBloodPactUI();
+            updateHallOfFameUI();
+            checkTaxDay();
         }
 
-        function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); }
+        function saveAllData() { localStorage.setItem(STORAGE_KEY, JSON.stringify({schedule: scheduleData, sys: sys})); updateSystemUI(); updateGhostBar(); updateHallOfFameUI(); }
         function applyTheme(tn) { sys.currentTheme=tn; tn==='light'?document.documentElement.removeAttribute('data-theme'):document.documentElement.setAttribute('data-theme',tn); saveAllData(); }
         function toggleThemeCycle() { let a=[...THEMES,...sys.unlockedThemes], ci=a.indexOf(sys.currentTheme), ni=ci===-1?0:(ci+1)%a.length; applyTheme(a[ni]); }
 
@@ -773,19 +890,192 @@
         function updateSystemUI() {
             const {current, next} = getRealmInfo(sys.points);
             $('header-tuvi-text').innerText = `${current.name}: ${sys.points} XP`;
-             if($('ui-coins')) $('ui-coins').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
-             $('header-streak-badge').innerHTML = `${sys.streakIcon} <span id="streak-text">${sys.streak} Ngày</span>`;
-                        if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
+            if($('ui-coins')) $('ui-coins').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+            $('header-streak-badge').innerHTML = `${sys.streakIcon} <span id="streak-text">${sys.streak} Ngày</span>`;
+            if($('wager-text')) $('wager-text').innerText = sys.wagerAmount>0 ? `Cam kết: ${sys.wagerAmount} XP` : `Cam Kết`;
+            
             if($('zen-rank')) { $('zen-rank').innerText=current.name; const cStr=`rgb(${current.color.r},${current.color.g},${current.color.b})`; $('zen-rank').style.color=cStr; $('zen-rank').style.borderColor=cStr; $('zen-xp-fill').style.width=next?`${((sys.points-current.min)/(next.min-current.min))*100}%`:'100%'; $('zen-xp-text').innerText=next?`${sys.points} / ${next.min} XP`:`${sys.points} / ${MAX_POINTS} MAX`; }
             $('ui-inv-immunity').innerText = `🛡️ ${sys.immunity}`; $('ui-inv-double').innerText = `✨ ${sys.doubleXp}`;
+            
             if($('shop-modal').style.display==='flex') {
                 $('shop-coins-display').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
                 updateMusicShopUI();
+                
+                // Update Tax Display in Shop
+                if($('shop-tax-debt')) $('shop-tax-debt').innerText = `$${Math.floor(sys.tax.owed).toLocaleString()}`;
+                let discount = getTaxDiscount();
+                if($('shop-tax-discount')) $('shop-tax-discount').innerText = discount > 0 ? `Giảm ${discount}%` : "0%";
             }
             if($('stock-modal').style.display==='flex') renderStockMarket();
         }
 
-        /* --- LOGIC ĐỒNG HỒ SINH TỬ --- */
+        /* --- THUẾ HOÀNG GIA (TAX SYSTEM) V100 --- */
+        function getTaxDiscount() {
+            if (sys.streak >= 100) return 10;
+            if (sys.streak >= 60) return 5;
+            if (sys.streak >= 30) return 3;
+            return 0;
+        }
+
+        function checkTaxHoliday() {
+            if (Date.now() < sys.tax.holidayUntil) return true;
+            return false;
+        }
+
+        function processTax(profit, sourceDesc) {
+            if (profit <= 0) return;
+            sys.coins += profit; // Nhận tiền vào túi trước
+
+            if (checkTaxHoliday()) {
+                console.log(`Miễn thuế cho khoản lãi $${profit} từ ${sourceDesc} do đang trong Tháng Hoàng Kim.`);
+                return;
+            }
+
+            let baseTaxRate = 0;
+            if (profit > 50000000) baseTaxRate = 28;
+            else if (profit > 1000000) baseTaxRate = 18;
+            else if (profit >= 10000) baseTaxRate = 10;
+
+            if (baseTaxRate > 0) {
+                let discount = getTaxDiscount();
+                let finalTaxRate = Math.max(0, baseTaxRate - discount);
+                let taxAmount = (profit * finalTaxRate) / 100;
+                
+                if (taxAmount > 0) {
+                    sys.tax.owed += taxAmount;
+                    console.log(`Ghi sổ nợ thuế: $${taxAmount} (${finalTaxRate}%) từ khoản lãi $${profit} (${sourceDesc})`);
+                }
+            }
+            saveAllData();
+            checkTaxDay();
+        }
+
+        function checkTaxDay() {
+            let now = new Date();
+            let day = now.getDate();
+            
+            // Xử lý banner Tháng Hoàng Kim
+            if (checkTaxHoliday()) {
+                $('tax-holiday-banner').style.display = 'flex';
+                let diff = sys.tax.holidayUntil - Date.now();
+                let d = Math.floor(diff / 86400000);
+                let h = Math.floor((diff % 86400000) / 3600000);
+                let m = Math.floor((diff % 3600000) / 60000);
+                let s = Math.floor((diff % 60000) / 1000);
+                $('tax-holiday-countdown').innerText = `${d} NGÀY ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                $('tax-banner').style.display = 'none';
+                return;
+            } else {
+                $('tax-holiday-banner').style.display = 'none';
+            }
+
+            // Ngày mùng 5 - Ngày nộp thuế
+            if (day === 5 && sys.tax.owed > 0) {
+                $('tax-banner').style.display = 'flex';
+                $('tax-amount-btn').innerText = `$${Math.floor(sys.tax.owed).toLocaleString()}`;
+            } else {
+                $('tax-banner').style.display = 'none';
+            }
+
+            // Xử lý trốn thuế (Sang ngày 6 mà vẫn còn nợ thuế của tháng trước)
+            if (day > 5 && sys.tax.owed > 0) {
+                let penalty = sys.tax.owed * 2;
+                if (sys.coins >= penalty) {
+                    sys.coins -= penalty;
+                } else {
+                    sys.coins = 0; // Tịch thu toàn bộ nếu không đủ trả nợ x2
+                }
+                sys.tax.owed = 0;
+                saveAllData();
+                alert(`💀 ÁN PHẠT TRỐN THUẾ!\n\nĐã qua ngày mùng 5 mà bệ hạ không nộp thuế! Hệ thống đã cưỡng chế tịch thu $${Math.floor(penalty).toLocaleString()} (x2 Sổ Nợ) từ ngân khố!`);
+            }
+        }
+        setInterval(checkTaxDay, 1000);
+
+        function payTax() {
+            if (sys.tax.owed <= 0) return;
+            if (sys.coins < sys.tax.owed) {
+                alert("Ngân khố không đủ tiền mặt! Bệ hạ phải bán tháo cổ phiếu hoặc chốt sổ tiết kiệm để lấy tiền nộp thuế!");
+                return;
+            }
+            if (confirm(`Xác nhận rút $${Math.floor(sys.tax.owed).toLocaleString()} từ ngân khố để nộp thuế cho triều đình?`)) {
+                sys.coins -= sys.tax.owed;
+                sys.tax.owed = 0;
+                saveAllData();
+                updateSystemUI();
+                playRealisticBoom();
+                alert("Đã hoàn tất nghĩa vụ thuế! Triều đình ghi nhận sự cống hiến của bệ hạ!");
+            }
+        }
+
+        function checkStreakRewards(newStreak) {
+            let msg = "";
+            let gotReward = false;
+
+            // Mốc 7 Ngày: 3 Ngày PRO
+            if (newStreak === 7) {
+                let msAdd = 3 * 86400000;
+                if(sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA') sys.mem.expire = Math.max(Date.now(), sys.mem.expire) + msAdd;
+                else { sys.mem.tier = 'PRO'; sys.mem.expire = Date.now() + msAdd; }
+                msg += "🎁 Mốc 7 Ngày: Được ban thưởng 3 Ngày thẻ PRO!\n";
+                gotReward = true;
+            }
+            // Mốc 14 Ngày: 1 Ngày ULTRA
+            if (newStreak === 14) {
+                let msAdd = 1 * 86400000;
+                if(sys.mem.tier === 'ULTRA') sys.mem.expire = Math.max(Date.now(), sys.mem.expire) + msAdd;
+                else { sys.mem.tier = 'ULTRA'; sys.mem.expire = Date.now() + msAdd; }
+                msg += "🎁 Mốc 14 Ngày: Được ban thưởng 1 Ngày thẻ TỐI THƯỢNG (ULTRA)!\n";
+                gotReward = true;
+            }
+            // Mốc 30, 60, 100 đã chuyển thành Giảm Thuế (Passive), không cần popup vật phẩm.
+
+            // Vòng lặp Miễn Thuế (150, 200, 250...)
+            if (newStreak > 100 && newStreak % 50 === 0) {
+                sys.tax.holidayUntil = Date.now() + (30 * 86400000); // 30 ngày
+                msg += "👑 MỐC CHUỖI VĨ ĐẠI!\nTriều đình ban phát 1 THÁNG MIỄN THUẾ 100% cho mọi giao dịch!\n";
+                gotReward = true;
+            }
+
+            if (gotReward) {
+                saveAllData(); updateMemUI(); alert(msg); runBigFireworks();
+            }
+        }
+
+
+        /* --- LĂNG KÍNH DANH VỌNG UI --- */
+        function formatHofTime(mins) {
+            let h = Math.floor(mins / 60);
+            let m = Math.floor(mins % 60);
+            return `${h}h ${m}m`;
+        }
+
+        function updateHallOfFameUI() {
+            $('hof-total-time').innerText = formatHofTime(sys.hof.totalFocusMins);
+            $('hof-total-sessions').innerText = sys.hof.totalSessions;
+            $('hof-best-day').innerText = formatHofTime(sys.hof.bestDayMins);
+            $('hof-best-streak').innerText = `${sys.highestStreak} Ngày`;
+            $('hof-curr-streak').innerText = `${sys.streak} Ngày`;
+        }
+
+        function recordFocusSession(mins) {
+            sys.hof.totalFocusMins += mins;
+            sys.hof.totalSessions += 1;
+            
+            let tStr = new Date().toDateString();
+            if(sys.hof.lastFocusDate !== tStr) {
+                sys.hof.todayMins = 0;
+                sys.hof.lastFocusDate = tStr;
+            }
+            sys.hof.todayMins += mins;
+            
+            if (sys.hof.todayMins > sys.hof.bestDayMins) {
+                sys.hof.bestDayMins = sys.hof.todayMins;
+            }
+            saveAllData();
+        }
+
+        /* --- THE REST (Tiện ích, Gacha, Bảng việc...) --- */
         function openCountdownModal() { renderCountdownModalList(); $('countdown-modal').style.display = 'flex'; }
         function renderCountdownModalList() {
             let h = ''; sys.targetEvents.forEach((ev, i) => { h += `<div style="display:flex; justify-content:space-between; background:var(--input-bg); padding:10px; border:1px solid var(--border-color); border-radius:6px; margin-bottom:8px; align-items:center;"><div style="flex:1; text-align:left;"><strong style="color:var(--primary); font-size:0.9rem;">${ev.name}</strong><br><small style="color:var(--text-muted);">${new Date(ev.date).toLocaleString('vi-VN')}</small></div><button class="btn-icon delete" style="border:none; padding:8px;" onclick="deleteCountdownEvent(${i})"><i class="fas fa-trash"></i></button></div>`; });
@@ -1124,6 +1414,7 @@
             return {
                 basePct: Math.round(baseRate * 100),
                 feverPct: Math.round(feverRate * 100),
+                profitValue: baseProfit + feverProfit, // CHỈ TRẢ VỀ LÃI
                 totalReturn: wager + baseProfit + feverProfit
             };
         }
@@ -1208,7 +1499,9 @@
             let extraMins = Math.max(0, bp.currentMins - bp.targetMins);
             let reward = getBloodPactReward(committedHours, extraMins, bp.wager);
 
-            sys.coins += reward.totalReturn;
+            sys.coins += bp.wager; // Trả lại vốn không tính thuế
+            processTax(reward.profitValue, "Lãi Huyết Khế Kỳ Hạn"); // Chỉ đánh thuế phần LÃI
+            
             sys.bloodPact.active = false;
             
             saveAllData();
@@ -1216,7 +1509,7 @@
             updateSystemUI();
             runBigFireworks();
             playRealisticBoom();
-            alert(`🔥 CHIẾN THẮNG HUYẾT KHẾ!\n\nBệ hạ đã cày cuốc không ngừng nghỉ và thu về $${Math.floor(reward.totalReturn).toLocaleString()} (Gốc + Lãi)!\nQuả là một ý chí thép!`);
+            alert(`🔥 CHIẾN THẮNG HUYẾT KHẾ!\n\nBệ hạ đã cày cuốc không ngừng nghỉ và thu hồi vốn $${bp.wager.toLocaleString()} cùng phần lãi khổng lồ!\n(Lãi suất đã được chuyển vào hệ thống xử lý thuế)`);
         }
 
         function checkBloodPactPenalty() {
@@ -1349,7 +1642,9 @@
                 sys.streak++; if(sys.streak>sys.highestStreak)sys.highestStreak=sys.streak; 
                 let m=`Hoàn thành xuất sắc! Chuỗi: ${sys.streak} ngày. Thưởng +50 XP/USD!`; 
                 if(sys.wagerAmount>0){let w=sys.wagerAmount*2; addTuVi(w); m+=`\nThắng cược: +${w} XP!`; sys.wagerAmount=0;} 
-                addTuVi(50); ts.forEach(t=>t.locked=true); alert(m); runBigFireworks(); playRealisticBoom(); renderBoard(); saveAllData(); 
+                addTuVi(50); ts.forEach(t=>t.locked=true); alert(m); runBigFireworks(); playRealisticBoom(); 
+                checkStreakRewards(sys.streak);
+                renderBoard(); saveAllData(); 
             } else { 
                 let exemptCount = (sys.mem.tier === 'PRO' || sys.mem.tier === 'ULTRA') ? Math.min(inc.length, 2) : 0;
                 let penalizedCount = inc.length - exemptCount;
@@ -1522,8 +1817,12 @@
             } else {
                 if(s.qty>0){
                     let rev = sys.mem.tier === 'ULTRA' ? s.price : Math.floor(s.price * 0.98); 
-                    sys.coins+=rev; s.qty--; if(s.qty === 0) s.avgCost = 0; 
+                    let pnl = rev - s.avgCost; // Tính lãi của 1 cổ phiếu
+                    sys.coins+=rev; // Tiền vốn trả thẳng
+                    s.qty--; if(s.qty === 0) s.avgCost = 0; 
+                    
                     if(sys.mem.tier !== 'ULTRA') alert(`Đã thu 2% phí giao dịch. Thực nhận: $${rev}`);
+                    if(pnl > 0) processTax(pnl, `Chốt lãi cổ phiếu $${k}`);
                 } else return alert("Kho đã hết cổ phiếu!");
             } 
             playTickSound(); saveAllData(); updateSystemUI(); renderStockMarket(); 
@@ -1533,7 +1832,7 @@
         function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-modal').style.display='flex'; }
         function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi $${a.toLocaleString()}.`);}else alert("Thiếu USD!"); }
         function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút $${a.toLocaleString()}.`);}else alert("Vốn không đủ!"); }
-        function harvestBank() { if(sys.bankUnclaimed>0){sys.coins+=sys.bankUnclaimed; sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công!"); playChime();} }
+        function harvestBank() { if(sys.bankUnclaimed>0){ processTax(sys.bankUnclaimed, "Thu hoạch lãi Tiết Kiệm"); sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công! Tiền thuế đã được khấu trừ (nếu có)."); playChime();} }
         
         function updateLottoCountdown() {
             const timerElem = $('lotto-timer'); if (!timerElem) return;
@@ -1579,10 +1878,12 @@
             let ticketTargetDate = new Date(sys.lottoTicket.date); ticketTargetDate.setHours(16, 0, 0, 0);
             if(now < ticketTargetDate) return; 
             let result = getResultForDate(sys.lottoTicket.date); let match = sys.lottoTicket.numbers.filter(n => result.includes(n)).length; let win = 0; let taxMsg = "";
-            if(match === 6) { win = 2000000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 5) { win = 50000 * 0.9; taxMsg = "(Đã trừ 10% thuế)"; } else if(match === 4) win = 5000; else if(match === 3) win = 500;
+            if(match === 6) { win = 2000000; taxMsg = "(Đã trừ thuế)"; } else if(match === 5) { win = 50000; taxMsg = "(Đã trừ thuế)"; } else if(match === 4) win = 5000; else if(match === 3) win = 500;
             let dObj = new Date(sys.lottoTicket.date); let dStr = `${dObj.getDate().toString().padStart(2,'0')}/${(dObj.getMonth()+1).toString().padStart(2,'0')}`;
             let msg = `KẾT QUẢ XỔ SỐ KỲ ${dStr}:\n🎯 Số trúng: ${result.map(x=>x.toString().padStart(2,'0')).join(' - ')}\n🎫 Vé của bạn: ${sys.lottoTicket.numbers.map(x=>x.toString().padStart(2,'0')).join(' - ')}\n✨ Kết quả: Trúng ${match} số!`;
-            sys.lottoTicket = null; if(win > 0) sys.coins += win; saveAllData(); updateLottoUI(); updateSystemUI();
+            sys.lottoTicket = null; 
+            if(win > 0) processTax(win, "Trúng Xổ Số"); 
+            saveAllData(); updateLottoUI(); updateSystemUI();
             if(win > 0) { alert(`${msg}\nChúc mừng! Bạn nhận được $${Math.floor(win).toLocaleString()} ${taxMsg}!`); runBigFireworks(); playRealisticBoom(); } else { alert(`${msg}\nChúc bạn may mắn lần sau!`); }
         }
         function buyExtraSpins(amount, cost) {
@@ -1681,6 +1982,10 @@
                     if(isWrk) { 
                         if(isFrc) { alert("Hoàn thành phiên phạt."); resetTimer(); toggleZenMode(); return; } 
                         let rw = W_TIME === 15*60 ? 25 : W_TIME === 50*60 ? 125 : 50; 
+                        
+                        // LƯU LĂNG KÍNH DANH VỌNG
+                        recordFocusSession(W_TIME / 60);
+
                         if(isDbl){rw*=2; sys.doubleXp--; saveAllData(); alert("Hoàn thành! Xp nhân đôi.");} 
                         runBigFireworks(); playRealisticBoom(); addTuVi(rw); 
                         if(pmStk!=="NONE" && sys.stocks[pmStk]) { sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*1.2); alert(`Mã $${pmStk} đã tăng 20%!`); saveAllData(); } 
@@ -1708,7 +2013,7 @@
         }
         let isFSpn = false; function spinFocusWheel() { if(isFSpn) return; isFSpn=true; $('btn-focus-spin').innerText="Đang quay..."; let r=Math.random()*100, s=0, wIdx=0; for(let i=0;i<fWheelOpts.length;i++){s+=fWheelOpts[i].p; if(r<=s){wIdx=i;break;}} let wn=fWheelOpts[wIdx], sl=360/10, o=5+Math.random()*(sl-10), tR=360*5+(360-(wIdx*sl+o)); const w=$('focus-wheel'); w.style.transition='transform 4s cubic-bezier(0.17,0.67,0.1,1)'; w.style.transform=`rotate(${tR}deg)`; try{const ctx=getAudioCtx(); if(ctx){let c=0, iv=setInterval(()=>{if(c>=20){clearInterval(iv);return;}c++;const t=ctx.currentTime;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(400+c*20,t);osc.frequency.exponentialRampToValueAtTime(0.01,t+0.1);gain.gain.setValueAtTime(0.1,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.1);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.1);},200-c*5);}}catch(e){} setTimeout(()=>{ isFSpn=false; $('btn-focus-spin').innerText="QUAY THƯỞNG"; let m=`Kết quả: ${wn.n}!\n`; $('zen-wheel-box').style.display='none'; $('zen-controls').style.display='flex'; $('zen-quote-box').style.display='flex'; if(wn.t==='work'){m+=`Bắt đầu học ${wn.tm}p!`;alert(m); isWrk=true; W_TIME=wn.tm*60; tL=W_TIME; tvErn=0; afkTrg=false; isFrc=false; pmStk="NONE"; $('zen-energy-fill').style.width='0%'; $('btn-zen-start').innerText="Tạm dừng"; updTmr(); startTimer();} else if(wn.t==='endl'){m+=`Chế độ Vô Cực!`;alert(m); startEndlessMode();} else if(wn.t==='imm'){sys.immunity++; saveAllData(); m+=`Nhận Thẻ Bảo Hộ. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='dxp'){sys.doubleXp++; saveAllData(); m+=`Nhận Thẻ x2. Nghỉ 5p.`;alert(m); startBreak(5);} else if(wn.t==='jack'){addTuVi(wn.xp); m+=`Nhận ${wn.xp} XP. Nghỉ 5p.`;alert(m); startBreak(5);} else {m+=`Nghỉ ngơi ${wn.tm}p.`;alert(m); startBreak(wn.tm);} }, 4000); }
         function startEndlessMode() { isEndl=true; isRun=true; endSec=0; endXp=0; afkTrg=false; isFrc=false; pmStk="NONE"; stEndl=Date.now(); $('btn-zen-start').style.display='none'; $('zen-time-select').style.display='none'; $('btn-zen-cashout').style.display='inline-block'; $('btn-zen-reset').style.display='none'; $('zen-pump-box').style.display='none'; $('blood-pact-box').style.display='none'; $('zen-timer').classList.add('ticking'); $('zen-energy-bar').classList.remove('break-mode'); $('zen-energy-bar').classList.add('active'); zTmr=setInterval(()=>{endSec=Math.floor((Date.now()-stEndl)/1000); if(!afkTrg&&endSec>300){if(Math.random()<0.005)triggerAFK();} let ms=Math.floor(endSec/60), tx=0; if(ms<=15)tx=ms; else if(ms<=30)tx=15+(ms-15)*2; else tx=45+(ms-30)*3; endXp=tx; $('zen-status').innerText=`🔥 VÔ CỰC: +${tx} XP`; $('zen-status').style.color="#f5a623"; $('zen-energy-fill').style.width=`${(endSec%60/60)*100}%`; $('zen-timer').innerText=`${Math.floor(endSec/60).toString().padStart(2,'0')}:${(endSec%60).toString().padStart(2,'0')}`;}, 1000); }
-        function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
+        function cashOutEndless() { clearInterval(zTmr); isRun=false; isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; if(endXp>0){addTuVi(endXp); recordFocusSession(Math.floor(endSec/60)); runBigFireworks(); playRealisticBoom(); alert(`Lưu ${endXp} XP thành công. Nghỉ 10p.`); startBreak(10);}else{alert(`Nghỉ ngơi 5p.`); startBreak(5);} }
         function triggerAFK() { if(sys.mem.tier === 'ULTRA') return; afkTrg=true; $('afk-overlay').style.display='flex'; afkV=15; $('afk-timer').innerText=afkV; playAlarmSound(); afkCnt=setInterval(()=>{afkV--; $('afk-timer').innerText=afkV; if(afkV<=5&&afkV>0)playTickSound(); if(afkV<=0){clearInterval(afkCnt); afkFail();}}, 1000); }
         function afkSuccess() { clearInterval(afkCnt); $('afk-overlay').style.display='none'; }
         function afkFail() { $('afk-overlay').style.display='none'; if(isEndl){if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ!"); cashOutEndless();}else{isEndl=false; $('btn-zen-cashout').style.display='none'; $('btn-zen-start').style.display='inline-block'; $('btn-zen-reset').style.display='inline-block'; alert("Hủy thưởng."); resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}}else{if(sys.immunity>0){sys.immunity--; saveAllData(); alert("Dùng Thẻ Bảo Hộ!"); resetTimer();}else{if(pmStk!=="NONE"&&sys.stocks[pmStk]){sys.stocks[pmStk].price=Math.floor(sys.stocks[pmStk].price*0.5); alert(`$${pmStk} giảm giá!`);} resetTimer(); toggleZenMode(); showPunishmentModal("Treo máy.");}} }
@@ -1718,7 +2023,9 @@
         function updTmr() { $('zen-timer').innerText=`${Math.floor(tL/60).toString().padStart(2,'0')}:${(tL%60).toString().padStart(2,'0')}`; }
         
         function exportExcel() { let r=[["Ngày","Khung Giờ","Công việc","Phân loại","Trạng thái","Ghi chú"]]; DAYS_OF_WEEK.forEach((d,i)=>{const ts=scheduleData[i]||[]; ts.forEach(t=>{r.push([d,t.time||"",t.text,t.color,t.completed?"Xong":t.missed?"Bỏ lỡ":"Chưa",t.rolledOver?`Dời từ ${t.originalDay}`:""]);});}); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(r); ws['!cols']=[{wch:10},{wch:10},{wch:40},{wch:10},{wch:10},{wch:15}]; XLSX.utils.book_append_sheet(wb,ws,"Planner"); XLSX.writeFile(wb,`Planner_${new Date().toISOString().slice(0,10)}.xlsx`); }
-        function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
+        function importExcel(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=function(ev){try{const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'}); const j=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); let n={0:[],1:[],2:[],3:[],4:[],5:[],6:[]}; j.forEach(row=>{const i=DAYS_OF_WEEK.indexOf(row["Ngày"]); if(i!==-1)n[i].push({id:generateId(),text:row["Công việc"]||"",time:row["Khung Giờ"]||"",color:row["Phân loại"]||"default",completed
+:row["Trạng thái"]==="Xong",rolledOver:!!row["Ghi chú"],originalDay:row["Ghi chú"]?row["Ghi chú"].replace("Dời từ ",""):null,locked:row["Trạng thái"]==="Xong"||row["Trạng thái"]==="Bỏ lỡ",missed:row["Trạng thái"]==="Bỏ lỡ"});}); scheduleData=n; saveAllData(); alert("Khôi phục thành công!"); renderBoard();}catch(err){alert("Lỗi file.");} e.target.value='';}; r.readAsArrayBuffer(f); }
+        
         function requestNotificationPermission() { if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") { Notification.requestPermission(); } }
         function checkTaskNotifications() { if (!("Notification" in window) || Notification.permission !== "granted") return; let tdy = getRealDayIndex(); let now = new Date(); let currentTimeInMinutes = now.getHours() * 60 + now.getMinutes(); if (!scheduleData[tdy]) return; scheduleData[tdy].forEach(t => { if (t.time && !t.completed && !t.missed && !t.notified) { let [tH, tM] = t.time.split(':').map(Number); let taskTimeInMinutes = tH * 60 + tM; if (taskTimeInMinutes - currentTimeInMinutes === 15) { new Notification("Nhắc nhở công việc 📜", { body: `Thông báo: 15 phút nữa đến giờ thực hiện: ${t.text}`, icon: "https://img.icons8.com/color/192/000000/calendar--v1.png", silent: true }); t.notified = true; saveAllData(); } } }); }
         
