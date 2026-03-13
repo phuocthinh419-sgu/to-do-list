@@ -953,6 +953,7 @@
         function checkTaxDay() {
             let now = new Date();
             let day = now.getDate();
+            let currentMonthStr = now.getFullYear() + "-" + now.getMonth();
             
             // Xử lý banner Tháng Hoàng Kim
             if (checkTaxHoliday()) {
@@ -969,16 +970,18 @@
                 $('tax-holiday-banner').style.display = 'none';
             }
 
-            // Ngày mùng 5 - Ngày nộp thuế
+            // Ngày mùng 5 - Treo cờ đòi nợ
             if (day === 5 && sys.tax.owed > 0) {
                 $('tax-banner').style.display = 'flex';
                 $('tax-amount-btn').innerText = `$${Math.floor(sys.tax.owed).toLocaleString()}`;
+                sys.tax.isDueMonth = currentMonthStr; // Đánh dấu tháng này ĐÃ ĐÒI
+                saveAllData();
             } else {
                 $('tax-banner').style.display = 'none';
             }
 
-            // Xử lý trốn thuế (Sang ngày 6 mà vẫn còn nợ thuế của tháng trước)
-            if (day > 5 && sys.tax.owed > 0) {
+            // Trốn thuế: Qua ngày 5 mà chưa nộp CỦA THÁNG ĐÃ BỊ ĐÒI
+            if (day > 5 && sys.tax.owed > 0 && sys.tax.isDueMonth === currentMonthStr) {
                 let penalty = sys.tax.owed * 2;
                 if (sys.coins >= penalty) {
                     sys.coins -= penalty;
@@ -986,6 +989,7 @@
                     sys.coins = 0; // Tịch thu toàn bộ nếu không đủ trả nợ x2
                 }
                 sys.tax.owed = 0;
+                sys.tax.isDueMonth = ""; // Xóa án tích sau khi phạt
                 saveAllData();
                 alert(`💀 ÁN PHẠT TRỐN THUẾ!\n\nĐã qua ngày mùng 5 mà bệ hạ không nộp thuế! Hệ thống đã cưỡng chế tịch thu $${Math.floor(penalty).toLocaleString()} (x2 Sổ Nợ) từ ngân khố!`);
             }
