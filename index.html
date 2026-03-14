@@ -270,6 +270,7 @@
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
+                <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openGallery()"><i class="fas fa-trophy"></i> Gallery</button>
                 <button class="btn btn-outline" onclick="toggleThemeCycle()"><i class="fas fa-palette"></i></button>
                 <button class="btn btn-zen" onclick="toggleZenMode()"><i class="fas fa-fire"></i> Focus Mode</button>
                 <button class="btn btn-outline" onclick="saveTemplate()"><i class="fas fa-bookmark"></i></button>
@@ -737,6 +738,25 @@
                 <button onclick="openPlaylistModal()" title="Mở danh sách nhạc"><i class="fas fa-list"></i></button>
             </div>
             <audio id="core-audio" style="display:none;" onended="handleTrackEnd()"></audio>
+        </div>
+    </div>
+            <div class="modal-overlay" id="gallery-modal" style="z-index: 1005;">
+        <div class="modal" style="max-width: 850px; border-color: #d4af37; box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);">
+            <div class="modal-header" style="color: #d4af37;">
+                <span><i class="fas fa-crown"></i> Trophy Gallery</span>
+                <button class="close-modal" onclick="closeGallery()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="gallery-ketsat" style="background: rgba(16,185,129,0.05); border: 1px dashed #10b981; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; display: none;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;"><i class="fas fa-ticket-alt"></i> Doanh Thu Tham Quan</div>
+                <div style="font-size: 2.2rem; font-weight: 900; color: #10b981; font-family: 'Black Ops One', cursive; margin: 10px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.2);" id="gallery-income-display">$0</div>
+                <div id="gallery-action-area"></div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 20px; color: var(--text-main);">
+                Số dư hiện tại: <strong id="gallery-wallet" style="color: #d4af37; font-size: 1.3rem;">$0</strong>
+            </div>
+            <div id="trophy-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;"></div>
         </div>
     </div>
 
@@ -2123,6 +2143,179 @@
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; const installBtn = document.getElementById('btn-install-app'); if (installBtn) { installBtn.style.display = 'flex'; installBtn.addEventListener('click', async () => { installBtn.style.display = 'none'; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { console.log('Bệ hạ đã chấp thuận cài đặt'); } deferredPrompt = null; }); } });
         window.addEventListener('appinstalled', () => { const installBtn = document.getElementById('btn-install-app'); if (installBtn) installBtn.style.display = 'none'; deferredPrompt = null; console.log('PWA đã được cài đặt thành công'); });
+// ================= DANH SÁCH VẬT PHẨM & LOGIC PHÒNG TRƯNG BÀY =================
+        const TROPHIES = [
+            { id: 'epl', name: 'Premier League Trophy', price: 1500000000, color: '#3d195b', income: 500000, 
+              img: 'https://www.nicepng.com/png/full/410-4101738_1st-place-the-premier-league-trophy-barclay-premier.png' },
+            { id: 'asiancup', name: 'AFC Asian Cup Trophy', price: 2000000000, color: '#00a651', income: 800000, 
+              img: 'https://wallpapers.com/images/hd/a-f-c-asian-cup-trophy-l5y0wye0ea1p28ip-2.jpg' },
+            { id: 'ucl', name: 'UEFA Champions League Trophy', price: 4000000000, color: '#003366', income: 1500000, 
+              img: 'https://www.icons.com/media/catalog/product/cache/e1052113a0bc78e1ca02d3895d567666/i/2/i2685_-_uefa_champions_league_trophy_replica_100mm_-_icons_1.webp' },
+            { id: 'ballondor', name: 'Ballon d\'Or', price: 6000000000, color: '#ffd700', income: 2500000, 
+              img: 'https://png.pngtree.com/png-clipart/20250621/original/pngtree-3d-ballon-d-or-football-trophy-no-background-png-image_21215466.png' },
+            { id: 'euro', name: 'UEFA Euro Trophy', price: 7000000000, color: '#0094b9', income: 3000000, 
+              img: 'https://i.namu.wiki/i/1xURo6dw_39fsnMWuChW9KlkGL8MrFhHYoJ5QE8CnkuVolRMZMJgExpjcmS-wkxE8X6qCVbFKrxHPsaWTza2bw.webp' },
+            { id: 'worldcup', name: 'FIFA World Cup Trophy', price: 10000000000, color: '#d4af37', income: 5000000, 
+              img: 'https://www.pngall.com/wp-content/uploads/13/FIFA-World-Cup-Qatar-Trophy-PNG-Images.png' }
+        ];
+
+        let galleryTimer = null;
+
+        function openGallery() {
+            if (!sys.gallery) sys.gallery = []; 
+            if (sys.galleryIncome === undefined) sys.galleryIncome = 0;
+            if (!sys.lastGalleryHarvest) sys.lastGalleryHarvest = Date.now();
+            if (!sys.galleryMaintenancePaid) sys.galleryMaintenancePaid = "";
+
+            $('gallery-wallet').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+            renderGallery(); 
+            
+            renderGalleryKetsat();
+            galleryTimer = setInterval(renderGalleryKetsat, 1000);
+
+            $('gallery-modal').style.display = 'flex';
+        }
+        
+        function closeGallery() { 
+            clearInterval(galleryTimer);
+            $('gallery-modal').style.display = 'none'; 
+        }
+
+        function getLiveGalleryIncome() {
+             if (!sys.gallery || sys.gallery.length === 0) return sys.galleryIncome || 0;
+             let dailyIncome = 0;
+             sys.gallery.forEach(id => {
+                 let t = TROPHIES.find(x => x.id === id);
+                 if(t) dailyIncome += t.income;
+             });
+             
+             // Giảm doanh thu nếu chuỗi kỷ luật = 0
+             if (sys.streak === 0) dailyIncome = dailyIncome / 5;
+
+             let diff = Date.now() - sys.lastGalleryHarvest;
+             let earned = (dailyIncome / 86400000) * diff;
+             return (sys.galleryIncome || 0) + earned;
+        }
+
+        function renderGalleryKetsat() {
+            let ketsat = $('gallery-ketsat');
+            if(!sys.gallery || sys.gallery.length === 0) { ketsat.style.display = 'none'; return; }
+            ketsat.style.display = 'block';
+
+            let today = new Date();
+            let date = today.getDate();
+            let currentMonthStr = today.getFullYear() + "-" + today.getMonth();
+
+            let actionArea = $('gallery-action-area');
+            let incomeDisplay = $('gallery-income-display');
+            let liveInc = getLiveGalleryIncome();
+
+            if (date === 5) {
+                incomeDisplay.innerText = "BẢO TRÌ ĐỊNH KỲ";
+                incomeDisplay.style.color = "#ef4444";
+                actionArea.innerHTML = `<button class="btn btn-outline" style="color:#ef4444; border-color:#ef4444; width:100%; justify-content:center; font-weight:bold;" disabled><i class="fas fa-tools"></i> Ngày 5: Đóng cửa bảo trì</button>`;
+            } else if (sys.galleryMaintenancePaid !== currentMonthStr && date > 5) {
+                incomeDisplay.innerText = "TẠM KHÓA";
+                incomeDisplay.style.color = "#f59e0b";
+                actionArea.innerHTML = `
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Vui lòng thanh toán phí bảo trì hàng tháng để mở cửa và tiếp tục thu hoạch $${Math.floor(liveInc).toLocaleString()}</p>
+                    <button class="btn btn-warning" style="width:100%; justify-content:center; color:black; font-weight:bold; background:#d4af37; border:none;" onclick="payGalleryMaintenance('${currentMonthStr}')">
+                        <i class="fas fa-hammer"></i> Nộp $5,000,000 Phí Bảo Trì
+                    </button>`;
+            } else {
+                incomeDisplay.innerText = `$${Math.floor(liveInc).toLocaleString()}`;
+                incomeDisplay.style.color = "#10b981";
+                actionArea.innerHTML = `<button class="btn btn-success" style="width:100%; justify-content:center; font-weight:bold;" onclick="harvestGallery()"><i class="fas fa-hand-holding-usd"></i> THU HOẠCH DOANH THU</button>`;
+            }
+        }
+
+        function harvestGallery() {
+            let liveInc = Math.floor(getLiveGalleryIncome());
+            if (liveInc <= 0) return alert("Chưa có doanh thu để thu hoạch!");
+            
+            sys.galleryIncome = 0;
+            sys.lastGalleryHarvest = Date.now();
+            
+            processTax(liveInc, "Doanh thu Phòng Trưng Bày"); 
+            saveAllData();
+            updateSystemUI();
+            $('gallery-wallet').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+            playChime();
+            alert(`🎉 Thu hoạch thành công $${liveInc.toLocaleString()} doanh thu tham quan!`);
+            renderGalleryKetsat();
+        }
+
+        function payGalleryMaintenance(monthStr) {
+            let cost = 5000000; 
+            if (sys.coins < cost) return alert("Số dư không đủ $5,000,000 để nộp phí bảo trì!");
+            
+            if (confirm("Xác nhận thanh toán $5,000,000 phí bảo trì cho Phòng Trưng Bày?")) {
+                sys.coins -= cost;
+                sys.galleryMaintenancePaid = monthStr;
+                saveAllData();
+                updateSystemUI();
+                $('gallery-wallet').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+                playRealisticBoom();
+                alert("✨ Trùng tu thành công! Phòng trưng bày đã hoạt động trở lại.");
+                renderGalleryKetsat();
+            }
+        }
+
+        function renderGallery() {
+            const grid = $('trophy-grid'); grid.innerHTML = '';
+            TROPHIES.forEach(t => {
+                const isOwned = sys.gallery.includes(t.id);
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: var(--surface); border: 2px solid ${isOwned ? t.color : '#333'}; 
+                    border-radius: 12px; padding: 20px 10px; text-align: center;
+                    transition: 0.4s; opacity: ${isOwned ? '1' : '0.5'};
+                    box-shadow: ${isOwned ? `0 0 25px ${t.color}50` : 'none'};
+                    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+                `;
+                card.innerHTML = `
+                    <div style="height: 160px; display: flex; align-items: center; margin-bottom: 15px;">
+                        <img src="${t.img}" style="max-height: 100%; max-width: 100%; object-fit: contain; 
+                             filter: ${isOwned ? `drop-shadow(0px 10px 15px ${t.color})` : 'grayscale(100%) brightness(0.4)'};">
+                    </div>
+                    <div style="font-weight: bold; font-size: 1rem; margin-bottom: 5px; color: var(--text-main);">${t.name}</div>
+                    <div style="font-size: 0.75rem; color: #10b981; margin-bottom: 15px; font-weight: bold;"><i class="fas fa-ticket-alt"></i> Doanh thu: $${(t.income/1000).toLocaleString()}k/Ngày</div>
+                    ${isOwned 
+                        ? `<div style="color: #10b981; font-weight: bold; width: 100%; padding: 8px; background: rgba(16,185,129,0.15); border-radius: 6px;">ĐÃ SỞ HỮU</div>` 
+                        : `<button class="btn btn-outline" style="width:100%; border-color:${t.color}; color:${t.color};" onclick="buyTrophy('${t.id}')">
+                            $${(t.price / 1000000000).toFixed(1)} Tỷ
+                           </button>`
+                    }
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function buyTrophy(id) {
+            const t = TROPHIES.find(x => x.id === id);
+            if(!t) return;
+            
+            if (confirm(`Xác nhận thanh toán $${t.price.toLocaleString()} để mua "${t.name}"?`)) {
+                if (sys.coins >= t.price) {
+                    sys.coins -= t.price; 
+                    
+                    sys.galleryIncome = getLiveGalleryIncome(); 
+                    sys.lastGalleryHarvest = Date.now();
+                    
+                    sys.gallery.push(id); 
+                    saveAllData(); 
+                    updateSystemUI();
+                    $('gallery-wallet').innerText = `$${Math.floor(sys.coins).toLocaleString()}`;
+                    renderGallery(); 
+                    alert(`🎉 Mua thành công ${t.name}!\nVật phẩm này sẽ tự động tạo ra doanh thu tham quan.`); 
+                    runBigFireworks();
+                    playRealisticBoom();
+                } else {
+                    alert(`Số dư không đủ! Bạn còn thiếu $${(t.price - sys.coins).toLocaleString()}.`);
+                }
+            }
+        }
+        // =============================================================================
 
         /* KÍCH HOẠT ĐỒNG LOẠT CÁC HỆ THỐNG THỜI GIAN CỦA BỆ HẠ */
         document.addEventListener('DOMContentLoaded', ()=>{
