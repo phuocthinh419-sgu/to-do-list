@@ -857,7 +857,7 @@
             let timeDiff = now - sys.bankLastHarvest;
             
             if (sys.bankCapital > 0 && timeDiff > 0) {
-                let dr = Math.max(1, sys.streak) * 0.01; 
+                let dr = Math.min(20, Math.max(1, sys.streak)) * 0.01;
                 let offlineInterest = sys.bankCapital * dr * (timeDiff / 86400000); 
                 sys.bankUnclaimed = offlineInterest; 
             }
@@ -1872,12 +1872,16 @@
         }                
         function soiCauUltra() { if(sys.mem.tier !== 'ULTRA') return alert("Chỉ dành cho hội viên ULTRA!"); let today = new Date().setHours(0,0,0,0); if(sys.lastSoiCau > today) return alert("Bạn đã soi cầu hôm nay rồi!"); let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket(); alert(`Phân tích: Mã $${rk} dự kiến sẽ tăng mạnh. Hãy cân nhắc đầu tư!`); }
         
-        function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-modal').style.display='flex'; }
+        function openBankModal() { 
+    $('bank-rate-display').innerText = Math.min(20, Math.max(1, sys.streak)); 
+    $('bank-capital-display').innerText = `$${sys.bankCapital.toLocaleString()}`; 
+    $('bank-modal').style.display='flex'; 
+}
         
         // Hệ thống hiển thị lãi suất nhảy số liên tục (Real-time)
         function updateBankLive() {
             if(sys.bankCapital > 0) {
-                let dr = Math.max(1, sys.streak) * 0.01;
+                let dr = Math.min(20, Math.max(1, sys.streak)) * 0.01;
                 let timeDiff = Date.now() - sys.bankLastHarvest;
                 let liveInterest = sys.bankCapital * dr * (timeDiff / 86400000);
                 // BASIC cháy lãi nếu không thu hoạch sau 24h
@@ -1895,7 +1899,7 @@
         function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){ harvestBank(true); sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút $${a.toLocaleString()}.`);}else alert("Vốn không đủ!"); }
         
         function harvestBank(silent = false) { 
-            let dr = Math.max(1, sys.streak) * 0.01;
+            let dr = Math.min(20, Math.max(1, sys.streak)) * 0.01;
             let timeDiff = Date.now() - sys.bankLastHarvest;
             let liveInterest = sys.bankCapital * dr * (timeDiff / 86400000);
             if (sys.mem.tier === 'BASIC' && timeDiff >= 86400000) liveInterest = 0;
