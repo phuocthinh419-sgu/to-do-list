@@ -413,13 +413,13 @@
             </div>
             
             <div style="background: rgba(220,38,38,0.05); border: 1px dashed #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <h4 style="color:#ef4444; margin-bottom:10px;"><i class="fas fa-file-invoice-dollar"></i> Sổ Nợ Thuế Triều Đình</h4>
+                <h4 style="color:#ef4444; margin-bottom:10px;"><i class="fas fa-file-invoice-dollar"></i> Sổ theo dõi công nợ thuế</h4>
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem;">
-                    <span>Thuế đang nợ (Phải nộp vào mùng 5):</span>
+                    <span>Thuế đang chờ thanh toán (Nộp vào ngày 5 hàng tháng):</span>
                     <strong style="color:#ef4444; font-size:1.1rem;" id="shop-tax-debt">$0</strong>
                 </div>
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
-                    <span>Mức giảm thuế (Do Streak):</span>
+                    <span>Mức giảm thuế (Streak Reward):</span>
                     <strong style="color:var(--success);" id="shop-tax-discount">0%</strong>
                 </div>
             </div>
@@ -864,11 +864,11 @@
 
             let now = Date.now();
             let timeDiff = now - sys.bankLastHarvest;
-            if (sys.bankCapital > 0 && sys.streak > 0 && timeDiff > 0) {
-                let dr = sys.streak * 0.01; 
-                let offlineInterest = sys.bankCapital * (dr / 86400) * (timeDiff / 1000); 
-                sys.bankUnclaimed += offlineInterest;
-                if (sys.bankUnclaimed > sys.bankCapital * dr) sys.bankUnclaimed = sys.bankCapital * dr;
+            
+            if (sys.bankCapital > 0 && timeDiff > 0) {
+                let dr = Math.max(1, sys.streak) * 0.01; 
+                let offlineInterest = sys.bankCapital * dr * (timeDiff / 86400000); 
+                sys.bankUnclaimed = offlineInterest; 
             }
 
             if (timeDiff >= 86400000) {
@@ -1872,9 +1872,44 @@
         function soiCauUltra() { if(sys.mem.tier !== 'ULTRA') return alert("Chỉ dành cho hội viên ULTRA!"); let today = new Date().setHours(0,0,0,0); if(sys.lastSoiCau > today) return alert("Bạn đã soi cầu hôm nay rồi!"); let ks=Object.keys(sys.stocks), rk=ks[Math.floor(Math.random()*ks.length)]; sys.stocks[rk].price = Math.floor(sys.stocks[rk].price * 1.5); sys.lastSoiCau = Date.now(); saveAllData(); renderStockMarket(); alert(`Phân tích: Mã $${rk} dự kiến sẽ tăng mạnh. Hãy cân nhắc đầu tư!`); }
         
         function openBankModal() { $('bank-rate-display').innerText=Math.max(1,sys.streak); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-modal').style.display='flex'; }
-        function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi $${a.toLocaleString()}.`);}else alert("Thiếu USD!"); }
-        function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút $${a.toLocaleString()}.`);}else alert("Vốn không đủ!"); }
-        function harvestBank() { if(sys.bankUnclaimed>0){ processTax(sys.bankUnclaimed, "Thu hoạch lãi Tiết Kiệm"); sys.bankUnclaimed=0; sys.bankLastHarvest=Date.now(); saveAllData(); alert("Thu hoạch lãi thành công! Tiền thuế đã được khấu trừ (nếu có)."); playChime();} }
+        
+        // Hệ thống hiển thị lãi suất nhảy số liên tục (Real-time)
+        function updateBankLive() {
+            if(sys.bankCapital > 0) {
+                let dr = Math.max(1, sys.streak) * 0.01;
+                let timeDiff = Date.now() - sys.bankLastHarvest;
+                let liveInterest = sys.bankCapital * dr * (timeDiff / 86400000);
+                // BASIC cháy lãi nếu không thu hoạch sau 24h
+                if(sys.mem.tier === 'BASIC' && timeDiff >= 86400000) liveInterest = 0; 
+                
+                if($('bank-modal').style.display === 'flex') {
+                    $('bank-interest-display').innerText = `$${liveInterest.toFixed(4)}`;
+                }
+            }
+        }
+        setInterval(updateBankLive, 1000);
+
+        function depositBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.coins>=a){ harvestBank(true); sys.coins-=a; sys.bankCapital+=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã gửi $${a.toLocaleString()}.`);}else alert("Thiếu USD!"); }
+        
+        function withdrawBank() { let a=parseInt($('bank-input-amount').value); if(isNaN(a)||a<=0)return alert("Sai số lượng!"); if(sys.bankCapital>=a){ harvestBank(true); sys.coins+=a; sys.bankCapital-=a; sys.bankLastHarvest=Date.now(); saveAllData(); $('bank-capital-display').innerText=`$${sys.bankCapital.toLocaleString()}`; $('bank-input-amount').value=''; playTickSound(); alert(`Đã rút $${a.toLocaleString()}.`);}else alert("Vốn không đủ!"); }
+        
+        function harvestBank(silent = false) { 
+            let dr = Math.max(1, sys.streak) * 0.01;
+            let timeDiff = Date.now() - sys.bankLastHarvest;
+            let liveInterest = sys.bankCapital * dr * (timeDiff / 86400000);
+            if (sys.mem.tier === 'BASIC' && timeDiff >= 86400000) liveInterest = 0;
+            
+            if(liveInterest > 0){ 
+                processTax(liveInterest, "Thu hoạch lãi Tiết Kiệm"); 
+                sys.bankUnclaimed = 0; 
+                sys.bankLastHarvest = Date.now(); 
+                if($('bank-interest-display')) $('bank-interest-display').innerText = `$0.0000`;
+                saveAllData(); 
+                if(!silent) { alert(`Thu hoạch $${liveInterest.toFixed(2)} thành công! Tiền thuế đã được tính (nếu có).`); playChime(); }
+            } else {
+                if(!silent) alert("Chưa có lãi để thu hoạch, hoặc lãi đã cháy do quá 24h (Gói Basic)!");
+            }
+        }
         
         function updateLottoCountdown() {
             const timerElem = $('lotto-timer'); if (!timerElem) return;
