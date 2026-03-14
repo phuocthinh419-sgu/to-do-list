@@ -263,7 +263,7 @@
                 <div id="header-streak-badge" class="btn">🔥 <span id="streak-text">0 Ngày</span></div>
                 <div id="header-mem-badge" class="btn tier-basic"><i class="fas fa-user"></i> <span>BASIC</span></div>
                 <div id="header-buffs-badge" class="btn btn-outline"><span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span></div>
-                <div id="header-wager-badge" class="btn btn-outline" onclick="openWagerModal()"><i class="fas fa-handshake"></i> <span id="wager-text">Cam Kết</span></div>
+                
                 
                 <button id="btn-quest-board" class="btn btn-outline" onclick="openQuestModal()"><i class="fas fa-scroll"></i> Hoàng Bảng</button>
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
@@ -389,15 +389,6 @@
                 </div>
             </div>
             <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('task-modal')">Hủy</button><button class="btn btn-primary" onclick="saveTask()">Lưu công việc</button></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="wager-modal">
-        <div class="modal" style="border-color:var(--primary);box-shadow:0 0 20px rgba(37,99,235,0.4);">
-            <div class="modal-header" style="color:var(--primary);"><span><i class="fas fa-handshake"></i> Cam Kết Kỷ Luật</span><button class="close-modal" onclick="closeWagerModal()"><i class="fas fa-times"></i></button></div>
-            <div style="margin-bottom:15px;font-size:0.9rem;color:var(--text-main);">Bạn đang có <strong id="wager-max-points">0</strong> XP. Hoàn thành 100% việc trong ngày nhận gấp đôi, bỏ sót mất sạch!</div>
-            <div class="form-group"><label>Số Điểm cược:</label><input type="number" id="wager-amount" class="form-control" min="1" placeholder="Nhập số điểm..."></div>
-            <div class="modal-footer"><button class="btn btn-outline" onclick="closeWagerModal()">Rút lui</button><button class="btn btn-primary" onclick="placeWager()">Xác nhận</button></div>
         </div>
     </div>
 
