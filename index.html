@@ -341,18 +341,18 @@
     <div class="modal-overlay" id="quest-modal" style="z-index: 1005;">
         <div class="modal" style="max-width: 500px; border-color: #ef4444; box-shadow: 0 0 30px rgba(239,68,68,0.3);">
             <div class="modal-header" style="color: #ef4444;">
-                <span><i class="fas fa-scroll"></i> HOÀNG BẢNG THƯỜNG NHẬT</span>
+                <span><i class="fas fa-scroll"></i> NHIỆM VỤ (BẮT BUỘC)</span>
                 <button class="close-modal" onclick="closeModal('quest-modal')"><i class="fas fa-times"></i></button>
             </div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; font-style: italic;">
-                Hệ thống Thiên Nhãn tự động giám sát. Bỏ dở bất kỳ nhiệm vụ nào lúc qua ngày mới sẽ bị <b>tịch thu 10% tổng ngân khố</b>.
+                Hệ thống tự động giám sát. Sang ngày mới, nếu phát hiện bất kì nhiệm vụ nào chưa hoàn thành sẽ bị <b>TỊCH THU 10% tổng tài sản</b>.
             </p>
             <div id="quest-list-container">
                 </div>
             
             <div id="quest-jackpot-container" class="jackpot-box" style="display: none;">
                 <h4 style="color: #d4af37; margin-bottom: 5px;"><i class="fas fa-treasure-chest"></i> RƯƠNG HOÀN MỸ</h4>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Phần thưởng tối thượng cho kẻ chinh phục hoàn toàn Hoàng Bảng hôm nay.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Phần thưởng tối thượng cho người chinh phục hoàn toàn nhiệm vụ được giao ngày hôm nay.</p>
                 <button id="btn-claim-jackpot" class="jackpot-btn" onclick="claimJackpot()" disabled>Nhận $20,000 + Thẻ Bảo Hộ</button>
             </div>
         </div>
@@ -855,7 +855,7 @@
                     if(failed) {
                         let penalty = sys.coins * 0.1;
                         sys.coins -= penalty;
-                        alert(`💀 TRÁT ĐOẠT MỆNH (HOÀNG BẢNG)!\n\nBệ hạ đã bỏ dở bảng nhiệm vụ ngày hôm qua! Hệ thống giáng tội Kháng Chỉ, tịch thu 10% tổng ngân khố ($-${Math.floor(penalty).toLocaleString()})!`);
+                        alert(`💀 TRÁT ĐOẠT MỆNH (HOÀNG BẢNG)!\n\nBạn đã bỏ dở bảng nhiệm vụ ngày hôm qua! Hệ thống xác nhận bạn đã vi phạm, tịch thu 10% tổng tài sản ($-${Math.floor(penalty).toLocaleString()})!`);
                     }
                 }
                 generateDailyQuests();
@@ -1670,24 +1670,34 @@
         function finishDay(dIdx) { 
             if (dIdx !== getRealDayIndex()) return alert("Chỉ có thể kết thúc ngày hiện tại!"); 
 
-            // KIỂM TRA ÁN PHẠT HOÀNG BẢNG 10% TRƯỚC TIÊN
+            // KIỂM TRA ÁN PHẠT HOÀNG BẢNG 10% TRƯỚC TIÊN (CÓ CẢNH BÁO QUAY XE)
             if(sys.quests && sys.quests.list && sys.quests.list.length > 0) {
                 let failedQuests = sys.quests.list.some(q => q.current < q.target);
                 if(failedQuests) {
                      let penalty = sys.coins * 0.1;
-                     sys.coins -= penalty;
-                     sys.quests.list.forEach(q => q.current = q.target); // Xóa sổ để không phạt đúp
-                     saveAllData();
-                     alert(`💀 KHÁNG CHỈ HOÀNG BẢNG!\n\nChưa xong nhiệm vụ ngày mà dám kết thúc ngày! Tịch thu ngay 10% tổng ngân khố ($-${Math.floor(penalty).toLocaleString()})!`);
+                     // NẾU CHƯA XONG HOÀNG BẢNG, BẬT BẢNG HỎI TRƯỚC
+                     let confirmEnd = confirm(`📜 CẢNH BÁO!\n\nBạn chưa hoàn thành xong các Nhiệm vụ được giao trong ngày.\nNếu cương quyết Kết thúc ngày ngay bây giờ, bạn sẽ bị phạt 10% tổng tài sản ($-${Math.floor(penalty).toLocaleString()}).\n\nBạn có chắc chắn muốn nộp phạt để kết thúc ngày không?`);
+                     
+                     if (!confirmEnd) {
+                         return; // Người dùng thu hồi quyết định, hệ thống thu hồi cảnh báo, dừng lệnh kết thúc ngày!
+                     } else {
+                         // Cương quyết kết thúc -> Phạt
+                         sys.coins = Math.max(0, sys.coins - penalty);
+                         sys.quests.list.forEach(q => q.current = q.target); // Ép đầy tiến trình để tránh phạt đúp qua ngày
+                         saveAllData();
+                         updateSystemUI();
+                         alert(`💀 Nộp phạt thành công! Khấu trừ 10% tổng tài sản. Đề nghị bạn chấp hành nghiêm túc nội quy`);
+                     }
                 }
             }
 
+            // Xử lý Bảng Kanban
             const ts=scheduleData[dIdx], inc=ts.filter(t=>!t.completed&&!t.missed), cmp=ts.filter(t=>t.completed); 
             const tomorrowIdx = (dIdx + 1) % 7;
 
             if(inc.length===0) { 
                 sys.streak++; if(sys.streak>sys.highestStreak)sys.highestStreak=sys.streak; 
-                let m=`Hoàn thành xuất sắc! Chuỗi: ${sys.streak} ngày. Thưởng +50 XP/USD!`; 
+                let m=`Hoàn thành xuất sắc công việc trong ngày! Chuỗi: ${sys.streak} ngày. Thưởng +50 XP/USD!`; 
                 if(sys.wagerAmount>0){let w=sys.wagerAmount*2; addTuVi(w); m+=`\nThắng cược: +${w} XP!`; sys.wagerAmount=0;} 
                 addTuVi(50); ts.forEach(t=>t.locked=true); alert(m); runBigFireworks(); playRealisticBoom(); 
                 checkStreakRewards(sys.streak);
@@ -1701,7 +1711,7 @@
                 let extraFee = 0;
                 if (totalPotentialTomorrow > 10) { let taxedAmount = Math.min(inc.length, totalPotentialTomorrow - 10); extraFee = taxedAmount * 20; }
 
-                let msg = `BÁO CÁO KẾT THÚC NGÀY:\nCòn ${inc.length} việc chưa xong.\n`;
+                let msg = `BÁO CÁO KẾT THÚC NGÀY:\nCòn ${inc.length} việc chưa xong trong Bảng.\n`;
                 if(exemptCount > 0) msg += `- Đặc quyền ${sys.mem.tier}: Miễn phạt ${exemptCount} việc.\n`;
                 if(fine > 0) msg += `- Phạt sót việc (${penalizedCount} việc): -$${fine}\n`;
                 if(extraFee > 0) msg += `- Phụ thu quá tải ngày mai: -$${extraFee}\n`;
