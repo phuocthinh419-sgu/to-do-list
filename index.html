@@ -2595,7 +2595,7 @@
     </script>
    <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
@@ -2616,36 +2616,55 @@
 
   const provider = new GoogleAuthProvider();
 
-  // --- HÀM ĐỒNG BỘ DỮ LIỆU ---
+  // --- HÀM 1: ĐẨY LÊN MÂY (Dành cho máy đang có tiền) ---
   window.syncDataToCloud = async (uid) => {
       try {
-          // Gom toàn bộ dữ liệu đang có trong máy
           const localData = { ...localStorage };
-          
-          if (Object.keys(localData).length === 0) {
-              console.log("Không có dữ liệu cục bộ để đồng bộ.");
-              return;
-          }
+          if (Object.keys(localData).length === 0) return;
 
-          // Đẩy lên Firestore (lưu vào thư mục có tên là ID của bệ hạ)
           await setDoc(doc(window.db, "users", uid), localData);
-          alert("Đã đồng bộ dữ liệu lên Cloud thành công!");
+          console.log("Đã sao lưu giang sơn lên Cloud!");
       } catch (error) {
-          console.error("Lỗi đồng bộ:", error);
-          alert("Đồng bộ thất bại: " + error.message);
+          console.error("Lỗi đẩy dữ liệu:", error);
       }
   };
 
-  // --- HÀM ĐĂNG NHẬP ---
+  // --- HÀM 2: KÉO VỀ MÁY (Dành cho máy mới/Tab ẩn danh) ---
+  window.loadDataFromCloud = async (uid) => {
+      try {
+          const docSnap = await getDoc(doc(window.db, "users", uid));
+          if (docSnap.exists()) {
+              const cloudData = docSnap.data();
+              // Bơm toàn bộ tiền tài từ mây vào thẳng bộ nhớ máy này
+              for (let key in cloudData) {
+                  localStorage.setItem(key, cloudData[key]);
+              }
+              alert("Đã rước 189 tỷ USD về máy! Hệ thống sẽ tải lại để cập nhật.");
+              location.reload(); // Ép tải lại trang để số tiền hiện ra
+          } else {
+              alert("Ngân khố trên mây đang trống. Bệ hạ hãy cày cuốc nhé!");
+          }
+      } catch (error) {
+          console.error("Lỗi kéo dữ liệu:", error);
+      }
+  };
+
+  // --- HÀM ĐĂNG NHẬP THÔNG MINH ---
   window.loginWithGoogle = async () => {
       try {
           const result = await signInWithPopup(window.auth, provider);
           const user = result.user;
-          alert("Đăng nhập thành công. Xin chào: " + user.displayName);
           document.getElementById('btn-login-google').style.display = 'none';
           
-          // Kích hoạt đồng bộ ngay sau khi đăng nhập
-          await window.syncDataToCloud(user.uid);
+          // PHÂN LUỒNG: 
+          // Nếu máy này đang có tiền -> Đẩy lên mây cập nhật
+          // Nếu máy này trống không (như tab ẩn danh) -> Kéo từ mây về
+          if (localStorage.getItem('user_money')) {
+              await window.syncDataToCloud(user.uid);
+              alert("Đăng nhập & Sao lưu thành công!");
+          } else {
+              await window.loadDataFromCloud(user.uid);
+          }
 
       } catch (error) {
           console.error("Lỗi đăng nhập:", error);
@@ -2656,10 +2675,12 @@
   // --- CẢM BIẾN TRẠNG THÁI ---
   onAuthStateChanged(window.auth, (user) => {
       if (user) {
-          console.log("Trạng thái: Đã đăng nhập tài khoản", user.email);
           document.getElementById('btn-login-google').style.display = 'none';
+          // Tự động kéo dữ liệu về nếu mở lại tab ẩn danh mà phiên đăng nhập vẫn còn
+          if (!localStorage.getItem('user_money')) {
+              window.loadDataFromCloud(user.uid);
+          }
       } else {
-          console.log("Trạng thái: Chưa đăng nhập");
           document.getElementById('btn-login-google').style.display = 'block';
       }
   });
