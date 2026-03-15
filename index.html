@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Academic Planner V100 - Kỷ Nguyên Bá Đồ</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -262,11 +262,17 @@
         <button onclick="forceLoadFromCloud()" id="btn-login-cloud" style="padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
             <i class="fas fa-user-circle"></i> Đăng nhập
         </button>
+  <body>
+    <div style="position: fixed; top: 15px; right: 15px; z-index: 1001; display: flex; gap: 10px;">
+        <button onclick="forceSyncToCloud()" id="btn-sync-cloud" style="padding: 10px 15px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <i class="fas fa-cloud-upload-alt"></i> Đồng bộ dữ liệu
+        </button>
+        <button onclick="forceLoadFromCloud()" id="btn-login-cloud" style="padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <i class="fas fa-user-circle"></i> Đăng nhập
+        </button>
     </div>
 
-    <header class="header">
-    
-        <div id="main-board">
+    <div id="main-board">
         <header class="header">
             <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V100 VIP</div>
             <div class="header-controls">
@@ -275,7 +281,6 @@
                 <div id="header-streak-badge" class="btn">🔥 <span id="streak-text">0 Ngày</span></div>
                 <div id="header-mem-badge" class="btn tier-basic"><i class="fas fa-user"></i> <span>BASIC</span></div>
                 <div id="header-buffs-badge" class="btn btn-outline"><span id="ui-inv-immunity">🛡️ 0</span> &nbsp;|&nbsp; <span id="ui-inv-double">✨ 0</span></div>
-                
                 
                 <button id="btn-quest-board" class="btn btn-outline" onclick="openQuestModal()"><i class="fas fa-scroll"></i> Hoàng Bảng</button>
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
@@ -288,10 +293,7 @@
                 <button class="btn btn-zen" onclick="toggleZenMode()"><i class="fas fa-fire"></i> Focus Mode</button>
                 <button class="btn btn-outline" onclick="saveTemplate()"><i class="fas fa-bookmark"></i></button>
                 <button class="btn btn-primary" onclick="resetWeek()"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
-                <button class="btn btn-outline" onclick="$('import-file').click()"><i class="fas fa-file-import"></i></button>
                 <button class="btn btn-outline" onclick="exportExcel()"><i class="fas fa-file-export"></i></button>
-                <button id="btn-install-app" class="btn btn-primary" style="display: none; justify-content: center;"><i class="fas fa-download"></i> Cài Đặt App</button>
-                <input type="file" id="import-file" style="display:none;" accept=".xlsx, .xls" onchange="importExcel(event)">
             </div>
         </header>
         
@@ -2614,7 +2616,7 @@
         </button>
     </div>
 
-    <script type="module">
+  <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
       import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -2634,49 +2636,39 @@
       const provider = new GoogleAuthProvider();
 
       async function ensureLogin() {
-          if (!auth.currentUser) { 
-              const result = await signInWithPopup(auth, provider); 
-              return result.user;
-          }
+          if (!auth.currentUser) { await signInWithPopup(auth, provider); }
           return auth.currentUser;
       }
 
-      // NÚT: ĐỒNG BỘ DỮ LIỆU (ĐẨY LÊN)
       window.forceSyncToCloud = async () => {
           try {
               const user = await ensureLogin();
               const localData = localStorage.getItem('planner_data_v100_vip');
-              if(!localData) return alert("Ngân khố tại máy đang trống!");
-              
-              if(confirm("Xác nhận: Đẩy dữ liệu hiện tại lên Cloud để cất giữ? (Sẽ đè lên bản cũ)")) {
+              if(!localData) return alert("Máy đang rỗng!");
+              if(confirm("Xác nhận: Đẩy dữ liệu hiện tại lên Cloud?")) {
                   const btn = document.getElementById('btn-sync-cloud');
                   btn.innerText = "Đang đồng bộ...";
                   await setDoc(doc(db, "users", user.uid), { v100_data: localData });
-                  alert("ĐẠI THẮNG! Đã khóa chặt 189 tỷ và cơ ngơi lên mây.");
+                  alert("ĐẠI THẮNG! Đã lưu giang sơn lên mây.");
                   btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Đồng bộ dữ liệu';
               }
-          } catch(e) { alert("Thất bại: " + e.message); }
+          } catch(e) { alert("Lỗi: " + e.message); }
       };
 
-      // NÚT: ĐĂNG NHẬP (KÉO VỀ)
       window.forceLoadFromCloud = async () => {
           try {
               const user = await ensureLogin();
-              if(confirm("Xác nhận: Đăng nhập và Khôi phục toàn bộ dữ liệu từ Cloud về máy này?")) {
+              if(confirm("Xác nhận: Kéo dữ liệu từ Cloud về máy này?")) {
                   const btn = document.getElementById('btn-login-cloud');
                   btn.innerText = "Đang rước tiền về...";
                   const docSnap = await getDoc(doc(db, "users", user.uid));
-                  
                   if (docSnap.exists() && docSnap.data().v100_data) {
                       localStorage.setItem('planner_data_v100_vip', docSnap.data().v100_data);
-                      alert("Hoàng ân hạo đãng! Giang sơn đã hồi sinh. Đang khởi động lại...");
+                      alert("Giang sơn hồi sinh! Đang khởi động lại...");
                       location.reload();
-                  } else { 
-                      alert("Mây đang rỗng tuếch! Bệ hạ hãy chọn Đồng bộ dữ liệu trước."); 
-                      btn.innerHTML = '<i class="fas fa-user-circle"></i> Đăng nhập';
-                  }
+                  } else { alert("Mây đang rỗng!"); }
               }
-          } catch(e) { alert("Lỗi kết nối: " + e.message); }
+          } catch(e) { alert("Lỗi: " + e.message); }
       };
     </script>
 </body>
