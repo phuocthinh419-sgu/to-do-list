@@ -2593,100 +2593,100 @@
             if(modalContent) modalContent.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
-   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+  <button id="btn-login-google" onclick="loginWithGoogle()" style="position: fixed; top: 15px; right: 15px; z-index: 9999; padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+        <i class="fas fa-user-circle"></i> Đăng nhập Cloud
+    </button>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAmDqBfe4JRBKDGVwqVS0yI9_P2O2WIzxI",
-    authDomain: "academic-planner-v100.firebaseapp.com",
-    projectId: "academic-planner-v100",
-    storageBucket: "academic-planner-v100.firebasestorage.app",
-    messagingSenderId: "80448326816",
-    appId: "1:80448326816:web:15e6dda33c3be03be90dc5",
-    measurementId: "G-S9X6T1CF0B"
-  };
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-  const app = initializeApp(firebaseConfig);
-  window.db = getFirestore(app);
-  window.auth = getAuth(app);
-  window.storage = getStorage(app);
+      const firebaseConfig = {
+        apiKey: "AIzaSyAmDqBfe4JRBKDGVwqVS0yI9_P2O2WIzxI",
+        authDomain: "academic-planner-v100.firebaseapp.com",
+        projectId: "academic-planner-v100",
+        storageBucket: "academic-planner-v100.firebasestorage.app",
+        messagingSenderId: "80448326816",
+        appId: "1:80448326816:web:15e6dda33c3be03be90dc5",
+        measurementId: "G-S9X6T1CF0B"
+      };
 
-  const provider = new GoogleAuthProvider();
+      const app = initializeApp(firebaseConfig);
+      window.db = getFirestore(app);
+      window.auth = getAuth(app);
+      window.storage = getStorage(app);
 
-  // --- HÀM 1: ĐẨY LÊN MÂY (Dành cho máy đang có tiền) ---
-  window.syncDataToCloud = async (uid) => {
-      try {
-          const localData = { ...localStorage };
-          if (Object.keys(localData).length === 0) return;
+      const provider = new GoogleAuthProvider();
 
-          await setDoc(doc(window.db, "users", uid), localData);
-          console.log("Đã sao lưu giang sơn lên Cloud!");
-      } catch (error) {
-          console.error("Lỗi đẩy dữ liệu:", error);
-      }
-  };
+      // --- HÀM 1: ĐẨY LÊN MÂY (Chỉ hút rương v100_vip) ---
+      window.syncDataToCloud = async (uid) => {
+          try {
+              const localData = localStorage.getItem('planner_data_v100_vip');
+              if (!localData) return;
 
-  // --- HÀM 2: KÉO VỀ MÁY (Dành cho máy mới/Tab ẩn danh) ---
-  window.loadDataFromCloud = async (uid) => {
-      try {
-          const docSnap = await getDoc(doc(window.db, "users", uid));
-          if (docSnap.exists()) {
-              const cloudData = docSnap.data();
-              // Bơm toàn bộ tiền tài từ mây vào thẳng bộ nhớ máy này
-              for (let key in cloudData) {
-                  localStorage.setItem(key, cloudData[key]);
-              }
-              alert("Đã rước 189 tỷ USD về máy! Hệ thống sẽ tải lại để cập nhật.");
-              location.reload(); // Ép tải lại trang để số tiền hiện ra
-          } else {
-              alert("Ngân khố trên mây đang trống. Bệ hạ hãy cày cuốc nhé!");
+              await setDoc(doc(window.db, "users", uid), { v100_data: localData });
+              alert("Thắng lợi! Toàn bộ giang sơn V100 đã được bất tử hóa trên Cloud!");
+          } catch (error) {
+              console.error("Lỗi đẩy dữ liệu:", error);
           }
-      } catch (error) {
-          console.error("Lỗi kéo dữ liệu:", error);
-      }
-  };
+      };
 
-  // --- HÀM ĐĂNG NHẬP THÔNG MINH ---
-  window.loginWithGoogle = async () => {
-      try {
-          const result = await signInWithPopup(window.auth, provider);
-          const user = result.user;
-          document.getElementById('btn-login-google').style.display = 'none';
+      // --- HÀM 2: KÉO VỀ MÁY (Dành cho tab ẩn danh) ---
+      window.loadDataFromCloud = async (uid) => {
+          try {
+              const docSnap = await getDoc(doc(window.db, "users", uid));
+              if (docSnap.exists()) {
+                  const cloudData = docSnap.data();
+                  if(cloudData.v100_data) {
+                      localStorage.setItem('planner_data_v100_vip', cloudData.v100_data);
+                      alert("Đã rước ngân khố về máy! Khởi động lại hệ thống...");
+                      location.reload(); 
+                  }
+              }
+          } catch (error) {
+              console.error("Lỗi kéo dữ liệu:", error);
+          }
+      };
+
+      // --- HÀM ĐĂNG NHẬP / ĐỒNG BỘ ---
+      window.loginWithGoogle = async () => {
+          let user = window.auth.currentUser;
+          if (!user) {
+              try {
+                  const result = await signInWithPopup(window.auth, provider);
+                  user = result.user;
+              } catch (error) {
+                  alert("Đăng nhập thất bại: " + error.message);
+                  return;
+              }
+          }
           
-          // PHÂN LUỒNG: 
-          // Nếu máy này đang có tiền -> Đẩy lên mây cập nhật
-          // Nếu máy này trống không (như tab ẩn danh) -> Kéo từ mây về
-          if (localStorage.getItem('user_money')) {
+          // Phân luồng thông minh: Có rương thì đẩy lên, rỗng thì kéo về
+          if (localStorage.getItem('planner_data_v100_vip')) {
               await window.syncDataToCloud(user.uid);
-              alert("Đăng nhập & Sao lưu thành công!");
           } else {
               await window.loadDataFromCloud(user.uid);
           }
+      };
 
-      } catch (error) {
-          console.error("Lỗi đăng nhập:", error);
-          alert("Đăng nhập thất bại: " + error.message);
-      }
-  };
-
-  // --- CẢM BIẾN TRẠNG THÁI ---
-  onAuthStateChanged(window.auth, (user) => {
-      if (user) {
-          document.getElementById('btn-login-google').style.display = 'none';
-          // Tự động kéo dữ liệu về nếu mở lại tab ẩn danh mà phiên đăng nhập vẫn còn
-          if (!localStorage.getItem('user_money')) {
-              window.loadDataFromCloud(user.uid);
+      // --- CẢM BIẾN TRẠNG THÁI ---
+      onAuthStateChanged(window.auth, (user) => {
+          const btn = document.getElementById('btn-login-google');
+          if (user) {
+              // Nếu đã đăng nhập, đổi màu nút thành xanh lá thay vì giấu đi
+              btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Đồng bộ Cloud';
+              btn.style.background = '#10b981';
+              
+              if (!localStorage.getItem('planner_data_v100_vip')) {
+                  window.loadDataFromCloud(user.uid);
+              }
+          } else {
+              btn.innerHTML = '<i class="fas fa-user-circle"></i> Đăng nhập Cloud';
+              btn.style.background = '#4285F4';
           }
-      } else {
-          document.getElementById('btn-login-google').style.display = 'block';
-      }
-  });
-</script>
+      });
+    </script>
 </body>
- <button id="btn-login-google" onclick="loginWithGoogle()" style="position: fixed; top: 15px; right: 15px; z-index: 9999; padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-    <i class="fas fa-user-circle"></i> Đăng nhập / Đồng bộ Cloud
-</button>   
 </html>
