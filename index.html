@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -2145,19 +2146,67 @@
         window.addEventListener('appinstalled', () => { const installBtn = document.getElementById('btn-install-app'); if (installBtn) installBtn.style.display = 'none'; deferredPrompt = null; console.log('PWA đã được cài đặt thành công'); });
 // ================= DANH SÁCH VẬT PHẨM & LOGIC PHÒNG TRƯNG BÀY =================
         const TROPHIES = [
+            // --- BỘ SƯU TẬP CƠ BẢN ---
             { id: 'epl', name: 'Premier League Trophy', price: 1500000000, color: '#3d195b', income: 500000, 
+
               img: 'https://www.nicepng.com/png/full/410-4101738_1st-place-the-premier-league-trophy-barclay-premier.png' },
+
             { id: 'asiancup', name: 'AFC Asian Cup Trophy', price: 2000000000, color: '#00a651', income: 800000, 
+
               img: 'https://wallpapers.com/images/hd/a-f-c-asian-cup-trophy-l5y0wye0ea1p28ip-2.jpg' },
+
             { id: 'ucl', name: 'UEFA Champions League Trophy', price: 4000000000, color: '#003366', income: 1500000, 
+
               img: 'https://www.icons.com/media/catalog/product/cache/e1052113a0bc78e1ca02d3895d567666/i/2/i2685_-_uefa_champions_league_trophy_replica_100mm_-_icons_1.webp' },
+
             { id: 'ballondor', name: 'Ballon d\'Or', price: 6000000000, color: '#ffd700', income: 2500000, 
+
               img: 'https://png.pngtree.com/png-clipart/20250621/original/pngtree-3d-ballon-d-or-football-trophy-no-background-png-image_21215466.png' },
+
             { id: 'euro', name: 'UEFA Euro Trophy', price: 7000000000, color: '#0094b9', income: 3000000, 
+
               img: 'https://i.namu.wiki/i/1xURo6dw_39fsnMWuChW9KlkGL8MrFhHYoJ5QE8CnkuVolRMZMJgExpjcmS-wkxE8X6qCVbFKrxHPsaWTza2bw.webp' },
+
             { id: 'worldcup', name: 'FIFA World Cup Trophy', price: 10000000000, color: '#d4af37', income: 5000000, 
-              img: 'https://www.pngall.com/wp-content/uploads/13/FIFA-World-Cup-Qatar-Trophy-PNG-Images.png' }
-        ];
+
+              img: 'https://www.pngall.com/wp-content/uploads/13/FIFA-World-Cup-Qatar-Trophy-PNG-Images.png' },
+
+
+
+            // --- BỘ SƯU TẬP MỞ RỘNG (SIÊU CẤP) ---
+            { id: 'vleague', name: 'V.League 1 Trophy', price: 10000000000, color: '#e32219', income: 2500000, 
+              img: 'https://sortitoutsi.b-cdn.net/uploads/trophy/8550000.png' },
+            { id: 'bundesliga', name: 'Bundesliga Meisterschale', price: 15000000000, color: '#d3011c', income: 4000000, 
+              img: 'https://kochundbergfeld.de/wp-content/uploads/2020/11/dfb-meisterschale-sterlingsilber.png' },
+            { id: 'ligue1', name: 'Ligue 1 Hexagoal', price: 15000000000, color: '#dae025', income: 4000000, 
+              img: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Ligue_1_Trophy_2024.png' },
+            { id: 'cancup', name: 'Africa Cup of Nations', price: 15000000000, color: '#009b4d', income: 4000000, 
+              img: 'https://www.nicepng.com/png/full/411-4116172_africa-cup-of-nations-trophy-png.png' },
+            { id: 'copaamerica', name: 'Copa América Trophy', price: 20000000000, color: '#00529b', income: 5000000, 
+              img: 'https://i.pinimg.com/originals/8a/18/99/8a1899a8616e6b3bd3dc9e9057eec74a.png' },
+            { id: 'julesrimet', name: 'Jules Rimet (World Cup Origin)', price: 40000000000, color: '#b8860b', income: 8000000, 
+              img: 'https://www.nicepng.com/png/full/108-1080979_the-original-jules-rimet-trophy-jules-rimet-trophy.png' },
+            { id: 'superballondor', name: 'Super Ballon d\'Or', price: 50000000000, color: '#ffdf00', income: 10000000, 
+              img: 'https://png.pngtree.com/png-clipart/20250811/original/pngtree-fifasuper-ballon-d-or-trophy-png-image_21726824.png' }
+            // ... (13 bảo vật ở trên) ...
+            ,
+            { 
+              id: 'goldenshoe', 
+              name: 'European Golden Shoe', 
+              price: 25000000000, // 25 Tỷ USD
+              color: '#d4af37', 
+              income: 6000000, // 6 Triệu/Ngày
+              img: 'https://i.namu.wiki/i/eKgFyh_DQxNbk85wHOCh2MdJUtyPb29gvNJsmGON98FE7bLOjYPXR8oEtxY-PqRTEqq-6FOGorzDH_LyP9_9ig.webp' // Biểu tượng Giày Vàng trong suốt cực đẹp
+            },
+            { 
+              id: 'clubworldcup', 
+              name: 'FIFA Club World Cup', 
+              price: 30000000000, // 30 Tỷ USD
+              color: '#a0aeb2', // Màu bạc kim loại
+              income: 7000000, // 7 Triệu/Ngày
+              img: 'https://png.pngtree.com/png-vector/20250611/ourmid/pngtree-fifa-club-world-cup-3d-trophy-png-image_16517957.png' 
+            }
+];
 
         let galleryTimer = null;
 
