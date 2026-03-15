@@ -255,6 +255,18 @@
 <body>
 
     <div id="main-board">
+    <div style="position: fixed; top: 15px; right: 15px; z-index: 1001; display: flex; gap: 10px;">
+        <button onclick="forceSyncToCloud()" id="btn-sync-cloud" style="padding: 10px 15px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <i class="fas fa-cloud-upload-alt"></i> Đồng bộ dữ liệu
+        </button>
+        <button onclick="forceLoadFromCloud()" id="btn-login-cloud" style="padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <i class="fas fa-user-circle"></i> Đăng nhập
+        </button>
+    </div>
+
+    <header class="header">
+    
+        <div id="main-board">
         <header class="header">
             <div class="header-title"><i class="fas fa-graduation-cap"></i> Academic Planner V100 VIP</div>
             <div class="header-controls">
@@ -2622,39 +2634,49 @@
       const provider = new GoogleAuthProvider();
 
       async function ensureLogin() {
-          if (!auth.currentUser) { await signInWithPopup(auth, provider); }
+          if (!auth.currentUser) { 
+              const result = await signInWithPopup(auth, provider); 
+              return result.user;
+          }
           return auth.currentUser;
       }
 
-      // CHỈ ĐẨY LÊN KHI BỆ HẠ RA LỆNH
+      // NÚT: ĐỒNG BỘ DỮ LIỆU (ĐẨY LÊN)
       window.forceSyncToCloud = async () => {
           try {
               const user = await ensureLogin();
               const localData = localStorage.getItem('planner_data_v100_vip');
-              if(!localData) return alert("Máy đang trống, không có gì để đẩy!");
+              if(!localData) return alert("Ngân khố tại máy đang trống!");
               
-              if(confirm("CẢNH BÁO: Thao tác này sẽ lấy dữ liệu đang hiển thị đè nát Đám Mây. Xác nhận?")) {
-                  document.querySelector('button[onclick="forceSyncToCloud()"]').innerText = "Đang tống lên mây...";
+              if(confirm("Xác nhận: Đẩy dữ liệu hiện tại lên Cloud để cất giữ? (Sẽ đè lên bản cũ)")) {
+                  const btn = document.getElementById('btn-sync-cloud');
+                  btn.innerText = "Đang đồng bộ...";
                   await setDoc(doc(db, "users", user.uid), { v100_data: localData });
-                  alert("ĐẠI THẮNG! Đã khóa chặt 189 tỷ lên Firebase!");
-                  document.querySelector('button[onclick="forceSyncToCloud()"]').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> ĐẨY LÊN MÂY';
+                  alert("ĐẠI THẮNG! Đã khóa chặt 189 tỷ và cơ ngơi lên mây.");
+                  btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Đồng bộ dữ liệu';
               }
-          } catch(e) { alert("Lỗi: " + e.message); }
+          } catch(e) { alert("Thất bại: " + e.message); }
       };
 
-      // CHỈ KÉO VỀ KHI BỆ HẠ RA LỆNH
+      // NÚT: ĐĂNG NHẬP (KÉO VỀ)
       window.forceLoadFromCloud = async () => {
           try {
               const user = await ensureLogin();
-              if(confirm("CẢNH BÁO: Kéo dữ liệu từ Mây về sẽ ghi đè lên máy này. Xác nhận?")) {
+              if(confirm("Xác nhận: Đăng nhập và Khôi phục toàn bộ dữ liệu từ Cloud về máy này?")) {
+                  const btn = document.getElementById('btn-login-cloud');
+                  btn.innerText = "Đang rước tiền về...";
                   const docSnap = await getDoc(doc(db, "users", user.uid));
+                  
                   if (docSnap.exists() && docSnap.data().v100_data) {
                       localStorage.setItem('planner_data_v100_vip', docSnap.data().v100_data);
-                      alert("Đã rước dữ liệu từ Mây về! Đang tải lại...");
+                      alert("Hoàng ân hạo đãng! Giang sơn đã hồi sinh. Đang khởi động lại...");
                       location.reload();
-                  } else { alert("Mây đang trống rỗng!"); }
+                  } else { 
+                      alert("Mây đang rỗng tuếch! Bệ hạ hãy chọn Đồng bộ dữ liệu trước."); 
+                      btn.innerHTML = '<i class="fas fa-user-circle"></i> Đăng nhập';
+                  }
               }
-          } catch(e) { alert("Lỗi: " + e.message); }
+          } catch(e) { alert("Lỗi kết nối: " + e.message); }
       };
     </script>
 </body>
