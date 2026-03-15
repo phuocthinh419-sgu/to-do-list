@@ -2593,14 +2593,14 @@
             if(modalContent) modalContent.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
-    <script type="module">
+   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyAmDqBfe4JRBKDGVwqVS0yI9_P2O2WIzxI",
+    apiKey: "AIzaSyAmDqbfe4JRBKDGvWqVS0yI9_P202WizxI",
     authDomain: "academic-planner-v100.firebaseapp.com",
     projectId: "academic-planner-v100",
     storageBucket: "academic-planner-v100.firebasestorage.app",
@@ -2610,33 +2610,50 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  
   window.db = getFirestore(app);
   window.auth = getAuth(app);
   window.storage = getStorage(app);
 
-  console.log("🔥 Thông báo: Firebase đã kết nối thành công với V100!");
-// --- XỬ LÝ ĐĂNG NHẬP GOOGLE ---
-  import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
   const provider = new GoogleAuthProvider();
 
-  // Khai báo hàm đăng nhập toàn cục
+  // --- HÀM ĐỒNG BỘ DỮ LIỆU ---
+  window.syncDataToCloud = async (uid) => {
+      try {
+          // Gom toàn bộ dữ liệu đang có trong máy
+          const localData = { ...localStorage };
+          
+          if (Object.keys(localData).length === 0) {
+              console.log("Không có dữ liệu cục bộ để đồng bộ.");
+              return;
+          }
+
+          // Đẩy lên Firestore (lưu vào thư mục có tên là ID của bệ hạ)
+          await setDoc(doc(window.db, "users", uid), localData);
+          alert("Đã đồng bộ dữ liệu lên Cloud thành công!");
+      } catch (error) {
+          console.error("Lỗi đồng bộ:", error);
+          alert("Đồng bộ thất bại: " + error.message);
+      }
+  };
+
+  // --- HÀM ĐĂNG NHẬP ---
   window.loginWithGoogle = async () => {
       try {
           const result = await signInWithPopup(window.auth, provider);
           const user = result.user;
           alert("Đăng nhập thành công. Xin chào: " + user.displayName);
-          
-          // Ẩn nút sau khi đăng nhập thành công
           document.getElementById('btn-login-google').style.display = 'none';
+          
+          // Kích hoạt đồng bộ ngay sau khi đăng nhập
+          await window.syncDataToCloud(user.uid);
+
       } catch (error) {
           console.error("Lỗi đăng nhập:", error);
           alert("Đăng nhập thất bại: " + error.message);
       }
   };
 
-  // Cảm biến trạng thái đăng nhập
+  // --- CẢM BIẾN TRẠNG THÁI ---
   onAuthStateChanged(window.auth, (user) => {
       if (user) {
           console.log("Trạng thái: Đã đăng nhập tài khoản", user.email);
