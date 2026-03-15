@@ -272,6 +272,7 @@
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openGallery()"><i class="fas fa-trophy"></i> Gallery</button>
+                <button class="btn btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="openEntertainment()"><i class="fas fa-gamepad"></i> Giải Trí</button>
                 <button class="btn btn-outline" onclick="toggleThemeCycle()"><i class="fas fa-palette"></i></button>
                 <button class="btn btn-zen" onclick="toggleZenMode()"><i class="fas fa-fire"></i> Focus Mode</button>
                 <button class="btn btn-outline" onclick="saveTemplate()"><i class="fas fa-bookmark"></i></button>
@@ -758,6 +759,54 @@
                 Số dư hiện tại: <strong id="gallery-wallet" style="color: #d4af37; font-size: 1.3rem;">$0</strong>
             </div>
             <div id="trophy-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;"></div>
+        </div>
+    </div>
+
+           <div class="modal-overlay" id="ent-modal" style="z-index: 1005;">
+        <div class="modal" style="max-width: 850px; border-color: #8b5cf6; box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);">
+            <div class="modal-header" style="color: #8b5cf6;">
+                <span><i class="fas fa-gamepad"></i> Trung Tâm Giải Trí</span>
+                <button class="close-modal" onclick="closeEntertainment()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div style="background: rgba(139, 92, 246, 0.05); border: 1px dashed #8b5cf6; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="margin: 0 0 10px 0; color: #8b5cf6; font-size: 0.9rem;"><i class="fas fa-link"></i> Thêm Liên Kết Lưu Trữ</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <select id="ent-category" class="input-field" style="flex: 1; min-width: 150px; padding: 8px; border-radius: 6px;">
+                        <option value="movies">🎬 Kho Phim</option>
+                        <option value="sports">⚽ Đấu Trường Thể Thao</option>
+                    </select>
+                    <input type="text" id="ent-title" class="input-field" placeholder="Tiêu đề (VD: Highlight Bayern, Phim trinh thám...)" style="flex: 2; min-width: 200px; padding: 8px; border-radius: 6px;">
+                    <input type="url" id="ent-url" class="input-field" placeholder="Dán link (YouTube...)" style="flex: 3; min-width: 250px; padding: 8px; border-radius: 6px;">
+                    <button class="btn btn-outline" style="color: #8b5cf6; border-color: #8b5cf6;" onclick="addEntertainmentLink()">Lưu trữ</button>
+                </div>
+            </div>
+
+            <div id="ent-player-container" style="display: none; margin-bottom: 20px; background: #000; border-radius: 12px; overflow: hidden; border: 2px solid #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);">
+                <div style="padding: 10px 15px; background: #1e293b; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold; color: #8b5cf6; font-size: 0.9rem;"><i class="fas fa-tv"></i> Đang Phát Phim / Highlight</span>
+                    <button onclick="closeVideoPlayer()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold;"><i class="fas fa-power-off"></i> TẮT MÀN HÌNH</button>
+                </div>
+                <div style="position: relative; padding-bottom: 56.25%; height: 0;">
+                    <iframe id="ent-iframe" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: var(--surface); border-radius: 10px; padding: 15px; border: 1px solid #333;">
+                    <h3 style="color: #f43f5e; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.1rem;"><i class="fas fa-film"></i> Kho Phim</h3>
+                    <div id="ent-movies-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto;"></div>
+                </div>
+
+                <div style="background: var(--surface); border-radius: 10px; padding: 15px; border: 1px solid #333;">
+                    <h3 style="color: #3b82f6; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.1rem;"><i class="fas fa-futbol"></i> Đấu Trường Thể Thao</h3>
+                    <div id="ent-sports-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <div style="text-align: right; margin-top: 15px; font-size: 0.85rem; color: #10b981;">
+                <i class="fas fa-check-circle"></i> Trạng thái: Vé đang có hiệu lực (24h)
+            </div>
         </div>
     </div>
 
@@ -2381,6 +2430,169 @@
             // Lệnh tuần tra: Kiểm tra cháy Huyết Khế mỗi 60 giây
             setInterval(checkBloodPactPenalty, 60000);
         });
+
+       // ================= LOGIC TRUNG TÂM GIẢI TRÍ =================
+        function initEntertainmentData() {
+            if (!sys.entertainment) {
+                sys.entertainment = {
+                    ticketExpiry: 0,
+                    movies: [],
+                    sports: []
+                };
+            }
+        }
+
+        function openEntertainment() {
+            initEntertainmentData();
+            
+            const today = new Date().getDay();
+            // Luật 1: Giới hạn ngày truy cập (0 là Chủ Nhật, 6 là Thứ 7)
+            if (today !== 0 && today !== 6) {
+                alert("Hệ thống từ chối truy cập: Khu vực Giải Trí chỉ hoạt động vào Thứ 7 và Chủ Nhật.");
+                return;
+            }
+
+            const now = Date.now();
+            // Luật 2: Kiểm tra thời hạn vé
+            if (sys.entertainment.ticketExpiry > now) {
+                renderEntertainmentLists();
+                $('ent-modal').style.display = 'flex';
+            } else {
+                // Luật 3: Thu phí lũy tiến (0.5% tổng số dư hiện tại)
+                let ticketPrice = Math.floor(sys.coins * 0.005);
+                if (ticketPrice < 1000) ticketPrice = 1000; // Mức phí tối thiểu
+
+                if (confirm(`Vé vào cổng đã hết hạn.\nPhí truy cập (Lũy tiến 0.5% số dư): $${ticketPrice.toLocaleString()}\nThời hạn sử dụng: 24 giờ.\nXác nhận thanh toán?`)) {
+                    if (sys.coins >= ticketPrice) {
+                        sys.coins -= ticketPrice;
+                        sys.entertainment.ticketExpiry = now + (24 * 60 * 60 * 1000); // Cộng thêm 24h
+                        saveAllData();
+                        updateSystemUI();
+                        renderEntertainmentLists();
+                        $('ent-modal').style.display = 'flex';
+                        alert("Thanh toán thành công. Chúc bạn có thời gian giải trí vui vẻ!");
+                    } else {
+                        alert("Số dư không đủ để thanh toán vé vào cổng.");
+                    }
+                }
+            }
+        }
+
+        function closeEntertainment() {
+            $('ent-modal').style.display = 'none';
+        }
+
+        function addEntertainmentLink() {
+            const cat = $('ent-category').value;
+            const title = $('ent-title').value.trim();
+            const url = $('ent-url').value.trim();
+
+            if (!title || !url) {
+                alert("Vui lòng nhập đầy đủ Tiêu đề và Liên kết URL.");
+                return;
+            }
+
+            sys.entertainment[cat].push({ title: title, url: url, date: Date.now() });
+            $('ent-title').value = '';
+            $('ent-url').value = '';
+            
+            saveAllData();
+            renderEntertainmentLists();
+        }
+
+        function deleteEntertainmentLink(cat, index) {
+            if (confirm("Xác nhận xóa liên kết này khỏi danh sách lưu trữ?")) {
+                sys.entertainment[cat].splice(index, 1);
+                saveAllData();
+                renderEntertainmentLists();
+            }
+        }
+
+        function renderEntertainmentLists() {
+            const moviesList = $('ent-movies-list');
+            const sportsList = $('ent-sports-list');
+            
+            moviesList.innerHTML = '';
+            sportsList.innerHTML = '';
+
+            // Xuất dữ liệu Phim
+            if (sys.entertainment.movies.length === 0) {
+                moviesList.innerHTML = '<div style="color: var(--text-muted); text-align: center; font-style: italic; padding: 10px;">Chưa có dữ liệu</div>';
+            } else {
+                sys.entertainment.movies.forEach((item, index) => {
+                    moviesList.appendChild(createLinkItem(item, 'movies', index));
+                });
+            }
+
+            // Xuất dữ liệu Thể thao
+            if (sys.entertainment.sports.length === 0) {
+                sportsList.innerHTML = '<div style="color: var(--text-muted); text-align: center; font-style: italic; padding: 10px;">Chưa có dữ liệu</div>';
+            } else {
+                sys.entertainment.sports.forEach((item, index) => {
+                    sportsList.appendChild(createLinkItem(item, 'sports', index));
+                });
+            }
+        }
+
+        // Thay thế hàm createLinkItem cũ bằng hàm mới này
+        function createLinkItem(item, cat, index) {
+            const div = document.createElement('div');
+            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; transition: 0.2s;";
+            div.onmouseover = () => div.style.background = "rgba(255,255,255,0.1)";
+            div.onmouseout = () => div.style.background = "rgba(255,255,255,0.05)";
+            
+            // Đã đổi href thành javascript:void(0) và gọi hàm playVideo
+            div.innerHTML = `
+                <a href="javascript:void(0)" onclick="playVideo('${item.url}')" style="color: var(--text-main); text-decoration: none; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.95rem; cursor: pointer;">
+                    <i class="fas ${cat === 'movies' ? 'fa-play-circle' : 'fa-trophy'}" style="margin-right: 8px; color: ${cat === 'movies' ? '#f43f5e' : '#3b82f6'};"></i>
+                    ${item.title}
+                </a>
+                <button onclick="deleteEntertainmentLink('${cat}', ${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 5px; margin-left: 10px;">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+            return div;
+        }
+
+        // BỔ SUNG: 2 Hàm xử lý Màn hình chiếu
+       function playVideo(url) {
+            let embedUrl = url;
+            
+            try {
+                let urlObj = new URL(url);
+                let videoId = "";
+                
+                // Bộ phân tích lõi: Quét mọi ngóc ngách của YouTube
+                if (urlObj.hostname.includes("youtube.com") || urlObj.hostname.includes("youtu.be")) {
+                    if (urlObj.hostname.includes("youtu.be")) {
+                        videoId = urlObj.pathname.slice(1); // Link share trên app
+                    } else if (urlObj.pathname.includes("/shorts/")) {
+                        videoId = urlObj.pathname.split("/shorts/")[1]; // Link Youtube Shorts
+                    } else if (urlObj.searchParams.has("v")) {
+                        videoId = urlObj.searchParams.get("v"); // Link Youtube web chuẩn
+                    }
+                    
+                    if (videoId) {
+                        // Gọt sạch sẽ mọi "đuôi rác" bám theo ID
+                        videoId = videoId.split("?")[0].split("&")[0].split("/")[0];
+                        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                    }
+                } 
+                // Xử lý Google Drive
+                else if (urlObj.hostname.includes("drive.google.com")) {
+                    embedUrl = url.replace(/\/view.*/, '/preview');
+                }
+            } catch (error) {
+                console.error("Link dị dạng không thể phân tích:", url);
+            }
+
+            // Xuất hình ảnh ra Rạp chiếu
+            $('ent-iframe').src = embedUrl;
+            $('ent-player-container').style.display = 'block';
+            
+            let modalContent = $('ent-modal').querySelector('.modal');
+            if(modalContent) modalContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
