@@ -2616,6 +2616,39 @@
   window.storage = getStorage(app);
 
   console.log("🔥 Thông báo: Firebase đã kết nối thành công với V100!");
+// --- XỬ LÝ ĐĂNG NHẬP GOOGLE ---
+  import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const provider = new GoogleAuthProvider();
+
+  // Khai báo hàm đăng nhập toàn cục
+  window.loginWithGoogle = async () => {
+      try {
+          const result = await signInWithPopup(window.auth, provider);
+          const user = result.user;
+          alert("Đăng nhập thành công. Xin chào: " + user.displayName);
+          
+          // Ẩn nút sau khi đăng nhập thành công
+          document.getElementById('btn-login-google').style.display = 'none';
+      } catch (error) {
+          console.error("Lỗi đăng nhập:", error);
+          alert("Đăng nhập thất bại: " + error.message);
+      }
+  };
+
+  // Cảm biến trạng thái đăng nhập
+  onAuthStateChanged(window.auth, (user) => {
+      if (user) {
+          console.log("Trạng thái: Đã đăng nhập tài khoản", user.email);
+          document.getElementById('btn-login-google').style.display = 'none';
+      } else {
+          console.log("Trạng thái: Chưa đăng nhập");
+          document.getElementById('btn-login-google').style.display = 'block';
+      }
+  });
 </script>
 </body>
+ <button id="btn-login-google" onclick="loginWithGoogle()" style="position: fixed; top: 15px; right: 15px; z-index: 9999; padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+    <i class="fas fa-user-circle"></i> Đăng nhập / Đồng bộ Cloud
+</button>   
 </html>
