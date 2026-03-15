@@ -2593,7 +2593,7 @@
             if(modalContent) modalContent.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
-  <button id="btn-login-google" onclick="loginWithGoogle()" style="position: fixed; top: 15px; right: 15px; z-index: 9999; padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+ <button id="btn-login-google" onclick="loginWithGoogle()" style="position: fixed; top: 15px; right: 15px; z-index: 9999; padding: 10px 15px; background: #4285F4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
         <i class="fas fa-user-circle"></i> Đăng nhập Cloud
     </button>
 
@@ -2601,7 +2601,6 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
       import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-      import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyAmDqBfe4JRBKDGVwqVS0yI9_P2O2WIzxI",
@@ -2616,71 +2615,70 @@
       const app = initializeApp(firebaseConfig);
       window.db = getFirestore(app);
       window.auth = getAuth(app);
-      window.storage = getStorage(app);
-
       const provider = new GoogleAuthProvider();
 
-      // --- HÀM 1: ĐẨY LÊN MÂY (Chỉ hút rương v100_vip) ---
-      window.syncDataToCloud = async (uid) => {
-          try {
-              const localData = localStorage.getItem('planner_data_v100_vip');
-              if (!localData) return;
-
-              await setDoc(doc(window.db, "users", uid), { v100_data: localData });
-              alert("Thắng lợi! Toàn bộ giang sơn V100 đã được bất tử hóa trên Cloud!");
-          } catch (error) {
-              console.error("Lỗi đẩy dữ liệu:", error);
-          }
-      };
-
-      // --- HÀM 2: KÉO VỀ MÁY (Dành cho tab ẩn danh) ---
-      window.loadDataFromCloud = async (uid) => {
-          try {
-              const docSnap = await getDoc(doc(window.db, "users", uid));
-              if (docSnap.exists()) {
-                  const cloudData = docSnap.data();
-                  if(cloudData.v100_data) {
-                      localStorage.setItem('planner_data_v100_vip', cloudData.v100_data);
-                      alert("Đã rước ngân khố về máy! Khởi động lại hệ thống...");
-                      location.reload(); 
-                  }
-              }
-          } catch (error) {
-              console.error("Lỗi kéo dữ liệu:", error);
-          }
-      };
-
-      // --- HÀM ĐĂNG NHẬP / ĐỒNG BỘ ---
+      // --- 1. THUẬT TOÁN ĐĂNG NHẬP TỰ ĐỘNG ---
       window.loginWithGoogle = async () => {
           let user = window.auth.currentUser;
           if (!user) {
               try {
                   const result = await signInWithPopup(window.auth, provider);
                   user = result.user;
-              } catch (error) {
-                  alert("Đăng nhập thất bại: " + error.message);
-                  return;
-              }
+              } catch (error) { return alert("Đăng nhập thất bại!"); }
           }
           
-          // Phân luồng thông minh: Có rương thì đẩy lên, rỗng thì kéo về
-          if (localStorage.getItem('planner_data_v100_vip')) {
-              await window.syncDataToCloud(user.uid);
+          document.getElementById('btn-login-google').innerText = 'Đang kết nối...';
+          
+          // Kiểm tra xem Mây đang có dữ liệu không
+          const docSnap = await getDoc(doc(window.db, "users", user.uid));
+          
+          if (docSnap.exists() && docSnap.data().v100_data) {
+              // LUỒNG A: Mây CÓ dữ liệu -> Tự động kéo thẳng về máy đè lên tất cả
+              localStorage.setItem('planner_data_v100_vip', docSnap.data().v100_data);
+              alert(`Hoàng ân hạo đãng! Rước ngân khố từ Cloud về thành công.`);
+              location.reload(); 
           } else {
-              await window.loadDataFromCloud(user.uid);
+              // LUỒNG B: Mây TRỐNG (Acc mới) -> Tự động hút dữ liệu đang có ở máy này lên làm vốn
+              const localData = localStorage.getItem('planner_data_v100_vip');
+              if (localData) {
+                  await setDoc(doc(window.db, "users", user.uid), { v100_data: localData });
+                  alert("Khởi tạo Cloud thành công! Đã đưa giang sơn lên mây.");
+              }
+              document.getElementById('btn-login-google').innerHTML = '<i class="fas fa-check-circle"></i> Đã đồng bộ';
           }
       };
 
-      // --- CẢM BIẾN TRẠNG THÁI ---
-      onAuthStateChanged(window.auth, (user) => {
+      // --- 2. THUẬT TOÁN KÝ SINH (AUTO-SYNC KHI CÓ BIẾN ĐỘNG) ---
+      // Bắt cóc hàm saveAllData gốc của bệ hạ, hễ Local thay đổi là Mây cập nhật
+      const originalSave = window.saveAllData;
+      window.saveAllData = async function() {
+          if (originalSave) originalSave(); // Vẫn giữ luồng chạy web bình thường
+          
+          // Bắn dữ liệu lên Mây trong âm thầm nếu bệ hạ đã đăng nhập
+          if (window.auth && window.auth.currentUser) {
+              const localData = localStorage.getItem('planner_data_v100_vip');
+              if (localData) {
+                  try {
+                      await setDoc(doc(window.db, "users", window.auth.currentUser.uid), { v100_data: localData });
+                  } catch(e) { console.log("Lỗi đồng bộ ngầm:", e); }
+              }
+          }
+      };
+
+      // --- 3. CẢM BIẾN HIỂN THỊ NÚT ---
+      onAuthStateChanged(window.auth, async (user) => {
           const btn = document.getElementById('btn-login-google');
           if (user) {
-              // Nếu đã đăng nhập, đổi màu nút thành xanh lá thay vì giấu đi
-              btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Đồng bộ Cloud';
+              btn.innerHTML = '<i class="fas fa-cloud"></i> Cloud Kích Hoạt';
               btn.style.background = '#10b981';
               
+              // Tự động kéo dữ liệu nếu mở Tab Ẩn Danh mà Google vẫn đang lưu phiên đăng nhập
               if (!localStorage.getItem('planner_data_v100_vip')) {
-                  window.loadDataFromCloud(user.uid);
+                  const docSnap = await getDoc(doc(window.db, "users", user.uid));
+                  if (docSnap.exists() && docSnap.data().v100_data) {
+                      localStorage.setItem('planner_data_v100_vip', docSnap.data().v100_data);
+                      location.reload();
+                  }
               }
           } else {
               btn.innerHTML = '<i class="fas fa-user-circle"></i> Đăng nhập Cloud';
