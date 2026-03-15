@@ -2593,5 +2593,29 @@
             if(modalContent) modalContent.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAmDqbfe4JRBKDGvWqVS0yI9_P202WizxI",
+    authDomain: "academic-planner-v100.firebaseapp.com",
+    projectId: "academic-planner-v100",
+    storageBucket: "academic-planner-v100.firebasestorage.app",
+    messagingSenderId: "80448326816",
+    appId: "1:80448326816:web:15e6dda33c3be03be90dc5",
+    measurementId: "G-S9X6T1CF0B"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  
+  window.db = getFirestore(app);
+  window.auth = getAuth(app);
+  window.storage = getStorage(app);
+
+  console.log("🔥 Thông báo: Firebase đã kết nối thành công với V100!");
+</script>
 </body>
 </html>
