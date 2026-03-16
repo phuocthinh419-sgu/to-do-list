@@ -283,7 +283,11 @@
                 <button class="btn btn-zen" onclick="toggleZenMode()"><i class="fas fa-fire"></i> Focus Mode</button>
                 <button class="btn btn-outline" onclick="saveTemplate()"><i class="fas fa-bookmark"></i></button>
                 <button class="btn btn-primary" onclick="resetWeek()"><i class="fas fa-sync-alt"></i> Tuần Mới</button>
-                <button class="btn btn-outline" onclick="exportExcel()"><i class="fas fa-file-export"></i></button>
+                
+                <input type="file" id="import-excel-file" accept=".xlsx, .xls" style="display:none;" onchange="importExcel(event)">
+                
+                <button class="btn btn-outline" onclick="document.getElementById('import-excel-file').click()" title="Nhập Excel"><i class="fas fa-file-import"></i></button>
+                <button class="btn btn-outline" onclick="exportExcel()" title="Xuất Excel"><i class="fas fa-file-export"></i></button>
             </div>
         </header>
         
