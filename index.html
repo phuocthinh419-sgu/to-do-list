@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -275,6 +276,7 @@
                 <button id="btn-quest-board" class="btn btn-outline" onclick="openQuestModal()"><i class="fas fa-scroll"></i> Hoàng Bảng</button>
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openCountdownModal()"><i class="fas fa-hourglass-half"></i> Mục Tiêu</button>
                 <button class="btn btn-outline" onclick="openShopModal()"><i class="fas fa-store"></i> Cửa Hàng & VIP</button>
+                <button class="btn btn-outline" style="border-color:#fbbf24; color:#fbbf24;" onclick="openLeaderboard()"><i class="fas fa-trophy"></i> Bảng xếp hạng các tỷ phú trên thế giới</button>
                 <button class="btn btn-outline" onclick="openStockModal()"><i class="fas fa-chart-line"></i> Thị Trường</button>
                 <button class="btn btn-outline" onclick="openBankModal()"><i class="fas fa-piggy-bank"></i> Quỹ Tiết Kiệm</button>
                 <button class="btn btn-outline" style="border-color:#d4af37; color:#d4af37;" onclick="openGallery()"><i class="fas fa-trophy"></i> Gallery</button>
@@ -814,6 +816,19 @@
             <div style="text-align: right; margin-top: 15px; font-size: 0.85rem; color: #10b981;">
                 <i class="fas fa-check-circle"></i> Trạng thái: Vé đang có hiệu lực (24h)
             </div>
+        </div>
+    </div>
+
+<div class="modal-overlay" id="leaderboard-modal" style="z-index: 1005;">
+        <div class="modal" style="max-width: 500px; border-color: #fbbf24; box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);">
+            <div class="modal-header" style="color: #fbbf24;">
+                <span><i class="fas fa-coins"></i> PHÚ HỘ BẢNG</span>
+                <button class="close-modal" onclick="closeModal('leaderboard-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: center; font-style: italic;">
+                Danh sách các đại phú hào đang nhòm ngó ngai vàng. Hãy cày tiền để đè bẹp bọn chúng!
+            </p>
+            <div id="leaderboard-list" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -2440,6 +2455,42 @@
             // Lệnh tuần tra: Kiểm tra cháy Huyết Khế mỗi 60 giây
             setInterval(checkBloodPactPenalty, 60000);
         });
+
+function openLeaderboard() {
+            let list = [];
+            let baseWealth = Math.max(sys.coins, 50000); 
+            
+            // Tên các tỷ phú hàng đầu thế giới thực
+            const npcs = ["Elon Musk", "Bernard Arnault", "Jeff Bezos", "Mark Zuckerberg", "Bill Gates", "Warren Buffett", "Larry Ellison", "Larry Page", "Sergey Brin", "Mukesh Ambani"];
+            
+            npcs.forEach((name) => {
+                let mult = (Math.random() * 4) + 0.2; // Tạo tài sản dao động quanh mức của Bệ hạ
+                list.push({ name: name, wealth: baseWealth * mult, isPlayer: false });
+            });
+            
+            // Chèn tên người chơi
+            list.push({ name: "Nguyễn Phước Thịnh (Tôi)", wealth: sys.coins, isPlayer: true });
+            
+            // Xếp hạng từ cao xuống thấp
+            list.sort((a, b) => b.wealth - a.wealth);
+            
+            let html = '';
+            list.forEach((item, index) => {
+                let rank = index + 1;
+                let color = item.isPlayer ? "var(--warning)" : "var(--text-main)";
+                let bg = item.isPlayer ? "rgba(245,158,11,0.1)" : "var(--input-bg)";
+                let border = item.isPlayer ? "1px solid var(--warning)" : "1px solid var(--border-color)";
+                let icon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🎗️';
+                
+                html += `<div style="display:flex; justify-content:space-between; padding:12px; background:${bg}; border:${border}; border-radius:8px; margin-bottom:8px; align-items:center;">
+                    <div style="font-weight:bold; color:${color}; font-size: 1rem;">${icon} #${rank} ${item.name}</div>
+                    <div style="color:var(--success); font-family:'Black Ops One', cursive; font-size: 1.1rem;">$${Math.floor(item.wealth).toLocaleString()}</div>
+                </div>`;
+            });
+            
+            $('leaderboard-list').innerHTML = html;
+            $('leaderboard-modal').style.display = 'flex';
+        }
 
        // ================= LOGIC TRUNG TÂM GIẢI TRÍ =================
         function initEntertainmentData() {
