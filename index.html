@@ -2604,7 +2604,7 @@
  <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-      import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyAmDqBfe4JRBKDGVwqVS0yI9_P2O2WIzxI",
@@ -2625,7 +2625,6 @@
           return auth.currentUser;
       }
 
-      // NÚT 1: ĐỒNG BỘ LÊN MÂY (Giữ nguyên)
       window.forceSyncToCloud = async () => {
           try {
               const user = await ensureLogin();
@@ -2641,7 +2640,6 @@
           } catch(e) { alert("Lỗi: " + e.message); }
       };
 
-      // NÚT 2: ĐĂNG NHẬP & TỰ ĐỘNG KÉO DỮ LIỆU (Đã được nâng cấp)
       window.forceLoadFromCloud = async () => {
           try {
               const btn = document.getElementById('btn-login-cloud');
@@ -2664,6 +2662,37 @@
               document.getElementById('btn-login-cloud').innerHTML = '<i class="fas fa-user-circle"></i> Đăng nhập';
           }
       };
+
+      // THẦN TRẬN GIÁM SÁT ĐĂNG NHẬP
+      onAuthStateChanged(auth, (user) => {
+          const btnLogin = document.getElementById('btn-login-cloud');
+          let btnLogout = document.getElementById('btn-logout-cloud');
+
+          if (user) {
+              // Đã đăng nhập: Hiện tên bệ hạ và tạo nút Đăng xuất
+              let shortName = user.displayName ? user.displayName.split(' ')[0] : 'Bệ hạ';
+              btnLogin.innerHTML = `<i class="fas fa-cloud-download-alt"></i> Kéo về máy (${shortName})`;
+              
+              if (!btnLogout) {
+                  btnLogout = document.createElement('button');
+                  btnLogout.id = 'btn-logout-cloud';
+                  btnLogout.innerHTML = `<i class="fas fa-sign-out-alt"></i> Đăng xuất`;
+                  btnLogout.style.cssText = "padding: 10px 15px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);";
+                  btnLogout.onclick = () => {
+                      if(confirm("Bệ hạ thực sự muốn xuất cung (Đăng xuất)?")) {
+                          signOut(auth).then(() => {
+                              location.reload();
+                          });
+                      }
+                  };
+                  btnLogin.parentNode.appendChild(btnLogout);
+              }
+          } else {
+              // Chưa đăng nhập: Trả lại nút nguyên bản
+              btnLogin.innerHTML = `<i class="fas fa-user-circle"></i> Đăng nhập`;
+              if (btnLogout) btnLogout.remove();
+          }
+      });
     </script>
 </body>
 </html>
