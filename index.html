@@ -2601,7 +2601,7 @@
         }
     </script>
  
-  <script type="module">
+ <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
       import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -2625,6 +2625,7 @@
           return auth.currentUser;
       }
 
+      // NÚT 1: ĐỒNG BỘ LÊN MÂY (Giữ nguyên)
       window.forceSyncToCloud = async () => {
           try {
               const user = await ensureLogin();
@@ -2632,7 +2633,7 @@
               if(!localData) return alert("Máy đang rỗng!");
               if(confirm("Xác nhận: Đẩy dữ liệu hiện tại lên Cloud?")) {
                   const btn = document.getElementById('btn-sync-cloud');
-                  btn.innerText = "Đang đồng bộ...";
+                  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đồng bộ...';
                   await setDoc(doc(db, "users", user.uid), { v100_data: localData });
                   alert("ĐẠI THẮNG! Đã lưu giang sơn lên mây.");
                   btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Đồng bộ dữ liệu';
@@ -2640,20 +2641,28 @@
           } catch(e) { alert("Lỗi: " + e.message); }
       };
 
+      // NÚT 2: ĐĂNG NHẬP & TỰ ĐỘNG KÉO DỮ LIỆU (Đã được nâng cấp)
       window.forceLoadFromCloud = async () => {
           try {
+              const btn = document.getElementById('btn-login-cloud');
+              const originalText = btn.innerHTML;
+              btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang rước dữ liệu...';
+
               const user = await ensureLogin();
-              if(confirm("Xác nhận: Kéo dữ liệu từ Cloud về máy này?")) {
-                  const btn = document.getElementById('btn-login-cloud');
-                  btn.innerText = "Đang rước tiền về...";
-                  const docSnap = await getDoc(doc(db, "users", user.uid));
-                  if (docSnap.exists() && docSnap.data().v100_data) {
-                      localStorage.setItem('planner_data_v100_vip', docSnap.data().v100_data);
-                      alert("Giang sơn hồi sinh! Đang khởi động lại...");
-                      location.reload();
-                  } else { alert("Mây đang rỗng!"); }
+              
+              const docSnap = await getDoc(doc(db, "users", user.uid));
+              if (docSnap.exists() && docSnap.data().v100_data) {
+                  localStorage.setItem('planner_data_v100_vip', docSnap.data().v100_data);
+                  alert("Thỉnh an bệ hạ! Giang sơn đã được khôi phục thành công. Đang tải lại...");
+                  location.reload();
+              } else { 
+                  alert("Bẩm, tài khoản này trên mây hiện chưa có dữ liệu nào!"); 
+                  btn.innerHTML = originalText;
               }
-          } catch(e) { alert("Lỗi: " + e.message); }
+          } catch(e) { 
+              alert("Có biến: " + e.message); 
+              document.getElementById('btn-login-cloud').innerHTML = '<i class="fas fa-user-circle"></i> Đăng nhập';
+          }
       };
     </script>
 </body>
