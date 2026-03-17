@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -925,6 +924,32 @@
             if(!sys.tax) { sys.tax = { owed: 0, holidayUntil: 0, isDueMonth: "" }; }
             if(!sys.quests) { sys.quests = { date: "", list: [], jackpotClaimed: false }; }
 
+            if(!sys.npcWealth) {
+                // Khởi tạo lần đầu dựa trên tài sản hiện tại của bệ hạ (tối thiểu 50 tỷ)
+                let bw = Math.max(sys.coins, 50000000000); 
+                sys.npcWealth = [
+                    { name: "Elon Musk", w: bw * 1.5 },
+                    { name: "Bernard Arnault", w: bw * 1.2 },
+                    { name: "Jeff Bezos", w: bw * 1.05 },
+                    { name: "Mark Zuckerberg", w: bw * 0.9 },
+                    { name: "Larry Ellison", w: bw * 0.75 },
+                    { name: "Warren Buffett", w: bw * 0.6 },
+                    { name: "Bill Gates", w: bw * 0.45 },
+                    { name: "Larry Page", w: bw * 0.3 },
+                    { name: "Sergey Brin", w: bw * 0.2 },
+                    { name: "Mukesh Ambani", w: bw * 0.1 }
+                ];
+            } else {
+                // CƠ CHẾ THỨC TỈNH: Nếu bệ hạ out trình Top 1 quá xa (gấp 2 lần), bọn chúng sẽ được buff mạnh để bám đuổi
+                let topNpc = Math.max(...sys.npcWealth.map(n => n.w));
+                if (sys.coins > topNpc * 2) {
+                    sys.npcWealth.forEach((npc, idx) => {
+                        let multiplier = 1.5 - (idx * 0.1); // Top 1 sẽ lại gác bệ hạ 1.5 lần
+                        npc.w = sys.coins * multiplier;
+                    });
+                }
+            }
+            
             let tStr = new Date().toDateString();
             if(sys.hof.lastFocusDate !== tStr) {
                 sys.hof.todayMins = 0;
@@ -1878,6 +1903,14 @@
                 s.history.push(s.price);
                 if(s.history.length > 10) s.history.shift();
             }); 
+
+                if (sys.npcWealth) {
+                sys.npcWealth.forEach(npc => {
+                    // Cá mập làm ăn khốc liệt hơn: Dao động từ lỗ 2% đến lãi 5% mỗi 5 phút
+                    let change = (Math.random() * 0.07) - 0.02; 
+                    npc.w = Math.max(1000000, npc.w * (1 + change));
+                });
+            }
             saveAllData(); 
             if($('stock-modal').style.display==='flex') renderStockMarket(); 
         } 
