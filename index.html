@@ -2491,18 +2491,16 @@
 
 function openLeaderboard() {
             let list = [];
-            let baseWealth = Math.max(sys.coins, 50000); 
             
-            // Tên các tỷ phú hàng đầu thế giới thực
-            const npcs = ["Elon Musk", "Bernard Arnault", "Jeff Bezos", "Mark Zuckerberg", "Bill Gates", "Warren Buffett", "Larry Ellison", "Larry Page", "Sergey Brin", "Mukesh Ambani"];
+            // Lấy dữ liệu tỷ phú từ hệ thống đã lưu (không random xáo trộn nữa)
+            if (sys.npcWealth) {
+                sys.npcWealth.forEach(npc => {
+                    list.push({ name: npc.name, wealth: npc.w, isPlayer: false });
+                });
+            }
             
-            npcs.forEach((name) => {
-                let mult = (Math.random() * 4) + 0.2; // Tạo tài sản dao động quanh mức của Bệ hạ
-                list.push({ name: name, wealth: baseWealth * mult, isPlayer: false });
-            });
-            
-            // Chèn tên người chơi
-            list.push({ name: "Nguyễn Phước Thịnh (Tôi)", wealth: sys.coins, isPlayer: true });
+            // Chèn tên bệ hạ
+            list.push({ name: "Nguyễn Phước Thịnh (Bệ Hạ)", wealth: sys.coins, isPlayer: true });
             
             // Xếp hạng từ cao xuống thấp
             list.sort((a, b) => b.wealth - a.wealth);
