@@ -2499,8 +2499,9 @@ function openLeaderboard() {
                 });
             }
             
-            // Chèn tên bệ hạ
-            list.push({ name: "Nguyễn Phước Thịnh (Tôi)", wealth: sys.coins, isPlayer: true });
+           // Lấy tên thật từ Google, nếu chưa đăng nhập thì gọi là "Ẩn Danh"
+            let playerName = window.currentUserDisplayName ? window.currentUserDisplayName + " (Tôi)" : "Người Chơi Ẩn Danh";
+            list.push({ name: playerName, wealth: sys.coins, isPlayer: true });
             
             // Xếp hạng từ cao xuống thấp
             list.sort((a, b) => b.wealth - a.wealth);
@@ -2749,14 +2750,17 @@ function openLeaderboard() {
           }
       };
 
-      // THẦN TRẬN GIÁM SÁT ĐĂNG NHẬP
+     // THẦN TRẬN GIÁM SÁT ĐĂNG NHẬP
       onAuthStateChanged(auth, (user) => {
           const btnLogin = document.getElementById('btn-login-cloud');
           let btnLogout = document.getElementById('btn-logout-cloud');
 
           if (user) {
-              // Đã đăng nhập: Hiện tên bệ hạ và tạo nút Đăng xuất
-              let shortName = user.displayName ? user.displayName.split(' ')[0] : 'Bệ hạ';
+              // Bổ sung dòng này để hệ thống nhớ tên người đang đăng nhập
+              window.currentUserDisplayName = user.displayName;
+
+              // Đã đăng nhập: Hiện tên người dùng và tạo nút Đăng xuất
+              let shortName = user.displayName ? user.displayName.split(' ')[0] : 'Tôi';
               btnLogin.innerHTML = `<i class="fas fa-cloud-download-alt"></i> Kéo về máy (${shortName})`;
               
               if (!btnLogout) {
