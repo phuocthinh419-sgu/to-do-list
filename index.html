@@ -196,7 +196,7 @@
                 </div>
                 <div class="panel" style="margin-top:20px; height: 400px;">
                     <div class="panel-header"><span>📱 Xem trước giao diện</span></div>
-                    <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+                    <iframe id="previewFrame" style="width:100%; height:100%; border:none; min-height: 350px;" sandbox="allow-scripts allow-same-origin"></iframe>
                 </div>
             </div>
 
@@ -493,12 +493,12 @@
         <div class="text-center mb-4">
             <span class="inline-block px-4 py-1 bg-yellow-100 text-yellow-800 font-bold rounded-full text-sm mb-4">Bài Tập Trắc Nghiệm 🪙</span>
             
-            <div id="timer-display" class="relative w-16 h-16 mx-auto mb-2">
-                <svg class="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" stroke-width="10"></circle>
-                    <circle id="timer-circle" cx="50" cy="50" r="45" fill="none" stroke="#ef4444" stroke-width="10" stroke-dasharray="283" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;"></circle>
+            <div id="timer-display" style="position: relative; width: 70px; height: 70px; margin: 0 auto 15px auto;">
+                <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg);" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" stroke-width="8"></circle>
+                    <circle id="timer-circle" cx="50" cy="50" r="45" fill="none" stroke="#ef4444" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;"></circle>
                 </svg>
-                <div id="timer-text" class="absolute top-0 left-0 w-full h-full flex items-center justify-center font-extrabold text-xl text-red-500">15</div>
+                <div id="timer-text" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; color: #ef4444;">15</div>
             </div>
 
             <h2 id="quiz-question" class="text-4xl font-extrabold text-indigo-900 mt-2">Word</h2>
