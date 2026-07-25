@@ -209,7 +209,7 @@
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho chiến lợi phẩm</a>
         </div>
         <div class="sidebar-footer">
-            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v5.0</span>
+            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v5.1</span>
             <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
@@ -330,7 +330,6 @@
     let goals = JSON.parse(localStorage.getItem('saasGoalsPro')) || [];
     let totalSessions = parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0;
     
-    // Khởi tạo sẵn 2 sự kiện đếm ngược mẫu (IELTS và Sinh nhật 21 tuổi của bệ hạ)
     let countdowns = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [
         { id: 1, name: "KÌ THI IELTS ACADEMIC", date: "2027-02-15T08:00:00" },
         { id: 2, name: "SINH NHẬT TUỔI 21", date: "2027-05-17T00:00:00" }
@@ -343,7 +342,7 @@
     function saveGoals() { localStorage.setItem('saasGoalsPro', JSON.stringify(goals)); localStorage.setItem('saasTotalSessionsPro', totalSessions); }
     function saveCountdowns() { localStorage.setItem('saasCountdownsPro', JSON.stringify(countdowns)); }
 
-    // --- HỆ THỐNG ĐẾM NGƯỢC (COUNTDOWN) ---
+    // --- HỆ THỐNG ĐẾM NGƯỢC (COUNTDOWN) - CẬP NHẬT NHẬP LIỆU ---
     function renderCountdowns() {
         const strip = document.getElementById('countdown-strip');
         strip.innerHTML = '';
@@ -368,7 +367,7 @@
                 </div>
             `;
         });
-        updateCountdownTicks(); // Update ngay lập tức tránh trễ 1s
+        updateCountdownTicks();
     }
 
     function updateCountdownTicks() {
@@ -401,15 +400,21 @@
     }
 
     function createNewCountdown() {
-        const name = prompt("Tên sự kiện (VD: Thi IELTS, Bảo vệ Đồ án):");
+        const name = prompt("Tên sự kiện (VD: Thi IELTS, Sinh nhật):");
         if (!name) return;
-        const dateStr = prompt("Nhập ngày giờ theo định dạng YYYY-MM-DD HH:MM (VD: 2026-12-31 08:00):");
-        if (!dateStr) return;
         
-        // Chuyển đổi định dạng để parse
-        const parsedDate = new Date(dateStr.replace(" ", "T"));
+        const dateInput = prompt("Nhập ngày theo định dạng YYYY-MM-DD (VD: 2026-12-31):");
+        if (!dateInput) return;
+        
+        let timeInput = prompt("Nhập giờ theo định dạng HH:MM (VD: 08:30). Nếu không cần giờ, bệ hạ cứ bấm OK để trống:");
+        if (!timeInput || timeInput.trim() === "") {
+            timeInput = "00:00";
+        }
+        
+        const parsedDate = new Date(`${dateInput.trim()}T${timeInput.trim()}:00`);
+        
         if (isNaN(parsedDate.getTime())) {
-            alert("Định dạng ngày không hợp lệ. Vui lòng nhập đúng YYYY-MM-DD HH:MM.");
+            alert("Định dạng ngày hoặc giờ không hợp lệ. Xin bệ hạ nhập đúng (VD: Ngày 2026-12-31, Giờ 08:30).");
             return;
         }
 
