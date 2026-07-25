@@ -20,6 +20,7 @@
             --brand-focus: #e11d48;   
             --brand-break: #10b981;   
             --brand-trophy: #f59e0b;  
+            --brand-warning: #f97316; /* Màu cảnh báo ân hạn */
 
             --btn-bg: #f8fafc;
             --btn-text: #0f172a;
@@ -81,27 +82,21 @@
         .header-title p { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
         
         .header-actions { display: flex; gap: 12px; }
-        .btn-ghost-action { background: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; font-family: var(--font-main); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-ghost-action { background: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-ghost-action:hover { background: var(--bg-hover); }
-        .btn-primary { background: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--border); padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; font-family: var(--font-main); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-primary { background: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--border); padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); opacity: 0.9; }
 
         /* --- COUNTDOWN TIMERS --- */
         .countdown-strip { padding: 0 48px 32px; display: flex; gap: 20px; overflow-x: auto; }
-        .countdown-card {
-            min-width: 320px; background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px; position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.2s;
-        }
+        .countdown-card { min-width: 320px; background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.2s; }
         [data-theme="light"] .countdown-card { background: var(--bg-panel); }
         .countdown-card:hover { border-color: var(--brand-trophy); transform: translateY(-2px); }
-        
         .countdown-title { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--brand-trophy); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
         .time-blocks { display: flex; justify-content: space-between; gap: 10px; }
         .time-box { background: var(--bg-base); border: 1px solid var(--border); border-radius: 10px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; }
         .t-val { font-size: 1.8rem; font-weight: 800; line-height: 1; color: var(--text-main); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
         .t-lbl { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-        
         .btn-delete-cd { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; opacity: 0; transition: 0.2s; }
         .countdown-card:hover .btn-delete-cd { opacity: 1; }
         .btn-delete-cd:hover { color: var(--brand-focus); }
@@ -156,16 +151,18 @@
         .tl-content { color: var(--text-main); line-height: 1.6; font-size: 0.95rem; }
 
         /* --- FOCUS ROOM --- */
-        #focus-room { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 20; flex-direction: column; padding: 40px 60px; }
+        #focus-room { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 20; flex-direction: column; padding: 40px 60px; transition: 0.3s; }
         .focus-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .btn-back { background: transparent; border: none; color: var(--text-muted); font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .btn-back:hover { color: var(--text-main); transform: translateX(-5px); }
         .focus-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .focus-badge { background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.2); color: var(--brand-focus); padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; }
-        .timer-huge { font-size: 10rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -4px; line-height: 1; margin: 10px 0 40px; color: var(--brand-focus); transition: color 0.5s ease; }
-        .timer-controls { display: flex; gap: 16px; }
         
-        .btn-timer { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 14px 28px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; font-family: var(--font-main); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .focus-badge { background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.2); color: var(--brand-focus); padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; transition: 0.3s; }
+        
+        .timer-huge { font-size: 10rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -4px; line-height: 1; margin: 10px 0 40px; color: var(--brand-focus); transition: color 0.5s ease, text-shadow 0.3s ease; }
+        
+        .timer-controls { display: flex; gap: 16px; }
+        .btn-timer { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 14px 28px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; font-family: inherit; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .btn-timer:hover { background: var(--bg-hover); border-color: var(--text-muted); transform: translateY(-2px); }
         
         #btn-pause { border-color: var(--brand-trophy); color: var(--brand-trophy); display: none; }
@@ -174,7 +171,7 @@
         #btn-cancel:hover { background: var(--brand-focus); color: #fff; }
         
         .status-box { margin-top: 40px; padding: 16px 24px; background: var(--bg-panel); border-radius: 12px; display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 0.95rem; font-weight: 500; border: 1px solid var(--border); }
-        .status-box i { color: var(--brand-focus); font-size: 1.2rem; }
+        .status-box i { color: var(--brand-focus); font-size: 1.2rem; transition: 0.3s; }
 
         /* --- REPORT MODAL --- */
         #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
@@ -182,15 +179,15 @@
         .modal-header { margin-bottom: 24px; }
         .modal-header h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
         .modal-header p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
-        textarea { width: 100%; height: 150px; background: var(--bg-base); border: 1px solid var(--border); border-radius: 12px; padding: 16px; color: var(--text-main); font-family: var(--font-main); font-size: 0.95rem; resize: none; transition: 0.2s; line-height: 1.6; }
+        textarea { width: 100%; height: 150px; background: var(--bg-base); border: 1px solid var(--border); border-radius: 12px; padding: 16px; color: var(--text-main); font-family: inherit; font-size: 0.95rem; resize: none; transition: 0.2s; line-height: 1.6; }
         textarea:focus { outline: none; border-color: var(--brand-focus); }
         .word-tracker { display: flex; justify-content: space-between; margin-top: 12px; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
         .word-count-val { font-weight: 800; color: var(--brand-focus); font-size: 1rem; }
         .word-count-val.success { color: var(--brand-break); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; }
-        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; font-weight: 600; font-family: inherit; cursor: pointer; transition: 0.2s; border-radius: 10px; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: 10px; }
         .btn-ghost:hover { background: var(--bg-hover); color: var(--text-main); }
-        .btn-submit { background: var(--brand-focus); color: #fff; border: none; padding: 10px 24px; font-weight: 700; font-family: inherit; border-radius: 10px; cursor: pointer; opacity: 0.4; pointer-events: none; transition: 0.2s; }
+        .btn-submit { background: var(--brand-focus); color: #fff; border: none; padding: 10px 24px; font-weight: 700; border-radius: 10px; cursor: pointer; opacity: 0.4; pointer-events: none; transition: 0.2s; }
         .btn-submit.active { opacity: 1; pointer-events: auto; }
         .btn-submit.active:hover { opacity: 0.9; transform: translateY(-2px); }
 
@@ -212,7 +209,7 @@
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho chiến lợi phẩm</a>
         </div>
         <div class="sidebar-footer">
-            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v5.3</span>
+            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v6.0</span>
             <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
@@ -254,9 +251,9 @@
         <!-- TROPHY ROOM VIEW -->
         <div id="trophy-room" class="view-section"></div>
 
-        <!-- TROPHY DETAIL (TIMELINE) -->
+        <!-- TROPHY DETAIL -->
         <div id="trophy-detail" class="view-section">
-            <button class="btn-back" style="margin-bottom: 24px; display: inline-flex; color: var(--text-muted); background: none; border: none; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;" onclick="switchTab('trophy')"><i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i> Trở lại Kho</button>
+            <button class="btn-back" style="margin-bottom: 24px; display: inline-flex; color: var(--text-muted); background: none; border: none; font-size: 1rem; font-weight: 600; cursor: pointer;" onclick="switchTab('trophy')"><i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i> Trở lại Kho</button>
             <h2 id="td-title" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; color: var(--brand-trophy);">Tên mục tiêu</h2>
             <p id="td-meta" style="color: var(--text-muted); font-size: 1rem; font-weight: 500;">Hoàn thành 100h - Tổng số báo cáo: 0</p>
             <div class="timeline" id="td-timeline"></div>
@@ -274,7 +271,6 @@
                 <div class="timer-controls">
                     <button class="btn-timer" id="btn-15" onclick="startSession(15)"><i class="fa-solid fa-bolt" style="color: var(--brand-trophy);"></i> Phiên Làm Nóng (15p)</button>
                     <button class="btn-timer" id="btn-25" onclick="startSession(25)"><i class="fa-solid fa-brain" style="color: var(--brand-focus);"></i> Phiên Chuyên Sâu (25p)</button>
-                    <!-- Nút Tạm Dừng & Hủy Bỏ -->
                     <button class="btn-timer" id="btn-pause" onclick="togglePause()"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
                     <button class="btn-timer" id="btn-cancel" onclick="cancelSession()"><i class="fa-solid fa-xmark"></i> Hủy bỏ phiên</button>
                 </div>
@@ -305,7 +301,7 @@
     </div>
 
 <script>
-    // --- GIAO DIỆN SÁNG/TỐI (THEME TOGGLE) ---
+    // --- GIAO DIỆN SÁNG/TỐI ---
     function toggleTheme() {
         const body = document.documentElement;
         const icon = document.getElementById('theme-icon');
@@ -319,7 +315,6 @@
             localStorage.setItem('plannerTheme', 'light');
         }
     }
-    
     if(localStorage.getItem('plannerTheme') === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
         document.getElementById('theme-icon').className = 'fa-solid fa-sun';
@@ -328,36 +323,36 @@
     // --- DỮ LIỆU ---
     let goals = JSON.parse(localStorage.getItem('saasGoalsPro')) || [];
     let totalSessions = parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0;
-    
     let countdowns = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [
-        { id: 1, name: "KÌ THI IELTS ACADEMIC", date: "2027-02-15T08:00:00" },
-        { id: 2, name: "SINH NHẬT TUỔI 21", date: "2027-05-17T00:00:00" }
+        { id: 1, name: "KÌ THI IELTS ACADEMIC", date: "2027-02-15T08:00:00" }
     ];
     
     let activeGoalId = null;
     let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
     
-    // Biến Trạng Thái Tạm Dừng
+    // Tạm dừng
     let isPaused = false; 
     let pauseInterval;
-    let pauseTimeLeft = 300; // 5 Phút giới hạn dung túng
+    let pauseTimeLeft = 300; 
     
-    let standardSessionCount = parseInt(localStorage.getItem('saasSessionCount25Pro')) || 0;
+    // Đạo luật mới: Ân hạn & Hình phạt
+    let standardSessionCount25 = parseInt(localStorage.getItem('saasSessionCount25Pro')) || 0;
+    let standardSessionCount15 = parseInt(localStorage.getItem('saasSessionCount15Pro')) || 0;
+    let graceInterval;
+    let graceTimeLeft = 0;
+    let isGracePeriod = false;
+    let penaltyMinutes = 0;
+    let activeSessionMinutes = 0; // Biến lưu số phút thực tế (bao gồm phạt)
 
     function saveGoals() { localStorage.setItem('saasGoalsPro', JSON.stringify(goals)); localStorage.setItem('saasTotalSessionsPro', totalSessions); }
     function saveCountdowns() { localStorage.setItem('saasCountdownsPro', JSON.stringify(countdowns)); }
 
-    // --- HỆ THỐNG ĐẾM NGƯỢC (COUNTDOWN) ---
+    // --- COUNTDOWNS ---
     function renderCountdowns() {
         const strip = document.getElementById('countdown-strip');
         strip.innerHTML = '';
-        
-        if (countdowns.length === 0) {
-            strip.style.display = 'none';
-            return;
-        }
+        if (countdowns.length === 0) { strip.style.display = 'none'; return; }
         strip.style.display = 'flex';
-
         countdowns.forEach(cd => {
             strip.innerHTML += `
                 <div class="countdown-card" id="cd-card-${cd.id}">
@@ -369,8 +364,7 @@
                         <div class="time-box"><span class="t-val" id="cd-m-${cd.id}">00</span><span class="t-lbl">Phút</span></div>
                         <div class="time-box"><span class="t-val" id="cd-s-${cd.id}">00</span><span class="t-lbl">Giây</span></div>
                     </div>
-                </div>
-            `;
+                </div>`;
         });
         updateCountdownTicks();
     }
@@ -380,63 +374,32 @@
         countdowns.forEach(cd => {
             const target = new Date(cd.date).getTime();
             const distance = target - now;
-
             const dEl = document.getElementById(`cd-d-${cd.id}`);
-            const hEl = document.getElementById(`cd-h-${cd.id}`);
-            const mEl = document.getElementById(`cd-m-${cd.id}`);
-            const sEl = document.getElementById(`cd-s-${cd.id}`);
-
             if (!dEl) return;
-
             if (distance < 0) {
-                dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; sEl.innerText = "00";
+                dEl.innerText = "00"; document.getElementById(`cd-h-${cd.id}`).innerText = "00"; document.getElementById(`cd-m-${cd.id}`).innerText = "00"; document.getElementById(`cd-s-${cd.id}`).innerText = "00";
             } else {
-                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-
-                dEl.innerText = d.toString().padStart(2, '0');
-                hEl.innerText = h.toString().padStart(2, '0');
-                mEl.innerText = m.toString().padStart(2, '0');
-                sEl.innerText = s.toString().padStart(2, '0');
+                dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                document.getElementById(`cd-h-${cd.id}`).innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                document.getElementById(`cd-m-${cd.id}`).innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                document.getElementById(`cd-s-${cd.id}`).innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
             }
         });
     }
 
     function createNewCountdown() {
-        const name = prompt("Tên sự kiện (VD: Thi IELTS, Sinh nhật):");
-        if (!name) return;
-        
-        const dateInput = prompt("Nhập ngày theo định dạng YYYY-MM-DD (VD: 2026-12-31):");
-        if (!dateInput) return;
-        
-        let timeInput = prompt("Nhập giờ theo định dạng HH:MM (VD: 08:30). Nếu không cần giờ, bệ hạ cứ bấm OK để trống:");
-        if (!timeInput || timeInput.trim() === "") {
-            timeInput = "00:00";
-        }
-        
+        const name = prompt("Tên sự kiện:"); if (!name) return;
+        const dateInput = prompt("Nhập ngày (YYYY-MM-DD):"); if (!dateInput) return;
+        let timeInput = prompt("Nhập giờ (HH:MM) - Bấm OK để trống:");
+        if (!timeInput || timeInput.trim() === "") timeInput = "00:00";
         const parsedDate = new Date(`${dateInput.trim()}T${timeInput.trim()}:00`);
-        
-        if (isNaN(parsedDate.getTime())) {
-            alert("Định dạng ngày hoặc giờ không hợp lệ. Xin bệ hạ nhập đúng (VD: Ngày 2026-12-31, Giờ 08:30).");
-            return;
-        }
-
+        if (isNaN(parsedDate.getTime())) { alert("Định dạng không hợp lệ."); return; }
         countdowns.push({ id: Date.now(), name: name.toUpperCase(), date: parsedDate.toISOString() });
-        saveCountdowns();
-        renderCountdowns();
+        saveCountdowns(); renderCountdowns();
     }
+    function deleteCountdown(id) { if (confirm("Xóa bộ đếm ngược này?")) { countdowns = countdowns.filter(c => c.id !== id); saveCountdowns(); renderCountdowns(); } }
 
-    function deleteCountdown(id) {
-        if (confirm("Xóa bộ đếm ngược này?")) {
-            countdowns = countdowns.filter(c => c.id !== id);
-            saveCountdowns();
-            renderCountdowns();
-        }
-    }
-
-    // --- QUẢN LÝ TAB ---
+    // --- TAB QUẢN LÝ ---
     function switchTab(tab) {
         document.getElementById('nav-dash').classList.remove('active');
         document.getElementById('nav-trophy').classList.remove('active');
@@ -456,29 +419,22 @@
             document.getElementById('nav-trophy').classList.add('active');
             document.getElementById('trophy-room').style.display = 'block';
             document.getElementById('main-title').innerText = "Kho Chiến Lợi Phẩm";
-            document.getElementById('main-desc').innerText = "Nơi lưu trữ những chiến dịch đã được chinh phục hoàn toàn.";
+            document.getElementById('main-desc').innerText = "Nơi lưu trữ những chiến dịch đã được chinh phục.";
             document.getElementById('btn-create-goal').style.display = 'none';
             document.getElementById('btn-create-countdown').style.display = 'none';
             renderTrophyRoom();
         }
     }
 
-    // --- LOGIC MỤC TIÊU & POMODORO ---
+    // --- DASHBOARD & MỤC TIÊU ---
     function renderDashboard() {
         let activeGoals = goals.filter(g => g.current > 0);
         let totalHoursEarned = goals.reduce((sum, g) => sum + (g.target - g.current), 0);
-        
         document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h';
         document.getElementById('total-sessions-metric').innerText = totalSessions;
-
         const board = document.getElementById('dashboard-grid');
         board.innerHTML = '';
-
-        if (activeGoals.length === 0) {
-            board.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 80px; border: 1px dashed var(--border); border-radius: 16px; color: var(--text-muted); font-size: 1.05rem;">Chưa có mục tiêu đang chạy. Bấm "Khởi tạo mục tiêu" để bắt đầu hành trình.</div>';
-            return;
-        }
-
+        if (activeGoals.length === 0) { board.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 80px; border: 1px dashed var(--border); border-radius: 16px; color: var(--text-muted);">Chưa có mục tiêu đang chạy. Bấm "Khởi tạo mục tiêu".</div>'; return; }
         activeGoals.forEach(goal => {
             const percent = Math.max(0, Math.min(100, ((goal.target - goal.current) / goal.target) * 100));
             const offset = 226.19 - (percent / 100) * 226.19;
@@ -491,7 +447,7 @@
                             <div class="progress-text">${percent.toFixed(0)}%</div>
                         </div>
                         <div class="goal-meta">
-                            <h3>${goal.name}</h3><p>Còn lại: <strong style="color:var(--text-main); font-size: 0.95rem;">${goal.current.toFixed(2)}h</strong> / ${goal.target}h</p>
+                            <h3>${goal.name}</h3><p>Còn lại: <strong style="color:var(--text-main);">${goal.current.toFixed(2)}h</strong> / ${goal.target}h</p>
                         </div>
                     </div>
                 </div>`;
@@ -502,24 +458,16 @@
         let completedGoals = goals.filter(g => g.current <= 0);
         const room = document.getElementById('trophy-room');
         room.innerHTML = '';
-
         if (completedGoals.length === 0) {
-            room.innerHTML = `
-                <div class="locked-state">
-                    <i class="fa-solid fa-lock"></i>
-                    <h2>Rương Báu Bị Phong Ấn</h2>
-                    <p>Kho chiến lợi phẩm chỉ mở ra khi ngài chinh phục hoàn toàn ít nhất 1 mục tiêu.<br>Sự vĩ đại cần thời gian và kỷ luật!</p>
-                </div>`;
-            return;
+            room.innerHTML = `<div class="locked-state"><i class="fa-solid fa-lock"></i><h2>Rương Báu Bị Phong Ấn</h2><p>Chỉ mở ra khi chinh phục hoàn toàn ít nhất 1 mục tiêu.</p></div>`; return;
         }
-
         completedGoals.forEach(g => {
             let reportCount = g.reports ? g.reports.length : 0;
             room.innerHTML += `
                 <div class="trophy-card" onclick="viewTrophyDetail(${g.id})">
                     <div class="trophy-header">
                         <h3><i class="fa-solid fa-trophy" style="color: var(--brand-trophy);"></i>${g.name}</h3>
-                        <span class="trophy-badge">ĐÃ CHINH PHỤC</span>
+                        <span class="trophy-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--brand-trophy); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">ĐÃ CHINH PHỤC</span>
                     </div>
                     <p style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-clock" style="margin-right: 6px;"></i> Quy mô: ${g.target} Giờ &nbsp;|&nbsp; <i class="fa-solid fa-file-lines" style="margin-right: 6px; margin-left: 8px;"></i> Báo cáo lưu trữ: ${reportCount}</p>
                 </div>`;
@@ -527,51 +475,25 @@
     }
 
     function viewTrophyDetail(id) {
-        document.getElementById('trophy-room').style.display = 'none';
-        document.getElementById('trophy-detail').style.display = 'block';
-        
-        let g = goals.find(x => x.id === id);
-        let reports = g.reports || [];
-        
-        document.getElementById('td-title').innerText = g.name;
-        document.getElementById('td-meta').innerText = `Chinh phục mốc ${g.target}h - Lưu trữ tổng cộng ${reports.length} báo cáo tiến độ.`;
-        
-        let tl = document.getElementById('td-timeline');
-        tl.innerHTML = '';
-        
-        if (reports.length === 0) {
-            tl.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo nào được ghi lại.</p>';
-        } else {
+        document.getElementById('trophy-room').style.display = 'none'; document.getElementById('trophy-detail').style.display = 'block';
+        let g = goals.find(x => x.id === id); let reports = g.reports || [];
+        document.getElementById('td-title').innerText = g.name; document.getElementById('td-meta').innerText = `Chinh phục mốc ${g.target}h - Lưu trữ ${reports.length} báo cáo.`;
+        let tl = document.getElementById('td-timeline'); tl.innerHTML = '';
+        if (reports.length === 0) { tl.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; } 
+        else {
             [...reports].reverse().forEach(rep => {
-                tl.innerHTML += `
-                    <div class="timeline-item">
-                        <div class="tl-meta">
-                            <span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span>
-                            <span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span>
-                        </div>
-                        <div class="tl-content">${rep.text}</div>
-                    </div>`;
+                tl.innerHTML += `<div class="timeline-item"><div class="tl-meta"><span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span><span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span></div><div class="tl-content">${rep.text}</div></div>`;
             });
         }
     }
 
     function createNewGoal() {
-        const name = prompt("Tên mục tiêu (VD: Đồ án tốt nghiệp, IELTS 6.5):");
-        if (!name) return;
-        const target = parseFloat(prompt("Định mức thời gian (Số giờ):"));
-        if (isNaN(target) || target <= 0) return alert("Vui lòng nhập số giờ hợp lệ.");
-        goals.push({ id: Date.now(), name: name, target: target, current: target, reports: [] });
-        saveGoals(); renderDashboard();
+        const name = prompt("Tên mục tiêu:"); if (!name) return;
+        const target = parseFloat(prompt("Định mức thời gian (Số giờ):")); if (isNaN(target) || target <= 0) return alert("Hợp lệ.");
+        goals.push({ id: Date.now(), name: name, target: target, current: target, reports: [] }); saveGoals(); renderDashboard();
     }
 
-    function deleteGoal(e, id) {
-        e.stopPropagation();
-        if (confirm("Xóa mục tiêu sẽ mất toàn bộ tiến độ và báo cáo bên trong. Tiếp tục?")) {
-            goals = goals.filter(g => g.id !== id); saveGoals(); 
-            if(document.getElementById('view-dashboard').style.display !== 'none') renderDashboard();
-            else renderTrophyRoom();
-        }
-    }
+    function deleteGoal(e, id) { e.stopPropagation(); if (confirm("Xóa mục tiêu?")) { goals = goals.filter(g => g.id !== id); saveGoals(); if(document.getElementById('view-dashboard').style.display !== 'none') renderDashboard(); else renderTrophyRoom(); } }
 
     function openGoal(id) {
         activeGoalId = id; const goal = goals.find(g => g.id === id);
@@ -584,13 +506,18 @@
 
     function backToDashboard() {
         if (isSessionActive && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
-        if (isSessionActive) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); }
+        if (isSessionActive || isGracePeriod) { 
+            clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); 
+            penaltyMinutes = 0; // Hủy án phạt nếu chủ động hồi cung
+            resetSystem(); 
+        }
         document.getElementById('focus-room').style.display = 'none';
         document.getElementById('sidebar').style.position = 'relative';
         document.getElementById('sidebar').style.transform = 'translateX(0)';
         renderDashboard();
     }
 
+    // --- LOGIC POMODORO CORE ---
     function updateDisplay(seconds) {
         let m = Math.floor(seconds / 60).toString().padStart(2, '0'); let s = (seconds % 60).toString().padStart(2, '0');
         document.getElementById('session-timer').innerText = `${m}:${s}`;
@@ -603,7 +530,6 @@
         document.getElementById('btn-cancel').style.display = isActive ? 'flex' : 'none';
     }
 
-    /* LOGIC TẠM DỪNG VỚI GIỚI HẠN 5 PHÚT */
     function togglePause() {
         isPaused = !isPaused;
         const btnPause = document.getElementById('btn-pause');
@@ -613,9 +539,8 @@
         if (isPaused) {
             btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục';
             statusIcon.className = "fa-solid fa-pause";
-            pauseTimeLeft = 300; // Khởi tạo 5 phút đếm ngược
+            pauseTimeLeft = 300; 
             
-            // Cập nhật UI ngay lập tức
             let pm = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0');
             let ps = (pauseTimeLeft % 60).toString().padStart(2, '0');
             statusMsg.innerHTML = `Tạm dừng. Giới hạn dung túng: <strong style="color: var(--brand-focus);">${pm}:${ps}</strong>. Quá giờ sẽ tự động bãi triều!`;
@@ -627,13 +552,10 @@
                 statusMsg.innerHTML = `Tạm dừng. Giới hạn dung túng: <strong style="color: var(--brand-focus);">${m}:${s}</strong>. Quá giờ sẽ tự động bãi triều!`;
                 
                 if (pauseTimeLeft <= 0) {
-                    clearInterval(pauseInterval);
-                    clearInterval(timerInterval);
-                    resetSystem();
-                    setTimeout(() => alert("Bệ hạ đã dời gót quá 5 phút! Tâm trí đã phân tán, hệ thống ban lệnh hủy phiên tu luyện này. Xin hãy xốc lại kỷ luật!"), 100);
+                    clearInterval(pauseInterval); clearInterval(timerInterval); resetSystem();
+                    setTimeout(() => alert("Bệ hạ đã dời gót quá 5 phút! Hệ thống ban lệnh hủy phiên tu luyện này."), 100);
                 }
             }, 1000);
-
         } else {
             clearInterval(pauseInterval);
             btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
@@ -643,13 +565,26 @@
     }
 
     function startSession(minutes) {
-        clearInterval(timerInterval); clearInterval(pauseInterval);
-        isSessionActive = true; isPaused = false; 
-        currentDuration = minutes; timeLeft = minutes * 60;
+        clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
+        isSessionActive = true; isPaused = false; isGracePeriod = false; 
+        
+        currentDuration = minutes; // Phục vụ log word count
+        activeSessionMinutes = minutes + penaltyMinutes; // Thời gian chạy thực tế (có phạt)
+        timeLeft = activeSessionMinutes * 60;
         
         document.body.classList.remove('break-mode');
-        document.getElementById('focus-badge').innerText = "ĐANG TẬP TRUNG";
         
+        // Trả lại UI chuẩn
+        document.getElementById('focus-badge').style = ""; 
+        document.getElementById('session-timer').style = "";
+        document.getElementById('status-box').querySelector('i').style = "";
+        
+        if (penaltyMinutes > 0) {
+            document.getElementById('focus-badge').innerText = `ĐANG CHỊU PHẠT (+${penaltyMinutes}P)`;
+        } else {
+            document.getElementById('focus-badge').innerText = "ĐANG TẬP TRUNG";
+        }
+
         document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
         document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin";
         document.getElementById('status-msg').innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
@@ -658,22 +593,36 @@
         
         timerInterval = setInterval(() => { 
             if (!isPaused) {
-                timeLeft--; 
-                updateDisplay(timeLeft); 
+                timeLeft--; updateDisplay(timeLeft); 
                 if (timeLeft <= 0) triggerReportModal(); 
             }
         }, 1000);
+        
+        penaltyMinutes = 0; // Trả xong nợ thì reset
     }
 
     function cancelSession() { if(confirm("Bạn có chắc muốn hủy phiên học này?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
 
     function resetSystem() {
-        isSessionActive = false; isPaused = false; clearInterval(pauseInterval);
-        document.body.classList.remove('break-mode'); updateDisplay(0); toggleButtons(false);
+        isSessionActive = false; isPaused = false; isGracePeriod = false;
+        clearInterval(pauseInterval); clearInterval(graceInterval);
+        document.body.classList.remove('break-mode'); 
+        
+        document.getElementById('focus-badge').style = ""; 
+        document.getElementById('session-timer').style = "";
+        document.getElementById('status-box').querySelector('i').style = "";
+        
+        updateDisplay(0); toggleButtons(false);
         document.getElementById('focus-badge').innerText = "KHU VỰC TẬP TRUNG";
-        document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-circle-info"></i><span id="status-msg">Sẵn sàng. Chọn thời lượng để bắt đầu.</span>`;
+        
+        if (penaltyMinutes > 0) {
+            document.getElementById('status-msg').innerHTML = `<strong style="color:var(--brand-focus)">Bệ hạ đang chịu án phạt +${penaltyMinutes} phút cho phiên tiếp theo.</strong> Hãy khai chiến!`;
+        } else {
+            document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-circle-info"></i><span id="status-msg">Sẵn sàng. Chọn thời lượng để bắt đầu.</span>`;
+        }
     }
 
+    // --- REPORT & ÂN HẠN ---
     function triggerReportModal() {
         clearInterval(timerInterval); clearInterval(pauseInterval);
         requiredWords = (currentDuration === 15) ? 25 : 40;
@@ -719,9 +668,11 @@
             if(!goal.reports) goal.reports = [];
             let now = new Date();
             let dateString = now.toLocaleDateString('vi-VN') + " - " + now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            // Log thời lượng gốc để lịch sử đẹp
             goal.reports.push({ date: dateString, type: currentDuration + 'p', text: text });
 
-            let hoursEarned = currentDuration / 60;
+            // Cộng thành quả bằng thời gian thực tế đã bỏ ra (bao gồm cả phạt)
+            let hoursEarned = activeSessionMinutes / 60;
             goal.current = Math.max(0, goal.current - hoursEarned);
             totalSessions++;
             
@@ -747,9 +698,13 @@
         let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)";
         document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
 
+        // Logic chia break mới
         if (currentDuration === 25) {
-            standardSessionCount++; localStorage.setItem('saasSessionCount25Pro', standardSessionCount);
-            if (standardSessionCount % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; }
+            standardSessionCount25++; localStorage.setItem('saasSessionCount25Pro', standardSessionCount25);
+            if (standardSessionCount25 % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; }
+        } else if (currentDuration === 15) {
+            standardSessionCount15++; localStorage.setItem('saasSessionCount15Pro', standardSessionCount15);
+            if (standardSessionCount15 % 3 === 0) { breakMinutes = 10; breakMsg = "Nghỉ Dài (10p)"; }
         }
         
         document.getElementById('status-msg').innerText = `Đang kích hoạt chế độ ${breakMsg}. Hãy rời mắt khỏi màn hình.`;
@@ -758,8 +713,49 @@
         timerInterval = setInterval(() => {
             timeLeft--; updateDisplay(timeLeft);
             if (timeLeft <= 0) { 
-                clearInterval(timerInterval); alert("Hết giờ nghỉ! Vui lòng quay lại không gian làm việc."); resetSystem(); 
-                if (goals.find(g => g.id === activeGoalId).current <= 0) { backToDashboard(); }
+                clearInterval(timerInterval); 
+                alert("Hết giờ nghỉ! Thời gian ân hạn 2 phút bắt đầu."); 
+                if (goals.find(g => g.id === activeGoalId).current <= 0) { 
+                    backToDashboard(); 
+                } else {
+                    startGracePeriod(); // Kích hoạt đạo luật 2 phút
+                }
+            }
+        }, 1000);
+    }
+
+    /* ĐẠO LUẬT ÂN HẠN 2 PHÚT */
+    function startGracePeriod() {
+        document.body.classList.remove('break-mode');
+        isGracePeriod = true; graceTimeLeft = 120;
+        
+        // Giao diện cảnh báo ân hạn
+        const badge = document.getElementById('focus-badge');
+        badge.innerText = "THỜI GIAN ÂN HẠN (2 PHÚT)";
+        badge.style.color = "var(--brand-warning)";
+        badge.style.borderColor = "var(--brand-warning)";
+        badge.style.background = "rgba(245, 158, 11, 0.1)";
+        
+        const timerUI = document.getElementById('session-timer');
+        timerUI.style.color = "var(--brand-warning)";
+        timerUI.style.textShadow = "0 0 40px rgba(245, 158, 11, 0.4)";
+        
+        document.getElementById('status-msg').innerHTML = "Bệ hạ có 2 phút để khai chiến phiên tiếp theo. Trễ hạn sẽ bị <strong style='color:var(--brand-focus)'>phạt cộng thêm 5 phút</strong>!";
+        const statusIcon = document.getElementById('status-box').querySelector('i');
+        statusIcon.className = "fa-solid fa-hourglass-half fa-spin";
+        statusIcon.style.color = "var(--brand-warning)";
+        
+        toggleButtons(false); // Hiện lại 15p, 25p để user bấm
+        updateDisplay(graceTimeLeft);
+        
+        graceInterval = setInterval(() => {
+            graceTimeLeft--; updateDisplay(graceTimeLeft);
+            if (graceTimeLeft <= 0) {
+                clearInterval(graceInterval);
+                isGracePeriod = false;
+                penaltyMinutes += 5;
+                alert(`Đã quá 2 phút ân hạn! Hệ thống ghim án phạt cộng thêm 5 phút vào phiên tiếp theo. (Tổng án phạt: ${penaltyMinutes}p)`);
+                resetSystem();
             }
         }, 1000);
     }
