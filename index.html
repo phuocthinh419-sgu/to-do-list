@@ -20,7 +20,7 @@
             --brand-focus: #e11d48;   
             --brand-break: #10b981;   
             --brand-trophy: #f59e0b;  
-            --brand-warning: #f97316; /* Màu cảnh báo ân hạn */
+            --brand-warning: #f97316;
 
             --btn-bg: #f8fafc;
             --btn-text: #0f172a;
@@ -174,7 +174,7 @@
         .status-box i { color: var(--brand-focus); font-size: 1.2rem; transition: 0.3s; }
 
         /* --- REPORT MODAL --- */
-        #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
+        #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 560px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
         .modal-header { margin-bottom: 24px; }
         .modal-header h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
@@ -185,9 +185,9 @@
         .word-count-val { font-weight: 800; color: var(--brand-focus); font-size: 1rem; }
         .word-count-val.success { color: var(--brand-break); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; }
-        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: 10px; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; font-weight: 600; font-family: inherit; cursor: pointer; transition: 0.2s; border-radius: 10px; }
         .btn-ghost:hover { background: var(--bg-hover); color: var(--text-main); }
-        .btn-submit { background: var(--brand-focus); color: #fff; border: none; padding: 10px 24px; font-weight: 700; border-radius: 10px; cursor: pointer; opacity: 0.4; pointer-events: none; transition: 0.2s; }
+        .btn-submit { background: var(--brand-focus); color: #fff; border: none; padding: 10px 24px; font-weight: 700; font-family: inherit; border-radius: 10px; cursor: pointer; opacity: 0.4; pointer-events: none; transition: 0.2s; }
         .btn-submit.active { opacity: 1; pointer-events: auto; }
         .btn-submit.active:hover { opacity: 0.9; transform: translateY(-2px); }
 
@@ -209,7 +209,7 @@
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho chiến lợi phẩm</a>
         </div>
         <div class="sidebar-footer">
-            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v6.0</span>
+            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v6.1</span>
             <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
@@ -233,7 +233,6 @@
         <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="view-section">
             <div class="countdown-strip" id="countdown-strip"></div>
-
             <div class="metrics-strip">
                 <div class="metric-card">
                     <div class="metric-icon icon-blue"><i class="fa-solid fa-fire"></i></div>
@@ -244,7 +243,6 @@
                     <div class="metric-info"><h4>Phiên hoàn thành</h4><p id="total-sessions-metric">0</p></div>
                 </div>
             </div>
-            
             <div class="dashboard-grid" id="dashboard-grid"></div>
         </div>
 
@@ -301,6 +299,25 @@
     </div>
 
 <script>
+    // --- ÂM THANH HOÀNG GIA (WEB AUDIO API) ---
+    // Khởi tạo AudioContext toàn cục
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playAlertSound() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = 'sine'; // Âm thanh thanh tao, không chói tai
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Nốt A5
+        osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 1.5);
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 1.5);
+    }
+
     // --- GIAO DIỆN SÁNG/TỐI ---
     function toggleTheme() {
         const body = document.documentElement;
@@ -334,15 +351,18 @@
     let isPaused = false; 
     let pauseInterval;
     let pauseTimeLeft = 300; 
+    let sessionEndTime = 0; // Thay thế timeLeft decrement
+    let pauseEndTime = 0;
+    let graceEndTime = 0;
     
-    // Đạo luật mới: Ân hạn & Hình phạt
+    // Đạo luật: Ân hạn & Hình phạt
     let standardSessionCount25 = parseInt(localStorage.getItem('saasSessionCount25Pro')) || 0;
     let standardSessionCount15 = parseInt(localStorage.getItem('saasSessionCount15Pro')) || 0;
     let graceInterval;
     let graceTimeLeft = 0;
     let isGracePeriod = false;
     let penaltyMinutes = 0;
-    let activeSessionMinutes = 0; // Biến lưu số phút thực tế (bao gồm phạt)
+    let activeSessionMinutes = 0; 
 
     function saveGoals() { localStorage.setItem('saasGoalsPro', JSON.stringify(goals)); localStorage.setItem('saasTotalSessionsPro', totalSessions); }
     function saveCountdowns() { localStorage.setItem('saasCountdownsPro', JSON.stringify(countdowns)); }
@@ -501,6 +521,9 @@
         document.getElementById('sidebar').style.transform = 'translateX(-100%)';
         document.getElementById('sidebar').style.position = 'absolute';
         document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+        
+        // Khởi tạo AudioContext nếu bị suspend do browser policy (cần user gesture)
+        if(audioCtx.state === 'suspended') audioCtx.resume();
         resetSystem();
     }
 
@@ -508,8 +531,7 @@
         if (isSessionActive && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
         if (isSessionActive || isGracePeriod) { 
             clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); 
-            penaltyMinutes = 0; // Hủy án phạt nếu chủ động hồi cung
-            resetSystem(); 
+            penaltyMinutes = 0; resetSystem(); 
         }
         document.getElementById('focus-room').style.display = 'none';
         document.getElementById('sidebar').style.position = 'relative';
@@ -517,8 +539,9 @@
         renderDashboard();
     }
 
-    // --- LOGIC POMODORO CORE ---
+    // --- LOGIC POMODORO CORE (ABSOLUTE TIME) ---
     function updateDisplay(seconds) {
+        if(seconds < 0) seconds = 0;
         let m = Math.floor(seconds / 60).toString().padStart(2, '0'); let s = (seconds % 60).toString().padStart(2, '0');
         document.getElementById('session-timer').innerText = `${m}:${s}`;
     }
@@ -540,24 +563,32 @@
             btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục';
             statusIcon.className = "fa-solid fa-pause";
             pauseTimeLeft = 300; 
+            pauseEndTime = Date.now() + pauseTimeLeft * 1000; // Neo thời gian tạm dừng
             
             let pm = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0');
             let ps = (pauseTimeLeft % 60).toString().padStart(2, '0');
             statusMsg.innerHTML = `Tạm dừng. Giới hạn dung túng: <strong style="color: var(--brand-focus);">${pm}:${ps}</strong>. Quá giờ sẽ tự động bãi triều!`;
 
             pauseInterval = setInterval(() => {
-                pauseTimeLeft--;
+                pauseTimeLeft = Math.round((pauseEndTime - Date.now()) / 1000);
+                
+                if (pauseTimeLeft <= 0) {
+                    pauseTimeLeft = 0;
+                    clearInterval(pauseInterval); clearInterval(timerInterval);
+                    playAlertSound();
+                    resetSystem();
+                    setTimeout(() => alert("Bệ hạ đã dời gót quá 5 phút! Hệ thống ban lệnh hủy phiên tu luyện này."), 100);
+                }
+                
                 let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0');
                 let s = (pauseTimeLeft % 60).toString().padStart(2, '0');
                 statusMsg.innerHTML = `Tạm dừng. Giới hạn dung túng: <strong style="color: var(--brand-focus);">${m}:${s}</strong>. Quá giờ sẽ tự động bãi triều!`;
-                
-                if (pauseTimeLeft <= 0) {
-                    clearInterval(pauseInterval); clearInterval(timerInterval); resetSystem();
-                    setTimeout(() => alert("Bệ hạ đã dời gót quá 5 phút! Hệ thống ban lệnh hủy phiên tu luyện này."), 100);
-                }
             }, 1000);
         } else {
             clearInterval(pauseInterval);
+            // Cập nhật lại đích đến của session khi resume
+            sessionEndTime = Date.now() + timeLeft * 1000;
+            
             btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
             statusMsg.innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
             statusIcon.className = "fa-solid fa-spinner fa-spin";
@@ -565,16 +596,18 @@
     }
 
     function startSession(minutes) {
+        // Đảm bảo audio hoạt động
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        
         clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
         isSessionActive = true; isPaused = false; isGracePeriod = false; 
         
-        currentDuration = minutes; // Phục vụ log word count
-        activeSessionMinutes = minutes + penaltyMinutes; // Thời gian chạy thực tế (có phạt)
+        currentDuration = minutes;
+        activeSessionMinutes = minutes + penaltyMinutes; 
         timeLeft = activeSessionMinutes * 60;
+        sessionEndTime = Date.now() + timeLeft * 1000; // Neo mốc thời gian tuyệt đối
         
         document.body.classList.remove('break-mode');
-        
-        // Trả lại UI chuẩn
         document.getElementById('focus-badge').style = ""; 
         document.getElementById('session-timer').style = "";
         document.getElementById('status-box').querySelector('i').style = "";
@@ -593,19 +626,24 @@
         
         timerInterval = setInterval(() => { 
             if (!isPaused) {
-                timeLeft--; updateDisplay(timeLeft); 
-                if (timeLeft <= 0) triggerReportModal(); 
+                timeLeft = Math.round((sessionEndTime - Date.now()) / 1000);
+                if (timeLeft <= 0) {
+                    timeLeft = 0;
+                    playAlertSound(); // Đổ chuông
+                    triggerReportModal(); 
+                }
+                updateDisplay(timeLeft);
             }
         }, 1000);
         
-        penaltyMinutes = 0; // Trả xong nợ thì reset
+        penaltyMinutes = 0; 
     }
 
     function cancelSession() { if(confirm("Bạn có chắc muốn hủy phiên học này?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
 
     function resetSystem() {
         isSessionActive = false; isPaused = false; isGracePeriod = false;
-        clearInterval(pauseInterval); clearInterval(graceInterval);
+        clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
         document.body.classList.remove('break-mode'); 
         
         document.getElementById('focus-badge').style = ""; 
@@ -668,10 +706,8 @@
             if(!goal.reports) goal.reports = [];
             let now = new Date();
             let dateString = now.toLocaleDateString('vi-VN') + " - " + now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
-            // Log thời lượng gốc để lịch sử đẹp
             goal.reports.push({ date: dateString, type: currentDuration + 'p', text: text });
 
-            // Cộng thành quả bằng thời gian thực tế đã bỏ ra (bao gồm cả phạt)
             let hoursEarned = activeSessionMinutes / 60;
             goal.current = Math.max(0, goal.current - hoursEarned);
             totalSessions++;
@@ -698,7 +734,6 @@
         let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)";
         document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
 
-        // Logic chia break mới
         if (currentDuration === 25) {
             standardSessionCount25++; localStorage.setItem('saasSessionCount25Pro', standardSessionCount25);
             if (standardSessionCount25 % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; }
@@ -708,28 +743,35 @@
         }
         
         document.getElementById('status-msg').innerText = `Đang kích hoạt chế độ ${breakMsg}. Hãy rời mắt khỏi màn hình.`;
-        timeLeft = breakMinutes * 60; updateDisplay(timeLeft);
+        
+        timeLeft = breakMinutes * 60;
+        let breakEndTime = Date.now() + timeLeft * 1000;
+        updateDisplay(timeLeft);
         
         timerInterval = setInterval(() => {
-            timeLeft--; updateDisplay(timeLeft);
+            timeLeft = Math.round((breakEndTime - Date.now()) / 1000);
+            
             if (timeLeft <= 0) { 
+                timeLeft = 0;
                 clearInterval(timerInterval); 
+                playAlertSound(); // Đổ chuông hết giờ nghỉ
                 alert("Hết giờ nghỉ! Thời gian ân hạn 2 phút bắt đầu."); 
                 if (goals.find(g => g.id === activeGoalId).current <= 0) { 
                     backToDashboard(); 
                 } else {
-                    startGracePeriod(); // Kích hoạt đạo luật 2 phút
+                    startGracePeriod(); 
                 }
             }
+            updateDisplay(timeLeft);
         }, 1000);
     }
 
-    /* ĐẠO LUẬT ÂN HẠN 2 PHÚT */
     function startGracePeriod() {
         document.body.classList.remove('break-mode');
-        isGracePeriod = true; graceTimeLeft = 120;
+        isGracePeriod = true; 
+        graceTimeLeft = 120;
+        graceEndTime = Date.now() + graceTimeLeft * 1000;
         
-        // Giao diện cảnh báo ân hạn
         const badge = document.getElementById('focus-badge');
         badge.innerText = "THỜI GIAN ÂN HẠN (2 PHÚT)";
         badge.style.color = "var(--brand-warning)";
@@ -745,18 +787,22 @@
         statusIcon.className = "fa-solid fa-hourglass-half fa-spin";
         statusIcon.style.color = "var(--brand-warning)";
         
-        toggleButtons(false); // Hiện lại 15p, 25p để user bấm
+        toggleButtons(false); 
         updateDisplay(graceTimeLeft);
         
         graceInterval = setInterval(() => {
-            graceTimeLeft--; updateDisplay(graceTimeLeft);
+            graceTimeLeft = Math.round((graceEndTime - Date.now()) / 1000);
+            
             if (graceTimeLeft <= 0) {
+                graceTimeLeft = 0;
                 clearInterval(graceInterval);
                 isGracePeriod = false;
                 penaltyMinutes += 5;
+                playAlertSound(); // Đổ chuông hết giờ ân hạn
                 alert(`Đã quá 2 phút ân hạn! Hệ thống ghim án phạt cộng thêm 5 phút vào phiên tiếp theo. (Tổng án phạt: ${penaltyMinutes}p)`);
                 resetSystem();
             }
+            updateDisplay(graceTimeLeft);
         }, 1000);
     }
 
