@@ -84,7 +84,7 @@
         .rank-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 250px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .streak-badge { position: absolute; top: 12px; right: 12px; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); color: var(--brand-warning); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         
-        .rank-icon { font-size: 2.2rem; margin-bottom: 12px; color: var(--brand-trophy); }
+        .rank-icon { font-size: 2.2rem; margin-bottom: 12px; transition: 0.3s; }
         .rank-title { font-size: 1.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
         .rank-desc { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
         .rank-hours { font-size: 1.8rem; font-weight: 700; color: var(--text-main); margin-top: 16px; }
@@ -263,6 +263,7 @@
             <div class="gamification-strip">
                 <div class="rank-card">
                     <div class="streak-badge"><i class="fa-solid fa-fire"></i> <span id="streak-count">0</span> Ngày</div>
+                    <!-- BIỂU TƯỢNG MẦM XANH CỐ ĐỊNH CHỈ ĐỔI MÀU -->
                     <i class="fa-solid fa-seedling rank-icon" id="rank-icon"></i>
                     <div class="rank-title" id="rank-title">Người Mới</div>
                     <div class="rank-desc" id="rank-desc">Cần 10h để thăng cấp Học Giả</div>
@@ -377,17 +378,23 @@
     }
     if(localStorage.getItem('plannerTheme') === 'light') { document.documentElement.setAttribute('data-theme', 'light'); document.getElementById('theme-icon').className = 'fa-solid fa-sun'; }
 
-    // --- DỮ LIỆU ---
+    // --- DỮ LIỆU CŨ ĐỂ BẢO TOÀN ---
     let goals = JSON.parse(localStorage.getItem('saasGoalsPro')) || [];
     let totalSessions = parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0;
     let countdowns = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [];
+    
+    // --- DỮ LIỆU MỚI (GAMIFICATION) ---
     let dailyLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {}; 
     let lastActiveDate = localStorage.getItem('saasLastActive') || "";
     let currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
 
     let activeGoalId = null;
     let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
+    
+    // Tạm dừng
     let isPaused = false, pauseInterval, pauseTimeLeft = 300, sessionEndTime = 0, pauseEndTime = 0, graceEndTime = 0;
+    
+    // Ân hạn & Phạt
     let standardSessionCount25 = parseInt(localStorage.getItem('saasS25')) || 0;
     let standardSessionCount15 = parseInt(localStorage.getItem('saasS15')) || 0;
     let graceInterval, graceTimeLeft = 0, isGracePeriod = false, penaltyMinutes = 0, activeSessionMinutes = 0; 
@@ -449,7 +456,7 @@
             }
         };
         reader.readAsText(file);
-        event.target.value = ''; // Reset file input
+        event.target.value = ''; 
     }
 
     // --- KIỂM TRA CHUỖI ---
@@ -510,18 +517,20 @@
         document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h';
         document.getElementById('streak-count').innerText = currentStreak;
         
-        let rankTitle = "Người Mới"; let rankDesc = "Cần 10h để thăng cấp Học Giả"; let rankIcon = "fa-solid fa-seedling"; let rankColor = "#94a3b8"; 
+        let rankTitle = "Người Mới"; let rankDesc = "Cần 10h để thăng cấp Học Giả"; let rankColor = "#94a3b8"; 
 
-        if(totalHoursEarned >= 300) { rankTitle = "Huyền Thoại"; rankDesc = "Thành tích học tập xuất sắc"; rankIcon = "fa-solid fa-crown"; rankColor = "#f59e0b"; }
-        else if(totalHoursEarned >= 100) { rankTitle = "Bậc Thầy"; rankDesc = `Cần ${Math.ceil(300 - totalHoursEarned)}h để thăng cấp Huyền Thoại`; rankIcon = "fa-solid fa-dragon"; rankColor = "#8b5cf6"; }
-        else if(totalHoursEarned >= 50) { rankTitle = "Chuyên Gia"; rankDesc = `Cần ${Math.ceil(100 - totalHoursEarned)}h để thăng cấp Bậc Thầy`; rankIcon = "fa-solid fa-fire-flame-curved"; rankColor = "#e11d48"; }
-        else if(totalHoursEarned >= 10) { rankTitle = "Học Giả"; rankDesc = `Cần ${Math.ceil(50 - totalHoursEarned)}h để thăng cấp Chuyên Gia`; rankIcon = "fa-solid fa-book-open"; rankColor = "#10b981"; }
+        if(totalHoursEarned >= 300) { rankTitle = "Huyền Thoại"; rankDesc = "Thành tích học tập xuất sắc"; rankColor = "#f59e0b"; }
+        else if(totalHoursEarned >= 100) { rankTitle = "Bậc Thầy"; rankDesc = `Cần ${Math.ceil(300 - totalHoursEarned)}h để thăng cấp Huyền Thoại`; rankColor = "#8b5cf6"; }
+        else if(totalHoursEarned >= 50) { rankTitle = "Chuyên Gia"; rankDesc = `Cần ${Math.ceil(100 - totalHoursEarned)}h để thăng cấp Bậc Thầy`; rankColor = "#e11d48"; }
+        else if(totalHoursEarned >= 10) { rankTitle = "Học Giả"; rankDesc = `Cần ${Math.ceil(50 - totalHoursEarned)}h để thăng cấp Chuyên Gia`; rankColor = "#10b981"; }
 
         document.getElementById('rank-title').innerText = rankTitle;
         document.getElementById('rank-desc').innerText = rankDesc;
         const iconEl = document.getElementById('rank-icon');
-        iconEl.className = rankIcon + " rank-icon";
+        // BIỂU TƯỢNG MẦM XANH LUÔN CỐ ĐỊNH, CHỈ ĐỔI MÀU
+        iconEl.className = "fa-solid fa-seedling rank-icon"; 
         iconEl.style.color = rankColor;
+        iconEl.style.filter = `drop-shadow(0 0 10px ${rankColor}80)`;
 
         const grid = document.getElementById('heatmap-grid'); grid.innerHTML = '';
         let todayObj = new Date();
