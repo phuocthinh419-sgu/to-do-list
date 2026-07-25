@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* V6.1 Solid Theme Palette */
             --bg-base: #0f172a;       
             --bg-panel: #1e293b;      
             --bg-hover: #334155;
@@ -55,6 +54,7 @@
         .brand { display: flex; align-items: center; gap: 12px; font-size: 1.3rem; font-weight: 700; margin-bottom: 40px; padding: 0 12px; letter-spacing: -0.5px; }
         .brand i { color: var(--brand-dash); font-size: 1.5rem; }
         
+        .nav-category { margin: 24px 0 8px 12px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px; border-radius: 10px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition-smooth); border: 1px solid transparent; }
         .nav-item:hover { background: var(--bg-hover); color: var(--text-main); }
         .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--brand-dash); border-color: rgba(59, 130, 246, 0.2); }
@@ -97,11 +97,10 @@
         .heat-cell { aspect-ratio: 1; background: var(--bg-hover); border-radius: 4px; transition: 0.2s; position: relative; border: 1px solid transparent; }
         .heat-cell:hover { border-color: var(--text-muted); transform: scale(1.1); z-index: 2; }
         
-        /* Solid Heat Colors for V6.1 Aesthetic */
-        .heat-1 { background: #fda4af; } /* Rất nhạt */
-        .heat-2 { background: #fb7185; } /* Nhạt */
-        .heat-3 { background: #e11d48; } /* Chuẩn */
-        .heat-4 { background: #be123c; } /* Đậm */
+        .heat-1 { background: #fda4af; } 
+        .heat-2 { background: #fb7185; } 
+        .heat-3 { background: #e11d48; } 
+        .heat-4 { background: #be123c; } 
         [data-theme="dark"] .heat-1 { background: rgba(225, 29, 72, 0.3); }
         [data-theme="dark"] .heat-2 { background: rgba(225, 29, 72, 0.6); }
         [data-theme="dark"] .heat-3 { background: rgba(225, 29, 72, 0.9); }
@@ -229,6 +228,11 @@
             <a class="nav-item active" id="nav-dash" onclick="switchTab('dashboard')"><i class="fa-solid fa-border-all"></i> Bảng điều khiển</a>
             <a class="nav-item" onclick="alert('Tính năng Analytics đang được phát triển.')"><i class="fa-solid fa-chart-line"></i> Phân tích tiến độ</a>
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho lưu trữ</a>
+            
+            <div class="nav-category">Hệ thống</div>
+            <a class="nav-item" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu dữ liệu</a>
+            <a class="nav-item" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi dữ liệu</a>
+            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
         </div>
         <div class="sidebar-footer">
             <span style="font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> Giao diện Chuẩn Học Thuật</span>
@@ -373,23 +377,17 @@
     }
     if(localStorage.getItem('plannerTheme') === 'light') { document.documentElement.setAttribute('data-theme', 'light'); document.getElementById('theme-icon').className = 'fa-solid fa-sun'; }
 
-    // --- DỮ LIỆU CŨ ĐỂ BẢO TOÀN ---
+    // --- DỮ LIỆU ---
     let goals = JSON.parse(localStorage.getItem('saasGoalsPro')) || [];
     let totalSessions = parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0;
     let countdowns = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [];
-    
-    // --- DỮ LIỆU MỚI (GAMIFICATION) ---
     let dailyLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {}; 
     let lastActiveDate = localStorage.getItem('saasLastActive') || "";
     let currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
 
     let activeGoalId = null;
     let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
-    
-    // Tạm dừng
     let isPaused = false, pauseInterval, pauseTimeLeft = 300, sessionEndTime = 0, pauseEndTime = 0, graceEndTime = 0;
-    
-    // Ân hạn & Phạt
     let standardSessionCount25 = parseInt(localStorage.getItem('saasS25')) || 0;
     let standardSessionCount15 = parseInt(localStorage.getItem('saasS15')) || 0;
     let graceInterval, graceTimeLeft = 0, isGracePeriod = false, penaltyMinutes = 0, activeSessionMinutes = 0; 
@@ -401,6 +399,57 @@
         localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
         localStorage.setItem('saasStreak', currentStreak);
         localStorage.setItem('saasLastActive', lastActiveDate);
+        localStorage.setItem('saasS25', standardSessionCount25);
+        localStorage.setItem('saasS15', standardSessionCount15);
+    }
+
+    // --- SAO LƯU & PHỤC HỒI (EXPORT / IMPORT) ---
+    function exportData() {
+        const dataToExport = {
+            goals: goals,
+            totalSessions: totalSessions,
+            countdowns: countdowns,
+            dailyLogs: dailyLogs,
+            streak: currentStreak,
+            lastActive: lastActiveDate,
+            s25: standardSessionCount25,
+            s15: standardSessionCount15
+        };
+        const dataStr = JSON.stringify(dataToExport);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = `AcademicPlanner_SaoLuu_${new Date().toISOString().split('T')[0]}.json`;
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.goals) localStorage.setItem('saasGoalsPro', JSON.stringify(data.goals));
+                if (data.totalSessions !== undefined) localStorage.setItem('saasTotalSessionsPro', data.totalSessions);
+                if (data.countdowns) localStorage.setItem('saasCountdownsPro', JSON.stringify(data.countdowns));
+                if (data.dailyLogs) localStorage.setItem('saasDailyLogs', JSON.stringify(data.dailyLogs));
+                if (data.streak !== undefined) localStorage.setItem('saasStreak', data.streak);
+                if (data.lastActive !== undefined) localStorage.setItem('saasLastActive', data.lastActive);
+                if (data.s25 !== undefined) localStorage.setItem('saasS25', data.s25);
+                if (data.s15 !== undefined) localStorage.setItem('saasS15', data.s15);
+                
+                alert("Đã phục hồi dữ liệu thành công! Trang web sẽ tự động tải lại.");
+                location.reload();
+            } catch (error) {
+                alert("File không hợp lệ hoặc bị lỗi định dạng!");
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // Reset file input
     }
 
     // --- KIỂM TRA CHUỖI ---
