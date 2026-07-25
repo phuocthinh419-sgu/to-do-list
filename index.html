@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Dark Mode mặc định */
             --bg-base: #0f172a;       
             --bg-panel: #1e293b;      
             --bg-hover: #334155;
@@ -30,7 +29,6 @@
             --transition-smooth: all 0.3s ease;
         }
 
-        /* Light Mode */
         [data-theme="light"] {
             --bg-base: #f1f5f9;       
             --bg-panel: #ffffff;      
@@ -166,10 +164,15 @@
         .focus-badge { background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.2); color: var(--brand-focus); padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; }
         .timer-huge { font-size: 10rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -4px; line-height: 1; margin: 10px 0 40px; color: var(--brand-focus); transition: color 0.5s ease; }
         .timer-controls { display: flex; gap: 16px; }
+        
         .btn-timer { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 14px 28px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; font-family: var(--font-main); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .btn-timer:hover { background: var(--bg-hover); border-color: var(--text-muted); transform: translateY(-2px); }
+        
+        #btn-pause { border-color: var(--brand-trophy); color: var(--brand-trophy); display: none; }
+        #btn-pause:hover { background: var(--brand-trophy); color: #fff; }
         #btn-cancel { border-color: var(--brand-focus); color: var(--brand-focus); display: none; }
         #btn-cancel:hover { background: var(--brand-focus); color: #fff; }
+        
         .status-box { margin-top: 40px; padding: 16px 24px; background: var(--bg-panel); border-radius: 12px; display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 0.95rem; font-weight: 500; border: 1px solid var(--border); }
         .status-box i { color: var(--brand-focus); font-size: 1.2rem; }
 
@@ -209,7 +212,7 @@
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho chiến lợi phẩm</a>
         </div>
         <div class="sidebar-footer">
-            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v5.1</span>
+            <span style="font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Kỷ luật thép v5.3</span>
             <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
@@ -232,13 +235,8 @@
 
         <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="view-section">
-            
-            <!-- COUNTDOWN STRIP -->
-            <div class="countdown-strip" id="countdown-strip">
-                <!-- Render via JS -->
-            </div>
+            <div class="countdown-strip" id="countdown-strip"></div>
 
-            <!-- METRICS -->
             <div class="metrics-strip">
                 <div class="metric-card">
                     <div class="metric-icon icon-blue"><i class="fa-solid fa-fire"></i></div>
@@ -250,7 +248,6 @@
                 </div>
             </div>
             
-            <!-- GOALS GRID -->
             <div class="dashboard-grid" id="dashboard-grid"></div>
         </div>
 
@@ -277,6 +274,8 @@
                 <div class="timer-controls">
                     <button class="btn-timer" id="btn-15" onclick="startSession(15)"><i class="fa-solid fa-bolt" style="color: var(--brand-trophy);"></i> Phiên Làm Nóng (15p)</button>
                     <button class="btn-timer" id="btn-25" onclick="startSession(25)"><i class="fa-solid fa-brain" style="color: var(--brand-focus);"></i> Phiên Chuyên Sâu (25p)</button>
+                    <!-- Nút Tạm Dừng & Hủy Bỏ -->
+                    <button class="btn-timer" id="btn-pause" onclick="togglePause()"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
                     <button class="btn-timer" id="btn-cancel" onclick="cancelSession()"><i class="fa-solid fa-xmark"></i> Hủy bỏ phiên</button>
                 </div>
                 <div class="status-box" id="status-box">
@@ -337,12 +336,18 @@
     
     let activeGoalId = null;
     let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
+    
+    // Biến Trạng Thái Tạm Dừng
+    let isPaused = false; 
+    let pauseInterval;
+    let pauseTimeLeft = 300; // 5 Phút giới hạn dung túng
+    
     let standardSessionCount = parseInt(localStorage.getItem('saasSessionCount25Pro')) || 0;
 
     function saveGoals() { localStorage.setItem('saasGoalsPro', JSON.stringify(goals)); localStorage.setItem('saasTotalSessionsPro', totalSessions); }
     function saveCountdowns() { localStorage.setItem('saasCountdownsPro', JSON.stringify(countdowns)); }
 
-    // --- HỆ THỐNG ĐẾM NGƯỢC (COUNTDOWN) - CẬP NHẬT NHẬP LIỆU ---
+    // --- HỆ THỐNG ĐẾM NGƯỢC (COUNTDOWN) ---
     function renderCountdowns() {
         const strip = document.getElementById('countdown-strip');
         strip.innerHTML = '';
@@ -579,7 +584,7 @@
 
     function backToDashboard() {
         if (isSessionActive && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
-        if (isSessionActive) { clearInterval(timerInterval); resetSystem(); }
+        if (isSessionActive) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); }
         document.getElementById('focus-room').style.display = 'none';
         document.getElementById('sidebar').style.position = 'relative';
         document.getElementById('sidebar').style.transform = 'translateX(0)';
@@ -594,28 +599,83 @@
     function toggleButtons(isActive) {
         document.getElementById('btn-15').style.display = isActive ? 'none' : 'flex';
         document.getElementById('btn-25').style.display = isActive ? 'none' : 'flex';
+        document.getElementById('btn-pause').style.display = isActive ? 'flex' : 'none';
         document.getElementById('btn-cancel').style.display = isActive ? 'flex' : 'none';
     }
 
-    function startSession(minutes) {
-        clearInterval(timerInterval); isSessionActive = true; currentDuration = minutes; timeLeft = minutes * 60;
-        document.body.classList.remove('break-mode');
-        document.getElementById('focus-badge').innerText = "ĐANG TẬP TRUNG";
-        document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span id="status-msg">Thời gian đang trôi. Tuyệt đối không xao nhãng.</span>`;
-        toggleButtons(true); updateDisplay(timeLeft);
-        timerInterval = setInterval(() => { timeLeft--; updateDisplay(timeLeft); if (timeLeft <= 0) triggerReportModal(); }, 1000);
+    /* LOGIC TẠM DỪNG VỚI GIỚI HẠN 5 PHÚT */
+    function togglePause() {
+        isPaused = !isPaused;
+        const btnPause = document.getElementById('btn-pause');
+        const statusMsg = document.getElementById('status-msg');
+        const statusIcon = document.getElementById('status-box').querySelector('i');
+
+        if (isPaused) {
+            btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục';
+            statusIcon.className = "fa-solid fa-pause";
+            pauseTimeLeft = 300; // Khởi tạo 5 phút đếm ngược
+            
+            // Cập nhật UI ngay lập tức
+            let pm = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0');
+            let ps = (pauseTimeLeft % 60).toString().padStart(2, '0');
+            statusMsg.innerHTML = `Tạm dừng. Giới hạn dung túng: <strong style="color: var(--brand-focus);">${pm}:${ps}</strong>. Quá giờ sẽ tự động bãi triều!`;
+
+            pauseInterval = setInterval(() => {
+                pauseTimeLeft--;
+                let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0');
+                let s = (pauseTimeLeft % 60).toString().padStart(2, '0');
+                statusMsg.innerHTML = `Tạm dừng. Giới hạn dung túng: <strong style="color: var(--brand-focus);">${m}:${s}</strong>. Quá giờ sẽ tự động bãi triều!`;
+                
+                if (pauseTimeLeft <= 0) {
+                    clearInterval(pauseInterval);
+                    clearInterval(timerInterval);
+                    resetSystem();
+                    setTimeout(() => alert("Bệ hạ đã dời gót quá 5 phút! Tâm trí đã phân tán, hệ thống ban lệnh hủy phiên tu luyện này. Xin hãy xốc lại kỷ luật!"), 100);
+                }
+            }, 1000);
+
+        } else {
+            clearInterval(pauseInterval);
+            btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
+            statusMsg.innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
+            statusIcon.className = "fa-solid fa-spinner fa-spin";
+        }
     }
 
-    function cancelSession() { if(confirm("Bạn có chắc muốn hủy phiên học này?")) { clearInterval(timerInterval); resetSystem(); } }
+    function startSession(minutes) {
+        clearInterval(timerInterval); clearInterval(pauseInterval);
+        isSessionActive = true; isPaused = false; 
+        currentDuration = minutes; timeLeft = minutes * 60;
+        
+        document.body.classList.remove('break-mode');
+        document.getElementById('focus-badge').innerText = "ĐANG TẬP TRUNG";
+        
+        document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
+        document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin";
+        document.getElementById('status-msg').innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
+        
+        toggleButtons(true); updateDisplay(timeLeft);
+        
+        timerInterval = setInterval(() => { 
+            if (!isPaused) {
+                timeLeft--; 
+                updateDisplay(timeLeft); 
+                if (timeLeft <= 0) triggerReportModal(); 
+            }
+        }, 1000);
+    }
+
+    function cancelSession() { if(confirm("Bạn có chắc muốn hủy phiên học này?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
 
     function resetSystem() {
-        isSessionActive = false; document.body.classList.remove('break-mode'); updateDisplay(0); toggleButtons(false);
+        isSessionActive = false; isPaused = false; clearInterval(pauseInterval);
+        document.body.classList.remove('break-mode'); updateDisplay(0); toggleButtons(false);
         document.getElementById('focus-badge').innerText = "KHU VỰC TẬP TRUNG";
         document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-circle-info"></i><span id="status-msg">Sẵn sàng. Chọn thời lượng để bắt đầu.</span>`;
     }
 
     function triggerReportModal() {
-        clearInterval(timerInterval);
+        clearInterval(timerInterval); clearInterval(pauseInterval);
         requiredWords = (currentDuration === 15) ? 25 : 40;
         document.getElementById('word-required').innerText = requiredWords;
         document.getElementById('word-req-display').innerText = requiredWords;
@@ -680,7 +740,9 @@
 
     function initiateBreak() {
         isSessionActive = false; document.body.classList.add('break-mode');
-        toggleButtons(true); document.getElementById('btn-cancel').style.display = 'none'; 
+        toggleButtons(true); 
+        document.getElementById('btn-pause').style.display = 'none';
+        document.getElementById('btn-cancel').style.display = 'none'; 
         
         let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)";
         document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
