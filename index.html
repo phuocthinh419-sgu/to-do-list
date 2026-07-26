@@ -158,6 +158,13 @@
         .curfew-input { width: 100%; padding: 12px 16px; border-radius: 12px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .curfew-input:focus { border-color: var(--brand-focus); }
 
+        /* ĐỒNG HỒ MINI GIỚI NGHIÊM */
+        .mini-progress-circle { width: 44px; height: 44px; position: relative; }
+        .mini-progress-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 2px rgba(0,0,0,0.1)); }
+        .mini-progress-circle circle { fill: none; stroke-width: 5; stroke-linecap: round; }
+        .mini-bg { stroke: var(--bg-hover); }
+        .mini-bar { stroke: var(--brand-warning); stroke-dasharray: 113.1; transition: stroke-dashoffset 1s linear; }
+
         .sidebar-footer { margin-top: auto; padding: 0 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;}
         .theme-toggle { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); backdrop-filter: blur(var(--bg-panel-blur)); }
         .theme-toggle:hover { background: var(--bg-hover); transform: rotate(15deg); }
@@ -246,26 +253,6 @@
         .goal-meta h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; line-height: 1.4; color: var(--text-main); letter-spacing: -0.5px; }
         .goal-meta p { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
 
-        /* TROPHY ROOM */
-        #trophy-room { display: none; padding: 0 24px 48px; }
-        .locked-state { text-align: center; padding: 100px 20px; color: var(--text-muted); }
-        .locked-state i { font-size: 4rem; color: var(--border); margin-bottom: 24px; }
-        .locked-state h2 { color: var(--text-main); font-size: 1.8rem; margin-bottom: 12px; font-weight: 800; }
-        .trophy-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 28px; padding: 32px; cursor: pointer; transition: var(--transition-smooth); margin-bottom: 24px; box-shadow: var(--shadow-bento); position: relative; overflow: hidden; }
-        .trophy-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--brand-trophy); z-index: 20;}
-        .trophy-card:hover { transform: translateX(8px); box-shadow: 0 16px 32px rgba(0,0,0,0.1); }
-        .trophy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; z-index: 20;}
-        .trophy-header h3 { font-size: 1.5rem; color: var(--text-main); font-weight: 800; display: flex; align-items: center; gap: 14px; }
-        .trophy-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-trophy); padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .trophy-card p { position: relative; z-index: 20; }
-        
-        #trophy-detail { display: none; padding: 0 24px 48px; }
-        .timeline { border-left: 3px dashed var(--border); padding-left: 40px; margin-top: 40px; margin-left: 12px; }
-        .timeline-item { position: relative; margin-bottom: 40px; background: var(--bg-panel); padding: 24px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur)); }
-        .timeline-item::before { content: ''; position: absolute; left: -49px; top: 30px; width: 14px; height: 14px; border-radius: 50%; background: var(--brand-trophy); border: 4px solid var(--bg-hover); }
-        .tl-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; }
-        .tl-content { color: var(--text-main); line-height: 1.7; font-size: 1rem; }
-
         /* ANALYTICS ROOM */
         #analytics-room { display: none; padding: 0 24px 48px; }
         .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
@@ -298,6 +285,26 @@
         .vel-info { display: flex; flex-direction: column; }
         .vel-info strong { font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 6px; letter-spacing: -1px; }
         .vel-info span { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
+
+        /* TROPHY ROOM */
+        #trophy-room { display: none; padding: 0 24px 48px; }
+        .locked-state { text-align: center; padding: 100px 20px; color: var(--text-muted); }
+        .locked-state i { font-size: 4rem; color: var(--border); margin-bottom: 24px; }
+        .locked-state h2 { color: var(--text-main); font-size: 1.8rem; margin-bottom: 12px; font-weight: 800; }
+        .trophy-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 28px; padding: 32px; cursor: pointer; transition: var(--transition-smooth); margin-bottom: 24px; box-shadow: var(--shadow-bento); position: relative; overflow: hidden; }
+        .trophy-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--brand-trophy); z-index: 20;}
+        .trophy-card:hover { transform: translateX(8px); box-shadow: 0 16px 32px rgba(0,0,0,0.1); }
+        .trophy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; z-index: 20;}
+        .trophy-header h3 { font-size: 1.5rem; color: var(--text-main); font-weight: 800; display: flex; align-items: center; gap: 14px; }
+        .trophy-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-trophy); padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .trophy-card p { position: relative; z-index: 20; }
+        
+        #trophy-detail { display: none; padding: 0 24px 48px; }
+        .timeline { border-left: 3px dashed var(--border); padding-left: 40px; margin-top: 40px; margin-left: 12px; }
+        .timeline-item { position: relative; margin-bottom: 40px; background: var(--bg-panel); padding: 24px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur)); }
+        .timeline-item::before { content: ''; position: absolute; left: -49px; top: 30px; width: 14px; height: 14px; border-radius: 50%; background: var(--brand-trophy); border: 4px solid var(--bg-hover); }
+        .tl-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; }
+        .tl-content { color: var(--text-main); line-height: 1.7; font-size: 1rem; }
 
         /* FOCUS ROOM */
         #focus-room { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 200; flex-direction: column; padding: 48px 80px; transition: 0.4s ease; }
@@ -370,6 +377,17 @@
             <div class="nav-category">Thiết lập Giới Nghiêm</div>
             <div style="padding: 0 16px; margin-bottom: 24px;">
                 <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
+                
+                <!-- Đồng hồ đếm ngược mini cho Giờ giới nghiêm -->
+                <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 14px; margin-top: 16px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur));">
+                    <div class="mini-progress-circle">
+                        <svg><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Còn lại</span>
+                        <span id="curfew-timer-text" style="font-size: 1.15rem; font-weight: 800; color: var(--brand-warning); font-variant-numeric: tabular-nums; letter-spacing: -0.5px;">00:00:00</span>
+                    </div>
+                </div>
             </div>
 
             <div class="nav-category">Giao diện & Màu sắc</div>
@@ -572,6 +590,7 @@
     function saveCurfew() {
         curfewTimeStr = document.getElementById('curfew-time').value;
         localStorage.setItem('saasCurfew', curfewTimeStr);
+        updateCurfewCountdown();
     }
 
     function isCurfewActive() {
@@ -585,6 +604,46 @@
         if (currentHour > cHour && currentHour <= 23) return true;
         if (currentHour >= 0 && currentHour < 5) return true; 
         return false;
+    }
+
+    function updateCurfewCountdown() {
+        const container = document.getElementById('curfew-countdown-container');
+        if (!curfewTimeStr) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
+        
+        let now = new Date();
+        let [cHour, cMin] = curfewTimeStr.split(':').map(Number);
+        
+        if (isCurfewActive()) {
+            document.getElementById('curfew-timer-text').innerText = "ĐÃ KHÓA";
+            document.getElementById('curfew-progress').style.strokeDashoffset = 113.1;
+            return;
+        }
+
+        let curfewDate = new Date();
+        curfewDate.setHours(cHour, cMin, 0, 0);
+        
+        let distance = curfewDate - now;
+        if (distance < 0) { 
+             curfewDate.setDate(curfewDate.getDate() + 1);
+             distance = curfewDate - now;
+        }
+        
+        let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        let s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('curfew-timer-text').innerText = 
+            `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        
+        let totalSecs = Math.floor(distance / 1000);
+        let maxSecs = 12 * 3600; 
+        let pct = Math.max(0, Math.min(1, totalSecs / maxSecs));
+        let offset = 113.1 - (pct * 113.1);
+        document.getElementById('curfew-progress').style.strokeDashoffset = offset;
     }
 
     let isTickOn = false;
@@ -1312,7 +1371,13 @@
         }, 1000);
     }
 
-    checkStreakOnLoad(); renderCountdowns(); countdownInterval = setInterval(updateCountdownTicks, 1000); switchTab('dashboard');
+    checkStreakOnLoad(); 
+    renderCountdowns(); 
+    countdownInterval = setInterval(() => {
+        updateCountdownTicks();
+        updateCurfewCountdown();
+    }, 1000); 
+    switchTab('dashboard');
 </script>
 </body>
 </html>
