@@ -155,6 +155,9 @@
         .color-btn:hover { transform: scale(1.2); }
         .color-btn.active::after { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 2px solid var(--text-main); border-radius: 50%; }
 
+        .curfew-input { width: 100%; padding: 12px 16px; border-radius: 12px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .curfew-input:focus { border-color: var(--brand-focus); }
+
         .sidebar-footer { margin-top: auto; padding: 0 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;}
         .theme-toggle { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); backdrop-filter: blur(var(--bg-panel-blur)); }
         .theme-toggle:hover { background: var(--bg-hover); transform: rotate(15deg); }
@@ -166,15 +169,11 @@
 
         /* HEADER */
         .header { 
-            padding: 32px 48px 24px; 
-            margin: 0 -24px 24px -24px; 
+            padding: 32px 48px 24px; margin: 0 -24px 24px -24px; 
             display: flex; justify-content: space-between; align-items: flex-end; 
-            position: sticky; top: 0; 
-            background: var(--bg-panel); 
+            position: sticky; top: 0; background: var(--bg-panel); 
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); 
-            z-index: 100; 
-            border-bottom: 1px solid var(--border); 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            z-index: 100; border-bottom: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
         }
         .header-title h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; color: var(--text-main); }
         .header-title p { color: var(--text-muted); font-size: 1rem; font-weight: 500; }
@@ -252,16 +251,17 @@
         .locked-state { text-align: center; padding: 100px 20px; color: var(--text-muted); }
         .locked-state i { font-size: 4rem; color: var(--border); margin-bottom: 24px; }
         .locked-state h2 { color: var(--text-main); font-size: 1.8rem; margin-bottom: 12px; font-weight: 800; }
-        .trophy-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 24px; padding: 32px; cursor: pointer; transition: var(--transition-smooth); margin-bottom: 24px; box-shadow: var(--shadow-bento); position: relative; }
+        .trophy-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 28px; padding: 32px; cursor: pointer; transition: var(--transition-smooth); margin-bottom: 24px; box-shadow: var(--shadow-bento); position: relative; overflow: hidden; }
         .trophy-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--brand-trophy); z-index: 20;}
         .trophy-card:hover { transform: translateX(8px); box-shadow: 0 16px 32px rgba(0,0,0,0.1); }
         .trophy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; z-index: 20;}
         .trophy-header h3 { font-size: 1.5rem; color: var(--text-main); font-weight: 800; display: flex; align-items: center; gap: 14px; }
         .trophy-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-trophy); padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
         .trophy-card p { position: relative; z-index: 20; }
+        
         #trophy-detail { display: none; padding: 0 24px 48px; }
         .timeline { border-left: 3px dashed var(--border); padding-left: 40px; margin-top: 40px; margin-left: 12px; }
-        .timeline-item { position: relative; margin-bottom: 40px; background: var(--bg-panel); padding: 24px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
+        .timeline-item { position: relative; margin-bottom: 40px; background: var(--bg-panel); padding: 24px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur)); }
         .timeline-item::before { content: ''; position: absolute; left: -49px; top: 30px; width: 14px; height: 14px; border-radius: 50%; background: var(--brand-trophy); border: 4px solid var(--bg-hover); }
         .tl-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; }
         .tl-content { color: var(--text-main); line-height: 1.7; font-size: 1rem; }
@@ -299,7 +299,7 @@
         .vel-info strong { font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 6px; letter-spacing: -1px; }
         .vel-info span { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
 
-        /* FOCUS ROOM & MODALS */
+        /* FOCUS ROOM */
         #focus-room { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 200; flex-direction: column; padding: 48px 80px; transition: 0.4s ease; }
         .focus-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 40px; }
         .btn-back { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; padding: 12px 24px; border-radius: 100px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur)); }
@@ -312,9 +312,14 @@
         .btn-timer:hover { background: var(--text-main); color: var(--bg-panel); transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,0,0,0.2); }
         #btn-pause { border-color: var(--brand-trophy); color: var(--brand-trophy); display: none; background: transparent; } #btn-pause:hover { background: var(--brand-trophy); color: #fff; }
         #btn-cancel { border-color: var(--brand-warning); color: var(--brand-warning); display: none; background: transparent; } #btn-cancel:hover { background: var(--brand-warning); color: #fff; }
+        
+        #btn-tick { border-color: var(--brand-dash); color: var(--brand-dash); background: transparent; }
+        #btn-tick:hover { background: var(--brand-dash); color: #fff; }
+
         .status-box { margin-top: 48px; padding: 20px 32px; background: var(--bg-hover); border-radius: 100px; display: flex; align-items: center; gap: 14px; color: var(--text-main); font-size: 1rem; font-weight: 600; border: 1px solid var(--border); }
         .status-box i { color: var(--brand-focus); font-size: 1.4rem; }
 
+        /* MODALS */
         #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 32px; padding: 48px; width: 100%; max-width: 600px; box-shadow: 0 40px 80px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease-out; }
         .modal-header { margin-bottom: 32px; }
@@ -332,17 +337,18 @@
         .btn-submit.active { opacity: 1; pointer-events: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
         .btn-submit.active:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
 
+        /* SHAME MODAL (HARDCORE TAX) */
         #shame-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; }
         .shame-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 32px; padding: 56px 48px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.5); animation: fadeIn 0.4s ease-out; }
         .shame-content i { font-size: 4rem; color: var(--brand-warning); margin-bottom: 24px; }
         .shame-content h2 { color: var(--text-main); font-size: 1.8rem; font-weight: 800; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
         .shame-content p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 32px; text-align: center; }
-        .shame-input { width: 100%; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 16px; padding: 18px; color: var(--text-main); font-family: inherit; font-size: 1.05rem; text-align: center; margin-bottom: 32px; transition: 0.2s; font-weight: 500; }
-        .shame-input:focus { outline: none; border-color: var(--brand-warning); box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.2); background: var(--bg-panel); }
-        .shame-input::placeholder { color: var(--text-muted); font-style: italic; font-weight: 400; }
-        .btn-shame { background: var(--brand-warning); color: #fff; border: none; padding: 16px 40px; font-weight: 800; font-size: 1.1rem; border-radius: 100px; cursor: pointer; opacity: 0.4; pointer-events: none; transition: 0.3s; width: 100%; }
-        .btn-shame.active { opacity: 1; pointer-events: auto; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.3); }
-        .btn-shame.active:hover { transform: translateY(-2px); }
+        
+        .btn-shame-alt { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border); padding: 16px 40px; font-weight: 700; font-size: 1rem; border-radius: 100px; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 12px; }
+        .btn-shame-alt:hover { background: var(--border); }
+        
+        .btn-shame { background: var(--brand-warning); color: #fff; border: none; padding: 16px 40px; font-weight: 800; font-size: 1.1rem; border-radius: 100px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.3); }
+        .btn-shame:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(225, 29, 72, 0.4); }
 
         body.break-mode #focus-room { background: var(--bg-base); }
         body.break-mode .timer-huge { color: var(--brand-break); }
@@ -361,6 +367,11 @@
             <a class="nav-item" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-pie"></i> Phân tích tiến độ</a>
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho lưu trữ</a>
             
+            <div class="nav-category">Thiết lập Giới Nghiêm</div>
+            <div style="padding: 0 16px; margin-bottom: 24px;">
+                <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
+            </div>
+
             <div class="nav-category">Giao diện & Màu sắc</div>
             <div class="palette-container">
                 <button class="color-btn zen active" onclick="changeColor('zen')" style="background: #f7f5f2; border: 1px solid #d6d3d1;" title="Bento Zen Mặc Định"></button>
@@ -384,13 +395,13 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- HEADER -->
         <header class="header">
             <div class="header-title">
                 <h1 id="main-title">Tổng quan học tập</h1>
                 <p id="main-desc">Kỷ luật là cầu nối giữa mục tiêu và thành tựu.</p>
             </div>
             <div class="header-actions">
+                <button class="btn-ghost-action" id="btn-rest-day" onclick="activateRestDay()"><i class="fa-solid fa-mug-hot" style="color: var(--brand-focus);"></i> Nghỉ Bảo Tồn</button>
                 <button class="btn-ghost-action" id="btn-create-countdown" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Đếm ngược</button>
                 <button class="btn-primary" id="btn-create-goal" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Khởi tạo mục tiêu</button>
             </div>
@@ -435,13 +446,14 @@
         <!-- FOCUS ROOM -->
         <div id="focus-room">
             <div class="focus-nav">
-                <button class="btn-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard</button>
+                <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard</button>
                 <div id="focus-target-info" style="font-weight: 700; color: var(--text-muted); font-size: 1.05rem;">Mục tiêu: IELTS 6.5</div>
             </div>
             <div class="focus-content">
                 <div class="focus-badge" id="focus-badge">Khu Vực Tập Trung</div>
                 <div class="timer-huge" id="session-timer">00:00</div>
                 <div class="timer-controls">
+                    <button class="btn-timer" id="btn-tick" onclick="toggleTick()"><i class="fa-solid fa-clock"></i> Âm Tích Tắc: TẮT</button>
                     <button class="btn-timer" id="btn-15" onclick="startSession(15)"><i class="fa-solid fa-bolt" style="color: var(--brand-trophy);"></i> Phiên Ngắn (15p)</button>
                     <button class="btn-timer" id="btn-25" onclick="startSession(25)"><i class="fa-solid fa-brain" style="color: var(--brand-focus);"></i> Phiên Tiêu Chuẩn (25p)</button>
                     <button class="btn-timer" id="btn-pause" onclick="togglePause()"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
@@ -473,18 +485,21 @@
         </div>
     </div>
 
+    <!-- SHAME MODAL: THUẾ TRÌ HOÃN -->
     <div id="shame-modal">
         <div class="shame-content">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <h2>Chuỗi Kỷ Luật Đã Bị Đứt</h2>
-            <p>Việc bỏ lỡ lịch học đã làm đứt chuỗi kỷ luật của bạn. Các mục tiêu lớn như IELTS 6.5 hay GPA xuất sắc đòi hỏi sự bền bỉ mỗi ngày. Sự trì hoãn hôm nay là rào cản cho thành công ngày mai.<br><br>Hãy đối diện với sự xao nhãng và cam kết quay trở lại quỹ đạo.</p>
-            <input type="text" id="shame-input" class="shame-input" placeholder='Gõ chính xác dòng chữ: "Tôi cam kết sẽ không trì hoãn"' oninput="checkShameOath()">
-            <button class="btn-shame" id="btn-shame-unlock" onclick="unlockDashboard()">Khôi phục không gian học tập</button>
+            <i class="fa-solid fa-skull-crossbones"></i>
+            <h2>CẢNH BÁO ĐỨT CHUỖI KỶ LUẬT</h2>
+            <p>Bạn đã để khoảng trống trong hành trình. Sự xao nhãng đang đe dọa thành quả của bạn. Bạn có 2 lựa chọn ngay lúc này:</p>
+            
+            <button class="btn-shame-alt" onclick="acceptDefeat()">1. Cúi đầu nhận thua (Reset chuỗi về 1)</button>
+            <button class="btn-shame" onclick="startTaxSession()">2. Khôi phục chuỗi (120 Phút Liên Tục)</button>
         </div>
     </div>
 
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
     function playAlertSound() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
@@ -495,6 +510,20 @@
         gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
         osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 1.5);
+    }
+
+    function playTick() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'square'; 
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.02, audioCtx.currentTime); 
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.05);
     }
 
     function changeColor(color) {
@@ -527,6 +556,7 @@
     let dailyLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {}; 
     let lastActiveDate = localStorage.getItem('saasLastActive') || "";
     let currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
+    let lastRestDate = localStorage.getItem('saasLastRest') || "";
 
     let activeGoalId = null;
     let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
@@ -535,6 +565,131 @@
     let standardSessionCount15 = parseInt(localStorage.getItem('saasS15')) || 0;
     let graceInterval, graceTimeLeft = 0, isGracePeriod = false, penaltyMinutes = 0, activeSessionMinutes = 0; 
     let reportOpenTime = 0;
+
+    let curfewTimeStr = localStorage.getItem('saasCurfew') || '';
+    if(curfewTimeStr) document.getElementById('curfew-time').value = curfewTimeStr;
+
+    function saveCurfew() {
+        curfewTimeStr = document.getElementById('curfew-time').value;
+        localStorage.setItem('saasCurfew', curfewTimeStr);
+    }
+
+    function isCurfewActive() {
+        if (!curfewTimeStr) return false;
+        let now = new Date();
+        let currentHour = now.getHours();
+        let currentMin = now.getMinutes();
+        let [cHour, cMin] = curfewTimeStr.split(':').map(Number);
+        
+        if (currentHour === cHour && currentMin >= cMin) return true;
+        if (currentHour > cHour && currentHour <= 23) return true;
+        if (currentHour >= 0 && currentHour < 5) return true; 
+        return false;
+    }
+
+    let isTickOn = false;
+    function toggleTick() {
+        isTickOn = !isTickOn;
+        document.getElementById('btn-tick').innerHTML = `<i class="fa-solid fa-clock"></i> Âm Tích Tắc: ${isTickOn ? 'BẬT' : 'TẮT'}`;
+    }
+
+    function activateRestDay() {
+        let todayStr = new Date().toISOString().split('T')[0];
+        if (lastRestDate) {
+            let diff = Math.floor((new Date(todayStr) - new Date(lastRestDate)) / (1000 * 60 * 60 * 24));
+            if (diff < 7) {
+                alert("Bạn đã dùng quyền Nghỉ Bảo Tồn trong tuần này. Phải duy trì liên tục 7 ngày mới được cấp phép lại!");
+                return;
+            }
+        }
+        if (confirm("Kích hoạt Nghỉ Bảo Tồn? Hôm nay bạn chỉ cần hoàn thành 45 phút (3 phiên ngắn) để duy trì chuỗi kỷ luật.")) {
+            lastRestDate = todayStr;
+            localStorage.setItem('saasLastRest', lastRestDate);
+            alert("Đã kích hoạt! Tận hưởng ngày nghỉ ngơi, nhưng đừng quên hoàn thành 45 phút nhẹ nhàng nhé.");
+        }
+    }
+
+    let isHardcoreTax = false;
+    let taxPauseBank = 180; 
+
+    function acceptDefeat() {
+        currentStreak = 1;
+        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+        lastActiveDate = todayObj.toISOString().split('T')[0];
+        saveAll();
+        document.getElementById('shame-modal').style.display = 'none';
+        renderGamification();
+    }
+
+    function startTaxSession() {
+        if(goals.length === 0) {
+            goals.push({ id: Date.now(), name: "KHÔI PHỤC CHUỖI", target: 2, current: 2, reports: [] });
+        }
+        activeGoalId = goals[0].id;
+        document.getElementById('shame-modal').style.display = 'none';
+        document.getElementById('focus-room').style.display = 'flex';
+        document.getElementById('sidebar').style.transform = 'translateX(-100%)';
+        
+        document.getElementById('focus-target-info').innerText = "CHIẾN DỊCH KHÔI PHỤC CHUỖI (120 PHÚT)";
+        let badge = document.getElementById('focus-badge');
+        badge.innerText = "CHẾ ĐỘ HARDCORE";
+        badge.style.background = "rgba(225, 29, 72, 0.1)";
+        badge.style.color = "var(--brand-warning)";
+        badge.style.borderColor = "var(--brand-warning)";
+
+        document.getElementById('btn-15').style.display = 'none';
+        document.getElementById('btn-25').style.display = 'none';
+        document.getElementById('btn-cancel').style.display = 'none';
+
+        let btnTax = document.getElementById('btn-tax');
+        if(!btnTax) {
+            btnTax = document.createElement('button');
+            btnTax.className = 'btn-timer';
+            btnTax.id = 'btn-tax';
+            btnTax.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> BẮT ĐẦU CHUỘC LỖI';
+            btnTax.onclick = () => runHardcoreSession();
+            document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause'));
+        }
+        btnTax.style.display = 'flex';
+        
+        document.getElementById('btn-focus-back').onclick = function() {
+            alert("Đã bước vào vòng chuộc lỗi thì KHÔNG ĐƯỢC THOÁT! Nếu tải lại trang, chuỗi kỷ luật sẽ tự động về 1.");
+        }
+    }
+
+    function runHardcoreSession() {
+        if (isCurfewActive()) {
+            alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Hệ thống từ chối khởi tạo phiên mới.");
+            return;
+        }
+        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        isHardcoreTax = true; taxPauseBank = 180;
+        document.getElementById('btn-tax').style.display = 'none';
+        
+        currentDuration = 120; activeSessionMinutes = 120;
+        timeLeft = 120 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+        
+        isSessionActive = true; isPaused = false;
+        document.body.classList.add('focus-active');
+        
+        document.getElementById('btn-pause').style.display = 'flex';
+        document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
+        
+        timerInterval = setInterval(() => {
+            if (isCurfewActive()) {
+                clearInterval(timerInterval);
+                alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Kết quả bị hủy. Chúc ngủ ngon!");
+                resetSystem(); return;
+            }
+            if (!isPaused) {
+                timeLeft = Math.round((sessionEndTime - Date.now()) / 1000);
+                if (timeLeft <= 0) { timeLeft = 0; playAlertSound(); triggerReportModal(); }
+                updateDisplay(timeLeft);
+                if (isTickOn && timeLeft % 1 === 0) playTick();
+            }
+        }, 1000);
+    }
 
     function saveAll() { 
         localStorage.setItem('saasGoalsPro', JSON.stringify(goals)); 
@@ -552,7 +707,7 @@
     });
 
     function exportData() {
-        const dataToExport = { goals: goals, totalSessions: totalSessions, countdowns: countdowns, dailyLogs: dailyLogs, streak: currentStreak, lastActive: lastActiveDate, s25: standardSessionCount25, s15: standardSessionCount15 };
+        const dataToExport = { goals, totalSessions, countdowns, dailyLogs, streak: currentStreak, lastActive: lastActiveDate, s25: standardSessionCount25, s15: standardSessionCount15 };
         const dataStr = JSON.stringify(dataToExport);
         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
         const exportFileDefaultName = `AcademicPlanner_SaoLuu_${new Date().toISOString().split('T')[0]}.json`;
@@ -589,21 +744,10 @@
             let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
             let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
             if (diffDays > 1) {
-                currentStreak = 0; document.getElementById('shame-modal').style.display = 'flex'; document.getElementById('shame-input').focus(); saveAll();
+                document.getElementById('shame-modal').style.display = 'flex'; 
             }
         }
         document.getElementById('streak-count').innerText = currentStreak;
-    }
-
-    function checkShameOath() {
-        const input = document.getElementById('shame-input').value; const btn = document.getElementById('btn-shame-unlock');
-        if (input.toLowerCase().trim() === "tôi cam kết sẽ không trì hoãn") { btn.classList.add('active'); } else { btn.classList.remove('active'); }
-    }
-
-    function unlockDashboard() {
-        document.getElementById('shame-modal').style.display = 'none';
-        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-        lastActiveDate = todayObj.toISOString().split('T')[0]; saveAll();
     }
 
     function updateStreakOnSubmit() {
@@ -710,6 +854,7 @@
             document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
             document.getElementById('btn-create-goal').style.display = 'flex'; 
             document.getElementById('btn-create-countdown').style.display = 'flex';
+            document.getElementById('btn-rest-day').style.display = 'flex';
             renderDashboard(); renderGamification();
         } else if(tab === 'analytics') {
             document.getElementById('nav-analytics').classList.add('active'); 
@@ -718,6 +863,7 @@
             document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
             document.getElementById('btn-create-goal').style.display = 'none'; 
             document.getElementById('btn-create-countdown').style.display = 'none';
+            document.getElementById('btn-rest-day').style.display = 'none';
             renderAnalytics();
         } else if(tab === 'trophy') {
             document.getElementById('nav-trophy').classList.add('active'); 
@@ -726,38 +872,29 @@
             document.getElementById('main-desc').innerText = "Nơi lưu trữ các mục tiêu đã hoàn thành.";
             document.getElementById('btn-create-goal').style.display = 'none'; 
             document.getElementById('btn-create-countdown').style.display = 'none';
+            document.getElementById('btn-rest-day').style.display = 'none';
             renderTrophyRoom();
         }
     }
 
-    // --- RENDER ANALYTICS TÌNH BÁO ---
     function renderAnalytics() {
         const room = document.getElementById('analytics-room');
         room.innerHTML = '';
         let allGoals = goals; 
 
-        // Tính toán lại số phiên để luôn chính xác tuyệt đối
-        let actualTotalSessions = 0;
-        let actualS15 = 0;
-        let actualS25 = 0;
-        
+        let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0;
         allGoals.forEach(g => {
             if(g.reports) {
                 actualTotalSessions += g.reports.length;
-                g.reports.forEach(r => {
-                    if(r.type === '15p') actualS15++;
-                    if(r.type === '25p') actualS25++;
-                });
+                g.reports.forEach(r => { if(r.type === '15p') actualS15++; if(r.type === '25p') actualS25++; });
             }
         });
 
-        // 1. Tổng quan Phiên học
         let sessionHtml = `<div class="analytics-card"><h3>Tổng quan Phiên học</h3>
             <div class="vel-box" style="margin-bottom: 16px; padding: 24px;">
                 <i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 2.5rem;"></i>
                 <div class="vel-info">
-                    <strong>${actualTotalSessions}</strong>
-                    <span>Tổng số phiên đã hoàn thành</span>
+                    <strong>${actualTotalSessions}</strong><span>Tổng số phiên đã hoàn thành</span>
                 </div>
             </div>
             <div style="display: flex; gap: 16px;">
@@ -772,38 +909,29 @@
             </div>
         </div>`;
         
-        // 2. Phân bổ Trọng tâm
         let focusHtml = '<div class="analytics-card"><h3>Phân bổ Trọng tâm</h3>';
         let totalLogged = 0;
         let goalStats = allGoals.map(g => {
             let logged = g.target - g.current;
-            totalLogged += logged;
-            return { name: g.name, logged: logged };
+            totalLogged += logged; return { name: g.name, logged: logged };
         }).filter(g => g.logged > 0).sort((a,b) => b.logged - a.logged);
         
-        if (totalLogged === 0) {
-            focusHtml += '<p style="color:var(--text-muted)">Chưa có dữ liệu học tập.</p>';
-        } else {
+        if (totalLogged === 0) focusHtml += '<p style="color:var(--text-muted)">Chưa có dữ liệu học tập.</p>';
+        else {
             goalStats.forEach(g => {
                 let pct = (g.logged / totalLogged) * 100;
-                focusHtml += `
-                    <div class="stat-row">
-                        <div class="stat-label"><span>${g.name}</span> <span>${g.logged.toFixed(1)}h (${pct.toFixed(0)}%)</span></div>
-                        <div class="stat-bar"><div class="stat-fill" style="width: ${pct}%"></div></div>
-                    </div>`;
+                focusHtml += `<div class="stat-row"><div class="stat-label"><span>${g.name}</span> <span>${g.logged.toFixed(1)}h (${pct.toFixed(0)}%)</span></div><div class="stat-bar"><div class="stat-fill" style="width: ${pct}%"></div></div></div>`;
             });
         }
         focusHtml += '</div>';
 
-        // 3. Nhịp sinh học (Khung giờ)
         let timeSlots = { sang: 0, chieu: 0, toi: 0, dem: 0 };
         allGoals.forEach(g => {
             if (g.reports) {
                 g.reports.forEach(r => {
                     let parts = r.date.split(' - ');
                     if(parts.length === 2) {
-                        let timeStr = parts[1]; 
-                        let hour = parseInt(timeStr.split(':')[0]);
+                        let hour = parseInt(parts[1].split(':')[0]);
                         if(hour >= 5 && hour < 12) timeSlots.sang++;
                         else if(hour >= 12 && hour < 18) timeSlots.chieu++;
                         else if(hour >= 18 && hour < 22) timeSlots.toi++;
@@ -816,9 +944,8 @@
         let totalSessionsCount = timeSlots.sang + timeSlots.chieu + timeSlots.toi + timeSlots.dem;
         
         let bioHtml = `<div class="analytics-card"><h3>Nhịp sinh học Kỷ luật</h3>`;
-        if (totalSessionsCount === 0) {
-            bioHtml += '<p style="color:var(--text-muted)">Chưa đủ dữ liệu phiên học.</p>';
-        } else {
+        if (totalSessionsCount === 0) bioHtml += '<p style="color:var(--text-muted)">Chưa đủ dữ liệu phiên học.</p>';
+        else {
             bioHtml += `
             <div class="bio-grid">
                 <div class="bio-box ${maxSlot === 'sang' ? 'active' : ''}"><i class="fa-regular fa-sun"></i><span>Sáng<br>(5h-12h)</span><strong>${timeSlots.sang} phiên</strong></div>
@@ -829,11 +956,9 @@
         }
         bioHtml += `</div>`;
 
-        // 4. Độ lệch kỷ luật (Thứ 2 - CN)
         let dowStats = [0, 0, 0, 0, 0, 0, 0]; 
         for (let dateStr in dailyLogs) {
-            let d = new Date(dateStr);
-            let day = d.getDay(); 
+            let day = new Date(dateStr).getDay(); 
             let idx = day === 0 ? 6 : day - 1; 
             dowStats[idx] += dailyLogs[dateStr];
         }
@@ -846,29 +971,18 @@
         }
         dowHtml += `</div></div>`;
 
-        // 5. Tốc độ tiêu hao (Velocity tuần qua)
-        let last7DaysHours = 0;
-        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+        let last7DaysHours = 0; let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
         for(let i=0; i<7; i++) {
             let d = new Date(todayObj); d.setDate(d.getDate() - i);
-            let dateStr = d.toISOString().split('T')[0];
-            last7DaysHours += (dailyLogs[dateStr] || 0);
+            last7DaysHours += (dailyLogs[d.toISOString().split('T')[0]] || 0);
         }
         let velHtml = `<div class="analytics-card"><h3>Vận tốc Tu luyện (7 ngày qua)</h3>
-            <div class="vel-box">
-                <i class="fa-solid fa-gauge-high"></i>
-                <div class="vel-info">
-                    <strong>${last7DaysHours.toFixed(1)}h</strong>
-                    <span>Tổng số giờ duy trì trong tuần</span>
-                </div>
-            </div>
+            <div class="vel-box"><i class="fa-solid fa-gauge-high"></i><div class="vel-info"><strong>${last7DaysHours.toFixed(1)}h</strong><span>Tổng số giờ duy trì trong tuần</span></div></div>
         </div>`;
 
-        // Render toàn bộ các biểu đồ
         room.innerHTML = `<div class="analytics-grid">${sessionHtml}${focusHtml}${bioHtml}${dowHtml}${velHtml}</div>`;
     }
 
-    // --- DASHBOARD & MỤC TIÊU ---
     function renderDashboard() {
         let activeGoals = goals.filter(g => g.current > 0);
         const board = document.getElementById('dashboard-grid'); board.innerHTML = '';
@@ -938,6 +1052,11 @@
         document.getElementById('sidebar').style.transform = 'translateX(-100%)';
         document.getElementById('sidebar').style.position = 'absolute';
         document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+        
+        let badge = document.getElementById('focus-badge');
+        badge.innerText = "Khu Vực Tập Trung";
+        badge.style = "";
+        
         if(audioCtx.state === 'suspended') audioCtx.resume();
         resetSystem();
     }
@@ -968,23 +1087,45 @@
         isPaused = !isPaused;
         const btnPause = document.getElementById('btn-pause'); const statusMsg = document.getElementById('status-msg'); const statusIcon = document.getElementById('status-box').querySelector('i');
 
-        if (isPaused) {
-            btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục'; statusIcon.className = "fa-solid fa-pause";
-            pauseTimeLeft = 300; pauseEndTime = Date.now() + pauseTimeLeft * 1000;
-            
-            pauseInterval = setInterval(() => {
-                pauseTimeLeft = Math.round((pauseEndTime - Date.now()) / 1000);
-                if (pauseTimeLeft <= 0) { pauseTimeLeft = 0; clearInterval(pauseInterval); clearInterval(timerInterval); playAlertSound(); resetSystem(); setTimeout(() => alert("Đã quá 5 phút tạm dừng! Hệ thống tự động hủy phiên học hiện tại do mất tập trung."), 100); }
-                let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); let s = (pauseTimeLeft % 60).toString().padStart(2, '0');
-                statusMsg.innerHTML = `Tạm dừng. Giới hạn thời gian: <strong style="color: var(--brand-focus);">${m}:${s}</strong>.`;
-            }, 1000);
+        if (isHardcoreTax) {
+            if (isPaused) {
+                pauseInterval = setInterval(() => {
+                    taxPauseBank--;
+                    if(taxPauseBank <= 0) {
+                        clearInterval(pauseInterval); clearInterval(timerInterval);
+                        alert("BẠN ĐÃ DÙNG HẾT 3 PHÚT NGHỈ NGƠI! Chiến dịch khôi phục thất bại. Chuỗi kỷ luật đã trở về 1.");
+                        currentStreak = 1; saveAll(); resetSystem(); location.reload();
+                    }
+                    btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + taxPauseBank + 's)';
+                }, 1000);
+            } else {
+                clearInterval(pauseInterval);
+                btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
+            }
         } else {
-            clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000;
-            btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin";
+            if (isPaused) {
+                btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục'; statusIcon.className = "fa-solid fa-pause";
+                pauseTimeLeft = 300; pauseEndTime = Date.now() + pauseTimeLeft * 1000;
+                
+                pauseInterval = setInterval(() => {
+                    pauseTimeLeft = Math.round((pauseEndTime - Date.now()) / 1000);
+                    if (pauseTimeLeft <= 0) { pauseTimeLeft = 0; clearInterval(pauseInterval); clearInterval(timerInterval); playAlertSound(); resetSystem(); setTimeout(() => alert("Đã quá 5 phút tạm dừng! Hệ thống tự động hủy phiên học hiện tại do mất tập trung."), 100); }
+                    let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); let s = (pauseTimeLeft % 60).toString().padStart(2, '0');
+                    statusMsg.innerHTML = `Tạm dừng. Giới hạn thời gian: <strong style="color: var(--brand-focus);">${m}:${s}</strong>.`;
+                }, 1000);
+            } else {
+                clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000;
+                btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin";
+            }
         }
     }
 
     function startSession(minutes) {
+        if (isCurfewActive()) {
+            alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Hệ thống từ chối khởi tạo phiên mới để bảo toàn sức khỏe.");
+            return;
+        }
+
         if(audioCtx.state === 'suspended') audioCtx.resume();
         clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
         isSessionActive = true; isPaused = false; isGracePeriod = false; 
@@ -1005,10 +1146,16 @@
         toggleButtons(true); updateDisplay(timeLeft);
         
         timerInterval = setInterval(() => { 
+            if (isCurfewActive()) {
+                clearInterval(timerInterval);
+                alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Kết quả phiên này bị hủy. Chúc ngủ ngon!");
+                resetSystem(); return;
+            }
             if (!isPaused) {
                 timeLeft = Math.round((sessionEndTime - Date.now()) / 1000);
                 if (timeLeft <= 0) { timeLeft = 0; playAlertSound(); triggerReportModal(); }
                 updateDisplay(timeLeft);
+                if (isTickOn && timeLeft % 1 === 0) playTick();
             }
         }, 1000);
         penaltyMinutes = 0; 
@@ -1017,10 +1164,14 @@
     function cancelSession() { if(confirm("Hủy phiên học?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
 
     function resetSystem() {
-        isSessionActive = false; isPaused = false; isGracePeriod = false;
+        isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false;
         clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
         document.body.classList.remove('break-mode'); document.body.classList.remove('focus-active');
         
+        let btnTax = document.getElementById('btn-tax');
+        if(btnTax) btnTax.style.display = 'none';
+        document.getElementById('btn-focus-back').onclick = backToDashboard;
+
         document.getElementById('focus-badge').style = ""; document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
         updateDisplay(0); toggleButtons(false); document.getElementById('focus-badge').innerText = "KHU VỰC TẬP TRUNG";
         
@@ -1038,7 +1189,10 @@
 
     function triggerReportModal() {
         clearInterval(timerInterval); clearInterval(pauseInterval); document.body.classList.remove('focus-active');
+        
         requiredWords = (currentDuration === 15) ? 25 : 40;
+        if (currentDuration === 120) requiredWords = 80;
+
         document.getElementById('word-required').innerText = requiredWords; document.getElementById('word-req-display').innerText = requiredWords;
         document.getElementById('report-input').value = ""; 
         document.getElementById('report-input').placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
@@ -1062,13 +1216,20 @@
         }
     }
 
-    function abortReport() { if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính?")) { document.getElementById('report-modal').style.display = 'none'; resetSystem(); } }
+    function abortReport() { 
+        if(isHardcoreTax) {
+            alert("KHÔNG THỂ HỦY BÁO CÁO CỦA CHIẾN DỊCH CHUỘC LỖI! Hãy hoàn thành nó.");
+            return;
+        }
+        if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính?")) { document.getElementById('report-modal').style.display = 'none'; resetSystem(); } 
+    }
 
     function submitReport() {
         let text = document.getElementById('report-input').value.trim();
         if (text.split(/\s+/).length >= requiredWords) {
             let timeElapsed = Date.now() - reportOpenTime;
             let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; 
+            if (currentDuration === 120) minTimeRequired = 30000; 
 
             if (timeElapsed < minTimeRequired) {
                 alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý. Khả năng cao đã sử dụng phần mềm gõ tự động hoặc thủ thuật kéo thả.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0.");
@@ -1087,8 +1248,15 @@
             goal.current = Math.max(0, goal.current - hoursEarned);
             if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; dailyLogs[dateStr] += hoursEarned;
 
-            // Đảm bảo cập nhật biến đếm
             totalSessions++;
+
+            if (isHardcoreTax) {
+                isHardcoreTax = false;
+                alert("Chiến dịch khôi phục thành công! Sự kiên cường của bạn đã chiến thắng sự xao nhãng.");
+                document.getElementById('btn-tax').style.display = 'none';
+                document.getElementById('btn-focus-back').onclick = backToDashboard;
+            }
+
             updateStreakOnSubmit(); document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
             saveAll();
             
@@ -1110,6 +1278,8 @@
         } else if (currentDuration === 15) {
             standardSessionCount15++; localStorage.setItem('saasS15', standardSessionCount15);
             if (standardSessionCount15 % 3 === 0) { breakMinutes = 10; breakMsg = "Nghỉ Dài (10p)"; }
+        } else if (currentDuration === 120) {
+            breakMinutes = 30; breakMsg = "Hồi Phục (30p)";
         }
         
         document.getElementById('status-msg').innerText = `Đang kích hoạt chế độ ${breakMsg}.`;
