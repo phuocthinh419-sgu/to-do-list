@@ -133,7 +133,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        /* GLASSMORPHISM ÁP DỤNG RỘNG RÃI */
+        /* GLASSMORPHISM */
         .rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .timeline-item, 
         .focus-content, .modal-content, .shame-content, .time-box, .status-box, .btn-timer, textarea, .analytics-card {
             backdrop-filter: blur(var(--bg-panel-blur));
@@ -164,7 +164,7 @@
         .view-section { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HEADER (KÍNH MỜ CHỐNG ĐÈ CHỮ) */
+        /* HEADER */
         .header { 
             padding: 32px 48px 24px; 
             margin: 0 -24px 24px -24px; 
@@ -185,7 +185,7 @@
         .btn-primary { background: var(--btn-bg); color: var(--btn-text); border: 1px solid rgba(255,255,255,0.1); padding: 14px 24px; border-radius: 16px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: var(--transition-smooth); display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); opacity: 0.9; }
 
-        /* HIỆU ỨNG TIA SÁNG (SHIMMER SWEEP) */
+        /* SHIMMER SWEEP */
         .rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card { position: relative; overflow: hidden; }
         .rank-card::after, .heatmap-card::after, .countdown-card::after, .goal-card::after, .trophy-card::after, .analytics-card::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -247,7 +247,7 @@
         .goal-meta h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; line-height: 1.4; color: var(--text-main); letter-spacing: -0.5px; }
         .goal-meta p { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
 
-        /* --- TROPHY ROOM --- */
+        /* TROPHY ROOM */
         #trophy-room { display: none; padding: 0 24px 48px; }
         .locked-state { text-align: center; padding: 100px 20px; color: var(--text-muted); }
         .locked-state i { font-size: 4rem; color: var(--border); margin-bottom: 24px; }
@@ -266,20 +266,18 @@
         .tl-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; }
         .tl-content { color: var(--text-main); line-height: 1.7; font-size: 1rem; }
 
-        /* --- ANALYTICS ROOM --- */
+        /* ANALYTICS ROOM */
         #analytics-room { display: none; padding: 0 24px 48px; }
         .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
-        .analytics-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 28px; padding: 32px; box-shadow: var(--shadow-bento); }
+        .analytics-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 28px; padding: 32px; box-shadow: var(--shadow-bento); position: relative; overflow: hidden; }
         .analytics-card h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 24px; color: var(--text-main); position: relative; z-index: 20; letter-spacing: -0.5px; }
         
-        /* Bar Chart cho Độ Lệch Kỷ Luật */
         .bar-chart { display: flex; justify-content: space-between; align-items: flex-end; height: 180px; padding-top: 20px; position: relative; z-index: 20; }
         .bar-col { display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; }
         .bar-wrap { height: 120px; width: 28px; background: var(--bg-hover); border-radius: 8px; display: flex; align-items: flex-end; overflow: hidden; border: 1px solid var(--border); }
         .bar-fill { width: 100%; background: var(--brand-dash); border-radius: 8px; transition: height 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .bar-col span { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
 
-        /* Bio Rhythm */
         .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 20;}
         .bio-box { background: var(--bg-hover); border: 1px solid transparent; border-radius: 20px; padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 8px; transition: 0.3s; }
         .bio-box i { font-size: 1.8rem; color: var(--text-muted); margin-bottom: 4px; }
@@ -289,21 +287,19 @@
         .bio-box.active i { color: var(--brand-focus); }
         .bio-box.active span, .bio-box.active strong { color: var(--brand-focus); }
 
-        /* Phân Bổ Trọng Tâm */
         .stat-row { margin-bottom: 16px; position: relative; z-index: 20; }
         .stat-label { display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; color: var(--text-muted); }
         .stat-label span:last-child { color: var(--text-main); }
         .stat-bar { height: 12px; background: var(--bg-hover); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
         .stat-fill { height: 100%; background: var(--brand-focus); border-radius: 12px; transition: width 1s ease; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
 
-        /* Vận Tốc Tu Luyện */
-        .vel-box { display: flex; align-items: center; gap: 24px; background: var(--bg-hover); padding: 32px; border-radius: 24px; position: relative; z-index: 20; border: 1px solid var(--border); }
-        .vel-box i { font-size: 3rem; color: var(--brand-trophy); }
+        .vel-box { display: flex; align-items: center; gap: 24px; background: var(--bg-hover); padding: 24px; border-radius: 24px; position: relative; z-index: 20; border: 1px solid var(--border); }
+        .vel-box i { font-size: 2.5rem; color: var(--brand-trophy); }
         .vel-info { display: flex; flex-direction: column; }
-        .vel-info strong { font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 6px; letter-spacing: -1px; }
+        .vel-info strong { font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 6px; letter-spacing: -1px; }
         .vel-info span { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
 
-        /* --- FOCUS ROOM, MODALS (Giữ Nguyên Tính Năng Mượt Mà) --- */
+        /* FOCUS ROOM & MODALS */
         #focus-room { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 200; flex-direction: column; padding: 48px 80px; transition: 0.4s ease; }
         .focus-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 40px; }
         .btn-back { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; padding: 12px 24px; border-radius: 100px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur)); }
@@ -362,7 +358,6 @@
         <div class="brand"><i class="fa-solid fa-layer-group"></i> Academic Planner</div>
         <div class="nav-menu">
             <a class="nav-item active" id="nav-dash" onclick="switchTab('dashboard')"><i class="fa-solid fa-border-all"></i> Bảng điều khiển</a>
-            <!-- ĐÃ MỞ KHÓA TAB ANALYTICS -->
             <a class="nav-item" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-pie"></i> Phân tích tiến độ</a>
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho lưu trữ</a>
             
@@ -389,7 +384,7 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- HEADER (KÍNH MỜ CHỐNG ĐÈ) -->
+        <!-- HEADER -->
         <header class="header">
             <div class="header-title">
                 <h1 id="main-title">Tổng quan học tập</h1>
@@ -459,7 +454,7 @@
         </div>
     </main>
 
-    <!-- MODALS DƯỚI ĐÂY GIỮ NGUYÊN (REPORT & SHAME) -->
+    <!-- MODALS -->
     <div id="report-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -739,10 +734,45 @@
     function renderAnalytics() {
         const room = document.getElementById('analytics-room');
         room.innerHTML = '';
-        
         let allGoals = goals; 
+
+        // Tính toán lại số phiên để luôn chính xác tuyệt đối
+        let actualTotalSessions = 0;
+        let actualS15 = 0;
+        let actualS25 = 0;
         
-        // 1. Phân bổ Trọng tâm
+        allGoals.forEach(g => {
+            if(g.reports) {
+                actualTotalSessions += g.reports.length;
+                g.reports.forEach(r => {
+                    if(r.type === '15p') actualS15++;
+                    if(r.type === '25p') actualS25++;
+                });
+            }
+        });
+
+        // 1. Tổng quan Phiên học
+        let sessionHtml = `<div class="analytics-card"><h3>Tổng quan Phiên học</h3>
+            <div class="vel-box" style="margin-bottom: 16px; padding: 24px;">
+                <i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 2.5rem;"></i>
+                <div class="vel-info">
+                    <strong>${actualTotalSessions}</strong>
+                    <span>Tổng số phiên đã hoàn thành</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 16px;">
+                <div style="flex: 1; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
+                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px;">${actualS15}</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Phiên ngắn (15p)</span>
+                </div>
+                <div style="flex: 1; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
+                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px;">${actualS25}</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Phiên chuẩn (25p)</span>
+                </div>
+            </div>
+        </div>`;
+        
+        // 2. Phân bổ Trọng tâm
         let focusHtml = '<div class="analytics-card"><h3>Phân bổ Trọng tâm</h3>';
         let totalLogged = 0;
         let goalStats = allGoals.map(g => {
@@ -765,7 +795,7 @@
         }
         focusHtml += '</div>';
 
-        // 2. Nhịp sinh học (Khung giờ)
+        // 3. Nhịp sinh học (Khung giờ)
         let timeSlots = { sang: 0, chieu: 0, toi: 0, dem: 0 };
         allGoals.forEach(g => {
             if (g.reports) {
@@ -799,7 +829,7 @@
         }
         bioHtml += `</div>`;
 
-        // 3. Độ lệch kỷ luật (Thứ 2 - CN)
+        // 4. Độ lệch kỷ luật (Thứ 2 - CN)
         let dowStats = [0, 0, 0, 0, 0, 0, 0]; 
         for (let dateStr in dailyLogs) {
             let d = new Date(dateStr);
@@ -816,7 +846,7 @@
         }
         dowHtml += `</div></div>`;
 
-        // 4. Tốc độ tiêu hao (Velocity tuần qua)
+        // 5. Tốc độ tiêu hao (Velocity tuần qua)
         let last7DaysHours = 0;
         let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
         for(let i=0; i<7; i++) {
@@ -834,7 +864,8 @@
             </div>
         </div>`;
 
-        room.innerHTML = `<div class="analytics-grid">${focusHtml}${bioHtml}${dowHtml}${velHtml}</div>`;
+        // Render toàn bộ các biểu đồ
+        room.innerHTML = `<div class="analytics-grid">${sessionHtml}${focusHtml}${bioHtml}${dowHtml}${velHtml}</div>`;
     }
 
     // --- DASHBOARD & MỤC TIÊU ---
@@ -1056,6 +1087,8 @@
             goal.current = Math.max(0, goal.current - hoursEarned);
             if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; dailyLogs[dateStr] += hoursEarned;
 
+            // Đảm bảo cập nhật biến đếm
+            totalSessions++;
             updateStreakOnSubmit(); document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
             saveAll();
             
