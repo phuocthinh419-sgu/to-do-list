@@ -280,12 +280,6 @@
         .stat-bar { height: 12px; background: var(--bg-hover); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
         .stat-fill { height: 100%; background: var(--brand-focus); border-radius: 12px; transition: width 1s ease; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
 
-        .vel-box { display: flex; align-items: center; gap: 24px; background: var(--bg-hover); padding: 24px; border-radius: 24px; position: relative; z-index: 20; border: 1px solid var(--border); }
-        .vel-box i { font-size: 2.5rem; color: var(--brand-trophy); }
-        .vel-info { display: flex; flex-direction: column; }
-        .vel-info strong { font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 6px; letter-spacing: -1px; }
-        .vel-info span { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
-
         /* TROPHY ROOM */
         #trophy-room { display: none; padding: 0 24px 48px; }
         .locked-state { text-align: center; padding: 100px 20px; color: var(--text-muted); }
@@ -378,7 +372,6 @@
             <div style="padding: 0 16px; margin-bottom: 24px;">
                 <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
                 
-                <!-- Đồng hồ đếm ngược mini cho Giờ giới nghiêm -->
                 <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 14px; margin-top: 16px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur));">
                     <div class="mini-progress-circle">
                         <svg><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
@@ -583,6 +576,7 @@
     let standardSessionCount15 = parseInt(localStorage.getItem('saasS15')) || 0;
     let graceInterval, graceTimeLeft = 0, isGracePeriod = false, penaltyMinutes = 0, activeSessionMinutes = 0; 
     let reportOpenTime = 0;
+    let isBreakActive = false; // Biến kiểm soát trạng thái nghỉ
 
     let curfewTimeStr = localStorage.getItem('saasCurfew') || '';
     if(curfewTimeStr) document.getElementById('curfew-time').value = curfewTimeStr;
@@ -941,6 +935,50 @@
         room.innerHTML = '';
         let allGoals = goals; 
 
+        // 1. CHỈ SỐ TIẾN ĐỘ (TRENDS)
+        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+        let todayStr = todayObj.toISOString().split('T')[0];
+        let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+        let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+
+        let todayHrs = dailyLogs[todayStr] || 0;
+        let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
+
+        let thisWeekHrs = 0;
+        for(let i=0; i<7; i++) {
+            let d = new Date(todayObj); d.setDate(d.getDate() - i);
+            thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0);
+        }
+
+        let lastWeekHrs = 0;
+        for(let i=7; i<14; i++) {
+            let d = new Date(todayObj); d.setDate(d.getDate() - i);
+            lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0);
+        }
+
+        function getTrendHtml(current, previous, label) {
+            let diff = current - previous;
+            let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
+            let color = diff >= 0 ? 'var(--brand-break)' : 'var(--brand-warning)';
+            let icon = diff >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+            let text = diff >= 0 ? 'Tăng' : 'Giảm';
+            if (diff === 0) { color = 'var(--text-muted)'; icon = 'fa-minus'; text = 'Ổn định'; }
+            
+            return `
+            <div class="analytics-card" style="padding: 28px;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">${label}</span>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -1px;">${current.toFixed(1)}h</div>
+                <div style="font-size: 0.95rem; font-weight: 600; color: ${color}; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid ${icon}"></i> ${text} ${Math.abs(pct).toFixed(0)}% so với kỳ trước
+                </div>
+            </div>`;
+        }
+
+        let trendWeekHtml = getTrendHtml(thisWeekHrs, lastWeekHrs, 'Hiệu suất Tuần (7 Ngày)');
+        let trendDayHtml = getTrendHtml(todayHrs, yesterdayHrs, 'Hiệu suất Hôm nay');
+        let trendsHtml = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; position: relative; z-index: 20;">${trendWeekHtml}${trendDayHtml}</div>`;
+
+        // 2. TỔNG QUAN PHIÊN HỌC
         let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0;
         allGoals.forEach(g => {
             if(g.reports) {
@@ -968,6 +1006,7 @@
             </div>
         </div>`;
         
+        // 3. PHÂN BỔ TRỌNG TÂM
         let focusHtml = '<div class="analytics-card"><h3>Phân bổ Trọng tâm</h3>';
         let totalLogged = 0;
         let goalStats = allGoals.map(g => {
@@ -984,6 +1023,7 @@
         }
         focusHtml += '</div>';
 
+        // 4. NHỊP SINH HỌC
         let timeSlots = { sang: 0, chieu: 0, toi: 0, dem: 0 };
         allGoals.forEach(g => {
             if (g.reports) {
@@ -1015,6 +1055,7 @@
         }
         bioHtml += `</div>`;
 
+        // 5. ĐỘ LỆCH KỶ LUẬT
         let dowStats = [0, 0, 0, 0, 0, 0, 0]; 
         for (let dateStr in dailyLogs) {
             let day = new Date(dateStr).getDay(); 
@@ -1030,16 +1071,7 @@
         }
         dowHtml += `</div></div>`;
 
-        let last7DaysHours = 0; let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-        for(let i=0; i<7; i++) {
-            let d = new Date(todayObj); d.setDate(d.getDate() - i);
-            last7DaysHours += (dailyLogs[d.toISOString().split('T')[0]] || 0);
-        }
-        let velHtml = `<div class="analytics-card"><h3>Vận tốc Tu luyện (7 ngày qua)</h3>
-            <div class="vel-box"><i class="fa-solid fa-gauge-high"></i><div class="vel-info"><strong>${last7DaysHours.toFixed(1)}h</strong><span>Tổng số giờ duy trì trong tuần</span></div></div>
-        </div>`;
-
-        room.innerHTML = `<div class="analytics-grid">${sessionHtml}${focusHtml}${bioHtml}${dowHtml}${velHtml}</div>`;
+        room.innerHTML = `${trendsHtml}<div class="analytics-grid">${sessionHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
     }
 
     function renderDashboard() {
@@ -1120,9 +1152,16 @@
         resetSystem();
     }
 
+    // --- VÁ LỖI ÂN HẠN: XÓA SACH HẸN GIỜ KHI THOÁT KHỎI PHÒNG TẬP TRUNG ---
     function backToDashboard() {
-        if (isSessionActive && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
-        if (isSessionActive || isGracePeriod) { clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); penaltyMinutes = 0; resetSystem(); }
+        if ((isSessionActive || isHardcoreTax) && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
+        
+        // Càn quét toàn bộ vòng lặp thời gian nếu người dùng rời đi
+        if (isSessionActive || isGracePeriod || isBreakActive || isHardcoreTax) { 
+            clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); 
+            penaltyMinutes = 0; resetSystem(); 
+        }
+
         document.getElementById('focus-room').style.display = 'none';
         document.getElementById('sidebar').style.position = 'relative';
         document.getElementById('sidebar').style.transform = 'translateX(0)';
@@ -1187,7 +1226,7 @@
 
         if(audioCtx.state === 'suspended') audioCtx.resume();
         clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
-        isSessionActive = true; isPaused = false; isGracePeriod = false; 
+        isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
         
         currentDuration = minutes; activeSessionMinutes = minutes + penaltyMinutes; 
         timeLeft = activeSessionMinutes * 60; sessionEndTime = Date.now() + timeLeft * 1000;
@@ -1223,7 +1262,7 @@
     function cancelSession() { if(confirm("Hủy phiên học?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
 
     function resetSystem() {
-        isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false;
+        isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isBreakActive = false;
         clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
         document.body.classList.remove('break-mode'); document.body.classList.remove('focus-active');
         
@@ -1326,7 +1365,8 @@
     }
 
     function initiateBreak() {
-        isSessionActive = false; document.body.classList.add('break-mode'); toggleButtons(true); 
+        isSessionActive = false; isBreakActive = true;
+        document.body.classList.add('break-mode'); toggleButtons(true); 
         document.getElementById('btn-pause').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none'; 
         
         let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)"; document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
@@ -1355,7 +1395,8 @@
     }
 
     function startGracePeriod() {
-        document.body.classList.remove('break-mode'); isGracePeriod = true; graceTimeLeft = 120; graceEndTime = Date.now() + graceTimeLeft * 1000;
+        document.body.classList.remove('break-mode'); isGracePeriod = true; isBreakActive = false;
+        graceTimeLeft = 120; graceEndTime = Date.now() + graceTimeLeft * 1000;
         
         const badge = document.getElementById('focus-badge'); badge.innerText = "THỜI GIAN ÂN HẠN (2 PHÚT)"; badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)";
         const timerUI = document.getElementById('session-timer'); timerUI.style.color = "var(--brand-warning)"; timerUI.style.textShadow = "none";
