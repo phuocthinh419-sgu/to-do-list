@@ -122,8 +122,13 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        /* ÉP BUỘC FONT CHỮ TOÀN CỤC */
+        body, input, button, textarea, select {
+            font-family: var(--font-main);
+        }
+
         body {
-            font-family: var(--font-main); background: var(--bg-base); color: var(--text-main);
+            background: var(--bg-base); color: var(--text-main);
             height: 100vh; overflow: hidden; display: flex; transition: var(--transition-smooth);
             background-attachment: fixed;
         }
@@ -155,7 +160,7 @@
         .color-btn:hover { transform: scale(1.2); }
         .color-btn.active::after { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 2px solid var(--text-main); border-radius: 50%; }
 
-        .curfew-input { width: 100%; padding: 12px 16px; border-radius: 12px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .curfew-input { width: 100%; padding: 12px 16px; border-radius: 12px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-size: 0.95rem; outline: none; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .curfew-input:focus { border-color: var(--brand-focus); }
 
         /* ĐỒNG HỒ MINI GIỚI NGHIÊM */
@@ -576,7 +581,7 @@
     let standardSessionCount15 = parseInt(localStorage.getItem('saasS15')) || 0;
     let graceInterval, graceTimeLeft = 0, isGracePeriod = false, penaltyMinutes = 0, activeSessionMinutes = 0; 
     let reportOpenTime = 0;
-    let isBreakActive = false; // Biến kiểm soát trạng thái nghỉ
+    let isBreakActive = false; 
 
     let curfewTimeStr = localStorage.getItem('saasCurfew') || '';
     if(curfewTimeStr) document.getElementById('curfew-time').value = curfewTimeStr;
@@ -978,7 +983,7 @@
         let trendDayHtml = getTrendHtml(todayHrs, yesterdayHrs, 'Hiệu suất Hôm nay');
         let trendsHtml = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; position: relative; z-index: 20;">${trendWeekHtml}${trendDayHtml}</div>`;
 
-        // 2. TỔNG QUAN PHIÊN HỌC
+        // 2. TỔNG QUAN PHIÊN HỌC - TÁI CẤU TRÚC LẠI GIAO DIỆN KHÔNG BỊ ĐÈ LÊN NHAU
         let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0;
         allGoals.forEach(g => {
             if(g.reports) {
@@ -988,20 +993,23 @@
         });
 
         let sessionHtml = `<div class="analytics-card"><h3>Tổng quan Phiên học</h3>
-            <div class="vel-box" style="margin-bottom: 16px; padding: 24px;">
-                <i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 2.5rem;"></i>
-                <div class="vel-info">
-                    <strong>${actualTotalSessions}</strong><span>Tổng số phiên đã hoàn thành</span>
+            <div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 24px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; position: relative; z-index: 20;">
+                <div style="width: 56px; height: 56px; border-radius: 16px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento);">
+                    <i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.8rem;"></i>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div>
+                    <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div>
                 </div>
             </div>
             <div style="display: flex; gap: 16px;">
-                <div style="flex: 1; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
-                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px;">${actualS15}</span>
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Phiên ngắn (15p)</span>
+                <div style="flex: 1; background: var(--bg-hover); padding: 20px 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div>
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div>
                 </div>
-                <div style="flex: 1; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
-                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px;">${actualS25}</span>
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Phiên chuẩn (25p)</span>
+                <div style="flex: 1; background: var(--bg-hover); padding: 20px 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div>
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div>
                 </div>
             </div>
         </div>`;
@@ -1152,14 +1160,17 @@
         resetSystem();
     }
 
-    // --- VÁ LỖI ÂN HẠN: XÓA SACH HẸN GIỜ KHI THOÁT KHỎI PHÒNG TẬP TRUNG ---
+    // --- SỬA LỖI ÂN HẠN CẮN TRỘM KHI THOÁT KHỎI PHÒNG ---
     function backToDashboard() {
         if ((isSessionActive || isHardcoreTax) && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
         
-        // Càn quét toàn bộ vòng lặp thời gian nếu người dùng rời đi
+        // Quét sạch toàn bộ các vòng lặp đếm giờ, bao gồm cả giờ học, giờ nghỉ và giờ ân hạn
         if (isSessionActive || isGracePeriod || isBreakActive || isHardcoreTax) { 
-            clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); 
-            penaltyMinutes = 0; resetSystem(); 
+            clearInterval(timerInterval); 
+            clearInterval(pauseInterval); 
+            clearInterval(graceInterval); 
+            penaltyMinutes = 0; 
+            resetSystem(); 
         }
 
         document.getElementById('focus-room').style.display = 'none';
