@@ -8,10 +8,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- LIÊN KẾT VỚI LỚP GIÁP CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- LỚP PHÁO HOA KHẢI HOÀN -->
+    <canvas id="confetti-canvas"></canvas>
 
     <!-- MOBILE OVERLAY -->
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
@@ -78,6 +79,19 @@
 
         <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="view-section">
+            
+            <!-- THANH TRẤN LỆNH KPI TUẦN -->
+            <div class="kpi-card stagger-item" style="animation-delay: 0.05s">
+                <div class="kpi-header">
+                    <h3><i class="fa-solid fa-crosshairs" style="color: var(--brand-focus);"></i> Thiết Quân Luật (Tuần)</h3>
+                    <span id="kpi-status">0.0 / 12.0h</span>
+                </div>
+                <div class="kpi-bar-bg">
+                    <div class="kpi-bar-fill" id="kpi-bar-fill"></div>
+                </div>
+                <p id="kpi-message">Tiến độ cày ải tuần này. Hãy giữ vững kỷ luật!</p>
+            </div>
+
             <div class="gamification-strip">
                 <div class="rank-card stagger-item" style="animation-delay: 0.1s">
                     <div class="streak-badge"><i class="fa-solid fa-fire"></i> <span id="streak-count">0</span> Ngày</div>
