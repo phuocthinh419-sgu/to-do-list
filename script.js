@@ -340,6 +340,55 @@ function switchTab(tab) {
     }
 }
 
+// HÀM GLOBAL ĐỂ CẬP NHẬT BIỂU ĐỒ BÁO CÁO NGÀY
+window.renderDailyBreakdown = function(targetDate) {
+    let content = document.getElementById('daily-breakdown-content');
+    if (!content) return;
+    
+    let dayStats = [];
+    let totalDayHours = 0;
+    
+    goals.forEach(g => {
+        if(g.reports) {
+            let goalHrs = 0;
+            let sessionsCount = 0;
+            g.reports.forEach(r => {
+                if(r.date.startsWith(targetDate)) {
+                    sessionsCount++;
+                    let mins = parseInt(r.type.replace('p',''));
+                    goalHrs += (mins / 60);
+                }
+            });
+            if(goalHrs > 0) {
+                totalDayHours += goalHrs;
+                dayStats.push({ name: g.name, hrs: goalHrs, sessions: sessionsCount });
+            }
+        }
+    });
+    
+    dayStats.sort((a,b) => b.hrs - a.hrs);
+    
+    if(dayStats.length === 0) {
+        content.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Không có hoạt động nào trong ngày này.</p>';
+        return;
+    }
+    
+    let html = '';
+    dayStats.forEach(stat => {
+        let pct = (stat.hrs / totalDayHours) * 100;
+        html += `
+        <div class="stat-row" style="margin-bottom: 20px;">
+            <div class="stat-label">
+                <span style="font-weight:700; color:var(--text-main);">${stat.name}</span> 
+                <span style="font-size:0.85rem;"><strong style="color:var(--brand-focus);">${stat.hrs.toFixed(1)}h</strong> (${stat.sessions} phiên)</span>
+            </div>
+            <div class="stat-bar" style="height:14px; border-radius:14px;"><div class="stat-fill" style="width: ${pct}%; background:var(--brand-dash); border-radius:14px;"></div></div>
+        </div>`;
+    });
+    html += `<div style="text-align:right; font-size:0.95rem; font-weight:700; color:var(--text-muted); margin-top:20px; border-top:1px dashed var(--border); padding-top:16px;">Tổng cộng: <strong style="color:var(--text-main); font-size:1.25rem;">${totalDayHours.toFixed(1)}h</strong></div>`;
+    content.innerHTML = html;
+};
+
 function renderAnalytics() {
     const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
 
@@ -396,7 +445,19 @@ function renderAnalytics() {
         </div>
     </div>`;
     
-    let focusHtml = '<div class="analytics-card stagger-item" style="animation-delay: 0.4s"><h3>Phân bổ Trọng tâm</h3>';
+    // TÍCH HỢP BÁO CÁO TÁC CHIẾN THEO NGÀY
+    let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.4s">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; position:relative; z-index:20; flex-wrap:wrap; gap:10px;">
+            <h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3>
+            <select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;">
+            </select>
+        </div>
+        <div id="daily-breakdown-content" style="position:relative; z-index:20;">
+            <p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p>
+        </div>
+    </div>`;
+
+    let focusHtml = '<div class="analytics-card stagger-item" style="animation-delay: 0.5s"><h3>Phân bổ Trọng tâm Toàn cục</h3>';
     let totalLogged = 0; let goalStats = allGoals.map(g => { let logged = g.target - g.current; totalLogged += logged; return { name: g.name, logged: logged }; }).filter(g => g.logged > 0).sort((a,b) => b.logged - a.logged);
     if (totalLogged === 0) focusHtml += '<p style="color:var(--text-muted)">Chưa có dữ liệu học tập.</p>';
     else { goalStats.forEach(g => { let pct = (g.logged / totalLogged) * 100; focusHtml += `<div class="stat-row"><div class="stat-label"><span>${g.name}</span> <span>${g.logged.toFixed(1)}h (${pct.toFixed(0)}%)</span></div><div class="stat-bar"><div class="stat-fill" style="width: ${pct}%"></div></div></div>`; }); }
@@ -406,19 +467,50 @@ function renderAnalytics() {
     allGoals.forEach(g => { if (g.reports) { g.reports.forEach(r => { let parts = r.date.split(' - '); if(parts.length === 2) { let hour = parseInt(parts[1].split(':')[0]); if(hour >= 5 && hour < 12) timeSlots.sang++; else if(hour >= 12 && hour < 18) timeSlots.chieu++; else if(hour >= 18 && hour < 22) timeSlots.toi++; else timeSlots.dem++; } }); } });
     let maxSlot = Object.keys(timeSlots).reduce((a, b) => timeSlots[a] > timeSlots[b] ? a : b); let totalSessionsCount = timeSlots.sang + timeSlots.chieu + timeSlots.toi + timeSlots.dem;
     
-    let bioHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s"><h3>Nhịp sinh học Kỷ luật</h3>`;
+    let bioHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s"><h3>Nhịp sinh học Kỷ luật</h3>`;
     if (totalSessionsCount === 0) bioHtml += '<p style="color:var(--text-muted)">Chưa đủ dữ liệu phiên học.</p>';
     else { bioHtml += `<div class="bio-grid"><div class="bio-box ${maxSlot === 'sang' ? 'active' : ''}"><i class="fa-regular fa-sun"></i><span>Sáng<br>(5h-12h)</span><strong>${timeSlots.sang} phiên</strong></div><div class="bio-box ${maxSlot === 'chieu' ? 'active' : ''}"><i class="fa-solid fa-cloud-sun"></i><span>Chiều<br>(12h-18h)</span><strong>${timeSlots.chieu} phiên</strong></div><div class="bio-box ${maxSlot === 'toi' ? 'active' : ''}"><i class="fa-regular fa-moon"></i><span>Tối<br>(18h-22h)</span><strong>${timeSlots.toi} phiên</strong></div><div class="bio-box ${maxSlot === 'dem' ? 'active' : ''}"><i class="fa-solid fa-star"></i><span>Đêm<br>(22h-5h)</span><strong>${timeSlots.dem} phiên</strong></div></div>`; }
     bioHtml += `</div>`;
 
     let dowStats = [0, 0, 0, 0, 0, 0, 0]; for (let dateStr in dailyLogs) { let day = new Date(dateStr).getDay(); let idx = day === 0 ? 6 : day - 1; dowStats[idx] += dailyLogs[dateStr]; }
     let maxDow = Math.max(...dowStats, 1); 
-    let dowHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s"><h3>Độ lệch Kỷ luật (Theo thứ)</h3><div class="bar-chart">`;
+    let dowHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.7s"><h3>Độ lệch Kỷ luật (Theo thứ)</h3><div class="bar-chart">`;
     let days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
     for(let i=0; i<7; i++) { let h = (dowStats[i] / maxDow) * 100; dowHtml += `<div class="bar-col"><div class="bar-wrap"><div class="bar-fill" style="height: ${h}%"></div></div><span>${days[i]}</span></div>`; }
     dowHtml += `</div></div>`;
 
-    room.innerHTML = `${trendsHtml}<div class="analytics-grid">${sessionHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
+    room.innerHTML = `${trendsHtml}<div class="analytics-grid">${sessionHtml}${dailyReportHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
+
+    // Khởi tạo Menu Báo Cáo Ngày
+    let allDates = new Set();
+    allGoals.forEach(g => {
+        if(g.reports) {
+            g.reports.forEach(r => {
+                let dStr = r.date.split(' - ')[0]; 
+                allDates.add(dStr);
+            });
+        }
+    });
+
+    let selectEl = document.getElementById('daily-log-select');
+    if(allDates.size === 0) {
+        selectEl.innerHTML = '<option value="">Chưa có dữ liệu</option>';
+        selectEl.disabled = true;
+    } else {
+        let sortedDates = Array.from(allDates).sort((a, b) => {
+            let [d1, m1, y1] = a.split('/'); let dateA = new Date(y1, m1-1, d1);
+            let [d2, m2, y2] = b.split('/'); let dateB = new Date(y2, m2-1, d2);
+            return dateB - dateA;
+        });
+        
+        sortedDates.forEach((d, i) => {
+            let opt = document.createElement('option');
+            opt.value = d; 
+            opt.innerText = i === 0 ? d + " (Gần nhất)" : d;
+            selectEl.appendChild(opt);
+        });
+        renderDailyBreakdown(sortedDates[0]);
+    }
 }
 
 function renderDashboard() {
@@ -610,4 +702,3 @@ function startGracePeriod() {
 }
 
 checkStreakOnLoad(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard');
-
