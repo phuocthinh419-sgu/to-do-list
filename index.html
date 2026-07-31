@@ -285,7 +285,7 @@
         .timeline-item::before { content: ''; position: absolute; left: -39px; top: 25px; width: 14px; height: 14px; border-radius: 50%; background: var(--brand-trophy); border: 4px solid var(--bg-hover); }
         .tl-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;}
 
-        /* FOCUS ROOM (ĐẶT Ở BÊN NGOÀI MAIN CONTENT ĐỂ CHE PHỦ HOÀN TOÀN) */
+        /* FOCUS ROOM */
         #focus-room { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 9999; flex-direction: column; padding: 40px; transition: 0.4s ease; overflow-y: auto; }
         .focus-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto 40px; flex-wrap: wrap; gap: 16px;}
         .btn-back { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; padding: 12px 24px; border-radius: 100px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur)); }
@@ -301,25 +301,50 @@
         #btn-tick { border-color: var(--brand-dash); color: var(--brand-dash); background: transparent; } #btn-tick:hover { background: var(--brand-dash); color: #fff; }
         .status-box { margin-top: 32px; padding: 16px 24px; background: var(--bg-hover); border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--text-main); font-size: 0.95rem; font-weight: 600; border: 1px solid var(--border); flex-wrap: wrap; width: 100%; max-width: 600px;}
         
-        /* MODALS */
-        #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;}
-        .modal-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 32px; padding: 40px; width: 100%; max-width: 600px; box-shadow: 0 40px 80px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease-out; }
-        .modal-header h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main); letter-spacing: -0.5px; }
-        textarea { width: 100%; height: 160px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 20px; padding: 20px; color: var(--text-main); font-size: 1rem; resize: none; transition: 0.2s; line-height: 1.6; }
+        /* ----------------------------------------- */
+        /* MODALS - ĐÃ ĐẠI TU ĐỘ NỔI BẬT & RESPONSIVE */
+        /* ----------------------------------------- */
+        #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;}
+        .modal-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 32px; padding: 48px; width: 100%; max-width: 650px; box-shadow: 0 40px 80px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease-out; }
+        .modal-header h3 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main); letter-spacing: -0.5px; }
+        
+        /* Cải tiến Khung TextBox: To hơn, viền dày hơn */
+        textarea { width: 100%; min-height: 220px; background: var(--bg-hover); border: 2px solid var(--border); border-radius: 20px; padding: 24px; color: var(--text-main); font-size: 1.1rem; resize: vertical; transition: 0.2s; line-height: 1.6; }
         textarea:focus { outline: none; border-color: var(--brand-focus); background: var(--bg-panel); box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; flex-wrap: wrap;}
-        .modal-footer button { flex: 1; min-width: 140px; justify-content: center;}
+        
+        .word-tracker { display: flex; justify-content: space-between; margin-top: 16px; font-size: 0.95rem; color: var(--text-muted); font-weight: 600; padding: 0 8px; }
+        .word-count-val { font-weight: 800; color: var(--brand-focus); font-size: 1.15rem; }
+        .word-count-val.success { color: var(--brand-break); }
+        
+        .modal-footer { display: flex; justify-content: flex-end; gap: 16px; margin-top: 40px; }
+        
+        /* Cải tiến Nút: Khắc phục lỗi "trắng bóc", chói mắt */
+        .btn-ghost { background: var(--bg-panel); color: var(--text-main); border: 2px solid var(--border); padding: 16px 32px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: 0.2s; border-radius: 100px; display: flex; align-items: center; justify-content: center; }
+        .btn-ghost:hover { background: var(--bg-hover); border-color: var(--text-muted); }
+        
+        .btn-submit { background: var(--bg-hover); color: var(--text-muted); border: 2px solid var(--border); padding: 16px 36px; font-weight: 800; font-size: 1.05rem; border-radius: 100px; cursor: not-allowed; pointer-events: none; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .btn-submit.active { background: var(--brand-focus); color: #fff; border-color: var(--brand-focus); pointer-events: auto; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .btn-submit.active:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
 
         #shame-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;}
-        .shame-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 32px; padding: 40px 24px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.5); animation: fadeIn 0.4s ease-out; }
+        .shame-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 32px; padding: 48px 32px; width: 100%; max-width: 550px; text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.5); animation: fadeIn 0.4s ease-out; }
+        .shame-content i { font-size: 4rem; color: var(--brand-warning); margin-bottom: 24px; animation: levitate 4s ease-in-out infinite; }
+        .shame-content h2 { color: var(--text-main); font-size: 1.8rem; font-weight: 800; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .shame-content p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 32px; text-align: center; }
         
+        .btn-shame-alt { background: var(--bg-panel); color: var(--text-main); border: 2px solid var(--border); padding: 16px 40px; font-weight: 700; font-size: 1.05rem; border-radius: 100px; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+        .btn-shame-alt:hover { background: var(--bg-hover); border-color: var(--text-muted); }
+        
+        .btn-shame { background: var(--brand-warning); color: #fff; border: 2px solid var(--brand-warning); padding: 16px 40px; font-weight: 800; font-size: 1.05rem; border-radius: 100px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.3); display: flex; align-items: center; justify-content: center; }
+        .btn-shame:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(225, 29, 72, 0.4); }
+
         body.break-mode #focus-room { background: var(--bg-base); }
         body.break-mode .timer-huge { color: var(--brand-break); }
         body.break-mode .focus-badge { background: rgba(5, 150, 105, 0.1); color: var(--brand-break); border-color: rgba(5, 150, 105, 0.3); }
         body.break-mode .status-box i { color: var(--brand-break); }
         body.focus-active .timer-huge { color: var(--brand-focus); }
 
-        /* RESPONSIVE DESIGN (MOBILE & SPLIT SCREEN) */
+        /* RESPONSIVE DESIGN (MOBILE) */
         @media (max-width: 1024px) {
             .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; width: 300px; max-width: 85vw; background: var(--bg-panel); border-right: 1px solid var(--border); box-shadow: 10px 0 40px rgba(0,0,0,0.1); z-index: 110; }
             .sidebar.active { left: 0; transform: none; }
@@ -336,6 +361,16 @@
             .focus-content { padding: 30px 16px; border-radius: 28px; }
             .timer-huge { font-size: 22vw; margin: 0 0 30px; letter-spacing: -2px; }
             .btn-timer { width: 100%; }
+
+            /* Điều chỉnh Modal trên Mobile: Nút bấm to hơn, dọc nhau */
+            .modal-content { padding: 28px 24px; border-radius: 28px; }
+            .modal-header h3 { font-size: 1.5rem; }
+            textarea { min-height: 160px; padding: 16px; font-size: 1rem; }
+            .modal-footer { flex-direction: column; gap: 12px; margin-top: 24px; }
+            .btn-ghost, .btn-submit { width: 100%; padding: 16px; font-size: 1rem; }
+            
+            .shame-content { padding: 32px 24px; border-radius: 28px; }
+            .btn-shame-alt, .btn-shame { padding: 16px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -441,7 +476,7 @@
         </div>
     </main>
 
-    <!-- FOCUS ROOM (ĐẶT BÊN NGOÀI MAIN CONTENT ĐỂ CHE PHỦ TOÀN BỘ MÀN HÌNH) -->
+    <!-- FOCUS ROOM -->
     <div id="focus-room">
         <div class="focus-nav">
             <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Rút lui</button>
