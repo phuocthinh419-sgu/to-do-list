@@ -25,6 +25,49 @@ function playTick() {
     osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.05);
 }
 
+// THUẬT TOÁN PHÁO HOA KHẢI HOÀN (CONFETTI)
+function fireConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    canvas.style.display = 'block';
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+    const colors = ['#0ea5e9', '#e879f9', '#10b981', '#f59e0b', '#f43f5e'];
+    for(let i=0; i<150; i++) {
+        particles.push({
+            x: canvas.width / 2, y: canvas.height / 2 + 100,
+            r: Math.random() * 6 + 4,
+            dx: Math.random() * 15 - 7.5, dy: Math.random() * -15 - 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.floor(Math.random() * 10) - 10,
+            tiltAngleInc: (Math.random() * 0.07) + 0.05,
+            tiltAngle: 0
+        });
+    }
+    let animationId;
+    function animate() {
+        animationId = requestAnimationFrame(animate);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        particles.forEach(p => {
+            p.tiltAngle += p.tiltAngleInc;
+            p.y += (Math.cos(p.tiltAngle) + 1 + p.r / 2) / 2;
+            p.x += Math.sin(p.tiltAngle) * 2 + p.dx;
+            p.dy += 0.05; // Lực hút trái đất
+            p.y += p.dy;
+            
+            ctx.beginPath();
+            ctx.lineWidth = p.r;
+            ctx.strokeStyle = p.color;
+            ctx.moveTo(p.x + p.tilt + p.r, p.y);
+            ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+            ctx.stroke();
+        });
+    }
+    animate();
+    setTimeout(() => { cancelAnimationFrame(animationId); ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display = 'none'; }, 5000);
+}
+
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('mobile-overlay').classList.toggle('active');
@@ -262,7 +305,6 @@ function checkCycleAndStreak() {
             alert(`TỔNG KẾT TUẦN: Bệ hạ đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép vẫn đang được giữ vững!`);
         }
         
-        // Reset lại mốc tính chu kỳ mới
         cycleStartDate = todayStr;
         localStorage.setItem('saasCycleStart', cycleStartDate);
     }
@@ -271,9 +313,9 @@ function checkCycleAndStreak() {
         document.getElementById('shame-modal').style.display = 'flex';
         document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
         document.querySelector('.shame-content p').innerText = "Tuần vừa qua bệ hạ đã không đạt đủ 12 giờ tiêu chuẩn. Mọi quyền năng học tập bị phong tỏa. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục (chỉ được nghỉ tối đa 3 phút)!";
-        document.querySelector('.btn-shame-alt').style.display = 'none'; // Xóa nút nhận thua
+        document.querySelector('.btn-shame-alt').style.display = 'none'; 
         document.querySelector('.btn-shame').onclick = startTaxSession;
-        return; // Dừng lại, không kiểm tra đứt chuỗi thường nữa
+        return; 
     }
 
     // KIỂM TRA ĐỨT CHUỖI NGÀY
@@ -296,6 +338,42 @@ function updateStreakOnSubmit() {
     let todayStr = todayObj.toISOString().split('T')[0];
     if (lastActiveDate !== todayStr) { currentStreak++; lastActiveDate = todayStr; }
     document.getElementById('streak-count').innerText = currentStreak;
+}
+
+function renderKPI() {
+    let totalCycleHours = 0;
+    let cycleStartObj = new Date(cycleStartDate);
+    for(let i=0; i<7; i++) {
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i);
+        let dStr = d.toISOString().split('T')[0];
+        totalCycleHours += (dailyLogs[dStr] || 0);
+    }
+    
+    let pct = Math.min(100, (totalCycleHours / 12) * 100);
+    let statusEl = document.getElementById('kpi-status');
+    let fillEl = document.getElementById('kpi-bar-fill');
+    let msgEl = document.getElementById('kpi-message');
+
+    if(statusEl && fillEl && msgEl) {
+        statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`;
+        fillEl.style.width = `${pct}%`;
+        
+        if(totalCycleHours >= 12) {
+            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
+            fillEl.style.background = 'var(--brand-break)';
+            fillEl.style.boxShadow = '0 0 15px var(--brand-break)';
+            
+            // Bắn pháo hoa 1 lần duy nhất trong chu kỳ nếu vừa đạt được
+            if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') {
+                localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true');
+                fireConfetti();
+            }
+        } else {
+            msgEl.innerText = `Còn thiếu ${(12 - totalCycleHours).toFixed(1)}h nữa để an toàn vượt qua vạch tử thần.`;
+            fillEl.style.background = 'var(--brand-focus)';
+            fillEl.style.boxShadow = '0 0 10px rgba(234, 88, 12, 0.4)';
+        }
+    }
 }
 
 function renderGamification() {
@@ -383,7 +461,7 @@ function switchTab(tab) {
         document.getElementById('nav-dash').classList.add('active'); document.getElementById('view-dashboard').style.display = 'block';
         document.getElementById('main-title').innerText = "Tổng quan học tập"; document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
         document.getElementById('btn-create-goal').style.display = 'flex'; document.getElementById('btn-create-countdown').style.display = 'flex'; document.getElementById('btn-rest-day').style.display = 'flex';
-        renderDashboard(); renderGamification();
+        renderKPI(); renderDashboard(); renderGamification();
     } else if(tab === 'analytics') {
         document.getElementById('nav-analytics').classList.add('active'); document.getElementById('analytics-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
@@ -619,7 +697,7 @@ function backToDashboard() {
     if ((isSessionActive || isHardcoreTax) && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
     if (isSessionActive || isGracePeriod || isBreakActive || isHardcoreTax) { clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); penaltyMinutes = 0; resetSystem(); }
     document.getElementById('focus-room').style.display = 'none';
-    renderDashboard(); renderGamification();
+    renderKPI(); renderDashboard(); renderGamification();
 }
 
 function updateDisplay(seconds) {
@@ -729,6 +807,8 @@ function submitReport() {
         updateStreakOnSubmit(); document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`; saveAll();
         document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được lưu trữ thành công.</span>`;
         if(goal.current <= 0) { setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); }
+        
+        renderKPI(); // Cập nhật ngay tiến độ KPI tuần sau khi nộp báo cáo
         initiateBreak();
     }
 }
