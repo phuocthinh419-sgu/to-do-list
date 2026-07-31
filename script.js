@@ -62,6 +62,15 @@ let lastActiveDate = localStorage.getItem('saasLastActive') || "";
 let currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
 let lastRestDate = localStorage.getItem('saasLastRest') || "";
 
+// CƠ CHẾ CHU KỲ 7 NGÀY
+let cycleStartDate = localStorage.getItem('saasCycleStart');
+if (!cycleStartDate) {
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    cycleStartDate = todayObj.toISOString().split('T')[0];
+    localStorage.setItem('saasCycleStart', cycleStartDate);
+}
+let isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
+
 let activeGoalId = null;
 let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
 let isPaused = false, pauseInterval, pauseTimeLeft = 300, sessionEndTime = 0, pauseEndTime = 0, graceEndTime = 0;
@@ -128,6 +137,7 @@ function toggleTick() {
 }
 
 function activateRestDay() {
+    if (isPendingTax) { alert("Không thể xả hơi khi đang mang trọng tội nợ thuế!"); return; }
     let todayStr = new Date().toISOString().split('T')[0];
     if (lastRestDate) {
         let diff = Math.floor((new Date(todayStr) - new Date(lastRestDate)) / (1000 * 60 * 60 * 24));
@@ -155,7 +165,7 @@ function startTaxSession() {
     document.getElementById('focus-room').style.display = 'flex';
     document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
     
-    document.getElementById('focus-target-info').innerText = "CHIẾN DỊCH KHÔI PHỤC CHUỖI (120 PHÚT)";
+    document.getElementById('focus-target-info').innerText = isPendingTax ? "THIẾT QUÂN LUẬT (120 PHÚT)" : "CHIẾN DỊCH KHÔI PHỤC CHUỖI (120 PHÚT)";
     let badge = document.getElementById('focus-badge'); badge.innerText = "CHẾ ĐỘ HARDCORE"; badge.style.background = "rgba(225, 29, 72, 0.1)"; badge.style.color = "var(--brand-warning)"; badge.style.borderColor = "var(--brand-warning)";
 
     document.getElementById('btn-15').style.display = 'none'; document.getElementById('btn-25').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none';
@@ -163,15 +173,16 @@ function startTaxSession() {
     let btnTax = document.getElementById('btn-tax');
     if(!btnTax) {
         btnTax = document.createElement('button'); btnTax.className = 'btn-timer'; btnTax.id = 'btn-tax';
-        btnTax.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> BẮT ĐẦU CHUỘC LỖI'; btnTax.onclick = () => runHardcoreSession();
+        btnTax.innerHTML = isPendingTax ? '<i class="fa-solid fa-fire-flame-curved"></i> BẮT ĐẦU NỘP THUẾ' : '<i class="fa-solid fa-fire-flame-curved"></i> BẮT ĐẦU CHUỘC LỖI'; 
+        btnTax.onclick = () => runHardcoreSession();
         document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause'));
     }
     btnTax.style.display = 'flex';
-    document.getElementById('btn-focus-back').onclick = function() { alert("Đã bước vào vòng chuộc lỗi thì KHÔNG ĐƯỢC THOÁT! Nếu tải lại trang, chuỗi kỷ luật sẽ tự động về 1."); }
+    document.getElementById('btn-focus-back').onclick = function() { alert("Đã bước vào vòng chuộc lỗi thì KHÔNG ĐƯỢC THOÁT! Tải lại trang án thư vẫn sẽ bị khóa."); }
 }
 
 function runHardcoreSession() {
-    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Hệ thống từ chối khởi tạo phiên mới."); return; }
+    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn."); return; }
     if(audioCtx.state === 'suspended') audioCtx.resume();
     isHardcoreTax = true; taxPauseBank = 180; document.getElementById('btn-tax').style.display = 'none';
     
@@ -200,7 +211,7 @@ function saveAll() {
 document.getElementById('report-input').addEventListener('paste', function(e) { e.preventDefault(); alert("Hệ thống từ chối thao tác dán văn bản. Vui lòng tự đánh máy để tóm tắt và củng cố kiến thức thực sự."); });
 
 function exportData() {
-    const dataToExport = { goals, totalSessions, countdowns, dailyLogs, streak: currentStreak, lastActive: lastActiveDate, s25: standardSessionCount25, s15: standardSessionCount15 };
+    const dataToExport = { goals, totalSessions, countdowns, dailyLogs, streak: currentStreak, lastActive: lastActiveDate, s25: standardSessionCount25, s15: standardSessionCount15, cycleStart: cycleStartDate };
     const dataStr = JSON.stringify(dataToExport); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     const exportFileDefaultName = `AcademicPlanner_SaoLuu_${new Date().toISOString().split('T')[0]}.json`;
     const linkElement = document.createElement('a'); linkElement.setAttribute('href', dataUri); linkElement.setAttribute('download', exportFileDefaultName); linkElement.click();
@@ -220,18 +231,62 @@ function importData(event) {
             if (data.lastActive !== undefined) localStorage.setItem('saasLastActive', data.lastActive);
             if (data.s25 !== undefined) localStorage.setItem('saasS25', data.s25);
             if (data.s15 !== undefined) localStorage.setItem('saasS15', data.s15);
+            if (data.cycleStart) localStorage.setItem('saasCycleStart', data.cycleStart);
             alert("Đã phục hồi dữ liệu thành công! Trang web sẽ tự động tải lại."); location.reload();
         } catch (error) { alert("File không hợp lệ hoặc bị lỗi định dạng!"); }
     }; reader.readAsText(file); event.target.value = ''; 
 }
 
-function checkStreakOnLoad() {
+function checkCycleAndStreak() {
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
     let todayStr = todayObj.toISOString().split('T')[0];
+
+    // KIỂM TRA CHU KỲ 7 NGÀY
+    let cycleStartObj = new Date(cycleStartDate);
+    let diffCycleTime = new Date(todayStr) - cycleStartObj;
+    let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
+
+    if (diffCycleDays >= 7 && !isPendingTax) {
+        let totalCycleHours = 0;
+        for(let i=0; i<7; i++) {
+            let d = new Date(cycleStartObj); d.setDate(d.getDate() + i);
+            let dStr = d.toISOString().split('T')[0];
+            totalCycleHours += (dailyLogs[dStr] || 0);
+        }
+        
+        if (totalCycleHours < 12) {
+            isPendingTax = true;
+            localStorage.setItem('saasPendingTax', 'true');
+            alert(`PHÁN QUYẾT TUẦN: Bệ hạ chỉ đạt ${totalCycleHours.toFixed(1)}/12 giờ. Án thư đã bị phong tỏa. Bắt buộc nộp Thuế Trì Hoãn (120p)!`);
+        } else {
+            alert(`TỔNG KẾT TUẦN: Bệ hạ đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép vẫn đang được giữ vững!`);
+        }
+        
+        // Reset lại mốc tính chu kỳ mới
+        cycleStartDate = todayStr;
+        localStorage.setItem('saasCycleStart', cycleStartDate);
+    }
+
+    if (isPendingTax) {
+        document.getElementById('shame-modal').style.display = 'flex';
+        document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
+        document.querySelector('.shame-content p').innerText = "Tuần vừa qua bệ hạ đã không đạt đủ 12 giờ tiêu chuẩn. Mọi quyền năng học tập bị phong tỏa. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục (chỉ được nghỉ tối đa 3 phút)!";
+        document.querySelector('.btn-shame-alt').style.display = 'none'; // Xóa nút nhận thua
+        document.querySelector('.btn-shame').onclick = startTaxSession;
+        return; // Dừng lại, không kiểm tra đứt chuỗi thường nữa
+    }
+
+    // KIỂM TRA ĐỨT CHUỖI NGÀY
     if (lastActiveDate !== "") {
         let lastDateObj = new Date(lastActiveDate); let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
         let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-        if (diffDays > 1) { document.getElementById('shame-modal').style.display = 'flex'; }
+        if (diffDays > 1) { 
+            document.getElementById('shame-modal').style.display = 'flex'; 
+            document.querySelector('.shame-content h2').innerText = "CẢNH BÁO ĐỨT CHUỖI";
+            document.querySelector('.shame-content p').innerText = "Sự xao nhãng đang đe dọa thành quả của bạn. Lựa chọn phán quyết:";
+            document.querySelector('.btn-shame-alt').style.display = 'flex';
+            document.querySelector('.btn-shame').onclick = startTaxSession;
+        }
     }
     document.getElementById('streak-count').innerText = currentStreak;
 }
@@ -315,6 +370,8 @@ function createNewCountdown() {
 function deleteCountdown(id) { if (confirm("Xóa bộ đếm ngược này?")) { countdowns = countdowns.filter(c => c.id !== id); saveAll(); renderCountdowns(); } }
 
 function switchTab(tab) {
+    if (isPendingTax) { alert("Án thư đang bị phong tỏa. Bắt buộc hoàn thành 120p Thuế trì hoãn!"); return; }
+
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('analytics-room').style.display = 'none'; 
     document.getElementById('trophy-room').style.display = 'none'; document.getElementById('trophy-detail').style.display = 'none';
@@ -340,7 +397,6 @@ function switchTab(tab) {
     }
 }
 
-// HÀM GLOBAL ĐỂ CẬP NHẬT BIỂU ĐỒ BÁO CÁO NGÀY
 window.renderDailyBreakdown = function(targetDate) {
     let content = document.getElementById('daily-breakdown-content');
     if (!content) return;
@@ -445,7 +501,6 @@ function renderAnalytics() {
         </div>
     </div>`;
     
-    // TÍCH HỢP BÁO CÁO TÁC CHIẾN THEO NGÀY
     let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.4s">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; position:relative; z-index:20; flex-wrap:wrap; gap:10px;">
             <h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3>
@@ -481,7 +536,6 @@ function renderAnalytics() {
 
     room.innerHTML = `${trendsHtml}<div class="analytics-grid">${sessionHtml}${dailyReportHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
 
-    // Khởi tạo Menu Báo Cáo Ngày
     let allDates = new Set();
     allGoals.forEach(g => {
         if(g.reports) {
@@ -550,6 +604,7 @@ function createNewGoal() {
 function deleteGoal(e, id) { e.stopPropagation(); if (confirm("Xóa mục tiêu?")) { goals = goals.filter(g => g.id !== id); saveAll(); if(document.getElementById('view-dashboard').style.display !== 'none') {renderDashboard(); renderGamification();} else renderTrophyRoom(); } }
 
 function openGoal(id) {
+    if (isPendingTax) { alert("Phải dọn sạch nợ thuế 120p trước khi tiếp tục mục tiêu khác!"); return; }
     activeGoalId = id; const goal = goals.find(g => g.id === id);
     
     document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
@@ -641,7 +696,7 @@ function updateWordCount() {
     if (currentWords >= requiredWords) { document.getElementById('word-count').classList.add('success'); btnSubmit.classList.add('active'); warningText.innerText = "Đã đủ điều kiện. Bạn có thể nộp báo cáo."; warningText.style.color = "var(--brand-break)"; } else { document.getElementById('word-count').classList.remove('success'); btnSubmit.classList.remove('active'); warningText.innerText = `Cần thêm ${requiredWords - currentWords} từ nữa...`; warningText.style.color = "var(--text-muted)"; }
 }
 
-function abortReport() { if(isHardcoreTax) { alert("KHÔNG THỂ HỦY BÁO CÁO CỦA CHIẾN DỊCH CHUỘC LỖI! Hãy hoàn thành nó."); return; } if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính?")) { document.getElementById('report-modal').style.display = 'none'; resetSystem(); } }
+function abortReport() { if(isHardcoreTax) { alert("KHÔNG THỂ HỦY BÁO CÁO CỦA THUẾ TRÌ HOÃN! Bắt buộc hoàn thành."); return; } if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính?")) { document.getElementById('report-modal').style.display = 'none'; resetSystem(); } }
 
 function submitReport() {
     let text = document.getElementById('report-input').value.trim();
@@ -658,7 +713,18 @@ function submitReport() {
         let hoursEarned = activeSessionMinutes / 60; goal.current = Math.max(0, goal.current - hoursEarned);
         if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; dailyLogs[dateStr] += hoursEarned; totalSessions++;
 
-        if (isHardcoreTax) { isHardcoreTax = false; alert("Chiến dịch khôi phục thành công! Sự kiên cường của bạn đã chiến thắng sự xao nhãng."); document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; }
+        if (isHardcoreTax) { 
+            isHardcoreTax = false; 
+            if (localStorage.getItem('saasPendingTax') === 'true') {
+                localStorage.setItem('saasPendingTax', 'false');
+                isPendingTax = false;
+                alert("Đã nộp xong Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                alert("Chiến dịch khôi phục chuỗi thành công! Sự kiên cường của bạn đã chiến thắng sự xao nhãng."); 
+            }
+            document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
+        }
 
         updateStreakOnSubmit(); document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`; saveAll();
         document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được lưu trữ thành công.</span>`;
@@ -701,4 +767,4 @@ function startGracePeriod() {
     }, 1000);
 }
 
-checkStreakOnLoad(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard');
+checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard');
