@@ -151,7 +151,7 @@ function activateRestDay() {
 }
 
 // ----------------------------------------------------
-// THUẬT TOÁN BẤT TỬ (LƯU TRẠNG THÁI CHỐNG TẢI LẠI TRANG)
+// THUẬT TOÁN BẤT TỬ ĐÃ ĐƯỢC VÁ LỖI
 // ----------------------------------------------------
 function saveRecoveryState() {
     if (isSessionActive) {
@@ -162,10 +162,12 @@ function saveRecoveryState() {
             isIce: isIcebreakerPhase,
             isHardcore: isHardcoreTax,
             isDebt: isDebtSession,
-            penalty: penaltyMinutes
+            penalty: penaltyMinutes,
+            activeMins: activeSessionMinutes // Lưu thêm tiến độ thời gian thực
         }));
     }
 }
+
 function clearRecoveryState() { localStorage.removeItem('saas_recovery'); }
 
 function resumeSession(rec) {
@@ -174,6 +176,7 @@ function resumeSession(rec) {
     
     activeGoalId = rec.goalId; currentDuration = rec.duration; isIcebreakerPhase = rec.isIce;
     isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt; penaltyMinutes = rec.penalty || 0;
+    activeSessionMinutes = rec.activeMins || rec.duration; // Phục hồi tiến độ thời gian thực
     sessionEndTime = rec.endTime;
     
     document.body.classList.remove('break-mode'); document.body.classList.add('focus-active');
@@ -220,6 +223,10 @@ function resumeSession(rec) {
         }
     }, 1000); 
 }
+
+// ----------------------------------------------------
+
+let taxPauseBank = 180; 
 
 function startDebtSession() {
     if(goals.length === 0) { goals.push({ id: Date.now(), name: "KHỔ SAI LÃI KÉP", target: 2, current: 2, reports: [] }); }
@@ -357,7 +364,7 @@ function checkCycleAndStreak() {
         if (totalCycleHours < 12) {
             isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0; 
         } else {
-            alert(`TỔNG KẾT TUẦN: Anh bạn đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép được giữ vững!`);
+            alert(`TỔNG KẾT TUẦN: Bệ hạ đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép được giữ vững!`);
         }
         cycleStartDate = todayStr; localStorage.setItem('saasCycleStart', cycleStartDate);
     }
@@ -388,7 +395,7 @@ function checkCycleAndStreak() {
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
         document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        document.querySelector('.shame-content p').innerText = "Anh bạn đã vi phạm trọng tội: Không đạt 12h/tuần HOẶC có ngày không học phút nào. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục!";
+        document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Không đạt 12h/tuần HOẶC có ngày không học phút nào. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục!";
         document.querySelector('.btn-shame-alt').style.display = 'none'; 
         document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (120P)';
         document.querySelector('.btn-shame').onclick = startTaxSession; return;
@@ -397,7 +404,7 @@ function checkCycleAndStreak() {
     if (dailyDebtMinutes > 0) {
         document.getElementById('shame-modal').style.display = 'flex'; 
         document.querySelector('.shame-content h2').innerText = "ĐẠO LUẬT LÃI KÉP (NỢ 1 TRẢ 1.5)";
-        document.querySelector('.shame-content p').innerHTML = `Hôm qua anh bạn tu luyện chưa đủ chuẩn. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        document.querySelector('.shame-content p').innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ chuẩn. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
         document.querySelector('.btn-shame-alt').style.display = 'none';
         document.querySelector('.btn-shame').innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`;
         document.querySelector('.btn-shame').onclick = startDebtSession; return;
@@ -423,7 +430,7 @@ function renderKPI() {
     if(statusEl && fillEl && msgEl) {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`; fillEl.style.width = `${pct}%`;
         if(totalCycleHours >= 12) {
-            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Anh bạn đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
+            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
             fillEl.style.background = 'var(--brand-break)'; fillEl.style.boxShadow = '0 0 15px var(--brand-break)';
             if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') {
                 localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti();
@@ -716,7 +723,7 @@ function startSession(minutes, isIce = false) {
     toggleButtons(true); updateDisplay(timeLeft); saveRecoveryState();
     
     timerInterval = setInterval(() => { 
-        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn."); resetSystem(); return; }
+        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
         if (!isPaused) { 
             timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
             if (timeLeft <= 0) { 
@@ -791,14 +798,14 @@ function submitReport() {
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert("Đã nộp xong Thuế Trì Hoãn! Bạn đã thanh toán nợ trì hoãn thành công.");
+                alert("Đã nộp xong Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
             } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
         if (isDebtSession) {
             isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
-            alert("Đã trả sạch nợ Lãi Kép! Cảm ơn bạn đã giữ uy tín. Án thư trở lại bình thường.");
+            alert("Đã trả sạch nợ Lãi Kép! Cảm ơn bệ hạ đã giữ uy tín. Án thư trở lại bình thường.");
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
@@ -844,53 +851,72 @@ function startGracePeriod() {
 }
 
 // ----------------------------------------------------
-// KHỞI ĐỘNG VÀ KIỂM TRA PHỤC HỒI
+// THUẬT TOÁN TỰ CHỮA LÀNH (AUTO-HEAL DISCREPANCY)
 // ----------------------------------------------------
-function checkRecovery() {
-    let rec = localStorage.getItem('saas_recovery');
-    if (rec) {
-        rec = JSON.parse(rec);
-        let now = Date.now();
-        if (rec.endTime > now) {
-            resumeSession(rec);
-        } else {
-            // Hết giờ lúc ẩn tab -> Mở thẳng báo cáo
-            activeGoalId = rec.goalId; currentDuration = rec.duration;
-            isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt;
-            
-            document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
-            document.getElementById('focus-room').style.display = 'flex';
-            let g = goals.find(x => x.id === activeGoalId);
-            if(g) document.getElementById('focus-target-info').innerText = `Mục tiêu: ${g.name} | Còn lại: ${g.current.toFixed(2)}h`;
-            
-            triggerReportModal();
+function autoHealDiscrepancy() {
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayStr = todayObj.toISOString().split('T')[0];
+    let localDateStr = new Date().toLocaleDateString('vi-VN');
+    
+    let actualHoursToday = 0;
+    goals.forEach(g => {
+        if(g.reports) {
+            g.reports.forEach(r => {
+                let rDate = r.date.split(' - ')[0];
+                if(rDate === localDateStr) {
+                    let mins = parseInt(r.type.replace('p',''));
+                    actualHoursToday += (mins / 60);
+                }
+            });
         }
+    });
+    
+    let currentLogged = dailyLogs[todayStr] || 0;
+    if (Math.abs(currentLogged - actualHoursToday) > 0.01) {
+        dailyLogs[todayStr] = actualHoursToday;
+        localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
+        console.log("Đã tự động bù đắp thời gian bị thất thoát do lỗi tải trang.");
     }
 }
-
-checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard'); checkRecovery();
 
 // ----------------------------------------------------
 // PHONG ẤN CỬA HẬU - CHỐNG GIAN LẬN F12 VÀ CONSOLE
 // ----------------------------------------------------
 document.addEventListener('contextmenu', function(event) {
     event.preventDefault();
-    console.log("Cửa hậu đã bị phong ấn!");
 });
-
 document.addEventListener('keydown', function(event) {
-    // Chặn F12
     if (event.key === 'F12') {
         event.preventDefault();
-        alert("Anh bạn à! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!");
+        alert("Bệ hạ! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!");
     }
-    // Chặn Ctrl + Shift + I (hoặc J, C)
     if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) {
         event.preventDefault();
-        alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin anh bạn hãy tu luyện đàng hoàng!");
+        alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin bệ hạ hãy tu luyện đàng hoàng!");
     }
-    // Chặn Ctrl + U (View Source)
     if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
         event.preventDefault();
     }
 });
+
+// KHỞI ĐỘNG HỆ THỐNG
+function checkRecovery() {
+    let rec = localStorage.getItem('saas_recovery');
+    if (rec) {
+        rec = JSON.parse(rec); let now = Date.now();
+        if (rec.endTime > now) { resumeSession(rec); } 
+        else {
+            activeGoalId = rec.goalId; currentDuration = rec.duration;
+            isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt;
+            activeSessionMinutes = rec.activeMins || rec.duration; // BÙ ĐẮP BIẾN SỐ THỜI GIAN THỰC TẠI ĐÂY
+            document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
+            document.getElementById('focus-room').style.display = 'flex';
+            let g = goals.find(x => x.id === activeGoalId);
+            if(g) document.getElementById('focus-target-info').innerText = `Mục tiêu: ${g.name} | Còn lại: ${g.current.toFixed(2)}h`;
+            triggerReportModal();
+        }
+    }
+}
+
+autoHealDiscrepancy();
+checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard'); checkRecovery();
