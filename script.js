@@ -94,6 +94,7 @@ let isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
 
 let dailyDebtMinutes = parseInt(localStorage.getItem('saasDailyDebt')) || 0;
 let isDebtSession = false;
+let isIcebreakerPhase = false; // Biến kiểm soát trạng thái Phá Băng
 
 let activeGoalId = null;
 let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
@@ -161,7 +162,7 @@ function startDebtSession() {
     document.getElementById('focus-target-info').innerText = "PHIÊN KHỔ SAI LÃI KÉP (NỢ NGÀY)";
     let badge = document.getElementById('focus-badge'); badge.innerText = "CHẾ ĐỘ TRẢ NỢ"; badge.style.background = "rgba(225, 29, 72, 0.1)"; badge.style.color = "var(--brand-warning)"; badge.style.borderColor = "var(--brand-warning)";
 
-    document.getElementById('btn-15').style.display = 'none'; document.getElementById('btn-25').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none';
+    document.getElementById('btn-5').style.display = 'none'; document.getElementById('btn-15').style.display = 'none'; document.getElementById('btn-25').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none';
 
     let btnTax = document.getElementById('btn-tax');
     if(!btnTax) {
@@ -204,7 +205,7 @@ function startTaxSession() {
     document.getElementById('focus-target-info').innerText = "THIẾT QUÂN LUẬT (120 PHÚT)";
     let badge = document.getElementById('focus-badge'); badge.innerText = "CHẾ ĐỘ HARDCORE"; badge.style.background = "rgba(225, 29, 72, 0.1)"; badge.style.color = "var(--brand-warning)"; badge.style.borderColor = "var(--brand-warning)";
 
-    document.getElementById('btn-15').style.display = 'none'; document.getElementById('btn-25').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none';
+    document.getElementById('btn-5').style.display = 'none'; document.getElementById('btn-15').style.display = 'none'; document.getElementById('btn-25').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none';
 
     let btnTax = document.getElementById('btn-tax');
     if(!btnTax) {
@@ -311,7 +312,6 @@ function checkCycleAndStreak() {
         let checkedDate = localStorage.getItem('saasDebtCheckedDate');
         if (checkedDate !== yesterdayStr) {
             if (diffDays > 1) {
-                // TỘI ĐẠI HÌNH: Không học gì cả (> 1 ngày) -> 120p
                 isPendingTax = true;
                 localStorage.setItem('saasPendingTax', 'true');
                 localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
@@ -320,12 +320,10 @@ function checkCycleAndStreak() {
                 let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.0;
                 
                 if (yesterdayHrs === 0) {
-                    // TỘI ĐẠI HÌNH: Có mở web nhưng học 0 phút -> 120p
                     isPendingTax = true;
                     localStorage.setItem('saasPendingTax', 'true');
                     localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
                 } else if (yesterdayHrs > 0 && yesterdayHrs < targetHrs) {
-                    // TỘI TIỂU HÌNH: Lười biếng dở chừng -> Lãi kép
                     let deficitHrs = targetHrs - yesterdayHrs;
                     let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
                     dailyDebtMinutes += penaltyMins;
@@ -467,8 +465,7 @@ function switchTab(tab) {
     document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('analytics-room').style.display = 'none'; 
     document.getElementById('trophy-room').style.display = 'none'; document.getElementById('trophy-detail').style.display = 'none';
     
-    document.getElementById('sidebar').classList.remove('active');
-    document.getElementById('mobile-overlay').classList.remove('active');
+    document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
 
     if(tab === 'dashboard') {
         document.getElementById('nav-dash').classList.add('active'); document.getElementById('view-dashboard').style.display = 'block';
@@ -637,6 +634,7 @@ function updateDisplay(seconds) {
 }
 
 function toggleButtons(isActive) {
+    document.getElementById('btn-5').style.display = isActive ? 'none' : 'flex';
     document.getElementById('btn-15').style.display = isActive ? 'none' : 'flex'; document.getElementById('btn-25').style.display = isActive ? 'none' : 'flex';
     document.getElementById('btn-pause').style.display = isActive ? 'flex' : 'none'; document.getElementById('btn-cancel').style.display = isActive ? 'flex' : 'none';
 }
@@ -652,34 +650,73 @@ function togglePause() {
             btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục'; statusIcon.className = "fa-solid fa-pause";
             pauseTimeLeft = 300; pauseEndTime = Date.now() + pauseTimeLeft * 1000;
             pauseInterval = setInterval(() => { pauseTimeLeft = Math.round((pauseEndTime - Date.now()) / 1000); if (pauseTimeLeft <= 0) { pauseTimeLeft = 0; clearInterval(pauseInterval); clearInterval(timerInterval); playAlertSound(); resetSystem(); setTimeout(() => alert("Đã quá 5 phút tạm dừng! Hệ thống tự động hủy phiên học hiện tại do mất tập trung."), 100); } let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); let s = (pauseTimeLeft % 60).toString().padStart(2, '0'); statusMsg.innerHTML = `Tạm dừng. Giới hạn thời gian: <strong style="color: var(--brand-focus);">${m}:${s}</strong>.`; }, 1000);
-        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin"; }
+        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = isIcebreakerPhase ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu." : "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin"; }
     }
 }
 
-function startSession(minutes) {
-    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn."); return; }
+function startIcebreaker() {
+    startSession(5, true);
+}
+
+function startSession(minutes, isIce = false) {
+    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM!"); return; }
     if(audioCtx.state === 'suspended') audioCtx.resume();
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
     isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
     
-    currentDuration = minutes; activeSessionMinutes = minutes + penaltyMinutes; timeLeft = activeSessionMinutes * 60; sessionEndTime = Date.now() + timeLeft * 1000;
-    document.body.classList.remove('break-mode'); document.body.classList.add('focus-active'); document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
+    isIcebreakerPhase = isIce;
+    currentDuration = isIce ? 30 : minutes; 
+    activeSessionMinutes = minutes + penaltyMinutes; 
+    timeLeft = activeSessionMinutes * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+    
+    document.body.classList.remove('break-mode'); document.body.classList.add('focus-active'); 
+    document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
     
     let badge = document.getElementById('focus-badge');
-    if (penaltyMinutes > 0) { badge.innerText = `ĐANG CHỊU PHẠT (+${penaltyMinutes}P)`; badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)"; } else { badge.innerText = "ĐANG TẬP TRUNG"; badge.style = ""; }
-    document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin"; document.getElementById('status-msg').innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
+    if (penaltyMinutes > 0) { 
+        badge.innerText = `ĐANG CHỊU PHẠT (+${penaltyMinutes}P)`; 
+        badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)"; 
+    } else { 
+        badge.innerText = isIce ? "PHÁ BĂNG LỰC CẢN (5P)" : "ĐANG TẬP TRUNG"; 
+        badge.style = ""; 
+    }
+    
+    document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; 
+    document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin"; 
+    document.getElementById('status-msg').innerText = isIce ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu làm việc." : "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
     
     toggleButtons(true); updateDisplay(timeLeft);
+    
     timerInterval = setInterval(() => { 
-        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Kết quả phiên này bị hủy. Chúc ngủ ngon!"); resetSystem(); return; }
-        if (!isPaused) { timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); if (timeLeft <= 0) { timeLeft = 0; playAlertSound(); triggerReportModal(); } updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); }
-    }, 1000); penaltyMinutes = 0; 
+        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Kết quả phiên này bị hủy."); resetSystem(); return; }
+        if (!isPaused) { 
+            timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
+            if (timeLeft <= 0) { 
+                timeLeft = 0; 
+                if (isIcebreakerPhase) {
+                    isIcebreakerPhase = false;
+                    playTick();
+                    activeSessionMinutes = 30 + penaltyMinutes; 
+                    timeLeft = 25 * 60; 
+                    sessionEndTime = Date.now() + timeLeft * 1000;
+                    badge.innerText = "ĐÃ VÀO GUỒNG (25P)";
+                    document.getElementById('status-msg').innerText = "Lực cản tâm lý đã bị đập tan! Trạng thái Deep Work tự động kích hoạt.";
+                    updateDisplay(timeLeft);
+                } else {
+                    playAlertSound(); triggerReportModal(); 
+                }
+            } else {
+                updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
+            }
+        }
+    }, 1000); 
+    penaltyMinutes = 0; 
 }
 
 function cancelSession() { if(confirm("Hủy phiên học?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
 
 function resetSystem() {
-    isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isDebtSession = false; isBreakActive = false;
+    isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isDebtSession = false; isBreakActive = false; isIcebreakerPhase = false;
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
     document.body.classList.remove('break-mode'); document.body.classList.remove('focus-active');
     
@@ -695,7 +732,7 @@ function triggerReportModal() {
     clearInterval(timerInterval); clearInterval(pauseInterval); document.body.classList.remove('focus-active');
     
     requiredWords = Math.max(25, Math.floor(currentDuration * 1.5)); 
-    if (currentDuration === 120) requiredWords = 80;
+    if (currentDuration >= 120) requiredWords = 80;
     
     document.getElementById('word-required').innerText = requiredWords; document.getElementById('word-req-display').innerText = requiredWords;
     document.getElementById('report-input').value = ""; document.getElementById('report-input').placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
@@ -759,9 +796,9 @@ function initiateBreak() {
     document.getElementById('btn-pause').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none'; 
     
     let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)"; document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
-    if (currentDuration === 25) { standardSessionCount25++; localStorage.setItem('saasS25', standardSessionCount25); if (standardSessionCount25 % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; } } 
+    if (currentDuration === 25 || currentDuration === 30) { standardSessionCount25++; localStorage.setItem('saasS25', standardSessionCount25); if (standardSessionCount25 % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; } } 
     else if (currentDuration === 15) { standardSessionCount15++; localStorage.setItem('saasS15', standardSessionCount15); if (standardSessionCount15 % 3 === 0) { breakMinutes = 10; breakMsg = "Nghỉ Dài (10p)"; } } 
-    else if (currentDuration === 120) { breakMinutes = 30; breakMsg = "Hồi Phục (30p)"; }
+    else if (currentDuration >= 120) { breakMinutes = 30; breakMsg = "Hồi Phục (30p)"; }
     
     document.getElementById('status-msg').innerText = `Đang kích hoạt chế độ ${breakMsg}.`;
     timeLeft = breakMinutes * 60; let breakEndTime = Date.now() + timeLeft * 1000; updateDisplay(timeLeft);
