@@ -869,3 +869,28 @@ function checkRecovery() {
 }
 
 checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard'); checkRecovery();
+
+// ----------------------------------------------------
+// PHONG ẤN CỬA HẬU - CHỐNG GIAN LẬN F12 VÀ CONSOLE
+// ----------------------------------------------------
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+    console.log("Cửa hậu đã bị phong ấn!");
+});
+
+document.addEventListener('keydown', function(event) {
+    // Chặn F12
+    if (event.key === 'F12') {
+        event.preventDefault();
+        alert("Bệ hạ! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!");
+    }
+    // Chặn Ctrl + Shift + I (hoặc J, C)
+    if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) {
+        event.preventDefault();
+        alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin bệ hạ hãy tu luyện đàng hoàng!");
+    }
+    // Chặn Ctrl + U (View Source)
+    if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
+        event.preventDefault();
+    }
+});
