@@ -357,7 +357,7 @@ function checkCycleAndStreak() {
         if (totalCycleHours < 12) {
             isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0; 
         } else {
-            alert(`TỔNG KẾT TUẦN: Bệ hạ đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép được giữ vững!`);
+            alert(`TỔNG KẾT TUẦN: Anh bạn đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép được giữ vững!`);
         }
         cycleStartDate = todayStr; localStorage.setItem('saasCycleStart', cycleStartDate);
     }
@@ -388,7 +388,7 @@ function checkCycleAndStreak() {
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
         document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Không đạt 12h/tuần HOẶC có ngày không học phút nào. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục!";
+        document.querySelector('.shame-content p').innerText = "Anh bạn đã vi phạm trọng tội: Không đạt 12h/tuần HOẶC có ngày không học phút nào. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục!";
         document.querySelector('.btn-shame-alt').style.display = 'none'; 
         document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (120P)';
         document.querySelector('.btn-shame').onclick = startTaxSession; return;
@@ -397,7 +397,7 @@ function checkCycleAndStreak() {
     if (dailyDebtMinutes > 0) {
         document.getElementById('shame-modal').style.display = 'flex'; 
         document.querySelector('.shame-content h2').innerText = "ĐẠO LUẬT LÃI KÉP (NỢ 1 TRẢ 1.5)";
-        document.querySelector('.shame-content p').innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ chuẩn. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        document.querySelector('.shame-content p').innerHTML = `Hôm qua anh bạn tu luyện chưa đủ chuẩn. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
         document.querySelector('.btn-shame-alt').style.display = 'none';
         document.querySelector('.btn-shame').innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`;
         document.querySelector('.btn-shame').onclick = startDebtSession; return;
@@ -423,7 +423,7 @@ function renderKPI() {
     if(statusEl && fillEl && msgEl) {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`; fillEl.style.width = `${pct}%`;
         if(totalCycleHours >= 12) {
-            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
+            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Anh bạn đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
             fillEl.style.background = 'var(--brand-break)'; fillEl.style.boxShadow = '0 0 15px var(--brand-break)';
             if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') {
                 localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti();
@@ -791,14 +791,14 @@ function submitReport() {
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert("Đã nộp xong Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
+                alert("Đã nộp xong Thuế Trì Hoãn! Bạn đã thanh toán nợ trì hoãn thành công.");
             } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
         if (isDebtSession) {
             isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
-            alert("Đã trả sạch nợ Lãi Kép! Cảm ơn bệ hạ đã giữ uy tín. Án thư trở lại bình thường.");
+            alert("Đã trả sạch nợ Lãi Kép! Cảm ơn bạn đã giữ uy tín. Án thư trở lại bình thường.");
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
@@ -882,12 +882,12 @@ document.addEventListener('keydown', function(event) {
     // Chặn F12
     if (event.key === 'F12') {
         event.preventDefault();
-        alert("Bệ hạ! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!");
+        alert("Anh bạn à! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!");
     }
     // Chặn Ctrl + Shift + I (hoặc J, C)
     if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) {
         event.preventDefault();
-        alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin bệ hạ hãy tu luyện đàng hoàng!");
+        alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin anh bạn hãy tu luyện đàng hoàng!");
     }
     // Chặn Ctrl + U (View Source)
     if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
