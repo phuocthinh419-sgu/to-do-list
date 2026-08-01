@@ -151,19 +151,11 @@ function activateRestDay() {
 }
 
 // ----------------------------------------------------
-// THUẬT TOÁN BẤT TỬ ĐÃ ĐƯỢC VÁ LỖI
-// ----------------------------------------------------
 function saveRecoveryState() {
     if (isSessionActive) {
         localStorage.setItem('saas_recovery', JSON.stringify({
-            goalId: activeGoalId,
-            duration: currentDuration,
-            endTime: sessionEndTime,
-            isIce: isIcebreakerPhase,
-            isHardcore: isHardcoreTax,
-            isDebt: isDebtSession,
-            penalty: penaltyMinutes,
-            activeMins: activeSessionMinutes // Lưu thêm tiến độ thời gian thực
+            goalId: activeGoalId, duration: currentDuration, endTime: sessionEndTime, isIce: isIcebreakerPhase,
+            isHardcore: isHardcoreTax, isDebt: isDebtSession, penalty: penaltyMinutes, activeMins: activeSessionMinutes 
         }));
     }
 }
@@ -176,7 +168,7 @@ function resumeSession(rec) {
     
     activeGoalId = rec.goalId; currentDuration = rec.duration; isIcebreakerPhase = rec.isIce;
     isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt; penaltyMinutes = rec.penalty || 0;
-    activeSessionMinutes = rec.activeMins || rec.duration; // Phục hồi tiến độ thời gian thực
+    activeSessionMinutes = rec.activeMins || rec.duration; 
     sessionEndTime = rec.endTime;
     
     document.body.classList.remove('break-mode'); document.body.classList.add('focus-active');
@@ -551,14 +543,29 @@ window.renderDailyBreakdown = function(targetDate) {
     content.innerHTML = html;
 };
 
+// ----------------------------------------------------
+// ĐÃ SỬA: ĐỒNG BỘ THUẬT TOÁN "HIỆU SUẤT TUẦN" VÀO ĐÚNG CHU KỲ KPI
+// ----------------------------------------------------
 function renderAnalytics() {
     const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); let todayStr = todayObj.toISOString().split('T')[0];
     let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1); let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
     let todayHrs = dailyLogs[todayStr] || 0; let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
-    let thisWeekHrs = 0; for(let i=0; i<7; i++) { let d = new Date(todayObj); d.setDate(d.getDate() - i); thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); }
-    let lastWeekHrs = 0; for(let i=7; i<14; i++) { let d = new Date(todayObj); d.setDate(d.getDate() - i); lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); }
+    
+    // Thuật toán chuẩn theo chu kỳ KPI
+    let cycleStartObj = new Date(cycleStartDate);
+    let thisWeekHrs = 0; 
+    for(let i=0; i<7; i++) { 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
+        thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
+    }
+    
+    let lastWeekHrs = 0; 
+    for(let i=1; i<=7; i++) { 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() - i); 
+        lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
+    }
 
     function getTrendHtml(current, previous, label, delay) {
         let diff = current - previous; let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
@@ -567,7 +574,7 @@ function renderAnalytics() {
         return `<div class="analytics-card stagger-item" style="padding: 28px; animation-delay: ${delay}s"><span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">${label}</span><div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -1px;">${current.toFixed(1)}h</div><div style="font-size: 0.95rem; font-weight: 600; color: ${color}; display: flex; align-items: center; gap: 6px;"><i class="fa-solid ${icon}"></i> ${text} ${Math.abs(pct).toFixed(0)}% so với kỳ trước</div></div>`;
     }
 
-    let trendWeekHtml = getTrendHtml(thisWeekHrs, lastWeekHrs, 'Hiệu suất Tuần (7 Ngày)', 0.1);
+    let trendWeekHtml = getTrendHtml(thisWeekHrs, lastWeekHrs, 'Hiệu suất Tuần (Chu kỳ)', 0.1);
     let trendDayHtml = getTrendHtml(todayHrs, yesterdayHrs, 'Hiệu suất Hôm nay', 0.2);
     let trendsHtml = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px; position: relative; z-index: 20;">${trendWeekHtml}${trendDayHtml}</div>`;
 
@@ -850,9 +857,6 @@ function startGracePeriod() {
     }, 1000);
 }
 
-// ----------------------------------------------------
-// THUẬT TOÁN TỰ CHỮA LÀNH (AUTO-HEAL DISCREPANCY)
-// ----------------------------------------------------
 function autoHealDiscrepancy() {
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
     let todayStr = todayObj.toISOString().split('T')[0];
@@ -879,27 +883,13 @@ function autoHealDiscrepancy() {
     }
 }
 
-// ----------------------------------------------------
-// PHONG ẤN CỬA HẬU - CHỐNG GIAN LẬN F12 VÀ CONSOLE
-// ----------------------------------------------------
-document.addEventListener('contextmenu', function(event) {
-    event.preventDefault();
-});
+document.addEventListener('contextmenu', function(event) { event.preventDefault(); });
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'F12') {
-        event.preventDefault();
-        alert("Bệ hạ! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!");
-    }
-    if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) {
-        event.preventDefault();
-        alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin bệ hạ hãy tu luyện đàng hoàng!");
-    }
-    if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
-        event.preventDefault();
-    }
+    if (event.key === 'F12') { event.preventDefault(); alert("Bệ hạ! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!"); }
+    if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) { event.preventDefault(); alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin bệ hạ hãy tu luyện đàng hoàng!"); }
+    if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) { event.preventDefault(); }
 });
 
-// KHỞI ĐỘNG HỆ THỐNG
 function checkRecovery() {
     let rec = localStorage.getItem('saas_recovery');
     if (rec) {
@@ -908,7 +898,7 @@ function checkRecovery() {
         else {
             activeGoalId = rec.goalId; currentDuration = rec.duration;
             isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt;
-            activeSessionMinutes = rec.activeMins || rec.duration; // BÙ ĐẮP BIẾN SỐ THỜI GIAN THỰC TẠI ĐÂY
+            activeSessionMinutes = rec.activeMins || rec.duration; 
             document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
             document.getElementById('focus-room').style.display = 'flex';
             let g = goals.find(x => x.id === activeGoalId);
