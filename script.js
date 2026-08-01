@@ -94,7 +94,7 @@ let isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
 
 let dailyDebtMinutes = parseInt(localStorage.getItem('saasDailyDebt')) || 0;
 let isDebtSession = false;
-let isIcebreakerPhase = false; // Biến kiểm soát trạng thái Phá Băng
+let isIcebreakerPhase = false; 
 
 let activeGoalId = null;
 let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
@@ -150,13 +150,81 @@ function activateRestDay() {
     }
 }
 
-let isHardcoreTax = false; let taxPauseBank = 180; 
+// ----------------------------------------------------
+// THUẬT TOÁN BẤT TỬ (LƯU TRẠNG THÁI CHỐNG TẢI LẠI TRANG)
+// ----------------------------------------------------
+function saveRecoveryState() {
+    if (isSessionActive) {
+        localStorage.setItem('saas_recovery', JSON.stringify({
+            goalId: activeGoalId,
+            duration: currentDuration,
+            endTime: sessionEndTime,
+            isIce: isIcebreakerPhase,
+            isHardcore: isHardcoreTax,
+            isDebt: isDebtSession,
+            penalty: penaltyMinutes
+        }));
+    }
+}
+function clearRecoveryState() { localStorage.removeItem('saas_recovery'); }
+
+function resumeSession(rec) {
+    clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
+    isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
+    
+    activeGoalId = rec.goalId; currentDuration = rec.duration; isIcebreakerPhase = rec.isIce;
+    isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt; penaltyMinutes = rec.penalty || 0;
+    sessionEndTime = rec.endTime;
+    
+    document.body.classList.remove('break-mode'); document.body.classList.add('focus-active');
+    document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
+    document.getElementById('focus-room').style.display = 'flex';
+    
+    let g = goals.find(x => x.id === activeGoalId);
+    if(g) document.getElementById('focus-target-info').innerText = `Mục tiêu: ${g.name} | Còn lại: ${g.current.toFixed(2)}h`;
+
+    let badge = document.getElementById('focus-badge');
+    if(isHardcoreTax) badge.innerText = "CHẾ ĐỘ HARDCORE";
+    else if(isDebtSession) badge.innerText = "CHẾ ĐỘ TRẢ NỢ";
+    else badge.innerText = isIcebreakerPhase ? "PHÁ BĂNG LỰC CẢN (5P)" : "ĐANG TẬP TRUNG";
+
+    toggleButtons(true);
+    if (isHardcoreTax || isDebtSession) {
+        document.getElementById('btn-cancel').style.display = 'none';
+        let btnTax = document.getElementById('btn-tax');
+        if(!btnTax) { btnTax = document.createElement('button'); btnTax.className = 'btn-timer'; btnTax.id = 'btn-tax'; document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause')); }
+        btnTax.style.display = 'none';
+    }
+    
+    document.getElementById('btn-pause').style.display = 'flex'; document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; 
+    document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin"; 
+    document.getElementById('status-msg').innerText = "Đã khôi phục phiên học từ cõi chết. Tuyệt đối không xao nhãng.";
+    
+    timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); updateDisplay(timeLeft);
+    
+    timerInterval = setInterval(() => { 
+        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
+        if (!isPaused) { 
+            timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
+            if (timeLeft <= 0) { 
+                timeLeft = 0; 
+                if (isIcebreakerPhase) {
+                    isIcebreakerPhase = false; playTick();
+                    activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+                    badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
+                    saveRecoveryState(); updateDisplay(timeLeft);
+                } else {
+                    playAlertSound(); triggerReportModal(); 
+                }
+            } else { updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); }
+        }
+    }, 1000); 
+}
 
 function startDebtSession() {
     if(goals.length === 0) { goals.push({ id: Date.now(), name: "KHỔ SAI LÃI KÉP", target: 2, current: 2, reports: [] }); }
     activeGoalId = goals[0].id;
-    document.getElementById('shame-modal').style.display = 'none';
-    document.getElementById('focus-room').style.display = 'flex';
+    document.getElementById('shame-modal').style.display = 'none'; document.getElementById('focus-room').style.display = 'flex';
     document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
     
     document.getElementById('focus-target-info').innerText = "PHIÊN KHỔ SAI LÃI KÉP (NỢ NGÀY)";
@@ -169,10 +237,8 @@ function startDebtSession() {
         btnTax = document.createElement('button'); btnTax.className = 'btn-timer'; btnTax.id = 'btn-tax';
         document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause'));
     }
-    btnTax.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU TRẢ NỢ (${dailyDebtMinutes}P)`; 
-    btnTax.onclick = () => runDebtSession();
-    btnTax.style.display = 'flex';
-    document.getElementById('btn-focus-back').onclick = function() { alert("Đang mang nợ không được phép rời đi! Tải lại trang án thư vẫn sẽ khóa."); }
+    btnTax.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU TRẢ NỢ (${dailyDebtMinutes}P)`; btnTax.onclick = () => runDebtSession(); btnTax.style.display = 'flex';
+    document.getElementById('btn-focus-back').onclick = function() { alert("Đang mang nợ không được phép rời đi!"); }
 }
 
 function runDebtSession() {
@@ -182,11 +248,12 @@ function runDebtSession() {
     
     currentDuration = dailyDebtMinutes; activeSessionMinutes = dailyDebtMinutes; timeLeft = dailyDebtMinutes * 60; sessionEndTime = Date.now() + timeLeft * 1000;
     isSessionActive = true; isPaused = false; document.body.classList.add('focus-active');
+    saveRecoveryState();
     
     document.getElementById('btn-pause').style.display = 'flex'; document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
     
     timerInterval = setInterval(() => {
-        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn."); resetSystem(); return; }
+        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
         if (!isPaused) {
             timeLeft = Math.round((sessionEndTime - Date.now()) / 1000);
             if (timeLeft <= 0) { timeLeft = 0; playAlertSound(); triggerReportModal(); }
@@ -198,8 +265,7 @@ function runDebtSession() {
 function startTaxSession() {
     if(goals.length === 0) { goals.push({ id: Date.now(), name: "KHÔI PHỤC CHUỖI", target: 2, current: 2, reports: [] }); }
     activeGoalId = goals[0].id;
-    document.getElementById('shame-modal').style.display = 'none';
-    document.getElementById('focus-room').style.display = 'flex';
+    document.getElementById('shame-modal').style.display = 'none'; document.getElementById('focus-room').style.display = 'flex';
     document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
     
     document.getElementById('focus-target-info').innerText = "THIẾT QUÂN LUẬT (120 PHÚT)";
@@ -212,10 +278,8 @@ function startTaxSession() {
         btnTax = document.createElement('button'); btnTax.className = 'btn-timer'; btnTax.id = 'btn-tax';
         document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause'));
     }
-    btnTax.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ TRÌ HOÃN'; 
-    btnTax.onclick = () => runHardcoreSession();
-    btnTax.style.display = 'flex';
-    document.getElementById('btn-focus-back').onclick = function() { alert("Chưa hoàn thành thuế không được phép rời đi! Tải lại trang án thư vẫn sẽ khóa."); }
+    btnTax.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ TRÌ HOÃN'; btnTax.onclick = () => runHardcoreSession(); btnTax.style.display = 'flex';
+    document.getElementById('btn-focus-back').onclick = function() { alert("Chưa hoàn thành thuế không được phép rời đi!"); }
 }
 
 function runHardcoreSession() {
@@ -225,6 +289,7 @@ function runHardcoreSession() {
     
     currentDuration = 120; activeSessionMinutes = 120; timeLeft = 120 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
     isSessionActive = true; isPaused = false; document.body.classList.add('focus-active');
+    saveRecoveryState();
     
     document.getElementById('btn-pause').style.display = 'flex'; document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
     
@@ -281,22 +346,16 @@ function checkCycleAndStreak() {
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
     // 1. KIỂM TRA CHU KỲ 7 NGÀY
-    let cycleStartObj = new Date(cycleStartDate);
-    let diffCycleTime = new Date(todayStr) - cycleStartObj;
+    let cycleStartObj = new Date(cycleStartDate); let diffCycleTime = new Date(todayStr) - cycleStartObj;
     let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
 
     if (diffCycleDays >= 7 && !isPendingTax) {
         let totalCycleHours = 0;
         for(let i=0; i<7; i++) {
-            let d = new Date(cycleStartObj); d.setDate(d.getDate() + i);
-            let dStr = d.toISOString().split('T')[0];
-            totalCycleHours += (dailyLogs[dStr] || 0);
+            let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); let dStr = d.toISOString().split('T')[0]; totalCycleHours += (dailyLogs[dStr] || 0);
         }
-        
         if (totalCycleHours < 12) {
-            isPendingTax = true;
-            localStorage.setItem('saasPendingTax', 'true');
-            localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0; 
+            isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0; 
         } else {
             alert(`TỔNG KẾT TUẦN: Bệ hạ đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép được giữ vững!`);
         }
@@ -305,29 +364,20 @@ function checkCycleAndStreak() {
 
     // 2. RÀ SOÁT TỘI LỖI MỖI NGÀY
     if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
-        let lastDateObj = new Date(lastActiveDate); 
-        let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
+        let lastDateObj = new Date(lastActiveDate); let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
         let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
         
         let checkedDate = localStorage.getItem('saasDebtCheckedDate');
         if (checkedDate !== yesterdayStr) {
             if (diffDays > 1) {
-                isPendingTax = true;
-                localStorage.setItem('saasPendingTax', 'true');
-                localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
+                isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
             } else if (diffDays === 1) {
-                let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
-                let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.0;
-                
+                let yesterdayHrs = dailyLogs[yesterdayStr] || 0; let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.0;
                 if (yesterdayHrs === 0) {
-                    isPendingTax = true;
-                    localStorage.setItem('saasPendingTax', 'true');
-                    localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
+                    isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
                 } else if (yesterdayHrs > 0 && yesterdayHrs < targetHrs) {
-                    let deficitHrs = targetHrs - yesterdayHrs;
-                    let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
-                    dailyDebtMinutes += penaltyMins;
-                    localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+                    let deficitHrs = targetHrs - yesterdayHrs; let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
+                    dailyDebtMinutes += penaltyMins; localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
                 }
             }
             localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
@@ -341,8 +391,7 @@ function checkCycleAndStreak() {
         document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Không đạt 12h/tuần HOẶC có ngày không học phút nào. Bắt buộc nộp Thuế Trì Hoãn 120 phút liên tục!";
         document.querySelector('.btn-shame-alt').style.display = 'none'; 
         document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (120P)';
-        document.querySelector('.btn-shame').onclick = startTaxSession;
-        return;
+        document.querySelector('.btn-shame').onclick = startTaxSession; return;
     }
 
     if (dailyDebtMinutes > 0) {
@@ -351,8 +400,7 @@ function checkCycleAndStreak() {
         document.querySelector('.shame-content p').innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ chuẩn. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
         document.querySelector('.btn-shame-alt').style.display = 'none';
         document.querySelector('.btn-shame').innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`;
-        document.querySelector('.btn-shame').onclick = startDebtSession;
-        return;
+        document.querySelector('.btn-shame').onclick = startDebtSession; return;
     }
 
     document.getElementById('streak-count').innerText = currentStreak;
@@ -389,8 +437,7 @@ function renderKPI() {
 
 function renderGamification() {
     let totalHoursEarned = goals.reduce((sum, g) => sum + (g.target - g.current), 0);
-    document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h';
-    document.getElementById('streak-count').innerText = currentStreak;
+    document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h'; document.getElementById('streak-count').innerText = currentStreak;
     
     let rankTitle = "Người Mới"; let rankDesc = "Cần 10h để thăng cấp Học Giả"; let rankColor = "#94a3b8"; 
     if(totalHoursEarned >= 300) { rankTitle = "Huyền Thoại"; rankDesc = "Thành tích học tập xuất sắc"; rankColor = "#f59e0b"; } 
@@ -419,17 +466,7 @@ function renderCountdowns() {
     strip.style.display = 'flex';
     countdowns.forEach((cd, index) => {
         let delay = (index + 1) * 0.1;
-        strip.innerHTML += `
-            <div class="countdown-card stagger-item" style="animation-delay: ${delay}s" id="cd-card-${cd.id}">
-                <button class="btn-delete-cd" onclick="deleteCountdown(${cd.id})"><i class="fa-solid fa-trash"></i></button>
-                <div class="countdown-title">${cd.name}</div>
-                <div class="time-blocks">
-                    <div class="time-box"><span class="t-val" id="cd-d-${cd.id}">00</span><span class="t-lbl">Ngày</span></div>
-                    <div class="time-box"><span class="t-val" id="cd-h-${cd.id}">00</span><span class="t-lbl">Giờ</span></div>
-                    <div class="time-box"><span class="t-val" id="cd-m-${cd.id}">00</span><span class="t-lbl">Phút</span></div>
-                    <div class="time-box"><span class="t-val" id="cd-s-${cd.id}">00</span><span class="t-lbl">Giây</span></div>
-                </div>
-            </div>`;
+        strip.innerHTML += `<div class="countdown-card stagger-item" style="animation-delay: ${delay}s" id="cd-card-${cd.id}"><button class="btn-delete-cd" onclick="deleteCountdown(${cd.id})"><i class="fa-solid fa-trash"></i></button><div class="countdown-title">${cd.name}</div><div class="time-blocks"><div class="time-box"><span class="t-val" id="cd-d-${cd.id}">00</span><span class="t-lbl">Ngày</span></div><div class="time-box"><span class="t-val" id="cd-h-${cd.id}">00</span><span class="t-lbl">Giờ</span></div><div class="time-box"><span class="t-val" id="cd-m-${cd.id}">00</span><span class="t-lbl">Phút</span></div><div class="time-box"><span class="t-val" id="cd-s-${cd.id}">00</span><span class="t-lbl">Giây</span></div></div></div>`;
     }); updateCountdownTicks();
 }
 
@@ -644,19 +681,17 @@ function togglePause() {
     if (isHardcoreTax || isDebtSession) {
         if (isPaused) {
             pauseInterval = setInterval(() => { taxPauseBank--; if(taxPauseBank <= 0) { clearInterval(pauseInterval); clearInterval(timerInterval); alert("BẠN ĐÃ DÙNG HẾT 3 PHÚT NGHỈ NGƠI! Chuỗi kỷ luật đã trở về 1."); currentStreak = 1; saveAll(); resetSystem(); location.reload(); } btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + taxPauseBank + 's)'; }, 1000);
-        } else { clearInterval(pauseInterval); btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)'; }
+        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; saveRecoveryState(); btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)'; }
     } else {
         if (isPaused) {
             btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục'; statusIcon.className = "fa-solid fa-pause";
             pauseTimeLeft = 300; pauseEndTime = Date.now() + pauseTimeLeft * 1000;
             pauseInterval = setInterval(() => { pauseTimeLeft = Math.round((pauseEndTime - Date.now()) / 1000); if (pauseTimeLeft <= 0) { pauseTimeLeft = 0; clearInterval(pauseInterval); clearInterval(timerInterval); playAlertSound(); resetSystem(); setTimeout(() => alert("Đã quá 5 phút tạm dừng! Hệ thống tự động hủy phiên học hiện tại do mất tập trung."), 100); } let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); let s = (pauseTimeLeft % 60).toString().padStart(2, '0'); statusMsg.innerHTML = `Tạm dừng. Giới hạn thời gian: <strong style="color: var(--brand-focus);">${m}:${s}</strong>.`; }, 1000);
-        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = isIcebreakerPhase ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu." : "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin"; }
+        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; saveRecoveryState(); btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = isIcebreakerPhase ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu." : "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin"; }
     }
 }
 
-function startIcebreaker() {
-    startSession(5, true);
-}
+function startIcebreaker() { startSession(5, true); }
 
 function startSession(minutes, isIce = false) {
     if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM!"); return; }
@@ -664,50 +699,35 @@ function startSession(minutes, isIce = false) {
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
     isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
     
-    isIcebreakerPhase = isIce;
-    currentDuration = isIce ? 30 : minutes; 
-    activeSessionMinutes = minutes + penaltyMinutes; 
+    isIcebreakerPhase = isIce; currentDuration = isIce ? 30 : minutes; activeSessionMinutes = minutes + penaltyMinutes; 
     timeLeft = activeSessionMinutes * 60; sessionEndTime = Date.now() + timeLeft * 1000;
     
     document.body.classList.remove('break-mode'); document.body.classList.add('focus-active'); 
     document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
     
     let badge = document.getElementById('focus-badge');
-    if (penaltyMinutes > 0) { 
-        badge.innerText = `ĐANG CHỊU PHẠT (+${penaltyMinutes}P)`; 
-        badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)"; 
-    } else { 
-        badge.innerText = isIce ? "PHÁ BĂNG LỰC CẢN (5P)" : "ĐANG TẬP TRUNG"; 
-        badge.style = ""; 
-    }
+    if (penaltyMinutes > 0) { badge.innerText = `ĐANG CHỊU PHẠT (+${penaltyMinutes}P)`; badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)"; } 
+    else { badge.innerText = isIce ? "PHÁ BĂNG LỰC CẢN (5P)" : "ĐANG TẬP TRUNG"; badge.style = ""; }
     
     document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; 
     document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin"; 
     document.getElementById('status-msg').innerText = isIce ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu làm việc." : "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
     
-    toggleButtons(true); updateDisplay(timeLeft);
+    toggleButtons(true); updateDisplay(timeLeft); saveRecoveryState();
     
     timerInterval = setInterval(() => { 
-        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn. Kết quả phiên này bị hủy."); resetSystem(); return; }
+        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM! Cưỡng chế sập nguồn."); resetSystem(); return; }
         if (!isPaused) { 
             timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
             if (timeLeft <= 0) { 
                 timeLeft = 0; 
                 if (isIcebreakerPhase) {
-                    isIcebreakerPhase = false;
-                    playTick();
-                    activeSessionMinutes = 30 + penaltyMinutes; 
-                    timeLeft = 25 * 60; 
-                    sessionEndTime = Date.now() + timeLeft * 1000;
-                    badge.innerText = "ĐÃ VÀO GUỒNG (25P)";
-                    document.getElementById('status-msg').innerText = "Lực cản tâm lý đã bị đập tan! Trạng thái Deep Work tự động kích hoạt.";
-                    updateDisplay(timeLeft);
-                } else {
-                    playAlertSound(); triggerReportModal(); 
-                }
-            } else {
-                updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
-            }
+                    isIcebreakerPhase = false; playTick();
+                    activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+                    badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
+                    saveRecoveryState(); updateDisplay(timeLeft);
+                } else { playAlertSound(); triggerReportModal(); }
+            } else { updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); }
         }
     }, 1000); 
     penaltyMinutes = 0; 
@@ -717,7 +737,7 @@ function cancelSession() { if(confirm("Hủy phiên học?")) { clearInterval(ti
 
 function resetSystem() {
     isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isDebtSession = false; isBreakActive = false; isIcebreakerPhase = false;
-    clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
+    clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); clearRecoveryState();
     document.body.classList.remove('break-mode'); document.body.classList.remove('focus-active');
     
     let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard;
@@ -729,7 +749,7 @@ function resetSystem() {
 const placeholders = ["Tóm tắt ngắn gọn những khái niệm cốt lõi bạn vừa học được...", "Liệt kê các từ vựng, công thức hoặc điểm nghẽn bạn đã giải quyết...", "Sự trung thực trong báo cáo phản ánh chất lượng thực sự của phiên học...", "Ghi lại những gì bạn thực sự đọng lại trong tâm trí lúc này...", "Mục tiêu là nắm vững kiến thức, hãy tóm tắt lại nội dung cốt lõi..."];
 
 function triggerReportModal() {
-    clearInterval(timerInterval); clearInterval(pauseInterval); document.body.classList.remove('focus-active');
+    clearInterval(timerInterval); clearInterval(pauseInterval); document.body.classList.remove('focus-active'); clearRecoveryState();
     
     requiredWords = Math.max(25, Math.floor(currentDuration * 1.5)); 
     if (currentDuration >= 120) requiredWords = 80;
@@ -751,7 +771,7 @@ function submitReport() {
     let text = document.getElementById('report-input').value.trim();
     if (text.split(/\s+/).length >= requiredWords) {
         let timeElapsed = Date.now() - reportOpenTime; let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; if (currentDuration >= 120) minTimeRequired = 30000; 
-        if (timeElapsed < minTimeRequired) { alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý. Khả năng cao đã sử dụng phần mềm gõ tự động hoặc thủ thuật kéo thả.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); document.getElementById('report-modal').style.display = 'none'; currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return; }
+        if (timeElapsed < minTimeRequired) { alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); document.getElementById('report-modal').style.display = 'none'; currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return; }
 
         document.getElementById('report-modal').style.display = 'none';
         
@@ -772,9 +792,7 @@ function submitReport() {
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
                 alert("Đã nộp xong Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
-            } else {
-                alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); 
-            }
+            } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
@@ -825,4 +843,29 @@ function startGracePeriod() {
     }, 1000);
 }
 
-checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard');
+// ----------------------------------------------------
+// KHỞI ĐỘNG VÀ KIỂM TRA PHỤC HỒI
+// ----------------------------------------------------
+function checkRecovery() {
+    let rec = localStorage.getItem('saas_recovery');
+    if (rec) {
+        rec = JSON.parse(rec);
+        let now = Date.now();
+        if (rec.endTime > now) {
+            resumeSession(rec);
+        } else {
+            // Hết giờ lúc ẩn tab -> Mở thẳng báo cáo
+            activeGoalId = rec.goalId; currentDuration = rec.duration;
+            isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt;
+            
+            document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
+            document.getElementById('focus-room').style.display = 'flex';
+            let g = goals.find(x => x.id === activeGoalId);
+            if(g) document.getElementById('focus-target-info').innerText = `Mục tiêu: ${g.name} | Còn lại: ${g.current.toFixed(2)}h`;
+            
+            triggerReportModal();
+        }
+    }
+}
+
+checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard'); checkRecovery();
