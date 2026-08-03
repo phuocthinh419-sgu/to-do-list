@@ -421,6 +421,14 @@ function renderKPI() {
 
     if(statusEl && fillEl && msgEl) {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`; fillEl.style.width = `${pct}%`;
+        
+        // Thuật toán tính số ngày còn lại trong chu kỳ
+        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+        let todayStr = todayObj.toISOString().split('T')[0];
+        let diffCycleTime = new Date(todayStr) - cycleStartObj;
+        let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
+        let daysLeft = Math.max(0, 7 - diffCycleDays);
+
         if(totalCycleHours >= 12) {
             msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
             fillEl.style.background = 'var(--brand-break)'; fillEl.style.boxShadow = '0 0 15px var(--brand-break)';
@@ -428,7 +436,8 @@ function renderKPI() {
                 localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti();
             }
         } else {
-            msgEl.innerText = `Còn thiếu ${(12 - totalCycleHours).toFixed(1)}h nữa để an toàn vượt qua vạch tử thần.`;
+            // Hiển thị cả giờ thiếu và ngày còn lại
+            msgEl.innerHTML = `Còn thiếu <strong style="color:var(--text-main)">${(12 - totalCycleHours).toFixed(1)}h</strong> nữa để an toàn. <span style="color:var(--brand-warning); font-weight: 700; margin-left: 8px;"><i class="fa-regular fa-calendar-days"></i> Còn lại: ${daysLeft} ngày</span>`;
             fillEl.style.background = 'var(--brand-focus)'; fillEl.style.boxShadow = '0 0 10px rgba(234, 88, 12, 0.4)';
         }
     }
