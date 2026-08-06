@@ -293,21 +293,92 @@ function impactStockMarket(actionType) {
     renderStockMarket();
 }
 
+// --- BẮT ĐẦU CỤM GIAO DỊCH CHỨNG KHOÁN ---
+let currentTradeStock = ""; // Biến lưu mã đang giao dịch
+
 function renderStockMarket() {
     let container = document.getElementById('stock-market-container');
     if (!container) return;
     let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+    let portfolio = JSON.parse(localStorage.getItem("userPortfolio")) || {};
     if (!stocks) return;
+    
     let html = '';
     for (let code in stocks) {
         let price = stocks[code];
-        html += `<div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 110px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0;">
-            <div style="font-weight: 800; color: var(--brand-dash); font-size: 0.85rem; margin-bottom: 4px;">${code}</div>
-            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">$${price}</div>
+        let owned = portfolio[code] || 0;
+        
+        // Thẻ bài chứng khoán nay đã có thể bấm vào (onclick)
+        html += `<div onclick="openTradeModal('${code}')" style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 130px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0; cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--brand-dash)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border)'">
+            <div style="font-weight: 800; color: var(--brand-dash); font-size: 0.9rem; margin-bottom: 4px;">${code}</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">$${price}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; font-weight: 700;">Đang giữ: <span style="color:var(--brand-focus)">${owned}</span></div>
         </div>`;
     }
     container.innerHTML = html;
 }
+
+function openTradeModal(code) {
+    currentTradeStock = code;
+    let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+    let portfolio = JSON.parse(localStorage.getItem("userPortfolio")) || {};
+    let price = stocks[code];
+    let owned = portfolio[code] || 0;
+    let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+
+    document.getElementById('tm-code').innerText = code;
+    document.getElementById('tm-price').innerText = "$" + price;
+    document.getElementById('tm-owned').innerText = owned;
+    document.getElementById('tm-usd').innerText = "$" + usd;
+    
+    document.getElementById('trade-modal').style.display = 'flex';
+}
+
+function closeTradeModal() { document.getElementById('trade-modal').style.display = 'none'; }
+
+function buyStock() {
+    let code = currentTradeStock;
+    let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+    let portfolio = JSON.parse(localStorage.getItem("userPortfolio")) || {};
+    let price = stocks[code];
+    let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+
+    if (usd >= price) {
+        localStorage.setItem("usdBalance", usd - price);
+        portfolio[code] = (portfolio[code] || 0) + 1;
+        localStorage.setItem("userPortfolio", JSON.stringify(portfolio));
+        
+        playTick(); // Âm thanh báo hiệu mua thành công
+        updateUsdDisplay();
+        openTradeModal(code); // Cập nhật lại số liệu trên bảng lệnh
+        renderStockMarket(); // Cập nhật lại số liệu ngoài màn hình chính
+    } else {
+        alert(`❌ Ngân khố của bệ hạ chỉ còn $${usd}, không đủ sức mua 1 cổ phiếu ${code} với giá $${price}!`);
+    }
+}
+
+function sellStock() {
+    let code = currentTradeStock;
+    let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+    let portfolio = JSON.parse(localStorage.getItem("userPortfolio")) || {};
+    let price = stocks[code];
+    let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+    let owned = portfolio[code] || 0;
+
+    if (owned > 0) {
+        localStorage.setItem("usdBalance", usd + price);
+        portfolio[code] = owned - 1;
+        localStorage.setItem("userPortfolio", JSON.stringify(portfolio));
+        
+        playAlertSound(); // Âm thanh chốt lời báo hiệu tiền về khố
+        updateUsdDisplay();
+        openTradeModal(code);
+        renderStockMarket();
+    } else {
+        alert(`❌ Bệ hạ hiện không nắm giữ cổ phiếu ${code} nào để bán khống!`);
+    }
+}
+// --- KẾT THÚC CỤM GIAO DỊCH CHỨNG KHOÁN ---
 
 function initializeImperialEconomy() {
     let isEconomyInitialized = localStorage.getItem("imperialEconomyActive");
