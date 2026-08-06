@@ -194,6 +194,32 @@
         </div>
     </div>
 
+    <!-- TRADING MODAL (CỬA HÀNG CHỨNG KHOÁN) -->
+    <div id="trade-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
+        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 40px 32px;">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-dash);"></i></div>
+            <h3 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">MÃ: <span id="tm-code" style="color: var(--brand-dash);"></span></h3>
+            <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 24px;">Ngân khố hiện tại: <strong id="tm-usd" style="color: #fbbf24; font-size: 1.2rem;"></strong></p>
+            
+            <div style="display: flex; justify-content: space-between; background: var(--bg-hover); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 24px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Thị giá (1 Cổ)</div>
+                    <div id="tm-price" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);"></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Đang Sở hữu</div>
+                    <div id="tm-owned" style="font-size: 1.5rem; font-weight: 800; color: var(--brand-focus);"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="sellStock()" style="flex: 1; background: var(--bg-panel); color: var(--brand-warning); border: 2px solid var(--brand-warning); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-arrow-trend-down"></i> BÁN 1</button>
+                <button onclick="buyStock()" style="flex: 1; background: var(--brand-break); color: #fff; border: 2px solid var(--brand-break); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);"><i class="fa-solid fa-arrow-trend-up"></i> MUA 1</button>
+            </div>
+            <button onclick="closeTradeModal()" class="btn-ghost" style="width: 100%; margin-top: 16px; padding: 12px; justify-content: center;">Rút lui</button>
+        </div>
+    </div>
+    
     <!-- LIÊN KẾT VỚI LINH HỒN JAVASCRIPT -->
     <script src="script.js"></script>
 </body>
