@@ -91,10 +91,14 @@ if (!cycleStartDate) {
     cycleStartDate = todayObj.toISOString().split('T')[0]; localStorage.setItem('saasCycleStart', cycleStartDate);
 }
 let isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
-
 let dailyDebtMinutes = parseInt(localStorage.getItem('saasDailyDebt')) || 0;
 let isDebtSession = false;
 let isIcebreakerPhase = false; 
+
+// --- CÁC BIẾN CỦA ĐẾ CHẾ KINH TẾ ---
+let standardMinutes = 0; 
+let overtimeMinutes = 0;
+let isOvertimePhase = false;
 
 let activeGoalId = null;
 let timerInterval, countdownInterval, timeLeft = 0, isSessionActive = false, currentDuration = 0, requiredWords = 0;
@@ -150,7 +154,6 @@ function activateRestDay() {
     }
 }
 
-// ----------------------------------------------------
 function saveRecoveryState() {
     if (isSessionActive) {
         localStorage.setItem('saas_recovery', JSON.stringify({
@@ -200,27 +203,174 @@ function resumeSession(rec) {
     timerInterval = setInterval(() => { 
         if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
         if (!isPaused) { 
-            timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
-            if (timeLeft <= 0) { 
-                timeLeft = 0; 
-                if (isIcebreakerPhase) {
-                    isIcebreakerPhase = false; playTick();
-                    activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
-                    badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
-                    saveRecoveryState(); updateDisplay(timeLeft);
-                } else {
-                    playAlertSound(); triggerReportModal(); 
+            if (!isOvertimePhase) {
+                timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
+                if (timeLeft <= 0) { 
+                    timeLeft = 0; 
+                    if (isIcebreakerPhase) {
+                        isIcebreakerPhase = false; playTick();
+                        activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+                        badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
+                        saveRecoveryState(); updateDisplay(timeLeft);
+                    } else if (!isHardcoreTax && !isDebtSession) {
+                        // KÍCH HOẠT TRÀN VIỀN
+                        isOvertimePhase = true;
+                        standardMinutes = currentDuration; overtimeMinutes = 0;
+                        sessionEndTime = Date.now(); 
+                        playAlertSound();
+                        alert("⏳ HẾT GIỜ CHUẨN! Bệ hạ có thể bấm 'Nộp báo cáo' để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
+                        document.getElementById('session-timer').style.color = "#fbbf24";
+                        document.getElementById('status-msg').innerText = "ĐANG TRONG THỜI GIAN CÀY LỐ (OVERTIME). Lương x2 mỗi phút.";
+                        
+                        let btnCancel = document.getElementById('btn-cancel');
+                        btnCancel.innerHTML = '<i class="fa-solid fa-file-signature"></i> Nộp báo cáo';
+                        btnCancel.style.borderColor = "var(--brand-break)";
+                        btnCancel.style.color = "var(--brand-break)";
+                        btnCancel.onclick = () => { clearInterval(timerInterval); triggerReportModal(); };
+                    } else { 
+                        playAlertSound(); triggerReportModal(); 
+                    }
+                } 
+                if (!isOvertimePhase) {
+                    updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
                 }
-            } else { updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); }
+            } else {
+                // TĂNG DẦN THỜI GIAN TRÀN VIỀN
+                let elapsed = Math.round((Date.now() - sessionEndTime) / 1000);
+                overtimeMinutes = Math.floor(elapsed / 60);
+                let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                let s = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('session-timer').innerText = `+${m}:${s}`;
+            }
         }
     }, 1000); 
 }
 
-// ----------------------------------------------------
-
+// ---------------- ĐẠO LUẬT CHỨNG KHOÁN & ÁN PHÍ ----------------
 let taxPauseBank = 180; 
 
+function updateUsdDisplay() {
+    let bal = parseInt(localStorage.getItem("usdBalance")) || 0;
+    let el = document.getElementById('usd-balance');
+    if (el) el.innerText = `${bal}`;
+}
+
+function checkAndDeductCourtFee() {
+    let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+    if (usd < 300) {
+        alert("⚠️ Án phí mở cửa ngục là $300.\nBệ hạ chỉ có $" + usd + ".\n\nNGÂN KHỐ CẠN KIỆT. PHÁN QUYẾT TỬ HÌNH ĐƯỢC THỰC THI!");
+        localStorage.clear();
+        location.reload();
+        return false;
+    } else {
+        alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ đàng hoàng!");
+        localStorage.setItem("usdBalance", usd - 300);
+        updateUsdDisplay();
+        return true;
+    }
+}
+
+function impactStockMarket(actionType) {
+    let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+    if (!stocks) return;
+    let multiplier = 1.0;
+    
+    if (actionType === "SUCCESS") {
+        multiplier = 1.005; // Tăng 0.5%
+    } else if (actionType === "CANCEL") {
+        multiplier = 0.99; // Giảm 1%
+    } else if (actionType === "PENALTY") {
+        multiplier = 0.85; // Sập 15%
+    }
+    
+    for (let code in stocks) {
+        let currentPrice = stocks[code];
+        let newPrice = Math.round(currentPrice * multiplier);
+        if (newPrice < 500) newPrice = 500; // Khóa đáy
+        stocks[code] = newPrice;
+    }
+    localStorage.setItem("stockMarketPrices", JSON.stringify(stocks));
+    renderStockMarket();
+}
+
+function renderStockMarket() {
+    let container = document.getElementById('stock-market-container');
+    if (!container) return;
+    let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+    if (!stocks) return;
+    let html = '';
+    for (let code in stocks) {
+        let price = stocks[code];
+        html += `<div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 110px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0;">
+            <div style="font-weight: 800; color: var(--brand-dash); font-size: 0.85rem; margin-bottom: 4px;">${code}</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">$${price}</div>
+        </div>`;
+    }
+    container.innerHTML = html;
+}
+
+function initializeImperialEconomy() {
+    let isEconomyInitialized = localStorage.getItem("imperialEconomyActive");
+    if (!isEconomyInitialized) {
+        console.log("Thánh chỉ tới: Bắt đầu quy đổi mồ hôi thành ngân khố!");
+        let totalMinutes = 0;
+        goals.forEach(g => {
+            if (g.reports) {
+                g.reports.forEach(r => {
+                    totalMinutes += parseInt(r.type.replace('p', ''));
+                });
+            }
+        });
+
+        let currentStreakDays = currentStreak;
+        let grossIncome = totalMinutes;
+        let weeksOnStreak = Math.floor(currentStreakDays / 7);
+        let retroactiveTax = weeksOnStreak * 250;
+        let netBalance = grossIncome - retroactiveTax;
+        if (netBalance < 0) netBalance = 0;
+
+        localStorage.setItem("usdBalance", netBalance);
+        
+        const initialStocks = {
+            "ULIS": 950, "HNUE": 920, "BAYM": 880, "IELT": 800,
+            "GPAX": 750, "VSN": 700, "TS10": 650, "TESL": 620,
+            "VOCA": 580, "MYST": 520
+        };
+        localStorage.setItem("stockMarketPrices", JSON.stringify(initialStocks));
+        
+        const userPortfolio = {
+            "ULIS": 0, "HNUE": 0, "BAYM": 0, "IELT": 0, "GPAX": 0, 
+            "VSN": 0, "TS10": 0, "TESL": 0, "VOCA": 0, "MYST": 0
+        };
+        localStorage.setItem("userPortfolio", JSON.stringify(userPortfolio));
+        localStorage.setItem("imperialEconomyActive", "true");
+
+        alert(`⛩ CHÀO MỪNG BỆ HẠ ĐẾN VỚI ĐẾ CHẾ KINH TẾ 2.0 ⛩\n\nChiếu theo công trạng lịch sử:\n• Tổng thời gian tu luyện: ${totalMinutes} phút\n• Tổng ngân khố đúc được: +$${grossIncome}\n• Truy thu thuế duy trì (${weeksOnStreak} tuần): -$${retroactiveTax}\n-----------------------------------\n💰 NGÂN KHỐ KHỞI ĐIỂM CỦA NGÀI: $${netBalance}\n\nSàn chứng khoán đã mở cửa. Chúc bệ hạ xưng bá thương trường!`);
+    }
+}
+
+function randomDailyMarketFluctuation() {
+    let lastFluc = localStorage.getItem("lastMarketFlucDate");
+    let todayStr = new Date().toISOString().split('T')[0];
+    if (lastFluc !== todayStr) {
+        let stocks = JSON.parse(localStorage.getItem("stockMarketPrices"));
+        if (stocks) {
+            for (let code in stocks) {
+                let randomChange = 1 + (Math.random() * 0.06 - 0.03); 
+                let newPrice = Math.round(stocks[code] * randomChange);
+                if (newPrice < 500) newPrice = 500;
+                stocks[code] = newPrice;
+            }
+            localStorage.setItem("stockMarketPrices", JSON.stringify(stocks));
+        }
+        localStorage.setItem("lastMarketFlucDate", todayStr);
+    }
+}
+
+// ---------------------------------------------------------------
+
 function startDebtSession() {
+    if (!checkAndDeductCourtFee()) return;
     if(goals.length === 0) { goals.push({ id: Date.now(), name: "KHỔ SAI LÃI KÉP", target: 2, current: 2, reports: [] }); }
     activeGoalId = goals[0].id;
     document.getElementById('shame-modal').style.display = 'none'; document.getElementById('focus-room').style.display = 'flex';
@@ -262,6 +412,7 @@ function runDebtSession() {
 }
 
 function startTaxSession() {
+    if (!checkAndDeductCourtFee()) return;
     if(goals.length === 0) { goals.push({ id: Date.now(), name: "KHÔI PHỤC CHUỖI", target: 2, current: 2, reports: [] }); }
     activeGoalId = goals[0].id;
     document.getElementById('shame-modal').style.display = 'none'; document.getElementById('focus-room').style.display = 'flex';
@@ -349,11 +500,23 @@ function checkCycleAndStreak() {
     let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
 
     if (diffCycleDays >= 7 && !isPendingTax) {
+        // THU THUẾ DUY TRÌ HÀNG TUẦN
+        let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+        if (usd >= 250) {
+            localStorage.setItem("usdBalance", usd - 250);
+            alert("Đã thu $250 Thuế Duy Trì Vương Triều hàng tuần.");
+            updateUsdDisplay();
+        } else {
+            alert("Bệ hạ không đủ $250 nộp thuế duy trì. Án thư sẽ bị niêm phong các chức năng nâng cao!");
+            localStorage.setItem("isSealed", "true");
+        }
+
         let totalCycleHours = 0;
         for(let i=0; i<7; i++) {
             let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); let dStr = d.toISOString().split('T')[0]; totalCycleHours += (dailyLogs[dStr] || 0);
         }
         if (totalCycleHours < 12) {
+            if (!isPendingTax) impactStockMarket("PENALTY");
             isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0; 
         } else {
             alert(`TỔNG KẾT TUẦN: Bệ hạ đã xuất sắc hoàn thành ${totalCycleHours.toFixed(1)} giờ. Kỷ luật thép được giữ vững!`);
@@ -369,13 +532,16 @@ function checkCycleAndStreak() {
         let checkedDate = localStorage.getItem('saasDebtCheckedDate');
         if (checkedDate !== yesterdayStr) {
             if (diffDays > 1) {
+                if (!isPendingTax) impactStockMarket("PENALTY");
                 isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
             } else if (diffDays === 1) {
                 let yesterdayHrs = dailyLogs[yesterdayStr] || 0; let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.0;
                 if (yesterdayHrs === 0) {
+                    if (!isPendingTax) impactStockMarket("PENALTY");
                     isPendingTax = true; localStorage.setItem('saasPendingTax', 'true'); localStorage.setItem('saasDailyDebt', '0'); dailyDebtMinutes = 0;
                 } else if (yesterdayHrs > 0 && yesterdayHrs < targetHrs) {
                     let deficitHrs = targetHrs - yesterdayHrs; let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
+                    if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
                     dailyDebtMinutes += penaltyMins; localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
                 }
             }
@@ -422,7 +588,6 @@ function renderKPI() {
     if(statusEl && fillEl && msgEl) {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`; fillEl.style.width = `${pct}%`;
         
-        // Thuật toán tính số ngày còn lại trong chu kỳ
         let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
         let todayStr = todayObj.toISOString().split('T')[0];
         let diffCycleTime = new Date(todayStr) - cycleStartObj;
@@ -436,7 +601,6 @@ function renderKPI() {
                 localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti();
             }
         } else {
-            // Hiển thị cả giờ thiếu và ngày còn lại
             msgEl.innerHTML = `Còn thiếu <strong style="color:var(--text-main)">${(12 - totalCycleHours).toFixed(1)}h</strong> nữa để an toàn. <span style="color:var(--brand-warning); font-weight: 700; margin-left: 8px;"><i class="fa-regular fa-calendar-days"></i> Còn lại: ${daysLeft} ngày</span>`;
             fillEl.style.background = 'var(--brand-focus)'; fillEl.style.boxShadow = '0 0 10px rgba(234, 88, 12, 0.4)';
         }
@@ -505,6 +669,12 @@ function deleteCountdown(id) { if (confirm("Xóa bộ đếm ngược này?")) {
 
 function switchTab(tab) {
     if (isPendingTax || dailyDebtMinutes > 0) { alert("Án thư đang bị phong tỏa. Bắt buộc hoàn thành phiên phạt!"); return; }
+    
+    let isSealed = localStorage.getItem("isSealed") === "true";
+    if (isSealed && (tab === 'analytics' || tab === 'trophy')) {
+        alert("Tính năng đã bị niêm phong do bệ hạ không đủ tiền nộp thuế hàng tuần. Hãy tu luyện để ngân khố đủ $250!");
+        return;
+    }
 
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('analytics-room').style.display = 'none'; 
@@ -516,7 +686,7 @@ function switchTab(tab) {
         document.getElementById('nav-dash').classList.add('active'); document.getElementById('view-dashboard').style.display = 'block';
         document.getElementById('main-title').innerText = "Tổng quan học tập"; document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
         document.getElementById('btn-create-goal').style.display = 'flex'; document.getElementById('btn-create-countdown').style.display = 'flex'; document.getElementById('btn-rest-day').style.display = 'flex';
-        renderKPI(); renderDashboard(); renderGamification();
+        renderKPI(); renderDashboard(); renderGamification(); renderStockMarket();
     } else if(tab === 'analytics') {
         document.getElementById('nav-analytics').classList.add('active'); document.getElementById('analytics-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
@@ -552,9 +722,6 @@ window.renderDailyBreakdown = function(targetDate) {
     content.innerHTML = html;
 };
 
-// ----------------------------------------------------
-// ĐÃ SỬA: ĐỒNG BỘ THUẬT TOÁN "HIỆU SUẤT TUẦN" VÀO ĐÚNG CHU KỲ KPI
-// ----------------------------------------------------
 function renderAnalytics() {
     const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); let todayStr = todayObj.toISOString().split('T')[0];
@@ -562,7 +729,6 @@ function renderAnalytics() {
 
     let todayHrs = dailyLogs[todayStr] || 0; let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
     
-    // Thuật toán chuẩn theo chu kỳ KPI
     let cycleStartObj = new Date(cycleStartDate);
     let thisWeekHrs = 0; 
     for(let i=0; i<7; i++) { 
@@ -741,29 +907,77 @@ function startSession(minutes, isIce = false) {
     timerInterval = setInterval(() => { 
         if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
         if (!isPaused) { 
-            timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
-            if (timeLeft <= 0) { 
-                timeLeft = 0; 
-                if (isIcebreakerPhase) {
-                    isIcebreakerPhase = false; playTick();
-                    activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
-                    badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
-                    saveRecoveryState(); updateDisplay(timeLeft);
-                } else { playAlertSound(); triggerReportModal(); }
-            } else { updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); }
+            if (!isOvertimePhase) {
+                timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
+                if (timeLeft <= 0) { 
+                    timeLeft = 0; 
+                    if (isIcebreakerPhase) {
+                        isIcebreakerPhase = false; playTick();
+                        activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+                        badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
+                        saveRecoveryState(); updateDisplay(timeLeft);
+                    } else if (!isHardcoreTax && !isDebtSession) {
+                        // KÍCH HOẠT THUẬT TOÁN TRÀN VIỀN
+                        isOvertimePhase = true;
+                        standardMinutes = currentDuration;
+                        overtimeMinutes = 0;
+                        sessionEndTime = Date.now(); 
+                        playAlertSound();
+                        alert("⏳ HẾT GIỜ CHUẨN! Bệ hạ có thể bấm 'Nộp báo cáo' (nút Hủy cũ) để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
+                        document.getElementById('session-timer').style.color = "#fbbf24";
+                        document.getElementById('status-msg').innerText = "ĐANG TRONG THỜI GIAN CÀY LỐ (OVERTIME). Lương x2 mỗi phút.";
+                        
+                        let btnCancel = document.getElementById('btn-cancel');
+                        btnCancel.innerHTML = '<i class="fa-solid fa-file-signature"></i> Nộp báo cáo';
+                        btnCancel.style.borderColor = "var(--brand-break)";
+                        btnCancel.style.color = "var(--brand-break)";
+                        btnCancel.onclick = () => {
+                            clearInterval(timerInterval);
+                            triggerReportModal();
+                        };
+                    } else { 
+                        playAlertSound(); triggerReportModal(); 
+                    }
+                } 
+                if (!isOvertimePhase) {
+                    updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
+                }
+            } else {
+                // ĐẾM TỚI (COUNT UP) TRONG OVERTIME
+                let elapsed = Math.round((Date.now() - sessionEndTime) / 1000);
+                overtimeMinutes = Math.floor(elapsed / 60);
+                let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                let s = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('session-timer').innerText = `+${m}:${s}`;
+            }
         }
     }, 1000); 
     penaltyMinutes = 0; 
 }
 
-function cancelSession() { if(confirm("Hủy phiên học?")) { clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); } }
+function cancelSession() { 
+    if(confirm("Hủy phiên học? (Hình phạt: Cổ phiếu rớt 1% toàn thị trường)")) { 
+        impactStockMarket("CANCEL");
+        clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); 
+    } 
+}
 
 function resetSystem() {
     isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isDebtSession = false; isBreakActive = false; isIcebreakerPhase = false;
+    isOvertimePhase = false; standardMinutes = 0; overtimeMinutes = 0;
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); clearRecoveryState();
     document.body.classList.remove('break-mode'); document.body.classList.remove('focus-active');
     
     let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard;
+    
+    let btnCancel = document.getElementById('btn-cancel');
+    if (btnCancel) {
+        btnCancel.innerHTML = '<i class="fa-solid fa-xmark"></i> Hủy bỏ';
+        btnCancel.style.borderColor = "var(--brand-warning)";
+        btnCancel.style.color = "var(--brand-warning)";
+        btnCancel.onclick = cancelSession;
+    }
+
     document.getElementById('focus-badge').style = ""; document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
     updateDisplay(0); toggleButtons(false); document.getElementById('focus-badge').innerText = "KHU VỰC TẬP TRUNG";
     if (penaltyMinutes > 0) { document.getElementById('status-msg').innerHTML = `<strong style="color:var(--brand-warning)">Bạn đang chịu hình phạt cộng thêm ${penaltyMinutes} phút.</strong> Hãy bắt đầu phiên học!`; } else { document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-circle-info"></i><span id="status-msg">Sẵn sàng. Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.</span>`; }
@@ -788,7 +1002,7 @@ function updateWordCount() {
     if (currentWords >= requiredWords) { document.getElementById('word-count').classList.add('success'); btnSubmit.classList.add('active'); warningText.innerText = "Đã đủ điều kiện. Bạn có thể nộp báo cáo."; warningText.style.color = "var(--brand-break)"; } else { document.getElementById('word-count').classList.remove('success'); btnSubmit.classList.remove('active'); warningText.innerText = `Cần thêm ${requiredWords - currentWords} từ nữa...`; warningText.style.color = "var(--text-muted)"; }
 }
 
-function abortReport() { if(isHardcoreTax || isDebtSession) { alert("KHÔNG THỂ HỦY BÁO CÁO CỦA PHIÊN PHẠT! Bắt buộc hoàn thành."); return; } if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính?")) { document.getElementById('report-modal').style.display = 'none'; resetSystem(); } }
+function abortReport() { if(isHardcoreTax || isDebtSession) { alert("KHÔNG THỂ HỦY BÁO CÁO CỦA PHIÊN PHẠT! Bắt buộc hoàn thành."); return; } if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính? (Hình phạt: Cổ phiếu rớt 1%)")) { impactStockMarket("CANCEL"); document.getElementById('report-modal').style.display = 'none'; resetSystem(); } }
 
 function submitReport() {
     let text = document.getElementById('report-input').value.trim();
@@ -797,10 +1011,39 @@ function submitReport() {
         if (timeElapsed < minTimeRequired) { alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); document.getElementById('report-modal').style.display = 'none'; currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return; }
 
         document.getElementById('report-modal').style.display = 'none';
-        
         let isPunishment = isHardcoreTax || isDebtSession;
 
         if (!isPunishment) {
+            // TÍNH LƯƠNG TRÀN VIỀN
+            let totalEarn = 0;
+            if (standardMinutes > 0) {
+                let standardEarn = standardMinutes * 1; 
+                let overtimeEarn = overtimeMinutes * 2; 
+                totalEarn = standardEarn + overtimeEarn;
+                let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
+                localStorage.setItem("usdBalance", currentUsd + totalEarn);
+                updateUsdDisplay();
+                alert(`HOÀN THÀNH PHIÊN TU LUYỆN:\n- Cày chuẩn: ${standardMinutes}p = $${standardEarn}\n- Cày lố: ${overtimeMinutes}p = $${overtimeEarn}\n=> Ngân khố thu về: $${totalEarn}`);
+            }
+
+            // GHI NHẬN TIẾN ĐỘ THỜI GIAN THỰC TẾ
+            activeSessionMinutes = standardMinutes + overtimeMinutes;
+            if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; // Fallback an toàn
+
+            impactStockMarket("SUCCESS"); // Đẩy giá cổ phiếu
+
+            // Tự động mở niêm phong nếu đủ tiền
+            let isSealed = localStorage.getItem("isSealed") === "true";
+            if (isSealed) {
+                let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+                if (usd >= 250) {
+                    localStorage.setItem("usdBalance", usd - 250);
+                    localStorage.setItem("isSealed", "false");
+                    alert("Ngân khố đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
+                    updateUsdDisplay();
+                }
+            }
+
             let goal = goals.find(g => g.id === activeGoalId); if(!goal.reports) goal.reports = [];
             let now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); let dateStr = now.toISOString().split('T')[0];
             goal.reports.push({ date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), type: currentDuration + 'p', text: text });
@@ -814,14 +1057,14 @@ function submitReport() {
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert("Đã nộp xong Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
+                alert("Đã cày xong 120p Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
             } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
         if (isDebtSession) {
             isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
-            alert("Đã trả sạch nợ Lãi Kép! Cảm ơn bệ hạ đã giữ uy tín. Án thư trở lại bình thường.");
+            alert("Đã cày trả sạch nợ Lãi Kép! Cảm ơn bệ hạ đã đổ máu giữ uy tín. Án thư trở lại bình thường.");
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
@@ -888,7 +1131,6 @@ function autoHealDiscrepancy() {
     if (Math.abs(currentLogged - actualHoursToday) > 0.01) {
         dailyLogs[todayStr] = actualHoursToday;
         localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
-        console.log("Đã tự động bù đắp thời gian bị thất thoát do lỗi tải trang.");
     }
 }
 
@@ -917,5 +1159,14 @@ function checkRecovery() {
     }
 }
 
+// CHẠY KHỞI TẠO HỆ THỐNG
+initializeImperialEconomy();
+randomDailyMarketFluctuation();
+updateUsdDisplay();
+
 autoHealDiscrepancy();
-checkCycleAndStreak(); renderCountdowns(); countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); switchTab('dashboard'); checkRecovery();
+checkCycleAndStreak(); 
+renderCountdowns(); 
+countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
+switchTab('dashboard'); 
+checkRecovery();
