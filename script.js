@@ -1213,13 +1213,6 @@ function autoHealDiscrepancy() {
     }
 }
 
-document.addEventListener('contextmenu', function(event) { event.preventDefault(); });
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'F12') { event.preventDefault(); alert("Bệ hạ! Kỷ luật là tự do. Gian lận là tự lừa dối chính mình. Cửa hậu này đã bị vĩnh viễn phong ấn!"); }
-    if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) { event.preventDefault(); alert("Thánh ý đã định: Không có đường tắt cho sự vĩ đại. Xin bệ hạ hãy tu luyện đàng hoàng!"); }
-    if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) { event.preventDefault(); }
-});
-
 function checkRecovery() {
     let rec = localStorage.getItem('saas_recovery');
     if (rec) {
