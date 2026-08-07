@@ -1147,7 +1147,7 @@ function submitReport() {
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
-        updateStreakOnSubmit(); saveAll();
+        saveAll();
         document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
         
         if (isPunishment) { setTimeout(() => location.reload(), 1500); } else { renderKPI(); initiateBreak(); }
