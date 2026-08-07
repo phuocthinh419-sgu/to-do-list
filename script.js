@@ -1249,3 +1249,62 @@ renderCountdowns();
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
 checkRecovery();
+
+// --- THÁNH CHỈ KHÔI PHỤC HUYẾT HÃN 13 NGÀY (CẮM VÀO SCRIPT.JS) ---
+let isRestoredV2 = localStorage.getItem('isRestored_v2');
+if (!isRestoredV2) {
+    let todayObj = new Date(); 
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayStr = todayObj.toISOString().split('T')[0];
+
+    // 1. Khôi phục chuỗi 13 ngày
+    localStorage.setItem('saasStreak', '13');
+
+    // 2. Định vị chu kỳ: Hôm nay là ngày thứ 7 của set hiện tại để tối nay bệ hạ chốt sổ
+    let cycleStartObj = new Date(todayObj);
+    cycleStartObj.setDate(cycleStartObj.getDate() - 6);
+    localStorage.setItem('saasCycleStart', cycleStartObj.toISOString().split('T')[0]);
+
+    // 3. Khôi phục Biểu đồ nhiệt (Mồ hôi nước mắt)
+    let restoredLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
+    let totalRestoredMinutes = 0;
+    
+    for (let i = 1; i <= 13; i++) {
+        let pastDate = new Date(todayObj);
+        pastDate.setDate(pastDate.getDate() - i);
+        let dateStr = pastDate.toISOString().split('T')[0];
+        
+        if (i === 5) { 
+            // Tái hiện chân thực: Ngày bệ hạ cày 0.9h (54 phút)
+            restoredLogs[dateStr] = 0.9;
+            totalRestoredMinutes += 54;
+        } else {
+            // Các ngày còn lại cày chuẩn 1.5h (90 phút)
+            restoredLogs[dateStr] = 1.5;
+            totalRestoredMinutes += 90;
+        }
+    }
+    localStorage.setItem('saasDailyLogs', JSON.stringify(restoredLogs));
+
+    // 4. Chốt ngày hoạt động cuối cùng là hôm qua
+    let yesterdayObj = new Date(todayObj);
+    yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+    localStorage.setItem('saasLastActive', yesterdayStr);
+    
+    // Gắn mốc đã kiểm tra nợ hôm qua để không bị phạt Lãi Kép oan uổng hôm nay
+    localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
+
+    // 5. Trả lại ĐÚNG NGÂN KHỐ tự kiếm: (1134 phút = $1134) - (Thuế tuần 1 $250) = $884
+    localStorage.setItem('usdBalance', '884');
+
+    // 6. Xóa sổ mọi án oan, mở niêm phong
+    localStorage.setItem('saasPendingTax', 'false');
+    localStorage.setItem('saasDailyDebt', '0');
+    localStorage.setItem('isSealed', 'false');
+
+    // 7. Khóa vĩnh viễn đạo luật khôi phục này để không cộng dồn lần sau
+    localStorage.setItem('isRestored_v2', 'true');
+    
+    alert("⛩ THÁNH CHỈ KHÔI PHỤC HOÀN TẤT ⛩\n\n- Chuỗi kỷ luật: 13 ngày.\n- Thời gian truy lĩnh: 18.9 giờ.\n- Ngân khố tự đúc (đã trừ thuế): $884.\n\nHôm nay là ngày 14. Chúc bệ hạ cày ải chốt sổ thành công!");
+}
