@@ -571,15 +571,19 @@ function checkCycleAndStreak() {
     let diffCycleTime = new Date(todayStr) - cycleStartObj;
     let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
 
-    if (diffCycleDays >= 7 && !isPendingTax) {
+    // THÁNH CHỈ: Đổi từ >= 7 thành >= 8. Bắt buộc sang ngày thứ 8 mới tổng kết!
+    if (diffCycleDays >= 8 && !isPendingTax) {
+        // TỰ ĐỘNG SAO LƯU TRƯỚC KHI RESET TUẦN
+        exportData(); 
+
         // THU THUẾ DUY TRÌ VƯƠNG TRIỀU HÀNG TUẦN
         let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
         if (usd >= 250) {
             localStorage.setItem("usdBalance", usd - 250);
-            alert("Đã thu $250 Thuế Duy Trì Vương Triều cho tuần mới.");
+            alert("Đã thu $250 Thuế Duy Trì Vương Triều cho tuần mới. Đồng thời, hệ thống đã TỰ ĐỘNG XUẤT FILE SAO LƯU để bảo vệ dữ liệu!");
             updateUsdDisplay();
         } else {
-            alert("Bệ hạ không đủ $250 nộp thuế duy trì. Án thư sẽ bị niêm phong các chức năng nâng cao!");
+            alert("Bệ hạ không đủ $250 nộp thuế duy trì. Án thư sẽ bị niêm phong các chức năng nâng cao! (Hệ thống đã tự động tải file sao lưu dự phòng)");
             localStorage.setItem("isSealed", "true");
         }
 
@@ -1086,8 +1090,15 @@ function abortReport() { if(isHardcoreTax || isDebtSession) { alert("KHÔNG TH�
 function submitReport() {
     let text = document.getElementById('report-input').value.trim();
     if (text.split(/\s+/).length >= requiredWords) {
-        let timeElapsed = Date.now() - reportOpenTime; let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; if (currentDuration >= 120) minTimeRequired = 30000; 
-        if (timeElapsed < minTimeRequired) { alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); document.getElementById('report-modal').style.display = 'none'; currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return; }
+        let timeElapsed = Date.now() - reportOpenTime; 
+        let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; 
+        if (currentDuration >= 120) minTimeRequired = 30000; 
+        
+        if (timeElapsed < minTimeRequired) { 
+            alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); 
+            document.getElementById('report-modal').style.display = 'none'; 
+            currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return; 
+        }
 
         document.getElementById('report-modal').style.display = 'none';
         let isPunishment = isHardcoreTax || isDebtSession;
@@ -1147,6 +1158,7 @@ function submitReport() {
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
+        // THÁNH CHỈ: Đã trảm tên phản tặc updateStreakOnSubmit() ở đây!
         saveAll();
         document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
         
