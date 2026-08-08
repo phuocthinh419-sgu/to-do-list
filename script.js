@@ -1094,7 +1094,7 @@ function submitReport() {
     if (text.split(/\s+/).length >= requiredWords) {
         let timeElapsed = Date.now() - reportOpenTime; 
         let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; 
-        if (currentDuration >= 120) minTimeRequired = 30000; 
+        if (currentDuration >= 90) minTimeRequired = 30000; 
         
         if (timeElapsed < minTimeRequired) { 
             alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); 
@@ -1105,8 +1105,12 @@ function submitReport() {
         document.getElementById('report-modal').style.display = 'none';
         let isPunishment = isHardcoreTax || isDebtSession;
 
+        // XÁC ĐỊNH SỐ PHÚT THỰC TẾ ĐÃ CÀY
+        activeSessionMinutes = standardMinutes + overtimeMinutes;
+        if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; 
+
+        // CHỈ PHIÊN THƯỜNG MỚI ĐƯỢC NHẬN LƯƠNG BỔ SUNG & KÍCH CỔ PHIẾU
         if (!isPunishment) {
-            // TÍNH LƯƠNG TRÀN VIỀN
             let totalEarn = 0;
             if (standardMinutes > 0) {
                 let standardEarn = standardMinutes * 1; 
@@ -1117,53 +1121,61 @@ function submitReport() {
                 updateUsdDisplay();
                 alert(`HOÀN THÀNH PHIÊN TU LUYỆN:\n- Cày chuẩn: ${standardMinutes}p = $${standardEarn}\n- Cày lố: ${overtimeMinutes}p = $${overtimeEarn}\n=> Ngân khố thu về: $${totalEarn}`);
             }
-
-            // GHI NHẬN TIẾN ĐỘ THỜI GIAN THỰC TẾ
-            activeSessionMinutes = standardMinutes + overtimeMinutes;
-            if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; // Fallback an toàn
-
-            impactStockMarket("SUCCESS"); // Đẩy giá cổ phiếu
-
-            // Tự động mở niêm phong nếu đủ tiền
-            let isSealed = localStorage.getItem("isSealed") === "true";
-            if (isSealed) {
-                let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-                if (usd >= 250) {
-                    localStorage.setItem("usdBalance", usd - 250);
-                    localStorage.setItem("isSealed", "false");
-                    alert("Ngân khố đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
-                    updateUsdDisplay();
-                }
-            }
-
-            let goal = goals.find(g => g.id === activeGoalId); if(!goal.reports) goal.reports = [];
-            let now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); let dateStr = now.toISOString().split('T')[0];
-            goal.reports.push({ date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), type: currentDuration + 'p', text: text });
-            let hoursEarned = activeSessionMinutes / 60; goal.current = Math.max(0, goal.current - hoursEarned);
-            if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; dailyLogs[dateStr] += hoursEarned; totalSessions++;
-            document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
-            if(goal.current <= 0) { setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); }
+            impactStockMarket("SUCCESS"); 
         }
 
-       if (isHardcoreTax) { 
+        // MỞ KHÓA NIÊM PHONG (Áp dụng chung)
+        let isSealed = localStorage.getItem("isSealed") === "true";
+        if (isSealed) {
+            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+            if (usd >= 250) {
+                localStorage.setItem("usdBalance", usd - 250);
+                localStorage.setItem("isSealed", "false");
+                alert("Ngân khố đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
+                updateUsdDisplay();
+            }
+        }
+
+        // THÁNH CHỈ MỚI: BẤT KỂ PHIÊN PHẠT HAY THƯỜNG, ĐỀU PHẢI CỘNG GIỜ VÀO KPI VÀ TỔNG HỌC GIẢ!
+        let goal = goals.find(g => g.id === activeGoalId); 
+        if(!goal) goal = goals[0]; // Dự phòng
+        if(!goal.reports) goal.reports = [];
+        let now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); let dateStr = now.toISOString().split('T')[0];
+        
+        let reportLabel = isPunishment ? `Phạt ${currentDuration}p` : `${currentDuration}p`;
+        goal.reports.push({ date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), type: reportLabel, text: text });
+        
+        // Trừ giờ mục tiêu và cộng giờ vào Biểu đồ nhiệt
+        let hoursEarned = activeSessionMinutes / 60; 
+        goal.current = Math.max(0, goal.current - hoursEarned);
+        
+        if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; 
+        dailyLogs[dateStr] += hoursEarned; 
+        totalSessions++;
+        
+        document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+        if(goal.current <= 0) { setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); }
+
+        // KẾT THÚC CÁC TRẠNG THÁI PHẠT
+        if (isHardcoreTax) { 
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert("Đã cày xong 90p Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng."); // Sửa 120p thành 90p
+                alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của ngài đã được cộng thẳng vào KPI tuần này.`);
             } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
         if (isDebtSession) {
             isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
-            alert("Đã cày trả sạch nợ Lãi Kép! Cảm ơn bệ hạ đã đổ máu giữ uy tín. Án thư trở lại bình thường.");
+            alert(`Đã cày trả sạch nợ Lãi Kép! Thời gian nộp phạt này đã được hệ thống ghi nhận vào Tổng giờ học.`);
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
 
-        // THÁNH CHỈ: Đã trảm tên phản tặc updateStreakOnSubmit() ở đây!
         saveAll();
         document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
         
+        // Phiên phạt thì ép tải lại trang, phiên thường thì vào Break
         if (isPunishment) { setTimeout(() => location.reload(), 1500); } else { renderKPI(); initiateBreak(); }
     }
 }
