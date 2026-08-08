@@ -247,7 +247,7 @@ function resumeSession(rec) {
 }
 
 // ---------------- ĐẠO LUẬT CHỨNG KHOÁN & ÁN PHÍ ----------------
-let taxPauseBank = 180; 
+let taxPauseBank = 900;
 
 function updateUsdDisplay() {
     let bal = parseInt(localStorage.getItem("usdBalance")) || 0;
@@ -952,7 +952,7 @@ function togglePause() {
     isPaused = !isPaused; const btnPause = document.getElementById('btn-pause'); const statusMsg = document.getElementById('status-msg'); const statusIcon = document.getElementById('status-box').querySelector('i');
     if (isHardcoreTax || isDebtSession) {
         if (isPaused) {
-            pauseInterval = setInterval(() => { taxPauseBank--; if(taxPauseBank <= 0) { clearInterval(pauseInterval); clearInterval(timerInterval); alert("BẠN ĐÃ DÙNG HẾT 3 PHÚT NGHỈ NGƠI! Chuỗi kỷ luật đã trở về 1."); currentStreak = 1; saveAll(); resetSystem(); location.reload(); } btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + taxPauseBank + 's)'; }, 1000);
+            pauseInterval = setInterval(() => { taxPauseBank--; if(taxPauseBank <= 0) { clearInterval(pauseInterval); clearInterval(timerInterval); alert("BẠN ĐÃ DÙNG HẾT 15 PHÚT NGHỈ NGƠI! Chuỗi kỷ luật đã trở về 1."); currentStreak = 1; saveAll(); resetSystem(); location.reload(); } btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + taxPauseBank + 's)'; }, 1000);
         } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; saveRecoveryState(); btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)'; }
     } else {
         if (isPaused) {
