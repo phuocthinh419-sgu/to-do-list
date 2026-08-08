@@ -3,225 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Planner | The Apex</title>
+    <title>Command Center | Academic Planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- HỆ PHÔNG CHỮ KÉP: Newsreader (Uy quyền, Học thuật) + Inter (Dữ liệu, Chính xác) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- LỚP PHÁO HOA KHẢI HOÀN -->
+    <!-- LỚP CANVAS (Giữ lại cho các hiệu ứng báo cáo thành công, nhưng sẽ tinh chỉnh trong CSS) -->
     <canvas id="confetti-canvas"></canvas>
 
     <!-- MOBILE OVERLAY -->
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div class="brand"><i class="fa-solid fa-layer-group"></i> Academic Planner</div>
-        <div class="nav-menu">
-            <a class="nav-item active stagger-item" style="animation-delay: 0.1s" id="nav-dash" onclick="switchTab('dashboard')"><i class="fa-solid fa-border-all"></i> Bảng điều khiển</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.15s" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-pie"></i> Phân tích tiến độ</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.2s" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho lưu trữ</a>
-            
-            <!-- NGÂN KHỐ HOÀNG GIA -->
-            <div class="nav-category stagger-item" style="animation-delay: 0.22s">Ngân Khố</div>
-            <div class="stagger-item" style="padding: 0 16px; margin-bottom: 24px; animation-delay: 0.23s">
-                <div style="background: var(--bg-hover); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                    <span style="font-weight: 700; color: var(--text-muted); font-size: 0.9rem;"><i class="fa-solid fa-coins" style="color: #fbbf24; margin-right: 6px;"></i> USD</span>
-                    <span id="usd-balance" style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);">0</span>
-                </div>
-            </div>
-
-            <div class="nav-category stagger-item" style="animation-delay: 0.25s">Thiết lập Giới Nghiêm</div>
-            <div class="stagger-item" style="padding: 0 16px; margin-bottom: 24px; animation-delay: 0.3s">
-                <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
-                <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 14px; margin-top: 16px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur));">
-                    <div class="mini-progress-circle">
-                        <svg><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
-                    </div>
-                    <div style="display: flex; flex-direction: column;">
-                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Còn lại</span>
-                        <span id="curfew-timer-text" style="font-size: 1.15rem; font-weight: 800; color: var(--brand-warning); font-variant-numeric: tabular-nums; letter-spacing: -0.5px;">00:00:00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="nav-category stagger-item" style="animation-delay: 0.35s">Giao diện & Màu sắc</div>
-            <div class="palette-container stagger-item" style="animation-delay: 0.4s">
-                <button class="color-btn zen active" onclick="changeColor('zen')" style="background: #f7f5f2; border: 1px solid #d6d3d1;" title="Bento Zen Mặc Định"></button>
-                <button class="color-btn neon-purple" onclick="changeColor('neon-purple')" style="background: linear-gradient(135deg, #a855f7, #2e1065);" title="Tím Neon Huyền Bí (Trong suốt)"></button>
-                <button class="color-btn neon-blue" onclick="changeColor('neon-blue')" style="background: linear-gradient(135deg, #0ea5e9, #082f49);" title="Xanh Neon Tương Lai (Trong suốt)"></button>
-                <button class="color-btn sakura" onclick="changeColor('sakura')" style="background: linear-gradient(135deg, #e11d48, #881337);" title="Đỏ Neon Rực Rỡ (Trong suốt)"></button>
-            </div>
-
-            <div class="nav-category stagger-item" style="animation-delay: 0.45s">Hệ thống</div>
-            <a class="nav-item stagger-item" style="animation-delay: 0.5s" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu dữ liệu</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.55s" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi dữ liệu</a>
-            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+    <!-- MỤC LỤC ĐIỀU HÀNH (SIDEBAR) -->
+    <aside class="cmd-sidebar" id="sidebar">
+        <div class="cmd-brand">
+            <span class="brand-title">ACADEMIC PLANNER</span>
+            <span class="brand-subtitle">M.A. ENGLISH LINGUISTICS TRACK</span>
         </div>
-        <div class="sidebar-footer stagger-item" style="animation-delay: 0.6s">
-            <span style="font-weight: 700;"><i class="fa-solid fa-palette"></i> Tùy chỉnh Theme</span>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
-                <i class="fa-solid fa-moon" id="theme-icon"></i>
+        
+        <nav class="cmd-nav-menu">
+            <a class="cmd-nav-item active" id="nav-dash" onclick="switchTab('dashboard')">Command Overview</a>
+            <a class="cmd-nav-item" id="nav-analytics" onclick="switchTab('analytics')">Academic Analytics</a>
+            <a class="cmd-nav-item" id="nav-trophy" onclick="switchTab('trophy')">Academic Archive</a>
+            
+            <hr class="cmd-divider">
+            
+            <!-- RESOURCE ALLOCATION (NGÂN KHỐ) -->
+            <div class="cmd-nav-category">RESOURCE INDEX</div>
+            <div class="cmd-resource-box">
+                <span class="resource-label">USD RESERVE</span>
+                <span id="usd-balance" class="resource-value">0</span>
+            </div>
+
+            <!-- PROTOCOL OVERRIDE (GIỚI NGHIÊM) -->
+            <div class="cmd-nav-category">SYSTEM CURFEW</div>
+            <div class="cmd-curfew-box">
+                <input type="time" id="curfew-time" onchange="saveCurfew()" class="cmd-input-time" title="Set Curfew Protocol">
+                <div id="curfew-countdown-container" class="cmd-curfew-active" style="display: none;">
+                    <span class="curfew-label">TIME REMAINING</span>
+                    <span id="curfew-timer-text" class="curfew-timer">00:00:00</span>
+                    <svg class="curfew-circle-svg"><circle class="curfew-bg" cx="12" cy="12" r="10"></circle><circle id="curfew-progress" class="curfew-bar" cx="12" cy="12" r="10"></circle></svg>
+                </div>
+            </div>
+
+            <!-- IDENTITY THEMES (GIAO DIỆN) -->
+            <div class="cmd-nav-category">IDENTITY THEME</div>
+            <div class="cmd-palette-grid">
+                <button class="cmd-color-btn zen active" onclick="changeColor('zen')" title="Charcoal / Slate"></button>
+                <button class="cmd-color-btn neon-purple" onclick="changeColor('neon-purple')" title="Deep Navy / Violet"></button>
+                <button class="cmd-color-btn neon-blue" onclick="changeColor('neon-blue')" title="Abyssal / Electric Blue"></button>
+                <button class="cmd-color-btn sakura" onclick="changeColor('sakura')" title="Obsidian / Crimson"></button>
+            </div>
+
+            <hr class="cmd-divider">
+
+            <div class="cmd-nav-category">DATA MANAGEMENT</div>
+            <a class="cmd-nav-item" onclick="exportData()">Export Records</a>
+            <a class="cmd-nav-item" onclick="document.getElementById('import-file').click()">Import Records</a>
+            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+        </nav>
+        
+        <div class="cmd-sidebar-footer">
+            <button class="cmd-theme-toggle" onclick="toggleTheme()" title="Toggle Interface Mode">
+                <i class="fa-solid fa-circle-half-stroke" id="theme-icon"></i>
             </button>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        <header class="header">
-            <div class="header-title-wrapper">
-                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                <div class="header-title">
-                    <h1 id="main-title">Tổng quan học tập</h1>
-                    <p id="main-desc">Kỷ luật là cầu nối giữa mục tiêu và thành tựu.</p>
-                </div>
+    <!-- MAIN CONTROL CENTER -->
+    <main class="cmd-main-content">
+        <header class="cmd-header">
+            <div class="cmd-header-left">
+                <button class="cmd-mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <h1 id="main-title" class="cmd-page-title">COMMAND OVERVIEW</h1>
             </div>
-            <div class="header-actions">
-                <button class="btn-ghost-action stagger-item" style="animation-delay: 0.1s" id="btn-rest-day" onclick="activateRestDay()"><i class="fa-solid fa-mug-hot" style="color: var(--brand-focus);"></i> Nghỉ</button>
-                <button class="btn-ghost-action stagger-item" style="animation-delay: 0.2s" id="btn-create-countdown" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Sự kiện</button>
-                <button class="btn-primary stagger-item" style="animation-delay: 0.3s" id="btn-create-goal" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Mục tiêu</button>
+            <div class="cmd-header-right">
+                <div class="cmd-identity">
+                    <span class="cmd-date" id="current-date-display">08 AUG 2026</span>
+                    <span class="cmd-separator">|</span>
+                    <span class="cmd-user">NGUYEN PHUOC THINH</span>
+                </div>
+                <div class="cmd-actions">
+                    <button id="btn-rest-day" class="cmd-btn-outline" onclick="activateRestDay()">Standby</button>
+                    <button id="btn-create-countdown" class="cmd-btn-outline" onclick="createNewCountdown()">Event</button>
+                    <button id="btn-create-goal" class="cmd-btn-primary" onclick="createNewGoal()">+ Objective</button>
+                </div>
             </div>
         </header>
 
         <!-- DASHBOARD VIEW -->
-        <div id="view-dashboard" class="view-section">
+        <div id="view-dashboard" class="cmd-view-section">
             
-            <!-- THANH TRẤN LỆNH KPI TUẦN -->
-            <div class="kpi-card stagger-item" style="animation-delay: 0.05s">
-                <div class="kpi-header">
-                    <h3><i class="fa-solid fa-crosshairs" style="color: var(--brand-focus);"></i> Thiết Quân Luật (Tuần)</h3>
-                    <span id="kpi-status">0.0 / 12.0h</span>
-                </div>
-                <div class="kpi-bar-bg">
-                    <div class="kpi-bar-fill" id="kpi-bar-fill"></div>
-                </div>
-                <p id="kpi-message">Tiến độ cày ải tuần này. Hãy giữ vững kỷ luật!</p>
-            </div>
-
-            <!-- STOCK MARKET STRIP -->
-            <div class="stock-strip stagger-item" style="animation-delay: 0.08s; padding: 0 24px 24px;">
-                <h3 style="font-size: 1.1rem; margin-bottom: 12px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-dash);"></i> Thương Hội Hoàng Gia</h3>
-                <div id="stock-market-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;"></div>
-            </div>
-
-            <div class="gamification-strip">
-                <div class="rank-card stagger-item" style="animation-delay: 0.1s">
-                    <div class="streak-badge"><i class="fa-solid fa-fire"></i> <span id="streak-count">0</span> Ngày</div>
-                    <i class="fa-solid fa-seedling rank-icon" id="rank-icon"></i>
-                    <div class="rank-title" id="rank-title">Người Mới</div>
-                    <div class="rank-desc" id="rank-desc">Cần 10h để thăng cấp Học Giả</div>
-                    <div class="rank-hours" id="total-hours-metric">0.0h</div>
-                </div>
-                <div class="heatmap-card stagger-item" style="animation-delay: 0.2s">
-                    <div class="heatmap-header">
-                        <h3>Biểu đồ Kỷ luật (35 Ngày)</h3>
-                        <span>Duy trì thói quen học tập mỗi ngày</span>
+            <!-- MACRO LAYER: STRATEGIC FOCUS -->
+            <section class="cmd-macro-layer">
+                <div class="cmd-macro-primary">
+                    <div class="cmd-eyebrow">WEEKLY OBJECTIVE</div>
+                    <div class="cmd-macro-data">
+                        <span id="kpi-status" class="cmd-data-huge">0.0 / 12.0h</span>
                     </div>
-                    <div class="heatmap-grid" id="heatmap-grid"></div>
+                    <!-- Thanh Progress Bar dạng sợi chỉ sắc lẹm -->
+                    <div class="cmd-progress-track">
+                        <div id="kpi-bar-fill" class="cmd-progress-fill"></div>
+                    </div>
+                    <p id="kpi-message" class="cmd-meta-text">Strategic discipline protocol active.</p>
                 </div>
-            </div>
-            <div class="countdown-strip" id="countdown-strip"></div>
-            <div class="dashboard-grid" id="dashboard-grid"></div>
+
+                <div class="cmd-macro-secondary">
+                    <div class="cmd-eyebrow">CURRENT STANDING</div>
+                    <div id="rank-title" class="cmd-rank-title">Scholar</div>
+                    <div class="cmd-meta-data">
+                        <span class="cmd-meta-label">DISCIPLINE:</span> <span id="streak-count" class="cmd-meta-value">0 DAYS</span>
+                    </div>
+                    <div class="cmd-meta-data">
+                        <span class="cmd-meta-label">TOTAL LOG:</span> <span id="total-hours-metric" class="cmd-meta-value">0.0h</span>
+                    </div>
+                    <div id="rank-desc" class="cmd-meta-text">Requires 10h for advancement</div>
+                </div>
+            </section>
+
+            <hr class="cmd-section-divider">
+
+            <!-- MICRO LAYER: OPERATIONS & RESOURCES -->
+            <section class="cmd-micro-layer">
+                <!-- Vùng mục tiêu trong ngày (JS sẽ inject vào đây, CSS sẽ lo việc xóa viền card) -->
+                <article class="cmd-operation-zone">
+                    <div class="cmd-eyebrow">TODAY'S PROTOCOL</div>
+                    <div id="countdown-strip" class="cmd-list-container"></div>
+                    <div id="dashboard-grid" class="cmd-list-container"></div>
+                </article>
+
+                <!-- Vùng phân bổ tài nguyên -->
+                <aside class="cmd-resource-zone">
+                    <div class="cmd-eyebrow">MARKET INDEX</div>
+                    <div id="stock-market-container" class="cmd-list-container"></div>
+                </aside>
+            </section>
+
+            <hr class="cmd-section-divider">
+
+            <!-- FOUNDATION LAYER: ANALYTICS -->
+            <section class="cmd-foundation-layer">
+                <div class="cmd-eyebrow">DISCIPLINE HEATMAP (35 DAYS)</div>
+                <div id="heatmap-grid" class="cmd-heatmap-container"></div>
+            </section>
         </div>
 
         <!-- ANALYTICS ROOM VIEW -->
-        <div id="analytics-room" class="view-section"></div>
+        <div id="analytics-room" class="cmd-view-section"></div>
 
-        <!-- TROPHY ROOM VIEW -->
-        <div id="trophy-room" class="view-section"></div>
+        <!-- TROPHY ROOM VIEW (ACADEMIC ARCHIVE) -->
+        <div id="trophy-room" class="cmd-view-section"></div>
 
         <!-- TROPHY DETAIL -->
-        <div id="trophy-detail" class="view-section">
-            <button class="btn-back stagger-item" style="animation-delay: 0.1s; margin-bottom: 24px;" onclick="switchTab('trophy')"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
-            <h2 id="td-title" class="stagger-item" style="animation-delay: 0.2s; font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); letter-spacing: -1px;">Tên mục tiêu</h2>
-            <p id="td-meta" class="stagger-item" style="animation-delay: 0.3s; color: var(--text-muted); font-size: 0.95rem; font-weight: 600;">Hoàn thành 100h - Tổng số báo cáo: 0</p>
-            <div class="timeline" id="td-timeline"></div>
+        <div id="trophy-detail" class="cmd-view-section">
+            <button class="cmd-btn-text" onclick="switchTab('trophy')">← Return to Archive</button>
+            <div class="cmd-archive-header">
+                <h2 id="td-title" class="cmd-serif-display">Objective Name</h2>
+                <p id="td-meta" class="cmd-meta-text">Completion standard met. Total records: 0</p>
+            </div>
+            <div class="cmd-timeline" id="td-timeline"></div>
         </div>
     </main>
 
-    <!-- FOCUS ROOM -->
-    <div id="focus-room">
-        <div class="focus-nav">
-            <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Rút lui</button>
-            <div id="focus-target-info" style="font-weight: 700; color: var(--text-muted); font-size: 0.95rem;">Mục tiêu: IELTS 6.5</div>
-        </div>
-        <div class="focus-content">
-            <div class="focus-badge" id="focus-badge">Khu Vực Tập Trung</div>
-            <div class="timer-huge" id="session-timer">00:00</div>
-           <div class="timer-controls">
-                <button class="btn-timer" id="btn-tick" onclick="toggleTick()"><i class="fa-solid fa-clock"></i> Âm Tích Tắc: TẮT</button>
-                <button class="btn-timer" id="btn-5" onclick="startIcebreaker()"><i class="fa-solid fa-fire" style="color: #ef4444;"></i> Phá Băng (5p)</button>
-                <button class="btn-timer" id="btn-15" onclick="startSession(15)"><i class="fa-solid fa-bolt" style="color: var(--brand-trophy);"></i> Phiên Ngắn (15p)</button>
-                <button class="btn-timer" id="btn-25" onclick="startSession(25)"><i class="fa-solid fa-brain" style="color: var(--brand-focus);"></i> Phiên Chuẩn (25p)</button>
-                <button class="btn-timer" id="btn-pause" onclick="togglePause()"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
-                <button class="btn-timer" id="btn-cancel" onclick="cancelSession()"><i class="fa-solid fa-xmark"></i> Hủy bỏ</button>
-            </div>
-            <div class="status-box" id="status-box">
-                <i class="fa-solid fa-circle-info"></i><span id="status-msg">Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.</span>
+    <!-- FOCUS ROOM (THE CONTROL CHAMBER) -->
+    <div id="focus-room" class="cmd-focus-chamber">
+        <div class="cmd-focus-top">
+            <button id="btn-focus-back" class="cmd-btn-text" onclick="backToDashboard()">← Abort Protocol</button>
+            <div class="cmd-focus-target">
+                <span class="cmd-eyebrow">ACTIVE PROTOCOL:</span> 
+                <span id="focus-target-info" class="cmd-target-name">Target Name</span>
             </div>
         </div>
-    </div>
-
-    <!-- MODALS -->
-    <div id="report-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Xác thực kết quả học tập</h3>
-                <p style="margin-top: 8px;">Mô tả chi tiết những gì bạn vừa hoàn thành. Yêu cầu tối thiểu <strong id="word-required" style="color:var(--text-main);">25</strong> từ.</p>
-            </div>
-            <textarea id="report-input" placeholder="Đang chuẩn bị khung báo cáo..." oninput="updateWordCount()"></textarea>
-            <div class="word-tracker">
-                <span id="word-warning">Chưa đủ độ dài...</span>
-                <span><span class="word-count-val" id="word-count">0</span> / <span id="word-req-display">25</span> từ</span>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-ghost" onclick="abortReport()">Hủy (Bỏ qua)</button>
-                <button class="btn-submit" id="btn-submit-report" onclick="submitReport()">Lưu trữ kết quả</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="shame-modal">
-        <div class="shame-content">
-            <i class="fa-solid fa-skull-crossbones"></i>
-            <h2>CẢNH BÁO ĐỨT CHUỖI</h2>
-            <p>Sự xao nhãng đang đe dọa thành quả của bạn. Lựa chọn phán quyết:</p>
-            <button class="btn-shame-alt" onclick="acceptDefeat()">1. Nhận thua (Reset chuỗi về 1)</button>
-            <button class="btn-shame" onclick="startTaxSession()">2. Khôi phục (120 Phút Liên Tục)</button>
-        </div>
-    </div>
-
-    <!-- TRADING MODAL (CỬA HÀNG CHỨNG KHOÁN) -->
-    <div id="trade-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
-        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 40px 32px;">
-            <div style="font-size: 2.5rem; margin-bottom: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-dash);"></i></div>
-            <h3 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">MÃ: <span id="tm-code" style="color: var(--brand-dash);"></span></h3>
-            <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 24px;">Ngân khố hiện tại: <strong id="tm-usd" style="color: #fbbf24; font-size: 1.2rem;"></strong></p>
+        
+        <div class="cmd-focus-core">
+            <div id="focus-badge" class="cmd-focus-status">ISOLATION MODE</div>
+            <div id="session-timer" class="cmd-timer-display">00:00</div>
             
-            <div style="display: flex; justify-content: space-between; background: var(--bg-hover); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 24px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);">
-                <div>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Thị giá (1 Cổ)</div>
-                    <div id="tm-price" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);"></div>
+            <div class="cmd-timer-controls">
+                <button id="btn-tick" class="cmd-btn-timer" onclick="toggleTick()">Tick: OFF</button>
+                <button id="btn-5" class="cmd-btn-timer alert" onclick="startIcebreaker()">Ignite (5m)</button>
+                <button id="btn-15" class="cmd-btn-timer warning" onclick="startSession(15)">Short (15m)</button>
+                <button id="btn-25" class="cmd-btn-timer primary" onclick="startSession(25)">Standard (25m)</button>
+                <button id="btn-pause" class="cmd-btn-timer" onclick="togglePause()">Pause</button>
+                <button id="btn-cancel" class="cmd-btn-timer danger" onclick="cancelSession()">Terminate</button>
+            </div>
+            
+            <div id="status-box" class="cmd-status-log">
+                <span id="status-msg">System initialized. Awaiting command.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS (Sắc bén, phẳng, viền mỏng) -->
+    <div id="report-modal" class="cmd-modal-overlay">
+        <div class="cmd-modal-box">
+            <div class="cmd-modal-header">
+                <h3 class="cmd-serif-display">Study Record Authentication</h3>
+                <p class="cmd-meta-text">Detail your academic execution. Requirement: <strong id="word-required" class="cmd-text-bright">25</strong> words.</p>
+            </div>
+            <textarea id="report-input" class="cmd-textarea" placeholder="Enter execution log..." oninput="updateWordCount()"></textarea>
+            <div class="cmd-word-tracker">
+                <span id="word-warning" class="cmd-text-danger">Insufficient...</span>
+                <span class="cmd-word-count"><span id="word-count">0</span> / <span id="word-req-display">25</span></span>
+            </div>
+            <div class="cmd-modal-actions">
+                <button class="cmd-btn-outline" onclick="abortReport()">Discard</button>
+                <button id="btn-submit-report" class="cmd-btn-primary" onclick="submitReport()">Commit Record</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shame-modal" class="cmd-modal-overlay critical-alert">
+        <div class="cmd-modal-box alert-box">
+            <h2 class="cmd-serif-display text-danger">DISCIPLINE BREACH</h2>
+            <p class="cmd-meta-text">Academic consistency compromised. Choose resolution protocol:</p>
+            <div class="cmd-modal-actions vertical">
+                <button class="cmd-btn-outline danger" onclick="acceptDefeat()">1. Accept Failure (Reset Discipline)</button>
+                <button class="cmd-btn-primary danger" onclick="startTaxSession()">2. Enforce Recovery (120m Penalty)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRADING MODAL (MARKET TERMINAL) -->
+    <div id="trade-modal" class="cmd-modal-overlay">
+        <div class="cmd-modal-box terminal-box">
+            <h3 class="cmd-serif-display">TICKER: <span id="tm-code" class="cmd-text-accent"></span></h3>
+            <p class="cmd-meta-text">Available Reserve: <strong id="tm-usd" class="cmd-text-warning"></strong></p>
+            
+            <div class="cmd-market-data">
+                <div class="data-col">
+                    <span class="cmd-eyebrow">MARKET VALUE</span>
+                    <span id="tm-price" class="cmd-data-large"></span>
                 </div>
-                <div>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Đang Sở hữu</div>
-                    <div id="tm-owned" style="font-size: 1.5rem; font-weight: 800; color: var(--brand-focus);"></div>
+                <div class="data-col">
+                    <span class="cmd-eyebrow">OWNED YIELD</span>
+                    <span id="tm-owned" class="cmd-data-large accent"></span>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; justify-content: center;">
-                <button onclick="sellStock()" style="flex: 1; background: var(--bg-panel); color: var(--brand-warning); border: 2px solid var(--brand-warning); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-arrow-trend-down"></i> BÁN 1</button>
-                <button onclick="buyStock()" style="flex: 1; background: var(--brand-break); color: #fff; border: 2px solid var(--brand-break); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);"><i class="fa-solid fa-arrow-trend-up"></i> MUA 1</button>
+            <div class="cmd-modal-actions">
+                <button onclick="sellStock()" class="cmd-btn-outline warning">SELL 1</button>
+                <button onclick="buyStock()" class="cmd-btn-primary success">BUY 1</button>
             </div>
-            <button onclick="closeTradeModal()" class="btn-ghost" style="width: 100%; margin-top: 16px; padding: 12px; justify-content: center;">Rút lui</button>
+            <button onclick="closeTradeModal()" class="cmd-btn-text full-width">Close Terminal</button>
         </div>
     </div>
     
-    <!-- LIÊN KẾT VỚI LINH HỒN JAVASCRIPT -->
     <script src="script.js"></script>
+    <script>
+        // Cập nhật ngày tháng thực tế vào Header
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateObj = new Date();
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            const formattedDate = dateObj.toLocaleDateString('en-GB', options).toUpperCase();
+            const dateEl = document.getElementById('current-date-display');
+            if(dateEl) dateEl.innerText = formattedDate;
+        });
+    </script>
 </body>
 </html>
-
