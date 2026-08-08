@@ -64,9 +64,8 @@ function toggleSidebar() {
 
 function changeColor(color) {
     document.documentElement.setAttribute('data-color', color); localStorage.setItem('plannerColor', color);
-    // Sửa '.color-btn' thành '.cmd-color-btn'
-    document.querySelectorAll('.cmd-color-btn').forEach(btn => btn.classList.remove('active'));
-    let activeBtn = document.querySelector(`.cmd-color-btn.${color}`); if(activeBtn) activeBtn.classList.add('active');
+    document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+    let activeBtn = document.querySelector(`.color-btn.${color}`); if(activeBtn) activeBtn.classList.add('active');
 }
 let savedColor = localStorage.getItem('plannerColor') || 'zen'; changeColor(savedColor);
 
@@ -645,22 +644,20 @@ function checkCycleAndStreak() {
     // 3. THỰC THI PHÁN QUYẾT
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
-        document.querySelector('.alert-box h2').innerText = "SYSTEM LOCKDOWN (TAX PENALTY)";
-        document.querySelector('.alert-box p').innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!";
-        // Cập nhật DOM Selectors mới
-        document.querySelector('.alert-box .cmd-btn-outline').style.display = 'none'; 
-        document.querySelector('.alert-box .cmd-btn-primary').innerHTML = 'INITIATE TAX PROTOCOL (90M)';
-        document.querySelector('.alert-box .cmd-btn-primary').onclick = startTaxSession; return;
+        document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
+        document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!"; // Đã sửa
+        document.querySelector('.btn-shame-alt').style.display = 'none'; 
+        document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; // Đã sửa
+        document.querySelector('.btn-shame').onclick = startTaxSession; return;
     }
 
     if (dailyDebtMinutes > 0) {
         document.getElementById('shame-modal').style.display = 'flex'; 
-        document.querySelector('.alert-box h2').innerText = "COMPOUND PENALTY (1.5H QUOTA)";
-        document.querySelector('.alert-box p').innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ 1.5h. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
-        // Cập nhật DOM Selectors mới
-        document.querySelector('.alert-box .cmd-btn-outline').style.display = 'none';
-        document.querySelector('.alert-box .cmd-btn-primary').innerHTML = `ENFORCE PENALTY (${dailyDebtMinutes}M)`;
-        document.querySelector('.alert-box .cmd-btn-primary').onclick = startDebtSession; return;
+        document.querySelector('.shame-content h2').innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.5H)";
+        document.querySelector('.shame-content p').innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ 1.5h. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        document.querySelector('.btn-shame-alt').style.display = 'none';
+        document.querySelector('.btn-shame').innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`;
+        document.querySelector('.btn-shame').onclick = startDebtSession; return;
     }
 
     document.getElementById('streak-count').innerText = currentStreak;
@@ -764,7 +761,7 @@ function switchTab(tab) {
         return;
     }
 
-    document.querySelectorAll('.cmd-nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('analytics-room').style.display = 'none'; 
     document.getElementById('trophy-room').style.display = 'none'; document.getElementById('trophy-detail').style.display = 'none';
     
