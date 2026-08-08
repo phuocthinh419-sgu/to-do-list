@@ -471,3 +471,122 @@ body {
     border-radius: 12px !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 10px var(--brand-warning) !important;
 }
+
+/* ==========================================================================
+   ACADEMIC COMMAND CENTER V2: DEEP INDIGO EDITION
+   Philosophy: Rich, Sophisticated, Layered, Data-driven
+   ========================================================================== */
+
+/* 1. ÉP BUỘC KHÔNG GIAN SÂU THẲM (DEEP INDIGO BASE) VÀ NGÔN NGỮ MÀU SẮC */
+[data-color="neon-purple"], body {
+    /* Background sâu thẳm (Near-black purple) */
+    --bg-base: #0B0714 !important; 
+    
+    /* Primary Surface (Card nền chính - Tách biệt rõ với nền) */
+    --bg-panel: #160D24 !important; 
+    
+    /* Secondary Surface (Hover, Input, Inner Box) */
+    --bg-hover: #22143A !important; 
+    
+    /* Viền tinh tế (Subtle Border & Inner Highlight) */
+    --border: rgba(139, 92, 246, 0.15) !important;
+    --border-highlight: rgba(168, 85, 247, 0.25) !important;
+    
+    /* Typography Hierarchy (Chữ nổi bật, nhãn chìm xuống) */
+    --text-main: #F3E8FF !important; /* Trắng tím sáng (Data) */
+    --text-muted: #9333EA !important; /* Tím mờ (Labels, Eyebrow) */
+    
+    /* Semantic Roles (Ngôn ngữ màu sắc) */
+    --brand-primary: #8B5CF6 !important; /* Violet: Progression / Main */
+    --brand-info: #0EA5E9 !important;    /* Cyan: Information */
+    --brand-success: #10B981 !important; /* Green: Success / Finished */
+    --brand-warning: #F59E0B !important; /* Amber: Warning / Stock */
+    --brand-danger: #EF4444 !important;  /* Red: Problem / Overdue */
+    
+    /* Độ sâu (Depth) - Không dùng blur rẻ tiền, dùng shadow vật lý */
+    --shadow-bento: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    
+    background-image: none !important; /* Xóa gradient rối mắt */
+    background-color: var(--bg-base) !important;
+}
+
+/* 2. ĐỊNH HÌNH LẠI CÁC TẦNG BỀ MẶT (LAYERED SURFACES) */
+/* Vứt bỏ blur, sử dụng Solid Color kết hợp Inner Border để tạo độ đắt tiền */
+.rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card, .kpi-card, .timeline-item {
+    background: var(--bg-panel) !important;
+    backdrop-filter: none !important; /* Bỏ blur */
+    border: 1px solid var(--border) !important;
+    border-top: 1px solid var(--border-highlight) !important; /* Ánh sáng hắt đỉnh thẻ */
+    box-shadow: var(--shadow-bento) !important;
+    border-radius: 16px !important;
+}
+
+/* Tương tác khi rê chuột (Secondary Surface) */
+.goal-card:hover, .countdown-card:hover, .trophy-card:hover {
+    background: var(--bg-hover) !important;
+    border-color: var(--brand-primary) !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(168, 85, 247, 0.3) !important;
+}
+
+/* 3. HERO OBJECTIVE (WEEKLY MISSION) - TÂM ĐIỂM THỊ GIÁC */
+.kpi-card {
+    background: linear-gradient(180deg, #1A0F2E 0%, #160D24 100%) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    border-top: 1px solid rgba(168, 85, 247, 0.5) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.05) !important;
+}
+.kpi-header span { 
+    color: var(--text-main) !important; 
+    font-size: 2.8rem !important; 
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
+}
+.kpi-bar-bg { background: var(--bg-hover) !important; border: 1px solid var(--border) !important; height: 12px !important; }
+.kpi-bar-fill { background: linear-gradient(90deg, #8B5CF6, #A855F7) !important; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5) !important; }
+
+/* 4. TYPOGRAPHY HIERARCHY (Phân cấp chữ) */
+h1, h2, h3 { color: var(--text-main) !important; font-weight: 700 !important; letter-spacing: -0.5px !important; }
+.goal-meta p, .kpi-header h3, .nav-category, .t-lbl { 
+    color: var(--text-muted) !important; 
+    text-transform: uppercase !important; 
+    letter-spacing: 1px !important; 
+    font-weight: 600 !important;
+}
+.progress-text { color: var(--text-main) !important; font-size: 1.25rem !important; }
+
+/* 5. GÁN NGÔN NGỮ MÀU SẮC (SEMANTIC ROLES) VÀO COMPONENT */
+/* Progress (Violet) */
+.progress-bar { stroke: var(--brand-primary) !important; }
+.progress-bg { stroke: var(--bg-hover) !important; }
+
+/* Heatmap (Từ tối đến Violet rực rỡ) */
+.heat-cell { border-radius: 4px !important; border: 1px solid rgba(255,255,255,0.02) !important; }
+.heat-1 { background: rgba(139, 92, 246, 0.15) !important; }
+.heat-2 { background: rgba(139, 92, 246, 0.4) !important; }
+.heat-3 { background: rgba(139, 92, 246, 0.7) !important; }
+.heat-4 { background: var(--brand-primary) !important; box-shadow: 0 0 10px rgba(139, 92, 246, 0.6) !important; }
+
+/* Ngân khố / Thương hội (Amber) */
+#usd-balance, #stock-market-container div div:nth-child(2) { color: var(--brand-warning) !important; }
+
+/* Các nút bấm: Vẫn giữ form bo tròn nhẹ (12px) nhưng gradient tinh tế */
+.btn-primary { 
+    background: var(--brand-primary) !important; 
+    color: #fff !important; 
+    border: none !important; 
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important; 
+}
+.btn-shame, #btn-tax { 
+    background: var(--brand-danger) !important; 
+    border: none !important; 
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4) !important; 
+}
+
+/* SIDEBAR COMMAND NAVIGATION */
+.sidebar { background: #07040A !important; border-right: 1px solid var(--border) !important; }
+.nav-item.active { 
+    background: var(--bg-panel) !important; 
+    border-left: 3px solid var(--brand-primary) !important; 
+    color: var(--text-main) !important; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
