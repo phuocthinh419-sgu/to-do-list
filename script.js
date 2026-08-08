@@ -489,7 +489,8 @@ function startTaxSession() {
     document.getElementById('shame-modal').style.display = 'none'; document.getElementById('focus-room').style.display = 'flex';
     document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
     
-    document.getElementById('focus-target-info').innerText = "THIẾT QUÂN LUẬT (120 PHÚT)";
+    // Đã sửa thành 90 PHÚT
+    document.getElementById('focus-target-info').innerText = "THIẾT QUÂN LUẬT (90 PHÚT)";
     let badge = document.getElementById('focus-badge'); badge.innerText = "CHẾ ĐỘ HARDCORE"; badge.style.background = "rgba(225, 29, 72, 0.1)"; badge.style.color = "var(--brand-warning)"; badge.style.borderColor = "var(--brand-warning)";
 
     document.getElementById('btn-5').style.display = 'none'; document.getElementById('btn-15').style.display = 'none'; document.getElementById('btn-25').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none';
@@ -504,11 +505,12 @@ function startTaxSession() {
 }
 
 function runHardcoreSession() {
-    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM!"); return; }
+    if (isCurfewActive()) { alert("ĐĐ TỚI GIỜ GIỚI NGHIÊM!"); return; }
     if(audioCtx.state === 'suspended') audioCtx.resume();
-    isHardcoreTax = true; taxPauseBank = 180; document.getElementById('btn-tax').style.display = 'none';
+    isHardcoreTax = true; taxPauseBank = 900; document.getElementById('btn-tax').style.display = 'none'; // 15 phút (900s) quỹ tạm dừng
     
-    currentDuration = 120; activeSessionMinutes = 120; timeLeft = 120 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
+    // Đã sửa thời lượng thành 90 phút
+    currentDuration = 90; activeSessionMinutes = 90; timeLeft = 90 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
     isSessionActive = true; isPaused = false; document.body.classList.add('focus-active');
     saveRecoveryState();
     
@@ -643,9 +645,9 @@ function checkCycleAndStreak() {
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
         document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 120 phút!";
+        document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!"; // Đã sửa
         document.querySelector('.btn-shame-alt').style.display = 'none'; 
-        document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (120P)';
+        document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; // Đã sửa
         document.querySelector('.btn-shame').onclick = startTaxSession; return;
     }
 
@@ -1143,11 +1145,11 @@ function submitReport() {
             if(goal.current <= 0) { setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); }
         }
 
-        if (isHardcoreTax) { 
+       if (isHardcoreTax) { 
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert("Đã cày xong 120p Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng.");
+                alert("Đã cày xong 90p Thuế Trì Hoãn! Bệ hạ đã rửa sạch trọng tội. Án thư chính thức được giải phóng."); // Sửa 120p thành 90p
             } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
             document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
         }
@@ -1173,7 +1175,7 @@ function initiateBreak() {
     let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)"; document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
     if (currentDuration === 25 || currentDuration === 30) { standardSessionCount25++; localStorage.setItem('saasS25', standardSessionCount25); if (standardSessionCount25 % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; } } 
     else if (currentDuration === 15) { standardSessionCount15++; localStorage.setItem('saasS15', standardSessionCount15); if (standardSessionCount15 % 3 === 0) { breakMinutes = 10; breakMsg = "Nghỉ Dài (10p)"; } } 
-    else if (currentDuration >= 120) { breakMinutes = 30; breakMsg = "Hồi Phục (30p)"; }
+    else if (currentDuration >= 90) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; }
     
     document.getElementById('status-msg').innerText = `Đang kích hoạt chế độ ${breakMsg}.`;
     timeLeft = breakMinutes * 60; let breakEndTime = Date.now() + timeLeft * 1000; updateDisplay(timeLeft);
