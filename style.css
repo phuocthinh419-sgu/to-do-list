@@ -1,6 +1,6 @@
 /* ==========================================================================
    BẢN HỢP NHẤT TỐI THƯỢNG: ACADEMIC COMMAND CENTER
-   (Khung gầm nguyên bản + Hiệu ứng 3D thông minh)
+   (Khung gầm nguyên bản + Deep Indigo V2 - Chuẩn Semantic Colors)
    ========================================================================== */
 
 /* BASE & THEME VARIABLES */
@@ -397,117 +397,56 @@ body.focus-active .timer-huge { color: var(--brand-focus); }
 }
 
 /* ==========================================================================
-   🚀 OVERRIDE: HIGH-END ACADEMIC COMMAND CENTER (SMART MODE) 🚀
-   (Tự động tắt Glow khi ở nền Sáng, Tự động bật Hào quang khi ở nền Tối)
+   1. ĐỊNH HÌNH LẠI NGÔN NGỮ MÀU SẮC (GIẢM TÍM, TĂNG TRẮNG)
    ========================================================================== */
-
-/* 1. KHỞI TẠO BIẾN SỐ THÔNG MINH */
-:root {
-    --depth-shadow: none;
-    --depth-border-top: none;
-    --depth-border-left: none;
-    --depth-bg-blur: none;
-    --depth-glow: none;
-    --depth-transform: none;
-    --depth-hover-shadow: none;
-    --grid-bg: none;
-}
-
-/* CHỈ KÍCH HOẠT HIỆU ỨNG TRÊN CHẾ ĐỘ TỐI VÀ NEON */
-[data-theme="dark"], 
-[data-color="neon-purple"], 
-[data-color="neon-blue"], 
-[data-color="sakura"] {
-    --depth-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    --depth-border-top: 1px solid rgba(255, 255, 255, 0.15);
-    --depth-border-left: 1px solid rgba(255, 255, 255, 0.05);
-    --depth-bg-blur: blur(24px) saturate(150%);
-    --depth-glow: 0 0 25px var(--brand-dash);
-    --depth-transform: translateY(-6px);
-    --depth-hover-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.2);
-    --grid-bg: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-}
-
-/* 2. ÁP DỤNG LƯỚI CHÌM (Chỉ hiện khi nền tối) */
-body {
-    background-image: var(--grid-bg) !important;
-    background-size: 30px 30px !important;
-    background-position: center center !important;
-}
-
-/* 3. KHUNG KÍNH CAO CẤP */
-.rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card, .kpi-card, .timeline-item {
-    backdrop-filter: var(--depth-bg-blur) !important;
-    -webkit-backdrop-filter: var(--depth-bg-blur) !important;
-    border-top: var(--depth-border-top) !important;
-    border-left: var(--depth-border-left) !important;
-    box-shadow: var(--depth-shadow) !important;
-    border-radius: 20px !important;
-    overflow: hidden !important;
-}
-
-/* 4. TƯƠNG TÁC 3D (Hover) */
-.goal-card:hover, .countdown-card:hover, .trophy-card:hover {
-    transform: var(--depth-transform) !important;
-    box-shadow: var(--depth-hover-shadow) !important;
-}
-
-/* 5. DỮ LIỆU PHÁT SÁNG (GLOW) */
-#total-hours-metric, .progress-text, .kpi-header span, .t-val, .rank-icon {
-    text-shadow: var(--depth-glow) !important;
-}
-
-/* 6. VÒNG PROGRESS RING CHIỀU SÂU */
-.progress-circle svg { filter: drop-shadow(var(--depth-glow)) !important; }
-.progress-bg { stroke-width: 6 !important; }
-.progress-bar { stroke-width: 6 !important; stroke-linecap: round !important; }
-
-/* 7. NÚT BẤM (BUTTONS) */
-.btn-primary { 
-    border-radius: 12px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 10px var(--brand-dash) !important; 
-}
-.btn-shame, #btn-tax {
-    border-radius: 12px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 10px var(--brand-warning) !important;
-}
-
-/* ==========================================================================
-   ACADEMIC COMMAND CENTER V2: DEEP INDIGO EDITION
-   Philosophy: Rich, Sophisticated, Layered, Data-driven
-   ========================================================================== */
-
-/* 1. ÉP BUỘC KHÔNG GIAN SÂU THẲM (DEEP INDIGO BASE) VÀ NGÔN NGỮ MÀU SẮC */
 [data-color="neon-purple"], body {
-    /* Background sâu thẳm (Near-black purple) */
-    --bg-base: #0B0714 !important; 
+    --bg-base: #090510 !important; 
+    --bg-panel: #130a21 !important; 
+    --bg-hover: #1e1133 !important; 
     
-    /* Primary Surface (Card nền chính - Tách biệt rõ với nền) */
-    --bg-panel: #160D24 !important; 
-    
-    /* Secondary Surface (Hover, Input, Inner Box) */
-    --bg-hover: #22143A !important; 
-    
-    /* Viền tinh tế (Subtle Border & Inner Highlight) */
     --border: rgba(139, 92, 246, 0.15) !important;
-    --border-highlight: rgba(168, 85, 247, 0.25) !important;
+    --border-highlight: rgba(255, 255, 255, 0.05) !important;
     
-    /* Typography Hierarchy (Chữ nổi bật, nhãn chìm xuống) */
-    --text-main: #F3E8FF !important; /* Trắng tím sáng (Data) */
-    --text-muted: #9333EA !important; /* Tím mờ (Labels, Eyebrow) */
+    /* 🔴 SỬA LỖI OVER-PURPLING Ở ĐÂY */
+    --text-main: #FFFFFF !important;      /* Chữ chính: Trắng tinh khiết */
+    --text-muted: #94A3B8 !important;     /* Chữ phụ: Xám Slate trung tính (Không ám tím) */
     
-    /* Semantic Roles (Ngôn ngữ màu sắc) */
-    --brand-primary: #8B5CF6 !important; /* Violet: Progression / Main */
-    --brand-info: #0EA5E9 !important;    /* Cyan: Information */
-    --brand-success: #10B981 !important; /* Green: Success / Finished */
-    --brand-warning: #F59E0B !important; /* Amber: Warning / Stock */
-    --brand-danger: #EF4444 !important;  /* Red: Problem / Overdue */
+    /* Semantic Roles */
+    --brand-primary: #8B5CF6 !important;  /* Tím: Dành cho Thanh tiến độ / Active */
+    --brand-info: #0EA5E9 !important;     /* Cyan: Thông tin / Shield */
+    --brand-success: #10B981 !important;  /* Xanh lá: Hoàn thành */
+    --brand-warning: #F59E0B !important;  /* Vàng Amber: Cảnh báo / Lửa / Chuỗi */
+    --brand-danger: #EF4444 !important;   /* Đỏ: Nguy hiểm */
     
-    /* Độ sâu (Depth) - Không dùng blur rẻ tiền, dùng shadow vật lý */
-    --shadow-bento: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-    
-    background-image: none !important; /* Xóa gradient rối mắt */
+    --shadow-bento: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    background-image: none !important; 
     background-color: var(--bg-base) !important;
+}
+
+/* Tẩy màu tím khỏi con số khổng lồ, dùng Glow Trắng */
+.kpi-header span { 
+    color: #FFFFFF !important; 
+    font-size: 2.8rem !important; 
+    text-shadow: 0 4px 20px rgba(255,255,255,0.2) !important; /* Glow trắng sang trọng */
+}
+
+/* Đảm bảo Tiêu đề thẻ (Học giả, Tên môn học) là Trắng và Sắc nét */
+h1, h2, h3, .goal-meta h3, .rank-title { 
+    color: #FFFFFF !important; 
+    font-weight: 700 !important; 
+    letter-spacing: -0.5px !important; 
+}
+.rank-hours, #total-hours-metric, .progress-text { 
+    color: #FFFFFF !important; 
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5) !important; /* Xóa glow tím chói mắt */
+}
+
+/* Nhãn phụ (Eyebrow text) dùng màu Xám Slate */
+.goal-meta p, .kpi-header h3, .nav-category, .t-lbl { 
+    color: var(--text-muted) !important; 
+    text-transform: uppercase !important; 
+    letter-spacing: 1px !important; 
+    font-weight: 600 !important;
 }
 
 /* 2. ĐỊNH HÌNH LẠI CÁC TẦNG BỀ MẶT (LAYERED SURFACES) */
@@ -590,3 +529,5 @@ h1, h2, h3 { color: var(--text-main) !important; font-weight: 700 !important; le
     color: var(--text-main) !important; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
 }
+
+Kiểm tra xem nó đã đúng chưa, tại vì ở đuôi file, ta thấy css khá trùng với nhau kìa
