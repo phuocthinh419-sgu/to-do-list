@@ -390,3 +390,61 @@ body.focus-active .timer-huge { color: var(--brand-focus); }
     .kpi-header h3 { font-size: 1.1rem; }
     .kpi-header span { font-size: 1.1rem; }
 }
+
+/* ==========================================================================
+   🚀 OVERRIDE: HIGH-END ACADEMIC COMMAND CENTER 🚀
+   (Bổ sung lớp áo cao cấp, chiều sâu và hiệu ứng ánh sáng)
+   ========================================================================== */
+
+/* 1. Lưới Chìm Tọa Độ & Không Gian Chiều Sâu */
+body {
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+    background-size: 30px 30px !important;
+    background-position: center center !important;
+}
+
+/* 2. Khung Kính Cường Lực (Glassmorphism + Depth) Cho Toàn Bộ Thẻ */
+.rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card, .kpi-card, .timeline-item {
+    backdrop-filter: blur(24px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important; /* Ánh sáng hắt viền trên */
+    border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+}
+
+/* 3. Tương Tác Nổi 3D Khi Ngự Lãm (Hover) */
+.goal-card:hover, .countdown-card:hover, .trophy-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+    border-color: var(--brand-dash) !important;
+}
+
+/* 4. Dữ Liệu Phát Sáng (Luminous Typography) */
+#total-hours-metric, .progress-text, .kpi-header span, .t-val, .rank-icon {
+    text-shadow: 0 0 25px var(--brand-dash) !important;
+}
+
+/* 5. Progress Ring Đẳng Cấp & Sắc Nét */
+.progress-circle svg { filter: drop-shadow(0 0 12px var(--brand-dash)) !important; }
+.progress-bg { stroke: rgba(0,0,0,0.4) !important; stroke-width: 6 !important; }
+.progress-bar { stroke-width: 6 !important; stroke-linecap: round !important; }
+
+/* 6. Heatmap Rực Rỡ Hơn */
+.heat-cell { box-shadow: inset 0 1px 1px rgba(255,255,255,0.1) !important; border-radius: 4px !important; }
+.heat-4 { box-shadow: 0 0 15px var(--brand-dash) !important; }
+
+/* 7. Nút Bấm Chuyển Sắc Nguyên Tử (Glow Buttons) */
+.btn-primary { 
+    background: linear-gradient(135deg, var(--brand-dash) 0%, rgba(255,255,255,0.1) 100%) !important;
+    border: 1px solid var(--brand-dash) !important; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--brand-dash) !important; 
+}
+.btn-shame, #btn-tax {
+    background: linear-gradient(135deg, var(--brand-warning) 0%, rgba(255,255,255,0.1) 100%) !important;
+    border: 1px solid var(--brand-warning) !important; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--brand-warning) !important;
+}
