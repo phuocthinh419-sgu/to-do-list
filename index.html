@@ -102,32 +102,39 @@
                 <p id="kpi-message">Hệ thống đang theo dõi tiến độ cày ải của bệ hạ.</p>
             </div>
 
-            <!-- 2. IDENTITY & RHYTHM (GAMIFICATION ĐƯỢC LÀM LẠI) -->
+            <!-- 2. LEVEL 2: IDENTITY & RHYTHM -->
             <div class="gamification-strip">
-                <!-- Academic Status -->
-                <div class="rank-card stagger-item" style="animation-delay: 0.1s" style="align-items: flex-start; text-align: left; padding: 32px 40px;">
-                    <div class="streak-badge"><i class="fa-solid fa-fire" style="color: var(--brand-warning);"></i> <span id="streak-count">0</span> DAYS</div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; letter-spacing: 2px; margin-bottom: 16px;">ACADEMIC STATUS</div>
+                <!-- Academic Status (Đã căn chỉnh lại cân xứng, uy nghiêm) -->
+                <div class="rank-card stagger-item" style="animation-delay: 0.1s; padding: 28px; justify-content: flex-start;">
                     
-                    <div style="display: flex; align-items: center; gap: 20px;">
-                        <i class="fa-solid fa-shield-halved rank-icon" id="rank-icon" style="margin: 0; font-size: 3.5rem;"></i>
-                        <div>
-                            <div class="rank-title" id="rank-title" style="font-size: 1.8rem; margin: 0;">Initiate</div>
-                            <div class="rank-hours" id="total-hours-metric" style="margin: 4px 0 0 0; font-size: 2.2rem; color: var(--brand-primary);">0.0h</div>
+                    <!-- Header của Thẻ (Label bên trái, Badge bên phải) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 24px;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; letter-spacing: 2px;">ACADEMIC STATUS</span>
+                        <div class="streak-badge" style="position: static; margin: 0; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: var(--brand-warning);">
+                            <i class="fa-solid fa-fire"></i> <span id="streak-count">0</span> DAYS
                         </div>
                     </div>
-                    <div class="rank-desc" id="rank-desc" style="margin-top: 20px;">Cần 10h để thăng cấp Scholar</div>
+                    
+                    <!-- Lõi dữ liệu (Icon Cyan + Text Trắng) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-shield-halved rank-icon" id="rank-icon" style="font-size: 3.2rem; color: var(--brand-info); filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.4)); margin-bottom: 12px;"></i>
+                        <div class="rank-title" id="rank-title" style="font-size: 1.6rem; margin: 0; line-height: 1;">Initiate</div>
+                        <div class="rank-hours" id="total-hours-metric" style="font-size: 2.2rem; margin: 8px 0 0 0; line-height: 1;">0.0h</div>
+                    </div>
+                    
+                    <!-- Footer của thẻ -->
+                    <div class="rank-desc" id="rank-desc" style="margin-top: auto; padding-top: 20px; font-size: 0.8rem;">Cần 10h để thăng cấp Scholar</div>
                 </div>
 
                 <!-- Discipline Rhythm (Heatmap) -->
-                <div class="heatmap-card stagger-item" style="animation-delay: 0.2s">
-                    <div class="heatmap-header">
+                <div class="heatmap-card stagger-item" style="animation-delay: 0.2s; padding: 28px;">
+                    <div class="heatmap-header" style="margin-bottom: 20px;">
                         <div>
-                            <h3 style="text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">35-Day Discipline Rhythm</h3>
-                            <span style="font-size: 0.8rem; color: var(--text-muted); background: transparent; padding: 0;">Biểu đồ duy trì phong độ học tập liên tục</span>
+                            <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; color: var(--text-muted);">35-Day Discipline Rhythm</h3>
+                            <span style="font-size: 0.85rem; color: #FFFFFF; font-weight: 600; padding: 0; background: transparent;">Biểu đồ duy trì phong độ học tập liên tục</span>
                         </div>
                     </div>
-                    <div class="heatmap-grid" id="heatmap-grid"></div>
+                    <div class="heatmap-grid" id="heatmap-grid" style="margin-top: auto;"></div>
                 </div>
             </div>
 
