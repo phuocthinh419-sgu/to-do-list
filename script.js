@@ -1185,8 +1185,8 @@ window.renderDailyBreakdown = function(targetDate) {
 };
 
 // =====================================================================
-// NÂNG CẤP TỐI THƯỢNG PHASE V3: PROFILE, DNA & AI INSIGHTS
-// (Đã vá lỗi tràn viền và cân bằng bố cục Grid)
+// NÂNG CẤP TỐI THƯỢNG PHASE V4: PREDICTIVE ANALYTICS (DỰ BÁO TƯƠNG LAI)
+// (Thay thế toàn bộ hàm renderAnalytics hiện tại)
 // =====================================================================
 function renderAnalytics() {
     const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
@@ -1249,7 +1249,101 @@ function renderAnalytics() {
     }
     velocityHtml += `</div></div>`;
 
-    // THU THẬP SỐ LIỆU NỀN TẢNG CHO V3
+    // ---------------------------------------------------------
+    // 🔥 TÍNH NĂNG V4: DỰ BÁO TƯƠNG LAI (PREDICTIVE ANALYTICS)
+    // ---------------------------------------------------------
+    let predictiveHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.45s; grid-column: 1 / -1;">
+        <h3 style="margin-bottom: 24px;"><i class="fa-solid fa-compass-drafting" style="color: #a855f7; margin-right: 8px;"></i> Bàn cờ Tiên tri (Predictive Analytics)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">`;
+        
+    let hasPredictions = false;
+    
+    // Thuật toán duyệt qua từng mục tiêu để "bói toán" tương lai
+    activeOrLoggedGoals.forEach(g => {
+        if (!g.deadline) return; 
+        
+        let deadlineTime = new Date(g.deadline).getTime();
+        let daysLeftToDeadline = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24));
+        let deadlineDateStr = new Date(g.deadline).toLocaleDateString('vi-VN');
+        
+        let logged = g.target - g.current;
+        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(cycleStartDate).getTime();
+        let daysElapsed = Math.max(1, Math.ceil((todayObj.getTime() - createdTime) / (1000 * 3600 * 24)));
+        let currentPace = logged / daysElapsed;
+        
+        if (currentPace > 0 && g.current > 0) {
+            let daysToFinish = Math.ceil(g.current / currentPace);
+            let projectedTime = todayObj.getTime() + (daysToFinish * 24 * 3600 * 1000);
+            let projectedDateStr = new Date(projectedTime).toLocaleDateString('vi-VN');
+            
+            // Trường hợp 1: Đã thủng đáy Deadline (Trễ cmnr)
+            if (daysLeftToDeadline < 0) {
+                predictiveHtml += `<div style="background: rgba(239,68,68,0.05); border: 1px dashed rgba(239,68,68,0.4); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="font-weight: 800; color: #ef4444; margin-bottom: 8px; font-size: 1.05rem;">${g.name}</div>
+                        <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Mục tiêu này đã <strong style="color:#ef4444">Quá Hạn</strong> từ ngày ${deadlineDateStr}.</p>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 12px; border-radius: 12px; font-size: 0.85rem; color: var(--text-muted); border: 1px solid var(--border);">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; margin-right: 6px;"></i> Phán quyết: Cần dồn toàn lực giải quyết dứt điểm ngay lập tức!
+                    </div>
+                </div>`;
+                hasPredictions = true;
+            } 
+            // Trường hợp 2: Đang bị chậm so với Deadline
+            else if (projectedTime > deadlineTime) {
+                let requiredPace = g.current / daysLeftToDeadline;
+                let diffDays = Math.ceil((projectedTime - deadlineTime) / (1000 * 3600 * 24));
+                predictiveHtml += `<div style="background: rgba(245,158,11,0.05); border: 1px dashed rgba(245,158,11,0.4); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="font-weight: 800; color: #f59e0b; margin-bottom: 8px; font-size: 1.05rem;">${g.name}</div>
+                        <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Với tốc độ <strong style="color:var(--text-main)">${currentPace.toFixed(2)}h/ngày</strong>, bệ hạ sẽ xong vào <strong>${projectedDateStr}</strong> (Trễ ${diffDays} ngày).</p>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 12px; border-radius: 12px; font-size: 0.85rem; color: var(--text-muted); border: 1px solid var(--border);">
+                        <i class="fa-solid fa-arrow-up-right-dots" style="color: #f59e0b; margin-right: 6px;"></i> Giải pháp: Tăng tốc độ lên <strong style="color: #f59e0b;">${requiredPace.toFixed(2)}h/ngày</strong> để kịp deadline.
+                    </div>
+                </div>`;
+                hasPredictions = true;
+            } 
+            // Trường hợp 3: Vừa vặn hoặc Vượt tiến độ
+            else {
+                let diffDays = Math.floor((deadlineTime - projectedTime) / (1000 * 3600 * 24));
+                let earlyText = diffDays === 0 ? "Vừa vặn kịp lúc" : `Sớm hơn ${diffDays} ngày`;
+                let textColor = diffDays === 0 ? "#0ea5e9" : "#10b981"; // Kịp thì màu xanh lam, Sớm thì màu xanh lục
+                
+                predictiveHtml += `<div style="background: rgba(16,185,129,0.05); border: 1px dashed rgba(16,185,129,0.4); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="font-weight: 800; color: ${textColor}; margin-bottom: 8px; font-size: 1.05rem;">${g.name}</div>
+                        <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Tốc độ <strong style="color:var(--text-main)">${currentPace.toFixed(2)}h/ngày</strong> rất xuất sắc. Dự kiến xong vào <strong>${projectedDateStr}</strong> (${earlyText}).</p>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 12px; border-radius: 12px; font-size: 0.85rem; color: var(--text-muted); border: 1px solid var(--border);">
+                        <i class="fa-solid fa-shield-check" style="color: ${textColor}; margin-right: 6px;"></i> Giải pháp: Cứ giữ vững nhịp độ này!
+                    </div>
+                </div>`;
+                hasPredictions = true;
+            }
+        } 
+        // Trường hợp đặc biệt: Mục tiêu có hạn chót nhưng ngài lười chưa thèm cày
+        else if (g.current > 0 && currentPace === 0 && daysLeftToDeadline > 0) {
+            let requiredPace = g.current / daysLeftToDeadline;
+            predictiveHtml += `<div style="background: rgba(100,116,139,0.05); border: 1px dashed rgba(100,116,139,0.4); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: 800; color: var(--text-muted); margin-bottom: 8px; font-size: 1.05rem;">${g.name}</div>
+                    <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Mục tiêu này hiện đang đắp chiếu, chưa được khởi động.</p>
+                </div>
+                <div style="background: var(--bg-panel); padding: 12px; border-radius: 12px; font-size: 0.85rem; color: var(--text-muted); border: 1px solid var(--border);">
+                    <i class="fa-solid fa-play" style="color: var(--brand-focus); margin-right: 6px;"></i> Cần học <strong style="color: var(--brand-focus);">${requiredPace.toFixed(2)}h/ngày</strong> từ nay đến ${deadlineDateStr} để kịp hạn.
+                </div>
+            </div>`;
+            hasPredictions = true;
+        }
+    });
+
+    if (!hasPredictions) {
+        predictiveHtml += `<div style="color: var(--text-muted); font-size: 0.95rem; font-style: italic; padding: 20px; text-align: center; grid-column: 1/-1;">Chưa có dữ liệu tốc độ hoặc mục tiêu chưa đặt Hạn chót (Deadline) để hệ thống tiên tri. Bệ hạ hãy tạo một mục tiêu mới có Deadline để xem sức mạnh của AI.</div>`;
+    }
+    predictiveHtml += `</div></div>`;
+
+    // [PHASE V3] THU THẬP SỐ LIỆU NỀN TẢNG CHO V3
     let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0; let totalLoggedMins = 0;
     allGoals.forEach(g => { if(g.reports) { actualTotalSessions += g.reports.length; g.reports.forEach(r => { let mins = parseInt(r.type.replace('p', '')) || 0; totalLoggedMins += mins; if(r.type === '15p') actualS15++; if(r.type === '25p') actualS25++; }); } });
 
@@ -1263,13 +1357,10 @@ function renderAnalytics() {
     let consistencyScore = Math.round((activeDays30 / 30) * 100);
     let avgSessionMins = actualTotalSessions > 0 ? Math.round(totalLoggedMins / actualTotalSessions) : 0;
     
-    // TÌM SỞ TRƯỜNG & BÁO ĐỘNG
     let strongestGoal = activeOrLoggedGoals.length > 0 ? activeOrLoggedGoals.reduce((max, g) => ((g.target - g.current)/g.target) > ((max.target - max.current)/max.target) ? g : max) : null;
     let weakestGoal = activeOrLoggedGoals.length > 0 ? activeOrLoggedGoals.reduce((min, g) => ((g.target - g.current)/g.target) < ((min.target - min.current)/min.target) ? g : min) : null;
 
-    // ---------------------------------------------------------
-    // 🔥 TÍNH NĂNG V3: HỒ SƠ HỌC THUẬT (PROFILE) - ĐÃ FIX TRÀN VIỀN
-    // ---------------------------------------------------------
+    // [PHASE V3] HỒ SƠ HỌC THUẬT (PROFILE)
     let profileHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s; display: flex; flex-direction: column;">
         <h3 style="margin-bottom: 20px;">Hồ Sơ Học Thuật</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1;">
@@ -1292,14 +1383,10 @@ function renderAnalytics() {
         </div>
     </div>`;
 
-    // ---------------------------------------------------------
-    // 🔥 TÍNH NĂNG V3: ADN KỶ LUẬT (DNA)
-    // ---------------------------------------------------------
-    let dnaDiscipline = Math.min(100, Math.round(currentStreak * (100/14))); // Lấy mốc 14 ngày = 100%
-    let dnaFocus = Math.min(100, Math.round((avgSessionMins / 30) * 100)); // Lấy mốc 30 phút/phiên = 100%
-    let dnaPace = Math.min(100, Math.round(((thisWeekHrs / 7) / 1.7) * 100)); // So với mốc 1.7h/ngày
-    
-    // Tính Kiểm soát (Control)
+    // [PHASE V3] ADN KỶ LUẬT (DNA)
+    let dnaDiscipline = Math.min(100, Math.round(currentStreak * (100/14))); 
+    let dnaFocus = Math.min(100, Math.round((avgSessionMins / 30) * 100)); 
+    let dnaPace = Math.min(100, Math.round(((thisWeekHrs / 7) / 1.7) * 100)); 
     let onTrackGoals = 0;
     activeOrLoggedGoals.forEach(g => {
         let logged = g.target - g.current;
@@ -1310,7 +1397,7 @@ function renderAnalytics() {
             let deadlineTime = new Date(g.deadline).getTime();
             let daysLeft = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24));
             let reqPace = daysLeft > 0 ? (g.current / daysLeft) : g.current;
-            if (pace >= reqPace * 0.7) onTrackGoals++; // Từ "Rủi ro" trở lên coi như kiểm soát được
+            if (pace >= reqPace * 0.7) onTrackGoals++; 
         } else { onTrackGoals++; }
     });
     let dnaControl = activeOrLoggedGoals.length > 0 ? Math.round((onTrackGoals / activeOrLoggedGoals.length) * 100) : 0;
@@ -1324,16 +1411,12 @@ function renderAnalytics() {
         <div class="stat-row" style="margin-bottom: 0;"><div class="stat-label"><span>KIỂM SOÁT (Control)</span> <span>${dnaControl}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaControl}%; background: var(--brand-info)"></div></div></div>
     </div>`;
 
-    // ---------------------------------------------------------
-    // 🔥 TÍNH NĂNG V3: CỐ VẤN CHIẾN LƯỢC (INSIGHTS)
-    // ---------------------------------------------------------
+    // [PHASE V3] CỐ VẤN CHIẾN LƯỢC (INSIGHTS)
     let insightsHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.7s; grid-column: 1 / -1;">
         <h3 style="margin-bottom: 24px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #f59e0b; margin-right: 8px;"></i> Cố Vấn Tác Chiến Tự Động</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">`;
         
     let hasInsight = false;
-
-    // Insight 1: Chuỗi
     if (currentStreak >= 7) {
         insightsHtml += `<div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); padding: 20px; border-radius: 16px; display: flex; gap: 16px; align-items: flex-start;">
             <i class="fa-solid fa-fire" style="font-size: 1.8rem; color: #10b981; margin-top: 2px;"></i>
@@ -1341,8 +1424,6 @@ function renderAnalytics() {
         </div>`;
         hasInsight = true;
     }
-
-    // Insight 2: Báo động Đỏ
     let atRiskGoals = activeOrLoggedGoals.filter(g => {
         if(!g.deadline) return false;
         let logged = g.target - g.current;
@@ -1354,7 +1435,6 @@ function renderAnalytics() {
         let reqPace = daysLeft > 0 ? (g.current / daysLeft) : g.current;
         return pace < reqPace * 0.7; 
     });
-
     if (atRiskGoals.length > 0) {
         insightsHtml += `<div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); padding: 20px; border-radius: 16px; display: flex; gap: 16px; align-items: flex-start;">
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.8rem; color: #ef4444; margin-top: 2px;"></i>
@@ -1362,8 +1442,6 @@ function renderAnalytics() {
         </div>`;
         hasInsight = true;
     }
-
-    // Insight 3: Giờ vàng
     let timeName = maxSlot === 'sang' ? 'Sáng (5h-12h)' : maxSlot === 'chieu' ? 'Chiều (12h-18h)' : maxSlot === 'toi' ? 'Tối (18h-22h)' : 'Đêm (22h-5h)';
     let timePct = totalSessionsCount > 0 ? Math.round((timeSlots[maxSlot] / totalSessionsCount) * 100) : 0;
     if (timePct >= 40) {
@@ -1373,25 +1451,24 @@ function renderAnalytics() {
         </div>`;
         hasInsight = true;
     }
-
     if (!hasInsight) {
         insightsHtml += `<div style="color: var(--text-muted); font-size: 0.95rem; font-style: italic; padding: 20px; text-align: center; grid-column: 1/-1;">Hệ thống đang âm thầm quan sát hành vi của bệ hạ. Lời khuyên sẽ sớm xuất hiện...</div>`;
     }
     insightsHtml += `</div></div>`;
 
-    // CÁC THÀNH PHẦN CŨ
     let sessionHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.8s"><h3>Tổng quan Phiên học</h3><div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px;"><div style="width: 50px; height: 50px; border-radius: 14px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento); flex-shrink: 0;"><i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.5rem;"></i></div><div style="display: flex; flex-direction: column; gap: 2px;"><div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div><div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div></div></div><div style="display: flex; gap: 12px; flex-wrap: wrap;"><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border);"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div></div><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border);"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div></div></div></div>`;
     
     let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.9s"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; flex-wrap:wrap; gap:10px;"><h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3><select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;"></select></div><div id="daily-breakdown-content"><p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p></div></div>`;
 
-    // 🔴 HỢP NHẤT TOÀN BỘ VÀO GIAO DIỆN (CHÈN V3 VÀO)
+    // 🔴 HỢP NHẤT TOÀN BỘ VÀO GIAO DIỆN (CHÈN THÊM V4 VÀO)
     room.innerHTML = `${trendsHtml}
         <div class="analytics-grid">
             ${plannedVsActualHtml}
             ${velocityHtml}
-            ${profileHtml}      <!-- V3 Profile Đã Fix -->
+            ${profileHtml}      <!-- V3 Profile -->
             ${dnaHtml}          <!-- V3 DNA -->
             ${insightsHtml}     <!-- V3 Insights -->
+            ${predictiveHtml}   <!-- V4 Predictive Analytics -->
             ${sessionHtml}
             ${dailyReportHtml}
         </div>`;
