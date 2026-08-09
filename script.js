@@ -213,7 +213,6 @@ function resumeSession(rec) {
                         badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
                         saveRecoveryState(); updateDisplay(timeLeft);
                     } else if (!isHardcoreTax && !isDebtSession) {
-                        // KÍCH HOẠT TRÀN VIỀN
                         isOvertimePhase = true;
                         standardMinutes = currentDuration; overtimeMinutes = 0;
                         sessionEndTime = Date.now(); 
@@ -235,7 +234,6 @@ function resumeSession(rec) {
                     updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
                 }
             } else {
-                // TĂNG DẦN THỜI GIAN TRÀN VIỀN
                 let elapsed = Math.round((Date.now() - sessionEndTime) / 1000);
                 overtimeMinutes = Math.floor(elapsed / 60);
                 let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
@@ -293,8 +291,7 @@ function impactStockMarket(actionType) {
     renderStockMarket();
 }
 
-// --- BẮT ĐẦU CỤM GIAO DỊCH CHỨNG KHOÁN ---
-let currentTradeStock = ""; // Biến lưu mã đang giao dịch
+let currentTradeStock = "";
 
 function renderStockMarket() {
     let container = document.getElementById('stock-market-container');
@@ -307,12 +304,10 @@ function renderStockMarket() {
     for (let code in stocks) {
         let price = stocks[code];
         let owned = portfolio[code] || 0;
-        
-        // Thẻ bài chứng khoán nay đã có thể bấm vào (onclick)
-        html += `<div onclick="openTradeModal('${code}')" style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 130px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0; cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--brand-dash)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border)'">
-            <div style="font-weight: 800; color: var(--brand-dash); font-size: 0.9rem; margin-bottom: 4px;">${code}</div>
-            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">$${price}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; font-weight: 700;">Đang giữ: <span style="color:var(--brand-focus)">${owned}</span></div>
+        html += `<div onclick="openTradeModal('${code}')" style="background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 130px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0; cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--brand-dash)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border)'">
+            <div style="font-weight: 800; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 4px;">${code}</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--brand-trophy);">$${price}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; font-weight: 700;">Đang giữ: <span style="color:var(--text-main)">${owned}</span></div>
         </div>`;
     }
     container.innerHTML = html;
@@ -348,10 +343,10 @@ function buyStock() {
         portfolio[code] = (portfolio[code] || 0) + 1;
         localStorage.setItem("userPortfolio", JSON.stringify(portfolio));
         
-        playTick(); // Âm thanh báo hiệu mua thành công
+        playTick(); 
         updateUsdDisplay();
-        openTradeModal(code); // Cập nhật lại số liệu trên bảng lệnh
-        renderStockMarket(); // Cập nhật lại số liệu ngoài màn hình chính
+        openTradeModal(code); 
+        renderStockMarket(); 
     } else {
         alert(`❌ Ngân khố của bệ hạ chỉ còn $${usd}, không đủ sức mua 1 cổ phiếu ${code} với giá $${price}!`);
     }
@@ -370,7 +365,7 @@ function sellStock() {
         portfolio[code] = owned - 1;
         localStorage.setItem("userPortfolio", JSON.stringify(portfolio));
         
-        playAlertSound(); // Âm thanh chốt lời báo hiệu tiền về khố
+        playAlertSound(); 
         updateUsdDisplay();
         openTradeModal(code);
         renderStockMarket();
@@ -378,7 +373,6 @@ function sellStock() {
         alert(`❌ Bệ hạ hiện không nắm giữ cổ phiếu ${code} nào để bán khống!`);
     }
 }
-// --- KẾT THÚC CỤM GIAO DỊCH CHỨNG KHOÁN ---
 
 function initializeImperialEconomy() {
     let isEconomyInitialized = localStorage.getItem("imperialEconomyActive");
@@ -489,7 +483,6 @@ function startTaxSession() {
     document.getElementById('shame-modal').style.display = 'none'; document.getElementById('focus-room').style.display = 'flex';
     document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
     
-    // Đã sửa thành 90 PHÚT
     document.getElementById('focus-target-info').innerText = "THIẾT QUÂN LUẬT (90 PHÚT)";
     let badge = document.getElementById('focus-badge'); badge.innerText = "CHẾ ĐỘ HARDCORE"; badge.style.background = "rgba(225, 29, 72, 0.1)"; badge.style.color = "var(--brand-warning)"; badge.style.borderColor = "var(--brand-warning)";
 
@@ -507,9 +500,8 @@ function startTaxSession() {
 function runHardcoreSession() {
     if (isCurfewActive()) { alert("ĐĐ TỚI GIỜ GIỚI NGHIÊM!"); return; }
     if(audioCtx.state === 'suspended') audioCtx.resume();
-    isHardcoreTax = true; taxPauseBank = 900; document.getElementById('btn-tax').style.display = 'none'; // 15 phút (900s) quỹ tạm dừng
+    isHardcoreTax = true; taxPauseBank = 900; document.getElementById('btn-tax').style.display = 'none';
     
-    // Đã sửa thời lượng thành 90 phút
     currentDuration = 90; activeSessionMinutes = 90; timeLeft = 90 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
     isSessionActive = true; isPaused = false; document.body.classList.add('focus-active');
     saveRecoveryState();
@@ -562,23 +554,24 @@ function importData(event) {
     }; reader.readAsText(file); event.target.value = ''; 
 }
 
+// ==========================================
+// HÀM CHỐT SỔ (BẢO TỒN THÁNH CHỈ: BẮT BUỘC QUA NGÀY THỨ 8 MỚI TỔNG KẾT)
+// ==========================================
 function checkCycleAndStreak() {
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
     let todayStr = todayObj.toISOString().split('T')[0];
     let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1);
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
-    // 1. KIỂM TRA CHU KỲ TUẦN (Chỉ chốt sổ khi sang ngày thứ 8)
+    // KIỂM TRA CHU KỲ TUẦN
     let cycleStartObj = new Date(cycleStartDate); 
     let diffCycleTime = new Date(todayStr) - cycleStartObj;
     let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
 
     // THÁNH CHỈ: Đổi từ >= 7 thành >= 8. Bắt buộc sang ngày thứ 8 mới tổng kết!
     if (diffCycleDays >= 8 && !isPendingTax) {
-        // TỰ ĐỘNG SAO LƯU TRƯỚC KHI RESET TUẦN
         exportData(); 
 
-        // THU THUẾ DUY TRÌ VƯƠNG TRIỀU HÀNG TUẦN
         let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
         if (usd >= 250) {
             localStorage.setItem("usdBalance", usd - 250);
@@ -589,8 +582,8 @@ function checkCycleAndStreak() {
             localStorage.setItem("isSealed", "true");
         }
 
-        // TỔNG KẾT 7 NGÀY
         let totalCycleHours = 0;
+        // Vẫn chỉ lấy tổng của đúng 7 ngày trong chu kỳ để xét duyệt Thiết Quân Luật
         for(let i = 0; i < 7; i++) {
             let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
             let dStr = d.toISOString().split('T')[0]; 
@@ -605,11 +598,19 @@ function checkCycleAndStreak() {
             alert(`TỔNG KẾT TUẦN: Bệ hạ đã hoàn thành ${totalCycleHours.toFixed(1)} giờ. Chu kỳ mới bắt đầu!`);
         }
         
-        cycleStartDate = todayStr; 
+        // Ép tịnh tiến cycleStart lên đúng 7 ngày
+        cycleStartObj.setDate(cycleStartObj.getDate() + 7);
+        
+        // Reset về hôm nay nếu off quá lâu (bỏ hoang án thư hơn 2 chu kỳ - 14 ngày)
+        if (new Date(todayStr) - cycleStartObj > 14 * 24 * 3600 * 1000) {
+            cycleStartObj = new Date(todayStr);
+        }
+        
+        cycleStartDate = cycleStartObj.toISOString().split('T')[0];
         localStorage.setItem('saasCycleStart', cycleStartDate);
     }
 
-    // 2. ĐẠO LUẬT NGÀY: TIÊU CHUẨN 1.5 GIỜ
+    // ĐẠO LUẬT NGÀY: TIÊU CHUẨN 1.5 GIỜ
     if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
         let lastDateObj = new Date(lastActiveDate); 
         let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
@@ -617,11 +618,10 @@ function checkCycleAndStreak() {
         
         let checkedDate = localStorage.getItem('saasDebtCheckedDate');
         if (checkedDate !== yesterdayStr) {
-            // Mức chuẩn 1.5h/ngày (Nếu dùng quyền nghỉ thì hạ xuống 0.75h)
             let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.5; 
             
+            // NẾU DIFFDAYS > 1 (QUÊN ĐĂNG NHẬP > 24H) TÍNH LÀ ĐÀO NGŨ
             if (diffDays > 1) {
-                // Đào ngũ quá 1 ngày (2 ngày liên tiếp không báo danh) -> Giáng tội nặng nhất
                 if (!isPendingTax) impactStockMarket("PENALTY");
                 isPendingTax = true; 
                 localStorage.setItem('saasPendingTax', 'true'); 
@@ -629,7 +629,6 @@ function checkCycleAndStreak() {
             } else if (diffDays === 1) {
                 let yesterdayHrs = dailyLogs[yesterdayStr] || 0; 
                 if (yesterdayHrs < targetHrs) {
-                    // Cày chưa đủ chuẩn (kể cả cày 0h) -> Tính nợ lãi kép
                     let deficitHrs = targetHrs - yesterdayHrs; 
                     let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5); 
                     if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
@@ -641,26 +640,29 @@ function checkCycleAndStreak() {
         }
     }
 
-    // 3. THỰC THI PHÁN QUYẾT
+    // THỰC THI ÁN PHẠT TRÊN GIAO DIỆN
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
-        document.querySelector('.shame-content h2').innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        document.querySelector('.shame-content p').innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!"; // Đã sửa
-        document.querySelector('.btn-shame-alt').style.display = 'none'; 
-        document.querySelector('.btn-shame').innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; // Đã sửa
-        document.querySelector('.btn-shame').onclick = startTaxSession; return;
+        let shameTitle = document.querySelector('.shame-content h2'); if(shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
+        let shameDesc = document.querySelector('.shame-content p'); if(shameDesc) shameDesc.innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!"; 
+        let btnAlt = document.querySelector('.btn-shame-alt'); if (btnAlt) btnAlt.style.display = 'none'; 
+        let btnShame = document.querySelector('.btn-shame');
+        if(btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; btnShame.onclick = startTaxSession; }
+        return;
     }
 
     if (dailyDebtMinutes > 0) {
         document.getElementById('shame-modal').style.display = 'flex'; 
-        document.querySelector('.shame-content h2').innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.5H)";
-        document.querySelector('.shame-content p').innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ 1.5h. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong> Phiên Khổ Sai.<br>Phải làm sạch nợ mới được đi tiếp!`;
-        document.querySelector('.btn-shame-alt').style.display = 'none';
-        document.querySelector('.btn-shame').innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`;
-        document.querySelector('.btn-shame').onclick = startDebtSession; return;
+        let shameTitle = document.querySelector('.shame-content h2'); if(shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.5H)";
+        let shameDesc = document.querySelector('.shame-content p'); if(shameDesc) shameDesc.innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ 1.5h. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        let btnAlt = document.querySelector('.btn-shame-alt'); if (btnAlt) btnAlt.style.display = 'none';
+        let btnShame = document.querySelector('.btn-shame');
+        if(btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
+        return;
     }
 
-    document.getElementById('streak-count').innerText = currentStreak;
+    let streakEl = document.getElementById('streak-count');
+    if (streakEl) streakEl.innerText = currentStreak;
 }
 
 function renderKPI() {
@@ -1105,11 +1107,9 @@ function submitReport() {
         document.getElementById('report-modal').style.display = 'none';
         let isPunishment = isHardcoreTax || isDebtSession;
 
-        // XÁC ĐỊNH SỐ PHÚT THỰC TẾ ĐÃ CÀY
         activeSessionMinutes = standardMinutes + overtimeMinutes;
         if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; 
 
-        // CHỈ PHIÊN THƯỜNG MỚI ĐƯỢC NHẬN LƯƠNG BỔ SUNG & KÍCH CỔ PHIẾU
         if (!isPunishment) {
             let totalEarn = 0;
             if (standardMinutes > 0) {
@@ -1124,7 +1124,6 @@ function submitReport() {
             impactStockMarket("SUCCESS"); 
         }
 
-        // MỞ KHÓA NIÊM PHONG (Áp dụng chung)
         let isSealed = localStorage.getItem("isSealed") === "true";
         if (isSealed) {
             let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
@@ -1136,46 +1135,58 @@ function submitReport() {
             }
         }
 
-        // THÁNH CHỈ MỚI: BẤT KỂ PHIÊN PHẠT HAY THƯỜNG, ĐỀU PHẢI CỘNG GIỜ VÀO KPI VÀ TỔNG HỌC GIẢ!
         let goal = goals.find(g => g.id === activeGoalId); 
-        if(!goal) goal = goals[0]; // Dự phòng
+        if(!goal) goal = goals[0]; 
         if(!goal.reports) goal.reports = [];
         let now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); let dateStr = now.toISOString().split('T')[0];
         
         let reportLabel = isPunishment ? `Phạt ${currentDuration}p` : `${currentDuration}p`;
         goal.reports.push({ date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), type: reportLabel, text: text });
         
-        // Trừ giờ mục tiêu và cộng giờ vào Biểu đồ nhiệt
         let hoursEarned = activeSessionMinutes / 60; 
         goal.current = Math.max(0, goal.current - hoursEarned);
         
         if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; 
         dailyLogs[dateStr] += hoursEarned; 
         totalSessions++;
+
+        // 🔴 MỐC LƯU TRỮ HOẠT ĐỘNG
+        lastActiveDate = dateStr;
+        localStorage.setItem('saasLastActive', lastActiveDate);
+
+        // 🔴 TĂNG CHUỖI NẾU LÀ PHIÊN ĐẦU TIÊN TRONG NGÀY
+        let checkedStreakDate = localStorage.getItem('saasStreakCheckedDate');
+        if (checkedStreakDate !== dateStr && !isPunishment) {
+            currentStreak++;
+            localStorage.setItem('saasStreakCheckedDate', dateStr);
+        }
         
-        document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+        let focusTargetEl = document.getElementById('focus-target-info');
+        if(focusTargetEl) focusTargetEl.innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+        
         if(goal.current <= 0) { setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); }
 
-        // KẾT THÚC CÁC TRẠNG THÁI PHẠT
         if (isHardcoreTax) { 
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
                 alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của ngài đã được cộng thẳng vào KPI tuần này.`);
             } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
-            document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
+            let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
+            let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
         }
 
         if (isDebtSession) {
             isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
             alert(`Đã cày trả sạch nợ Lãi Kép! Thời gian nộp phạt này đã được hệ thống ghi nhận vào Tổng giờ học.`);
-            document.getElementById('btn-tax').style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard; 
+            let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
+            let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
         }
 
         saveAll();
-        document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
+        let statusBoxEl = document.getElementById('status-box');
+        if(statusBoxEl) statusBoxEl.innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
         
-        // Phiên phạt thì ép tải lại trang, phiên thường thì vào Break
         if (isPunishment) { setTimeout(() => location.reload(), 1500); } else { renderKPI(); initiateBreak(); }
     }
 }
