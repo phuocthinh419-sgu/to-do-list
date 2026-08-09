@@ -744,14 +744,38 @@ function updateCountdownTicks() {
     });
 }
 
-function createNewCountdown() {
-    const name = prompt("Tên sự kiện:"); if (!name) return;
-    const dateInput = prompt("Nhập ngày (YYYY-MM-DD):"); if (!dateInput) return;
-    let timeInput = prompt("Nhập giờ (HH:MM) - Bấm OK để trống:"); if (!timeInput || timeInput.trim() === "") timeInput = "00:00";
-    const parsedDate = new Date(`${dateInput.trim()}T${timeInput.trim()}:00`);
-    if (isNaN(parsedDate.getTime())) { alert("Định dạng không hợp lệ."); return; }
-    countdowns.push({ id: Date.now(), name: name.toUpperCase(), date: parsedDate.toISOString() }); saveAll(); renderCountdowns();
+// =====================================================================
+// NÂNG CẤP 1: HÀM TẠO MỤC TIÊU MỚI (HỎI THÊM DEADLINE)
+// =====================================================================
+function createNewGoal() {
+    const name = prompt("Tên mục tiêu (VD: Lịch sử Đảng):"); if (!name) return;
+    const target = parseFloat(prompt("Định mức thời gian (Số giờ - VD: 20):")); if (isNaN(target) || target <= 0) return alert("Không hợp lệ.");
+    
+    // Yêu cầu thêm Hạn Chót (Deadline) để tính Goal Health
+    const deadlineInput = prompt("Hạn chót (YYYY-MM-DD) - Nếu không có hãy để trống và bấm OK:");
+    let deadline = null;
+    if (deadlineInput && deadlineInput.trim() !== "") {
+        const parsed = new Date(deadlineInput.trim());
+        if (!isNaN(parsed.getTime())) deadline = parsed.toISOString().split('T')[0];
+    }
+    
+    // Lưu lại ngày tạo (createdAt) để tính Tốc độ (Pace)
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    const createdAt = todayObj.toISOString().split('T')[0];
+
+    goals.push({ 
+        id: Date.now(), 
+        name: name, 
+        target: target, 
+        current: target, 
+        reports: [], 
+        deadline: deadline, 
+        createdAt: createdAt 
+    });
+    
+    saveAll(); renderDashboard(); renderGamification();
 }
+
 function deleteCountdown(id) { if (confirm("Xóa bộ đếm ngược này?")) { countdowns = countdowns.filter(c => c.id !== id); saveAll(); renderCountdowns(); } }
 
 function switchTab(tab) {
@@ -887,12 +911,91 @@ function renderAnalytics() {
     }
 }
 
+// =====================================================================
+// NÂNG CẤP 2: BIẾN THẺ MỤC TIÊU THÀNH MINI ANALYTICAL OBJECT (PHASE V1)
+// KÈM VÁ LỖI VIEWBOX CHO VÒNG TRÒN PROGRESS
+// =====================================================================
 function renderDashboard() {
     let activeGoals = goals.filter(g => g.current > 0); const board = document.getElementById('dashboard-grid'); board.innerHTML = '';
     if (activeGoals.length === 0) { board.innerHTML = '<div class="stagger-item" style="animation-delay:0.3s; grid-column: 1/-1; text-align: center; padding: 60px 20px; border: 2px dashed var(--border); border-radius: 24px; color: var(--text-muted); font-size: 1.05rem; font-weight: 500; backdrop-filter: blur(var(--bg-panel-blur));">Chưa có mục tiêu. Hãy khởi tạo mục tiêu mới.</div>'; return; }
+    
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayTime = todayObj.getTime();
+
     activeGoals.forEach((goal, index) => {
-        const percent = Math.max(0, Math.min(100, ((goal.target - goal.current) / goal.target) * 100)); const offset = 226.19 - (percent / 100) * 226.19; let delay = (index + 1) * 0.1 + 0.2;
-        board.innerHTML += `<div class="goal-card stagger-item" style="animation-delay: ${delay}s" onclick="openGoal(${goal.id})"><button class="btn-delete" onclick="deleteGoal(event, ${goal.id})"><i class="fa-solid fa-trash"></i></button><div class="progress-wrapper"><div class="progress-circle"><svg viewBox="0 0 85 85"><circle class="progress-bg" cx="42.5" cy="42.5" r="36"></circle><circle class="progress-bar" cx="42.5" cy="42.5" r="36" style="stroke-dashoffset: ${offset}"></circle></svg><div class="progress-text">${percent.toFixed(0)}%</div></div><div class="goal-meta"><h3>${goal.name}</h3><p>Còn lại: <strong style="color:var(--text-main);">${goal.current.toFixed(2)}h</strong> / ${goal.target}h</p></div></div></div>`;
+        const percent = Math.max(0, Math.min(100, ((goal.target - goal.current) / goal.target) * 100)); 
+        const offset = 226.19 - (percent / 100) * 226.19; 
+        let delay = (index + 1) * 0.1 + 0.2;
+        
+        // --- TÍNH TOÁN INTELLIGENCE (PACE & ETA & HEALTH) ---
+        let hoursDone = goal.target - goal.current;
+        let createdTime = goal.createdAt ? new Date(goal.createdAt).getTime() : new Date(cycleStartDate).getTime();
+        let daysElapsed = Math.max(1, Math.ceil((todayTime - createdTime) / (1000 * 3600 * 24)));
+        
+        let currentPace = hoursDone / daysElapsed; // Giờ / Ngày
+        let etaDays = currentPace > 0 ? Math.ceil(goal.current / currentPace) : "∞";
+        
+        let healthHtml = "";
+        let paceText = currentPace > 0 ? `${currentPace.toFixed(1)}h/ngày` : "0.0h/ngày";
+        let etaText = etaDays !== "∞" ? `Còn ~${etaDays} ngày` : "Chưa xác định";
+
+        if (goal.deadline) {
+            let deadlineTime = new Date(goal.deadline).getTime();
+            let daysLeftToDeadline = Math.ceil((deadlineTime - todayTime) / (1000 * 3600 * 24));
+            let requiredPace = daysLeftToDeadline > 0 ? (goal.current / daysLeftToDeadline) : goal.current;
+            
+            if (daysLeftToDeadline < 0) {
+                healthHtml = `<span style="background: rgba(239,68,68,0.1); color: #EF4444; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(239,68,68,0.3);"><i class="fa-solid fa-skull"></i> QUÁ HẠN</span>`;
+            } else if (currentPace >= requiredPace) {
+                healthHtml = `<span style="background: rgba(16,185,129,0.1); color: #10B981; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(16,185,129,0.3);"><i class="fa-solid fa-check"></i> ỔN ĐỊNH</span>`;
+            } else if (currentPace >= requiredPace * 0.7) {
+                healthHtml = `<span style="background: rgba(245,158,11,0.1); color: #F59E0B; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(245,158,11,0.3);"><i class="fa-solid fa-triangle-exclamation"></i> RỦI RO</span>`;
+            } else {
+                healthHtml = `<span style="background: rgba(239,68,68,0.1); color: #EF4444; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(239,68,68,0.3);"><i class="fa-solid fa-fire"></i> CHẬM TIẾN ĐỘ</span>`;
+            }
+        } else {
+            healthHtml = `<span style="background: rgba(14,165,233,0.1); color: #0EA5E9; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(14,165,233,0.3);"><i class="fa-solid fa-infinity"></i> TỰ DO</span>`;
+        }
+        // -----------------------------------------------------
+
+        board.innerHTML += `
+        <div class="goal-card stagger-item" style="animation-delay: ${delay}s" onclick="openGoal(${goal.id})">
+            <button class="btn-delete" onclick="deleteGoal(event, ${goal.id})"><i class="fa-solid fa-trash"></i></button>
+            <div class="progress-wrapper" style="align-items: flex-start;">
+                
+                <div class="progress-circle">
+                    <!-- ĐÃ THÊM VIEWBOX 85 85 Ở ĐÂY ĐỂ VÒNG TRÒN KHÔNG BỊ CẮT -->
+                    <svg viewBox="0 0 85 85">
+                        <circle class="progress-bg" cx="42.5" cy="42.5" r="36"></circle>
+                        <circle class="progress-bar" cx="42.5" cy="42.5" r="36" style="stroke-dashoffset: ${offset}"></circle>
+                    </svg>
+                    <div class="progress-text">${percent.toFixed(0)}%</div>
+                </div>
+
+                <div class="goal-meta" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px; flex-wrap: wrap;">
+                        <h3 style="margin: 0; font-size: 1.15rem; line-height: 1.2;">${goal.name}</h3>
+                        ${healthHtml}
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                        <div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Còn lại</div>
+                            <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 800;">${goal.current.toFixed(1)}h <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">/ ${goal.target}h</span></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Tốc độ (Pace)</div>
+                            <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 800;">${paceText}</div>
+                        </div>
+                        <div style="grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 8px; margin-top: -4px;">
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Dự kiến xong (ETA)</div>
+                            <div style="font-size: 0.85rem; color: var(--brand-info); font-weight: 700;">${etaText}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>`;
     });
 }
 
@@ -912,12 +1015,6 @@ function viewTrophyDetail(id) {
     let tl = document.getElementById('td-timeline'); tl.innerHTML = '';
     if (reports.length === 0) { tl.innerHTML = '<p class="stagger-item" style="animation-delay:0.4s; color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; } 
     else { [...reports].reverse().forEach((rep, index) => { let delay = (index * 0.1) + 0.4; tl.innerHTML += `<div class="timeline-item stagger-item" style="animation-delay:${delay}s"><div class="tl-meta"><span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span><span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span></div><div class="tl-content">${rep.text}</div></div>`; }); }
-}
-
-function createNewGoal() {
-    const name = prompt("Tên mục tiêu:"); if (!name) return;
-    const target = parseFloat(prompt("Định mức thời gian (Số giờ):")); if (isNaN(target) || target <= 0) return alert("Hợp lệ.");
-    goals.push({ id: Date.now(), name: name, target: target, current: target, reports: [] }); saveAll(); renderDashboard(); renderGamification();
 }
 
 function deleteGoal(e, id) { e.stopPropagation(); if (confirm("Xóa mục tiêu?")) { goals = goals.filter(g => g.id !== id); saveAll(); if(document.getElementById('view-dashboard').style.display !== 'none') {renderDashboard(); renderGamification();} else renderTrophyRoom(); } }
@@ -1004,10 +1101,8 @@ function startSession(minutes, isIce = false) {
                         badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
                         saveRecoveryState(); updateDisplay(timeLeft);
                     } else if (!isHardcoreTax && !isDebtSession) {
-                        // KÍCH HOẠT THUẬT TOÁN TRÀN VIỀN
                         isOvertimePhase = true;
-                        standardMinutes = currentDuration;
-                        overtimeMinutes = 0;
+                        standardMinutes = currentDuration; overtimeMinutes = 0;
                         sessionEndTime = Date.now(); 
                         playAlertSound();
                         alert("⏳ HẾT GIỜ CHUẨN! Bệ hạ có thể bấm 'Nộp báo cáo' (nút Hủy cũ) để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
@@ -1018,10 +1113,7 @@ function startSession(minutes, isIce = false) {
                         btnCancel.innerHTML = '<i class="fa-solid fa-file-signature"></i> Nộp báo cáo';
                         btnCancel.style.borderColor = "var(--brand-break)";
                         btnCancel.style.color = "var(--brand-break)";
-                        btnCancel.onclick = () => {
-                            clearInterval(timerInterval);
-                            triggerReportModal();
-                        };
+                        btnCancel.onclick = () => { clearInterval(timerInterval); triggerReportModal(); };
                     } else { 
                         playAlertSound(); triggerReportModal(); 
                     }
@@ -1030,7 +1122,6 @@ function startSession(minutes, isIce = false) {
                     updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
                 }
             } else {
-                // ĐẾM TỚI (COUNT UP) TRONG OVERTIME
                 let elapsed = Math.round((Date.now() - sessionEndTime) / 1000);
                 overtimeMinutes = Math.floor(elapsed / 60);
                 let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
@@ -1150,11 +1241,9 @@ function submitReport() {
         dailyLogs[dateStr] += hoursEarned; 
         totalSessions++;
 
-        // 🔴 MỐC LƯU TRỮ HOẠT ĐỘNG
         lastActiveDate = dateStr;
         localStorage.setItem('saasLastActive', lastActiveDate);
 
-        // 🔴 TĂNG CHUỖI NẾU LÀ PHIÊN ĐẦU TIÊN TRONG NGÀY
         let checkedStreakDate = localStorage.getItem('saasStreakCheckedDate');
         if (checkedStreakDate !== dateStr && !isPunishment) {
             currentStreak++;
