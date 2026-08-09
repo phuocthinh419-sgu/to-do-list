@@ -1105,44 +1105,57 @@ function renderKPI() {
 }
 
 function renderGamification() {
-    let totalHoursEarned = goals.reduce((sum, g) => sum + (g.target - g.current), 0);
+    let totalHoursEarned = goals.reduce((sum, g) => sum + (g.target - g.current), 0); 
     document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h'; 
     document.getElementById('streak-count').innerText = currentStreak;
     
-    let rankTitle = "Người Mới"; 
-    let rankDesc = "Cần 10h để thăng cấp Học Giả"; 
-    let rankColor = "#94a3b8"; 
-    
+    let rankTitle = "Người Mới"; let rankDesc = "Cần 10h để thăng cấp Học Giả"; let rankColor = "#94a3b8"; 
     if(totalHoursEarned >= 300) { rankTitle = "Huyền Thoại"; rankDesc = "Thành tích học tập xuất sắc"; rankColor = "#f59e0b"; } 
     else if(totalHoursEarned >= 100) { rankTitle = "Bậc Thầy"; rankDesc = `Cần ${Math.ceil(300 - totalHoursEarned)}h để thăng cấp Huyền Thoại`; rankColor = "#8b5cf6"; } 
     else if(totalHoursEarned >= 50) { rankTitle = "Chuyên Gia"; rankDesc = `Cần ${Math.ceil(100 - totalHoursEarned)}h để thăng cấp Bậc Thầy`; rankColor = "#ea580c"; } 
     else if(totalHoursEarned >= 10) { rankTitle = "Học Giả"; rankDesc = `Cần ${Math.ceil(50 - totalHoursEarned)}h để thăng cấp Chuyên Gia`; rankColor = "#10b981"; } 
-
+    
     document.getElementById('rank-title').innerText = rankTitle; 
-    document.getElementById('rank-desc').innerText = rankDesc;
+    document.getElementById('rank-desc').innerText = rankDesc; 
     const iconEl = document.getElementById('rank-icon'); 
     iconEl.style.color = rankColor; 
     iconEl.style.filter = `drop-shadow(0 0 12px ${rankColor}80)`;
-
-    const grid = document.getElementById('heatmap-grid'); 
-    grid.innerHTML = '';
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
     
+    const grid = document.getElementById('heatmap-grid'); 
+    if(grid) grid.innerHTML = ''; 
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    
+    // TÍNH TOÁN DỮ LIỆU TRONG ĐÚNG 35 NGÀY
+    let activeDays35 = 0;
+    let totalHours35 = 0;
+
     for(let i = 34; i >= 0; i--) {
-        let d = new Date(todayObj); 
-        d.setDate(d.getDate() - i); 
-        let dateStr = d.toISOString().split('T')[0];
+        let d = new Date(todayObj); d.setDate(d.getDate() - i); 
+        let dateStr = d.toISOString().split('T')[0]; 
         let hours = dailyLogs[dateStr] || 0; 
         let heatClass = "";
         
+        if(hours > 0) {
+            activeDays35++;
+            totalHours35 += hours;
+        }
+
         if(hours > 0 && hours < 1) heatClass = "heat-1"; 
-        else if(hours >= 1 && hours < 3) heatClass = "heat-2";
+        else if(hours >= 1 && hours < 3) heatClass = "heat-2"; 
         else if(hours >= 3 && hours < 5) heatClass = "heat-3"; 
         else if(hours >= 5) heatClass = "heat-4";
         
-        grid.innerHTML += `<div class="heat-cell ${heatClass}" title="${dateStr}: ${hours.toFixed(1)}h"></div>`;
+        if(grid) grid.innerHTML += `<div class="heat-cell ${heatClass}" title="${dateStr}: ${hours.toFixed(1)}h"></div>`;
     }
+
+    // ĐỔ SỐ LIỆU VÀO CÁC CHỈ SỐ MINI TRONG HTML
+    let heatTotalEl = document.getElementById('heat-total-hrs');
+    let heatActiveEl = document.getElementById('heat-active-days');
+    let heatAvgEl = document.getElementById('heat-avg-hrs');
+
+    if(heatTotalEl) heatTotalEl.innerText = totalHours35.toFixed(1) + 'h';
+    if(heatActiveEl) heatActiveEl.innerText = activeDays35 + '/35';
+    if(heatAvgEl) heatAvgEl.innerText = (totalHours35 / 35).toFixed(1) + 'h';
 }
 
 function renderCountdowns() {
