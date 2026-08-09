@@ -158,7 +158,7 @@ let reportOpenTime = 0;
 let isBreakActive = false; 
 
 // =====================================================================
-// ☁️ FIREBASE CLOUD SYNC ENGINE
+// ☁️ FIREBASE CLOUD SYNC & AUTH ENGINE (BẢO MẬT TUYỆT ĐỐI)
 // =====================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyAOmKn9E2JWuKtXeENdVtpbzduVqNyj1oo",
@@ -171,11 +171,49 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const USER_DOC_ID = "emperor_data_v1";
+const provider = new firebase.auth.GoogleAuthProvider();
+
+let currentUser = null;
+let USER_DOC_ID = "emperor_data_v1"; // Sẽ bị ghi đè bằng ID siêu bảo mật của bệ hạ sau khi đăng nhập
 let isSyncing = false;
 
+// HÀM ĐĂNG NHẬP & ĐĂNG XUẤT
+function loginWithGoogle() {
+    firebase.auth().signInWithPopup(provider).catch(error => alert("Lỗi trình ngọc ấn: " + error.message));
+}
+
+function logout() {
+    if(confirm("Bệ hạ muốn thu hồi ngọc ấn và rời khỏi án thư?")) {
+        firebase.auth().signOut().then(() => location.reload());
+    }
+}
+
+// LẮNG NGHE LỆNH ĐĂNG NHẬP (TRÁI TIM CỦA BẢO MẬT)
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        currentUser = user;
+        USER_DOC_ID = user.uid; // Khóa dữ liệu bằng ID độc nhất của tài khoản Google
+        
+        // Cất màn hình khóa
+        document.getElementById('login-overlay').style.display = 'none';
+        
+        // Khảm tên và avatar của ngài vào Sidebar
+        let userBadge = document.getElementById('user-auth-badge');
+        if(!userBadge) {
+            let navMenu = document.querySelector('.nav-menu');
+            navMenu.insertAdjacentHTML('afterbegin', `<div id="user-auth-badge" class="stagger-item" style="padding: 0 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation-delay: 0.05s;"><img src="${user.photoURL}" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--brand-focus); box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);"><div style="display: flex; flex-direction: column;"><span style="color: var(--text-main); font-weight: 800; font-size: 0.95rem; line-height: 1.2;">${user.displayName}</span><span onclick="logout()" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 4px;" onmouseover="this.style.color='var(--brand-warning)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-right-from-bracket"></i> Rời án thư</span></div></div>`);
+        }
+
+        console.log("🔓 Ngọc ấn hợp lệ! Khởi động quy trình nạp dữ liệu từ Thiên Đình...");
+        pullFromCloud(); // Chỉ kéo dữ liệu SAU KHI ngài đã đăng nhập
+    } else {
+        // Trục xuất kẻ lạ mặt
+        document.getElementById('login-overlay').style.display = 'flex';
+    }
+});
+
 async function syncToCloud() {
-    if (isSyncing) return;
+    if (isSyncing || !currentUser) return; // Nếu chưa đăng nhập thì từ chối đồng bộ
     isSyncing = true;
     try {
         const dataToSync = {
@@ -198,11 +236,17 @@ async function syncToCloud() {
         localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
         await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
         console.log("☁️ Đã đồng bộ mồ hôi lên Thiên Đình.");
+        
+        let statusIcon = document.getElementById('status-box');
+        if (statusIcon && !isSessionActive && !isBreakActive && !isGracePeriod) {
+            statusIcon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up" style="color:var(--brand-info)"></i><span id="status-msg">Dữ liệu đã được bảo vệ trên Cloud.</span>`;
+        }
     } catch (e) { console.error("Lỗi đồng bộ Cloud:", e); }
     isSyncing = false;
 }
 
 async function pullFromCloud() {
+    if (!currentUser) return; // Bảo vệ
     try {
         const docRef = await db.collection("academic_apex").doc(USER_DOC_ID).get();
         if (docRef.exists) {
