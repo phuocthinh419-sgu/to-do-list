@@ -1186,7 +1186,7 @@ window.renderDailyBreakdown = function(targetDate) {
 
 // =====================================================================
 // NÂNG CẤP TỐI THƯỢNG PHASE V3: PROFILE, DNA & AI INSIGHTS
-// (Thay thế toàn bộ hàm renderAnalytics hiện tại)
+// (Đã vá lỗi tràn viền và cân bằng bố cục Grid)
 // =====================================================================
 function renderAnalytics() {
     const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
@@ -1268,26 +1268,26 @@ function renderAnalytics() {
     let weakestGoal = activeOrLoggedGoals.length > 0 ? activeOrLoggedGoals.reduce((min, g) => ((g.target - g.current)/g.target) < ((min.target - min.current)/min.target) ? g : min) : null;
 
     // ---------------------------------------------------------
-    // 🔥 TÍNH NĂNG V3: HỒ SƠ HỌC THUẬT (PROFILE)
+    // 🔥 TÍNH NĂNG V3: HỒ SƠ HỌC THUẬT (PROFILE) - ĐÃ FIX TRÀN VIỀN
     // ---------------------------------------------------------
-    let profileHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s">
+    let profileHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s; display: flex; flex-direction: column;">
         <h3 style="margin-bottom: 20px;">Hồ Sơ Học Thuật</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Giờ vàng tập trung</div>
-                <div style="font-size: 1.1rem; color: var(--text-main); font-weight: 800; margin-top: 4px;">${maxSlot === 'sang' ? 'Buổi Sáng' : maxSlot === 'chieu' ? 'Buổi Chiều' : maxSlot === 'toi' ? 'Buổi Tối' : 'Xuyên Đêm'}</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1;">
+            <div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Giờ vàng</div>
+                <div style="font-size: 0.95rem; color: var(--text-main); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${maxSlot === 'sang' ? 'Buổi Sáng' : maxSlot === 'chieu' ? 'Buổi Chiều' : maxSlot === 'toi' ? 'Buổi Tối' : 'Xuyên Đêm'}">${maxSlot === 'sang' ? 'Buổi Sáng' : maxSlot === 'chieu' ? 'Buổi Chiều' : maxSlot === 'toi' ? 'Buổi Tối' : 'Xuyên Đêm'}</div>
             </div>
-            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Phiên trung bình</div>
-                <div style="font-size: 1.1rem; color: var(--text-main); font-weight: 800; margin-top: 4px;">${avgSessionMins} phút</div>
+            <div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Phiên TB</div>
+                <div style="font-size: 0.95rem; color: var(--text-main); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${avgSessionMins} phút">${avgSessionMins} phút</div>
             </div>
-            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Môn Sở Trường</div>
-                <div style="font-size: 1rem; color: var(--brand-break); font-weight: 800; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${strongestGoal ? strongestGoal.name : 'Chưa có'}">${strongestGoal ? strongestGoal.name : 'Chưa có'}</div>
+            <div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sở Trường</div>
+                <div style="font-size: 0.95rem; color: var(--brand-break); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${strongestGoal ? strongestGoal.name : 'Chưa có'}">${strongestGoal ? strongestGoal.name : 'Chưa có'}</div>
             </div>
-            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Đang Báo Động</div>
-                <div style="font-size: 1rem; color: var(--brand-warning); font-weight: 800; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${weakestGoal ? weakestGoal.name : 'Chưa có'}">${weakestGoal ? weakestGoal.name : 'Chưa có'}</div>
+            <div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Báo Động</div>
+                <div style="font-size: 0.95rem; color: var(--brand-warning); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${weakestGoal ? weakestGoal.name : 'Chưa có'}">${weakestGoal ? weakestGoal.name : 'Chưa có'}</div>
             </div>
         </div>
     </div>`;
@@ -1315,13 +1315,13 @@ function renderAnalytics() {
     });
     let dnaControl = activeOrLoggedGoals.length > 0 ? Math.round((onTrackGoals / activeOrLoggedGoals.length) * 100) : 0;
 
-    let dnaHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s">
+    let dnaHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s; display: flex; flex-direction: column; justify-content: center;">
         <h3 style="margin-bottom: 24px;">ADN Học Thuật</h3>
         <div class="stat-row"><div class="stat-label"><span>KỶ LUẬT (Streak)</span> <span>${dnaDiscipline}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaDiscipline}%; background: var(--brand-dash)"></div></div></div>
         <div class="stat-row"><div class="stat-label"><span>BỀN BỈ (30 Ngày)</span> <span>${consistencyScore}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${consistencyScore}%; background: var(--brand-break)"></div></div></div>
         <div class="stat-row"><div class="stat-label"><span>TẬP TRUNG (Focus)</span> <span>${dnaFocus}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaFocus}%; background: var(--brand-focus)"></div></div></div>
         <div class="stat-row"><div class="stat-label"><span>TỐC ĐỘ (Pace)</span> <span>${dnaPace}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaPace}%; background: #a855f7"></div></div></div>
-        <div class="stat-row"><div class="stat-label"><span>KIỂM SOÁT (Control)</span> <span>${dnaControl}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaControl}%; background: var(--brand-info)"></div></div></div>
+        <div class="stat-row" style="margin-bottom: 0;"><div class="stat-label"><span>KIỂM SOÁT (Control)</span> <span>${dnaControl}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaControl}%; background: var(--brand-info)"></div></div></div>
     </div>`;
 
     // ---------------------------------------------------------
@@ -1379,7 +1379,7 @@ function renderAnalytics() {
     }
     insightsHtml += `</div></div>`;
 
-    // CÁC THÀNH PHẦN CŨ (THU GỌN VÀ DELAY ANIMATION)
+    // CÁC THÀNH PHẦN CŨ
     let sessionHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.8s"><h3>Tổng quan Phiên học</h3><div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px;"><div style="width: 50px; height: 50px; border-radius: 14px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento); flex-shrink: 0;"><i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.5rem;"></i></div><div style="display: flex; flex-direction: column; gap: 2px;"><div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div><div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div></div></div><div style="display: flex; gap: 12px; flex-wrap: wrap;"><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border);"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div></div><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border);"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div></div></div></div>`;
     
     let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.9s"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; flex-wrap:wrap; gap:10px;"><h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3><select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;"></select></div><div id="daily-breakdown-content"><p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p></div></div>`;
@@ -1389,7 +1389,7 @@ function renderAnalytics() {
         <div class="analytics-grid">
             ${plannedVsActualHtml}
             ${velocityHtml}
-            ${profileHtml}      <!-- V3 Profile -->
+            ${profileHtml}      <!-- V3 Profile Đã Fix -->
             ${dnaHtml}          <!-- V3 DNA -->
             ${insightsHtml}     <!-- V3 Insights -->
             ${sessionHtml}
