@@ -745,6 +745,131 @@ function updateCountdownTicks() {
 }
 
 // =====================================================================
+// NÂNG CẤP TỐI THƯỢNG PHASE V2: PERFORMANCE & VELOCITY (THAY THẾ HÀM CŨ)
+// =====================================================================
+function renderAnalytics() {
+    const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); let todayStr = todayObj.toISOString().split('T')[0];
+    let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1); let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+
+    let todayHrs = dailyLogs[todayStr] || 0; let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
+    
+    let cycleStartObj = new Date(cycleStartDate);
+    let thisWeekHrs = 0; 
+    for(let i=0; i<7; i++) { 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
+        thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
+    }
+    
+    let lastWeekHrs = 0; 
+    for(let i=1; i<=7; i++) { 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() - i); 
+        lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
+    }
+
+    function getTrendHtml(current, previous, label, delay) {
+        let diff = current - previous; let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
+        let color = diff >= 0 ? 'var(--brand-break)' : 'var(--brand-warning)'; let icon = diff >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'; let text = diff >= 0 ? 'Tăng' : 'Giảm';
+        if (diff === 0) { color = 'var(--text-muted)'; icon = 'fa-minus'; text = 'Ổn định'; }
+        return `<div class="analytics-card stagger-item" style="padding: 28px; animation-delay: ${delay}s"><span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">${label}</span><div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -1px;">${current.toFixed(1)}h</div><div style="font-size: 0.95rem; font-weight: 600; color: ${color}; display: flex; align-items: center; gap: 6px;"><i class="fa-solid ${icon}"></i> ${text} ${Math.abs(pct).toFixed(0)}% so với kỳ trước</div></div>`;
+    }
+
+    let trendWeekHtml = getTrendHtml(thisWeekHrs, lastWeekHrs, 'Hiệu suất Tuần (Chu kỳ)', 0.1);
+    let trendDayHtml = getTrendHtml(todayHrs, yesterdayHrs, 'Hiệu suất Hôm nay', 0.2);
+    let trendsHtml = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px; position: relative; z-index: 20;">${trendWeekHtml}${trendDayHtml}</div>`;
+
+    // ---------------------------------------------------------
+    // 🔥 TÍNH NĂNG V2 MỚI #1: PLANNED VS ACTUAL (NHỊP ĐỘ)
+    // ---------------------------------------------------------
+    let plannedVsActualHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.3s; grid-column: 1 / -1;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;">
+            <h3>Nhịp độ Tác chiến (Planned vs Actual)</h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-bullseye" style="color: var(--brand-warning);"></i> Định mức: 1.7h / ngày</span>
+        </div>
+        <div class="bar-chart" style="height: 220px; position: relative;">
+            <!-- Đường vạch Target 1.7h -->
+            <div style="position: absolute; top: 57.5%; left: 0; width: 100%; border-top: 2px dashed var(--brand-warning); opacity: 0.6; z-index: 1;"></div>`;
+            
+    for(let i=6; i>=0; i--) {
+        let d = new Date(todayObj); d.setDate(d.getDate() - i);
+        let dStr = d.toISOString().split('T')[0]; let hrs = dailyLogs[dStr] || 0;
+        let hPct = Math.min(100, (hrs / 4) * 100); let daysArr = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        let dayName = i === 0 ? "Hôm nay" : daysArr[d.getDay()];
+        let barColor = hrs >= 1.7 ? 'var(--brand-break)' : 'var(--brand-dash)';
+        plannedVsActualHtml += `<div class="bar-col" style="z-index: 2;"><span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${hrs > 0 ? hrs.toFixed(1) + 'h' : ''}</span><div class="bar-wrap" style="height: 160px; background: rgba(0,0,0,0.1); border-color: transparent;"><div class="bar-fill" style="height: ${hPct}%; background: ${barColor}; box-shadow: 0 0 10px ${barColor};"></div></div><span style="margin-top: 8px;">${dayName}</span></div>`;
+    }
+    plannedVsActualHtml += `</div></div>`;
+
+    // ---------------------------------------------------------
+    // 🔥 TÍNH NĂNG V2 MỚI #2: LEARNING VELOCITY & EFFICIENCY
+    // ---------------------------------------------------------
+    let velocityHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.4s; grid-column: 1 / -1;">
+        <h3 style="margin-bottom: 24px;">Gia tốc & Hiệu suất Học tập (Velocity & Efficiency)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">`;
+        
+    let activeOrLoggedGoals = allGoals.filter(g => (g.target - g.current) > 0);
+    if(activeOrLoggedGoals.length === 0) { 
+        velocityHtml += `<p style="color:var(--text-muted)">Chưa có dữ liệu cày ải để phân tích gia tốc.</p>`; 
+    } else {
+        activeOrLoggedGoals.sort((a,b) => (b.target - b.current) - (a.target - a.current)).forEach(g => {
+            let logged = g.target - g.current; 
+            let efficiency = (1 / g.target) * 100; // Tiến độ % / 1 giờ
+            let totalProg = (logged / g.target) * 100;
+            velocityHtml += `<div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: 0.3s;" onmouseover="this.style.borderColor='var(--brand-focus)'" onmouseout="this.style.borderColor='var(--border)'"><h4 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${g.name}">${g.name}</h4><div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;"><span style="color: var(--text-muted); font-weight: 600;">Hiệu suất (Efficiency)</span><span style="color: var(--brand-focus); font-weight: 800; background: rgba(234, 88, 12, 0.1); padding: 4px 10px; border-radius: 8px;">+${efficiency.toFixed(1)}% / giờ</span></div><div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 16px;"><span style="color: var(--text-muted); font-weight: 600;">Tổng mồ hôi</span><span style="color: var(--text-main); font-weight: 800;">${logged.toFixed(1)} giờ</span></div><div class="stat-bar" style="height: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none;"><div class="stat-fill" style="width: ${totalProg}%; background: var(--brand-dash); box-shadow: 0 0 10px var(--brand-dash);"></div></div></div>`;
+        });
+    }
+    velocityHtml += `</div></div>`;
+
+    // ORIGINAL STATS (Được delay hiệu ứng xuất hiện sau biểu đồ mới)
+    let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0;
+    allGoals.forEach(g => { if(g.reports) { actualTotalSessions += g.reports.length; g.reports.forEach(r => { if(r.type === '15p') actualS15++; if(r.type === '25p') actualS25++; }); } });
+
+    let sessionHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s"><h3>Tổng quan Phiên học</h3><div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px; position: relative; z-index: 20;"><div style="width: 50px; height: 50px; border-radius: 14px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento); flex-shrink: 0;"><i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.5rem;"></i></div><div style="display: flex; flex-direction: column; gap: 2px;"><div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div><div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div></div></div><div style="display: flex; gap: 12px; flex-wrap: wrap;"><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div></div><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div></div></div></div>`;
+    
+    let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; position:relative; z-index:20; flex-wrap:wrap; gap:10px;"><h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3><select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;"></select></div><div id="daily-breakdown-content" style="position:relative; z-index:20;"><p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p></div></div>`;
+
+    let focusHtml = '<div class="analytics-card stagger-item" style="animation-delay: 0.7s"><h3>Phân bổ Trọng tâm Toàn cục</h3>';
+    let totalLogged = 0; let goalStats = allGoals.map(g => { let logged = g.target - g.current; totalLogged += logged; return { name: g.name, logged: logged }; }).filter(g => g.logged > 0).sort((a,b) => b.logged - a.logged);
+    if (totalLogged === 0) focusHtml += '<p style="color:var(--text-muted)">Chưa có dữ liệu học tập.</p>';
+    else { goalStats.forEach(g => { let pct = (g.logged / totalLogged) * 100; focusHtml += `<div class="stat-row"><div class="stat-label"><span>${g.name}</span> <span>${g.logged.toFixed(1)}h (${pct.toFixed(0)}%)</span></div><div class="stat-bar"><div class="stat-fill" style="width: ${pct}%"></div></div></div>`; }); }
+    focusHtml += '</div>';
+
+    let timeSlots = { sang: 0, chieu: 0, toi: 0, dem: 0 };
+    allGoals.forEach(g => { if (g.reports) { g.reports.forEach(r => { let parts = r.date.split(' - '); if(parts.length === 2) { let hour = parseInt(parts[1].split(':')[0]); if(hour >= 5 && hour < 12) timeSlots.sang++; else if(hour >= 12 && hour < 18) timeSlots.chieu++; else if(hour >= 18 && hour < 22) timeSlots.toi++; else timeSlots.dem++; } }); } });
+    let maxSlot = Object.keys(timeSlots).reduce((a, b) => timeSlots[a] > timeSlots[b] ? a : b); let totalSessionsCount = timeSlots.sang + timeSlots.chieu + timeSlots.toi + timeSlots.dem;
+    
+    let bioHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.8s"><h3>Nhịp sinh học Kỷ luật</h3>`;
+    if (totalSessionsCount === 0) bioHtml += '<p style="color:var(--text-muted)">Chưa đủ dữ liệu phiên học.</p>';
+    else { bioHtml += `<div class="bio-grid"><div class="bio-box ${maxSlot === 'sang' ? 'active' : ''}"><i class="fa-regular fa-sun"></i><span>Sáng<br>(5h-12h)</span><strong>${timeSlots.sang} phiên</strong></div><div class="bio-box ${maxSlot === 'chieu' ? 'active' : ''}"><i class="fa-solid fa-cloud-sun"></i><span>Chiều<br>(12h-18h)</span><strong>${timeSlots.chieu} phiên</strong></div><div class="bio-box ${maxSlot === 'toi' ? 'active' : ''}"><i class="fa-regular fa-moon"></i><span>Tối<br>(18h-22h)</span><strong>${timeSlots.toi} phiên</strong></div><div class="bio-box ${maxSlot === 'dem' ? 'active' : ''}"><i class="fa-solid fa-star"></i><span>Đêm<br>(22h-5h)</span><strong>${timeSlots.dem} phiên</strong></div></div>`; }
+    bioHtml += `</div>`;
+
+    let dowStats = [0, 0, 0, 0, 0, 0, 0]; for (let dateStr in dailyLogs) { let day = new Date(dateStr).getDay(); let idx = day === 0 ? 6 : day - 1; dowStats[idx] += dailyLogs[dateStr]; }
+    let maxDow = Math.max(...dowStats, 1); 
+    let dowHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.9s"><h3>Độ lệch Kỷ luật (Theo thứ)</h3><div class="bar-chart">`;
+    let days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    for(let i=0; i<7; i++) { let h = (dowStats[i] / maxDow) * 100; dowHtml += `<div class="bar-col"><div class="bar-wrap"><div class="bar-fill" style="height: ${h}%"></div></div><span>${days[i]}</span></div>`; }
+    dowHtml += `</div></div>`;
+
+    // 🔴 HỢP NHẤT TOÀN BỘ VÀO GIAO DIỆN
+    room.innerHTML = `${trendsHtml}<div class="analytics-grid">${plannedVsActualHtml}${velocityHtml}${sessionHtml}${dailyReportHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
+
+    let allDates = new Set();
+    allGoals.forEach(g => { if(g.reports) { g.reports.forEach(r => { let dStr = r.date.split(' - ')[0]; allDates.add(dStr); }); } });
+
+    let selectEl = document.getElementById('daily-log-select');
+    if(allDates.size === 0) { selectEl.innerHTML = '<option value="">Chưa có dữ liệu</option>'; selectEl.disabled = true; } 
+    else {
+        let sortedDates = Array.from(allDates).sort((a, b) => {
+            let [d1, m1, y1] = a.split('/'); let dateA = new Date(y1, m1-1, d1);
+            let [d2, m2, y2] = b.split('/'); let dateB = new Date(y2, m2-1, d2);
+            return dateB - dateA;
+        });
+        sortedDates.forEach((d, i) => { let opt = document.createElement('option'); opt.value = d; opt.innerText = i === 0 ? d + " (Gần nhất)" : d; selectEl.appendChild(opt); });
+        renderDailyBreakdown(sortedDates[0]);
+    }
+}
+
+// =====================================================================
 // NÂNG CẤP 1: HÀM TẠO MỤC TIÊU MỚI (HỎI THÊM DEADLINE)
 // =====================================================================
 function createNewGoal() {
@@ -833,84 +958,6 @@ window.renderDailyBreakdown = function(targetDate) {
     content.innerHTML = html;
 };
 
-function renderAnalytics() {
-    const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
-    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); let todayStr = todayObj.toISOString().split('T')[0];
-    let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1); let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
-
-    let todayHrs = dailyLogs[todayStr] || 0; let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
-    
-    let cycleStartObj = new Date(cycleStartDate);
-    let thisWeekHrs = 0; 
-    for(let i=0; i<7; i++) { 
-        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
-        thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
-    }
-    
-    let lastWeekHrs = 0; 
-    for(let i=1; i<=7; i++) { 
-        let d = new Date(cycleStartObj); d.setDate(d.getDate() - i); 
-        lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
-    }
-
-    function getTrendHtml(current, previous, label, delay) {
-        let diff = current - previous; let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
-        let color = diff >= 0 ? 'var(--brand-break)' : 'var(--brand-warning)'; let icon = diff >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'; let text = diff >= 0 ? 'Tăng' : 'Giảm';
-        if (diff === 0) { color = 'var(--text-muted)'; icon = 'fa-minus'; text = 'Ổn định'; }
-        return `<div class="analytics-card stagger-item" style="padding: 28px; animation-delay: ${delay}s"><span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">${label}</span><div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -1px;">${current.toFixed(1)}h</div><div style="font-size: 0.95rem; font-weight: 600; color: ${color}; display: flex; align-items: center; gap: 6px;"><i class="fa-solid ${icon}"></i> ${text} ${Math.abs(pct).toFixed(0)}% so với kỳ trước</div></div>`;
-    }
-
-    let trendWeekHtml = getTrendHtml(thisWeekHrs, lastWeekHrs, 'Hiệu suất Tuần (Chu kỳ)', 0.1);
-    let trendDayHtml = getTrendHtml(todayHrs, yesterdayHrs, 'Hiệu suất Hôm nay', 0.2);
-    let trendsHtml = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px; position: relative; z-index: 20;">${trendWeekHtml}${trendDayHtml}</div>`;
-
-    let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0;
-    allGoals.forEach(g => { if(g.reports) { actualTotalSessions += g.reports.length; g.reports.forEach(r => { if(r.type === '15p') actualS15++; if(r.type === '25p') actualS25++; }); } });
-
-    let sessionHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.3s"><h3>Tổng quan Phiên học</h3><div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px; position: relative; z-index: 20;"><div style="width: 50px; height: 50px; border-radius: 14px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento); flex-shrink: 0;"><i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.5rem;"></i></div><div style="display: flex; flex-direction: column; gap: 2px;"><div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div><div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div></div></div><div style="display: flex; gap: 12px; flex-wrap: wrap;"><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div></div><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div></div></div></div>`;
-    
-    let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.4s"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; position:relative; z-index:20; flex-wrap:wrap; gap:10px;"><h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3><select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;"></select></div><div id="daily-breakdown-content" style="position:relative; z-index:20;"><p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p></div></div>`;
-
-    let focusHtml = '<div class="analytics-card stagger-item" style="animation-delay: 0.5s"><h3>Phân bổ Trọng tâm Toàn cục</h3>';
-    let totalLogged = 0; let goalStats = allGoals.map(g => { let logged = g.target - g.current; totalLogged += logged; return { name: g.name, logged: logged }; }).filter(g => g.logged > 0).sort((a,b) => b.logged - a.logged);
-    if (totalLogged === 0) focusHtml += '<p style="color:var(--text-muted)">Chưa có dữ liệu học tập.</p>';
-    else { goalStats.forEach(g => { let pct = (g.logged / totalLogged) * 100; focusHtml += `<div class="stat-row"><div class="stat-label"><span>${g.name}</span> <span>${g.logged.toFixed(1)}h (${pct.toFixed(0)}%)</span></div><div class="stat-bar"><div class="stat-fill" style="width: ${pct}%"></div></div></div>`; }); }
-    focusHtml += '</div>';
-
-    let timeSlots = { sang: 0, chieu: 0, toi: 0, dem: 0 };
-    allGoals.forEach(g => { if (g.reports) { g.reports.forEach(r => { let parts = r.date.split(' - '); if(parts.length === 2) { let hour = parseInt(parts[1].split(':')[0]); if(hour >= 5 && hour < 12) timeSlots.sang++; else if(hour >= 12 && hour < 18) timeSlots.chieu++; else if(hour >= 18 && hour < 22) timeSlots.toi++; else timeSlots.dem++; } }); } });
-    let maxSlot = Object.keys(timeSlots).reduce((a, b) => timeSlots[a] > timeSlots[b] ? a : b); let totalSessionsCount = timeSlots.sang + timeSlots.chieu + timeSlots.toi + timeSlots.dem;
-    
-    let bioHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s"><h3>Nhịp sinh học Kỷ luật</h3>`;
-    if (totalSessionsCount === 0) bioHtml += '<p style="color:var(--text-muted)">Chưa đủ dữ liệu phiên học.</p>';
-    else { bioHtml += `<div class="bio-grid"><div class="bio-box ${maxSlot === 'sang' ? 'active' : ''}"><i class="fa-regular fa-sun"></i><span>Sáng<br>(5h-12h)</span><strong>${timeSlots.sang} phiên</strong></div><div class="bio-box ${maxSlot === 'chieu' ? 'active' : ''}"><i class="fa-solid fa-cloud-sun"></i><span>Chiều<br>(12h-18h)</span><strong>${timeSlots.chieu} phiên</strong></div><div class="bio-box ${maxSlot === 'toi' ? 'active' : ''}"><i class="fa-regular fa-moon"></i><span>Tối<br>(18h-22h)</span><strong>${timeSlots.toi} phiên</strong></div><div class="bio-box ${maxSlot === 'dem' ? 'active' : ''}"><i class="fa-solid fa-star"></i><span>Đêm<br>(22h-5h)</span><strong>${timeSlots.dem} phiên</strong></div></div>`; }
-    bioHtml += `</div>`;
-
-    let dowStats = [0, 0, 0, 0, 0, 0, 0]; for (let dateStr in dailyLogs) { let day = new Date(dateStr).getDay(); let idx = day === 0 ? 6 : day - 1; dowStats[idx] += dailyLogs[dateStr]; }
-    let maxDow = Math.max(...dowStats, 1); 
-    let dowHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.7s"><h3>Độ lệch Kỷ luật (Theo thứ)</h3><div class="bar-chart">`;
-    let days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-    for(let i=0; i<7; i++) { let h = (dowStats[i] / maxDow) * 100; dowHtml += `<div class="bar-col"><div class="bar-wrap"><div class="bar-fill" style="height: ${h}%"></div></div><span>${days[i]}</span></div>`; }
-    dowHtml += `</div></div>`;
-
-    room.innerHTML = `${trendsHtml}<div class="analytics-grid">${sessionHtml}${dailyReportHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
-
-    let allDates = new Set();
-    allGoals.forEach(g => { if(g.reports) { g.reports.forEach(r => { let dStr = r.date.split(' - ')[0]; allDates.add(dStr); }); } });
-
-    let selectEl = document.getElementById('daily-log-select');
-    if(allDates.size === 0) { selectEl.innerHTML = '<option value="">Chưa có dữ liệu</option>'; selectEl.disabled = true; } 
-    else {
-        let sortedDates = Array.from(allDates).sort((a, b) => {
-            let [d1, m1, y1] = a.split('/'); let dateA = new Date(y1, m1-1, d1);
-            let [d2, m2, y2] = b.split('/'); let dateB = new Date(y2, m2-1, d2);
-            return dateB - dateA;
-        });
-        sortedDates.forEach((d, i) => { let opt = document.createElement('option'); opt.value = d; opt.innerText = i === 0 ? d + " (Gần nhất)" : d; selectEl.appendChild(opt); });
-        renderDailyBreakdown(sortedDates[0]);
-    }
-}
-
 // =====================================================================
 // NÂNG CẤP 2: BIẾN THẺ MỤC TIÊU THÀNH MINI ANALYTICAL OBJECT (PHASE V1)
 // KÈM VÁ LỖI VIEWBOX CHO VÒNG TRÒN PROGRESS
@@ -998,432 +1045,4 @@ function renderDashboard() {
         </div>`;
     });
 }
-
-function renderTrophyRoom() {
-    let completedGoals = goals.filter(g => g.current <= 0); const room = document.getElementById('trophy-room'); room.innerHTML = '';
-    if (completedGoals.length === 0) { room.innerHTML = `<div class="locked-state stagger-item" style="animation-delay: 0.1s"><i class="fa-solid fa-lock"></i><h2>Kho Lưu Trữ Bị Khóa</h2><p>Chỉ mở khóa khi hoàn thành 100% ít nhất 1 mục tiêu.</p></div>`; return; }
-    completedGoals.forEach((g, index) => {
-        let reportCount = g.reports ? g.reports.length : 0; let delay = (index + 1) * 0.1;
-        room.innerHTML += `<div class="trophy-card stagger-item" style="animation-delay: ${delay}s" onclick="viewTrophyDetail(${g.id})"><div class="trophy-header"><h3><i class="fa-solid fa-trophy" style="color: var(--brand-trophy);"></i>${g.name}</h3><span class="trophy-badge">ĐÃ HOÀN THÀNH</span></div><p style="color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-clock" style="margin-right: 6px;"></i> Quy mô: ${g.target} Giờ &nbsp;&nbsp;•&nbsp;&nbsp; <i class="fa-solid fa-file-lines" style="margin-right: 6px;"></i> Báo cáo: ${reportCount}</p></div>`;
-    });
-}
-
-function viewTrophyDetail(id) {
-    document.getElementById('trophy-room').style.display = 'none'; document.getElementById('trophy-detail').style.display = 'block';
-    let g = goals.find(x => x.id === id); let reports = g.reports || [];
-    document.getElementById('td-title').innerText = g.name; document.getElementById('td-meta').innerText = `Hoàn thành mốc ${g.target}h - Lưu trữ ${reports.length} báo cáo.`;
-    let tl = document.getElementById('td-timeline'); tl.innerHTML = '';
-    if (reports.length === 0) { tl.innerHTML = '<p class="stagger-item" style="animation-delay:0.4s; color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; } 
-    else { [...reports].reverse().forEach((rep, index) => { let delay = (index * 0.1) + 0.4; tl.innerHTML += `<div class="timeline-item stagger-item" style="animation-delay:${delay}s"><div class="tl-meta"><span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span><span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span></div><div class="tl-content">${rep.text}</div></div>`; }); }
-}
-
-function deleteGoal(e, id) { e.stopPropagation(); if (confirm("Xóa mục tiêu?")) { goals = goals.filter(g => g.id !== id); saveAll(); if(document.getElementById('view-dashboard').style.display !== 'none') {renderDashboard(); renderGamification();} else renderTrophyRoom(); } }
-
-function openGoal(id) {
-    if (isPendingTax || dailyDebtMinutes > 0) { alert("Phải dọn sạch nợ trước khi tiếp tục mục tiêu khác!"); return; }
-    activeGoalId = id; const goal = goals.find(g => g.id === id);
-    
-    document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
-    document.getElementById('focus-room').style.display = 'flex';
-    document.getElementById('focus-target-info').innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
-    
-    let badge = document.getElementById('focus-badge'); badge.innerText = "Khu Vực Tập Trung"; badge.style = "";
-    if(audioCtx.state === 'suspended') audioCtx.resume(); resetSystem();
-}
-
-function backToDashboard() {
-    if ((isSessionActive || isHardcoreTax || isDebtSession) && !confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ phiên này?")) return;
-    if (isSessionActive || isGracePeriod || isBreakActive || isHardcoreTax || isDebtSession) { clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); penaltyMinutes = 0; resetSystem(); }
-    document.getElementById('focus-room').style.display = 'none';
-    renderKPI(); renderDashboard(); renderGamification();
-}
-
-function updateDisplay(seconds) {
-    if(seconds < 0) seconds = 0; let m = Math.floor(seconds / 60).toString().padStart(2, '0'); let s = (seconds % 60).toString().padStart(2, '0');
-    document.getElementById('session-timer').innerText = `${m}:${s}`;
-}
-
-function toggleButtons(isActive) {
-    document.getElementById('btn-5').style.display = isActive ? 'none' : 'flex';
-    document.getElementById('btn-15').style.display = isActive ? 'none' : 'flex'; document.getElementById('btn-25').style.display = isActive ? 'none' : 'flex';
-    document.getElementById('btn-pause').style.display = isActive ? 'flex' : 'none'; document.getElementById('btn-cancel').style.display = isActive ? 'flex' : 'none';
-}
-
-function togglePause() {
-    isPaused = !isPaused; const btnPause = document.getElementById('btn-pause'); const statusMsg = document.getElementById('status-msg'); const statusIcon = document.getElementById('status-box').querySelector('i');
-    if (isHardcoreTax || isDebtSession) {
-        if (isPaused) {
-            pauseInterval = setInterval(() => { taxPauseBank--; if(taxPauseBank <= 0) { clearInterval(pauseInterval); clearInterval(timerInterval); alert("BẠN ĐÃ DÙNG HẾT 15 PHÚT NGHỈ NGƠI! Chuỗi kỷ luật đã trở về 1."); currentStreak = 1; saveAll(); resetSystem(); location.reload(); } btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + taxPauseBank + 's)'; }, 1000);
-        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; saveRecoveryState(); btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)'; }
-    } else {
-        if (isPaused) {
-            btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục'; statusIcon.className = "fa-solid fa-pause";
-            pauseTimeLeft = 300; pauseEndTime = Date.now() + pauseTimeLeft * 1000;
-            pauseInterval = setInterval(() => { pauseTimeLeft = Math.round((pauseEndTime - Date.now()) / 1000); if (pauseTimeLeft <= 0) { pauseTimeLeft = 0; clearInterval(pauseInterval); clearInterval(timerInterval); playAlertSound(); resetSystem(); setTimeout(() => alert("Đã quá 5 phút tạm dừng! Hệ thống tự động hủy phiên học hiện tại do mất tập trung."), 100); } let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); let s = (pauseTimeLeft % 60).toString().padStart(2, '0'); statusMsg.innerHTML = `Tạm dừng. Giới hạn thời gian: <strong style="color: var(--brand-focus);">${m}:${s}</strong>.`; }, 1000);
-        } else { clearInterval(pauseInterval); sessionEndTime = Date.now() + timeLeft * 1000; saveRecoveryState(); btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; statusMsg.innerText = isIcebreakerPhase ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu." : "Thời gian đang trôi. Tuyệt đối không xao nhãng."; statusIcon.className = "fa-solid fa-spinner fa-spin"; }
-    }
-}
-
-function startIcebreaker() { startSession(5, true); }
-
-function startSession(minutes, isIce = false) {
-    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM!"); return; }
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
-    isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
-    
-    isIcebreakerPhase = isIce; currentDuration = isIce ? 30 : minutes; activeSessionMinutes = minutes + penaltyMinutes; 
-    timeLeft = activeSessionMinutes * 60; sessionEndTime = Date.now() + timeLeft * 1000;
-    
-    document.body.classList.remove('break-mode'); document.body.classList.add('focus-active'); 
-    document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
-    
-    let badge = document.getElementById('focus-badge');
-    if (penaltyMinutes > 0) { badge.innerText = `ĐANG CHỊU PHẠT (+${penaltyMinutes}P)`; badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)"; } 
-    else { badge.innerText = isIce ? "PHÁ BĂNG LỰC CẢN (5P)" : "ĐANG TẬP TRUNG"; badge.style = ""; }
-    
-    document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; 
-    document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin"; 
-    document.getElementById('status-msg').innerText = isIce ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu làm việc." : "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
-    
-    toggleButtons(true); updateDisplay(timeLeft); saveRecoveryState();
-    
-    timerInterval = setInterval(() => { 
-        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
-        if (!isPaused) { 
-            if (!isOvertimePhase) {
-                timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
-                if (timeLeft <= 0) { 
-                    timeLeft = 0; 
-                    if (isIcebreakerPhase) {
-                        isIcebreakerPhase = false; playTick();
-                        activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; sessionEndTime = Date.now() + timeLeft * 1000;
-                        badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
-                        saveRecoveryState(); updateDisplay(timeLeft);
-                    } else if (!isHardcoreTax && !isDebtSession) {
-                        isOvertimePhase = true;
-                        standardMinutes = currentDuration; overtimeMinutes = 0;
-                        sessionEndTime = Date.now(); 
-                        playAlertSound();
-                        alert("⏳ HẾT GIỜ CHUẨN! Bệ hạ có thể bấm 'Nộp báo cáo' (nút Hủy cũ) để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
-                        document.getElementById('session-timer').style.color = "#fbbf24";
-                        document.getElementById('status-msg').innerText = "ĐANG TRONG THỜI GIAN CÀY LỐ (OVERTIME). Lương x2 mỗi phút.";
-                        
-                        let btnCancel = document.getElementById('btn-cancel');
-                        btnCancel.innerHTML = '<i class="fa-solid fa-file-signature"></i> Nộp báo cáo';
-                        btnCancel.style.borderColor = "var(--brand-break)";
-                        btnCancel.style.color = "var(--brand-break)";
-                        btnCancel.onclick = () => { clearInterval(timerInterval); triggerReportModal(); };
-                    } else { 
-                        playAlertSound(); triggerReportModal(); 
-                    }
-                } 
-                if (!isOvertimePhase) {
-                    updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); 
-                }
-            } else {
-                let elapsed = Math.round((Date.now() - sessionEndTime) / 1000);
-                overtimeMinutes = Math.floor(elapsed / 60);
-                let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                let s = (elapsed % 60).toString().padStart(2, '0');
-                document.getElementById('session-timer').innerText = `+${m}:${s}`;
-            }
-        }
-    }, 1000); 
-    penaltyMinutes = 0; 
-}
-
-function cancelSession() { 
-    if(confirm("Hủy phiên học? (Hình phạt: Cổ phiếu rớt 1% toàn thị trường)")) { 
-        impactStockMarket("CANCEL");
-        clearInterval(timerInterval); clearInterval(pauseInterval); resetSystem(); 
-    } 
-}
-
-function resetSystem() {
-    isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isDebtSession = false; isBreakActive = false; isIcebreakerPhase = false;
-    isOvertimePhase = false; standardMinutes = 0; overtimeMinutes = 0;
-    clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); clearRecoveryState();
-    document.body.classList.remove('break-mode'); document.body.classList.remove('focus-active');
-    
-    let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; document.getElementById('btn-focus-back').onclick = backToDashboard;
-    
-    let btnCancel = document.getElementById('btn-cancel');
-    if (btnCancel) {
-        btnCancel.innerHTML = '<i class="fa-solid fa-xmark"></i> Hủy bỏ';
-        btnCancel.style.borderColor = "var(--brand-warning)";
-        btnCancel.style.color = "var(--brand-warning)";
-        btnCancel.onclick = cancelSession;
-    }
-
-    document.getElementById('focus-badge').style = ""; document.getElementById('session-timer').style = ""; document.getElementById('status-box').querySelector('i').style = "";
-    updateDisplay(0); toggleButtons(false); document.getElementById('focus-badge').innerText = "KHU VỰC TẬP TRUNG";
-    if (penaltyMinutes > 0) { document.getElementById('status-msg').innerHTML = `<strong style="color:var(--brand-warning)">Bạn đang chịu hình phạt cộng thêm ${penaltyMinutes} phút.</strong> Hãy bắt đầu phiên học!`; } else { document.getElementById('status-box').innerHTML = `<i class="fa-solid fa-circle-info"></i><span id="status-msg">Sẵn sàng. Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.</span>`; }
-}
-
-const placeholders = ["Tóm tắt ngắn gọn những khái niệm cốt lõi bạn vừa học được...", "Liệt kê các từ vựng, công thức hoặc điểm nghẽn bạn đã giải quyết...", "Sự trung thực trong báo cáo phản ánh chất lượng thực sự của phiên học...", "Ghi lại những gì bạn thực sự đọng lại trong tâm trí lúc này...", "Mục tiêu là nắm vững kiến thức, hãy tóm tắt lại nội dung cốt lõi..."];
-
-function triggerReportModal() {
-    clearInterval(timerInterval); clearInterval(pauseInterval); document.body.classList.remove('focus-active'); clearRecoveryState();
-    
-    requiredWords = Math.max(25, Math.floor(currentDuration * 1.5)); 
-    if (currentDuration >= 120) requiredWords = 80;
-    
-    document.getElementById('word-required').innerText = requiredWords; document.getElementById('word-req-display').innerText = requiredWords;
-    document.getElementById('report-input').value = ""; document.getElementById('report-input').placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
-    updateWordCount(); document.getElementById('report-modal').style.display = 'flex'; reportOpenTime = Date.now(); setTimeout(() => document.getElementById('report-input').focus(), 100);
-}
-
-function updateWordCount() {
-    let text = document.getElementById('report-input').value.trim(); let currentWords = text ? text.split(/\s+/).length : 0; document.getElementById('word-count').innerText = currentWords;
-    let btnSubmit = document.getElementById('btn-submit-report'); let warningText = document.getElementById('word-warning');
-    if (currentWords >= requiredWords) { document.getElementById('word-count').classList.add('success'); btnSubmit.classList.add('active'); warningText.innerText = "Đã đủ điều kiện. Bạn có thể nộp báo cáo."; warningText.style.color = "var(--brand-break)"; } else { document.getElementById('word-count').classList.remove('success'); btnSubmit.classList.remove('active'); warningText.innerText = `Cần thêm ${requiredWords - currentWords} từ nữa...`; warningText.style.color = "var(--text-muted)"; }
-}
-
-function abortReport() { if(isHardcoreTax || isDebtSession) { alert("KHÔNG THỂ HỦY BÁO CÁO CỦA PHIÊN PHẠT! Bắt buộc hoàn thành."); return; } if(confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính? (Hình phạt: Cổ phiếu rớt 1%)")) { impactStockMarket("CANCEL"); document.getElementById('report-modal').style.display = 'none'; resetSystem(); } }
-
-function submitReport() {
-    let text = document.getElementById('report-input').value.trim();
-    if (text.split(/\s+/).length >= requiredWords) {
-        let timeElapsed = Date.now() - reportOpenTime; 
-        let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; 
-        if (currentDuration >= 90) minTimeRequired = 30000; 
-        
-        if (timeElapsed < minTimeRequired) { 
-            alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); 
-            document.getElementById('report-modal').style.display = 'none'; 
-            currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return; 
-        }
-
-        document.getElementById('report-modal').style.display = 'none';
-        let isPunishment = isHardcoreTax || isDebtSession;
-
-        activeSessionMinutes = standardMinutes + overtimeMinutes;
-        if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; 
-
-        if (!isPunishment) {
-            let totalEarn = 0;
-            if (standardMinutes > 0) {
-                let standardEarn = standardMinutes * 1; 
-                let overtimeEarn = overtimeMinutes * 2; 
-                totalEarn = standardEarn + overtimeEarn;
-                let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
-                localStorage.setItem("usdBalance", currentUsd + totalEarn);
-                updateUsdDisplay();
-                alert(`HOÀN THÀNH PHIÊN TU LUYỆN:\n- Cày chuẩn: ${standardMinutes}p = $${standardEarn}\n- Cày lố: ${overtimeMinutes}p = $${overtimeEarn}\n=> Ngân khố thu về: $${totalEarn}`);
-            }
-            impactStockMarket("SUCCESS"); 
-        }
-
-        let isSealed = localStorage.getItem("isSealed") === "true";
-        if (isSealed) {
-            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-            if (usd >= 250) {
-                localStorage.setItem("usdBalance", usd - 250);
-                localStorage.setItem("isSealed", "false");
-                alert("Ngân khố đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
-                updateUsdDisplay();
-            }
-        }
-
-        let goal = goals.find(g => g.id === activeGoalId); 
-        if(!goal) goal = goals[0]; 
-        if(!goal.reports) goal.reports = [];
-        let now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); let dateStr = now.toISOString().split('T')[0];
-        
-        let reportLabel = isPunishment ? `Phạt ${currentDuration}p` : `${currentDuration}p`;
-        goal.reports.push({ date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), type: reportLabel, text: text });
-        
-        let hoursEarned = activeSessionMinutes / 60; 
-        goal.current = Math.max(0, goal.current - hoursEarned);
-        
-        if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; 
-        dailyLogs[dateStr] += hoursEarned; 
-        totalSessions++;
-
-        lastActiveDate = dateStr;
-        localStorage.setItem('saasLastActive', lastActiveDate);
-
-        let checkedStreakDate = localStorage.getItem('saasStreakCheckedDate');
-        if (checkedStreakDate !== dateStr && !isPunishment) {
-            currentStreak++;
-            localStorage.setItem('saasStreakCheckedDate', dateStr);
-        }
-        
-        let focusTargetEl = document.getElementById('focus-target-info');
-        if(focusTargetEl) focusTargetEl.innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
-        
-        if(goal.current <= 0) { setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); }
-
-        if (isHardcoreTax) { 
-            isHardcoreTax = false; 
-            if (localStorage.getItem('saasPendingTax') === 'true') {
-                localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của ngài đã được cộng thẳng vào KPI tuần này.`);
-            } else { alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); }
-            let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
-            let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
-        }
-
-        if (isDebtSession) {
-            isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
-            alert(`Đã cày trả sạch nợ Lãi Kép! Thời gian nộp phạt này đã được hệ thống ghi nhận vào Tổng giờ học.`);
-            let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
-            let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
-        }
-
-        saveAll();
-        let statusBoxEl = document.getElementById('status-box');
-        if(statusBoxEl) statusBoxEl.innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
-        
-        if (isPunishment) { setTimeout(() => location.reload(), 1500); } else { renderKPI(); initiateBreak(); }
-    }
-}
-
-function initiateBreak() {
-    isSessionActive = false; isBreakActive = true; document.body.classList.add('break-mode'); toggleButtons(true); 
-    document.getElementById('btn-pause').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none'; 
-    
-    let breakMinutes = 5; let breakMsg = "Nghỉ Ngắn (5p)"; document.getElementById('focus-badge').innerText = "THỜI GIAN NGHỈ NGƠI";
-    if (currentDuration === 25 || currentDuration === 30) { standardSessionCount25++; localStorage.setItem('saasS25', standardSessionCount25); if (standardSessionCount25 % 2 === 0) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; } } 
-    else if (currentDuration === 15) { standardSessionCount15++; localStorage.setItem('saasS15', standardSessionCount15); if (standardSessionCount15 % 3 === 0) { breakMinutes = 10; breakMsg = "Nghỉ Dài (10p)"; } } 
-    else if (currentDuration >= 90) { breakMinutes = 15; breakMsg = "Nghỉ Dài (15p)"; }
-    
-    document.getElementById('status-msg').innerText = `Đang kích hoạt chế độ ${breakMsg}.`;
-    timeLeft = breakMinutes * 60; let breakEndTime = Date.now() + timeLeft * 1000; updateDisplay(timeLeft);
-    
-    timerInterval = setInterval(() => {
-        timeLeft = Math.round((breakEndTime - Date.now()) / 1000);
-        if (timeLeft <= 0) { timeLeft = 0; clearInterval(timerInterval); playAlertSound(); alert("Hết giờ nghỉ! Thời gian ân hạn 2 phút bắt đầu."); if (goals.find(g => g.id === activeGoalId).current <= 0) { backToDashboard(); } else { startGracePeriod(); } } updateDisplay(timeLeft);
-    }, 1000);
-}
-
-function startGracePeriod() {
-    document.body.classList.remove('break-mode'); isGracePeriod = true; isBreakActive = false; graceTimeLeft = 120; graceEndTime = Date.now() + graceTimeLeft * 1000;
-    
-    const badge = document.getElementById('focus-badge'); badge.innerText = "THỜI GIAN ÂN HẠN (2 PHÚT)"; badge.style.color = "var(--brand-warning)"; badge.style.background = "rgba(225, 29, 72, 0.1)";
-    const timerUI = document.getElementById('session-timer'); timerUI.style.color = "var(--brand-warning)"; timerUI.style.textShadow = "none";
-    document.getElementById('status-msg').innerHTML = "Bạn có 2 phút để bắt đầu phiên tiếp theo. Trễ hạn sẽ bị <strong style='color:var(--brand-focus)'>phạt cộng thêm 5 phút</strong>!";
-    const statusIcon = document.getElementById('status-box').querySelector('i'); statusIcon.className = "fa-solid fa-hourglass-half fa-spin"; statusIcon.style.color = "var(--brand-warning)";
-    
-    toggleButtons(false); updateDisplay(graceTimeLeft);
-    
-    graceInterval = setInterval(() => {
-        graceTimeLeft = Math.round((graceEndTime - Date.now()) / 1000);
-        if (graceTimeLeft <= 0) { graceTimeLeft = 0; clearInterval(graceInterval); isGracePeriod = false; penaltyMinutes += 5; playAlertSound(); alert(`Đã hết thời gian ân hạn! Phiên học tiếp theo sẽ bị cộng thêm 5 phút phạt.`); resetSystem(); } updateDisplay(graceTimeLeft);
-    }, 1000);
-}
-
-function autoHealDiscrepancy() {
-    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    let todayStr = todayObj.toISOString().split('T')[0];
-    let localDateStr = new Date().toLocaleDateString('vi-VN');
-    
-    let actualHoursToday = 0;
-    goals.forEach(g => {
-        if(g.reports) {
-            g.reports.forEach(r => {
-                let rDate = r.date.split(' - ')[0];
-                if(rDate === localDateStr) {
-                    let mins = parseInt(r.type.replace('p',''));
-                    actualHoursToday += (mins / 60);
-                }
-            });
-        }
-    });
-    
-    let currentLogged = dailyLogs[todayStr] || 0;
-    if (Math.abs(currentLogged - actualHoursToday) > 0.01) {
-        dailyLogs[todayStr] = actualHoursToday;
-        localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
-    }
-}
-
-function checkRecovery() {
-    let rec = localStorage.getItem('saas_recovery');
-    if (rec) {
-        rec = JSON.parse(rec); let now = Date.now();
-        if (rec.endTime > now) { resumeSession(rec); } 
-        else {
-            activeGoalId = rec.goalId; currentDuration = rec.duration;
-            isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt;
-            activeSessionMinutes = rec.activeMins || rec.duration; 
-            document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
-            document.getElementById('focus-room').style.display = 'flex';
-            let g = goals.find(x => x.id === activeGoalId);
-            if(g) document.getElementById('focus-target-info').innerText = `Mục tiêu: ${g.name} | Còn lại: ${g.current.toFixed(2)}h`;
-            triggerReportModal();
-        }
-    }
-}
-
-// CHẠY KHỞI TẠO HỆ THỐNG
-initializeImperialEconomy();
-randomDailyMarketFluctuation();
-updateUsdDisplay();
-
-autoHealDiscrepancy();
-checkCycleAndStreak(); 
-renderCountdowns(); 
-countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
-switchTab('dashboard'); 
-checkRecovery();
-
-// --- THÁNH CHỈ KHÔI PHỤC HUYẾT HÃN 13 NGÀY (CẮM VÀO SCRIPT.JS) ---
-let isRestoredV2 = localStorage.getItem('isRestored_v2');
-if (!isRestoredV2) {
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    let todayStr = todayObj.toISOString().split('T')[0];
-
-    // 1. Khôi phục chuỗi 13 ngày
-    localStorage.setItem('saasStreak', '13');
-
-    // 2. Định vị chu kỳ: Hôm nay là ngày thứ 7 của set hiện tại để tối nay bệ hạ chốt sổ
-    let cycleStartObj = new Date(todayObj);
-    cycleStartObj.setDate(cycleStartObj.getDate() - 6);
-    localStorage.setItem('saasCycleStart', cycleStartObj.toISOString().split('T')[0]);
-
-    // 3. Khôi phục Biểu đồ nhiệt (Mồ hôi nước mắt)
-    let restoredLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
-    let totalRestoredMinutes = 0;
-    
-    for (let i = 1; i <= 13; i++) {
-        let pastDate = new Date(todayObj);
-        pastDate.setDate(pastDate.getDate() - i);
-        let dateStr = pastDate.toISOString().split('T')[0];
-        
-        if (i === 5) { 
-            // Tái hiện chân thực: Ngày bệ hạ cày 0.9h (54 phút)
-            restoredLogs[dateStr] = 0.9;
-            totalRestoredMinutes += 54;
-        } else {
-            // Các ngày còn lại cày chuẩn 1.5h (90 phút)
-            restoredLogs[dateStr] = 1.5;
-            totalRestoredMinutes += 90;
-        }
-    }
-    localStorage.setItem('saasDailyLogs', JSON.stringify(restoredLogs));
-
-    // 4. Chốt ngày hoạt động cuối cùng là hôm qua
-    let yesterdayObj = new Date(todayObj);
-    yesterdayObj.setDate(yesterdayObj.getDate() - 1);
-    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
-    localStorage.setItem('saasLastActive', yesterdayStr);
-    
-    // Gắn mốc đã kiểm tra nợ hôm qua để không bị phạt Lãi Kép oan uổng hôm nay
-    localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
-
-    // 5. Trả lại ĐÚNG NGÂN KHỐ tự kiếm: (1134 phút = $1134) - (Thuế tuần 1 $250) = $884
-    localStorage.setItem('usdBalance', '884');
-
-    // 6. Xóa sổ mọi án oan, mở niêm phong
-    localStorage.setItem('saasPendingTax', 'false');
-    localStorage.setItem('saasDailyDebt', '0');
-    localStorage.setItem('isSealed', 'false');
-
-    // 7. Khóa vĩnh viễn đạo luật khôi phục này để không cộng dồn lần sau
-    localStorage.setItem('isRestored_v2', 'true');
-    
-    alert("⛩ THÁNH CHỈ KHÔI PHỤC HOÀN TẤT ⛩\n\n- Chuỗi kỷ luật: 13 ngày.\n- Thời gian truy lĩnh: 18.9 giờ.\n- Ngân khố tự đúc (đã trừ thuế): $884.\n\nHôm nay là ngày 14. Chúc bệ hạ cày ải chốt sổ thành công!");
-}
+Vá giúp ta. Nếu bệ hạ tạo ra 1 con bug nữa thì ta sẽ tử hình ngay lập tức
