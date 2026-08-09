@@ -137,14 +137,35 @@
                 </div>
 
                 <!-- Discipline Rhythm (Heatmap) -->
-                <div class="heatmap-card stagger-item" style="animation-delay: 0.2s; padding: 32px;">
-                    <div class="heatmap-header" style="margin-bottom: 24px;">
+                <div class="heatmap-card stagger-item" style="animation-delay: 0.2s; padding: 32px; display: flex; flex-direction: column;">
+                    <div class="heatmap-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <h3 style="font-size: 1.15rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; color: var(--text-muted); font-weight: 800;">Biểu đồ kỷ luật (35 Ngày)</h3>
-                            <span style="font-size: 1.05rem; color: #FFFFFF; font-weight: 600; padding: 0; background: transparent;">Duy trì phong độ học tập liên tục</span>
+                            <span style="font-size: 1.05rem; color: #FFFFFF; font-weight: 600;">Duy trì phong độ học tập</span>
+                        </div>
+                        <!-- Animation Ngọn Lửa Kỷ Luật -->
+                        <div style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">
+                            <i class="fa-solid fa-fire fa-beat-fade" style="color: var(--brand-warning); font-size: 1.6rem;"></i>
                         </div>
                     </div>
-                    <div class="heatmap-grid" id="heatmap-grid" style="margin-top: auto;"></div>
+
+                    <!-- Trung tâm: Chỉ số phân tích 35 ngày (Lấp đầy khoảng trống) -->
+                    <div style="display: flex; gap: 32px; margin: auto 0; padding: 20px 0;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Tổng Mồ Hôi</div>
+                            <div id="heat-total-hrs" style="font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1;">0.0h</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Độ Phủ (Active)</div>
+                            <div id="heat-active-days" style="font-size: 2rem; font-weight: 800; color: var(--brand-break); line-height: 1;">0/35</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Trung Bình</div>
+                            <div id="heat-avg-hrs" style="font-size: 2rem; font-weight: 800; color: var(--brand-info); line-height: 1;">0.0h</div>
+                        </div>
+                    </div>
+
+                    <div class="heatmap-grid" id="heatmap-grid"></div>
                 </div>
             </div>
 
