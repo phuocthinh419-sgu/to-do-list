@@ -158,6 +158,81 @@ let reportOpenTime = 0;
 let isBreakActive = false; 
 
 // =====================================================================
+// ☁️ FIREBASE CLOUD SYNC ENGINE
+// =====================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAOmKn9E2JWuKtXeENdVtpbzduVqNyj1oo",
+  authDomain: "academic-apex.firebaseapp.com",
+  projectId: "academic-apex",
+  storageBucket: "academic-apex.firebasestorage.app",
+  messagingSenderId: "764165204162",
+  appId: "1:764165204162:web:c5426f1b740248eb6cb35b"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const USER_DOC_ID = "emperor_data_v1";
+let isSyncing = false;
+
+async function syncToCloud() {
+    if (isSyncing) return;
+    isSyncing = true;
+    try {
+        const dataToSync = {
+            goals: JSON.parse(localStorage.getItem('saasGoalsPro')) || [],
+            totalSessions: parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0,
+            countdowns: JSON.parse(localStorage.getItem('saasCountdownsPro')) || [],
+            dailyLogs: JSON.parse(localStorage.getItem('saasDailyLogs')) || {},
+            streak: parseInt(localStorage.getItem('saasStreak')) || 0,
+            lastActive: localStorage.getItem('saasLastActive') || "",
+            s25: parseInt(localStorage.getItem('saasS25')) || 0,
+            s15: parseInt(localStorage.getItem('saasS15')) || 0,
+            cycleStart: localStorage.getItem('saasCycleStart') || "",
+            usdBalance: parseInt(localStorage.getItem('usdBalance')) || 0,
+            userPortfolio: JSON.parse(localStorage.getItem('userPortfolio')) || {},
+            stockMarketPrices: JSON.parse(localStorage.getItem('stockMarketPrices')) || {},
+            lastRestDate: localStorage.getItem('saasLastRest') || "",
+            achComeback: localStorage.getItem('ach_comeback') || "false",
+            lastUpdated: Date.now()
+        };
+        localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
+        await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
+        console.log("☁️ Đã đồng bộ mồ hôi lên Thiên Đình.");
+    } catch (e) { console.error("Lỗi đồng bộ Cloud:", e); }
+    isSyncing = false;
+}
+
+async function pullFromCloud() {
+    try {
+        const docRef = await db.collection("academic_apex").doc(USER_DOC_ID).get();
+        if (docRef.exists) {
+            const cloudData = docRef.data();
+            const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
+            if (cloudData.lastUpdated > localUpdated) {
+                console.log("☁️ Phát hiện dữ liệu mới. Đang nạp...");
+                localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals));
+                localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions);
+                localStorage.setItem('saasCountdownsPro', JSON.stringify(cloudData.countdowns));
+                localStorage.setItem('saasDailyLogs', JSON.stringify(cloudData.dailyLogs));
+                localStorage.setItem('saasStreak', cloudData.streak);
+                localStorage.setItem('saasLastActive', cloudData.lastActive);
+                localStorage.setItem('saasS25', cloudData.s25);
+                localStorage.setItem('saasS15', cloudData.s15);
+                localStorage.setItem('saasCycleStart', cloudData.cycleStart);
+                localStorage.setItem('usdBalance', cloudData.usdBalance);
+                localStorage.setItem('userPortfolio', JSON.stringify(cloudData.userPortfolio));
+                localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices));
+                localStorage.setItem('saasLastRest', cloudData.lastRestDate);
+                localStorage.setItem('ach_comeback', cloudData.achComeback);
+                localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
+                alert("☁️ Dữ liệu từ thiết bị khác đã được đồng bộ xuống án thư này!");
+                location.reload();
+            }
+        }
+    } catch (e) { console.error("Lỗi tải dữ liệu Cloud:", e); }
+}
+
+// =====================================================================
 // HỆ THỐNG GIỚI NGHIÊM
 // =====================================================================
 let curfewTimeStr = localStorage.getItem('saasCurfew') || '';
@@ -242,6 +317,7 @@ function activateRestDay() {
     if (confirm("Kích hoạt Nghỉ Bảo Tồn? Hôm nay bạn chỉ cần hoàn thành 45 phút (3 phiên ngắn) để duy trì chuỗi kỷ luật.")) {
         lastRestDate = todayStr; 
         localStorage.setItem('saasLastRest', lastRestDate);
+        syncToCloud();
         alert("Đã kích hoạt! Tận hưởng ngày nghỉ ngơi, nhưng đừng quên hoàn thành 45 phút nhẹ nhàng nhé.");
     }
 }
@@ -407,6 +483,9 @@ function checkAndDeductCourtFee() {
         alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ đàng hoàng!");
         localStorage.setItem("usdBalance", usd - 300);
         updateUsdDisplay();
+        
+        syncToCloud(); // ☁️ ĐÃ GẮN CHIP ĐỒNG BỘ SAU KHI TRỪ TIỀN
+        
         return true;
     }
 }
@@ -432,6 +511,7 @@ function impactStockMarket(actionType) {
     }
     localStorage.setItem("stockMarketPrices", JSON.stringify(stocks));
     renderStockMarket();
+    syncToCloud();
 }
 
 let currentTradeStock = "";
@@ -492,6 +572,7 @@ function buyStock() {
         updateUsdDisplay();
         openTradeModal(code); 
         renderStockMarket(); 
+        syncToCloud();
     } else {
         alert(`❌ Ngân khố của bệ hạ chỉ còn $${usd}, không đủ sức mua 1 cổ phiếu ${code} với giá $${price}!`);
     }
@@ -514,6 +595,7 @@ function sellStock() {
         updateUsdDisplay();
         openTradeModal(code);
         renderStockMarket();
+        syncToCloud();
     } else {
         alert(`❌ Bệ hạ hiện không nắm giữ cổ phiếu ${code} nào để bán khống!`);
     }
@@ -554,6 +636,7 @@ function initializeImperialEconomy() {
         };
         localStorage.setItem("userPortfolio", JSON.stringify(userPortfolio));
         localStorage.setItem("imperialEconomyActive", "true");
+        syncToCloud();
 
         alert(`⛩ CHÀO MỪNG BỆ HẠ ĐẾN VỚI ĐẾ CHẾ KINH TẾ 2.0 ⛩\n\nChiếu theo công trạng lịch sử:\n• Tổng thời gian tu luyện: ${totalMinutes} phút\n• Tổng ngân khố đúc được: +$${grossIncome}\n• Truy thu thuế duy trì (${weeksOnStreak} tuần): -$${retroactiveTax}\n-----------------------------------\n💰 NGÂN KHỐ KHỞI ĐIỂM CỦA NGÀI: $${netBalance}\n\nSàn chứng khoán đã mở cửa. Chúc bệ hạ xưng bá thương trường!`);
     }
@@ -574,6 +657,7 @@ function randomDailyMarketFluctuation() {
             localStorage.setItem("stockMarketPrices", JSON.stringify(stocks));
         }
         localStorage.setItem("lastMarketFlucDate", todayStr);
+        syncToCloud();
     }
 }
 
@@ -740,6 +824,8 @@ function saveAll() {
     localStorage.setItem('saasLastActive', lastActiveDate);
     localStorage.setItem('saasS25', standardSessionCount25); 
     localStorage.setItem('saasS15', standardSessionCount15);
+    
+    syncToCloud(); // CHÈN THÊM DÒNG NÀY ĐỂ ĐẨY LÊN FIREBASE
 }
 
 document.getElementById('report-input').addEventListener('paste', function(e) { 
@@ -778,6 +864,7 @@ function importData(event) {
             if (data.s25 !== undefined) localStorage.setItem('saasS25', data.s25);
             if (data.s15 !== undefined) localStorage.setItem('saasS15', data.s15);
             if (data.cycleStart) localStorage.setItem('saasCycleStart', data.cycleStart);
+            syncToCloud();
             alert("Đã phục hồi dữ liệu thành công! Trang web sẽ tự động tải lại."); 
             location.reload();
         } catch (error) { 
@@ -2259,6 +2346,7 @@ renderCountdowns();
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
 checkRecovery();
+pullFromCloud();
 
 // =====================================================================
 // THÁNH CHỈ KHÔI PHỤC HUYẾT HÃN 13 NGÀY
