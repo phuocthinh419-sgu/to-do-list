@@ -2390,7 +2390,7 @@ renderCountdowns();
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
 checkRecovery();
-pullFromCloud();
+
 
 // =====================================================================
 // THÁNH CHỈ KHÔI PHỤC HUYẾT HÃN 13 NGÀY
