@@ -1185,64 +1185,41 @@ window.renderDailyBreakdown = function(targetDate) {
 };
 
 // =====================================================================
-// TÍCH HỢP PHASE V2 VÀO ANALYTICS (NHỊP ĐỘ + GIA TỐC)
+// NÂNG CẤP TỐI THƯỢNG PHASE V3: PROFILE, DNA & AI INSIGHTS
+// (Thay thế toàn bộ hàm renderAnalytics hiện tại)
 // =====================================================================
 function renderAnalytics() {
-    const room = document.getElementById('analytics-room'); 
-    room.innerHTML = ''; 
-    let allGoals = goals; 
-    
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); 
-    let todayStr = todayObj.toISOString().split('T')[0];
-    
-    let yesterdayObj = new Date(todayObj); 
-    yesterdayObj.setDate(yesterdayObj.getDate() - 1); 
-    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+    const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
+    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); let todayStr = todayObj.toISOString().split('T')[0];
+    let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1); let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
-    let todayHrs = dailyLogs[todayStr] || 0; 
-    let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
+    let todayHrs = dailyLogs[todayStr] || 0; let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
     
     let cycleStartObj = new Date(cycleStartDate);
     let thisWeekHrs = 0; 
-    for(let i = 0; i < 7; i++) { 
-        let d = new Date(cycleStartObj); 
-        d.setDate(d.getDate() + i); 
+    for(let i=0; i<7; i++) { 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
         thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
     }
     
     let lastWeekHrs = 0; 
-    for(let i = 1; i <= 7; i++) { 
-        let d = new Date(cycleStartObj); 
-        d.setDate(d.getDate() - i); 
+    for(let i=1; i<=7; i++) { 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() - i); 
         lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
     }
 
     function getTrendHtml(current, previous, label, delay) {
-        let diff = current - previous; 
-        let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
-        let color = diff >= 0 ? 'var(--brand-break)' : 'var(--brand-warning)'; 
-        let icon = diff >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'; 
-        let text = diff >= 0 ? 'Tăng' : 'Giảm';
-        
+        let diff = current - previous; let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
+        let color = diff >= 0 ? 'var(--brand-break)' : 'var(--brand-warning)'; let icon = diff >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'; let text = diff >= 0 ? 'Tăng' : 'Giảm';
         if (diff === 0) { color = 'var(--text-muted)'; icon = 'fa-minus'; text = 'Ổn định'; }
-        
-        return `<div class="analytics-card stagger-item" style="padding: 28px; animation-delay: ${delay}s">
-                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">${label}</span>
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -1px;">${current.toFixed(1)}h</div>
-                    <div style="font-size: 0.95rem; font-weight: 600; color: ${color}; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid ${icon}"></i> ${text} ${Math.abs(pct).toFixed(0)}% so với kỳ trước
-                    </div>
-                </div>`;
+        return `<div class="analytics-card stagger-item" style="padding: 28px; animation-delay: ${delay}s"><span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">${label}</span><div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -1px;">${current.toFixed(1)}h</div><div style="font-size: 0.95rem; font-weight: 600; color: ${color}; display: flex; align-items: center; gap: 6px;"><i class="fa-solid ${icon}"></i> ${text} ${Math.abs(pct).toFixed(0)}% so với kỳ trước</div></div>`;
     }
 
     let trendWeekHtml = getTrendHtml(thisWeekHrs, lastWeekHrs, 'Hiệu suất Tuần (Chu kỳ)', 0.1);
     let trendDayHtml = getTrendHtml(todayHrs, yesterdayHrs, 'Hiệu suất Hôm nay', 0.2);
     let trendsHtml = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px; position: relative; z-index: 20;">${trendWeekHtml}${trendDayHtml}</div>`;
 
-    // ---------------------------------------------------------
-    // V2: PLANNED VS ACTUAL
-    // ---------------------------------------------------------
+    // [PHASE V2] PLANNED VS ACTUAL
     let plannedVsActualHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.3s; grid-column: 1 / -1;">
         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;">
             <h3>Nhịp độ Tác chiến (Planned vs Actual)</h3>
@@ -1250,206 +1227,187 @@ function renderAnalytics() {
         </div>
         <div class="bar-chart" style="height: 220px; position: relative;">
             <div style="position: absolute; top: 57.5%; left: 0; width: 100%; border-top: 2px dashed var(--brand-warning); opacity: 0.6; z-index: 1;"></div>`;
-            
-    for(let i = 6; i >= 0; i--) {
+    for(let i=6; i>=0; i--) {
         let d = new Date(todayObj); d.setDate(d.getDate() - i);
-        let dStr = d.toISOString().split('T')[0]; 
-        let hrs = dailyLogs[dStr] || 0;
-        let hPct = Math.min(100, (hrs / 4) * 100); 
-        let daysArr = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        let dStr = d.toISOString().split('T')[0]; let hrs = dailyLogs[dStr] || 0;
+        let hPct = Math.min(100, (hrs / 4) * 100); let daysArr = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
         let dayName = i === 0 ? "Hôm nay" : daysArr[d.getDay()];
         let barColor = hrs >= 1.7 ? 'var(--brand-break)' : 'var(--brand-dash)';
-        
-        plannedVsActualHtml += `<div class="bar-col" style="z-index: 2;">
-            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${hrs > 0 ? hrs.toFixed(1) + 'h' : ''}</span>
-            <div class="bar-wrap" style="height: 160px; background: rgba(0,0,0,0.1); border-color: transparent;">
-                <div class="bar-fill" style="height: ${hPct}%; background: ${barColor}; box-shadow: 0 0 10px ${barColor};"></div>
-            </div>
-            <span style="margin-top: 8px;">${dayName}</span>
-        </div>`;
+        plannedVsActualHtml += `<div class="bar-col" style="z-index: 2;"><span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${hrs > 0 ? hrs.toFixed(1) + 'h' : ''}</span><div class="bar-wrap" style="height: 160px; background: rgba(0,0,0,0.1); border-color: transparent;"><div class="bar-fill" style="height: ${hPct}%; background: ${barColor}; box-shadow: 0 0 10px ${barColor};"></div></div><span style="margin-top: 8px;">${dayName}</span></div>`;
     }
     plannedVsActualHtml += `</div></div>`;
 
-    // ---------------------------------------------------------
-    // V2: LEARNING VELOCITY & EFFICIENCY
-    // ---------------------------------------------------------
-    let velocityHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.4s; grid-column: 1 / -1;">
-        <h3 style="margin-bottom: 24px;">Gia tốc & Hiệu suất Học tập (Velocity & Efficiency)</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">`;
-        
+    // [PHASE V2] VELOCITY
+    let velocityHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.4s; grid-column: 1 / -1;"><h3 style="margin-bottom: 24px;">Gia tốc & Hiệu suất (Velocity & Efficiency)</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">`;
     let activeOrLoggedGoals = allGoals.filter(g => (g.target - g.current) > 0);
-    if(activeOrLoggedGoals.length === 0) { 
-        velocityHtml += `<p style="color:var(--text-muted)">Chưa có dữ liệu cày ải để phân tích gia tốc.</p>`; 
-    } else {
+    if(activeOrLoggedGoals.length === 0) { velocityHtml += `<p style="color:var(--text-muted)">Chưa có dữ liệu cày ải để phân tích gia tốc.</p>`; } 
+    else {
         activeOrLoggedGoals.sort((a,b) => (b.target - b.current) - (a.target - a.current)).forEach(g => {
-            let logged = g.target - g.current; 
-            let efficiency = (1 / g.target) * 100; 
-            let totalProg = (logged / g.target) * 100;
-            
-            velocityHtml += `<div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: 0.3s;" onmouseover="this.style.borderColor='var(--brand-focus)'" onmouseout="this.style.borderColor='var(--border)'">
-                <h4 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${g.name}">${g.name}</h4>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;">
-                    <span style="color: var(--text-muted); font-weight: 600;">Hiệu suất (Efficiency)</span>
-                    <span style="color: var(--brand-focus); font-weight: 800; background: rgba(234, 88, 12, 0.1); padding: 4px 10px; border-radius: 8px;">+${efficiency.toFixed(1)}% / giờ</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 16px;">
-                    <span style="color: var(--text-muted); font-weight: 600;">Tổng mồ hôi</span>
-                    <span style="color: var(--text-main); font-weight: 800;">${logged.toFixed(1)} giờ</span>
-                </div>
-                <div class="stat-bar" style="height: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none;">
-                    <div class="stat-fill" style="width: ${totalProg}%; background: var(--brand-dash); box-shadow: 0 0 10px var(--brand-dash);"></div>
-                </div>
-            </div>`;
+            let logged = g.target - g.current; let efficiency = (1 / g.target) * 100; let totalProg = (logged / g.target) * 100;
+            velocityHtml += `<div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: 0.3s;"><h4 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${g.name}</h4><div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;"><span style="color: var(--text-muted); font-weight: 600;">Hiệu suất (Efficiency)</span><span style="color: var(--brand-focus); font-weight: 800; background: rgba(234, 88, 12, 0.1); padding: 4px 10px; border-radius: 8px;">+${efficiency.toFixed(1)}% / giờ</span></div><div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 16px;"><span style="color: var(--text-muted); font-weight: 600;">Tổng mồ hôi</span><span style="color: var(--text-main); font-weight: 800;">${logged.toFixed(1)} giờ</span></div><div class="stat-bar" style="height: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none;"><div class="stat-fill" style="width: ${totalProg}%; background: var(--brand-dash); box-shadow: 0 0 10px var(--brand-dash);"></div></div></div>`;
         });
     }
     velocityHtml += `</div></div>`;
 
-    // CÁC CHỈ SỐ GỐC
-    let actualTotalSessions = 0; 
-    let actualS15 = 0; 
-    let actualS25 = 0;
-    
-    allGoals.forEach(g => { 
-        if(g.reports) { 
-            actualTotalSessions += g.reports.length; 
-            g.reports.forEach(r => { 
-                if(r.type === '15p') actualS15++; 
-                if(r.type === '25p') actualS25++; 
-            }); 
-        } 
-    });
-
-    let sessionHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s">
-        <h3>Tổng quan Phiên học</h3>
-        <div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px; position: relative; z-index: 20;">
-            <div style="width: 50px; height: 50px; border-radius: 14px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento); flex-shrink: 0;">
-                <i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.5rem;"></i>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div>
-            </div>
-        </div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
-                <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div>
-                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div>
-            </div>
-            <div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 20;">
-                <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div>
-                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div>
-            </div>
-        </div>
-    </div>`;
-    
-    let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; position:relative; z-index:20; flex-wrap:wrap; gap:10px;">
-            <h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3>
-            <select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;"></select>
-        </div>
-        <div id="daily-breakdown-content" style="position:relative; z-index:20;">
-            <p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p>
-        </div>
-    </div>`;
-
-    let focusHtml = '<div class="analytics-card stagger-item" style="animation-delay: 0.7s"><h3>Phân bổ Trọng tâm Toàn cục</h3>';
-    let totalLogged = 0; 
-    let goalStats = allGoals.map(g => { 
-        let logged = g.target - g.current; 
-        totalLogged += logged; 
-        return { name: g.name, logged: logged }; 
-    }).filter(g => g.logged > 0).sort((a,b) => b.logged - a.logged);
-    
-    if (totalLogged === 0) {
-        focusHtml += '<p style="color:var(--text-muted)">Chưa có dữ liệu học tập.</p>';
-    } else { 
-        goalStats.forEach(g => { 
-            let pct = (g.logged / totalLogged) * 100; 
-            focusHtml += `<div class="stat-row">
-                <div class="stat-label"><span>${g.name}</span> <span>${g.logged.toFixed(1)}h (${pct.toFixed(0)}%)</span></div>
-                <div class="stat-bar"><div class="stat-fill" style="width: ${pct}%"></div></div>
-            </div>`; 
-        }); 
-    }
-    focusHtml += '</div>';
+    // THU THẬP SỐ LIỆU NỀN TẢNG CHO V3
+    let actualTotalSessions = 0; let actualS15 = 0; let actualS25 = 0; let totalLoggedMins = 0;
+    allGoals.forEach(g => { if(g.reports) { actualTotalSessions += g.reports.length; g.reports.forEach(r => { let mins = parseInt(r.type.replace('p', '')) || 0; totalLoggedMins += mins; if(r.type === '15p') actualS15++; if(r.type === '25p') actualS25++; }); } });
 
     let timeSlots = { sang: 0, chieu: 0, toi: 0, dem: 0 };
-    allGoals.forEach(g => { 
-        if (g.reports) { 
-            g.reports.forEach(r => { 
-                let parts = r.date.split(' - '); 
-                if(parts.length === 2) { 
-                    let hour = parseInt(parts[1].split(':')[0]); 
-                    if(hour >= 5 && hour < 12) timeSlots.sang++; 
-                    else if(hour >= 12 && hour < 18) timeSlots.chieu++; 
-                    else if(hour >= 18 && hour < 22) timeSlots.toi++; 
-                    else timeSlots.dem++; 
-                } 
-            }); 
-        } 
-    });
+    allGoals.forEach(g => { if (g.reports) { g.reports.forEach(r => { let parts = r.date.split(' - '); if(parts.length === 2) { let hour = parseInt(parts[1].split(':')[0]); if(hour >= 5 && hour < 12) timeSlots.sang++; else if(hour >= 12 && hour < 18) timeSlots.chieu++; else if(hour >= 18 && hour < 22) timeSlots.toi++; else timeSlots.dem++; } }); } });
     let maxSlot = Object.keys(timeSlots).reduce((a, b) => timeSlots[a] > timeSlots[b] ? a : b); 
     let totalSessionsCount = timeSlots.sang + timeSlots.chieu + timeSlots.toi + timeSlots.dem;
+
+    let activeDays30 = 0;
+    for(let i=0; i<30; i++){ let d = new Date(todayObj); d.setDate(d.getDate()-i); if (dailyLogs[d.toISOString().split('T')[0]] > 0) activeDays30++; }
+    let consistencyScore = Math.round((activeDays30 / 30) * 100);
+    let avgSessionMins = actualTotalSessions > 0 ? Math.round(totalLoggedMins / actualTotalSessions) : 0;
     
-    let bioHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.8s"><h3>Nhịp sinh học Kỷ luật</h3>`;
-    if (totalSessionsCount === 0) {
-        bioHtml += '<p style="color:var(--text-muted)">Chưa đủ dữ liệu phiên học.</p>';
-    } else { 
-        bioHtml += `<div class="bio-grid">
-            <div class="bio-box ${maxSlot === 'sang' ? 'active' : ''}"><i class="fa-regular fa-sun"></i><span>Sáng<br>(5h-12h)</span><strong>${timeSlots.sang} phiên</strong></div>
-            <div class="bio-box ${maxSlot === 'chieu' ? 'active' : ''}"><i class="fa-solid fa-cloud-sun"></i><span>Chiều<br>(12h-18h)</span><strong>${timeSlots.chieu} phiên</strong></div>
-            <div class="bio-box ${maxSlot === 'toi' ? 'active' : ''}"><i class="fa-regular fa-moon"></i><span>Tối<br>(18h-22h)</span><strong>${timeSlots.toi} phiên</strong></div>
-            <div class="bio-box ${maxSlot === 'dem' ? 'active' : ''}"><i class="fa-solid fa-star"></i><span>Đêm<br>(22h-5h)</span><strong>${timeSlots.dem} phiên</strong></div>
-        </div>`; 
-    }
-    bioHtml += `</div>`;
+    // TÌM SỞ TRƯỜNG & BÁO ĐỘNG
+    let strongestGoal = activeOrLoggedGoals.length > 0 ? activeOrLoggedGoals.reduce((max, g) => ((g.target - g.current)/g.target) > ((max.target - max.current)/max.target) ? g : max) : null;
+    let weakestGoal = activeOrLoggedGoals.length > 0 ? activeOrLoggedGoals.reduce((min, g) => ((g.target - g.current)/g.target) < ((min.target - min.current)/min.target) ? g : min) : null;
 
-    let dowStats = [0, 0, 0, 0, 0, 0, 0]; 
-    for (let dateStr in dailyLogs) { 
-        let day = new Date(dateStr).getDay(); 
-        let idx = day === 0 ? 6 : day - 1; 
-        dowStats[idx] += dailyLogs[dateStr]; 
-    }
-    let maxDow = Math.max(...dowStats, 1); 
-    let dowHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.9s"><h3>Độ lệch Kỷ luật (Theo thứ)</h3><div class="bar-chart">`;
-    let days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    // ---------------------------------------------------------
+    // 🔥 TÍNH NĂNG V3: HỒ SƠ HỌC THUẬT (PROFILE)
+    // ---------------------------------------------------------
+    let profileHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s">
+        <h3 style="margin-bottom: 20px;">Hồ Sơ Học Thuật</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Giờ vàng tập trung</div>
+                <div style="font-size: 1.1rem; color: var(--text-main); font-weight: 800; margin-top: 4px;">${maxSlot === 'sang' ? 'Buổi Sáng' : maxSlot === 'chieu' ? 'Buổi Chiều' : maxSlot === 'toi' ? 'Buổi Tối' : 'Xuyên Đêm'}</div>
+            </div>
+            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Phiên trung bình</div>
+                <div style="font-size: 1.1rem; color: var(--text-main); font-weight: 800; margin-top: 4px;">${avgSessionMins} phút</div>
+            </div>
+            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Môn Sở Trường</div>
+                <div style="font-size: 1rem; color: var(--brand-break); font-weight: 800; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${strongestGoal ? strongestGoal.name : 'Chưa có'}">${strongestGoal ? strongestGoal.name : 'Chưa có'}</div>
+            </div>
+            <div style="background: var(--bg-hover); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Đang Báo Động</div>
+                <div style="font-size: 1rem; color: var(--brand-warning); font-weight: 800; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${weakestGoal ? weakestGoal.name : 'Chưa có'}">${weakestGoal ? weakestGoal.name : 'Chưa có'}</div>
+            </div>
+        </div>
+    </div>`;
+
+    // ---------------------------------------------------------
+    // 🔥 TÍNH NĂNG V3: ADN KỶ LUẬT (DNA)
+    // ---------------------------------------------------------
+    let dnaDiscipline = Math.min(100, Math.round(currentStreak * (100/14))); // Lấy mốc 14 ngày = 100%
+    let dnaFocus = Math.min(100, Math.round((avgSessionMins / 30) * 100)); // Lấy mốc 30 phút/phiên = 100%
+    let dnaPace = Math.min(100, Math.round(((thisWeekHrs / 7) / 1.7) * 100)); // So với mốc 1.7h/ngày
     
-    for(let i=0; i<7; i++) { 
-        let h = (dowStats[i] / maxDow) * 100; 
-        dowHtml += `<div class="bar-col"><div class="bar-wrap"><div class="bar-fill" style="height: ${h}%"></div></div><span>${days[i]}</span></div>`; 
+    // Tính Kiểm soát (Control)
+    let onTrackGoals = 0;
+    activeOrLoggedGoals.forEach(g => {
+        let logged = g.target - g.current;
+        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(cycleStartDate).getTime();
+        let daysElapsed = Math.max(1, Math.ceil((todayObj.getTime() - createdTime) / (1000 * 3600 * 24)));
+        let pace = logged / daysElapsed;
+        if (g.deadline) {
+            let deadlineTime = new Date(g.deadline).getTime();
+            let daysLeft = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24));
+            let reqPace = daysLeft > 0 ? (g.current / daysLeft) : g.current;
+            if (pace >= reqPace * 0.7) onTrackGoals++; // Từ "Rủi ro" trở lên coi như kiểm soát được
+        } else { onTrackGoals++; }
+    });
+    let dnaControl = activeOrLoggedGoals.length > 0 ? Math.round((onTrackGoals / activeOrLoggedGoals.length) * 100) : 0;
+
+    let dnaHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s">
+        <h3 style="margin-bottom: 24px;">ADN Học Thuật</h3>
+        <div class="stat-row"><div class="stat-label"><span>KỶ LUẬT (Streak)</span> <span>${dnaDiscipline}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaDiscipline}%; background: var(--brand-dash)"></div></div></div>
+        <div class="stat-row"><div class="stat-label"><span>BỀN BỈ (30 Ngày)</span> <span>${consistencyScore}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${consistencyScore}%; background: var(--brand-break)"></div></div></div>
+        <div class="stat-row"><div class="stat-label"><span>TẬP TRUNG (Focus)</span> <span>${dnaFocus}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaFocus}%; background: var(--brand-focus)"></div></div></div>
+        <div class="stat-row"><div class="stat-label"><span>TỐC ĐỘ (Pace)</span> <span>${dnaPace}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaPace}%; background: #a855f7"></div></div></div>
+        <div class="stat-row"><div class="stat-label"><span>KIỂM SOÁT (Control)</span> <span>${dnaControl}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaControl}%; background: var(--brand-info)"></div></div></div>
+    </div>`;
+
+    // ---------------------------------------------------------
+    // 🔥 TÍNH NĂNG V3: CỐ VẤN CHIẾN LƯỢC (INSIGHTS)
+    // ---------------------------------------------------------
+    let insightsHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.7s; grid-column: 1 / -1;">
+        <h3 style="margin-bottom: 24px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #f59e0b; margin-right: 8px;"></i> Cố Vấn Tác Chiến Tự Động</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">`;
+        
+    let hasInsight = false;
+
+    // Insight 1: Chuỗi
+    if (currentStreak >= 7) {
+        insightsHtml += `<div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); padding: 20px; border-radius: 16px; display: flex; gap: 16px; align-items: flex-start;">
+            <i class="fa-solid fa-fire" style="font-size: 1.8rem; color: #10b981; margin-top: 2px;"></i>
+            <div><h4 style="margin: 0 0 6px 0; color: #10b981; font-size: 1.05rem; font-weight: 800;">Phong độ Rực sáng</h4><p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Bệ hạ đã giữ ngọn lửa kỷ luật cháy suốt ${currentStreak} ngày liên tiếp. Trạng thái Bền Bỉ đang đạt đỉnh cao.</p></div>
+        </div>`;
+        hasInsight = true;
     }
-    dowHtml += `</div></div>`;
 
-    room.innerHTML = `${trendsHtml}<div class="analytics-grid">${plannedVsActualHtml}${velocityHtml}${sessionHtml}${dailyReportHtml}${focusHtml}${bioHtml}${dowHtml}</div>`;
-
-    let allDates = new Set();
-    allGoals.forEach(g => { 
-        if(g.reports) { 
-            g.reports.forEach(r => { 
-                let dStr = r.date.split(' - ')[0]; 
-                allDates.add(dStr); 
-            }); 
-        } 
+    // Insight 2: Báo động Đỏ
+    let atRiskGoals = activeOrLoggedGoals.filter(g => {
+        if(!g.deadline) return false;
+        let logged = g.target - g.current;
+        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(cycleStartDate).getTime();
+        let daysElapsed = Math.max(1, Math.ceil((todayObj.getTime() - createdTime) / (1000 * 3600 * 24)));
+        let pace = logged / daysElapsed;
+        let deadlineTime = new Date(g.deadline).getTime();
+        let daysLeft = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24));
+        let reqPace = daysLeft > 0 ? (g.current / daysLeft) : g.current;
+        return pace < reqPace * 0.7; 
     });
 
+    if (atRiskGoals.length > 0) {
+        insightsHtml += `<div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); padding: 20px; border-radius: 16px; display: flex; gap: 16px; align-items: flex-start;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.8rem; color: #ef4444; margin-top: 2px;"></i>
+            <div><h4 style="margin: 0 0 6px 0; color: #ef4444; font-size: 1.05rem; font-weight: 800;">Báo động Đỏ</h4><p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Môn <strong>${atRiskGoals[0].name}</strong> đang tụt hậu nghiêm trọng so với hạn chót. Cần tăng tốc độ ngay hôm nay!</p></div>
+        </div>`;
+        hasInsight = true;
+    }
+
+    // Insight 3: Giờ vàng
+    let timeName = maxSlot === 'sang' ? 'Sáng (5h-12h)' : maxSlot === 'chieu' ? 'Chiều (12h-18h)' : maxSlot === 'toi' ? 'Tối (18h-22h)' : 'Đêm (22h-5h)';
+    let timePct = totalSessionsCount > 0 ? Math.round((timeSlots[maxSlot] / totalSessionsCount) * 100) : 0;
+    if (timePct >= 40) {
+        insightsHtml += `<div style="background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.3); padding: 20px; border-radius: 16px; display: flex; gap: 16px; align-items: flex-start;">
+            <i class="fa-solid fa-moon" style="font-size: 1.8rem; color: #0ea5e9; margin-top: 2px;"></i>
+            <div><h4 style="margin: 0 0 6px 0; color: #0ea5e9; font-size: 1.05rem; font-weight: 800;">Đế vương Khung giờ</h4><p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">${timePct}% mồ hôi của ngài đổ xuống vào buổi <strong>${timeName}</strong>. Hãy dồn các môn khó nhất vào khung giờ này.</p></div>
+        </div>`;
+        hasInsight = true;
+    }
+
+    if (!hasInsight) {
+        insightsHtml += `<div style="color: var(--text-muted); font-size: 0.95rem; font-style: italic; padding: 20px; text-align: center; grid-column: 1/-1;">Hệ thống đang âm thầm quan sát hành vi của bệ hạ. Lời khuyên sẽ sớm xuất hiện...</div>`;
+    }
+    insightsHtml += `</div></div>`;
+
+    // CÁC THÀNH PHẦN CŨ (THU GỌN VÀ DELAY ANIMATION)
+    let sessionHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.8s"><h3>Tổng quan Phiên học</h3><div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px;"><div style="width: 50px; height: 50px; border-radius: 14px; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-bento); flex-shrink: 0;"><i class="fa-solid fa-stopwatch" style="color: var(--brand-focus); font-size: 1.5rem;"></i></div><div style="display: flex; flex-direction: column; gap: 2px;"><div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px;">${actualTotalSessions}</div><div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Tổng phiên hoàn thành</div></div></div><div style="display: flex; gap: 12px; flex-wrap: wrap;"><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border);"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS15}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Ngắn (15p)</div></div><div style="flex: 1; min-width: 120px; background: var(--bg-hover); padding: 16px; border-radius: 20px; text-align: center; border: 1px solid var(--border);"><div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; line-height: 1; margin-bottom: 6px;">${actualS25}</div><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Chuẩn (25p)</div></div></div></div>`;
+    
+    let dailyReportHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.9s"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; flex-wrap:wrap; gap:10px;"><h3 style="margin-bottom:0;">Chi tiết Tác chiến Ngày</h3><select id="daily-log-select" onchange="renderDailyBreakdown(this.value)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:8px 12px; border-radius:10px; font-weight:700; outline:none; font-family:inherit; cursor:pointer;"></select></div><div id="daily-breakdown-content"><p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Vui lòng chọn một ngày để phân tích.</p></div></div>`;
+
+    // 🔴 HỢP NHẤT TOÀN BỘ VÀO GIAO DIỆN (CHÈN V3 VÀO)
+    room.innerHTML = `${trendsHtml}
+        <div class="analytics-grid">
+            ${plannedVsActualHtml}
+            ${velocityHtml}
+            ${profileHtml}      <!-- V3 Profile -->
+            ${dnaHtml}          <!-- V3 DNA -->
+            ${insightsHtml}     <!-- V3 Insights -->
+            ${sessionHtml}
+            ${dailyReportHtml}
+        </div>`;
+
+    let allDates = new Set();
+    allGoals.forEach(g => { if(g.reports) { g.reports.forEach(r => { let dStr = r.date.split(' - ')[0]; allDates.add(dStr); }); } });
+
     let selectEl = document.getElementById('daily-log-select');
-    if(allDates.size === 0) { 
-        selectEl.innerHTML = '<option value="">Chưa có dữ liệu</option>'; 
-        selectEl.disabled = true; 
-    } else {
+    if(allDates.size === 0) { selectEl.innerHTML = '<option value="">Chưa có dữ liệu</option>'; selectEl.disabled = true; } 
+    else {
         let sortedDates = Array.from(allDates).sort((a, b) => {
-            let [d1, m1, y1] = a.split('/'); 
-            let dateA = new Date(y1, m1-1, d1);
-            let [d2, m2, y2] = b.split('/'); 
-            let dateB = new Date(y2, m2-1, d2);
+            let [d1, m1, y1] = a.split('/'); let dateA = new Date(y1, m1-1, d1);
+            let [d2, m2, y2] = b.split('/'); let dateB = new Date(y2, m2-1, d2);
             return dateB - dateA;
         });
-        sortedDates.forEach((d, i) => { 
-            let opt = document.createElement('option'); 
-            opt.value = d; 
-            opt.innerText = i === 0 ? d + " (Gần nhất)" : d; 
-            selectEl.appendChild(opt); 
-        });
+        sortedDates.forEach((d, i) => { let opt = document.createElement('option'); opt.value = d; opt.innerText = i === 0 ? d + " (Gần nhất)" : d; selectEl.appendChild(opt); });
         renderDailyBreakdown(sortedDates[0]);
     }
 }
