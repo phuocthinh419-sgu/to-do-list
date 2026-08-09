@@ -39,7 +39,8 @@
                 <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
                 <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 14px; margin-top: 16px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur));">
                     <div class="mini-progress-circle">
-                        <svg><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
+                        <!-- ĐÃ VÁ LỖI VIEWBOX CHO VÒNG TRÒN GIỚI NGHIÊM Ở ĐÂY -->
+                        <svg viewBox="0 0 44 44"><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
                     </div>
                     <div style="display: flex; flex-direction: column;">
                         <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Còn lại</span>
@@ -115,7 +116,7 @@
                         </div>
                     </div>
                     
-                    <!-- Lõi dữ liệu (Đã căn giữa hoàn hảo) -->
+                    <!-- Lõi dữ liệu -->
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 8px;">
                         <i class="fa-solid fa-seedling rank-icon" id="rank-icon" style="font-size: 4.5rem; margin-bottom: 12px; margin-top: 0;"></i>
                         <div class="rank-title" id="rank-title" style="font-size: 2rem; margin: 0; line-height: 1; font-weight: 800; text-transform: uppercase;">Người Mới</div>
