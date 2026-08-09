@@ -853,6 +853,9 @@ function checkCycleAndStreak() {
         let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
         let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
         
+        // 👉 CHÈN DÒNG NÀY ĐỂ KÍCH HOẠT HUY HIỆU "COMEBACK" NẾU NGHỈ QUÁ 7 NGÀY MÀ QUAY LẠI
+        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true'); 
+        
         let checkedDate = localStorage.getItem('saasDebtCheckedDate');
         if (checkedDate !== yesterdayStr) {
             let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.5; 
@@ -1592,27 +1595,121 @@ function renderDashboard() {
     });
 }
 
+// =====================================================================
+// NÂNG CẤP BỨC TƯỜNG DANH VỌNG: 24 CHUYÊN MỤC THÀNH TỰU (CHAMPIONS LEAGUE)
+// =====================================================================
 function renderTrophyRoom() {
-    let completedGoals = goals.filter(g => g.current <= 0); 
     const room = document.getElementById('trophy-room'); 
     room.innerHTML = '';
     
-    if (completedGoals.length === 0) { 
-        room.innerHTML = `<div class="locked-state stagger-item" style="animation-delay: 0.1s"><i class="fa-solid fa-lock"></i><h2>Kho Lưu Trữ Bị Khóa</h2><p>Chỉ mở khóa khi hoàn thành 100% ít nhất 1 mục tiêu.</p></div>`; 
-        return; 
-    }
+    // 1. THU THẬP SỐ LIỆU ĐỂ MỞ KHÓA THÀNH TỰU
+    let totalCompletedGoals = goals.filter(g => g.current <= 0).length;
+    let totalHours = Object.values(dailyLogs).reduce((a, b) => a + b, 0);
+    let totalPomodoros = standardSessionCount25; 
+    let nightSessions = 0;
+    let morningSessions = 0;
+    let totalGoals = goals.length;
+    let maxGoalTarget = goals.length > 0 ? Math.max(...goals.map(g => g.target)) : 0;
+    let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
+    let totalReports = goals.reduce((sum, g) => sum + (g.reports ? g.reports.length : 0), 0);
     
-    completedGoals.forEach((g, index) => {
-        let reportCount = g.reports ? g.reports.length : 0; 
-        let delay = (index + 1) * 0.1;
-        room.innerHTML += `<div class="trophy-card stagger-item" style="animation-delay: ${delay}s" onclick="viewTrophyDetail(${g.id})">
-            <div class="trophy-header">
-                <h3><i class="fa-solid fa-trophy" style="color: var(--brand-trophy);"></i>${g.name}</h3>
-                <span class="trophy-badge">ĐÃ HOÀN THÀNH</span>
-            </div>
-            <p style="color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-clock" style="margin-right: 6px;"></i> Quy mô: ${g.target} Giờ &nbsp;&nbsp;•&nbsp;&nbsp; <i class="fa-solid fa-file-lines" style="margin-right: 6px;"></i> Báo cáo: ${reportCount}</p>
-        </div>`;
+    goals.forEach(g => {
+        if (g.reports) {
+            g.reports.forEach(r => {
+                let parts = r.date.split(' - ');
+                if (parts.length === 2) {
+                    let hour = parseInt(parts[1].split(':')[0]);
+                    if (hour >= 18 || hour < 5) nightSessions++; 
+                    if (hour >= 5 && hour < 12) morningSessions++;
+                }
+            });
+        }
     });
+
+    // 2. KHAI BÁO DANH SÁCH 24 THÀNH TỰU (CHIA LÀM 4 HẠNG)
+    const achievements = [
+        // 🥉 TIER 1: TÂN BINH (DỄ) - Màu Kẽm
+        { id: 'first_blood', icon: '🩸', name: 'First Blood', desc: 'Mục tiêu đầu tiên', unlocked: totalGoals >= 1, color: '#a1a1aa' },
+        { id: 'apprentice', icon: '📖', name: 'Apprentice', desc: '10h Tập trung', unlocked: totalHours >= 10, color: '#a1a1aa' },
+        { id: 'warm_up', icon: '🚶', name: 'Warm Up', desc: '10 Pomodoro', unlocked: totalPomodoros >= 10, color: '#a1a1aa' },
+        { id: 'early_bird', icon: '🌅', name: 'Early Bird', desc: '10 Phiên Sáng', unlocked: morningSessions >= 10, color: '#a1a1aa' },
+        { id: 'night_owl', icon: '🦉', name: 'Night Owl', desc: '10 Phiên Tối', unlocked: nightSessions >= 10, color: '#a1a1aa' },
+        { id: 'first_victory', icon: '🏅', name: 'First Victory', desc: 'Xong 1 Mục tiêu', unlocked: totalCompletedGoals >= 1, color: '#a1a1aa' },
+        
+        // 🥈 TIER 2: CHUYÊN NGHIỆP (TRUNG BÌNH) - Màu Bạc
+        { id: 'silver_streak', icon: '⚡', name: 'Silver Streak', desc: 'Chuỗi 14 Ngày', unlocked: currentStreak >= 14, color: '#94a3b8' },
+        { id: 'deep_worker', icon: '⏱️', name: 'Deep Worker', desc: '50 Pomodoro', unlocked: totalPomodoros >= 50, color: '#94a3b8' },
+        { id: 'scholar', icon: '🎓', name: 'Scholar', desc: '50h Tập trung', unlocked: totalHours >= 50, color: '#94a3b8' },
+        { id: 'bounty_hunter', icon: '🎯', name: 'Bounty Hunter', desc: 'Xong 5 Mục tiêu', unlocked: totalCompletedGoals >= 5, color: '#94a3b8' },
+        { id: 'capitalist', icon: '💰', name: 'Capitalist', desc: 'Tích lũy $1000', unlocked: currentUsd >= 1000, color: '#94a3b8' },
+        { id: 'comeback', icon: '💪', name: 'Comeback', desc: 'Trở lại sau 7 ngày off', unlocked: localStorage.getItem('ach_comeback') === 'true', color: '#94a3b8' },
+
+        // 🥇 TIER 3: TINH ANH (KHÓ) - Màu Vàng Gold
+        { id: 'iron_will', icon: '🔥', name: 'Iron Will', desc: 'Chuỗi 30 Ngày', unlocked: currentStreak >= 30, color: '#eab308' },
+        { id: 'century', icon: '💯', name: 'Century', desc: '100h Tập trung', unlocked: totalHours >= 100, color: '#eab308' },
+        { id: 'veteran', icon: '🛡️', name: 'Veteran', desc: '100 Pomodoro', unlocked: totalPomodoros >= 100, color: '#eab308' },
+        { id: 'sherlock', icon: '🕵️‍♂️', name: 'Sherlock', desc: 'Ghi 50 Báo cáo', unlocked: totalReports >= 50, color: '#eab308' },
+        { id: 'morning_star', icon: '☀️', name: 'Morning Star', desc: '50 Phiên Sáng', unlocked: morningSessions >= 50, color: '#eab308' },
+        { id: 'conqueror', icon: '⚔️', name: 'Conqueror', desc: 'Xong 10 Mục tiêu', unlocked: totalCompletedGoals >= 10, color: '#eab308' },
+
+        // 💎 TIER 4: HUYỀN THOẠI (CỰC KHÓ - CHAMPIONS LEAGUE) - Màu Kim Cương / Đỏ Ruby
+        { id: 'bavarian_machine', icon: '🚜', name: 'Bavarian Machine', desc: '300h Tập trung', unlocked: totalHours >= 300, color: '#0ea5e9' },
+        { id: 'marathon', icon: '🏃‍♂️', name: 'Marathon Runner', desc: 'Tạo Mục tiêu >100h', unlocked: maxGoalTarget >= 100, color: '#0ea5e9' },
+        { id: 'diamond_streak', icon: '💎', name: 'Diamond Streak', desc: 'Chuỗi 90 Ngày', unlocked: currentStreak >= 90, color: '#0ea5e9' },
+        { id: 'time_lord', icon: '⏳', name: 'Time Lord', desc: '500 Pomodoro', unlocked: totalPomodoros >= 500, color: '#0ea5e9' },
+        { id: 'tycoon', icon: '🏦', name: 'Tycoon', desc: 'Tích lũy $5000', unlocked: currentUsd >= 5000, color: '#0ea5e9' },
+        { id: 'the_apex', icon: '👑', name: 'The Apex', desc: 'Đạt 1000h Kỷ luật', unlocked: totalHours >= 1000, color: '#ef4444' }
+    ];
+
+    let unlockedCount = achievements.filter(a => a.unlocked).length;
+    let totalCount = achievements.length;
+
+    // 3. VẼ GIAO DIỆN BẢNG VÀNG THÀNH TỰU
+    let achHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.1s; margin-bottom: 32px; background: linear-gradient(145deg, var(--bg-hover) 0%, var(--bg-panel) 100%);">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 1px; margin: 0;"><i class="fa-solid fa-medal" style="color: var(--brand-trophy); margin-right: 8px;"></i> Bảng Vàng Danh Hiệu</h3>
+            <span style="font-size: 0.85rem; font-weight: 800; color: var(--brand-trophy); background: rgba(245, 158, 11, 0.1); padding: 6px 14px; border-radius: 100px; border: 1px solid rgba(245, 158, 11, 0.3);">${unlockedCount} / ${totalCount} Cúp</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px;">`;
+
+    achievements.forEach((a, i) => {
+        let delay = 0.15 + (i * 0.02);
+        if (a.unlocked) {
+            // Khi mở khóa, thẻ bài sẽ tỏa sáng với viền và màu theo đúng Tier (Đồng/Bạc/Vàng/Kim Cương)
+            achHtml += `<div style="background: var(--bg-panel); border: 2px solid ${a.color}; border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 4px 20px ${a.color}30; animation: fadeIn 0.5s ease backwards; animation-delay: ${delay}s; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -20px; right: -20px; width: 60px; height: 60px; background: ${a.color}; opacity: 0.15; border-radius: 50%; filter: blur(12px);"></div>
+                <div style="font-size: 2.8rem; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); line-height: 1;">${a.icon}</div>
+                <div style="font-weight: 800; color: var(--text-main); font-size: 0.85rem; margin-bottom: 4px; z-index: 2;">${a.name}</div>
+                <div style="font-size: 0.7rem; color: ${a.color}; font-weight: 800; z-index: 2;">${a.desc}</div>
+            </div>`;
+        } else {
+            // Khi chưa đạt, thẻ bài nằm phủ sương xám xịt (Locked)
+            achHtml += `<div style="background: var(--bg-hover); border: 1px dashed var(--border); border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; opacity: 0.5; filter: grayscale(1); transition: 0.3s; animation: fadeIn 0.5s ease backwards; animation-delay: ${delay}s;">
+                <div style="font-size: 2.8rem; margin-bottom: 12px; line-height: 1;">${a.icon}</div>
+                <div style="font-weight: 800; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px;">${a.name}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;"><i class="fa-solid fa-lock"></i> Chưa đạt</div>
+            </div>`;
+        }
+    });
+    achHtml += `</div></div>`;
+    
+    // 4. VẼ GIAO DIỆN KHO LƯU TRỮ MỤC TIÊU CŨ BÊN DƯỚI
+    let completedGoals = goals.filter(g => g.current <= 0); 
+    let trophyHtml = `<h3 class="stagger-item" style="font-size: 1.1rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; animation-delay: 0.6s;"><i class="fa-solid fa-box-archive" style="color: var(--text-muted); margin-right: 8px;"></i> Kho Mục Tiêu Đã Hoàn Thành</h3>`;
+    
+    if (completedGoals.length === 0) { 
+        trophyHtml += `<div class="locked-state stagger-item" style="animation-delay: 0.65s"><i class="fa-solid fa-hourglass-empty"></i><h2>Chưa Có Mục Tiêu Nào Hoàn Thành</h2><p>Lịch sử vinh quang của ngài sẽ được khắc lên đây.</p></div>`; 
+    } else {
+        trophyHtml += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">`;
+        completedGoals.forEach((g, index) => {
+            let reportCount = g.reports ? g.reports.length : 0; 
+            let delay = 0.65 + (index * 0.1);
+            trophyHtml += `<div class="trophy-card stagger-item" style="animation-delay: ${delay}s" onclick="viewTrophyDetail(${g.id})"><div class="trophy-header"><h3><i class="fa-solid fa-trophy" style="color: var(--brand-trophy);"></i>${g.name}</h3><span class="trophy-badge">ĐÃ HOÀN THÀNH</span></div><p style="color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-clock" style="margin-right: 6px;"></i> Quy mô: ${g.target} Giờ &nbsp;&nbsp;•&nbsp;&nbsp; <i class="fa-solid fa-file-lines" style="margin-right: 6px;"></i> Báo cáo: ${reportCount}</p></div>`;
+        });
+        trophyHtml += `</div>`;
+    }
+
+    room.innerHTML = achHtml + trophyHtml;
 }
 
 function viewTrophyDetail(id) {
