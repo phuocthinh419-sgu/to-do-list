@@ -2506,8 +2506,13 @@ function renderTimetable() {
         let d = new Date(monday); d.setDate(monday.getDate() + i); weekDates.push(d);
         let isToday = (d.toDateString() === new Date().toDateString());
         let todayClass = isToday ? 'is-today' : '';
-        let todayBadge = isToday ? `<div class="today-badge">HÔM NAY</div>` : '';
-        html += `<div class="tt-cell tt-head ${todayClass}">${todayBadge}<span>${days[i]}</span><span>${d.toLocaleDateString('vi-VN')}</span></div>`;
+        
+        // Thêm biểu tượng tia chớp nhỏ nhấp nháy bên cạnh "Thứ X" nếu là ngày hôm nay
+        let dayNameHtml = isToday 
+            ? `<i class="fa-solid fa-bolt fa-fade" style="font-size: 0.8rem; margin-right: 4px;"></i>${days[i]}` 
+            : days[i];
+            
+        html += `<div class="tt-cell tt-head ${todayClass}"><span>${dayNameHtml}</span><span>${d.toLocaleDateString('vi-VN')}</span></div>`;
     }
 
     let shifts = [{ id: 'sang', label: 'Sáng' }, { id: 'chieu', label: 'Chiều' }, { id: 'toi', label: 'Tối' }];
