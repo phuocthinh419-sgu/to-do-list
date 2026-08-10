@@ -2489,46 +2489,50 @@ function getMonday(d) { let dObj = new Date(d); let day = dObj.getDay(); let dif
 function goToCurrentWeek() { currentViewDate = new Date(); renderTimetable(); }
 function changeWeek(offset) { currentViewDate.setDate(currentViewDate.getDate() + (offset * 7)); renderTimetable(); }
 
-// 3. Render Lưới Thời Khóa Biểu
+// 3. Render Lưới Thời Khóa Biểu (Có Dải Băng Tạm Ngưng)
 function renderTimetable() {
     let grid = document.getElementById('timetable-grid'); if(!grid) return;
     let monday = getMonday(currentViewDate);
     let days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
     
-    // Cập nhật nhãn Header
     let sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
     document.getElementById('tt-week-label').innerText = `${monday.toLocaleDateString('vi-VN')} - ${sunday.toLocaleDateString('vi-VN')}`;
     
     let html = `<div class="tt-head" style="border-right: 1px solid var(--border);">Ca học</div>`;
     let weekDates = [];
     
-    // Header Thứ & Ngày
     for (let i = 0; i < 7; i++) {
-        let d = new Date(monday); d.setDate(monday.getDate() + i);
-        weekDates.push(d);
+        let d = new Date(monday); d.setDate(monday.getDate() + i); weekDates.push(d);
         let isToday = (d.toDateString() === new Date().toDateString()) ? 'color: var(--brand-focus);' : '';
         html += `<div class="tt-cell tt-head" style="${isToday}"><span>${days[i]}</span><span>${d.toLocaleDateString('vi-VN')}</span></div>`;
     }
 
-    // Các Ca Học
     let shifts = [{ id: 'sang', label: 'Sáng' }, { id: 'chieu', label: 'Chiều' }, { id: 'toi', label: 'Tối' }];
     
     shifts.forEach(shift => {
         html += `<div class="tt-cell tt-shift">${shift.label}</div>`;
         for (let i = 0; i < 7; i++) {
             let currentDayObj = weekDates[i];
-            let currentDow = currentDayObj.getDay(); // 0 = CN, 1 = T2...
+            let currentDow = currentDayObj.getDay(); 
+            // Format ngày an toàn để so sánh: YYYY-MM-DD
+            let localDateStr = currentDayObj.getFullYear() + '-' + String(currentDayObj.getMonth()+1).padStart(2,'0') + '-' + String(currentDayObj.getDate()).padStart(2,'0');
             
-            // Lọc các môn học rơi vào Ca này, Thứ này, và Ngày này phải nằm trong khoảng StartDate -> EndDate
             let itemsHTML = '';
             timetableData.forEach(item => {
                 let sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
                 let eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
                 
                 if (item.shift === shift.id && parseInt(item.dow) === currentDow && currentDayObj >= sDate && currentDayObj <= eDate) {
-                    let cssClass = `tt-${item.type}`; // tt-offline, tt-online...
-                    let icon = item.type === 'online' ? '<i class="fa-solid fa-laptop"></i> ' : (item.type === 'exam' ? '<i class="fa-solid fa-file-signature"></i> ' : '');
-                    itemsHTML += `<div class="tt-item ${cssClass}" onclick="deleteTimetableItem(${item.id})">
+                    
+                    // KIỂM TRA XEM NGÀY NÀY CÓ BỊ ĐÁNH DẤU "TẠM NGƯNG" KHÔNG
+                    let isPaused = item.pausedDates && item.pausedDates.includes(localDateStr);
+                    let cssClass = `tt-${item.type} ${isPaused ? 'is-paused' : ''}`;
+                    let ribbonHtml = isPaused ? `<div class="tt-ribbon">Tạm ngưng</div>` : '';
+                    
+                    let icon = item.type === 'online' ? '<i class="fa-solid fa-laptop"></i> ' : (item.type === 'exam' ? '<i class="fa-solid fa-file-signature"></i> ' : (item.type === 'work' ? '<i class="fa-solid fa-building"></i> ' : (item.type === 'tutor' ? '<i class="fa-solid fa-user-graduate"></i> ' : '')));
+                    
+                    itemsHTML += `<div class="tt-item ${cssClass}" onclick="handleTimetableAction(${item.id}, '${localDateStr}')">
+                        ${ribbonHtml}
                         <strong>${icon}${item.name}</strong>
                         ${item.code ? `<div>${item.code}</div>` : ''}
                         ${item.room ? `<div>Phòng: ${item.room}</div>` : ''}
@@ -2536,12 +2540,10 @@ function renderTimetable() {
                     </div>`;
                 }
             });
-            
             let isTodayCol = (currentDayObj.toDateString() === new Date().toDateString()) ? 'background: rgba(255,255,255,0.02);' : '';
             html += `<div class="tt-cell tt-content" style="${isTodayCol}">${itemsHTML}</div>`;
         }
     });
-    
     grid.innerHTML = html;
 }
 
@@ -2549,7 +2551,6 @@ function renderTimetable() {
 function openTimetableModal() {
     document.getElementById('tt-name').value = ''; document.getElementById('tt-code').value = '';
     document.getElementById('tt-room').value = ''; document.getElementById('tt-teacher').value = '';
-    // Mặc định set từ hôm nay đến 2 tháng sau (Khoảng ngày của 1 học kỳ cơ bản)
     let today = new Date(); let twoMonths = new Date(); twoMonths.setMonth(today.getMonth() + 2);
     document.getElementById('tt-start').value = today.toISOString().split('T')[0];
     document.getElementById('tt-end').value = twoMonths.toISOString().split('T')[0];
@@ -2558,7 +2559,7 @@ function openTimetableModal() {
 
 function saveTimetableItem() {
     let name = document.getElementById('tt-name').value;
-    if(!name) return alert("Bệ hạ chưa nhập tên môn học!");
+    if(!name) return alert("Bệ hạ chưa nhập tên sự kiện!");
     
     let item = {
         id: Date.now(),
@@ -2570,29 +2571,44 @@ function saveTimetableItem() {
         startDate: document.getElementById('tt-start').value,
         endDate: document.getElementById('tt-end').value,
         dow: document.getElementById('tt-dow').value,
-        shift: document.getElementById('tt-shift').value
+        shift: document.getElementById('tt-shift').value,
+        pausedDates: [] // Khởi tạo mảng trống để lưu các ngày báo nghỉ
     };
     
     timetableData.push(item);
     localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
-    
-    // ☁️ Chèn Đồng Bộ Firebase
-    if (typeof syncToCloud === "function") {
-        // Phải cập nhật biến dataToSync trong hàm syncToCloud() để chứa 'saasTimetable'.
-        // Tạm thời kích hoạt sync, dữ liệu timetable sẽ được lưu ở local. (Thần sẽ vá core sync sau nếu cần).
-        localStorage.setItem('saasLastUpdated', Date.now());
-        syncToCloud();
-    }
+    if (typeof syncToCloud === "function") { localStorage.setItem('saasLastUpdated', Date.now()); syncToCloud(); }
     
     document.getElementById('timetable-modal').style.display = 'none';
     renderTimetable();
 }
 
-function deleteTimetableItem(id) {
-    if(confirm("Bệ hạ muốn xóa hoặc báo nghỉ môn học này?")) {
-        timetableData = timetableData.filter(i => i.id !== id);
-        localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
-        if (typeof syncToCloud === "function") { localStorage.setItem('saasLastUpdated', Date.now()); syncToCloud(); }
-        renderTimetable();
+// 5. Xử lý Tạm Ngưng hoặc Xóa
+function handleTimetableAction(id, dateStr) {
+    let item = timetableData.find(i => i.id === id);
+    if(!item) return;
+
+    let isCurrentlyPaused = item.pausedDates && item.pausedDates.includes(dateStr);
+    let promptMsg = `CÁC TÙY CHỌN CHO: ${item.name}\n\n[ 1 ] - ${isCurrentlyPaused ? 'Hủy báo nghỉ (Đi học lại)' : 'Đánh dấu Nghỉ buổi này (Tạm ngưng)'}\n[ 2 ] - Xóa vĩnh viễn khỏi Lịch\n\nNhập phím 1 hoặc 2:`;
+    
+    let action = prompt(promptMsg);
+
+    if (action === "1") {
+        if (!item.pausedDates) item.pausedDates = [];
+        if (isCurrentlyPaused) {
+            item.pausedDates = item.pausedDates.filter(d => d !== dateStr); // Gỡ dải băng
+        } else {
+            item.pausedDates.push(dateStr); // Gắn dải băng
+        }
+    } else if (action === "2") {
+        if(confirm("Bệ hạ có chắc chắn muốn xóa vĩnh viễn khỏi thời khóa biểu?")) {
+            timetableData = timetableData.filter(i => i.id !== id);
+        }
+    } else {
+        return; // Hủy thao tác
     }
+
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    if (typeof syncToCloud === "function") { localStorage.setItem('saasLastUpdated', Date.now()); syncToCloud(); }
+    renderTimetable();
 }
