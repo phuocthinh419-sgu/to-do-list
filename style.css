@@ -4,7 +4,7 @@
 
 /* 1. HỆ THỐNG BIẾN SỐ CỐT LÕI */
 :root {
-    --bg-base: #f4f4f5;       
+    --bg-base: #f4f4f5;        
     --bg-panel: #ffffff;      
     --bg-hover: #f8fafc;
     --text-main: #0f172a;     
@@ -370,7 +370,7 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
 }
 
 /* ==========================================================================
-   TIMETABLE MODULE (THỜI KHÓA BIỂU)
+   MÀU SẮC THỜI KHÓA BIỂU & BĂNG RÔN (RIBBONS)
    ========================================================================== */
 .timetable-header-controls { display: flex; justify-content: space-between; align-items: center; background: var(--bg-hover); padding: 16px 24px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
 .tt-btn-group { display: flex; gap: 8px; }
@@ -386,17 +386,25 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
 .tt-shift { background: var(--bg-hover); font-weight: 800; color: var(--text-muted); display: flex; align-items: center; justify-content: center; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 2px; }
 .tt-content { vertical-align: top; background: transparent; display: flex; flex-direction: column; gap: 8px; }
 
-.tt-item { padding: 12px; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; color: var(--text-main); position: relative; cursor: pointer; transition: 0.2s; }
+.tt-item { padding: 12px; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; color: var(--text-main); position: relative; cursor: pointer; transition: 0.2s; overflow: hidden; /* Bắt buộc để cắt ruy băng thừa */ }
 .tt-item:hover { filter: brightness(1.2); transform: translateY(-2px); }
 .tt-item strong { display: block; font-size: 0.95rem; margin-bottom: 6px; }
 
-/* 4 Loại Lịch (Chuẩn màu Dark Theme) */
+/* Dải băng đỏ "TẠM NGƯNG" */
+.tt-ribbon { position: absolute; top: 12px; left: -30px; background: #ef4444; color: white; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 4px 30px; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; letter-spacing: 0.5px; }
+.tt-item.is-paused { opacity: 0.5; filter: grayscale(0.5); }
+
+/* Các Loại Lịch */
 .tt-offline { background: rgba(148, 163, 184, 0.1); border-left: 4px solid #94a3b8; }
 .tt-online { background: rgba(14, 165, 233, 0.15); border-left: 4px solid #0ea5e9; }
 .tt-online strong { color: #0ea5e9; }
 .tt-exam { background: rgba(245, 158, 11, 0.15); border: 2px solid #f59e0b; }
 .tt-exam strong { color: #f59e0b; font-size: 1.05rem; }
-.tt-paused { background: rgba(239, 68, 68, 0.15); border-left: 4px solid #ef4444; opacity: 0.6; text-decoration: line-through; }
+
+/* Lịch Cá nhân (Việc làm, Gia sư, Tự học) */
+.tt-work { background: rgba(168, 85, 247, 0.15); border-left: 4px solid #a855f7; } /* Dạy Trung Tâm - Tím */
+.tt-tutor { background: rgba(16, 185, 129, 0.15); border-left: 4px solid #10b981; } /* Gia sư - Xanh Lục */
+.tt-self { background: rgba(236, 72, 153, 0.15); border-left: 4px solid #ec4899; } /* Tự học - Hồng */
 
 .tt-legend { display: flex; gap: 16px; margin-top: 20px; padding: 0 24px; flex-wrap: wrap; }
 .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
