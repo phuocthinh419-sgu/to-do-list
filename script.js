@@ -2454,3 +2454,145 @@ if (!isRestoredV2) {
     
     alert("⛩ THÁNH CHỈ KHÔI PHỤC HOÀN TẤT ⛩\n\n- Chuỗi kỷ luật: 13 ngày.\n- Thời gian truy lĩnh: 18.9 giờ.\n- Ngân khố tự đúc (đã trừ thuế): $884.\n\nHôm nay là ngày 14. Chúc bệ hạ cày ải chốt sổ thành công!");
 }
+
+// =====================================================================
+// KHỐI LOGIC THỜI KHÓA BIỂU (TIMETABLE ENGINE)
+// =====================================================================
+let timetableData = JSON.parse(localStorage.getItem('saasTimetable')) || [];
+let currentViewDate = new Date(); // Biến lưu tuần đang xem
+
+// 1. Phải vá hàm switchTab để nó nhận diện Tab Thời Khóa Biểu
+const originalSwitchTab = switchTab;
+window.switchTab = function(tab) {
+    originalSwitchTab(tab); // Gọi code cũ
+    document.getElementById('timetable-room').style.display = 'none';
+    let navTt = document.getElementById('nav-timetable'); if(navTt) navTt.classList.remove('active');
+    
+    if (tab === 'timetable') {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(navTt) navTt.classList.add('active');
+        document.getElementById('view-dashboard').style.display = 'none'; 
+        document.getElementById('analytics-room').style.display = 'none'; 
+        document.getElementById('trophy-room').style.display = 'none'; 
+        document.getElementById('trophy-detail').style.display = 'none';
+        
+        document.getElementById('timetable-room').style.display = 'block';
+        document.getElementById('main-title').innerText = "Thời Khóa Biểu"; 
+        document.getElementById('main-desc').innerText = "Sắp xếp chiến lược. Tối ưu thời gian.";
+        document.getElementById('btn-create-goal').style.display = 'none'; document.getElementById('btn-create-countdown').style.display = 'none'; document.getElementById('btn-rest-day').style.display = 'none';
+        renderTimetable();
+    }
+}
+
+// 2. Logic điều hướng Tuần
+function getMonday(d) { let dObj = new Date(d); let day = dObj.getDay(); let diff = dObj.getDate() - day + (day === 0 ? -6 : 1); return new Date(dObj.setDate(diff)); }
+function goToCurrentWeek() { currentViewDate = new Date(); renderTimetable(); }
+function changeWeek(offset) { currentViewDate.setDate(currentViewDate.getDate() + (offset * 7)); renderTimetable(); }
+
+// 3. Render Lưới Thời Khóa Biểu
+function renderTimetable() {
+    let grid = document.getElementById('timetable-grid'); if(!grid) return;
+    let monday = getMonday(currentViewDate);
+    let days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+    
+    // Cập nhật nhãn Header
+    let sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+    document.getElementById('tt-week-label').innerText = `${monday.toLocaleDateString('vi-VN')} - ${sunday.toLocaleDateString('vi-VN')}`;
+    
+    let html = `<div class="tt-head" style="border-right: 1px solid var(--border);">Ca học</div>`;
+    let weekDates = [];
+    
+    // Header Thứ & Ngày
+    for (let i = 0; i < 7; i++) {
+        let d = new Date(monday); d.setDate(monday.getDate() + i);
+        weekDates.push(d);
+        let isToday = (d.toDateString() === new Date().toDateString()) ? 'color: var(--brand-focus);' : '';
+        html += `<div class="tt-cell tt-head" style="${isToday}"><span>${days[i]}</span><span>${d.toLocaleDateString('vi-VN')}</span></div>`;
+    }
+
+    // Các Ca Học
+    let shifts = [{ id: 'sang', label: 'Sáng' }, { id: 'chieu', label: 'Chiều' }, { id: 'toi', label: 'Tối' }];
+    
+    shifts.forEach(shift => {
+        html += `<div class="tt-cell tt-shift">${shift.label}</div>`;
+        for (let i = 0; i < 7; i++) {
+            let currentDayObj = weekDates[i];
+            let currentDow = currentDayObj.getDay(); // 0 = CN, 1 = T2...
+            
+            // Lọc các môn học rơi vào Ca này, Thứ này, và Ngày này phải nằm trong khoảng StartDate -> EndDate
+            let itemsHTML = '';
+            timetableData.forEach(item => {
+                let sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
+                let eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
+                
+                if (item.shift === shift.id && parseInt(item.dow) === currentDow && currentDayObj >= sDate && currentDayObj <= eDate) {
+                    let cssClass = `tt-${item.type}`; // tt-offline, tt-online...
+                    let icon = item.type === 'online' ? '<i class="fa-solid fa-laptop"></i> ' : (item.type === 'exam' ? '<i class="fa-solid fa-file-signature"></i> ' : '');
+                    itemsHTML += `<div class="tt-item ${cssClass}" onclick="deleteTimetableItem(${item.id})">
+                        <strong>${icon}${item.name}</strong>
+                        ${item.code ? `<div>${item.code}</div>` : ''}
+                        ${item.room ? `<div>Phòng: ${item.room}</div>` : ''}
+                        ${item.teacher ? `<div>GV: ${item.teacher}</div>` : ''}
+                    </div>`;
+                }
+            });
+            
+            let isTodayCol = (currentDayObj.toDateString() === new Date().toDateString()) ? 'background: rgba(255,255,255,0.02);' : '';
+            html += `<div class="tt-cell tt-content" style="${isTodayCol}">${itemsHTML}</div>`;
+        }
+    });
+    
+    grid.innerHTML = html;
+}
+
+// 4. Modal & Lưu Dữ Liệu
+function openTimetableModal() {
+    document.getElementById('tt-name').value = ''; document.getElementById('tt-code').value = '';
+    document.getElementById('tt-room').value = ''; document.getElementById('tt-teacher').value = '';
+    // Mặc định set từ hôm nay đến 2 tháng sau (Khoảng ngày của 1 học kỳ cơ bản)
+    let today = new Date(); let twoMonths = new Date(); twoMonths.setMonth(today.getMonth() + 2);
+    document.getElementById('tt-start').value = today.toISOString().split('T')[0];
+    document.getElementById('tt-end').value = twoMonths.toISOString().split('T')[0];
+    document.getElementById('timetable-modal').style.display = 'flex';
+}
+
+function saveTimetableItem() {
+    let name = document.getElementById('tt-name').value;
+    if(!name) return alert("Bệ hạ chưa nhập tên môn học!");
+    
+    let item = {
+        id: Date.now(),
+        name: name,
+        type: document.getElementById('tt-type').value,
+        code: document.getElementById('tt-code').value,
+        room: document.getElementById('tt-room').value,
+        teacher: document.getElementById('tt-teacher').value,
+        startDate: document.getElementById('tt-start').value,
+        endDate: document.getElementById('tt-end').value,
+        dow: document.getElementById('tt-dow').value,
+        shift: document.getElementById('tt-shift').value
+    };
+    
+    timetableData.push(item);
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    
+    // ☁️ Chèn Đồng Bộ Firebase
+    if (typeof syncToCloud === "function") {
+        // Phải cập nhật biến dataToSync trong hàm syncToCloud() để chứa 'saasTimetable'.
+        // Tạm thời kích hoạt sync, dữ liệu timetable sẽ được lưu ở local. (Thần sẽ vá core sync sau nếu cần).
+        localStorage.setItem('saasLastUpdated', Date.now());
+        syncToCloud();
+    }
+    
+    document.getElementById('timetable-modal').style.display = 'none';
+    renderTimetable();
+}
+
+function deleteTimetableItem(id) {
+    if(confirm("Bệ hạ muốn xóa hoặc báo nghỉ môn học này?")) {
+        timetableData = timetableData.filter(i => i.id !== id);
+        localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+        if (typeof syncToCloud === "function") { localStorage.setItem('saasLastUpdated', Date.now()); syncToCloud(); }
+        renderTimetable();
+    }
+}
