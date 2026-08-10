@@ -2489,7 +2489,7 @@ function getMonday(d) { let dObj = new Date(d); let day = dObj.getDay(); let dif
 function goToCurrentWeek() { currentViewDate = new Date(); renderTimetable(); }
 function changeWeek(offset) { currentViewDate.setDate(currentViewDate.getDate() + (offset * 7)); renderTimetable(); }
 
-// 3. Render Lưới Thời Khóa Biểu (Có Dải Băng Tạm Ngưng)
+// 3. Render Lưới Thời Khóa Biểu (Dạng Khối Xếp Gọn - Có Today Highlight)
 function renderTimetable() {
     let grid = document.getElementById('timetable-grid'); if(!grid) return;
     let monday = getMonday(currentViewDate);
@@ -2501,10 +2501,13 @@ function renderTimetable() {
     let html = `<div class="tt-head" style="border-right: 1px solid var(--border);">Ca học</div>`;
     let weekDates = [];
     
+    // Header Thứ & Ngày (Cắm cờ TODAY)
     for (let i = 0; i < 7; i++) {
         let d = new Date(monday); d.setDate(monday.getDate() + i); weekDates.push(d);
-        let isToday = (d.toDateString() === new Date().toDateString()) ? 'color: var(--brand-focus);' : '';
-        html += `<div class="tt-cell tt-head" style="${isToday}"><span>${days[i]}</span><span>${d.toLocaleDateString('vi-VN')}</span></div>`;
+        let isToday = (d.toDateString() === new Date().toDateString());
+        let todayClass = isToday ? 'is-today' : '';
+        let todayBadge = isToday ? `<div class="today-badge">HÔM NAY</div>` : '';
+        html += `<div class="tt-cell tt-head ${todayClass}">${todayBadge}<span>${days[i]}</span><span>${d.toLocaleDateString('vi-VN')}</span></div>`;
     }
 
     let shifts = [{ id: 'sang', label: 'Sáng' }, { id: 'chieu', label: 'Chiều' }, { id: 'toi', label: 'Tối' }];
@@ -2514,7 +2517,6 @@ function renderTimetable() {
         for (let i = 0; i < 7; i++) {
             let currentDayObj = weekDates[i];
             let currentDow = currentDayObj.getDay(); 
-            // Format ngày an toàn để so sánh: YYYY-MM-DD
             let localDateStr = currentDayObj.getFullYear() + '-' + String(currentDayObj.getMonth()+1).padStart(2,'0') + '-' + String(currentDayObj.getDate()).padStart(2,'0');
             
             let itemsHTML = '';
@@ -2524,13 +2526,12 @@ function renderTimetable() {
                 
                 if (item.shift === shift.id && parseInt(item.dow) === currentDow && currentDayObj >= sDate && currentDayObj <= eDate) {
                     
-                    // KIỂM TRA XEM NGÀY NÀY CÓ BỊ ĐÁNH DẤU "TẠM NGƯNG" KHÔNG
                     let isPaused = item.pausedDates && item.pausedDates.includes(localDateStr);
                     let cssClass = `tt-${item.type} ${isPaused ? 'is-paused' : ''}`;
                     let ribbonHtml = isPaused ? `<div class="tt-ribbon">Tạm ngưng</div>` : '';
-                    
                     let icon = item.type === 'online' ? '<i class="fa-solid fa-laptop"></i> ' : (item.type === 'exam' ? '<i class="fa-solid fa-file-signature"></i> ' : (item.type === 'work' ? '<i class="fa-solid fa-building"></i> ' : (item.type === 'tutor' ? '<i class="fa-solid fa-user-graduate"></i> ' : '')));
                     
+                    // Thẻ bài xếp gọn đè lên nhau
                     itemsHTML += `<div class="tt-item ${cssClass}" onclick="handleTimetableAction(${item.id}, '${localDateStr}')">
                         ${ribbonHtml}
                         <strong>${icon}${item.name}</strong>
@@ -2540,8 +2541,10 @@ function renderTimetable() {
                     </div>`;
                 }
             });
-            let isTodayCol = (currentDayObj.toDateString() === new Date().toDateString()) ? 'background: rgba(255,255,255,0.02);' : '';
-            html += `<div class="tt-cell tt-content" style="${isTodayCol}">${itemsHTML}</div>`;
+            
+            // Highlight nền của cột TODAY
+            let isTodayCol = (currentDayObj.toDateString() === new Date().toDateString()) ? 'is-today-col' : '';
+            html += `<div class="tt-cell tt-content ${isTodayCol}">${itemsHTML}</div>`;
         }
     });
     grid.innerHTML = html;
