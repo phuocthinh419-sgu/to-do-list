@@ -368,3 +368,36 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     .modal-footer { flex-direction: column; gap: 10px; margin-top: 20px; }
     .btn-ghost, .btn-submit, .btn-shame, .btn-shame-alt { width: 100%; padding: 14px; font-size: 0.95rem; }
 }
+
+/* ==========================================================================
+   TIMETABLE MODULE (THỜI KHÓA BIỂU)
+   ========================================================================== */
+.timetable-header-controls { display: flex; justify-content: space-between; align-items: center; background: var(--bg-hover); padding: 16px 24px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
+.tt-btn-group { display: flex; gap: 8px; }
+.tt-btn { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.tt-btn:hover { background: var(--brand-focus); color: #fff; border-color: var(--brand-focus); }
+.tt-date-display { font-size: 1.1rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+
+.timetable-wrapper { overflow-x: auto; background: var(--bg-panel); border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
+.timetable-grid { display: grid; grid-template-columns: 80px repeat(7, minmax(180px, 1fr)); border-collapse: collapse; min-width: 1000px; }
+.tt-cell { border: 1px solid var(--border); padding: 12px; }
+.tt-head { background: var(--bg-hover); font-weight: 800; text-align: center; color: var(--brand-info); display: flex; flex-direction: column; justify-content: center; border-bottom: 2px solid var(--border); }
+.tt-head span:last-child { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+.tt-shift { background: var(--bg-hover); font-weight: 800; color: var(--text-muted); display: flex; align-items: center; justify-content: center; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 2px; }
+.tt-content { vertical-align: top; background: transparent; display: flex; flex-direction: column; gap: 8px; }
+
+.tt-item { padding: 12px; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; color: var(--text-main); position: relative; cursor: pointer; transition: 0.2s; }
+.tt-item:hover { filter: brightness(1.2); transform: translateY(-2px); }
+.tt-item strong { display: block; font-size: 0.95rem; margin-bottom: 6px; }
+
+/* 4 Loại Lịch (Chuẩn màu Dark Theme) */
+.tt-offline { background: rgba(148, 163, 184, 0.1); border-left: 4px solid #94a3b8; }
+.tt-online { background: rgba(14, 165, 233, 0.15); border-left: 4px solid #0ea5e9; }
+.tt-online strong { color: #0ea5e9; }
+.tt-exam { background: rgba(245, 158, 11, 0.15); border: 2px solid #f59e0b; }
+.tt-exam strong { color: #f59e0b; font-size: 1.05rem; }
+.tt-paused { background: rgba(239, 68, 68, 0.15); border-left: 4px solid #ef4444; opacity: 0.6; text-decoration: line-through; }
+
+.tt-legend { display: flex; gap: 16px; margin-top: 20px; padding: 0 24px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
+.legend-box { width: 32px; height: 16px; border-radius: 4px; }
