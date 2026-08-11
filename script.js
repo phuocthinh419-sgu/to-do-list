@@ -920,7 +920,7 @@ function importData(event) {
 }
 
 // =====================================================================
-// ĐẠO LUẬT CHỐT SỔ (BẮT BUỘC QUA NGÀY THỨ 8)
+// ĐẠO LUẬT CHỐT SỔ (HẾT CHU KỲ 7 NGÀY LÀ CHỐT)
 // =====================================================================
 function checkCycleAndStreak() {
     let todayObj = new Date(); 
@@ -931,13 +931,14 @@ function checkCycleAndStreak() {
     yesterdayObj.setDate(yesterdayObj.getDate() - 1);
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
-    // KIỂM TRA CHU KỲ TUẦN
-    let cycleStartObj = new Date(cycleStartDate); 
-    let diffCycleTime = new Date(todayStr) - cycleStartObj;
+    // KIỂM TRA CHU KỲ TUẦN (Sử dụng giờ chuẩn tuyệt đối)
+    let todayMidnight = new Date(todayStr + "T00:00:00");
+    let cycleMidnight = new Date(cycleStartDate + "T00:00:00");
+    let diffCycleTime = todayMidnight - cycleMidnight;
     let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
 
-    // Bắt buộc bước sang ngày thứ 8 (>= 8) mới tổng kết
-    if (diffCycleDays >= 8 && !isPendingTax) {
+    // CHUẨN XÁC: Khoảng cách = 7 (Tức là bước sang ngày thứ 8) thì tổng kết!
+    if (diffCycleDays >= 7 && !isPendingTax) {
         exportData(); 
 
         let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
@@ -951,6 +952,7 @@ function checkCycleAndStreak() {
         }
 
         let totalCycleHours = 0;
+        let cycleStartObj = new Date(cycleStartDate);
         // Chỉ lấy tổng của đúng 7 ngày trong chu kỳ
         for(let i = 0; i < 7; i++) {
             let d = new Date(cycleStartObj); 
@@ -970,7 +972,7 @@ function checkCycleAndStreak() {
         // Tịnh tiến cycleStart lên đúng 7 ngày
         cycleStartObj.setDate(cycleStartObj.getDate() + 7);
         
-        if (new Date(todayStr) - cycleStartObj > 14 * 24 * 3600 * 1000) {
+        if (todayMidnight - cycleStartObj > 14 * 24 * 3600 * 1000) {
             cycleStartObj = new Date(todayStr);
         }
         
@@ -984,14 +986,12 @@ function checkCycleAndStreak() {
         let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
         let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
         
-        // 👉 CHÈN DÒNG NÀY ĐỂ KÍCH HOẠT HUY HIỆU "COMEBACK" NẾU NGHỈ QUÁ 7 NGÀY MÀ QUAY LẠI
         if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true'); 
         
         let checkedDate = localStorage.getItem('saasDebtCheckedDate');
         if (checkedDate !== yesterdayStr) {
             let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.5; 
             
-            // ĐÀO NGŨ > 24H
             if (diffDays > 1) {
                 if (!isPendingTax) impactStockMarket("PENALTY");
                 isPendingTax = true; 
@@ -999,7 +999,6 @@ function checkCycleAndStreak() {
                 localStorage.setItem('saasDailyDebt', '0'); 
                 dailyDebtMinutes = 0;
             } 
-            // CÀY KHÔNG ĐỦ CHUẨN
             else if (diffDays === 1) {
                 let yesterdayHrs = dailyLogs[yesterdayStr] || 0; 
                 if (yesterdayHrs < targetHrs) {
@@ -1014,23 +1013,16 @@ function checkCycleAndStreak() {
         }
     }
 
-    // THỰC THI ÁN PHẠT GIAO DIỆN
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
         let shameTitle = document.querySelector('.shame-content h2'); 
         if(shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        
         let shameDesc = document.querySelector('.shame-content p'); 
         if(shameDesc) shameDesc.innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!"; 
-        
         let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none'; 
-        
         let btnShame = document.querySelector('.btn-shame');
-        if(btnShame) { 
-            btnShame.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; 
-            btnShame.onclick = startTaxSession; 
-        }
+        if(btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; btnShame.onclick = startTaxSession; }
         return;
     }
 
@@ -1038,18 +1030,12 @@ function checkCycleAndStreak() {
         document.getElementById('shame-modal').style.display = 'flex'; 
         let shameTitle = document.querySelector('.shame-content h2'); 
         if(shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.5H)";
-        
         let shameDesc = document.querySelector('.shame-content p'); 
         if(shameDesc) shameDesc.innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ 1.5h. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
-        
         let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none';
-        
         let btnShame = document.querySelector('.btn-shame');
-        if(btnShame) { 
-            btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; 
-            btnShame.onclick = startDebtSession; 
-        }
+        if(btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
         return;
     }
 
