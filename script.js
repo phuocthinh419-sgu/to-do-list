@@ -1061,10 +1061,12 @@ function checkCycleAndStreak() {
 // KHỐI LOGIC THIẾT QUÂN LUẬT (CÓ TÍCH HỢP ACADEMIC PROJECTION)
 // =====================================================================
 function renderKPI() {
-    let totalCycleHours = 0; let cycleStartObj = new Date(cycleStartDate);
+    let totalCycleHours = 0; 
+    let cycleStartObj = new Date(cycleStartDate);
     for(let i=0; i<7; i++) { 
         let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
-        let dStr = d.toISOString().split('T')[0]; totalCycleHours += (dailyLogs[dStr] || 0); 
+        let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        totalCycleHours += (dailyLogs[dStr] || 0); 
     }
     
     let pct = Math.min(100, (totalCycleHours / 12) * 100);
@@ -1076,12 +1078,15 @@ function renderKPI() {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`; 
         fillEl.style.width = `${pct}%`;
         
-        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); 
-        let todayStr = todayObj.toISOString().split('T')[0];
-        let diffCycleTime = new Date(todayStr) - cycleStartObj; 
+        let now = new Date(); 
+        let todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        
+        // Tính toán khoảng cách ngày chuẩn tuyệt đối (bỏ qua múi giờ)
+        let todayMidnight = new Date(todayStr + "T00:00:00");
+        let cycleMidnight = new Date(cycleStartDate + "T00:00:00");
+        let diffCycleTime = todayMidnight - cycleMidnight; 
         let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24)); 
         
-        // Tránh chia cho 0 vào ngày cuối cùng
         let daysLeft = Math.max(1, 7 - diffCycleDays); 
         
         if(totalCycleHours >= 12) {
@@ -1092,7 +1097,6 @@ function renderKPI() {
                 localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti(); 
             }
         } else {
-            // THUẬT TOÁN ACADEMIC PROJECTION
             let remainingHrs = 12 - totalCycleHours;
             let reqPace = remainingHrs / daysLeft;
             let standardPace = 1.5;
@@ -1105,16 +1109,15 @@ function renderKPI() {
                 let diff = Math.round((1.5 - reqPace) / 1.5 * 100);
                 pctDiffStr = `<strong style="color:var(--brand-break)">-${diff}%</strong>`;
             } else if (reqPace <= 2.0) {
-                paceColor = "#f59e0b"; paceIcon = "🟡"; paceStatus = "Cần tăng tốc"; // Màu cảnh báo (Cam vàng)
+                paceColor = "#f59e0b"; paceIcon = "🟡"; paceStatus = "Cần tăng tốc"; 
                 let diff = Math.round((reqPace - 1.5) / 1.5 * 100);
                 pctDiffStr = `<strong style="color:#f59e0b">+${diff}%</strong>`;
             } else {
-                paceColor = "var(--brand-warning)"; paceIcon = "🔴"; paceStatus = "Nguy cơ quá tải"; // Màu đỏ
+                paceColor = "var(--brand-warning)"; paceIcon = "🔴"; paceStatus = "Nguy cơ quá tải"; 
                 let diff = Math.round((reqPace - 1.5) / 1.5 * 100);
                 pctDiffStr = `<strong style="color:var(--brand-warning)">+${diff}%</strong>`;
             }
 
-            // XÂY DỰNG GIAO DIỆN (UI) KHÔNG RÁC
             let insightHtml = `
                 <div style="margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                     <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 700; margin-bottom: 12px;">
@@ -2650,16 +2653,14 @@ function renderRecommendations() {
     if(!container) return;
     container.innerHTML = '';
 
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    
-    let tomorrowObj = new Date(todayObj);
-    tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+    let now = new Date(); 
+    let todayDow = now.getDay();
+    let todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
 
-    let todayDow = todayObj.getDay();
+    let tomorrowObj = new Date(now);
+    tomorrowObj.setDate(tomorrowObj.getDate() + 1);
     let tomorrowDow = tomorrowObj.getDay();
-    let todayStr = todayObj.toISOString().split('T')[0];
-    let tomorrowStr = tomorrowObj.toISOString().split('T')[0];
+    let tomorrowStr = tomorrowObj.getFullYear() + '-' + String(tomorrowObj.getMonth()+1).padStart(2,'0') + '-' + String(tomorrowObj.getDate()).padStart(2,'0');
 
     let recommendations = [];
 
@@ -2669,9 +2670,8 @@ function renderRecommendations() {
         let eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
         let isPausedToday = item.pausedDates && item.pausedDates.includes(todayStr);
         
-        if (!isPausedToday && parseInt(item.dow) === todayDow && todayObj >= sDate && todayObj <= eDate) {
+        if (!isPausedToday && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate) {
             if(item.type === 'offline' || item.type === 'online') {
-                // Tránh tạo rác: Nếu đã có Goal mang tên môn này thì bỏ qua
                 let existingGoal = goals.find(g => g.name.includes(item.name));
                 if(!existingGoal) {
                     recommendations.push({
@@ -2706,11 +2706,10 @@ function renderRecommendations() {
         }
     });
 
-    // Cắt ngọn: Chỉ lấy tối đa 3 đề xuất để giao diện luôn sạch sẽ
     let topRecoms = recommendations.slice(0, 3);
     
     if(topRecoms.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bệ hạ có thể tự do cày ải mục tiêu cá nhân!</div>`;
+        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bệ hạ có thể tự do cày ải!</div>`;
         return;
     }
 
