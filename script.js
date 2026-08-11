@@ -923,6 +923,12 @@ function importData(event) {
 // ĐẠO LUẬT CHỐT SỔ (HẾT CHU KỲ 7 NGÀY LÀ CHỐT)
 // =====================================================================
 function checkCycleAndStreak() {
+    // 🛡️ LÁ CHẮN TÂN BINH & ĐỒNG BỘ: Ngăn phạt oan trên thiết bị mới
+    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) {
+        console.log("Án thư trống. Tạm hoãn Đạo luật để chờ Đám mây nạp dữ liệu...");
+        return; 
+    }
+
     let todayObj = new Date(); 
     todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
     let todayStr = todayObj.toISOString().split('T')[0];
@@ -953,7 +959,6 @@ function checkCycleAndStreak() {
 
         let totalCycleHours = 0;
         let cycleStartObj = new Date(cycleStartDate);
-        // Chỉ lấy tổng của đúng 7 ngày trong chu kỳ
         for(let i = 0; i < 7; i++) {
             let d = new Date(cycleStartObj); 
             d.setDate(d.getDate() + i); 
