@@ -1058,46 +1058,81 @@ function checkCycleAndStreak() {
 }
 
 // =====================================================================
-// HIỂN THỊ DỮ LIỆU
+// KHỐI LOGIC THIẾT QUÂN LUẬT (CÓ TÍCH HỢP ACADEMIC PROJECTION)
 // =====================================================================
 function renderKPI() {
-    let totalCycleHours = 0; 
-    let cycleStartObj = new Date(cycleStartDate);
-    
+    let totalCycleHours = 0; let cycleStartObj = new Date(cycleStartDate);
     for(let i=0; i<7; i++) { 
-        let d = new Date(cycleStartObj); 
-        d.setDate(d.getDate() + i); 
-        let dStr = d.toISOString().split('T')[0]; 
-        totalCycleHours += (dailyLogs[dStr] || 0); 
+        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
+        let dStr = d.toISOString().split('T')[0]; totalCycleHours += (dailyLogs[dStr] || 0); 
     }
     
     let pct = Math.min(100, (totalCycleHours / 12) * 100);
     let statusEl = document.getElementById('kpi-status'); 
     let fillEl = document.getElementById('kpi-bar-fill'); 
     let msgEl = document.getElementById('kpi-message');
-
+    
     if(statusEl && fillEl && msgEl) {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / 12.0h`; 
         fillEl.style.width = `${pct}%`;
         
-        let todayObj = new Date(); 
-        todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+        let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); 
         let todayStr = todayObj.toISOString().split('T')[0];
+        let diffCycleTime = new Date(todayStr) - cycleStartObj; 
+        let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24)); 
         
-        let diffCycleTime = new Date(todayStr) - cycleStartObj;
-        let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
-        let daysLeft = Math.max(0, 7 - diffCycleDays);
-
+        // Tránh chia cho 0 vào ngày cuối cùng
+        let daysLeft = Math.max(1, 7 - diffCycleDays); 
+        
         if(totalCycleHours >= 12) {
-            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>';
+            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>'; 
             fillEl.style.background = 'var(--brand-break)'; 
             fillEl.style.boxShadow = '0 0 15px var(--brand-break)';
-            if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') {
-                localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); 
-                fireConfetti();
+            if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') { 
+                localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti(); 
             }
         } else {
-            msgEl.innerHTML = `Còn thiếu <strong style="color:var(--text-main)">${(12 - totalCycleHours).toFixed(1)}h</strong> nữa để an toàn. <span style="color:var(--brand-warning); font-weight: 700; margin-left: 8px;"><i class="fa-regular fa-calendar-days"></i> Còn lại: ${daysLeft} ngày</span>`;
+            // THUẬT TOÁN ACADEMIC PROJECTION
+            let remainingHrs = 12 - totalCycleHours;
+            let reqPace = remainingHrs / daysLeft;
+            let standardPace = 1.5;
+            let shortfall = remainingHrs - (standardPace * daysLeft);
+            
+            let paceColor = ""; let paceIcon = ""; let paceStatus = ""; let pctDiffStr = "";
+            
+            if (reqPace <= 1.5) {
+                paceColor = "var(--brand-break)"; paceIcon = "🟢"; paceStatus = "An toàn";
+                let diff = Math.round((1.5 - reqPace) / 1.5 * 100);
+                pctDiffStr = `<strong style="color:var(--brand-break)">-${diff}%</strong>`;
+            } else if (reqPace <= 2.0) {
+                paceColor = "#f59e0b"; paceIcon = "🟡"; paceStatus = "Cần tăng tốc"; // Màu cảnh báo (Cam vàng)
+                let diff = Math.round((reqPace - 1.5) / 1.5 * 100);
+                pctDiffStr = `<strong style="color:#f59e0b">+${diff}%</strong>`;
+            } else {
+                paceColor = "var(--brand-warning)"; paceIcon = "🔴"; paceStatus = "Nguy cơ quá tải"; // Màu đỏ
+                let diff = Math.round((reqPace - 1.5) / 1.5 * 100);
+                pctDiffStr = `<strong style="color:var(--brand-warning)">+${diff}%</strong>`;
+            }
+
+            // XÂY DỰNG GIAO DIỆN (UI) KHÔNG RÁC
+            let insightHtml = `
+                <div style="margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 700; margin-bottom: 12px;">
+                        Còn thiếu <strong style="color:var(--text-main)">${remainingHrs.toFixed(1)}h</strong> &middot; Còn lại <strong style="color:var(--text-main)">${daysLeft} ngày</strong>
+                    </div>
+                    <div style="font-size: 1.05rem; color: var(--text-main); font-weight: 800; margin-bottom: 8px;">
+                        ${paceIcon} Cần <span style="color: ${paceColor}">${reqPace.toFixed(1)}h/ngày</span> để đạt mục tiêu
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: flex; flex-direction: column; gap: 6px;">
+                        <span>Tiêu chuẩn tự học: 1.5h/ngày &middot; ${pctDiffStr} <span style="opacity: 0.8">(${paceStatus})</span></span>
+                        ${shortfall > 0 
+                            ? `<span style="color: var(--brand-warning);"><i class="fa-solid fa-triangle-exclamation"></i> Nếu duy trì 1.5h/ngày &rarr; thiếu ~${shortfall.toFixed(1)}h vào cuối tuần</span>` 
+                            : `<span style="color: var(--brand-break);"><i class="fa-solid fa-check"></i> Duy trì 1.5h/ngày là đủ để về đích an toàn.</span>`}
+                    </div>
+                </div>
+            `;
+
+            msgEl.innerHTML = insightHtml; 
             fillEl.style.background = 'var(--brand-focus)'; 
             fillEl.style.boxShadow = '0 0 10px rgba(234, 88, 12, 0.4)';
         }
