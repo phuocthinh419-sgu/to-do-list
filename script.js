@@ -1293,7 +1293,7 @@ function switchTab(tab) {
         document.getElementById('btn-create-goal').style.display = 'flex'; 
         document.getElementById('btn-create-countdown').style.display = 'flex'; 
         document.getElementById('btn-rest-day').style.display = 'flex';
-        renderKPI(); renderDashboard(); renderGamification(); renderStockMarket();
+        renderKPI(); renderDashboard(); renderGamification(); renderStockMarket(); renderRecommendations();
     } else if(tab === 'analytics') {
         document.getElementById('nav-analytics').classList.add('active'); 
         document.getElementById('analytics-room').style.display = 'block';
@@ -2654,4 +2654,121 @@ function handleTimetableAction(id, dateStr) {
     localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
     if (typeof syncToCloud === "function") { localStorage.setItem('saasLastUpdated', Date.now()); syncToCloud(); }
     renderTimetable();
+}
+
+// =====================================================================
+// 🧠 ACADEMIC RECOMMENDATION ENGINE (TRÍ TUỆ KHUYẾN NGHỊ)
+// =====================================================================
+function renderRecommendations() {
+    let container = document.getElementById('recom-container');
+    if(!container) return;
+    container.innerHTML = '';
+
+    let todayObj = new Date(); 
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    
+    let tomorrowObj = new Date(todayObj);
+    tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+
+    let todayDow = todayObj.getDay();
+    let tomorrowDow = tomorrowObj.getDay();
+    let todayStr = todayObj.toISOString().split('T')[0];
+    let tomorrowStr = tomorrowObj.toISOString().split('T')[0];
+
+    let recommendations = [];
+
+    // 1. QUÉT LỊCH HÔM NAY (Đề xuất REVIEW)
+    timetableData.forEach(item => {
+        let sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
+        let eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
+        let isPausedToday = item.pausedDates && item.pausedDates.includes(todayStr);
+        
+        if (!isPausedToday && parseInt(item.dow) === todayDow && todayObj >= sDate && todayObj <= eDate) {
+            if(item.type === 'offline' || item.type === 'online') {
+                // Tránh tạo rác: Nếu đã có Goal mang tên môn này thì bỏ qua
+                let existingGoal = goals.find(g => g.name.includes(item.name));
+                if(!existingGoal) {
+                    recommendations.push({
+                        type: 'review', label: 'Review Môn', icon: 'fa-book-open',
+                        title: item.name,
+                        desc: 'Bệ hạ vừa học môn này hôm nay. Hãy ôn tập lại khi kiến thức còn nóng hổi!',
+                        suggestedTarget: 1.0
+                    });
+                }
+            }
+        }
+    });
+
+    // 2. QUÉT LỊCH NGÀY MAI (Đề xuất CHUẨN BỊ)
+    timetableData.forEach(item => {
+        let sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
+        let eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
+        let isPausedTomorrow = item.pausedDates && item.pausedDates.includes(tomorrowStr);
+
+        if (!isPausedTomorrow && parseInt(item.dow) === tomorrowDow && tomorrowObj >= sDate && tomorrowObj <= eDate) {
+            if(item.type === 'offline' || item.type === 'online') {
+                 let existingGoal = goals.find(g => g.name.includes(item.name));
+                 if(!existingGoal) {
+                    recommendations.push({
+                        type: 'prepare', label: 'Chuẩn bị', icon: 'fa-bolt',
+                        title: item.name,
+                        desc: 'Ngày mai có lịch môn này. Dành 30 phút xem trước bài sẽ làm chủ thế trận.',
+                        suggestedTarget: 0.5
+                    });
+                 }
+            }
+        }
+    });
+
+    // Cắt ngọn: Chỉ lấy tối đa 3 đề xuất để giao diện luôn sạch sẽ
+    let topRecoms = recommendations.slice(0, 3);
+    
+    if(topRecoms.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bệ hạ có thể tự do cày ải mục tiêu cá nhân!</div>`;
+        return;
+    }
+
+    topRecoms.forEach(r => {
+        let badgeClass = r.type === 'review' ? 'review' : 'prepare';
+        let targetText = r.suggestedTarget === 1.0 ? '1.0h' : '0.5h';
+        container.innerHTML += `
+            <div class="recom-card stagger-item">
+                <div class="recom-badge ${badgeClass}"><i class="fa-solid ${r.icon}"></i> ${r.label} &middot; Đề xuất: ${targetText}</div>
+                <div class="recom-title">${r.title}</div>
+                <div class="recom-meta">${r.desc}</div>
+                <button class="btn-accept-recom" onclick="acceptRecommendation('[${r.label}] ${r.title}', ${r.suggestedTarget})"><i class="fa-solid fa-plus"></i> Tạo Mục Tiêu Nhanh</button>
+            </div>
+        `;
+    });
+}
+
+// Hàm bấm nút "Tạo Mục Tiêu Nhanh" từ Đề Xuất
+window.acceptRecommendation = function(name, target) {
+    let inputName = prompt(`CHẤP NHẬN ĐỀ XUẤT TỪ HỆ THỐNG:\n\nMục tiêu: "${name}"\n\nNhập số giờ cam kết (Mặc định ${target}h):`, target);
+    if(inputName !== null) {
+        let hrs = parseFloat(inputName);
+        if(isNaN(hrs) || hrs <= 0) return alert("Số giờ không hợp lệ!");
+        
+        let todayObj = new Date(); 
+        todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+        const createdAt = todayObj.toISOString().split('T')[0];
+
+        // Khởi tạo mục tiêu chuẩn form của hệ thống
+        const newGoal = { 
+            id: Date.now(), 
+            name: name, 
+            target: hrs, 
+            current: hrs, 
+            reports: [], 
+            deadline: null, 
+            createdAt: createdAt 
+        };
+        
+        goals.push(newGoal);
+        localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
+        if (typeof syncToCloud === "function") { localStorage.setItem('saasLastUpdated', Date.now()); syncToCloud(); }
+        renderDashboard();
+        renderGamification();
+        renderRecommendations(); // Vẽ lại để ẩn đề xuất vừa chấp nhận
+    }
 }
