@@ -2414,57 +2414,6 @@ function autoHealDiscrepancy() {
     }
 }
 
-
-// =====================================================================
-// THÁNH CHỈ KHÔI PHỤC HUYẾT HÃN 13 NGÀY
-// =====================================================================
-let isRestoredV2 = localStorage.getItem('isRestored_v2');
-if (!isRestoredV2) {
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    let todayStr = todayObj.toISOString().split('T')[0];
-
-    localStorage.setItem('saasStreak', '13');
-
-    let cycleStartObj = new Date(todayObj);
-    cycleStartObj.setDate(cycleStartObj.getDate() - 6);
-    localStorage.setItem('saasCycleStart', cycleStartObj.toISOString().split('T')[0]);
-
-    let restoredLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
-    let totalRestoredMinutes = 0;
-    
-    for (let i = 1; i <= 13; i++) {
-        let pastDate = new Date(todayObj);
-        pastDate.setDate(pastDate.getDate() - i);
-        let dateStr = pastDate.toISOString().split('T')[0];
-        
-        if (i === 5) { 
-            restoredLogs[dateStr] = 0.9;
-            totalRestoredMinutes += 54;
-        } else {
-            restoredLogs[dateStr] = 1.5;
-            totalRestoredMinutes += 90;
-        }
-    }
-    localStorage.setItem('saasDailyLogs', JSON.stringify(restoredLogs));
-
-    let yesterdayObj = new Date(todayObj);
-    yesterdayObj.setDate(yesterdayObj.getDate() - 1);
-    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
-    localStorage.setItem('saasLastActive', yesterdayStr);
-    
-    localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
-    localStorage.setItem('usdBalance', '884');
-
-    localStorage.setItem('saasPendingTax', 'false');
-    localStorage.setItem('saasDailyDebt', '0');
-    localStorage.setItem('isSealed', 'false');
-
-    localStorage.setItem('isRestored_v2', 'true');
-    
-    alert("⛩ THÁNH CHỈ KHÔI PHỤC HOÀN TẤT ⛩\n\n- Chuỗi kỷ luật: 13 ngày.\n- Thời gian truy lĩnh: 18.9 giờ.\n- Ngân khố tự đúc (đã trừ thuế): $884.\n\nHôm nay là ngày 14. Chúc bệ hạ cày ải chốt sổ thành công!");
-}
-
 // =====================================================================
 // KHỐI LOGIC THỜI KHÓA BIỂU (TIMETABLE ENGINE)
 // =====================================================================
