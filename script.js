@@ -2425,20 +2425,6 @@ function autoHealDiscrepancy() {
     }
 }
 
-// =====================================================================
-// CHẠY KHỞI TẠO HỆ THỐNG
-// =====================================================================
-initializeImperialEconomy();
-randomDailyMarketFluctuation();
-updateUsdDisplay();
-
-autoHealDiscrepancy();
-checkCycleAndStreak(); 
-renderCountdowns(); 
-countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
-switchTab('dashboard'); 
-checkRecovery();
-
 
 // =====================================================================
 // THÁNH CHỈ KHÔI PHỤC HUYẾT HÃN 13 NGÀY
@@ -2772,3 +2758,18 @@ window.acceptRecommendation = function(name, target) {
         renderRecommendations(); // Vẽ lại để ẩn đề xuất vừa chấp nhận
     }
 }
+
+// =====================================================================
+// CHẠY KHỞI TẠO HỆ THỐNG
+// =====================================================================
+initializeImperialEconomy();
+randomDailyMarketFluctuation();
+updateUsdDisplay();
+
+autoHealDiscrepancy();
+checkCycleAndStreak(); 
+renderCountdowns(); 
+countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
+switchTab('dashboard'); 
+checkRecovery();
+
