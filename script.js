@@ -231,11 +231,12 @@ async function syncToCloud() {
             stockMarketPrices: JSON.parse(localStorage.getItem('stockMarketPrices')) || {},
             lastRestDate: localStorage.getItem('saasLastRest') || "",
             achComeback: localStorage.getItem('ach_comeback') || "false",
+            timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [], // BỔ SUNG THỜI KHÓA BIỂU
             lastUpdated: Date.now()
         };
         localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
         await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
-        console.log("☁️ Đã đồng bộ mồ hôi lên Thiên Đình.");
+        console.log("☁️ Đã đồng bộ mồ hôi và lịch trình lên Thiên Đình.");
         
         let statusIcon = document.getElementById('status-box');
         if (statusIcon && !isSessionActive && !isBreakActive && !isGracePeriod) {
@@ -268,6 +269,12 @@ async function pullFromCloud() {
                 localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices));
                 localStorage.setItem('saasLastRest', cloudData.lastRestDate);
                 localStorage.setItem('ach_comeback', cloudData.achComeback);
+                
+                // NẠP THỜI KHÓA BIỂU
+                if (cloudData.timetable) {
+                    localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable));
+                }
+
                 localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
                 alert("☁️ Dữ liệu từ thiết bị khác đã được đồng bộ xuống án thư này!");
                 location.reload();
