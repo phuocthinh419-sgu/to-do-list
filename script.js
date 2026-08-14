@@ -527,10 +527,8 @@ function checkAndDeductCourtFee() {
     let todayStr = new Date().toISOString().split('T')[0];
     let feePaidDate = localStorage.getItem("saasFeePaidDate");
 
-    // LÁ CHẮN BIÊN LAI: Nếu hôm nay đã đóng $300 rồi thì cho qua luôn, F5 thoải mái!
-    if (feePaidDate === todayStr) {
-        return true; 
-    }
+    // LÁ CHẮN BIÊN LAI: Đã đóng $300 hôm nay thì miễn kiểm tra, không thu thêm 1 xu!
+    if (feePaidDate === todayStr) return true;
 
     let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
     if (usd < 300) {
@@ -541,11 +539,9 @@ function checkAndDeductCourtFee() {
     } else {
         alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ đàng hoàng!");
         localStorage.setItem("usdBalance", usd - 300);
-        localStorage.setItem("saasFeePaidDate", todayStr); // ĐÓNG DẤU BIÊN LAI ĐÃ NỘP
+        localStorage.setItem("saasFeePaidDate", todayStr); // ĐÓNG DẤU ĐÃ NỘP TIỀN
         updateUsdDisplay();
-        
-        if (typeof syncToCloud === "function") syncToCloud(); // Đồng bộ lên mây
-        
+        if (typeof syncToCloud === "function") syncToCloud(); 
         return true;
     }
 }
@@ -746,6 +742,9 @@ function startDebtSession() {
     document.getElementById('btn-15').style.display = 'none'; 
     document.getElementById('btn-25').style.display = 'none'; 
     document.getElementById('btn-cancel').style.display = 'none';
+    
+    // Ép đồng hồ hiện đúng số phút ngay lập tức thay vì 00:00
+    updateDisplay(dailyDebtMinutes * 60);
 
     let btnTax = document.getElementById('btn-tax');
     if(!btnTax) {
@@ -783,6 +782,9 @@ function runDebtSession() {
     document.getElementById('btn-pause').style.display = 'flex'; 
     document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
     
+    // Kích hoạt nhịp đập ngay giây đầu tiên
+    updateDisplay(timeLeft);
+
     timerInterval = setInterval(() => {
         if (isCurfewActive()) { 
             clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; 
