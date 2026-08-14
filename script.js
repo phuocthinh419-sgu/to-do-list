@@ -524,6 +524,14 @@ function updateUsdDisplay() {
 }
 
 function checkAndDeductCourtFee() {
+    let todayStr = new Date().toISOString().split('T')[0];
+    let feePaidDate = localStorage.getItem("saasFeePaidDate");
+
+    // LÁ CHẮN BIÊN LAI: Nếu hôm nay đã đóng $300 rồi thì cho qua luôn, F5 thoải mái!
+    if (feePaidDate === todayStr) {
+        return true; 
+    }
+
     let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
     if (usd < 300) {
         alert("⚠️ Án phí mở cửa ngục là $300.\nBệ hạ chỉ có $" + usd + ".\n\nNGÂN KHỐ CẠN KIỆT. PHÁN QUYẾT TỬ HÌNH ĐƯỢC THỰC THI!");
@@ -533,9 +541,10 @@ function checkAndDeductCourtFee() {
     } else {
         alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ đàng hoàng!");
         localStorage.setItem("usdBalance", usd - 300);
+        localStorage.setItem("saasFeePaidDate", todayStr); // ĐÓNG DẤU BIÊN LAI ĐÃ NỘP
         updateUsdDisplay();
         
-        syncToCloud(); // ☁️ ĐÃ GẮN CHIP ĐỒNG BỘ SAU KHI TRỪ TIỀN
+        if (typeof syncToCloud === "function") syncToCloud(); // Đồng bộ lên mây
         
         return true;
     }
