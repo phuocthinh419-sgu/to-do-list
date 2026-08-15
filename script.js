@@ -2792,4 +2792,3 @@ renderCountdowns();
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
 checkRecovery();
-
