@@ -720,6 +720,67 @@ function randomDailyMarketFluctuation() {
 // =====================================================================
 // KHỔ SAI & HÌNH PHẠT
 // =====================================================================
+
+function completeDebtSession() {
+    isSessionActive = false;
+    isDebtSession = false;
+    localStorage.removeItem('saasDailyDebt');
+    localStorage.removeItem('saas_recovery');
+
+    // 1. TÍNH CHUẨN MÚI GIỜ VIỆT NAM (UTC+7)
+    let todayObj = new Date();
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayStr = todayObj.toISOString().split('T')[0];
+    
+    // 2. CỘNG VÀO BIỂU ĐỒ NGÀY (An toàn tuyệt đối từ LocalStorage)
+    let safeLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
+    safeLogs[todayStr] = (safeLogs[todayStr] || 0) + (activeSessionMinutes / 60);
+    localStorage.setItem('saasDailyLogs', JSON.stringify(safeLogs));
+    if (typeof dailyLogs !== 'undefined') dailyLogs = safeLogs;
+
+    // 3. CỘNG VÀO TỔNG GIỜ TRỌN ĐỜI
+    let total = parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0;
+    total += (activeSessionMinutes / 60);
+    localStorage.setItem('saasTotalSessionsPro', total.toFixed(2));
+
+    // 4. CỘNG TIỀN VÀO NGÂN KHỐ
+    let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    localStorage.setItem('usdBalance', currentUsd + activeSessionMinutes);
+
+    if(typeof syncToCloud === 'function') syncToCloud();
+
+    alert("🎉 ĐÃ TRẢ SẠCH NỢ! " + activeSessionMinutes + " phút mồ hôi đã được cộng vào cả Biểu Đồ Hôm Nay lẫn Tổng Giờ. Bệ hạ đã được tự do!");
+    location.reload();
+}
+
+function completeTaxSession() {
+    isSessionActive = false;
+    isHardcoreTax = false;
+    localStorage.removeItem('saasPendingTax');
+    localStorage.removeItem('saas_recovery');
+
+    let todayObj = new Date();
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayStr = todayObj.toISOString().split('T')[0];
+    
+    let safeLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
+    safeLogs[todayStr] = (safeLogs[todayStr] || 0) + (activeSessionMinutes / 60);
+    localStorage.setItem('saasDailyLogs', JSON.stringify(safeLogs));
+    if (typeof dailyLogs !== 'undefined') dailyLogs = safeLogs;
+
+    let total = parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0;
+    total += (activeSessionMinutes / 60);
+    localStorage.setItem('saasTotalSessionsPro', total.toFixed(2));
+
+    let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    localStorage.setItem('usdBalance', currentUsd + activeSessionMinutes);
+
+    if(typeof syncToCloud === 'function') syncToCloud();
+
+    alert("🎉 THUẾ ĐÃ NỘP XONG! " + activeSessionMinutes + " phút mồ hôi đã được cộng vào mọi mặt trận. Giang sơn vững bền!");
+    location.reload();
+}
+
 function startDebtSession() {
     if (!checkAndDeductCourtFee()) return;
     if(goals.length === 0) { 
@@ -742,7 +803,6 @@ function startDebtSession() {
         badge.style.borderColor = "var(--brand-warning)";
     }
 
-    // Dọn dẹp giao diện rườm rà
     let btn5 = document.getElementById('btn-5'); if(btn5) btn5.style.display = 'none'; 
     let btn15 = document.getElementById('btn-15'); if(btn15) btn15.style.display = 'none'; 
     let btn25 = document.getElementById('btn-25'); if(btn25) btn25.style.display = 'none'; 
@@ -752,7 +812,6 @@ function startDebtSession() {
     let btnBack = document.getElementById('btn-focus-back');
     if(btnBack) btnBack.onclick = function() { alert("Đang mang nợ không được phép rời đi!"); }
     
-    // TỰ ĐỘNG KHỞI CHẠY ĐỒNG HỒ NGAY LẬP TỨC
     runDebtSession();
 }
 
@@ -779,7 +838,7 @@ function runDebtSession() {
     }
     
     updateDisplay(timeLeft);
-    clearInterval(timerInterval); // Chặn đếm giờ chồng chéo
+    clearInterval(timerInterval);
 
     timerInterval = setInterval(() => {
         if (isCurfewActive()) { 
@@ -788,7 +847,11 @@ function runDebtSession() {
         if (!isPaused) {
             timeLeft = Math.round((sessionEndTime - Date.now()) / 1000);
             if (timeLeft <= 0) { 
-                timeLeft = 0; playAlertSound(); triggerReportModal(); 
+                timeLeft = 0; 
+                clearInterval(timerInterval); // 🛡️ CHỐT CHẶN TRÁNH KẸT 00:00
+                playAlertSound(); 
+                completeDebtSession(); // 🟢 GỌI HÀM GIẢI PHÓNG VÀ CỘNG GIỜ
+                return;
             }
             updateDisplay(timeLeft); 
             if (isTickOn && timeLeft % 1 === 0) playTick();
@@ -827,7 +890,6 @@ function startTaxSession() {
     let btnBack = document.getElementById('btn-focus-back');
     if(btnBack) btnBack.onclick = function() { alert("Chưa hoàn thành thuế không được phép rời đi!"); }
     
-    // TỰ ĐỘNG KHỞI CHẠY ĐỒNG HỒ
     runHardcoreSession();
 }
 
@@ -863,7 +925,11 @@ function runHardcoreSession() {
         if (!isPaused) {
             timeLeft = Math.round((sessionEndTime - Date.now()) / 1000);
             if (timeLeft <= 0) { 
-                timeLeft = 0; playAlertSound(); triggerReportModal(); 
+                timeLeft = 0; 
+                clearInterval(timerInterval); // 🛡️ CHỐT CHẶN TRÁNH KẸT 00:00
+                playAlertSound(); 
+                completeTaxSession(); // 🟢 GỌI HÀM GIẢI PHÓNG VÀ CỘNG GIỜ
+                return;
             }
             updateDisplay(timeLeft); 
             if (isTickOn && timeLeft % 1 === 0) playTick();
