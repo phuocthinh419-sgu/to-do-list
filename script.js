@@ -726,40 +726,34 @@ function startDebtSession() {
         goals.push({ id: Date.now(), name: "KHỔ SAI LÃI KÉP", target: 2, current: 2, reports: [] }); 
     }
     activeGoalId = goals[0].id;
-    document.getElementById('shame-modal').style.display = 'none'; 
-    document.getElementById('focus-room').style.display = 'flex';
-    document.getElementById('sidebar').classList.remove('active'); 
-    document.getElementById('mobile-overlay').classList.remove('active');
     
-    document.getElementById('focus-target-info').innerText = "PHIÊN KHỔ SAI LÃI KÉP (NỢ NGÀY)";
+    let modal = document.getElementById('shame-modal'); if(modal) modal.style.display = 'none'; 
+    let room = document.getElementById('focus-room'); if(room) room.style.display = 'flex';
+    let sidebar = document.getElementById('sidebar'); if(sidebar) sidebar.classList.remove('active'); 
+    let overlay = document.getElementById('mobile-overlay'); if(overlay) overlay.classList.remove('active');
+    
+    let info = document.getElementById('focus-target-info'); if(info) info.innerText = "PHIÊN KHỔ SAI LÃI KÉP (NỢ NGÀY)";
+    
     let badge = document.getElementById('focus-badge'); 
-    badge.innerText = "CHẾ ĐỘ TRẢ NỢ"; 
-    badge.style.background = "rgba(225, 29, 72, 0.1)"; 
-    badge.style.color = "var(--brand-warning)"; 
-    badge.style.borderColor = "var(--brand-warning)";
-
-    document.getElementById('btn-5').style.display = 'none'; 
-    document.getElementById('btn-15').style.display = 'none'; 
-    document.getElementById('btn-25').style.display = 'none'; 
-    document.getElementById('btn-cancel').style.display = 'none';
-    
-    // Ép đồng hồ hiện đúng số phút ngay lập tức thay vì 00:00
-    updateDisplay(dailyDebtMinutes * 60);
-
-    let btnTax = document.getElementById('btn-tax');
-    if(!btnTax) {
-        btnTax = document.createElement('button'); 
-        btnTax.className = 'btn-timer'; 
-        btnTax.id = 'btn-tax';
-        document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause'));
+    if(badge) {
+        badge.innerText = "CHẾ ĐỘ TRẢ NỢ"; 
+        badge.style.background = "rgba(225, 29, 72, 0.1)"; 
+        badge.style.color = "var(--brand-warning)"; 
+        badge.style.borderColor = "var(--brand-warning)";
     }
-    btnTax.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU TRẢ NỢ (${dailyDebtMinutes}P)`; 
-    btnTax.onclick = () => runDebtSession(); 
-    btnTax.style.display = 'flex';
+
+    // Dọn dẹp giao diện rườm rà
+    let btn5 = document.getElementById('btn-5'); if(btn5) btn5.style.display = 'none'; 
+    let btn15 = document.getElementById('btn-15'); if(btn15) btn15.style.display = 'none'; 
+    let btn25 = document.getElementById('btn-25'); if(btn25) btn25.style.display = 'none'; 
+    let btnCancel = document.getElementById('btn-cancel'); if(btnCancel) btnCancel.style.display = 'none';
+    let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none';
     
-    document.getElementById('btn-focus-back').onclick = function() { 
-        alert("Đang mang nợ không được phép rời đi!"); 
-    }
+    let btnBack = document.getElementById('btn-focus-back');
+    if(btnBack) btnBack.onclick = function() { alert("Đang mang nợ không được phép rời đi!"); }
+    
+    // TỰ ĐỘNG KHỞI CHẠY ĐỒNG HỒ NGAY LẬP TỨC
+    runDebtSession();
 }
 
 function runDebtSession() {
@@ -767,7 +761,6 @@ function runDebtSession() {
     if(audioCtx.state === 'suspended') audioCtx.resume();
     isDebtSession = true; 
     taxPauseBank = 180; 
-    document.getElementById('btn-tax').style.display = 'none';
     
     currentDuration = dailyDebtMinutes; 
     activeSessionMinutes = dailyDebtMinutes; 
@@ -777,13 +770,16 @@ function runDebtSession() {
     isSessionActive = true; 
     isPaused = false; 
     document.body.classList.add('focus-active');
-    saveRecoveryState();
+    try { saveRecoveryState(); } catch(e) {}
     
-    document.getElementById('btn-pause').style.display = 'flex'; 
-    document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
+    let btnPause = document.getElementById('btn-pause');
+    if(btnPause) {
+        btnPause.style.display = 'flex'; 
+        btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
+    }
     
-    // Kích hoạt nhịp đập ngay giây đầu tiên
     updateDisplay(timeLeft);
+    clearInterval(timerInterval); // Chặn đếm giờ chồng chéo
 
     timerInterval = setInterval(() => {
         if (isCurfewActive()) { 
@@ -806,37 +802,33 @@ function startTaxSession() {
         goals.push({ id: Date.now(), name: "KHÔI PHỤC CHUỖI", target: 2, current: 2, reports: [] }); 
     }
     activeGoalId = goals[0].id;
-    document.getElementById('shame-modal').style.display = 'none'; 
-    document.getElementById('focus-room').style.display = 'flex';
-    document.getElementById('sidebar').classList.remove('active'); 
-    document.getElementById('mobile-overlay').classList.remove('active');
     
-    document.getElementById('focus-target-info').innerText = "THIẾT QUÂN LUẬT (90 PHÚT)";
+    let modal = document.getElementById('shame-modal'); if(modal) modal.style.display = 'none'; 
+    let room = document.getElementById('focus-room'); if(room) room.style.display = 'flex';
+    let sidebar = document.getElementById('sidebar'); if(sidebar) sidebar.classList.remove('active'); 
+    let overlay = document.getElementById('mobile-overlay'); if(overlay) overlay.classList.remove('active');
+    
+    let info = document.getElementById('focus-target-info'); if(info) info.innerText = "THIẾT QUÂN LUẬT (90 PHÚT)";
+    
     let badge = document.getElementById('focus-badge'); 
-    badge.innerText = "CHẾ ĐỘ HARDCORE"; 
-    badge.style.background = "rgba(225, 29, 72, 0.1)"; 
-    badge.style.color = "var(--brand-warning)"; 
-    badge.style.borderColor = "var(--brand-warning)";
-
-    document.getElementById('btn-5').style.display = 'none'; 
-    document.getElementById('btn-15').style.display = 'none'; 
-    document.getElementById('btn-25').style.display = 'none'; 
-    document.getElementById('btn-cancel').style.display = 'none';
-
-    let btnTax = document.getElementById('btn-tax');
-    if(!btnTax) {
-        btnTax = document.createElement('button'); 
-        btnTax.className = 'btn-timer'; 
-        btnTax.id = 'btn-tax';
-        document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause'));
+    if(badge) {
+        badge.innerText = "CHẾ ĐỘ HARDCORE"; 
+        badge.style.background = "rgba(225, 29, 72, 0.1)"; 
+        badge.style.color = "var(--brand-warning)"; 
+        badge.style.borderColor = "var(--brand-warning)";
     }
-    btnTax.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ TRÌ HOÃN'; 
-    btnTax.onclick = () => runHardcoreSession(); 
-    btnTax.style.display = 'flex';
+
+    let btn5 = document.getElementById('btn-5'); if(btn5) btn5.style.display = 'none'; 
+    let btn15 = document.getElementById('btn-15'); if(btn15) btn15.style.display = 'none'; 
+    let btn25 = document.getElementById('btn-25'); if(btn25) btn25.style.display = 'none'; 
+    let btnCancel = document.getElementById('btn-cancel'); if(btnCancel) btnCancel.style.display = 'none';
+    let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none';
     
-    document.getElementById('btn-focus-back').onclick = function() { 
-        alert("Chưa hoàn thành thuế không được phép rời đi!"); 
-    }
+    let btnBack = document.getElementById('btn-focus-back');
+    if(btnBack) btnBack.onclick = function() { alert("Chưa hoàn thành thuế không được phép rời đi!"); }
+    
+    // TỰ ĐỘNG KHỞI CHẠY ĐỒNG HỒ
+    runHardcoreSession();
 }
 
 function runHardcoreSession() {
@@ -844,7 +836,6 @@ function runHardcoreSession() {
     if(audioCtx.state === 'suspended') audioCtx.resume();
     isHardcoreTax = true; 
     taxPauseBank = 900; 
-    document.getElementById('btn-tax').style.display = 'none';
     
     currentDuration = 90; 
     activeSessionMinutes = 90; 
@@ -854,11 +845,17 @@ function runHardcoreSession() {
     isSessionActive = true; 
     isPaused = false; 
     document.body.classList.add('focus-active');
-    saveRecoveryState();
+    try { saveRecoveryState(); } catch(e) {}
     
-    document.getElementById('btn-pause').style.display = 'flex'; 
-    document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
+    let btnPause = document.getElementById('btn-pause');
+    if(btnPause) {
+        btnPause.style.display = 'flex'; 
+        btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)';
+    }
     
+    updateDisplay(timeLeft);
+    clearInterval(timerInterval);
+
     timerInterval = setInterval(() => {
         if (isCurfewActive()) { 
             clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; 
