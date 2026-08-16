@@ -278,9 +278,20 @@ async function pullFromCloud() {
                 localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
                 alert("☁️ Dữ liệu từ thiết bị khác đã được đồng bộ xuống án thư này!");
                 location.reload();
+                return; // 🛑 CHỐT CHẶN: Nếu trang tải lại thì dừng hàm tại đây
             }
         }
     } catch (e) { console.error("Lỗi tải dữ liệu Cloud:", e); }
+    
+    // ⚖️ QUAN TÒA CHỈ ĐƯỢC PHÁN XÉT SAU KHI ĐÃ ĐỌC XONG HỒ SƠ TỪ ĐÁM MÂY
+    checkCycleAndStreak();
+    
+    // Cập nhật lại giao diện sau khi phán xét
+    if (document.getElementById('view-dashboard').style.display !== 'none') {
+        renderKPI(); 
+        renderDashboard(); 
+        renderGamification();
+    }
 }
 
 // =====================================================================
@@ -2787,7 +2798,6 @@ randomDailyMarketFluctuation();
 updateUsdDisplay();
 
 autoHealDiscrepancy();
-checkCycleAndStreak(); 
 renderCountdowns(); 
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
