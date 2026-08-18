@@ -247,7 +247,6 @@ async function syncToCloud() {
 }
 
 async function pullFromCloud() {
-async function pullFromCloud() {
     if (!currentUser) return;
     try {
         const docRef = await db.collection("academic_apex").doc(USER_DOC_ID).get();
