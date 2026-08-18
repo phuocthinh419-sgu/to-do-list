@@ -1247,7 +1247,9 @@ function renderKPI() {
 }
 
 function renderGamification() {
-    let totalHoursEarned = goals.reduce((sum, g) => sum + (g.target - g.current), 0); 
+    // ĐẠO LUẬT MỚI: Đếm tổng giờ từ toàn bộ Nhật ký, không phụ thuộc vào Mục tiêu nữa!
+    let totalHoursEarned = Object.values(dailyLogs).reduce((sum, val) => sum + val, 0); 
+    
     document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h'; 
     document.getElementById('streak-count').innerText = currentStreak;
     
