@@ -2835,19 +2835,6 @@ window.acceptRecommendation = function(name, target) {
 }
 
 // =====================================================================
-// CHẠY KHỞI TẠO HỆ THỐNG
-// =====================================================================
-initializeImperialEconomy();
-randomDailyMarketFluctuation();
-updateUsdDisplay();
-
-autoHealDiscrepancy();
-renderCountdowns(); 
-countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
-switchTab('dashboard'); 
-checkRecovery();
-
-// =====================================================================
 // CHẠY KHỞI TẠO HỆ THỐNG (BẢN CHUẨN ĐÃ PHÁ PHONG ẤN)
 // =====================================================================
 initializeImperialEconomy();
