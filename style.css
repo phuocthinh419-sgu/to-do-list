@@ -472,3 +472,43 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     font-size: 1rem;
     margin-bottom: 30px;
 }
+
+/* =========================================================
+   GIAO DIỆN LỊCH SỬ BÁO CÁO (TIMELINE)
+   ========================================================= */
+.timeline-item {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--brand-trophy); /* Đường viền vàng bên trái tạo điểm nhấn */
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-item:hover {
+    transform: translateX(4px); /* Hiệu ứng đẩy nhẹ sang phải khi di chuột */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: var(--bg-panel);
+}
+
+.tl-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-weight: 700;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1); /* Đường kẻ mờ ngăn cách */
+    padding-bottom: 8px;
+}
+
+.tl-content {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.6;
+    word-break: break-word;
+}
