@@ -537,20 +537,64 @@ function updateUsdDisplay() {
 function checkAndDeductCourtFee() {
     let todayStr = new Date().toISOString().split('T')[0];
     let feePaidDate = localStorage.getItem("saasFeePaidDate");
-
-    // LÁ CHẮN BIÊN LAI: Đã đóng $300 hôm nay thì miễn kiểm tra, không thu thêm 1 xu!
     if (feePaidDate === todayStr) return true;
 
     let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-    if (usd < 300) {
-        alert("⚠️ Án phí mở cửa ngục là $300.\nBệ hạ chỉ có $" + usd + ".\n\nNGÂN KHỐ CẠN KIỆT. PHÁN QUYẾT TỬ HÌNH ĐƯỢC THỰC THI!");
-        localStorage.clear();
+    let stocks = JSON.parse(localStorage.getItem("stockMarketPrices")) || {};
+    let portfolio = JSON.parse(localStorage.getItem("userPortfolio")) || {};
+    
+    // Tính tổng tài sản = Tiền mặt + Cổ phiếu
+    let totalStockValue = 0;
+    for (let code in portfolio) {
+        if (stocks[code]) totalStockValue += (portfolio[code] * stocks[code]);
+    }
+    let totalAssets = usd + totalStockValue;
+
+    if (totalAssets < 300) {
+        // 🛑 BỘ LUẬT MỚI: PHÁ SẢN THAY VÌ TỬ HÌNH
+        alert("⚠️ Án phí là $300. Tổng tài sản của bệ hạ chỉ có $" + totalAssets + ".\n\nNGÂN KHỐ CẠN KIỆT! Bệ hạ đã chính thức PHÁ SẢN.\n⚖️ Hình phạt: Chuỗi kỷ luật về 0. Xóa bỏ mọi khoản nợ để làm lại từ đầu!");
+        
+        // 1. Tước đoạt chuỗi kỷ luật
+        currentStreak = 0;
+        localStorage.setItem('saasStreak', 0);
+        
+        // 2. Ân xá: Xóa sạch nợ và thuế để cắt đứt vòng lặp
+        localStorage.removeItem('saasDailyDebt');
+        dailyDebtMinutes = 0;
+        localStorage.removeItem('saasPendingTax');
+        isPendingTax = false;
+        
+        // 3. Reset Chu kỳ về hôm nay
+        localStorage.setItem('saasCycleStart', todayStr);
+        localStorage.setItem("usdBalance", 0); // Tịch thu chút tiền lẻ còn lại
+        
+        // 4. Cấp biên lai để không bị hỏi lại trong hôm nay
+        localStorage.setItem("saasFeePaidDate", todayStr);
+        
+        // 5. ĐỒNG BỘ LÊN MÂY NGAY LẬP TỨC ĐỂ CHẶT ĐỨT VÒNG LẶP
+        if (typeof syncToCloud === "function") syncToCloud(); 
+        
         location.reload();
         return false;
-    } else {
-        alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ đàng hoàng!");
+        
+    } else if (usd < 300) {
+        alert("⚠️ Tiền mặt chỉ có $" + usd + ", không đủ $300.\n⚖️ Hệ thống sẽ TỰ ĐỘNG BÁN THÁO cổ phiếu để trừ nợ!");
+        for (let code in portfolio) {
+            while (portfolio[code] > 0 && usd < 300) {
+                portfolio[code]--;
+                usd += stocks[code];
+            }
+        }
+        localStorage.setItem("userPortfolio", JSON.stringify(portfolio));
         localStorage.setItem("usdBalance", usd - 300);
-        localStorage.setItem("saasFeePaidDate", todayStr); // ĐÓNG DẤU ĐÃ NỘP TIỀN
+        localStorage.setItem("saasFeePaidDate", todayStr);
+        updateUsdDisplay();
+        if (typeof syncToCloud === "function") syncToCloud(); 
+        return true;
+    } else {
+        alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ!");
+        localStorage.setItem("usdBalance", usd - 300);
+        localStorage.setItem("saasFeePaidDate", todayStr);
         updateUsdDisplay();
         if (typeof syncToCloud === "function") syncToCloud(); 
         return true;
@@ -2792,6 +2836,19 @@ window.acceptRecommendation = function(name, target) {
 
 // =====================================================================
 // CHẠY KHỞI TẠO HỆ THỐNG
+// =====================================================================
+initializeImperialEconomy();
+randomDailyMarketFluctuation();
+updateUsdDisplay();
+
+autoHealDiscrepancy();
+renderCountdowns(); 
+countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
+switchTab('dashboard'); 
+checkRecovery();
+
+// =====================================================================
+// CHẠY KHỞI TẠO HỆ THỐNG (BẢN CHUẨN ĐÃ PHÁ PHONG ẤN)
 // =====================================================================
 initializeImperialEconomy();
 randomDailyMarketFluctuation();
