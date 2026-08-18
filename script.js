@@ -247,13 +247,21 @@ async function syncToCloud() {
 }
 
 async function pullFromCloud() {
-    if (!currentUser) return; // Bảo vệ
+async function pullFromCloud() {
+    if (!currentUser) return;
     try {
         const docRef = await db.collection("academic_apex").doc(USER_DOC_ID).get();
         if (docRef.exists) {
             const cloudData = docRef.data();
             const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
             if (cloudData.lastUpdated > localUpdated) {
+                
+                // 🛡️ BẢO VỆ TỐI THƯỢNG: Đang cày ải thì tuyệt đối không F5
+                if (isSessionActive || isBreakActive || isGracePeriod) {
+                    console.log("☁️ Mây có dữ liệu mới, nhưng đang cày ải. Chặn đứng lệnh F5!");
+                    return; 
+                }
+
                 console.log("☁️ Phát hiện dữ liệu mới. Đang nạp...");
                 localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals));
                 localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions);
@@ -270,27 +278,19 @@ async function pullFromCloud() {
                 localStorage.setItem('saasLastRest', cloudData.lastRestDate);
                 localStorage.setItem('ach_comeback', cloudData.achComeback);
                 
-                // NẠP THỜI KHÓA BIỂU
-                if (cloudData.timetable) {
-                    localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable));
-                }
+                if (cloudData.timetable) localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable));
 
                 localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
                 alert("☁️ Dữ liệu từ thiết bị khác đã được đồng bộ xuống án thư này!");
                 location.reload();
-                return; // 🛑 CHỐT CHẶN: Nếu trang tải lại thì dừng hàm tại đây
+                return;
             }
         }
     } catch (e) { console.error("Lỗi tải dữ liệu Cloud:", e); }
     
-    // ⚖️ QUAN TÒA CHỈ ĐƯỢC PHÁN XÉT SAU KHI ĐÃ ĐỌC XONG HỒ SƠ TỪ ĐÁM MÂY
     checkCycleAndStreak();
-    
-    // Cập nhật lại giao diện sau khi phán xét
     if (document.getElementById('view-dashboard').style.display !== 'none') {
-        renderKPI(); 
-        renderDashboard(); 
-        renderGamification();
+        renderKPI(); renderDashboard(); renderGamification();
     }
 }
 
@@ -388,7 +388,8 @@ function saveRecoveryState() {
     if (isSessionActive) {
         localStorage.setItem('saas_recovery', JSON.stringify({
             goalId: activeGoalId, duration: currentDuration, endTime: sessionEndTime, isIce: isIcebreakerPhase,
-            isHardcore: isHardcoreTax, isDebt: isDebtSession, penalty: penaltyMinutes, activeMins: activeSessionMinutes 
+            isHardcore: isHardcoreTax, isDebt: isDebtSession, penalty: penaltyMinutes, activeMins: activeSessionMinutes,
+            isPaused: isPaused, savedTimeLeft: timeLeft // ĐÓNG BĂNG ĐÚNG GIÂY
         }));
     }
 }
@@ -426,19 +427,21 @@ function resumeSession(rec) {
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
     isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
     
-    activeGoalId = rec.goalId; 
-    currentDuration = rec.duration; 
-    isIcebreakerPhase = rec.isIce;
-    isHardcoreTax = rec.isHardcore; 
-    isDebtSession = rec.isDebt; 
-    penaltyMinutes = rec.penalty || 0;
+    activeGoalId = rec.goalId; currentDuration = rec.duration; isIcebreakerPhase = rec.isIce;
+    isHardcoreTax = rec.isHardcore; isDebtSession = rec.isDebt; penaltyMinutes = rec.penalty || 0;
     activeSessionMinutes = rec.activeMins || rec.duration; 
-    sessionEndTime = rec.endTime;
     
-    document.body.classList.remove('break-mode'); 
-    document.body.classList.add('focus-active');
-    document.getElementById('sidebar').classList.remove('active'); 
-    document.getElementById('mobile-overlay').classList.remove('active');
+    // Nếu đang tạm dừng mà bị crash, khôi phục lại đúng số giây
+    if (rec.isPaused && rec.savedTimeLeft) {
+        timeLeft = rec.savedTimeLeft;
+        sessionEndTime = Date.now() + (timeLeft * 1000);
+    } else {
+        sessionEndTime = rec.endTime;
+        timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
+    }
+    
+    document.body.classList.remove('break-mode'); document.body.classList.add('focus-active');
+    document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobile-overlay').classList.remove('active');
     document.getElementById('focus-room').style.display = 'flex';
     
     let g = goals.find(x => x.id === activeGoalId);
@@ -454,9 +457,7 @@ function resumeSession(rec) {
         document.getElementById('btn-cancel').style.display = 'none';
         let btnTax = document.getElementById('btn-tax');
         if(!btnTax) { 
-            btnTax = document.createElement('button'); 
-            btnTax.className = 'btn-timer'; 
-            btnTax.id = 'btn-tax'; 
+            btnTax = document.createElement('button'); btnTax.className = 'btn-timer'; btnTax.id = 'btn-tax'; 
             document.querySelector('.timer-controls').insertBefore(btnTax, document.getElementById('btn-pause')); 
         }
         btnTax.style.display = 'none';
@@ -465,63 +466,40 @@ function resumeSession(rec) {
     document.getElementById('btn-pause').style.display = 'flex'; 
     document.getElementById('btn-pause').innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; 
     document.getElementById('status-box').querySelector('i').className = "fa-solid fa-spinner fa-spin"; 
-    document.getElementById('status-msg').innerText = "Đã khôi phục phiên học từ cõi chết. Tuyệt đối không xao nhãng.";
+    document.getElementById('status-msg').innerText = "Đã khôi phục phiên học. Tuyệt đối không xao nhãng.";
     
-    timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
     updateDisplay(timeLeft);
     
     timerInterval = setInterval(() => { 
-        if (isCurfewActive()) { 
-            clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; 
-        }
+        if (isCurfewActive()) { clearInterval(timerInterval); alert("ĐÃ TỚI GIỜ GIỚI NGHIÊM!"); resetSystem(); return; }
         if (!isPaused) { 
             if (!isOvertimePhase) {
                 timeLeft = Math.round((sessionEndTime - Date.now()) / 1000); 
                 if (timeLeft <= 0) { 
                     timeLeft = 0; 
                     if (isIcebreakerPhase) {
-                        isIcebreakerPhase = false; playTick();
-                        activeSessionMinutes = 30 + penaltyMinutes; 
-                        timeLeft = 25 * 60; 
-                        sessionEndTime = Date.now() + timeLeft * 1000;
-                        badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; 
-                        document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt.";
-                        saveRecoveryState(); 
-                        updateDisplay(timeLeft);
+                        isIcebreakerPhase = false; playTick(); activeSessionMinutes = 30 + penaltyMinutes; timeLeft = 25 * 60; 
+                        sessionEndTime = Date.now() + timeLeft * 1000; badge.innerText = "ĐÃ VÀO GUỒNG (25P)"; 
+                        document.getElementById('status-msg').innerText = "Trạng thái Deep Work tự động kích hoạt."; saveRecoveryState(); updateDisplay(timeLeft);
                     } else if (!isHardcoreTax && !isDebtSession) {
-                        isOvertimePhase = true;
-                        standardMinutes = currentDuration; 
-                        overtimeMinutes = 0;
-                        sessionEndTime = Date.now(); 
-                        playAlertSound();
-                        alert("⏳ HẾT GIỜ CHUẨN! Bệ hạ có thể bấm 'Nộp báo cáo' để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
-                        document.getElementById('session-timer').style.color = "#fbbf24";
-                        document.getElementById('status-msg').innerText = "ĐANG TRONG THỜI GIAN CÀY LỐ (OVERTIME). Lương x2 mỗi phút.";
-                        
-                        let btnCancel = document.getElementById('btn-cancel');
-                        btnCancel.innerHTML = '<i class="fa-solid fa-file-signature"></i> Nộp báo cáo';
-                        btnCancel.style.borderColor = "var(--brand-break)";
-                        btnCancel.style.color = "var(--brand-break)";
+                        isOvertimePhase = true; standardMinutes = currentDuration; overtimeMinutes = 0; sessionEndTime = Date.now(); 
+                        playAlertSound(); alert("⏳ HẾT GIỜ CHUẨN! Tiếp tục cày lố (Lương x2)!");
+                        document.getElementById('session-timer').style.color = "#fbbf24"; document.getElementById('status-msg').innerText = "ĐANG CÀY LỐ. Lương x2 mỗi phút.";
+                        let btnCancel = document.getElementById('btn-cancel'); btnCancel.innerHTML = '<i class="fa-solid fa-file-signature"></i> Nộp báo cáo'; btnCancel.style.borderColor = "var(--brand-break)"; btnCancel.style.color = "var(--brand-break)";
                         btnCancel.onclick = () => { clearInterval(timerInterval); triggerReportModal(); };
                     } else { 
                         playAlertSound(); triggerReportModal(); 
                     }
                 } 
-                if (!isOvertimePhase) {
-                    updateDisplay(timeLeft); 
-                    if (isTickOn && timeLeft % 1 === 0) playTick(); 
-                }
+                if (!isOvertimePhase) { updateDisplay(timeLeft); if (isTickOn && timeLeft % 1 === 0) playTick(); }
             } else {
-                let elapsed = Math.round((Date.now() - sessionEndTime) / 1000);
-                overtimeMinutes = Math.floor(elapsed / 60);
-                let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                let s = (elapsed % 60).toString().padStart(2, '0');
+                let elapsed = Math.round((Date.now() - sessionEndTime) / 1000); overtimeMinutes = Math.floor(elapsed / 60);
+                let m = Math.floor(elapsed / 60).toString().padStart(2, '0'); let s = (elapsed % 60).toString().padStart(2, '0');
                 document.getElementById('session-timer').innerText = `+${m}:${s}`;
             }
         }
     }, 1000); 
 }
-
 
 // =====================================================================
 // ĐẾ CHẾ KINH TẾ (THƯƠNG TRƯỜNG & CHỨNG KHOÁN)
@@ -2114,22 +2092,28 @@ function togglePause() {
     const statusMsg = document.getElementById('status-msg'); 
     const statusIcon = document.getElementById('status-box').querySelector('i');
     
+    saveRecoveryState(); // LƯU NGAY TRẠNG THÁI VÀ SỐ GIÂY CÒN LẠI
+    
     if (isHardcoreTax || isDebtSession) {
         if (isPaused) {
+            statusIcon.className = "fa-solid fa-pause";
+            statusMsg.innerHTML = `<strong style="color:var(--brand-warning)">Đang tạm dừng phạt. Đừng nghỉ quá lâu!</strong>`;
             pauseInterval = setInterval(() => { 
                 taxPauseBank--; 
                 if(taxPauseBank <= 0) { 
                     clearInterval(pauseInterval); clearInterval(timerInterval); 
-                    alert("BẠN ĐÃ DÙNG HẾT 15 PHÚT NGHỈ NGƠI! Chuỗi kỷ luật đã trở về 1."); 
+                    alert("BẠN ĐÃ DÙNG HẾT NGHỈ NGƠI! Chuỗi kỷ luật đã trở về 1."); 
                     currentStreak = 1; saveAll(); resetSystem(); location.reload(); 
                 } 
                 btnPause.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + taxPauseBank + 's)'; 
             }, 1000);
         } else { 
             clearInterval(pauseInterval); 
-            sessionEndTime = Date.now() + timeLeft * 1000; 
+            sessionEndTime = Date.now() + timeLeft * 1000; // Bù lại đúng thời gian đã nghỉ
             saveRecoveryState(); 
             btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (Còn ' + taxPauseBank + 's)'; 
+            statusIcon.className = "fa-solid fa-spinner fa-spin";
+            statusMsg.innerText = "Thời gian đang trôi. Tuyệt đối không xao nhãng.";
         }
     } else {
         if (isPaused) {
@@ -2142,10 +2126,9 @@ function togglePause() {
                 if (pauseTimeLeft <= 0) { 
                     pauseTimeLeft = 0; clearInterval(pauseInterval); clearInterval(timerInterval); 
                     playAlertSound(); resetSystem(); 
-                    setTimeout(() => alert("Đã quá 5 phút tạm dừng! Hệ thống tự động hủy phiên học hiện tại do mất tập trung."), 100); 
+                    setTimeout(() => alert("Đã quá 5 phút tạm dừng! Phiên học bị hủy bỏ."), 100); 
                 } 
-                let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); 
-                let s = (pauseTimeLeft % 60).toString().padStart(2, '0'); 
+                let m = Math.floor(pauseTimeLeft / 60).toString().padStart(2, '0'); let s = (pauseTimeLeft % 60).toString().padStart(2, '0'); 
                 statusMsg.innerHTML = `Tạm dừng. Giới hạn thời gian: <strong style="color: var(--brand-focus);">${m}:${s}</strong>.`; 
             }, 1000);
         } else { 
@@ -2153,7 +2136,7 @@ function togglePause() {
             sessionEndTime = Date.now() + timeLeft * 1000; 
             saveRecoveryState(); 
             btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng'; 
-            statusMsg.innerText = isIcebreakerPhase ? "5 phút mồi lửa. Hãy gạt bỏ mọi suy nghĩ và bắt đầu." : "Thời gian đang trôi. Tuyệt đối không xao nhãng."; 
+            statusMsg.innerText = isIcebreakerPhase ? "5 phút mồi lửa. Hãy bắt đầu." : "Thời gian đang trôi. Tuyệt đối không xao nhãng."; 
             statusIcon.className = "fa-solid fa-spinner fa-spin"; 
         }
     }
