@@ -1036,11 +1036,8 @@ function importData(event) {
 // ĐẠO LUẬT CHỐT SỔ (HẾT CHU KỲ 7 NGÀY LÀ CHỐT)
 // =====================================================================
 function checkCycleAndStreak() {
-    // 🛡️ LÁ CHẮN TÂN BINH & ĐỒNG BỘ: Ngăn phạt oan trên thiết bị mới
-    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) {
-        console.log("Án thư trống. Tạm hoãn Đạo luật để chờ Đám mây nạp dữ liệu...");
-        return; 
-    }
+    // 🛡️ LÁ CHẮN TÂN BINH & ĐỒNG BỘ
+    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) return; 
 
     let todayObj = new Date(); 
     todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
@@ -1050,35 +1047,38 @@ function checkCycleAndStreak() {
     yesterdayObj.setDate(yesterdayObj.getDate() - 1);
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
-    // KIỂM TRA CHU KỲ TUẦN (Sử dụng giờ chuẩn tuyệt đối)
+ // =========================================================
+    // 1. ĐẠO LUẬT TUẦN (12h/tuần) -> BẮT BUỘC SANG NGÀY THỨ 8 MỚI CHỐT
+    // =========================================================
     let todayMidnight = new Date(todayStr + "T00:00:00");
     let cycleMidnight = new Date(cycleStartDate + "T00:00:00");
-    let diffCycleTime = todayMidnight - cycleMidnight;
-    let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24));
+    let diffCycleDays = Math.floor((todayMidnight - cycleMidnight) / (1000 * 60 * 60 * 24));
 
-    // CHUẨN XÁC: Khoảng cách = 7 (Tức là bước sang ngày thứ 8) thì tổng kết!
+    // 🛑 LUẬT THÉP: diffCycleDays >= 7 chính xác là khi mặt trời của NGÀY THỨ 8 ló rạng
+    // Tuyệt đối không được tổng kết khi ngài vẫn đang ở ngày thứ 7 (diffCycleDays = 6)
     if (diffCycleDays >= 7 && !isPendingTax) {
         exportData(); 
 
         let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
         if (usd >= 250) {
             localStorage.setItem("usdBalance", usd - 250);
-            alert("Đã thu $250 Thuế Duy Trì Vương Triều cho tuần mới. Đồng thời, hệ thống đã TỰ ĐỘNG XUẤT FILE SAO LƯU để bảo vệ dữ liệu!");
+            alert("Đã thu $250 Thuế Duy Trì Vương Triều cho tuần mới. TỰ ĐỘNG XUẤT FILE SAO LƯU!");
             updateUsdDisplay();
         } else {
-            alert("Bệ hạ không đủ $250 nộp thuế duy trì. Án thư sẽ bị niêm phong các chức năng nâng cao! (Hệ thống đã tự động tải file sao lưu dự phòng)");
+            alert("Ngân khố không đủ $250. Án thư sẽ bị niêm phong các chức năng nâng cao!");
             localStorage.setItem("isSealed", "true");
         }
 
         let totalCycleHours = 0;
         let cycleStartObj = new Date(cycleStartDate);
+        // Quét trọn vẹn 7 ngày đã qua
         for(let i = 0; i < 7; i++) {
             let d = new Date(cycleStartObj); 
             d.setDate(d.getDate() + i); 
-            let dStr = d.toISOString().split('T')[0]; 
-            totalCycleHours += (dailyLogs[dStr] || 0); 
+            totalCycleHours += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
         }
         
+        // CHỈ PHẠT THUẾ 90P KHI TỔNG TUẦN DƯỚI 12H VÀ ĐÃ BƯỚC SANG NGÀY THỨ 8
         if (totalCycleHours < 12) {
             if (!isPendingTax) impactStockMarket("PENALTY");
             isPendingTax = true; 
@@ -1087,56 +1087,62 @@ function checkCycleAndStreak() {
             alert(`TỔNG KẾT TUẦN: Bệ hạ đã hoàn thành ${totalCycleHours.toFixed(1)} giờ. Chu kỳ mới bắt đầu!`);
         }
         
-        // Tịnh tiến cycleStart lên đúng 7 ngày
+        // Tịnh tiến cycleStart lên đúng 7 ngày (Kéo mốc bắt đầu sang Tuần mới)
         cycleStartObj.setDate(cycleStartObj.getDate() + 7);
-        
-        if (todayMidnight - cycleStartObj > 14 * 24 * 3600 * 1000) {
-            cycleStartObj = new Date(todayStr);
-        }
-        
+        if (todayMidnight - cycleStartObj > 14 * 24 * 3600 * 1000) cycleStartObj = new Date(todayStr);
         cycleStartDate = cycleStartObj.toISOString().split('T')[0];
         localStorage.setItem('saasCycleStart', cycleStartDate);
     }
 
-    // ĐẠO LUẬT NGÀY: TIÊU CHUẨN 1.5 GIỜ
+    // =========================================================
+    // 2. ĐẠO LUẬT NGÀY (1.5h/ngày) -> PHẠT LÃI KÉP (Thiếu x 1.5)
+    // =========================================================
+    let checkedDate = localStorage.getItem('saasDebtCheckedDate');
+    if (checkedDate !== yesterdayStr) {
+        let lastCheckedObj = checkedDate ? new Date(checkedDate) : new Date(yesterdayStr);
+        let daysToCheck = Math.floor((new Date(yesterdayStr) - lastCheckedObj) / (1000 * 60 * 60 * 24));
+        
+        // Tối thiểu truy thu nợ của ngày hôm qua
+        if (daysToCheck <= 0 || isNaN(daysToCheck)) daysToCheck = 1; 
+
+        // Truy thu chính xác từng phút bị thiếu cho mọi ngày chưa check
+        for (let i = daysToCheck; i >= 1; i--) {
+            let d = new Date(todayObj);
+            d.setDate(d.getDate() - i);
+            let checkStr = d.toISOString().split('T')[0];
+            
+            let targetHrs = (lastRestDate === checkStr) ? 0.75 : 1.5; 
+            let hrsDone = dailyLogs[checkStr] || 0;
+            
+            if (hrsDone < targetHrs) {
+                let deficitHrs = targetHrs - hrsDone; // Tính chính xác số giờ thiếu
+                let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5); // Nhân 1.5 lần
+                if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
+                dailyDebtMinutes += penaltyMins; 
+            }
+        }
+        
+        localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+        localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
+    }
+
+    // Đếm vắng mặt để set mốc Comeback
     if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
         let lastDateObj = new Date(lastActiveDate); 
         let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
         let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-        
         if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true'); 
-        
-        let checkedDate = localStorage.getItem('saasDebtCheckedDate');
-        if (checkedDate !== yesterdayStr) {
-            let targetHrs = (lastRestDate === yesterdayStr) ? 0.75 : 1.5; 
-            
-            if (diffDays > 1) {
-                if (!isPendingTax) impactStockMarket("PENALTY");
-                isPendingTax = true; 
-                localStorage.setItem('saasPendingTax', 'true'); 
-                localStorage.setItem('saasDailyDebt', '0'); 
-                dailyDebtMinutes = 0;
-            } 
-            else if (diffDays === 1) {
-                let yesterdayHrs = dailyLogs[yesterdayStr] || 0; 
-                if (yesterdayHrs < targetHrs) {
-                    let deficitHrs = targetHrs - yesterdayHrs; 
-                    let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5); 
-                    if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
-                    dailyDebtMinutes += penaltyMins; 
-                    localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
-                }
-            }
-            localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
-        }
     }
 
+    // =========================================================
+    // 3. HIỂN THỊ ÁN PHẠT ĐÚNG TỘI DANH
+    // =========================================================
     if (isPendingTax) {
         document.getElementById('shame-modal').style.display = 'flex';
         let shameTitle = document.querySelector('.shame-content h2'); 
         if(shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
         let shameDesc = document.querySelector('.shame-content p'); 
-        if(shameDesc) shameDesc.innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h HOẶC bỏ hoang án thư trên 24h. Bắt buộc nộp Thuế 90 phút!"; 
+        if(shameDesc) shameDesc.innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h. Bắt buộc nộp Thuế 90 phút!"; 
         let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none'; 
         let btnShame = document.querySelector('.btn-shame');
@@ -1149,7 +1155,7 @@ function checkCycleAndStreak() {
         let shameTitle = document.querySelector('.shame-content h2'); 
         if(shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.5H)";
         let shameDesc = document.querySelector('.shame-content p'); 
-        if(shameDesc) shameDesc.innerHTML = `Hôm qua bệ hạ tu luyện chưa đủ 1.5h. Hình phạt dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        if(shameDesc) shameDesc.innerHTML = `Bệ hạ tu luyện chưa đủ tiêu chuẩn 1.5h/ngày. Hình phạt Lãi kép dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
         let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none';
         let btnShame = document.querySelector('.btn-shame');
