@@ -2359,19 +2359,69 @@ function submitReport() {
 
         activeSessionMinutes = standardMinutes + overtimeMinutes;
         if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; 
+        
+        let now = new Date(); 
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
+        let dateStr = now.toISOString().split('T')[0];
+        let currentHour = new Date().getHours(); // Lấy giờ thực tế để xét Nhiệm vụ buổi
 
+        // ========================================================
+        // 💰 BỘ MÁY TÍNH LÃI VƯỢT CHỈ TIÊU (20% SAU 1.5H)
+        // ========================================================
         if (!isPunishment) {
-            let totalEarn = 0;
-            if (standardMinutes > 0) {
-                let standardEarn = standardMinutes * 1; 
-                let overtimeEarn = overtimeMinutes * 2; 
-                totalEarn = standardEarn + overtimeEarn;
-                let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
-                localStorage.setItem("usdBalance", currentUsd + totalEarn);
-                updateUsdDisplay();
-                alert(`HOÀN THÀNH PHIÊN TU LUYỆN:\n- Cày chuẩn: ${standardMinutes}p = $${standardEarn}\n- Cày lố: ${overtimeMinutes}p = $${overtimeEarn}\n=> Ngân khố thu về: $${totalEarn}`);
+            let baseEarn = activeSessionMinutes * 1; 
+            
+            // Tính số phút bệ hạ đã học TRƯỚC khi nộp phiên này
+            let todayHrsBefore = dailyLogs[dateStr] || 0; 
+            let todayMinsBefore = Math.round(todayHrsBefore * 60);
+            
+            // Tìm phần thời gian của phiên này vượt qua ranh giới 90 phút (1.5h)
+            let extraMins = Math.min(activeSessionMinutes, Math.max(0, todayMinsBefore + activeSessionMinutes - 90));
+            let bonusEarn = 0;
+            
+            if (extraMins > 0) {
+                bonusEarn = Math.floor(extraMins * 0.2); // Lãi 20% (0.2 USD / phút) cho số phút dư
             }
+
+            let totalEarn = baseEarn + bonusEarn;
+            let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
+            localStorage.setItem("usdBalance", currentUsd + totalEarn);
+            updateUsdDisplay();
+
+            let msg = `HOÀN THÀNH PHIÊN TU LUYỆN:\n- Lương cơ bản: $${baseEarn}`;
+            if (bonusEarn > 0) msg += `\n- Lãi vượt tiêu chuẩn 1.5h (+20%): $${bonusEarn}`;
+            msg += `\n=> Ngân khố thu về: $${totalEarn}`;
+            alert(msg);
+
             impactStockMarket("SUCCESS"); 
+        }
+
+        // ========================================================
+        // 📜 CẬP NHẬT CÁO THỊ (NHIỆM VỤ NGẪU NHIÊN)
+        // ========================================================
+        if (!isPunishment) {
+            let quests = JSON.parse(localStorage.getItem('saasDailyQuests')) || [];
+            quests.forEach(q => {
+                if(q.type === 'any_session') q.current += 1;
+                if(q.type === 'session_25' && currentDuration === 25) q.current += 1;
+                if(q.type === 'session_15' && currentDuration === 15) q.current += 1;
+                if(q.type === 'session_long' && activeSessionMinutes >= 50) q.current += 1;
+                
+                // Cập nhật nhiệm vụ theo Khung Giờ
+                if(q.type === 'time_slot') {
+                    if (q.slot === 'morning' && currentHour >= 5 && currentHour < 12) q.current += activeSessionMinutes;
+                    if (q.slot === 'afternoon' && currentHour >= 12 && currentHour < 18) q.current += activeSessionMinutes;
+                    if (q.slot === 'evening' && (currentHour >= 18 || currentHour < 5)) q.current += activeSessionMinutes;
+                }
+
+                if(q.type === 'total_time') {
+                    let newTotalHrs = (dailyLogs[dateStr] || 0) + (activeSessionMinutes / 60);
+                    q.current = Math.round(newTotalHrs * 60); 
+                }
+                
+                if(q.current > q.target) q.current = q.target;
+            });
+            localStorage.setItem('saasDailyQuests', JSON.stringify(quests));
         }
 
         let isSealed = localStorage.getItem("isSealed") === "true";
@@ -2389,10 +2439,6 @@ function submitReport() {
         if(!goal) goal = goals[0]; 
         if(!goal.reports) goal.reports = [];
         
-        let now = new Date(); 
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
-        let dateStr = now.toISOString().split('T')[0];
-        
         let reportLabel = isPunishment ? `Phạt ${currentDuration}p` : `${currentDuration}p`;
         goal.reports.push({ 
             date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), 
@@ -2407,7 +2453,6 @@ function submitReport() {
         dailyLogs[dateStr] += hoursEarned; 
         totalSessions++;
 
-        // LƯU VẾT THỜI GIAN VÀ CHUỖI
         lastActiveDate = dateStr;
         localStorage.setItem('saasLastActive', lastActiveDate);
 
@@ -2836,3 +2881,115 @@ renderCountdowns();
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
 checkRecovery();
+
+// =====================================================================
+// BỘ HỘ PHỦ: QUẢN LÝ NHIỆM VỤ NGÀY (RANDOM) & NHẬN THƯỞNG
+// =====================================================================
+function initDailyQuests() {
+    let todayObj = new Date();
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayStr = todayObj.toISOString().split('T')[0];
+
+    let questDate = localStorage.getItem('saasQuestDate');
+    if (questDate !== todayStr) {
+        // KHO CÁO THỊ ĐA DẠNG
+        const questPool = [
+            { id: 'q_morn', type: 'time_slot', slot: 'morning', target: 45, current: 0, reward: 40, title: 'Chiến Thần Bình Minh', desc: 'Tích lũy 45p tu luyện buổi sáng (5h-12h)', claimed: false },
+            { id: 'q_aft', type: 'time_slot', slot: 'afternoon', target: 45, current: 0, reward: 40, title: 'Nắng Chiều Không Nghỉ', desc: 'Tích lũy 45p tu luyện buổi chiều (12h-18h)', claimed: false },
+            { id: 'q_eve', type: 'time_slot', slot: 'evening', target: 45, current: 0, reward: 40, title: 'Kẻ Thống Trị Màn Đêm', desc: 'Tích lũy 45p tu luyện tối/đêm (18h-24h)', claimed: false },
+            { id: 'q_p25', type: 'session_25', target: 2, current: 0, reward: 30, title: 'Bậc Thầy Pomodoro', desc: 'Hoàn thành 2 phiên chuẩn 25p', claimed: false },
+            { id: 'q_p15', type: 'session_15', target: 3, current: 0, reward: 30, title: 'Đánh Nhanh Thắng Nhanh', desc: 'Hoàn thành 3 phiên ngắn 15p', claimed: false },
+            { id: 'q_l50', type: 'session_long', target: 1, current: 0, reward: 50, title: 'Sức Bền Đáng Nể', desc: 'Hoàn thành 1 phiên cày liên tục >= 50p', claimed: false },
+            { id: 'q_fst', type: 'any_session', target: 1, current: 0, reward: 15, title: 'Khởi Động Trơn Tru', desc: 'Hoàn thành 1 phiên học bất kỳ', claimed: false },
+            { id: 'q_90m', type: 'total_time', target: 90, current: 0, reward: 100, title: 'Chạm Mốc Tiêu Chuẩn', desc: 'Tích lũy đủ 1.5h (90p) trong ngày', claimed: false }
+        ];
+
+        // Thuật toán xáo trộn ngẫu nhiên (Bốc thăm)
+        for (let i = questPool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questPool[i], questPool[j]] = [questPool[j], questPool[i]];
+        }
+        
+        // Cắt lấy 3 nhiệm vụ đầu tiên
+        let selectedQuests = questPool.slice(0, 3);
+        
+        localStorage.setItem('saasDailyQuests', JSON.stringify(selectedQuests));
+        localStorage.setItem('saasQuestDate', todayStr);
+    }
+}
+
+function renderDailyQuests() {
+    let dash = document.getElementById('view-dashboard');
+    if (!dash || dash.style.display === 'none') return;
+    
+    let questBox = document.getElementById('imperial-quests');
+    if (!questBox) {
+        questBox = document.createElement('div');
+        questBox.id = 'imperial-quests';
+        questBox.className = 'stagger-item';
+        questBox.style.animationDelay = '0.15s';
+        questBox.style.marginBottom = '24px';
+        
+        let grid = document.getElementById('dashboard-grid');
+        dash.insertBefore(questBox, grid);
+    }
+    
+    let quests = JSON.parse(localStorage.getItem('saasDailyQuests')) || [];
+    let html = `<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 1.15rem; text-transform: uppercase;"><i class="fa-solid fa-scroll" style="color: var(--brand-warning); margin-right: 8px;"></i> Cáo Thị Hôm Nay</h3>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">`;
+    
+    quests.forEach(q => {
+        let pct = Math.min(100, (q.current / q.target) * 100);
+        let btnHtml = '';
+        if (q.claimed) {
+            btnHtml = `<button disabled style="background: rgba(0,0,0,0.1); color: var(--text-muted); border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: not-allowed;"><i class="fa-solid fa-check"></i> Đã nhận</button>`;
+        } else if (q.current >= q.target) {
+            btnHtml = `<button onclick="claimQuestReward('${q.id}')" style="background: var(--brand-warning); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 10px rgba(245,158,11,0.3); transition: 0.2s;"><i class="fa-solid fa-gift"></i> Nhận $${q.reward}</button>`;
+        } else {
+            btnHtml = `<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">${q.current}/${q.target}</span>`;
+        }
+        
+        html += `<div style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem; margin-bottom: 4px;">${q.title}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${q.desc}</div>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--brand-warning); font-weight: 800;">+$${q.reward}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="flex: 1; height: 8px; background: rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                    <div style="height: 100%; width: ${pct}%; background: var(--brand-warning); border-radius: 8px;"></div>
+                </div>
+                ${btnHtml}
+            </div>
+        </div>`;
+    });
+    
+    html += `</div>`;
+    questBox.innerHTML = html;
+}
+
+window.claimQuestReward = function(id) {
+    let quests = JSON.parse(localStorage.getItem('saasDailyQuests')) || [];
+    let q = quests.find(x => x.id === id);
+    if(q && q.current >= q.target && !q.claimed) {
+        q.claimed = true;
+        let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+        localStorage.setItem("usdBalance", usd + q.reward);
+        localStorage.setItem('saasDailyQuests', JSON.stringify(quests));
+        updateUsdDisplay();
+        renderDailyQuests();
+        if(typeof syncToCloud === 'function') syncToCloud();
+    }
+}
+
+// 🛑 HOOK VÀO HÀM RENDER DASHBOARD (Bổ sung thêm Nhiệm vụ hiển thị trên bảng)
+const originalRenderDashboard = renderDashboard;
+window.renderDashboard = function() {
+    originalRenderDashboard(); 
+    initDailyQuests();         
+    renderDailyQuests();       
+}
