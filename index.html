@@ -280,25 +280,69 @@
         </div>
     </main>
 
-    <!-- FOCUS ROOM -->
-    <div id="focus-room">
-        <div class="focus-nav">
-            <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Rút lui</button>
-            <div id="focus-target-info" style="font-weight: 700; color: var(--text-muted); font-size: 1.1rem;">Mục tiêu: IELTS 6.5</div>
+    <!-- FOCUS ROOM V2 (IMMERSE & WIDGETS) -->
+    <div id="focus-room" style="display: none; background-size: cover; background-position: center; position: fixed; top:0; left:0; width: 100vw; height: 100vh; z-index: 1000; overflow: hidden; background-image: url('https://i.pinimg.com/originals/a4/f2/8d/a4f28d6f8fc6de94bc0283f510bd6d38.gif');">
+        <!-- Lớp màng sương mờ bảo vệ chữ -->
+        <div id="focus-overlay" style="position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px);"></div>
+
+        <!-- Nút rút lui an toàn -->
+        <div style="position: absolute; top: 24px; left: 24px; z-index: 1001; display: flex; align-items: center; gap: 16px;">
+            <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()" style="background: var(--bg-panel); border: 1px solid var(--border); box-shadow: var(--shadow-bento); padding: 12px 20px;"><i class="fa-solid fa-arrow-left"></i> Rút lui</button>
+            <div id="focus-target-info" style="font-weight: 800; color: #fff; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 12px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);">Mục tiêu: Đang nạp...</div>
         </div>
-        <div class="focus-content">
-            <div class="focus-badge" id="focus-badge">Khu Vực Tập Trung</div>
-            <div class="timer-huge" id="session-timer">00:00</div>
-           <div class="timer-controls">
-                <button class="btn-timer" id="btn-tick" onclick="toggleTick()"><i class="fa-solid fa-clock"></i> Âm Tích Tắc: TẮT</button>
-                <button class="btn-timer" id="btn-5" onclick="startIcebreaker()"><i class="fa-solid fa-fire" style="color: #ef4444;"></i> Phá Băng (5p)</button>
-                <button class="btn-timer" id="btn-15" onclick="startSession(15)"><i class="fa-solid fa-bolt" style="color: var(--brand-trophy);"></i> Phiên Ngắn (15p)</button>
-                <button class="btn-timer" id="btn-25" onclick="startSession(25)"><i class="fa-solid fa-brain" style="color: var(--brand-focus);"></i> Phiên Chuẩn (25p)</button>
-                <button class="btn-timer" id="btn-pause" onclick="togglePause()"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
-                <button class="btn-timer" id="btn-cancel" onclick="cancelSession()"><i class="fa-solid fa-xmark"></i> Hủy bỏ</button>
+
+        <!-- WIDGET 1: ĐỒNG HỒ TRUNG TÂM -->
+        <div class="drag-widget" id="widget-timer" style="top: 15%; left: 10%;">
+            <div class="widget-header" id="widget-timer-header"><i class="fa-solid fa-grip-dots"></i> Bộ Chỉ Huy (Kéo Thả)</div>
+            <div class="focus-content" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(16px); border-radius: 24px; margin: 0; width: 100%; padding: 32px;">
+                <div class="focus-badge" id="focus-badge" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">KHU VỰC TẬP TRUNG</div>
+                <div class="timer-huge" id="session-timer" style="text-shadow: 0 4px 20px rgba(0,0,0,0.5);">00:00</div>
+                <div class="timer-controls">
+                    <button class="btn-timer" id="btn-tick" onclick="toggleTick()" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-clock"></i> Âm Tích Tắc: TẮT</button>
+                    <button class="btn-timer" id="btn-5" onclick="startIcebreaker()" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-fire" style="color: #ef4444;"></i> Phá Băng (5p)</button>
+                    <button class="btn-timer" id="btn-15" onclick="startSession(15)" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-bolt" style="color: var(--brand-trophy);"></i> Ngắn (15p)</button>
+                    <button class="btn-timer" id="btn-25" onclick="startSession(25)" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-brain" style="color: var(--brand-focus);"></i> Chuẩn (25p)</button>
+                    <button class="btn-timer" id="btn-pause" onclick="togglePause()" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
+                    <button class="btn-timer" id="btn-cancel" onclick="cancelSession()" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-xmark"></i> Hủy bỏ</button>
+                </div>
+                <div class="status-box" id="status-box" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-circle-info"></i><span id="status-msg" style="color: #ccc;">Hệ thống tính giờ tuyệt đối.</span>
+                </div>
             </div>
-            <div class="status-box" id="status-box">
-                <i class="fa-solid fa-circle-info"></i><span id="status-msg">Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.</span>
+        </div>
+
+        <!-- WIDGET 2: NGỰ ÂM CÁC (THUÊ NHẠC) -->
+        <div class="drag-widget" id="widget-music" style="top: 25%; left: 65%; width: 400px;">
+            <div class="widget-header" id="widget-music-header"><i class="fa-solid fa-music" style="color: #fbbf24;"></i> Ngự Âm Các (Quán Nhạc Lofi)</div>
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(16px); border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- Bảng giá thuê -->
+                <div id="music-shop" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="font-weight: 800; color: #fff; font-size: 1.05rem; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;"><i class="fa-solid fa-store" style="color: #fbbf24;"></i> Thuê Không Gian Âm Nhạc</div>
+                    <button class="btn-timer" onclick="rentMusic(30, 10)" style="justify-content: space-between; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff;"><i class="fa-solid fa-mug-hot" style="color: #fbbf24; margin-right:8px;"></i>Gói 30 Phút</span><span style="color: #fbbf24; font-weight: 800;">$10</span></button>
+                    <button class="btn-timer" onclick="rentMusic(60, 20)" style="justify-content: space-between; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff;"><i class="fa-solid fa-headphones" style="color: #0ea5e9; margin-right:8px;"></i>Gói 60 Phút</span><span style="color: #fbbf24; font-weight: 800;">$20</span></button>
+                    <button class="btn-timer" onclick="rentMusic(120, 35)" style="justify-content: space-between; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff;"><i class="fa-solid fa-crown" style="color: #eab308; margin-right:8px;"></i>Gói 120 Phút</span><span style="color: #fbbf24; font-weight: 800;">$35</span></button>
+                </div>
+
+                <!-- Trạm phát nhạc (Hiện ra khi đã mua) -->
+                <div id="music-player" style="display: none; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(251, 191, 36, 0.15); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.3);">
+                        <span style="font-size: 0.85rem; font-weight: 800; color: #fbbf24; text-transform: uppercase;">Thuê bao còn lại</span>
+                        <span id="music-timer-text" style="font-size: 1.4rem; font-weight: 800; color: #fbbf24; font-variant-numeric: tabular-nums;">00:00</span>
+                    </div>
+                    
+                    <div id="music-input-area" style="display: flex; flex-direction: column; gap: 12px;">
+                        <input type="text" id="yt-link-input" placeholder="Dán link YouTube (Ví dụ: Lofi Girl...)" style="width:100%; padding:12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 12px; outline: none;">
+                        <div style="text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.5); font-weight: 700;">HOẶC TẢI TỪ MÁY</div>
+                        <input type="file" id="local-audio-input" accept="audio/mp3, audio/wav" style="width:100%; font-size: 0.85rem; color: #ccc; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
+                        <button onclick="loadMusic()" style="background: var(--brand-focus); color: #fff; padding: 12px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; margin-top: 4px; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4);"><i class="fa-solid fa-play"></i> Gắn Đĩa Than & Phát</button>
+                    </div>
+
+                    <div id="music-frame-container" style="display: none; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; border: 1px solid rgba(255,255,255,0.1);">
+                        <!-- Nơi nhúng Iframe YT hoặc Audio -->
+                    </div>
+                    <button id="btn-stop-music" onclick="stopMusicManually()" style="display: none; background: rgba(0,0,0,0.3); color: #fbbf24; padding: 10px; border-radius: 8px; font-weight: 800; border: 1px solid rgba(251, 191, 36, 0.5); cursor: pointer;"><i class="fa-solid fa-eject"></i> Đổi Bài Khác</button>
+                </div>
             </div>
         </div>
     </div>
