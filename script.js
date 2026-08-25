@@ -3083,48 +3083,98 @@ function updateMusicTimerDisplay() {
     document.getElementById('music-timer-text').innerText = `${m}:${s}`;
 }
 
+// Biến lưu trữ Playlist của bệ hạ
+let currentPlaylist = [];
+let currentTrackIndex = 0;
+let audioPlayer = null;
+
 function loadMusic() {
-    let ytLink = document.getElementById('yt-link-input').value.trim();
-    let localFile = document.getElementById('local-audio-input').files[0];
+    let fileInput = document.getElementById('local-audio-input');
+    
+    // Nếu bệ hạ chưa chọn file nào
+    if (fileInput.files.length === 0) {
+        alert("Bệ hạ chưa nạp bản nhạc nào từ chiến mã!"); 
+        return;
+    }
+
+    // Đưa toàn bộ file đã chọn vào Playlist
+    currentPlaylist = Array.from(fileInput.files);
+    currentTrackIndex = 0;
+
     let frameContainer = document.getElementById('music-frame-container');
     
-    if (localFile) {
-        // Chơi nhạc từ máy tính của bệ hạ
-        let fileURL = URL.createObjectURL(localFile);
-        frameContainer.innerHTML = `<audio controls autoplay loop style="width: 100%; height: 50px; margin-top: 75px;"><source src="${fileURL}" type="${localFile.type}">Trình duyệt không hỗ trợ Audio.</audio>`;
-    } else if (ytLink) {
-        // Phân tích và trích xuất ID YouTube
-        let videoId = "";
-        let regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-        let match = ytLink.match(regex);
-        if (match && match[1]) {
-            videoId = match[1];
-            frameContainer.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-        } else {
-            alert("Đường dẫn YouTube không hợp lệ!"); return;
-        }
-    } else {
-        alert("Bệ hạ chưa dán link YouTube hoặc chọn File nhạc!"); return;
-    }
+    // Giao diện máy phát nhạc hoàng gia (Có nút Tới/Lùi)
+    frameContainer.innerHTML = `
+        <div id="track-name-display" style="color: #fbbf24; font-weight: 800; font-size: 0.95rem; text-align: center; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+        <audio id="royal-audio-player" controls style="width: 100%; height: 40px; outline: none;"></audio>
+        <div style="display: flex; justify-content: center; gap: 16px; margin-top: 16px;">
+            <button onclick="prevTrack()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 8px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'"><i class="fa-solid fa-backward-step"></i> Bài trước</button>
+            <button onclick="nextTrack()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 8px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'">Bài sau <i class="fa-solid fa-forward-step"></i></button>
+        </div>
+    `;
     
-    // Giao diện khi nhạc đang phát
+    audioPlayer = document.getElementById('royal-audio-player');
+    
+    // ĐẠO LUẬT AUTO-NEXT: Nghe hết bài tự động chuyển bài tiếp theo
+    audioPlayer.addEventListener('ended', function() {
+        nextTrack();
+    });
+
+    // Chuyển đổi giao diện
     document.getElementById('music-input-area').style.display = 'none';
     frameContainer.style.display = 'block';
     document.getElementById('btn-stop-music').style.display = 'block';
+    
+    // Bắt đầu phát bài đầu tiên
+    playTrack(currentTrackIndex);
+}
+
+function playTrack(index) {
+    if (currentPlaylist.length === 0) return;
+    
+    // Vòng lặp Playlist: Hết danh sách thì quay lại bài đầu
+    if (index >= currentPlaylist.length) currentTrackIndex = 0; 
+    if (index < 0) currentTrackIndex = currentPlaylist.length - 1; 
+    
+    let file = currentPlaylist[currentTrackIndex];
+    let fileURL = URL.createObjectURL(file);
+    
+    document.getElementById('track-name-display').innerHTML = `<i class="fa-solid fa-compact-disc fa-spin" style="margin-right: 8px;"></i>${file.name}`;
+    audioPlayer.src = fileURL;
+    audioPlayer.play();
+}
+
+function nextTrack() {
+    currentTrackIndex++;
+    playTrack(currentTrackIndex);
+}
+
+function prevTrack() {
+    currentTrackIndex--;
+    playTrack(currentTrackIndex);
 }
 
 function stopMusicManually() {
-    // Chỉ tắt nhạc đổi bài, KHÔNG tắt đồng hồ trừ tiền
+    if(audioPlayer) {
+        audioPlayer.pause();
+        audioPlayer.src = "";
+    }
+    currentPlaylist = [];
     document.getElementById('music-frame-container').innerHTML = '';
     document.getElementById('music-frame-container').style.display = 'none';
     document.getElementById('btn-stop-music').style.display = 'none';
     document.getElementById('music-input-area').style.display = 'flex';
+    document.getElementById('local-audio-input').value = '';
 }
 
 function shutDownMusic() {
-    // Tắt toàn bộ khi hết tiền
     musicTimeLeft = 0;
     clearInterval(musicRentInterval);
+    if(audioPlayer) {
+        audioPlayer.pause();
+        audioPlayer.src = "";
+    }
+    currentPlaylist = [];
     document.getElementById('music-frame-container').innerHTML = '';
     
     document.getElementById('music-player').style.display = 'none';
@@ -3133,6 +3183,5 @@ function shutDownMusic() {
     document.getElementById('music-frame-container').style.display = 'none';
     document.getElementById('btn-stop-music').style.display = 'none';
     document.getElementById('music-input-area').style.display = 'flex';
-    document.getElementById('yt-link-input').value = '';
     document.getElementById('local-audio-input').value = '';
 }
