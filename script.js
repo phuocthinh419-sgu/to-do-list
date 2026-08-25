@@ -2993,3 +2993,146 @@ window.renderDashboard = function() {
     initDailyQuests();         
     renderDailyQuests();       
 }
+
+// =====================================================================
+// KHỐI QUẢN LÝ WIDGET KÉO THẢ (DRAGGABLE UI)
+// =====================================================================
+function makeDraggable(elmnt, header) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    if (header) { header.onmousedown = dragMouseDown; } 
+    else { elmnt.onmousedown = dragMouseDown; }
+
+    function dragMouseDown(e) {
+        e = e || window.event; e.preventDefault();
+        pos3 = e.clientX; pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event; e.preventDefault();
+        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
+        // Chặn không cho kéo văng ra ngoài mép màn hình
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+        if(newTop < 0) newTop = 0;
+        if(newLeft < 0) newLeft = 0;
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null; document.onmousemove = null;
+    }
+}
+
+// Khởi chạy kéo thả cho 2 khối Widget
+setTimeout(() => {
+    makeDraggable(document.getElementById("widget-timer"), document.getElementById("widget-timer-header"));
+    makeDraggable(document.getElementById("widget-music"), document.getElementById("widget-music-header"));
+}, 500);
+
+
+// =====================================================================
+// NGỰ ÂM CÁC (HỆ THỐNG THUÊ NHẠC LÕI KÉP)
+// =====================================================================
+let musicRentInterval;
+let musicTimeLeft = 0;
+
+function rentMusic(minutes, price) {
+    let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    if (usd >= price) {
+        // Trừ tiền
+        localStorage.setItem('usdBalance', usd - price);
+        updateUsdDisplay();
+        
+        // Kích hoạt thời gian thuê
+        musicTimeLeft += minutes * 60;
+        
+        // Chuyển giao diện sang Máy Phát Nhạc
+        document.getElementById('music-shop').style.display = 'none';
+        document.getElementById('music-player').style.display = 'flex';
+        
+        updateMusicTimerDisplay();
+        
+        // Chạy đồng hồ thuê bao độc lập
+        clearInterval(musicRentInterval);
+        musicRentInterval = setInterval(() => {
+            musicTimeLeft--;
+            updateMusicTimerDisplay();
+            
+            if (musicTimeLeft <= 0) {
+                clearInterval(musicRentInterval);
+                shutDownMusic();
+                alert("⏳ Hết thời gian thuê Ngự Âm Các! Âm nhạc đã được thu hồi. Bệ hạ hãy gia hạn nếu muốn nghe tiếp!");
+            }
+        }, 1000);
+        
+        if(typeof syncToCloud === 'function') syncToCloud();
+        playTick();
+    } else {
+        alert("❌ Ngân khố của bệ hạ chỉ còn $" + usd + ", không đủ để mua gói này!");
+    }
+}
+
+function updateMusicTimerDisplay() {
+    if(musicTimeLeft < 0) musicTimeLeft = 0;
+    let m = Math.floor(musicTimeLeft / 60).toString().padStart(2, '0');
+    let s = (musicTimeLeft % 60).toString().padStart(2, '0');
+    document.getElementById('music-timer-text').innerText = `${m}:${s}`;
+}
+
+function loadMusic() {
+    let ytLink = document.getElementById('yt-link-input').value.trim();
+    let localFile = document.getElementById('local-audio-input').files[0];
+    let frameContainer = document.getElementById('music-frame-container');
+    
+    if (localFile) {
+        // Chơi nhạc từ máy tính của bệ hạ
+        let fileURL = URL.createObjectURL(localFile);
+        frameContainer.innerHTML = `<audio controls autoplay loop style="width: 100%; height: 50px; margin-top: 75px;"><source src="${fileURL}" type="${localFile.type}">Trình duyệt không hỗ trợ Audio.</audio>`;
+    } else if (ytLink) {
+        // Phân tích và trích xuất ID YouTube
+        let videoId = "";
+        let regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        let match = ytLink.match(regex);
+        if (match && match[1]) {
+            videoId = match[1];
+            frameContainer.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        } else {
+            alert("Đường dẫn YouTube không hợp lệ!"); return;
+        }
+    } else {
+        alert("Bệ hạ chưa dán link YouTube hoặc chọn File nhạc!"); return;
+    }
+    
+    // Giao diện khi nhạc đang phát
+    document.getElementById('music-input-area').style.display = 'none';
+    frameContainer.style.display = 'block';
+    document.getElementById('btn-stop-music').style.display = 'block';
+}
+
+function stopMusicManually() {
+    // Chỉ tắt nhạc đổi bài, KHÔNG tắt đồng hồ trừ tiền
+    document.getElementById('music-frame-container').innerHTML = '';
+    document.getElementById('music-frame-container').style.display = 'none';
+    document.getElementById('btn-stop-music').style.display = 'none';
+    document.getElementById('music-input-area').style.display = 'flex';
+}
+
+function shutDownMusic() {
+    // Tắt toàn bộ khi hết tiền
+    musicTimeLeft = 0;
+    clearInterval(musicRentInterval);
+    document.getElementById('music-frame-container').innerHTML = '';
+    
+    document.getElementById('music-player').style.display = 'none';
+    document.getElementById('music-shop').style.display = 'flex';
+    
+    document.getElementById('music-frame-container').style.display = 'none';
+    document.getElementById('btn-stop-music').style.display = 'none';
+    document.getElementById('music-input-area').style.display = 'flex';
+    document.getElementById('yt-link-input').value = '';
+    document.getElementById('local-audio-input').value = '';
+}
