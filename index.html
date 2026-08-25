@@ -83,7 +83,7 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- HEADER MỚI CỦA V2 -->
+        <!-- HEADER -->
         <header class="header">
             <div class="header-title-wrapper">
                 <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
@@ -99,7 +99,7 @@
             </div>
         </header>
 
-        <!-- DASHBOARD VIEW V2 -->
+        <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="view-section">
             
             <!-- 1. HERO CARD: WEEKLY STRATEGIC MISSION -->
@@ -126,11 +126,10 @@
                 </div>
             </div>
 
-            <!-- 2. IDENTITY & RHYTHM (GAMIFICATION CĂN GIỮA, CÂN ĐỐI) -->
+            <!-- 2. IDENTITY & RHYTHM -->
             <div class="gamification-strip">
                 <!-- Academic Status -->
                 <div class="rank-card stagger-item" style="animation-delay: 0.1s; padding: 32px; display: flex; flex-direction: column;">
-                    <!-- Top Bar -->
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 24px;">
                         <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">Cấp Bậc Học Thuật</span>
                         <div class="streak-badge" style="position: static; margin: 0; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: var(--brand-warning); font-size: 0.9rem;">
@@ -138,7 +137,6 @@
                         </div>
                     </div>
                     
-                    <!-- Lõi dữ liệu -->
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 8px;">
                         <i class="fa-solid fa-seedling rank-icon" id="rank-icon" style="font-size: 4.5rem; margin-bottom: 12px; margin-top: 0;"></i>
                         <div class="rank-title" id="rank-title" style="font-size: 2rem; margin: 0; line-height: 1; font-weight: 800; text-transform: uppercase;">Người Mới</div>
@@ -155,13 +153,11 @@
                             <h3 style="font-size: 1.15rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; color: var(--text-muted); font-weight: 800;">Biểu đồ kỷ luật (35 Ngày)</h3>
                             <span style="font-size: 1.05rem; color: #FFFFFF; font-weight: 600;">Duy trì phong độ học tập</span>
                         </div>
-                        <!-- Animation Ngọn Lửa Kỷ Luật -->
                         <div style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">
                             <i class="fa-solid fa-fire fa-beat-fade" style="color: var(--brand-warning); font-size: 1.6rem;"></i>
                         </div>
                     </div>
 
-                    <!-- Trung tâm: Chỉ số phân tích 35 ngày (Lấp đầy khoảng trống) -->
                     <div style="display: flex; gap: 32px; margin: auto 0; padding: 20px 0;">
                         <div>
                             <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Tổng Mồ Hôi</div>
@@ -182,7 +178,6 @@
             </div>
 
             <!-- 3. TÀI NGUYÊN & SỰ KIỆN -->
-            <!-- Stock Market Strip -->
             <div class="stock-strip stagger-item" style="animation-delay: 0.08s; padding: 0 24px 24px;">
                 <h3 style="font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-warning);"></i> Thương Hội Hoàng Gia</h3>
                 <div id="stock-market-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;"></div>
@@ -197,7 +192,7 @@
             <div class="dashboard-grid" id="dashboard-grid"></div>
         </div>
 
-        <!-- TIMETABLE VIEW (THỜI KHÓA BIỂU) -->
+        <!-- TIMETABLE VIEW -->
         <div id="timetable-room" class="view-section" style="display: none;">
             <div class="timetable-header-controls stagger-item" style="animation-delay: 0.1s;">
                 <div class="tt-date-display">
@@ -213,9 +208,7 @@
             </div>
             
             <div class="timetable-wrapper stagger-item" style="animation-delay: 0.2s;">
-                <div class="timetable-grid" id="timetable-grid">
-                    <!-- Javascript sẽ tự động vẽ lưới và đổ dữ liệu vào đây -->
-                </div>
+                <div class="timetable-grid" id="timetable-grid"></div>
             </div>
 
             <div class="tt-legend stagger-item" style="animation-delay: 0.3s;">
@@ -227,7 +220,7 @@
             </div>
         </div>
 
-        <!-- TIMETABLE MODAL (FORM THÊM LỊCH) -->
+        <!-- TIMETABLE MODAL -->
         <div id="timetable-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
             <div class="modal-content" style="max-width: 500px; width: 100%;">
                 <div class="modal-header">
@@ -311,7 +304,7 @@
             </div>
         </div>
 
-        <!-- WIDGET 2: NGỰ ÂM CÁC (THUÊ NHẠC) -->
+        <!-- WIDGET 2: NGỰ ÂM CÁC (THUÊ NHẠC LÕI PLAYLIST) -->
         <div class="drag-widget" id="widget-music" style="top: 25%; left: 65%; width: 400px;">
             <div class="widget-header" id="widget-music-header"><i class="fa-solid fa-music" style="color: #fbbf24;"></i> Ngự Âm Các (Quán Nhạc Lofi)</div>
             <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(16px); border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
@@ -332,16 +325,15 @@
                     </div>
                     
                     <div id="music-input-area" style="display: flex; flex-direction: column; gap: 12px;">
-                        <input type="text" id="yt-link-input" placeholder="Dán link YouTube (Ví dụ: Lofi Girl...)" style="width:100%; padding:12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 12px; outline: none;">
-                        <div style="text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.5); font-weight: 700;">HOẶC TẢI TỪ MÁY</div>
-                        <input type="file" id="local-audio-input" accept="audio/mp3, audio/wav" style="width:100%; font-size: 0.85rem; color: #ccc; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
+                        <div style="text-align: center; font-size: 0.85rem; color: #fbbf24; font-weight: 800; text-transform: uppercase;">Nạp Nhạc Từ Chiến Mã Của Bệ Hạ</div>
+                        <input type="file" id="local-audio-input" accept="audio/mp3, audio/wav, audio/mpeg, audio/flac" multiple style="width:100%; font-size: 0.85rem; color: #fff; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.2);">
                         <button onclick="loadMusic()" style="background: var(--brand-focus); color: #fff; padding: 12px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; margin-top: 4px; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4);"><i class="fa-solid fa-play"></i> Gắn Đĩa Than & Phát</button>
                     </div>
 
-                    <div id="music-frame-container" style="display: none; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; border: 1px solid rgba(255,255,255,0.1);">
-                        <!-- Nơi nhúng Iframe YT hoặc Audio -->
+                    <div id="music-frame-container" style="display: none; width: 100%; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.6); padding: 16px 12px; border: 1px solid rgba(255,255,255,0.1);">
+                        <!-- Nơi nhúng Trình Phát Playlist -->
                     </div>
-                    <button id="btn-stop-music" onclick="stopMusicManually()" style="display: none; background: rgba(0,0,0,0.3); color: #fbbf24; padding: 10px; border-radius: 8px; font-weight: 800; border: 1px solid rgba(251, 191, 36, 0.5); cursor: pointer;"><i class="fa-solid fa-eject"></i> Đổi Bài Khác</button>
+                    <button id="btn-stop-music" onclick="stopMusicManually()" style="display: none; background: rgba(0,0,0,0.3); color: #fbbf24; padding: 10px; border-radius: 8px; font-weight: 800; border: 1px solid rgba(251, 191, 36, 0.5); cursor: pointer;"><i class="fa-solid fa-eject"></i> Gỡ Đĩa / Đổi Playlist Khác</button>
                 </div>
             </div>
         </div>
