@@ -3185,3 +3185,43 @@ function shutDownMusic() {
     document.getElementById('music-input-area').style.display = 'flex';
     document.getElementById('local-audio-input').value = '';
 }
+
+// =====================================================================
+// ĐẠO LUẬT 1: THIẾT KỴ BAN TRƯA (ÉP BUỘC 1H TRƯỚC 12H TRƯA)
+// =====================================================================
+function checkNoonPenalty() {
+    let now = new Date();
+    // Kiểm tra xem đã qua 12h trưa chưa
+    if (now.getHours() >= 12) {
+        let todayStr = now.toISOString().split('T')[0];
+        let penaltyApplied = localStorage.getItem('noonPenalty_' + todayStr);
+        
+        // Nếu hôm nay chưa bị phạt thì mới kiểm tra
+        if (!penaltyApplied) {
+            let logs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
+            let todayHours = logs[todayStr] || 0;
+            
+            // Nếu chưa cày đủ 1 giờ (1.0)
+            if (todayHours < 1.0) {
+                // 1. Trừ $50 Ngân khố
+                let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+                localStorage.setItem('usdBalance', Math.max(0, usd - 50));
+                
+                // 2. Trừ 0.5h vào tổng tiến độ Tuần
+                let total = parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0;
+                localStorage.setItem('saasTotalSessionsPro', Math.max(0, total - 0.5).toFixed(2));
+                
+                // Đánh dấu đã phạt hôm nay (tránh trừ lặp lại liên tục)
+                localStorage.setItem('noonPenalty_' + todayStr, 'true');
+                if(typeof syncToCloud === 'function') syncToCloud();
+                
+                alert("🚨 THÁNH CHỈ TRỪNG PHẠT! Đã quá 12h trưa mà bệ hạ chưa tu luyện đủ 1h. Ngân khố bị tịch thu $50 và Thiết quân luật tuần bị trừ 0.5h!");
+                location.reload();
+            }
+        }
+    }
+}
+
+// Chạy kiểm tra ngay khi mở web và lặp lại mỗi phút
+checkNoonPenalty();
+setInterval(checkNoonPenalty, 60000);
