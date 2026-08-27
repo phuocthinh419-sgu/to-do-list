@@ -1,16 +1,16 @@
 /* ==========================================================================
-   FOCUS ROOM V4: ULTIMATE RESPONSIVE (PC & MOBILE)
+   FOCUS ROOM V5: ĐẠI PHÁT ĐỘNG (SẠCH SẼ & TƯƠNG THÍCH MỌI THIẾT BỊ)
    ========================================================================== */
 
-/* 1. Khu Vực Tập Trung: Dàn trận tự động co giãn */
+/* 1. Nền móng vững chắc, lấp kín màn hình, tuyệt đối không xuyên thấu */
 #focus-room {
     display: none; 
     position: fixed !important;
     inset: 0 !important;
-    background: var(--bg-base) !important;
+    background: var(--bg-base) !important; /* Đổ nền đặc, che khuất vạn vật phía sau */
     z-index: 9999 !important;
     
-    /* Trận pháp dàn ngang, thiếu chỗ sẽ tự rớt dòng */
+    /* Trận pháp chia đôi màn hình trên PC */
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
@@ -23,14 +23,14 @@
     -webkit-overflow-scrolling: touch; 
 }
 
-/* 2. Thanh Điều Hướng (Nút Rút lui): Chiếm trọn hàng trên cùng */
+/* 2. Thanh Điều Hướng (Nút Rút lui & Tên Mục tiêu) chiếm trọn hàng trên cùng */
 .focus-nav {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
     max-width: 1200px !important;
-    flex: 0 0 100% !important; /* Ép thanh này phải chiếm hết chiều ngang */
+    flex: 0 0 100% !important;
     margin: 0 auto !important;
     z-index: 1001 !important;
 }
@@ -42,34 +42,39 @@
 }
 .btn-back:hover { transform: translateX(-4px); background: var(--bg-hover); }
 
-/* 3. Phá vỡ phong ấn, triệu hồi 2 Widget xếp song song trên PC */
+#focus-target-info {
+    background: var(--bg-panel); color: var(--text-main); font-weight: 800;
+    padding: 10px 24px; border-radius: 100px; border: 1px solid var(--border);
+    box-shadow: var(--depth-shadow); font-size: 0.9rem;
+}
+
+/* 3. Khối Widget Chính (Bộ Chỉ Huy & Ngự Âm Các) */
 #widget-timer, #widget-music {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     transform: none !important;
     
-    /* Tự động chia đôi màn hình trên PC */
+    /* Tự động chia đều không gian, dàn ngang trên PC */
     flex: 1 1 400px !important; 
     max-width: 550px !important; 
     margin: 0 !important;
     
-    /* Phá lỗi tàng hình của thẻ nhạc */
     display: flex !important; 
     flex-direction: column !important;
     
-    background: var(--bg-panel);
-    box-shadow: var(--depth-shadow);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    overflow: hidden;
+    background: var(--bg-panel) !important;
+    box-shadow: var(--depth-shadow) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 24px !important;
+    overflow: hidden !important;
     z-index: 10 !important;
 }
 
 /* Định dạng thanh Tiêu đề của từng Widget */
 .widget-header {
     padding: 16px 24px;
-    cursor: default !important; /* Xóa hẳn con trỏ kéo thả */
+    cursor: default !important; /* Xóa biểu tượng kéo thả */
     background: var(--bg-hover);
     color: var(--text-main);
     font-weight: 800;
@@ -83,8 +88,16 @@
     user-select: none;
 }
 
-/* Nội dung của khu vực tập trung */
-.focus-content { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 24px; width: 100%; }
+/* 4. Triệt tiêu hoàn toàn lỗi "Hộp lồng Hộp" (Xóa nền thừa, viền thừa bên trong) */
+.focus-content { 
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+    padding: 40px 24px; width: 100%; 
+    background: transparent !important; 
+    border: none !important;            
+    box-shadow: none !important;        
+}
+
+/* 5. Nội dung chi tiết bên trong Bộ Chỉ Huy */
 .focus-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-focus); padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; animation: levitate 4s infinite; text-align: center; }
 .timer-huge { font-size: 8.5rem; font-weight: 800; color: var(--text-main); text-shadow: var(--depth-glow); line-height: 1; margin-bottom: 40px; font-variant-numeric: tabular-nums; letter-spacing: -4px;}
 .timer-controls { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; }
@@ -104,16 +117,14 @@
     #focus-room {
         padding: 24px 16px 40px 16px !important;
         gap: 20px !important;
-        flex-direction: column !important; /* Điện thoại ép thành 1 cột */
+        flex-direction: column !important; /* Khi lên điện thoại, tự động ép thành 1 cột */
         flex-wrap: nowrap !important;
     }
-    .focus-nav {
-        margin-bottom: 8px !important;
-    }
+    .focus-nav { margin-bottom: 8px !important; }
     #widget-timer, #widget-music {
         flex: 1 1 auto !important; 
         width: 100% !important;
-        max-width: 100% !important; /* Phóng to hết cỡ bề ngang đt */
+        max-width: 100% !important; 
     }
     .timer-huge { font-size: 22vw !important; margin-bottom: 24px !important; }
     .btn-timer { max-width: none !important; }
