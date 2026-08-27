@@ -1,5 +1,5 @@
 /* ==========================================================================
-   THE APEX: IMPERIAL COMMAND CENTER - ULTIMATE CSS (PRISTINE V6)
+   THE APEX: IMPERIAL COMMAND CENTER - ULTIMATE CSS (V6 PERFECT EDITION)
    ========================================================================== */
 
 /* 1. HỆ THỐNG BIẾN SỐ CỐT LÕI */
@@ -98,7 +98,7 @@ body {
 .view-section { display: none; animation: fadeIn 0.3s ease; }
 #view-dashboard { display: block; }
 
-/* 4. KHUNG KÍNH CAO CẤP */
+/* 4. KHUNG KÍNH CAO CẤP (GLASSMORPHISM & LAYER) */
 .rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card, .kpi-card, .timeline-item {
     background: var(--bg-panel);
     backdrop-filter: blur(var(--bg-panel-blur)); -webkit-backdrop-filter: blur(var(--bg-panel-blur));
@@ -118,7 +118,7 @@ body {
     background: var(--bg-hover);
 }
 
-/* 5. SIDEBAR & MENU */
+/* 5. SIDEBAR & ĐÓNG MỞ */
 .sidebar { 
     width: var(--sidebar-width); 
     background: rgba(0,0,0,0.1); 
@@ -353,20 +353,19 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 10000; display: none; }
 
+
 /* ==========================================================================
    12. KHU VỰC TẬP TRUNG (FOCUS ROOM V6 - BẢN THÁNH CHỈ HOÀN MỸ)
    ========================================================================== */
 
 /* Trạng thái Ẩn mặc định, Căn phòng dàn trận sẵn để đón 2 Widget */
 #focus-room {
-    display: none; 
+    /* ĐẶC BIỆT LƯU Ý: Tuyệt đối không thêm display: flex !important ở đây để tránh lỗi tự động hiện */
     position: fixed !important;
     inset: 0 !important;
     background: var(--bg-base) !important;
     z-index: 9999 !important;
     
-    /* Giao toàn quyền dàn hàng ngang cho căn phòng chính */
-    display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
@@ -375,6 +374,10 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
     padding: 40px 32px 80px 32px !important; 
     overflow-y: auto !important; 
     -webkit-overflow-scrolling: touch; 
+}
+
+#focus-overlay {
+    z-index: 0 !important; 
 }
 
 /* Thanh Điều Hướng ép lên hàng trên cùng, chiếm 100% chiều ngang */
@@ -403,15 +406,6 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
     box-shadow: var(--depth-shadow); font-size: 0.9rem;
 }
 
-/* 
-   TÀNG HÌNH KHỐI TRUNG GIAN GÂY LỖI:
-   Nếu HTML của ngài có chứa khối .focus-content bọc 2 widget, 
-   lệnh này sẽ khiến nó hoàn toàn tàng hình, nhường quyền dàn hàng lại cho #focus-room
-*/
-.focus-content { 
-    display: contents !important; 
-}
-
 /* Định dạng 2 Widget Bộ Chỉ Huy và Âm Nhạc */
 #widget-timer, #widget-music {
     position: relative !important;
@@ -429,9 +423,9 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
     display: flex !important; 
     flex-direction: column !important;
     
-    background: var(--bg-panel) !important;
+    background: transparent !important;
     box-shadow: var(--depth-shadow) !important;
-    border: 1px solid var(--border) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
     border-radius: 24px !important;
     overflow: hidden !important;
     z-index: 10 !important;
@@ -440,30 +434,42 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
 .widget-header {
     padding: 16px 24px;
     cursor: default !important; /* Triệt tiêu con trỏ kéo thả */
-    background: var(--bg-hover);
-    color: var(--text-main);
+    background: rgba(0,0,0,0.7);
+    color: #fff;
     font-weight: 800;
     font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
     display: flex;
     align-items: center;
     gap: 8px;
     user-select: none;
 }
 
-.focus-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-focus); padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 32px auto 32px auto; animation: levitate 4s infinite; text-align: center; }
-.timer-huge { font-size: 8.5rem; font-weight: 800; color: var(--text-main); text-shadow: var(--depth-glow); line-height: 1; margin: 0 auto 40px auto; font-variant-numeric: tabular-nums; letter-spacing: -4px; text-align: center;}
+/* Lớp kính mờ thân Widget */
+.widget-body {
+    padding: 32px 24px;
+    background: rgba(15, 23, 42, 0.85); /* Nền kính mờ tối màu chống chói */
+    backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1; 
+    width: 100%;
+}
+
+.focus-badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--brand-focus); padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; animation: levitate 4s infinite; text-align: center; }
+.timer-huge { font-size: 8.5rem; font-weight: 800; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); line-height: 1; margin: 0 auto 40px auto; font-variant-numeric: tabular-nums; letter-spacing: -4px; text-align: center;}
 .timer-controls { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 24px; }
-.btn-timer { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 16px 24px; border-radius: 100px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%; max-width: 220px; }
+.btn-timer { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 16px 24px; border-radius: 100px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%; max-width: 220px; }
 .btn-timer:hover { transform: translateY(-4px); border-color: var(--brand-dash); box-shadow: var(--depth-shadow); }
 
 #btn-pause { border-color: var(--brand-trophy); color: var(--brand-trophy); display: none; background: transparent; } #btn-pause:hover { background: var(--brand-trophy); color: #fff; }
 #btn-cancel { border-color: var(--brand-warning); color: var(--brand-warning); display: none; background: transparent; } #btn-cancel:hover { background: var(--brand-warning); color: #fff; }
 #btn-tick { border-color: var(--brand-dash); color: var(--brand-dash); background: transparent; } #btn-tick:hover { background: var(--brand-dash); color: #fff; }
 
-.status-box { margin: 32px 24px; padding: 14px 24px; background: var(--bg-hover); border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-main); font-size: 0.95rem; font-weight: 600; border: 1px solid var(--border); text-align: center; line-height: 1.4;}
+.status-box { margin: 32px 24px; padding: 14px 24px; background: rgba(0,0,0,0.5); border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #ccc; font-size: 0.95rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); text-align: center; line-height: 1.4;}
 
 /* TRẠNG THÁI NGHỈ / PHẠT TRONG FOCUS ROOM */
 body.break-mode #focus-room { background: var(--bg-base) !important; }
