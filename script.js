@@ -218,7 +218,7 @@ async function syncToCloud() {
     try {
         const dataToSync = {
             goals: JSON.parse(localStorage.getItem('saasGoalsPro')) || [],
-            totalSessions: parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0,
+            totalSessions: parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0,
             countdowns: JSON.parse(localStorage.getItem('saasCountdownsPro')) || [],
             dailyLogs: JSON.parse(localStorage.getItem('saasDailyLogs')) || {},
             streak: parseInt(localStorage.getItem('saasStreak')) || 0,
@@ -246,51 +246,50 @@ async function syncToCloud() {
     isSyncing = false;
 }
 
-async function pullFromCloud() {
+function pullFromCloud() {
     if (!currentUser) return;
     try {
-        const docRef = await db.collection("academic_apex").doc(USER_DOC_ID).get();
-        if (docRef.exists) {
-            const cloudData = docRef.data();
-            const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
-            if (cloudData.lastUpdated > localUpdated) {
+        // THAY VÌ .get(), DÙNG .onSnapshot() ĐỂ LẮNG NGHE REAL-TIME
+        db.collection("academic_apex").doc(USER_DOC_ID).onSnapshot((docRef) => {
+            if (docRef.exists) {
+                const cloudData = docRef.data();
+                const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
                 
-                // 🛡️ BẢO VỆ TỐI THƯỢNG: Đang cày ải thì tuyệt đối không F5
-                if (isSessionActive || isBreakActive || isGracePeriod) {
-                    console.log("☁️ Mây có dữ liệu mới, nhưng đang cày ải. Chặn đứng lệnh F5!");
-                    return; 
+                if (cloudData.lastUpdated > localUpdated) {
+                    // Đang cày ải thì hoãn cập nhật để tránh crash
+                    if (isSessionActive || isBreakActive || isGracePeriod) {
+                        console.log("☁️ Mây có dữ liệu mới, nhưng đang cày ải. Tạm hoãn đồng bộ!");
+                        return; 
+                    }
+
+                    console.log("☁️ Đồng bộ thời gian thực từ Thiên Đình...");
+                    localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals));
+                    localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions);
+                    localStorage.setItem('saasCountdownsPro', JSON.stringify(cloudData.countdowns));
+                    localStorage.setItem('saasDailyLogs', JSON.stringify(cloudData.dailyLogs));
+                    localStorage.setItem('saasStreak', cloudData.streak);
+                    localStorage.setItem('saasLastActive', cloudData.lastActive);
+                    localStorage.setItem('saasS25', cloudData.s25);
+                    localStorage.setItem('saasS15', cloudData.s15);
+                    localStorage.setItem('saasCycleStart', cloudData.cycleStart);
+                    localStorage.setItem('usdBalance', cloudData.usdBalance);
+                    localStorage.setItem('userPortfolio', JSON.stringify(cloudData.userPortfolio));
+                    localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices));
+                    localStorage.setItem('saasLastRest', cloudData.lastRestDate);
+                    localStorage.setItem('ach_comeback', cloudData.achComeback);
+                    if (cloudData.timetable) localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable));
+
+                    localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
+                    
+                    // Cập nhật lại giao diện ngay tức khắc mà không cần tải lại trang
+                    checkCycleAndStreak();
+                    if (document.getElementById('view-dashboard').style.display !== 'none') {
+                        renderKPI(); renderDashboard(); renderGamification();
+                    }
                 }
-
-                console.log("☁️ Phát hiện dữ liệu mới. Đang nạp...");
-                localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals));
-                localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions);
-                localStorage.setItem('saasCountdownsPro', JSON.stringify(cloudData.countdowns));
-                localStorage.setItem('saasDailyLogs', JSON.stringify(cloudData.dailyLogs));
-                localStorage.setItem('saasStreak', cloudData.streak);
-                localStorage.setItem('saasLastActive', cloudData.lastActive);
-                localStorage.setItem('saasS25', cloudData.s25);
-                localStorage.setItem('saasS15', cloudData.s15);
-                localStorage.setItem('saasCycleStart', cloudData.cycleStart);
-                localStorage.setItem('usdBalance', cloudData.usdBalance);
-                localStorage.setItem('userPortfolio', JSON.stringify(cloudData.userPortfolio));
-                localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices));
-                localStorage.setItem('saasLastRest', cloudData.lastRestDate);
-                localStorage.setItem('ach_comeback', cloudData.achComeback);
-                
-                if (cloudData.timetable) localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable));
-
-                localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
-                alert("☁️ Dữ liệu từ thiết bị khác đã được đồng bộ xuống án thư này!");
-                location.reload();
-                return;
             }
-        }
+        });
     } catch (e) { console.error("Lỗi tải dữ liệu Cloud:", e); }
-    
-    checkCycleAndStreak();
-    if (document.getElementById('view-dashboard').style.display !== 'none') {
-        renderKPI(); renderDashboard(); renderGamification();
-    }
 }
 
 // =====================================================================
@@ -2876,7 +2875,7 @@ initializeImperialEconomy();
 randomDailyMarketFluctuation();
 updateUsdDisplay();
 
-autoHealDiscrepancy();
+autoHealDiscrepancy();//
 renderCountdowns(); 
 countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
 switchTab('dashboard'); 
