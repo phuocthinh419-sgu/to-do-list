@@ -1,5 +1,5 @@
 /* ==========================================================================
-   THE APEX: IMPERIAL COMMAND CENTER - ULTIMATE CSS (CLEAN V5)
+   THE APEX: IMPERIAL COMMAND CENTER - ULTIMATE CSS (PRISTINE EDITION)
    ========================================================================== */
 
 /* 1. HỆ THỐNG BIẾN SỐ CỐT LÕI */
@@ -118,7 +118,7 @@ body {
     background: var(--bg-hover);
 }
 
-/* 5. SIDEBAR & ĐÓNG MỞ (TOGGLE FIX) */
+/* 5. SIDEBAR & ĐÓNG MỞ */
 .sidebar { 
     width: var(--sidebar-width); 
     background: rgba(0,0,0,0.1); 
@@ -176,7 +176,7 @@ body {
 .btn-primary { background: linear-gradient(135deg, var(--brand-dash) 0%, rgba(255,255,255,0.1) 100%); color: #fff; border-color: var(--brand-dash); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
 
-/* 7. PHÂN CẤP THỊ GIÁC: LEVEL 1, 2, 3 */
+/* 7. DASHBOARD COMPONENTS */
 .kpi-card { 
     padding: 24px; margin-bottom: 24px; 
     background: linear-gradient(180deg, var(--bg-hover) 0%, var(--bg-panel) 100%);
@@ -219,7 +219,7 @@ body {
 #stock-market-container div div:nth-child(1) { color: var(--text-muted); font-size: 0.8rem; }
 #stock-market-container div div:nth-child(2) { color: var(--brand-trophy); font-size: 1.2rem; font-weight: 800; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
 
-/* DASHBOARD GRIDS */
+/* 8. ACTIVE GOALS & COUNTDOWNS */
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding-bottom: 40px; }
 .goal-card { padding: 20px 24px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
 .progress-circle { width: 64px; height: 64px; position: relative; flex-shrink: 0; }
@@ -242,7 +242,7 @@ body {
 .t-val { font-size: 1.4rem; color: var(--text-main); font-weight: 800; text-shadow: var(--depth-glow); line-height: 1; }
 .t-lbl { font-size: 0.65rem; color: var(--brand-dash); text-transform: uppercase; font-weight: 700; margin-top: 4px; display: block;}
 
-/* ANALYTICS & TROPHY ROOM */
+/* 9. ANALYTICS & TROPHY ROOM */
 #analytics-room, #trophy-room, #trophy-detail { padding: 0 0 40px 0; }
 .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
 .analytics-card { padding: 24px; }
@@ -260,9 +260,7 @@ body {
 .stat-bar { height: 10px; background: var(--bg-hover); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
 .stat-fill { height: 100%; background: var(--brand-focus); border-radius: 10px; transition: width 1s ease; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
 
-/* ==========================================================================
-   MÀU SẮC THỜI KHÓA BIỂU & BĂNG RÔN
-   ========================================================================== */
+/* 10. THỜI KHÓA BIỂU & RECOMMENDATIONS */
 .timetable-header-controls { display: flex; justify-content: space-between; align-items: center; background: var(--bg-hover); padding: 16px 24px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
 .tt-btn-group { display: flex; gap: 8px; }
 .tt-btn { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
@@ -302,30 +300,22 @@ body {
 .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
 .legend-box { width: 32px; height: 16px; border-radius: 4px; }
 
-/* ACADEMIC ENGINE RECOMMENDATIONS */
+/* Recommendations */
 .recom-card { background: var(--bg-panel); border: 1px dashed var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02);}
 .recom-card:hover { border-style: solid; border-color: var(--brand-dash); box-shadow: var(--depth-shadow); transform: translateY(-3px); }
-
 .recom-badge { font-size: 0.7rem; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; width: fit-content; letter-spacing: 1px;}
 .recom-badge.review { background: rgba(14, 165, 233, 0.15); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3); }
 .recom-badge.prepare { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
-
 .recom-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;}
 .recom-meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; line-height: 1.5;}
-
 .btn-accept-recom { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border); padding: 10px 0; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s; text-align: center; margin-top: auto;}
 .btn-accept-recom:hover { background: var(--brand-focus); color: #fff; border-color: var(--brand-focus); box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3); }
 
+/* 11. LOGIN & MODALS CƠ BẢN */
 #login-overlay { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: var(--bg-main, #0f172a) !important; z-index: 99999 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #login-overlay h2 { font-size: 2.5rem; color: var(--text-main, #ffffff); margin-bottom: 10px; letter-spacing: 2px; }
 #login-overlay p { color: var(--text-muted, #94a3b8); font-size: 1rem; margin-bottom: 30px; }
 
-.timeline-item { background: var(--bg-hover); border: 1px solid var(--border); border-left: 4px solid var(--brand-trophy); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.timeline-item:hover { transform: translateX(4px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); background: var(--bg-panel); }
-.tl-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 700; flex-wrap: wrap; gap: 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
-.tl-content { font-size: 0.95rem; color: var(--text-main); line-height: 1.6; word-break: break-word; }
-
-/* MODALS & POPUPS CƠ BẢN */
 #report-modal, #shame-modal, #trade-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px; }
 .modal-content, .shame-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 24px; padding: 40px; width: 100%; max-width: 600px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); animation: fadeIn 0.3s ease-out; backdrop-filter: blur(var(--bg-panel-blur)); }
 .modal-header h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); letter-spacing: -0.5px; }
@@ -351,35 +341,31 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
 .btn-shame-alt:hover { background: var(--bg-hover); border-color: var(--text-muted); }
 .btn-shame { background: var(--brand-warning); color: #fff; border: none; box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3); font-weight: 800;}
 
-/* ANIMATIONS CƠ BẢN */
+.timeline-item { background: var(--bg-hover); border: 1px solid var(--border); border-left: 4px solid var(--brand-trophy); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.timeline-item:hover { transform: translateX(4px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); background: var(--bg-panel); }
+.tl-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 700; flex-wrap: wrap; gap: 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
+.tl-content { font-size: 0.95rem; color: var(--text-main); line-height: 1.6; word-break: break-word; }
+
+/* ANIMATIONS */
 @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .stagger-item { animation: slideUpFade 0.4s ease forwards; opacity: 0; }
 @keyframes levitate { 0% { transform: translateY(0); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 10000; display: none; }
 
-/* TRẠNG THÁI NGHỈ / PHẠT TRONG FOCUS ROOM */
-body.break-mode #focus-room { background: var(--bg-base) !important; }
-body.break-mode .timer-huge { color: var(--brand-break); text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
-body.break-mode .focus-badge { background: rgba(5, 150, 105, 0.1); color: var(--brand-break); border-color: rgba(5, 150, 105, 0.3); }
-body.break-mode .status-box i { color: var(--brand-break); }
-body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px rgba(234, 88, 12, 0.5); }
-
 
 /* ==========================================================================
-   FOCUS ROOM V5: ĐẠI PHÁT ĐỘNG (SẠCH SẼ & TƯƠNG THÍCH MỌI THIẾT BỊ)
+   12. KHU VỰC TẬP TRUNG (FOCUS ROOM V5 - HOÀN MỸ)
    ========================================================================== */
 
-/* 1. Nền móng vững chắc, lấp kín màn hình, tuyệt đối không xuyên thấu */
+/* Trạng thái Ẩn mặc định, Không ghi đè !important lên lệnh ẩn */
 #focus-room {
     display: none; 
     position: fixed !important;
     inset: 0 !important;
-    background: var(--bg-base) !important; /* Đổ nền đặc, che khuất vạn vật phía sau */
+    background: var(--bg-base) !important;
     z-index: 9999 !important;
     
-    /* Trận pháp chia đôi màn hình trên PC */
-    display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
@@ -391,7 +377,6 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     -webkit-overflow-scrolling: touch; 
 }
 
-/* 2. Thanh Điều Hướng (Nút Rút lui & Tên Mục tiêu) chiếm trọn hàng trên cùng */
 .focus-nav {
     display: flex !important;
     justify-content: space-between !important;
@@ -409,14 +394,12 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     box-shadow: var(--depth-shadow); font-size: 0.9rem;
 }
 
-/* 3. Khối Widget Chính (Bộ Chỉ Huy & Ngự Âm Các) */
 #widget-timer, #widget-music {
     position: relative !important;
     top: auto !important;
     left: auto !important;
     transform: none !important;
     
-    /* Tự động chia đều không gian, dàn ngang trên PC */
     flex: 1 1 400px !important; 
     max-width: 550px !important; 
     margin: 0 !important;
@@ -432,10 +415,9 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     z-index: 10 !important;
 }
 
-/* Định dạng thanh Tiêu đề của từng Widget */
 .widget-header {
     padding: 16px 24px;
-    cursor: default !important; /* Xóa biểu tượng kéo thả */
+    cursor: default !important; 
     background: var(--bg-hover);
     color: var(--text-main);
     font-weight: 800;
@@ -449,7 +431,6 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     user-select: none;
 }
 
-/* 4. Triệt tiêu hoàn toàn lỗi "Hộp lồng Hộp" (Xóa nền thừa, viền thừa bên trong) */
 .focus-content { 
     display: flex; flex-direction: column; justify-content: center; align-items: center; 
     padding: 40px 24px; width: 100%; 
@@ -458,7 +439,6 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     box-shadow: none !important;        
 }
 
-/* 5. Nội dung chi tiết bên trong Bộ Chỉ Huy */
 .focus-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-focus); padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; animation: levitate 4s infinite; text-align: center; }
 .timer-huge { font-size: 8.5rem; font-weight: 800; color: var(--text-main); text-shadow: var(--depth-glow); line-height: 1; margin-bottom: 40px; font-variant-numeric: tabular-nums; letter-spacing: -4px;}
 .timer-controls { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; }
@@ -471,8 +451,16 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
 
 .status-box { margin-top: 32px; padding: 14px 24px; background: var(--bg-hover); border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-main); font-size: 0.95rem; font-weight: 600; border: 1px solid var(--border); width: 100%; text-align: center; line-height: 1.4;}
 
+/* TRẠNG THÁI NGHỈ / PHẠT TRONG FOCUS ROOM */
+body.break-mode #focus-room { background: var(--bg-base) !important; }
+body.break-mode .timer-huge { color: var(--brand-break); text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+body.break-mode .focus-badge { background: rgba(5, 150, 105, 0.1); color: var(--brand-break); border-color: rgba(5, 150, 105, 0.3); }
+body.break-mode .status-box i { color: var(--brand-break); }
+body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px rgba(234, 88, 12, 0.5); }
+
+
 /* ==========================================================================
-   TỐI ƯU CỰC ĐỘ CHO ĐIỆN THOẠI (DƯỚI 1024PX)
+   13. TỐI ƯU CỰC ĐỘ CHO ĐIỆN THOẠI (MOBILE RESPONSIVE)
    ========================================================================== */
 @media (max-width: 1024px) {
     .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; margin-left: 0 !important; max-width: 85vw; background: var(--bg-panel); box-shadow: 10px 0 40px rgba(0,0,0,0.5); transition: left 0.3s ease !important; z-index: 110; }
@@ -493,11 +481,11 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     .modal-footer { flex-direction: column; gap: 10px; margin-top: 20px; }
     .btn-ghost, .btn-submit, .btn-shame, .btn-shame-alt { width: 100%; padding: 14px; font-size: 0.95rem; }
 
-    /* TỐI ƯU RIÊNG CHO FOCUS ROOM TRÊN MOBILE */
+    /* Focus Room tự động ép dọc trên điện thoại */
     #focus-room {
         padding: 24px 16px 40px 16px !important;
         gap: 20px !important;
-        flex-direction: column !important; /* Khi lên điện thoại, tự động ép thành 1 cột */
+        flex-direction: column !important; 
         flex-wrap: nowrap !important;
     }
     .focus-nav { margin-bottom: 8px !important; }
