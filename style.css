@@ -1,5 +1,5 @@
 /* ==========================================================================
-   THE APEX: IMPERIAL COMMAND CENTER - ULTIMATE CSS (PRISTINE EDITION)
+   THE APEX: IMPERIAL COMMAND CENTER - ULTIMATE CSS (PRISTINE V6)
    ========================================================================== */
 
 /* 1. HỆ THỐNG BIẾN SỐ CỐT LÕI */
@@ -98,7 +98,7 @@ body {
 .view-section { display: none; animation: fadeIn 0.3s ease; }
 #view-dashboard { display: block; }
 
-/* 4. KHUNG KÍNH CAO CẤP (GLASSMORPHISM & LAYER) */
+/* 4. KHUNG KÍNH CAO CẤP */
 .rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card, .kpi-card, .timeline-item {
     background: var(--bg-panel);
     backdrop-filter: blur(var(--bg-panel-blur)); -webkit-backdrop-filter: blur(var(--bg-panel-blur));
@@ -118,7 +118,7 @@ body {
     background: var(--bg-hover);
 }
 
-/* 5. SIDEBAR & ĐÓNG MỞ */
+/* 5. SIDEBAR & MENU */
 .sidebar { 
     width: var(--sidebar-width); 
     background: rgba(0,0,0,0.1); 
@@ -353,12 +353,11 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 10000; display: none; }
 
-
 /* ==========================================================================
-   12. KHU VỰC TẬP TRUNG (FOCUS ROOM V5 - HOÀN MỸ)
+   12. KHU VỰC TẬP TRUNG (FOCUS ROOM V6 - BẢN THÁNH CHỈ HOÀN MỸ)
    ========================================================================== */
 
-/* Trạng thái Ẩn mặc định, Không ghi đè !important lên lệnh ẩn */
+/* Trạng thái Ẩn mặc định, Căn phòng dàn trận sẵn để đón 2 Widget */
 #focus-room {
     display: none; 
     position: fixed !important;
@@ -366,25 +365,35 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
     background: var(--bg-base) !important;
     z-index: 9999 !important;
     
+    /* Giao toàn quyền dàn hàng ngang cho căn phòng chính */
+    display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
     align-content: flex-start !important;
-    gap: 32px !important;
     
     padding: 40px 32px 80px 32px !important; 
     overflow-y: auto !important; 
     -webkit-overflow-scrolling: touch; 
 }
 
+/* Thanh Điều Hướng ép lên hàng trên cùng, chiếm 100% chiều ngang */
 .focus-nav {
+    position: relative !important;
+    top: auto !important; 
+    left: auto !important; 
+    transform: none !important;
+    
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+    
     width: 100% !important;
     max-width: 1200px !important;
-    flex: 0 0 100% !important;
-    margin: 0 auto !important;
+    flex: 0 0 100% !important; /* Mấu chốt: Cấm bất cứ ai đứng chung hàng */
+    
+    margin: 0 auto 40px auto !important; /* Vách ngăn vô hình đẩy 2 widget xuống dưới 40px */
+    padding-bottom: 16px !important;
     z-index: 1001 !important;
 }
 
@@ -394,15 +403,28 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
     box-shadow: var(--depth-shadow); font-size: 0.9rem;
 }
 
+/* 
+   TÀNG HÌNH KHỐI TRUNG GIAN GÂY LỖI:
+   Nếu HTML của ngài có chứa khối .focus-content bọc 2 widget, 
+   lệnh này sẽ khiến nó hoàn toàn tàng hình, nhường quyền dàn hàng lại cho #focus-room
+*/
+.focus-content { 
+    display: contents !important; 
+}
+
+/* Định dạng 2 Widget Bộ Chỉ Huy và Âm Nhạc */
 #widget-timer, #widget-music {
     position: relative !important;
-    top: auto !important;
-    left: auto !important;
+    top: auto !important; 
+    left: auto !important; 
+    bottom: auto !important; 
+    right: auto !important;
     transform: none !important;
     
+    /* 2 Khối tự động chia đôi không gian màn hình PC */
     flex: 1 1 400px !important; 
     max-width: 550px !important; 
-    margin: 0 !important;
+    margin: 0 16px 32px 16px !important;
     
     display: flex !important; 
     flex-direction: column !important;
@@ -417,7 +439,7 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
 
 .widget-header {
     padding: 16px 24px;
-    cursor: default !important; 
+    cursor: default !important; /* Triệt tiêu con trỏ kéo thả */
     background: var(--bg-hover);
     color: var(--text-main);
     font-weight: 800;
@@ -431,17 +453,9 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
     user-select: none;
 }
 
-.focus-content { 
-    display: flex; flex-direction: column; justify-content: center; align-items: center; 
-    padding: 40px 24px; width: 100%; 
-    background: transparent !important; 
-    border: none !important;            
-    box-shadow: none !important;        
-}
-
-.focus-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-focus); padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; animation: levitate 4s infinite; text-align: center; }
-.timer-huge { font-size: 8.5rem; font-weight: 800; color: var(--text-main); text-shadow: var(--depth-glow); line-height: 1; margin-bottom: 40px; font-variant-numeric: tabular-nums; letter-spacing: -4px;}
-.timer-controls { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.focus-badge { background: rgba(0,0,0,0.05); border: 1px solid var(--border); color: var(--brand-focus); padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 32px auto 32px auto; animation: levitate 4s infinite; text-align: center; }
+.timer-huge { font-size: 8.5rem; font-weight: 800; color: var(--text-main); text-shadow: var(--depth-glow); line-height: 1; margin: 0 auto 40px auto; font-variant-numeric: tabular-nums; letter-spacing: -4px; text-align: center;}
+.timer-controls { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 24px; }
 .btn-timer { background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); padding: 16px 24px; border-radius: 100px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%; max-width: 220px; }
 .btn-timer:hover { transform: translateY(-4px); border-color: var(--brand-dash); box-shadow: var(--depth-shadow); }
 
@@ -449,7 +463,7 @@ textarea:focus { outline: none; border-color: var(--brand-focus); box-shadow: 0 
 #btn-cancel { border-color: var(--brand-warning); color: var(--brand-warning); display: none; background: transparent; } #btn-cancel:hover { background: var(--brand-warning); color: #fff; }
 #btn-tick { border-color: var(--brand-dash); color: var(--brand-dash); background: transparent; } #btn-tick:hover { background: var(--brand-dash); color: #fff; }
 
-.status-box { margin-top: 32px; padding: 14px 24px; background: var(--bg-hover); border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-main); font-size: 0.95rem; font-weight: 600; border: 1px solid var(--border); width: 100%; text-align: center; line-height: 1.4;}
+.status-box { margin: 32px 24px; padding: 14px 24px; background: var(--bg-hover); border-radius: 100px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-main); font-size: 0.95rem; font-weight: 600; border: 1px solid var(--border); text-align: center; line-height: 1.4;}
 
 /* TRẠNG THÁI NGHỈ / PHẠT TRONG FOCUS ROOM */
 body.break-mode #focus-room { background: var(--bg-base) !important; }
@@ -457,7 +471,6 @@ body.break-mode .timer-huge { color: var(--brand-break); text-shadow: 0 0 20px r
 body.break-mode .focus-badge { background: rgba(5, 150, 105, 0.1); color: var(--brand-break); border-color: rgba(5, 150, 105, 0.3); }
 body.break-mode .status-box i { color: var(--brand-break); }
 body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px rgba(234, 88, 12, 0.5); }
-
 
 /* ==========================================================================
    13. TỐI ƯU CỰC ĐỘ CHO ĐIỆN THOẠI (MOBILE RESPONSIVE)
@@ -484,79 +497,21 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     /* Focus Room tự động ép dọc trên điện thoại */
     #focus-room {
         padding: 24px 16px 40px 16px !important;
-        gap: 20px !important;
         flex-direction: column !important; 
         flex-wrap: nowrap !important;
+        align-items: center !important;
     }
-    .focus-nav { margin-bottom: 8px !important; }
+    .focus-nav { 
+        flex: 0 0 auto !important;
+        margin-bottom: 24px !important; 
+        padding-bottom: 10px !important;
+    }
     #widget-timer, #widget-music {
-        flex: 1 1 auto !important; 
+        flex: 0 0 auto !important; 
         width: 100% !important;
         max-width: 100% !important; 
+        margin: 0 0 24px 0 !important;
     }
     .timer-huge { font-size: 22vw !important; margin-bottom: 24px !important; }
     .btn-timer { max-width: none !important; }
-}
-
-/* ==========================================================================
-   VÁ LỖI ĐÈ NÚT TRONG FOCUS ROOM
-   ========================================================================== */
-.focus-nav {
-    position: relative !important; 
-    width: 100% !important;
-    flex: 0 0 100% !important; /* Ép độc chiếm toàn bộ chiều ngang hàng trên cùng */
-    margin: 0 0 40px 0 !important; /* Đẩy Bộ Chỉ Huy ra xa 40px, cấm đè lên nhau */
-    padding-bottom: 20px !important;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important; /* Kẻ một đường ranh giới mờ */
-    z-index: 1005 !important;
-}
-
-#widget-timer, #widget-music {
-    position: relative !important;
-    margin-top: 0 !important; /* Cấm khối bên dưới tự ý trồi lên trên */
-}
-
-/* ==========================================================================
-   THÁNH CHỈ CUỐI CÙNG: ÉP KHUNG TẬP TRUNG THEO ĐÚNG TRẬT TỰ
-   ========================================================================== */
-
-/* 1. Ép căn phòng thành Cột Dọc (Trên: Điều hướng, Dưới: 2 Widget) */
-#focus-room {
-    flex-direction: column !important; 
-    justify-content: flex-start !important;
-    align-items: center !important;
-    padding: 40px 32px 80px 32px !important; 
-}
-
-/* 2. Thanh điều hướng khóa chặt trên cùng, bung khoảng cách đẩy mọi thứ xuống */
-.focus-nav {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 1200px !important;
-    margin: 0 auto 40px auto !important; /* Tạo vách ngăn 40px tàng hình ở dưới */
-    flex: 0 0 auto !important; 
-}
-
-/* 3. Khối chứa 2 Widget sẽ được dàn hàng ngang ở dưới */
-.focus-content {
-    display: flex !important;
-    flex-direction: row !important; /* Ép 2 khối nằm ngang */
-    flex-wrap: wrap !important;     /* Hết chỗ tự động xuống dòng */
-    justify-content: center !important;
-    align-items: flex-start !important;
-    gap: 32px !important;
-    width: 100% !important;
-    max-width: 1200px !important;
-    padding: 0 !important;          /* Xóa padding thừa để không bị lệch */
-}
-
-/* 4. Khóa vĩnh viễn vị trí 2 Widget, cấm bay lơ lửng */
-#widget-timer, #widget-music {
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    transform: none !important;
-    margin: 0 !important;
-    flex: 1 1 400px !important;     /* Tự động chia đôi diện tích */
-    max-width: 550px !important; 
 }
