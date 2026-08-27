@@ -497,3 +497,21 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     .timer-huge { font-size: 22vw !important; margin-bottom: 24px !important; }
     .btn-timer { max-width: none !important; }
 }
+
+/* ==========================================================================
+   VÁ LỖI ĐÈ NÚT TRONG FOCUS ROOM
+   ========================================================================== */
+.focus-nav {
+    position: relative !important; 
+    width: 100% !important;
+    flex: 0 0 100% !important; /* Ép độc chiếm toàn bộ chiều ngang hàng trên cùng */
+    margin: 0 0 40px 0 !important; /* Đẩy Bộ Chỉ Huy ra xa 40px, cấm đè lên nhau */
+    padding-bottom: 20px !important;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important; /* Kẻ một đường ranh giới mờ */
+    z-index: 1005 !important;
+}
+
+#widget-timer, #widget-music {
+    position: relative !important;
+    margin-top: 0 !important; /* Cấm khối bên dưới tự ý trồi lên trên */
+}
