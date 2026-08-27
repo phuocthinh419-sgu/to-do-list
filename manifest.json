@@ -1,0 +1,15 @@
+{
+  "name": "The Apex",
+  "short_name": "Apex",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#ea580c",
+  "icons": [
+    {
+      "src": "icon.png.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
