@@ -183,7 +183,7 @@ function loginWithGoogle() {
 }
 
 function logout() {
-    if(confirm("Bệ hạ muốn thu hồi ngọc ấn và rời khỏi án thư?")) {
+    if(confirm("Bạn muốn thu hồi ngọc ấn và rời khỏi án thư?")) {
         firebase.auth().signOut().then(() => location.reload());
     }
 }
@@ -529,7 +529,7 @@ function checkAndDeductCourtFee() {
 
     if (totalAssets < 300) {
         // 🛑 BỘ LUẬT MỚI: PHÁ SẢN THAY VÌ TỬ HÌNH
-        alert("⚠️ Án phí là $300. Tổng tài sản của bệ hạ chỉ có $" + totalAssets + ".\n\nNGÂN KHỐ CẠN KIỆT! Bệ hạ đã chính thức PHÁ SẢN.\n⚖️ Hình phạt: Chuỗi kỷ luật về 0. Xóa bỏ mọi khoản nợ để làm lại từ đầu!");
+        alert("⚠️ Án phí là $300. Tổng tài sản của bạn chỉ có $" + totalAssets + ".\n\nTÀI SẢN CẠN KIỆT! Bạn đã chính thức PHÁ SẢN.\n⚖️ Hình phạt: Chuỗi kỷ luật về 0. Xóa bỏ mọi khoản nợ để làm lại từ đầu!");
         
         // 1. Tước đoạt chuỗi kỷ luật
         currentStreak = 0;
@@ -569,7 +569,7 @@ function checkAndDeductCourtFee() {
         if (typeof syncToCloud === "function") syncToCloud(); 
         return true;
     } else {
-        alert("Đã thu $300 Án Phí Mở Cửa Ngục. Bệ hạ hãy vào trả nợ!");
+        alert("Đã thu $300. Bạn hãy vào trả nợ trì hoãn!");
         localStorage.setItem("usdBalance", usd - 300);
         localStorage.setItem("saasFeePaidDate", todayStr);
         updateUsdDisplay();
@@ -662,7 +662,7 @@ function buyStock() {
         renderStockMarket(); 
         syncToCloud();
     } else {
-        alert(`❌ Ngân khố của bệ hạ chỉ còn $${usd}, không đủ sức mua 1 cổ phiếu ${code} với giá $${price}!`);
+        alert(`❌ Tài sản của bạn chỉ còn $${usd}, không đủ sức mua 1 cổ phiếu ${code} với giá $${price}!`);
     }
 }
 
@@ -685,14 +685,14 @@ function sellStock() {
         renderStockMarket();
         syncToCloud();
     } else {
-        alert(`❌ Bệ hạ hiện không nắm giữ cổ phiếu ${code} nào để bán khống!`);
+        alert(`❌ Bạn hiện không nắm giữ cổ phiếu ${code} nào để bán khống!`);
     }
 }
 
 function initializeImperialEconomy() {
     let isEconomyInitialized = localStorage.getItem("imperialEconomyActive");
     if (!isEconomyInitialized) {
-        console.log("Thánh chỉ tới: Bắt đầu quy đổi mồ hôi thành ngân khố!");
+        console.log("Thánh chỉ tới: Bắt đầu quy đổi mồ hôi thành tài sản!");
         let totalMinutes = 0;
         goals.forEach(g => {
             if (g.reports) {
@@ -726,7 +726,7 @@ function initializeImperialEconomy() {
         localStorage.setItem("imperialEconomyActive", "true");
         syncToCloud();
 
-        alert(`⛩ CHÀO MỪNG BỆ HẠ ĐẾN VỚI ĐẾ CHẾ KINH TẾ 2.0 ⛩\n\nChiếu theo công trạng lịch sử:\n• Tổng thời gian tu luyện: ${totalMinutes} phút\n• Tổng ngân khố đúc được: +$${grossIncome}\n• Truy thu thuế duy trì (${weeksOnStreak} tuần): -$${retroactiveTax}\n-----------------------------------\n💰 NGÂN KHỐ KHỞI ĐIỂM CỦA NGÀI: $${netBalance}\n\nSàn chứng khoán đã mở cửa. Chúc bệ hạ xưng bá thương trường!`);
+        alert(`⛩ CHÀO MỪNG BẠN ĐẾN VỚI ĐẾ CHẾ KINH TẾ QUẢN LÝ THỜI GIAN ⛩\n\nChiếu theo công trạng lịch sử:\n• Tổng thời gian tu luyện: ${totalMinutes} phút\n• Tổng tài sản kiếm được: +$${grossIncome}\n• Truy thu thuế duy trì (${weeksOnStreak} tuần): -$${retroactiveTax}\n-----------------------------------\n💰 TÀI SẢN KHỞI ĐIỂM CỦA BẠN: $${netBalance}\n\nSàn chứng khoán đã mở cửa. Chúc bạn xưng bá thương trường!`);
     }
 }
 
@@ -781,7 +781,7 @@ function completeDebtSession() {
 
     if(typeof syncToCloud === 'function') syncToCloud();
 
-    alert("🎉 ĐÃ TRẢ SẠCH NỢ! " + activeSessionMinutes + " phút mồ hôi đã được cộng vào cả Biểu Đồ Hôm Nay lẫn Tổng Giờ. Bệ hạ đã được tự do!");
+    alert("🎉 ĐÃ TRẢ SẠCH NỢ! " + activeSessionMinutes + " phút mồ hôi đã được cộng vào cả Biểu Đồ Hôm Nay lẫn Tổng Giờ. Bạn đã được tự do!");
     location.reload();
 }
 
@@ -1065,7 +1065,7 @@ function checkCycleAndStreak() {
             alert("Đã thu $250 Thuế Duy Trì Vương Triều cho tuần mới. TỰ ĐỘNG XUẤT FILE SAO LƯU!");
             updateUsdDisplay();
         } else {
-            alert("Ngân khố không đủ $250. Án thư sẽ bị niêm phong các chức năng nâng cao!");
+            alert("Tài sản không đủ $250. Án thư sẽ bị niêm phong các chức năng nâng cao!");
             localStorage.setItem("isSealed", "true");
         }
 
@@ -1084,7 +1084,7 @@ function checkCycleAndStreak() {
             isPendingTax = true; 
             localStorage.setItem('saasPendingTax', 'true'); 
         } else {
-            alert(`TỔNG KẾT TUẦN: Bệ hạ đã hoàn thành ${totalCycleHours.toFixed(1)} giờ. Chu kỳ mới bắt đầu!`);
+            alert(`TỔNG KẾT TUẦN: Bạn đã hoàn thành ${totalCycleHours.toFixed(1)} giờ. Chu kỳ mới bắt đầu!`);
         }
         
         // Tịnh tiến cycleStart lên đúng 7 ngày (Kéo mốc bắt đầu sang Tuần mới)
@@ -1142,7 +1142,7 @@ function checkCycleAndStreak() {
         let shameTitle = document.querySelector('.shame-content h2'); 
         if(shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
         let shameDesc = document.querySelector('.shame-content p'); 
-        if(shameDesc) shameDesc.innerText = "Bệ hạ đã vi phạm trọng tội: Tổng tuần < 12h. Bắt buộc nộp Thuế 90 phút!"; 
+        if(shameDesc) shameDesc.innerText = "Bạn đã không đạt đủ tiêu chuẩn tự học: Tổng tuần < 12h. Bắt buộc nộp Thuế 90 phút!"; 
         let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none'; 
         let btnShame = document.querySelector('.btn-shame');
@@ -1155,7 +1155,7 @@ function checkCycleAndStreak() {
         let shameTitle = document.querySelector('.shame-content h2'); 
         if(shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.5H)";
         let shameDesc = document.querySelector('.shame-content p'); 
-        if(shameDesc) shameDesc.innerHTML = `Bệ hạ tu luyện chưa đủ tiêu chuẩn 1.5h/ngày. Hình phạt Lãi kép dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        if(shameDesc) shameDesc.innerHTML = `Bạn tu luyện chưa đủ tiêu chuẩn 1.5h/ngày. Hình phạt Lãi kép dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
         let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none';
         let btnShame = document.querySelector('.btn-shame');
@@ -1200,7 +1200,7 @@ function renderKPI() {
         let daysLeft = Math.max(1, 7 - diffCycleDays); 
         
         if(totalCycleHours >= 12) {
-            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bệ hạ đã chinh phục thành công Thiết Quân Luật tuần này!</strong>'; 
+            msgEl.innerHTML = '<strong style="color:var(--brand-break)"><i class="fa-solid fa-crown"></i> Bạn đã chinh phục thành công Thiết Quân Luật tuần này!</strong>'; 
             fillEl.style.background = 'var(--brand-break)'; 
             fillEl.style.boxShadow = '0 0 15px var(--brand-break)';
             if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') { 
@@ -1387,7 +1387,7 @@ function switchTab(tab) {
     
     let isSealed = localStorage.getItem("isSealed") === "true";
     if (isSealed && (tab === 'analytics' || tab === 'trophy')) {
-        alert("Tính năng đã bị niêm phong do bệ hạ không đủ tiền nộp thuế hàng tuần. Hãy tu luyện để ngân khố đủ $250!");
+        alert("Tính năng đã bị niêm phong do bạn không đủ tiền nộp thuế hàng tuần. Hãy tu luyện để tài sản đủ $250!");
         return;
     }
 
@@ -1679,13 +1679,13 @@ function renderAnalytics() {
     if (thisWeekHrs > lastWeekHrs && lastWeekHrs > 0) {
         insightsHtml += `<div style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.3); padding: 20px; border-radius: 16px;">
             <h4 style="margin: 0 0 8px 0; color: #10b981; font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-arrow-trend-up"></i> Hiệu suất Đang Tăng</h4>
-            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Tuần này bệ hạ học nhiều hơn tuần trước ${((thisWeekHrs - lastWeekHrs)/lastWeekHrs * 100).toFixed(0)}%. Phong độ đang vào guồng rất tốt!</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Tuần này bạn học nhiều hơn tuần trước ${((thisWeekHrs - lastWeekHrs)/lastWeekHrs * 100).toFixed(0)}%. Phong độ đang vào guồng rất tốt!</p>
         </div>`;
         hasInsight = true;
     } else if (thisWeekHrs < lastWeekHrs && lastWeekHrs > 0) {
         insightsHtml += `<div style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.3); padding: 20px; border-radius: 16px;">
             <h4 style="margin: 0 0 8px 0; color: #f59e0b; font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-arrow-trend-down"></i> Hiệu suất Sụt Giảm</h4>
-            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Tuần này hiệu suất giảm ${((lastWeekHrs - thisWeekHrs)/lastWeekHrs * 100).toFixed(0)}% so với tuần trước. Bệ hạ cần lấy lại sự tập trung.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Tuần này hiệu suất giảm ${((lastWeekHrs - thisWeekHrs)/lastWeekHrs * 100).toFixed(0)}% so với tuần trước. Bạn cần lấy lại sự tập trung.</p>
         </div>`;
         hasInsight = true;
     }
@@ -1716,7 +1716,7 @@ function renderAnalytics() {
         hasInsight = true;
     }
 
-    if(!hasInsight) insightsHtml += `<div style="color: var(--text-muted); font-size: 0.95rem; font-style: italic; padding: 20px; text-align: center; grid-column: 1/-1;">Hệ thống đang tích lũy dữ liệu để đưa ra cố vấn cho bệ hạ...</div>`;
+    if(!hasInsight) insightsHtml += `<div style="color: var(--text-muted); font-size: 0.95rem; font-style: italic; padding: 20px; text-align: center; grid-column: 1/-1;">Hệ thống đang tích lũy dữ liệu để đưa ra cố vấn cho bạn...</div>`;
     insightsHtml += `</div></div>`;
 
     // 4. CÁC THÀNH PHẦN CŨ (Hồ Sơ Học Thuật, ADN, Tổng quan)
@@ -2209,7 +2209,7 @@ function startSession(minutes, isIce = false) {
                         overtimeMinutes = 0;
                         sessionEndTime = Date.now(); 
                         playAlertSound();
-                        alert("⏳ HẾT GIỜ CHUẨN! Bệ hạ có thể bấm 'Nộp báo cáo' (nút Hủy cũ) để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
+                        alert("⏳ HẾT GIỜ CHUẨN! Bạn có thể bấm 'Nộp báo cáo' (nút Hủy cũ) để kết thúc, hoặc tiếp tục cày lố (Lương x2)!");
                         
                         document.getElementById('session-timer').style.color = "#fbbf24";
                         document.getElementById('status-msg').innerText = "ĐANG TRONG THỜI GIAN CÀY LỐ (OVERTIME). Lương x2 mỗi phút.";
@@ -2390,7 +2390,7 @@ function submitReport() {
 
             let msg = `HOÀN THÀNH PHIÊN TU LUYỆN:\n- Lương cơ bản: $${baseEarn}`;
             if (bonusEarn > 0) msg += `\n- Lãi vượt tiêu chuẩn 1.5h (+20%): $${bonusEarn}`;
-            msg += `\n=> Ngân khố thu về: $${totalEarn}`;
+            msg += `\n=> Tài sản thu về: $${totalEarn}`;
             alert(msg);
 
             impactStockMarket("SUCCESS"); 
@@ -2430,7 +2430,7 @@ function submitReport() {
             if (usd >= 250) {
                 localStorage.setItem("usdBalance", usd - 250);
                 localStorage.setItem("isSealed", "false");
-                alert("Ngân khố đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
+                alert("Tài sản đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
                 updateUsdDisplay();
             }
         }
@@ -2702,7 +2702,7 @@ function openTimetableModal() {
 
 function saveTimetableItem() {
     let name = document.getElementById('tt-name').value;
-    if(!name) return alert("Bệ hạ chưa nhập tên sự kiện!");
+    if(!name) return alert("Bạn chưa nhập tên sự kiện!");
     
     let item = {
         id: Date.now(),
@@ -2744,7 +2744,7 @@ function handleTimetableAction(id, dateStr) {
             item.pausedDates.push(dateStr); // Gắn dải băng
         }
     } else if (action === "2") {
-        if(confirm("Bệ hạ có chắc chắn muốn xóa vĩnh viễn khỏi thời khóa biểu?")) {
+        if(confirm("Bạn có chắc chắn muốn xóa vĩnh viễn khỏi thời khóa biểu?")) {
             timetableData = timetableData.filter(i => i.id !== id);
         }
     } else {
@@ -2788,7 +2788,7 @@ function renderRecommendations() {
                     recommendations.push({
                         type: 'review', label: 'Review Môn', icon: 'fa-book-open',
                         title: item.name,
-                        desc: 'Bệ hạ vừa học môn này hôm nay. Hãy ôn tập lại khi kiến thức còn nóng hổi!',
+                        desc: 'Bạn vừa học môn này hôm nay. Hãy ôn tập lại khi kiến thức còn nóng hổi!',
                         suggestedTarget: 1.0
                     });
                 }
@@ -2820,7 +2820,7 @@ function renderRecommendations() {
     let topRecoms = recommendations.slice(0, 3);
     
     if(topRecoms.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bệ hạ có thể tự do cày ải!</div>`;
+        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bạn có thể tự do cày cuốc các môn học!</div>`;
         return;
     }
 
@@ -3065,14 +3065,14 @@ function rentMusic(minutes, price) {
             if (musicTimeLeft <= 0) {
                 clearInterval(musicRentInterval);
                 shutDownMusic();
-                alert("⏳ Hết thời gian thuê Ngự Âm Các! Âm nhạc đã được thu hồi. Bệ hạ hãy gia hạn nếu muốn nghe tiếp!");
+                alert("⏳ Hết thời gian thuê Ngự Âm Các! Âm nhạc đã được thu hồi. Bạn hãy gia hạn nếu muốn nghe tiếp!");
             }
         }, 1000);
         
         if(typeof syncToCloud === 'function') syncToCloud();
         playTick();
     } else {
-        alert("❌ Ngân khố của bệ hạ chỉ còn $" + usd + ", không đủ để mua gói này!");
+        alert("❌ Tài sản của bạn chỉ còn $" + usd + ", không đủ để mua gói này!");
     }
 }
 
@@ -3093,7 +3093,7 @@ function loadMusic() {
     
     // Nếu bệ hạ chưa chọn file nào
     if (fileInput.files.length === 0) {
-        alert("Bệ hạ chưa nạp bản nhạc nào từ chiến mã!"); 
+        alert("Bạn chưa nạp bản nhạc nào từ thiết bị!"); 
         return;
     }
 
@@ -3215,7 +3215,7 @@ function checkNoonPenalty() {
                 localStorage.setItem('noonPenalty_' + todayStr, 'true');
                 if(typeof syncToCloud === 'function') syncToCloud();
                 
-                alert("🚨 THÁNH CHỈ TRỪNG PHẠT! Đã quá 12h trưa mà bệ hạ chưa tu luyện đủ 1h. Ngân khố bị tịch thu $50 và Thiết quân luật tuần bị trừ 0.5h!");
+                alert("🚨 THÁNH CHỈ TRỪNG PHẠT! Đã quá 12h trưa mà bạn chưa tu luyện đủ 1h. Tài sản bị tịch thu $50 và Thiết quân luật tuần bị trừ 0.5h!");
                 location.reload();
             }
         }
