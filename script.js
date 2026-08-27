@@ -2994,46 +2994,6 @@ window.renderDashboard = function() {
 }
 
 // =====================================================================
-// KHỐI QUẢN LÝ WIDGET KÉO THẢ (DRAGGABLE UI)
-// =====================================================================
-function makeDraggable(elmnt, header) {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    if (header) { header.onmousedown = dragMouseDown; } 
-    else { elmnt.onmousedown = dragMouseDown; }
-
-    function dragMouseDown(e) {
-        e = e || window.event; e.preventDefault();
-        pos3 = e.clientX; pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-        e = e || window.event; e.preventDefault();
-        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
-        // Chặn không cho kéo văng ra ngoài mép màn hình
-        let newTop = elmnt.offsetTop - pos2;
-        let newLeft = elmnt.offsetLeft - pos1;
-        if(newTop < 0) newTop = 0;
-        if(newLeft < 0) newLeft = 0;
-        elmnt.style.top = newTop + "px";
-        elmnt.style.left = newLeft + "px";
-    }
-
-    function closeDragElement() {
-        document.onmouseup = null; document.onmousemove = null;
-    }
-}
-
-// Khởi chạy kéo thả cho 2 khối Widget
-setTimeout(() => {
-    makeDraggable(document.getElementById("widget-timer"), document.getElementById("widget-timer-header"));
-    makeDraggable(document.getElementById("widget-music"), document.getElementById("widget-music-header"));
-}, 500);
-
-
-// =====================================================================
 // NGỰ ÂM CÁC (HỆ THỐNG THUÊ NHẠC LÕI KÉP)
 // =====================================================================
 let musicRentInterval;
