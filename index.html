@@ -9,6 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Khai báo thẻ căn cước PWA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Kích hoạt Service Worker để cài App -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Đã sẵn sàng hóa thân thành App!'));
+        }
+    </script>
 </head>
 <body>
     <!-- MÀN HÌNH TRÌNH NGỌC ẤN (LOGIN OVERLAY) -->
