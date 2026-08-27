@@ -545,3 +545,29 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     background: rgba(0,0,0,0.9);
     color: var(--brand-warning);
 }
+
+/* Khóa cố định và căn giữa các widget trong Khu vực tập trung */
+#widget-timer, #widget-music {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 500px !important; /* Giới hạn độ rộng trên PC */
+    margin: 0 auto 20px auto !important; /* Căn giữa và cách nhau 20px */
+}
+
+/* Ẩn tiêu đề báo "KÉO THẢ" vì không còn dùng nữa */
+#widget-timer-header, #widget-music-header {
+    cursor: default !important;
+}
+
+/* Đảm bảo khung chứa (focus-room) hiển thị dạng cột */
+#focus-room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    overflow-y: auto;
+}
