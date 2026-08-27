@@ -1710,7 +1710,7 @@ function renderAnalytics() {
     } else if (strongestGoal) {
         insightsHtml += `<div style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.3); padding: 20px; border-radius: 16px;">
             <h4 style="margin: 0 0 8px 0; color: #10b981; font-size: 1.05rem; font-weight: 800;"><i class="fa-solid fa-star"></i> Môn học Thế mạnh</h4>
-            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Ngài đang tiến bộ vượt bậc ở môn <strong>${strongestGoal.name}</strong>.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;">Bạn đang tiến bộ vượt bậc ở môn <strong>${strongestGoal.name}</strong>.</p>
         </div>`;
         hasInsight = true;
     }
@@ -3189,6 +3189,12 @@ function shutDownMusic() {
 // ĐẠO LUẬT 1: THIẾT KỴ BAN TRƯA (ÉP BUỘC 1H TRƯỚC 12H TRƯA)
 // =====================================================================
 function checkNoonPenalty() {
+    // 🛡️ LỚP KHIÊN 1: Khách lạ chưa đăng nhập -> Cấm trừng phạt!
+    if (!currentUser) return; 
+
+    // 🛡️ LỚP KHIÊN 2: Tân binh chưa có mục tiêu, chưa có lịch sử học -> Miễn tội!
+    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) return;
+
     let now = new Date();
     // Kiểm tra xem đã qua 12h trưa chưa
     if (now.getHours() >= 12) {
