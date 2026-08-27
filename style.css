@@ -571,3 +571,40 @@ body.focus-active .timer-huge { color: var(--brand-focus); text-shadow: 0 0 20px
     padding: 20px;
     overflow-y: auto;
 }
+
+/* 1. Mở khóa cuộn trang cho toàn bộ khu vực tập trung */
+#focus-room {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow-y: auto !important; /* Mở khóa cuộn dọc */
+    -webkit-overflow-scrolling: touch;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 80px 16px 40px 16px !important; /* Chừa 80px phía trên để không đè nút Rút lui */
+    box-sizing: border-box !important;
+    z-index: 999 !important;
+}
+
+/* 2. Cố định thanh tiêu đề (Nút Rút lui & Tên mục tiêu) luôn nổi trên cùng */
+.focus-header, #focus-target-info, #btn-focus-back {
+    z-index: 1001 !important;
+}
+
+/* 3. Căn chỉnh 2 khối widget gọn gàng, tự co giãn theo điện thoại */
+#widget-timer, #widget-music {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 420px !important;
+    margin: 0 auto 24px auto !important;
+    flex-shrink: 0 !important; /* Không bị bóp méo khi cuộn */
+}
