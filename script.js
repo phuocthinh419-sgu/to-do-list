@@ -1380,16 +1380,26 @@ function deleteCountdown(id) {
 
 function switchTab(tab) {
     if (isPendingTax || dailyDebtMinutes > 0) { 
-        alert("Án thư đang bị phong tỏa. Bắt buộc hoàn thành phiên phạt!"); 
-        return; 
-    }
-    
-    let isSealed = localStorage.getItem("isSealed") === "true";
-    if (isSealed && (tab === 'analytics' || tab === 'trophy')) {
-        alert("Tính năng đã bị niêm phong do bạn không đủ tiền nộp thuế hàng tuần. Hãy tu luyện để tài sản đủ $250!");
-        return;
-    }
-
+        setTimeout(() => {
+            alert("Án thư đang bị phong tỏa. Bắt buộc hoàn thành phiên phạt!");
+            
+            // 1. Ép mở Khu Vực Tập Trung
+            let focusRoom = document.getElementById('focus-room');
+            if(focusRoom) focusRoom.style.display = 'flex';
+            
+            // 2. Gắn cờ tội danh
+            let targetInfo = document.getElementById('focus-target-info');
+            if (targetInfo) {
+                targetInfo.innerHTML = "<i class='fa-solid fa-skull-crossbones' style='color: #e11d48;'></i> MỤC TIÊU: PHIÊN PHẠT CƯỠNG CHẾ";
+            }
+            
+            // 3. Khóa chết đường lui
+            let backBtn = document.getElementById('btn-focus-back');
+            if (backBtn) {
+                backBtn.style.display = 'none';
+            }
+        }, 300); // Trì hoãn 0.3s để HTML/CSS kịp vẽ xong khung xương rồi mới bật
+        return; // Vẫn phải giữ lệnh return này để chặn án thư tải các tab bình thường
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('view-dashboard').style.display = 'none'; 
     document.getElementById('analytics-room').style.display = 'none'; 
