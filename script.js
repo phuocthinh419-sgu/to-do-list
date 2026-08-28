@@ -3155,7 +3155,7 @@ function shutDownMusic() {
 }
 
 // =====================================================================
-// ĐẠO LUẬT 1: THIẾT KỴ BAN TRƯA (ÉP BUỘC 1H TRƯỚC 12H TRƯA)
+// ĐẠO LUẬT 1: THIẾT KỴ BAN TRƯA (CÓ MẮT THẦN QUÉT LỊCH SÁNG)
 // =====================================================================
 function checkNoonPenalty() {
     if (!currentUser) return; 
@@ -3168,14 +3168,13 @@ function checkNoonPenalty() {
     // Chỉ kích hoạt sát thủ 1 lần sau 12h trưa mỗi ngày
     if (now.getHours() >= 12 && lastNoonPenalty !== todayStr) {
         
-        // 1. MẮT THẦN QUÉT LỊCH: Xem sáng nay có bận học trên trường không?
         let currentDayOfWeek = now.getDay(); // 0 là CN, 1-6 là T2-T7
         let hasMorningSchedule = false;
         
-        // Giả sử mảng timetables của ngài có lưu thông tin: {dow: thứ, shift: 'sang'}
-        if (typeof timetables !== 'undefined') {
-            hasMorningSchedule = timetables.some(item => 
-                item.dow == currentDayOfWeek && item.shift === 'sang'
+        // 1. MẮT THẦN QUÉT LỊCH: Sửa đúng tên mảng dữ liệu 'timetableData'
+        if (typeof timetableData !== 'undefined' && timetableData.length > 0) {
+            hasMorningSchedule = timetableData.some(item => 
+                parseInt(item.dow) === currentDayOfWeek && item.shift === 'sang'
             );
         }
 
@@ -3188,9 +3187,15 @@ function checkNoonPenalty() {
             console.log("Dò thấy lịch học sáng. Đao phủ 12h rút lui!");
             localStorage.setItem('lastNoonPenaltyDate', todayStr); 
         } else if (todayHrs < requiredMorningHrs) {
-            usdBalance -= 10; // Đã ra đại chúng thì phạt nhẹ $10 để răn đe
-            saveData();
-            updateSidebar();
+            // Sửa lỗi: Gọi đúng biến tài sản từ kho lưu trữ
+            let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+            currentUsd -= 10; 
+            localStorage.setItem('usdBalance', currentUsd);
+            
+            // Sửa lỗi: Cập nhật giao diện bằng đúng hàm của The Apex
+            updateUsdDisplay();
+            if (typeof syncToCloud === 'function') syncToCloud();
+            
             alert("THÁNH CHỈ! Sáng nay trống lịch mà bạn chưa kích hoạt phiên Pomodoro nào. Tịch thu $10!");
             localStorage.setItem('lastNoonPenaltyDate', todayStr); 
         } else {
@@ -3198,4 +3203,13 @@ function checkNoonPenalty() {
             localStorage.setItem('lastNoonPenaltyDate', todayStr); 
         }
     }
+}
+
+// 🛑 HOOK VÀO HÀM RENDER DASHBOARD ĐỂ KÍCH HOẠT ĐAO PHỦ MỖI KHI MỞ APP
+const originDashboardRender = renderDashboard;
+window.renderDashboard = function() {
+    originDashboardRender(); 
+    initDailyQuests();         
+    renderDailyQuests();
+    checkNoonPenalty(); // Triệu hồi đao phủ đi tuần tra     
 }
