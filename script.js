@@ -158,7 +158,7 @@ let reportOpenTime = 0;
 let isBreakActive = false; 
 
 // =====================================================================
-// ☁️ FIREBASE CLOUD SYNC & AUTH ENGINE (BẢO MẬT TUYỆT ĐỐI)
+// ☁️ FIREBASE CLOUD SYNC & AUTH ENGINE (ĐỒNG BỘ ĐA CHIỀU TUYỆT ĐỐI)
 // =====================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyAOmKn9E2JWuKtXeENdVtpbzduVqNyj1oo",
@@ -174,10 +174,9 @@ const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
 let currentUser = null;
-let USER_DOC_ID = "emperor_data_v1"; // Sẽ bị ghi đè bằng ID siêu bảo mật của bệ hạ sau khi đăng nhập
+let USER_DOC_ID = "emperor_data_v1"; 
 let isSyncing = false;
 
-// HÀM ĐĂNG NHẬP & ĐĂNG XUẤT
 function loginWithGoogle() {
     firebase.auth().signInWithPopup(provider).catch(error => alert("Lỗi trình ngọc ấn: " + error.message));
 }
@@ -188,16 +187,14 @@ function logout() {
     }
 }
 
-// LẮNG NGHE LỆNH ĐĂNG NHẬP (TRÁI TIM CỦA BẢO MẬT)
-firebase.auth().onAuthStateChanged((user) => {
+// LẮNG NGHE LỆNH ĐĂNG NHẬP
+firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
         currentUser = user;
-        USER_DOC_ID = user.uid; // Khóa dữ liệu bằng ID độc nhất của tài khoản Google
+        USER_DOC_ID = user.uid; 
         
-        // Cất màn hình khóa
         document.getElementById('login-overlay').style.display = 'none';
         
-        // Khảm tên và avatar của ngài vào Sidebar
         let userBadge = document.getElementById('user-auth-badge');
         if(!userBadge) {
             let navMenu = document.querySelector('.nav-menu');
@@ -205,15 +202,18 @@ firebase.auth().onAuthStateChanged((user) => {
         }
 
         console.log("🔓 Ngọc ấn hợp lệ! Khởi động quy trình nạp dữ liệu từ Thiên Đình...");
-        pullFromCloud(); // Chỉ kéo dữ liệu SAU KHI ngài đã đăng nhập
+        
+        // 🛑 BẢO MẬT: Bắt buộc đợi kéo dữ liệu từ Cloud về xong xuôi rồi mới cho chạy App
+        await initialPullFromCloud();
+        initializeAppState();
+        startCloudListener();
     } else {
-        // Trục xuất kẻ lạ mặt
         document.getElementById('login-overlay').style.display = 'flex';
     }
 });
 
 async function syncToCloud() {
-    if (isSyncing || !currentUser) return; // Nếu chưa đăng nhập thì từ chối đồng bộ
+    if (isSyncing || !currentUser) return; 
     isSyncing = true;
     try {
         const dataToSync = {
@@ -231,7 +231,7 @@ async function syncToCloud() {
             stockMarketPrices: JSON.parse(localStorage.getItem('stockMarketPrices')) || {},
             lastRestDate: localStorage.getItem('saasLastRest') || "",
             achComeback: localStorage.getItem('ach_comeback') || "false",
-            timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [], // BỔ SUNG THỜI KHÓA BIỂU
+            timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [], 
             lastUpdated: Date.now()
         };
         localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
@@ -246,50 +246,94 @@ async function syncToCloud() {
     isSyncing = false;
 }
 
-function pullFromCloud() {
-    if (!currentUser) return;
+// Hàm giải nén dữ liệu Cloud chép thẳng vào Local
+function applyCloudDataToLocal(cloudData) {
+    localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals || []));
+    localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions || 0);
+    localStorage.setItem('saasCountdownsPro', JSON.stringify(cloudData.countdowns || []));
+    localStorage.setItem('saasDailyLogs', JSON.stringify(cloudData.dailyLogs || {}));
+    localStorage.setItem('saasStreak', cloudData.streak || 0);
+    localStorage.setItem('saasLastActive', cloudData.lastActive || "");
+    localStorage.setItem('saasS25', cloudData.s25 || 0);
+    localStorage.setItem('saasS15', cloudData.s15 || 0);
+    if(cloudData.cycleStart) localStorage.setItem('saasCycleStart', cloudData.cycleStart);
+    localStorage.setItem('usdBalance', cloudData.usdBalance || 0);
+    localStorage.setItem('userPortfolio', JSON.stringify(cloudData.userPortfolio || {}));
+    localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices || {}));
+    localStorage.setItem('saasLastRest', cloudData.lastRestDate || "");
+    localStorage.setItem('ach_comeback', cloudData.achComeback || "false");
+    localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable || []));
+    localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
+    
+    // Nạp lại biến RAM để giao diện chạy đúng
+    goals = JSON.parse(localStorage.getItem('saasGoalsPro')) || [];
+    totalSessions = parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0;
+    countdowns = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [];
+    dailyLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {}; 
+    lastActiveDate = localStorage.getItem('saasLastActive') || "";
+    currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
+    lastRestDate = localStorage.getItem('saasLastRest') || "";
+    cycleStartDate = localStorage.getItem('saasCycleStart');
+    timetableData = JSON.parse(localStorage.getItem('saasTimetable')) || [];
+}
+
+async function initialPullFromCloud() {
     try {
-        // THAY VÌ .get(), DÙNG .onSnapshot() ĐỂ LẮNG NGHE REAL-TIME
-        db.collection("academic_apex").doc(USER_DOC_ID).onSnapshot((docRef) => {
-            if (docRef.exists) {
-                const cloudData = docRef.data();
-                const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
-                
-                if (cloudData.lastUpdated > localUpdated) {
-                    // Đang cày ải thì hoãn cập nhật để tránh crash
-                    if (isSessionActive || isBreakActive || isGracePeriod) {
-                        console.log("☁️ Mây có dữ liệu mới, nhưng đang cày ải. Tạm hoãn đồng bộ!");
-                        return; 
-                    }
+        const doc = await db.collection("academic_apex").doc(USER_DOC_ID).get();
+        if (doc.exists) {
+            const cloudData = doc.data();
+            const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
+            
+            // Nếu Cloud mới hơn, lấy Cloud đè Local
+            if (cloudData.lastUpdated >= localUpdated) {
+                applyCloudDataToLocal(cloudData);
+                console.log("☁️ Đã nạp dữ liệu thành công từ mây!");
+            } else {
+                // Nếu Local mới hơn (ví dụ cày offline), đẩy Local lên Cloud
+                console.log("☁️ Dữ liệu Local mới hơn, đang đẩy lên mây...");
+                syncToCloud();
+            }
+        }
+    } catch (e) {
+        console.error("Lỗi kéo dữ liệu ban đầu:", e);
+    }
+}
 
-                    console.log("☁️ Đồng bộ thời gian thực từ Thiên Đình...");
-                    localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals));
-                    localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions);
-                    localStorage.setItem('saasCountdownsPro', JSON.stringify(cloudData.countdowns));
-                    localStorage.setItem('saasDailyLogs', JSON.stringify(cloudData.dailyLogs));
-                    localStorage.setItem('saasStreak', cloudData.streak);
-                    localStorage.setItem('saasLastActive', cloudData.lastActive);
-                    localStorage.setItem('saasS25', cloudData.s25);
-                    localStorage.setItem('saasS15', cloudData.s15);
-                    localStorage.setItem('saasCycleStart', cloudData.cycleStart);
-                    localStorage.setItem('usdBalance', cloudData.usdBalance);
-                    localStorage.setItem('userPortfolio', JSON.stringify(cloudData.userPortfolio));
-                    localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices));
-                    localStorage.setItem('saasLastRest', cloudData.lastRestDate);
-                    localStorage.setItem('ach_comeback', cloudData.achComeback);
-                    if (cloudData.timetable) localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable));
-
-                    localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
-                    
-                    // Cập nhật lại giao diện ngay tức khắc mà không cần tải lại trang
-                    checkCycleAndStreak();
-                    if (document.getElementById('view-dashboard').style.display !== 'none') {
-                        renderKPI(); renderDashboard(); renderGamification();
-                    }
+function startCloudListener() {
+    db.collection("academic_apex").doc(USER_DOC_ID).onSnapshot((docRef) => {
+        if (docRef.exists) {
+            const cloudData = docRef.data();
+            const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
+            
+            if (cloudData.lastUpdated > localUpdated) {
+                if (isSessionActive || isBreakActive || isGracePeriod) {
+                    console.log("☁️ Thiết bị khác có cập nhật, nhưng thiết bị này đang cày ải. Tạm hoãn!");
+                    return; 
+                }
+                console.log("☁️ Có cập nhật từ thiết bị khác. Đang đồng bộ...");
+                applyCloudDataToLocal(cloudData);
+                checkCycleAndStreak();
+                if (document.getElementById('view-dashboard').style.display !== 'none') {
+                    renderKPI(); renderDashboard(); renderGamification();
+                }
+                if (document.getElementById('timetable-room').style.display !== 'none') {
+                    renderTimetable();
                 }
             }
-        });
-    } catch (e) { console.error("Lỗi tải dữ liệu Cloud:", e); }
+        }
+    });
+}
+
+function initializeAppState() {
+    initializeImperialEconomy();
+    randomDailyMarketFluctuation();
+    updateUsdDisplay();
+    autoHealDiscrepancy();
+    renderCountdowns(); 
+    clearInterval(countdownInterval); // Xóa bộ đếm cũ nếu có
+    countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
+    switchTab('dashboard'); 
+    checkRecovery();
 }
 
 // =====================================================================
@@ -2878,17 +2922,9 @@ window.acceptRecommendation = function(name, target) {
 }
 
 // =====================================================================
-// CHẠY KHỞI TẠO HỆ THỐNG (BẢN CHUẨN ĐÃ PHÁ PHONG ẤN)
+// KHỞI TẠO HỆ THỐNG (Đã được chuyển vào bên trong hàm initializeAppState 
+// để đảm bảo chỉ chạy SAU KHI kéo dữ liệu Cloud về thành công)
 // =====================================================================
-initializeImperialEconomy();
-randomDailyMarketFluctuation();
-updateUsdDisplay();
-
-autoHealDiscrepancy();//
-renderCountdowns(); 
-countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
-switchTab('dashboard'); 
-checkRecovery();
 
 // =====================================================================
 // BỘ HỘ PHỦ: QUẢN LÝ NHIỆM VỤ NGÀY (RANDOM) & NHẬN THƯỞNG
