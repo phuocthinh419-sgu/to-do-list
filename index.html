@@ -94,6 +94,11 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button class="btn-ghost-action stagger-item" style="animation-delay: 0.05s; position: relative;" onclick="openInbox()">
+                    <i class="fa-solid fa-envelope" style="color: var(--brand-focus);"></i> Hộp thư
+                    <span id="unread-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--brand-warning); color:#fff; border-radius:50%; font-size:0.7rem; padding:2px 6px; font-weight:800; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">0</span>
+                </button>
+                
                 <button class="btn-ghost-action stagger-item" style="animation-delay: 0.1s" id="btn-rest-day" onclick="activateRestDay()"><i class="fa-solid fa-mug-hot" style="color: var(--brand-focus);"></i> Nghỉ ngơi</button>
                 <button class="btn-ghost-action stagger-item" style="animation-delay: 0.2s" id="btn-create-countdown" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Sự kiện</button>
                 <button class="btn-primary stagger-item" style="animation-delay: 0.3s" id="btn-create-goal" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Mục tiêu</button>
@@ -272,7 +277,7 @@
         <div class="focus-widget-grid">
             
             <div id="widget-timer">
-                <div class="widget-header"><i class="fa-solid fa-crosshairs"></i> Bộ Chỉ Huy</div>
+                <div class="widget-header"><i class="fa-solid fa-crosshairs"></i> Bộ công cụ Pomodoro</div>
                 <div class="widget-body">
                     <div class="focus-badge" id="focus-badge">KHU VỰC TẬP TRUNG</div>
                     <div class="timer-huge" id="session-timer">00:00</div>
@@ -291,7 +296,7 @@
             </div>
 
             <div id="widget-music">
-                <div class="widget-header"><i class="fa-solid fa-music" style="color: #fbbf24;"></i> Ngự Âm Các (Quán Lofi)</div>
+                <div class="widget-header"><i class="fa-solid fa-music" style="color: #fbbf24;"></i> Trạm Nhạc</div>
                 <div class="widget-body">
                     <div id="music-shop" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
                         <div style="font-weight: 800; color: #fff; font-size: 1.05rem; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;"><i class="fa-solid fa-store" style="color: #fbbf24;"></i> Thuê Không Gian Âm Nhạc</div>
