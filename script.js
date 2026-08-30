@@ -229,15 +229,43 @@ function loginWithGoogle() {
     firebase.auth().signInWithPopup(provider).catch(error => alert("Lỗi trình ngọc ấn: " + error.message));
 }
 
+// =====================================================================
+// ĐĂNG XUẤT VÀ THANH TRỪNG DỮ LIỆU
+// =====================================================================
 function logout() {
-    if(confirm("Bạn muốn thu hồi ngọc ấn và rời khỏi án thư?")) {
+    if(confirm("Bạn xác nhận muốn đăng xuất?")) {
+        // Lưu lại thiết lập giao diện (Theme/Color)
+        let theme = localStorage.getItem('plannerTheme');
+        let color = localStorage.getItem('plannerColor');
+        
+        // ĐỐT SẠCH TOÀN BỘ TÀNG THƯ CÁ NHÂN CỦA TÀI KHOẢN CŨ
+        localStorage.clear(); 
+        
+        // Trả lại thiết lập giao diện
+        if(theme) localStorage.setItem('plannerTheme', theme);
+        if(color) localStorage.setItem('plannerColor', color);
+        
         firebase.auth().signOut().then(() => location.reload());
     }
 }
 
-// LẮNG NGHE LỆNH ĐĂNG NHẬP
+// =====================================================================
+// LẮNG NGHE LỆNH ĐĂNG NHẬP (CỔNG GÁC CHỐNG RÒ RỈ)
+// =====================================================================
 firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
+        // KIỂM TRA ĐỔI TÀI KHOẢN ĐỘT NGỘT
+        let previousUid = localStorage.getItem('last_uid');
+        if (previousUid && previousUid !== user.uid) {
+            console.log("Phát hiện tài khoản mới đăng nhập! Đang tải dữ liệu...");
+            let theme = localStorage.getItem('plannerTheme');
+            let color = localStorage.getItem('plannerColor');
+            localStorage.clear();
+            if(theme) localStorage.setItem('plannerTheme', theme);
+            if(color) localStorage.setItem('plannerColor', color);
+        }
+        localStorage.setItem('last_uid', user.uid); // Đóng dấu ngọc ấn hiện tại
+
         currentUser = user;
         USER_DOC_ID = user.uid; 
         
@@ -249,7 +277,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
             navMenu.insertAdjacentHTML('afterbegin', `<div id="user-auth-badge" class="stagger-item" style="padding: 0 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation-delay: 0.05s;"><img src="${user.photoURL}" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--brand-focus); box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);"><div style="display: flex; flex-direction: column;"><span style="color: var(--text-main); font-weight: 800; font-size: 0.95rem; line-height: 1.2;">${user.displayName}</span><span onclick="logout()" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 4px;" onmouseover="this.style.color='var(--brand-warning)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-right-from-bracket"></i> Rời án thư</span></div></div>`);
         }
 
-        console.log("🔓 Ngọc ấn hợp lệ! Khởi động quy trình nạp dữ liệu từ Thiên Đình...");
+        console.log("🔓 Đăng nhập thành công! Đang kết nối dữ liệu...");
         
         // 🛑 BẢO MẬT: Bắt buộc đợi kéo dữ liệu từ Cloud về xong xuôi rồi mới cho chạy App
         await initialPullFromCloud();
@@ -259,7 +287,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
         document.getElementById('login-overlay').style.display = 'flex';
     }
 });
-
 async function syncToCloud() {
     if (isSyncing || !currentUser) return; 
     isSyncing = true;
