@@ -1384,10 +1384,10 @@ function renderGamification() {
     document.getElementById('streak-count').innerText = currentStreak;
     
     let rankTitle = "Người Mới"; let rankDesc = "Cần 10h để thăng cấp Học Giả"; let rankColor = "#94a3b8"; 
-    if(totalHoursEarned >= 300) { rankTitle = "Huyền Thoại"; rankDesc = "Thành tích học tập xuất sắc"; rankColor = "#f59e0b"; } 
-    else if(totalHoursEarned >= 100) { rankTitle = "Bậc Thầy"; rankDesc = `Cần ${Math.ceil(300 - totalHoursEarned)}h để thăng cấp Huyền Thoại`; rankColor = "#8b5cf6"; } 
-    else if(totalHoursEarned >= 50) { rankTitle = "Chuyên Gia"; rankDesc = `Cần ${Math.ceil(100 - totalHoursEarned)}h để thăng cấp Bậc Thầy`; rankColor = "#ea580c"; } 
-    else if(totalHoursEarned >= 10) { rankTitle = "Học Giả"; rankDesc = `Cần ${Math.ceil(50 - totalHoursEarned)}h để thăng cấp Chuyên Gia`; rankColor = "#10b981"; } 
+    if(displayHours >= 300) { rankTitle = "Huyền Thoại"; rankDesc = "Thành tích học tập xuất sắc"; rankColor = "#f59e0b"; } 
+    else if(displayHours >= 100) { rankTitle = "Bậc Thầy"; rankDesc = `Cần ${Math.ceil(300 - displayHours)}h để thăng cấp Huyền Thoại`; rankColor = "#8b5cf6"; } 
+    else if(displayHours >= 50) { rankTitle = "Chuyên Gia"; rankDesc = `Cần ${Math.ceil(100 - displayHours)}h để thăng cấp Bậc Thầy`; rankColor = "#ea580c"; } 
+    else if(displayHours >= 10) { rankTitle = "Học Giả"; rankDesc = `Cần ${Math.ceil(50 - displayHours)}h để thăng cấp Chuyên Gia`; rankColor = "#10b981"; }
     
     document.getElementById('rank-title').innerText = rankTitle; 
     document.getElementById('rank-desc').innerText = rankDesc; 
