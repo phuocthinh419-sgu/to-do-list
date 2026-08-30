@@ -3510,6 +3510,22 @@ function listenForMessages() {
 }
 
 // --- 3. GIAO DIỆN HỘP THƯ (INBOX) ---
+// Biến toàn cục lưu trữ bộ lắng nghe Hộp thư (Tránh rò rỉ bộ nhớ)
+let inboxSnapshotListener = null;
+
+// HÀM ĐÓNG HỘP THƯ & NGẮT KẾT NỐI LIVE
+function closeInbox() {
+    let modal = document.getElementById('inbox-modal');
+    if (modal) modal.style.display = 'none';
+    
+    // Ngắt bộ lắng nghe thời gian thực khi không dùng đến
+    if (inboxSnapshotListener) {
+        inboxSnapshotListener();
+        inboxSnapshotListener = null;
+    }
+}
+
+// 3. GIAO DIỆN HỘP THƯ (INBOX)
 function openInbox() {
     if (isSessionActive) {
         alert("Tính năng bị khóa: Bạn đang trong phiên làm việc tập trung.");
@@ -3521,7 +3537,7 @@ function openInbox() {
         let html = `
         <div id="inbox-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
             <div style="background:var(--bg-panel); width:90%; max-width:600px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; display:flex; flex-direction:column; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-                <button onclick="document.getElementById('inbox-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeInbox()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <h2 style="margin-top:0; color:var(--text-main); font-size: 1.5rem;"><i class="fa-solid fa-envelope" style="color:var(--brand-focus);"></i> Hộp thư cá nhân</h2>
                 
                 <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
@@ -3545,6 +3561,13 @@ function openInbox() {
 
 async function renderInbox(tab) {
     const content = document.getElementById('inbox-content');
+    
+    // Xóa bộ lắng nghe cũ trước khi mở bộ mới (Tránh lỗi trùng lặp dữ liệu)
+    if (inboxSnapshotListener) {
+        inboxSnapshotListener();
+        inboxSnapshotListener = null;
+    }
+
     document.getElementById('tab-inbox-main').style.background = tab === 'main' ? 'var(--brand-focus)' : 'var(--bg-hover)';
     document.getElementById('tab-inbox-main').style.color = tab === 'main' ? '#fff' : 'var(--text-main)';
     document.getElementById('tab-inbox-block').style.background = tab === 'blocklist' ? 'rgba(239,68,68,0.1)' : 'var(--bg-hover)';
@@ -3566,48 +3589,55 @@ async function renderInbox(tab) {
         return;
     }
 
-    content.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
+    content.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối kênh Live...</div>';
+    
     try {
-        // FIX: Rút gọn truy vấn để lách luật "Composite Index", phần sắp xếp sẽ giao cho JavaScript
-        const snapshot = await db.collection("messages").where("receiverId", "==", USER_DOC_ID).get();
-        
-        let msgs = [];
-        snapshot.forEach(doc => {
-            msgs.push({ id: doc.id, ...doc.data() }); // Gộp chung ID của document vào dữ liệu
-        });
-        
-        // Sắp xếp tin nhắn: Thời gian mới nhất đẩy lên đầu
-        msgs.sort((a, b) => b.timestamp - a.timestamp);
-        
-        // Giới hạn hiển thị 30 tin nhắn gần nhất
-        msgs = msgs.slice(0, 30);
+        // CẬP NHẬT: Kích hoạt onSnapshot để truyền dữ liệu thời gian thực
+        inboxSnapshotListener = db.collection("messages")
+            .where("receiverId", "==", USER_DOC_ID)
+            .onSnapshot((snapshot) => {
+                let msgs = [];
+                snapshot.forEach(doc => {
+                    msgs.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sắp xếp tin nhắn: Thời gian mới nhất đẩy lên đầu
+                msgs.sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Giới hạn hiển thị 30 tin nhắn gần nhất để giữ giao diện nhẹ nhàng
+                msgs = msgs.slice(0, 30);
 
-        let html = '';
-        msgs.forEach(msg => {
-            if (blocklist.includes(msg.senderId)) return; // Bỏ qua nếu người gửi bị chặn
+                let html = '';
+                msgs.forEach(msg => {
+                    if (blocklist.includes(msg.senderId)) return; // Ẩn tin nhắn từ kẻ bị chặn
+                    
+                    let timeStr = new Date(msg.timestamp).toLocaleString('vi-VN');
+                    let bgStyle = msg.isRead ? 'background:var(--bg-hover); border-color:var(--border);' : 'background:rgba(14,165,233,0.05); border-color:var(--brand-focus);';
+                    
+                    html += `
+                    <div style="${bgStyle} border:1px solid; padding:16px; border-radius:12px; margin-bottom:12px; position:relative; transition: all 0.3s ease;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                            <span style="color:var(--text-main); font-weight:800;"><i class="fa-solid fa-user"></i> ${msg.senderName}</span>
+                            <span style="font-size:0.8rem; color:var(--text-muted);">${timeStr}</span>
+                        </div>
+                        <div style="color:var(--text-muted); line-height:1.5; margin-bottom:16px; word-break: break-word;">${msg.content}</div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            ${!msg.isRead ? `<button onclick="markAsRead('${msg.id}')" style="background:none; border:1px solid var(--border); color:var(--text-main); padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-check"></i> Đã đọc</button>` : ''}
+                            <button onclick="openComposeModal('${msg.senderId}', '${msg.senderName}')" style="background:var(--brand-focus); border:none; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-reply"></i> Phản hồi</button>
+                            <button onclick="blockUser('${msg.senderId}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; padding:6px 12px; border-radius:6px; cursor:pointer; margin-left:auto; font-weight:600;"><i class="fa-solid fa-ban"></i> Chặn</button>
+                        </div>
+                    </div>`;
+                });
+                
+                content.innerHTML = html !== '' ? html : '<div style="text-align:center; padding:20px; color:var(--text-muted);">Không có tin nhắn nào.</div>';
+            }, (error) => {
+                console.error("Lỗi Live Inbox:", error);
+                content.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Đứt kết nối Mạng xã hội.</div>';
+            });
             
-            let timeStr = new Date(msg.timestamp).toLocaleString('vi-VN');
-            let bgStyle = msg.isRead ? 'background:var(--bg-hover); border-color:var(--border);' : 'background:rgba(14,165,233,0.05); border-color:var(--brand-focus);';
-            
-            html += `
-            <div style="${bgStyle} border:1px solid; padding:16px; border-radius:12px; margin-bottom:12px; position:relative;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                    <span style="color:var(--text-main); font-weight:800;"><i class="fa-solid fa-user"></i> ${msg.senderName}</span>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${timeStr}</span>
-                </div>
-                <div style="color:var(--text-muted); line-height:1.5; margin-bottom:16px; word-break: break-word;">${msg.content}</div>
-                <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    ${!msg.isRead ? `<button onclick="markAsRead('${msg.id}')" style="background:none; border:1px solid var(--border); color:var(--text-main); padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-check"></i> Đã đọc</button>` : ''}
-                    <button onclick="openComposeModal('${msg.senderId}', '${msg.senderName}')" style="background:var(--brand-focus); border:none; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-reply"></i> Phản hồi</button>
-                    <button onclick="blockUser('${msg.senderId}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; padding:6px 12px; border-radius:6px; cursor:pointer; margin-left:auto; font-weight:600;"><i class="fa-solid fa-ban"></i> Chặn</button>
-                </div>
-            </div>`;
-        });
-        
-        content.innerHTML = html !== '' ? html : '<div style="text-align:center; padding:20px; color:var(--text-muted);">Không có tin nhắn nào.</div>';
     } catch (e) {
         console.error(e);
-        content.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi tải dữ liệu hộp thư. Vui lòng kiểm tra lại kết nối.</div>';
+        content.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi tải dữ liệu hộp thư. Vui lòng kiểm tra lại.</div>';
     }
 }
 
