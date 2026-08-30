@@ -3358,19 +3358,6 @@ window.renderDashboard = function() {
 // BẢNG XẾP HẠNG TOÀN CẦU (GLOBAL LEADERBOARD REAL-TIME)
 // =====================================================================
 
-// Tự động chèn nút Bảng Xếp Hạng vào Menu
-setTimeout(() => {
-    let navMenu = document.querySelector('.nav-menu');
-    if (navMenu && !document.getElementById('btn-open-leaderboard')) {
-        let btnHtml = `
-        <div id="btn-open-leaderboard" class="nav-item stagger-item" onclick="openLeaderboard()" style="animation-delay: 0.5s; cursor: pointer; color: var(--brand-trophy);">
-            <i class="fa-solid fa-ranking-star"></i>
-            <span>Bảng Xếp Hạng</span>
-        </div>`;
-        navMenu.insertAdjacentHTML('beforeend', btnHtml);
-    }
-}, 1000);
-
 function openLeaderboard() {
     // 1. Tạo giao diện Modal nếu chưa có
     let modal = document.getElementById('leaderboard-modal');
