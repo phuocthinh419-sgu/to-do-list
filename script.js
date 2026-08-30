@@ -735,41 +735,39 @@ function sellStock() {
 function initializeImperialEconomy() {
     let isEconomyInitialized = localStorage.getItem("imperialEconomyActive");
     if (!isEconomyInitialized) {
-        console.log("Thánh chỉ tới: Bắt đầu quy đổi mồ hôi thành tài sản!");
-        let totalMinutes = 0;
-        goals.forEach(g => {
-            if (g.reports) {
-                g.reports.forEach(r => {
-                    totalMinutes += parseInt(r.type.replace('p', ''));
-                });
-            }
-        });
-
-        let currentStreakDays = currentStreak;
-        let grossIncome = totalMinutes;
-        let weeksOnStreak = Math.floor(currentStreakDays / 7);
-        let retroactiveTax = weeksOnStreak * 250;
-        let netBalance = grossIncome - retroactiveTax;
-        if (netBalance < 0) netBalance = 0;
-
-        localStorage.setItem("usdBalance", netBalance);
+        console.log("Thánh chỉ tới: Kiểm tra và thiết lập kinh tế...");
         
-        const initialStocks = {
-            "ULIS": 950, "HNUE": 920, "BAYM": 880, "IELT": 800,
-            "GPAX": 750, "VSN": 700, "TS10": 650, "TESL": 620,
-            "VOCA": 580, "MYST": 520
-        };
-        localStorage.setItem("stockMarketPrices", JSON.stringify(initialStocks));
+        // 🛑 LÁ CHẮN BẢO VỆ TÀI SẢN CLOUD: 
+        // Chỉ cấp tiền tân binh nếu ví THỰC SỰ TRỐNG KHÔNG (Chưa từng kéo từ Cloud về)
+        let currentUsd = localStorage.getItem("usdBalance");
+        if (currentUsd === null || currentUsd === undefined) {
+            let totalMinutes = 0;
+            goals.forEach(g => { if (g.reports) { g.reports.forEach(r => { totalMinutes += parseInt(r.type.replace('p', '')); }); } });
+            
+            let currentStreakDays = currentStreak; 
+            let grossIncome = totalMinutes;
+            let weeksOnStreak = Math.floor(currentStreakDays / 7); 
+            let retroactiveTax = weeksOnStreak * 250;
+            let netBalance = grossIncome - retroactiveTax; 
+            
+            if (netBalance < 0) netBalance = 0;
+            localStorage.setItem("usdBalance", netBalance);
+        }
         
-        const userPortfolio = {
-            "ULIS": 0, "HNUE": 0, "BAYM": 0, "IELT": 0, "GPAX": 0, 
-            "VSN": 0, "TS10": 0, "TESL": 0, "VOCA": 0, "MYST": 0
-        };
-        localStorage.setItem("userPortfolio", JSON.stringify(userPortfolio));
+        // Khởi tạo sàn chứng khoán nếu chưa có
+        if (!localStorage.getItem("stockMarketPrices")) {
+            const initialStocks = { "ULIS": 950, "HNUE": 920, "BAYM": 880, "IELT": 800, "GPAX": 750, "VSN": 700, "TS10": 650, "TESL": 620, "VOCA": 580, "MYST": 520 };
+            localStorage.setItem("stockMarketPrices", JSON.stringify(initialStocks));
+        }
+        
+        if (!localStorage.getItem("userPortfolio")) {
+            const userPortfolio = { "ULIS": 0, "HNUE": 0, "BAYM": 0, "IELT": 0, "GPAX": 0, "VSN": 0, "TS10": 0, "TESL": 0, "VOCA": 0, "MYST": 0 };
+            localStorage.setItem("userPortfolio", JSON.stringify(userPortfolio));
+        }
+        
+        // Đóng dấu niêm phong để không bao giờ chạy lại hàm này nữa
         localStorage.setItem("imperialEconomyActive", "true");
-        syncToCloud();
-
-        alert(`⛩ CHÀO MỪNG BẠN ĐẾN VỚI ĐẾ CHẾ KINH TẾ QUẢN LÝ THỜI GIAN ⛩\n\nChiếu theo công trạng lịch sử:\n• Tổng thời gian tu luyện: ${totalMinutes} phút\n• Tổng tài sản kiếm được: +$${grossIncome}\n• Truy thu thuế duy trì (${weeksOnStreak} tuần): -$${retroactiveTax}\n-----------------------------------\n💰 TÀI SẢN KHỞI ĐIỂM CỦA BẠN: $${netBalance}\n\nSàn chứng khoán đã mở cửa. Chúc bạn xưng bá thương trường!`);
+        if (typeof syncToCloud === 'function') syncToCloud();
     }
 }
 
