@@ -283,6 +283,9 @@ firebase.auth().onAuthStateChanged(async (user) => {
         await initialPullFromCloud();
         initializeAppState();
         startCloudListener();
+        // --- KÍCH HOẠT MẠNG XÃ HỘI ---
+        updateUserStatus('online'); // Đánh dấu đang trực tuyến
+        listenForMessages();        // Bật bộ lắng nghe tin nhắn
     } else {
         document.getElementById('login-overlay').style.display = 'flex';
     }
@@ -2283,11 +2286,13 @@ function togglePause() {
 function startIcebreaker() { startSession(5, true); }
 
 function startSession(minutes, isIce = false) {
-    if (isCurfewActive()) { alert("ĐÃ ĐẾN GIỜ GIỚI NGHIÊM!"); return; }
-    if(audioCtx.state === 'suspended') audioCtx.resume();
+    if(isSessionActive && !isGracePeriod) return;
     
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
     isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
+    
+    // Đổi trạng thái thành Đang tập trung (Đèn đỏ)
+    updateUserStatus('focusing');
     
     isIcebreakerPhase = isIce; 
     currentDuration = isIce ? 30 : minutes; 
@@ -2385,6 +2390,9 @@ function cancelSession() {
 function resetSystem() {
     isSessionActive = false; isPaused = false; isGracePeriod = false; isHardcoreTax = false; isDebtSession = false; isBreakActive = false; isIcebreakerPhase = false;
     isOvertimePhase = false; standardMinutes = 0; overtimeMinutes = 0;
+    
+    // Đổi trạng thái thành Trực tuyến (Đèn xanh) trên Mạng xã hội
+    updateUserStatus('online');
     
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval); 
     clearRecoveryState();
@@ -3466,5 +3474,302 @@ async function fetchLeaderboard(orderByField) {
     } catch (error) {
         console.error("Lỗi tải BXH:", error);
         content.innerHTML = '<div style="text-align:center; color:#ef4444; padding: 20px;">Lỗi kết nối Thiên Đình. Vui lòng kiểm tra lại mạng.</div>';
+    }
+}
+
+// =====================================================================
+// HỆ THỐNG MẠNG XÃ HỘI (BẢNG XẾP HẠNG & HỘP THƯ)
+// =====================================================================
+let blocklist = JSON.parse(localStorage.getItem('saasBlocklist')) || [];
+
+// --- 1. ĐỒNG BỘ TRẠNG THÁI ---
+function updateUserStatus(statusStr) {
+    if (!currentUser) return;
+    db.collection("academic_apex").doc(USER_DOC_ID).set({
+        currentStatus: statusStr,
+        lastActiveTime: Date.now()
+    }, { merge: true }).catch(err => console.log("Lỗi cập nhật trạng thái:", err));
+}
+
+// --- 2. LẮNG NGHE TIN NHẮN TỚI ---
+function listenForMessages() {
+    if(!currentUser) return;
+    db.collection("messages").where("receiverId", "==", USER_DOC_ID).onSnapshot((snapshot) => {
+        let unreadCount = 0;
+        snapshot.forEach(doc => {
+            let msg = doc.data();
+            // Bỏ qua tin nhắn nếu người gửi nằm trong danh sách chặn
+            if (!msg.isRead && !blocklist.includes(msg.senderId)) unreadCount++;
+        });
+        let badge = document.getElementById("unread-badge");
+        if(badge) {
+            badge.style.display = unreadCount > 0 ? "flex" : "none";
+            badge.innerText = unreadCount;
+        }
+    });
+}
+
+// --- 3. GIAO DIỆN HỘP THƯ (INBOX) ---
+function openInbox() {
+    if (isSessionActive) {
+        alert("Tính năng bị khóa: Bạn đang trong phiên làm việc tập trung.");
+        return;
+    }
+    
+    let modal = document.getElementById('inbox-modal');
+    if (!modal) {
+        let html = `
+        <div id="inbox-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+            <div style="background:var(--bg-panel); width:90%; max-width:600px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; display:flex; flex-direction:column; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                <button onclick="document.getElementById('inbox-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <h2 style="margin-top:0; color:var(--text-main); font-size: 1.5rem;"><i class="fa-solid fa-envelope" style="color:var(--brand-focus);"></i> Hộp thư cá nhân</h2>
+                
+                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                    Mã ID của bạn: <strong style="color:var(--brand-focus); user-select:all; cursor:copy;" title="Bôi đen để copy">${USER_DOC_ID}</strong> (Copy gửi cho bạn bè)
+                </div>
+
+                <div style="display:flex; gap:10px; margin: 10px 0 16px 0; border-bottom:1px solid var(--border); padding-bottom:16px; flex-wrap:wrap;">
+                    <button id="tab-inbox-main" onclick="renderInbox('main')" style="background:var(--brand-focus); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">Tin nhắn đến</button>
+                    <button id="tab-inbox-block" onclick="renderInbox('blocklist')" style="background:var(--bg-hover); color:var(--text-main); border:1px solid var(--border); padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">Danh sách chặn</button>
+                    <button onclick="openComposeModal('', '')" style="background:var(--brand-trophy); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; margin-left:auto;"><i class="fa-solid fa-pen"></i> Soạn thư mới</button>
+                </div>
+                <div id="inbox-content" style="flex:1; overflow-y:auto; padding-right:8px;"></div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        modal = document.getElementById('inbox-modal');
+    }
+    modal.style.display = 'flex';
+    renderInbox('main');
+}
+
+async function renderInbox(tab) {
+    const content = document.getElementById('inbox-content');
+    document.getElementById('tab-inbox-main').style.background = tab === 'main' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+    document.getElementById('tab-inbox-main').style.color = tab === 'main' ? '#fff' : 'var(--text-main)';
+    document.getElementById('tab-inbox-block').style.background = tab === 'blocklist' ? 'rgba(239,68,68,0.1)' : 'var(--bg-hover)';
+    document.getElementById('tab-inbox-block').style.color = tab === 'blocklist' ? '#ef4444' : 'var(--text-main)';
+
+    if (tab === 'blocklist') {
+        if (blocklist.length === 0) {
+            content.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Danh sách đen trống.</div>';
+            return;
+        }
+        let html = '';
+        blocklist.forEach(uid => {
+            html += `<div style="background:var(--bg-hover); padding:16px; border-radius:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border);">
+                <span style="color:var(--text-main); font-weight:700;">ID bị chặn: ${uid.substring(0,8)}...</span>
+                <button onclick="unblockUser('${uid}')" style="background:none; border:1px solid var(--brand-info); color:var(--brand-info); padding:6px 12px; border-radius:6px; cursor:pointer;">Bỏ chặn</button>
+            </div>`;
+        });
+        content.innerHTML = html;
+        return;
+    }
+
+    content.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
+    try {
+        const snapshot = await db.collection("messages").where("receiverId", "==", USER_DOC_ID).orderBy("timestamp", "desc").limit(30).get();
+        let html = '';
+        snapshot.forEach(doc => {
+            let msg = doc.data();
+            if (blocklist.includes(msg.senderId)) return; // Ẩn tin nhắn từ người bị chặn
+            
+            let timeStr = new Date(msg.timestamp).toLocaleString('vi-VN');
+            let bgStyle = msg.isRead ? 'background:var(--bg-hover); border-color:var(--border);' : 'background:rgba(14,165,233,0.05); border-color:var(--brand-focus);';
+            
+            html += `
+            <div style="${bgStyle} border:1px solid; padding:16px; border-radius:12px; margin-bottom:12px; position:relative;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                    <span style="color:var(--text-main); font-weight:800;"><i class="fa-solid fa-user"></i> ${msg.senderName}</span>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${timeStr}</span>
+                </div>
+                <div style="color:var(--text-muted); line-height:1.5; margin-bottom:16px; word-break: break-word;">${msg.content}</div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    ${!msg.isRead ? `<button onclick="markAsRead('${doc.id}')" style="background:none; border:1px solid var(--border); color:var(--text-main); padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-check"></i> Đã đọc</button>` : ''}
+                    <button onclick="openComposeModal('${msg.senderId}', '${msg.senderName}')" style="background:var(--brand-focus); border:none; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-reply"></i> Phản hồi</button>
+                    <button onclick="blockUser('${msg.senderId}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; padding:6px 12px; border-radius:6px; cursor:pointer; margin-left:auto; font-weight:600;"><i class="fa-solid fa-ban"></i> Chặn</button>
+                </div>
+            </div>`;
+        });
+        content.innerHTML = html !== '' ? html : '<div style="text-align:center; padding:20px; color:var(--text-muted);">Không có tin nhắn nào.</div>';
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi tải dữ liệu hộp thư.</div>';
+    }
+}
+
+// --- 4. LOGIC CHẶN & ĐÁNH DẤU ĐÃ ĐỌC ---
+function markAsRead(msgId) {
+    db.collection("messages").doc(msgId).update({ isRead: true }).then(() => renderInbox('main'));
+}
+
+function blockUser(uid) {
+    if (confirm("Chặn người này? Bạn sẽ không nhận được tin nhắn từ họ nữa.")) {
+        if (!blocklist.includes(uid)) {
+            blocklist.push(uid);
+            localStorage.setItem('saasBlocklist', JSON.stringify(blocklist));
+            renderInbox('main');
+        }
+    }
+}
+
+function unblockUser(uid) {
+    blocklist = blocklist.filter(id => id !== uid);
+    localStorage.setItem('saasBlocklist', JSON.stringify(blocklist));
+    renderInbox('blocklist');
+}
+
+// --- 5. GIAO DIỆN SOẠN TIN NHẮN (COMPOSE) ---
+function openComposeModal(receiverId = '', receiverName = '') {
+    if (isSessionActive) return alert("Tính năng bị khóa: Đang trong phiên tập trung.");
+    
+    // Xóa modal cũ nếu có để reset form
+    let existingModal = document.getElementById('compose-modal');
+    if (existingModal) existingModal.remove();
+
+    let isNewMessage = receiverId === '';
+    let headerHtml = isNewMessage 
+        ? `<h3 style="margin-top:0; color:var(--text-main);">Soạn tin nhắn mới</h3>
+           <input type="text" id="comp-recv-id" placeholder="Dán Mã ID của người nhận vào đây..." style="width:100%; padding:12px; border-radius:12px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); margin-bottom:16px; font-family:inherit; outline:none;">`
+        : `<h3 style="margin-top:0; color:var(--text-main);">Gửi tin nhắn đến <span style="color:var(--brand-focus);">${receiverName}</span></h3>
+           <input type="hidden" id="comp-recv-id" value="${receiverId}">`;
+
+    let html = `
+    <div id="compose-modal" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+        <div style="background:var(--bg-panel); width:90%; max-width:450px; border-radius:20px; padding:24px; border:1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            ${headerHtml}
+            <textarea id="comp-content" rows="4" placeholder="Nhập nội dung tin nhắn..." style="width:100%; padding:12px; border-radius:12px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); margin-bottom:16px; font-family:inherit; resize:none; outline:none;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button onclick="document.getElementById('compose-modal').style.display='none'" class="btn-ghost" style="padding:10px 20px;">Hủy bỏ</button>
+                <button id="comp-btn-send" onclick="sendMessage()" class="btn-submit active" style="padding:10px 20px;"><i class="fa-solid fa-paper-plane"></i> Gửi đi</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function sendMessage() {
+    let receiverId = document.getElementById('comp-recv-id').value.trim();
+    let content = document.getElementById('comp-content').value.trim();
+    
+    if (!receiverId) return alert("Vui lòng cung cấp Mã ID người nhận.");
+    if (!content) return alert("Nội dung tin nhắn không được để trống.");
+    if (receiverId === USER_DOC_ID) return alert("Không thể tự gửi tin nhắn cho chính mình.");
+    
+    let btn = document.getElementById('comp-btn-send');
+    btn.innerText = 'Đang kiểm tra...'; btn.disabled = true;
+    
+    try {
+        // Kiểm tra ID người nhận trên hệ thống
+        let receiverDoc = await db.collection("academic_apex").doc(receiverId).get();
+        if (!receiverDoc.exists) {
+            alert("Mã ID không tồn tại trên hệ thống. Vui lòng kiểm tra lại!");
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; 
+            btn.disabled = false;
+            return;
+        }
+
+        btn.innerText = 'Đang gửi...';
+        await db.collection("messages").add({
+            senderId: USER_DOC_ID,
+            senderName: currentUser.displayName || "Ẩn danh",
+            receiverId: receiverId,
+            content: content,
+            timestamp: Date.now(),
+            isRead: false
+        });
+        
+        alert("Tin nhắn đã được gửi thành công!");
+        document.getElementById('compose-modal').style.display = 'none';
+    } catch (err) {
+        console.error(err);
+        alert("Lỗi hệ thống: Không thể gửi tin nhắn. Vui lòng thử lại sau.");
+    } finally {
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; 
+            btn.disabled = false;
+        }
+    }
+}
+
+// --- 6. BẢNG XẾP HẠNG (CẬP NHẬT TRẠNG THÁI ONLINE/OFFLINE) ---
+function openLeaderboard() {
+    let modal = document.getElementById('leaderboard-modal');
+    if (!modal) {
+        let html = `
+        <div id="leaderboard-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+            <div style="background:var(--bg-panel); width:90%; max-width:500px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; overflow-y:auto; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-xmark"></i></button>
+                <h2 style="margin-top:0; text-align:center; color:var(--brand-trophy); font-size: 1.5rem; text-transform: uppercase;"><i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng</h2>
+                
+                <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; margin-top: 20px;">
+                    <button id="tab-lb-hours" onclick="fetchLeaderboard('weeklyHours')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Giờ Học</button>
+                    <button id="tab-lb-streak" onclick="fetchLeaderboard('streak')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Chuỗi</button>
+                </div>
+                <div id="leaderboard-content" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        modal = document.getElementById('leaderboard-modal');
+    }
+    modal.style.display = 'flex';
+    // Ép đồng bộ dữ liệu mới nhất lên Cloud trước khi xem
+    if (typeof syncToCloud === 'function') syncToCloud();
+    fetchLeaderboard('weeklyHours');
+}
+
+async function fetchLeaderboard(orderByField) {
+    const content = document.getElementById('leaderboard-content');
+    document.getElementById('tab-lb-hours').style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+    document.getElementById('tab-lb-hours').style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)';
+    document.getElementById('tab-lb-streak').style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+    document.getElementById('tab-lb-streak').style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)';
+
+    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i><br>Đang tải dữ liệu...</div>';
+    
+    try {
+        // Lấy Top 30 người dùng
+        const snapshot = await db.collection("academic_apex").orderBy(orderByField, "desc").limit(30).get();
+        if (snapshot.empty) return content.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--text-muted);">Chưa có dữ liệu xếp hạng.</div>';
+
+        let html = ''; let rank = 1;
+        snapshot.forEach((doc) => {
+            let data = doc.data();
+            let name = data.displayName || "Ẩn danh";
+            let photo = data.photoURL || "https://via.placeholder.com/44";
+            let score = orderByField === 'weeklyHours' ? (data.weeklyHours || 0).toFixed(1) + 'h' : (data.streak || 0) + ' Ngày';
+            
+            // Hiển thị trạng thái
+            let isFocusing = data.currentStatus === 'focusing';
+            let statusColor = isFocusing ? '#ef4444' : '#10b981';
+            let statusText = isFocusing ? 'Đang tập trung' : 'Trực tuyến';
+            let statusDot = `<div style="width:14px; height:14px; border-radius:50%; background:${statusColor}; position:absolute; bottom:0; right:0; border:2px solid var(--bg-panel); box-shadow: 0 0 5px ${statusColor};" title="${statusText}"></div>`;
+
+            let isMe = doc.id === USER_DOC_ID;
+            let actionBtn = !isMe 
+                ? `<button onclick="openComposeModal('${doc.id}', '${name}')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--brand-focus); width:36px; height:36px; border-radius:8px; cursor:pointer;" title="Gửi thư"><i class="fa-solid fa-paper-plane"></i></button>` 
+                : `<div style="width:36px;"></div>`;
+
+            let rankStyle = rank === 1 ? "color:#eab308; font-size:1.5rem; font-weight:900;" : (rank === 2 ? "color:#94a3b8; font-size:1.3rem;" : "color:#b45309; font-size:1.2rem;");
+            
+            html += `
+            <div class="stagger-item" style="display:flex; align-items:center; padding:12px; border-radius:16px; background:${isMe ? 'rgba(14,165,233,0.05)' : 'var(--bg-hover)'}; border:1px solid ${isMe ? 'var(--brand-focus)' : 'var(--border)'};">
+                <div style="width:35px; text-align:center; font-weight:800; ${rankStyle}">${rank}</div>
+                <div style="position:relative; margin:0 12px;">
+                    <img src="${photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover;">
+                    ${statusDot}
+                </div>
+                <div style="flex:1; overflow:hidden;">
+                    <div style="font-weight:800; color:var(--text-main); font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                    <div style="font-weight:900; color:var(--brand-trophy); font-size:1.1rem;">${score}</div>
+                </div>
+                ${actionBtn}
+            </div>`;
+            rank++;
+        });
+        content.innerHTML = html;
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = '<div style="text-align:center; color:#ef4444;">Lỗi kết nối máy chủ.</div>';
     }
 }
