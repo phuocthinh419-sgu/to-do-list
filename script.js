@@ -137,44 +137,36 @@ let lastRestDate = localStorage.getItem('saasLastRest') || "";
 let joinDate = localStorage.getItem('saasJoinDate');
 if (!joinDate) {
     let t = new Date(); 
-    t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
-    joinDate = t.toISOString().split('T')[0];
+    joinDate = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
     localStorage.setItem('saasJoinDate', joinDate);
 }
 
-// 2. Hàm tính toán mốc ngày Thứ 2 của tuần bất kỳ
+// Hàm tính Thứ 2 tuyệt đối an toàn (Không dùng TimezoneOffset)
 function getGlobalMonday(dateObj = new Date()) {
-    let d = new Date(dateObj);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    let d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
     let day = d.getDay();
-    let diff = d.getDate() - day + (day === 0 ? -6 : 1); // Chủ nhật (0) lùi 6 ngày để về Thứ 2
-    return new Date(d.setDate(diff)).toISOString().split('T')[0];
+    let diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    d.setDate(diff);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
 let currentGlobalMonday = getGlobalMonday();
 let cycleStartDate = localStorage.getItem('saasCycleStart');
-
-// 3. Ép đồng bộ chu kỳ: Nếu chưa có hoặc đã sang Thứ 2 tuần mới thì reset
 if (!cycleStartDate || cycleStartDate !== currentGlobalMonday) {
     cycleStartDate = currentGlobalMonday;
     localStorage.setItem('saasCycleStart', cycleStartDate);
-    
-    // Thu hồi Vương miện và Kim bài của tuần cũ
-    localStorage.removeItem('saasAchieved10h');
-    localStorage.removeItem('saasAchieved15h');
 }
 
-// 4. Hàm tính chỉ tiêu tuần linh hoạt (Giảm án cho tân binh gia nhập giữa tuần)
 function getWeeklyTarget() {
-    let target = 5.0; // Chuẩn mặc định cho thành viên cũ
-    let joinMon = getGlobalMonday(new Date(joinDate));
+    let target = 5.0; 
+    let d = new Date(joinDate);
+    let joinMon = getGlobalMonday(d);
     
-    // Nếu tuần hiện tại chính là tuần đầu tiên gia nhập
-    if (joinMon === cycleStartDate) {
-        let joinDay = new Date(joinDate).getDay();
-        joinDay = joinDay === 0 ? 7 : joinDay; // Chủ Nhật = 7
-        
-        if (joinDay > 1) { // Tham gia từ Thứ 3 (2) trở đi
+    // Nếu vẫn đang trong tuần đầu tiên tải án thư
+    if (joinMon === currentGlobalMonday) {
+        let joinDay = d.getDay();
+        joinDay = joinDay === 0 ? 7 : joinDay; 
+        if (joinDay > 1) {
             let daysRemaining = 7 - joinDay + 1;
             target = parseFloat(((5.0 / 7) * daysRemaining).toFixed(1));
         }
@@ -182,14 +174,14 @@ function getWeeklyTarget() {
     return target;
 }
 
-// 5. Hàm tính tổng mồ hôi thực tế trong tuần (Từ Thứ 2 đến hiện tại)
 function getTotalCycleHours() {
     let total = 0; 
-    let cycleStartObj = new Date(cycleStartDate);
+    let parts = currentGlobalMonday.split('-'); // Dùng cứng Thứ 2 hiện tại, phớt lờ biến đổi của Firebase
     for (let i = 0; i < 7; i++) { 
-        let d = new Date(cycleStartObj); 
+        let d = new Date(parts[0], parts[1]-1, parts[2]); 
         d.setDate(d.getDate() + i); 
-        total += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
+        let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        total += (dailyLogs[dStr] || 0); 
     }
     return total;
 }
@@ -1283,15 +1275,15 @@ function renderKPI() {
         statusEl.innerText = `${totalCycleHours.toFixed(1)} / ${targetHours}h`; 
         fillEl.style.width = `${pct}%`;
         
-        let now = new Date(); 
+       let now = new Date(); 
         let todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
         
-        // Tính toán khoảng cách ngày chuẩn tuyệt đối (bỏ qua múi giờ)
-        let todayMidnight = new Date(todayStr + "T00:00:00");
-        let cycleMidnight = new Date(cycleStartDate + "T00:00:00");
-        let diffCycleTime = todayMidnight - cycleMidnight; 
-        let diffCycleDays = Math.floor(diffCycleTime / (1000 * 60 * 60 * 24)); 
+        // Tính toán khoảng cách ngày chuẩn tuyệt đối
+        let todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let parts = currentGlobalMonday.split('-');
+        let cycleMidnight = new Date(parts[0], parts[1]-1, parts[2]);
         
+        let diffCycleDays = Math.floor((todayMidnight - cycleMidnight) / (1000 * 60 * 60 * 24)); 
         let daysLeft = Math.max(1, 7 - diffCycleDays); 
         
         // KIỂM TRA MỐC VƯỢT NGƯỠNG AN TOÀN
