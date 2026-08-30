@@ -130,12 +130,68 @@ let lastActiveDate = localStorage.getItem('saasLastActive') || "";
 let currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
 let lastRestDate = localStorage.getItem('saasLastRest') || "";
 
+// =====================================================================
+// KHỞI TẠO BIẾN DỮ LIỆU & ĐỒNG BỘ CHU KỲ TOÀN CẦU (THỨ 2 - CHỦ NHẬT)
+// =====================================================================
+// 1. Ghi nhận ngày gia nhập án thư để tính tỷ lệ thuận (Pro-rata) cho tân binh
+let joinDate = localStorage.getItem('saasJoinDate');
+if (!joinDate) {
+    let t = new Date(); 
+    t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
+    joinDate = t.toISOString().split('T')[0];
+    localStorage.setItem('saasJoinDate', joinDate);
+}
+
+// 2. Hàm tính toán mốc ngày Thứ 2 của tuần bất kỳ
+function getGlobalMonday(dateObj = new Date()) {
+    let d = new Date(dateObj);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    let day = d.getDay();
+    let diff = d.getDate() - day + (day === 0 ? -6 : 1); // Chủ nhật (0) lùi 6 ngày để về Thứ 2
+    return new Date(d.setDate(diff)).toISOString().split('T')[0];
+}
+
+let currentGlobalMonday = getGlobalMonday();
 let cycleStartDate = localStorage.getItem('saasCycleStart');
-if (!cycleStartDate) {
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    cycleStartDate = todayObj.toISOString().split('T')[0]; 
+
+// 3. Ép đồng bộ chu kỳ: Nếu chưa có hoặc đã sang Thứ 2 tuần mới thì reset
+if (!cycleStartDate || cycleStartDate !== currentGlobalMonday) {
+    cycleStartDate = currentGlobalMonday;
     localStorage.setItem('saasCycleStart', cycleStartDate);
+    
+    // Thu hồi Vương miện và Kim bài của tuần cũ
+    localStorage.removeItem('saasAchieved10h');
+    localStorage.removeItem('saasAchieved15h');
+}
+
+// 4. Hàm tính chỉ tiêu tuần linh hoạt (Giảm án cho tân binh gia nhập giữa tuần)
+function getWeeklyTarget() {
+    let target = 5.0; // Chuẩn mặc định cho thành viên cũ
+    let joinMon = getGlobalMonday(new Date(joinDate));
+    
+    // Nếu tuần hiện tại chính là tuần đầu tiên gia nhập
+    if (joinMon === cycleStartDate) {
+        let joinDay = new Date(joinDate).getDay();
+        joinDay = joinDay === 0 ? 7 : joinDay; // Chủ Nhật = 7
+        
+        if (joinDay > 1) { // Tham gia từ Thứ 3 (2) trở đi
+            let daysRemaining = 7 - joinDay + 1;
+            target = parseFloat(((5.0 / 7) * daysRemaining).toFixed(1));
+        }
+    }
+    return target;
+}
+
+// 5. Hàm tính tổng mồ hôi thực tế trong tuần (Từ Thứ 2 đến hiện tại)
+function getTotalCycleHours() {
+    let total = 0; 
+    let cycleStartObj = new Date(cycleStartDate);
+    for (let i = 0; i < 7; i++) { 
+        let d = new Date(cycleStartObj); 
+        d.setDate(d.getDate() + i); 
+        total += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
+    }
+    return total;
 }
 
 let isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
@@ -1089,48 +1145,37 @@ function checkCycleAndStreak() {
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
     // =========================================================
-    // 1. ĐẠO LUẬT TUẦN (5h/tuần) -> BẮT BUỘC SANG NGÀY THỨ 8 MỚI CHỐT
+    // 1. ĐỒNG BỘ CHU KỲ TUẦN (Chốt sổ vào 23:59 Chủ Nhật)
     // =========================================================
-    let todayMidnight = new Date(todayStr + "T00:00:00");
-    let cycleMidnight = new Date(cycleStartDate + "T00:00:00");
-    let diffCycleDays = Math.floor((todayMidnight - cycleMidnight) / (1000 * 60 * 60 * 24));
-
-    if (diffCycleDays >= 7 && !isPendingTax) {
+    let currentMon = getGlobalMonday();
+    if (currentMon !== cycleStartDate && !isPendingTax) {
         exportData(); 
 
         let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
         if (usd >= 250) {
             localStorage.setItem("usdBalance", usd - 250);
-            alert("Đã thu $250 Thuế Duy Trì Vương Triều cho tuần mới. TỰ ĐỘNG XUẤT FILE SAO LƯU!");
+            alert("Đã thu $250 phí duy trì hệ thống cho tuần mới. TỰ ĐỘNG XUẤT FILE SAO LƯU!");
             updateUsdDisplay();
         } else {
-            alert("Tài sản không đủ $250. Án thư sẽ bị niêm phong các chức năng nâng cao!");
+            alert("Tài khoản không đủ $250. Các tính năng nâng cao đã bị phong ấn!");
             localStorage.setItem("isSealed", "true");
         }
 
-        let totalCycleHours = 0;
-        let cycleStartObj = new Date(cycleStartDate);
-        // Quét trọn vẹn 7 ngày đã qua
-        for(let i = 0; i < 7; i++) {
-            let d = new Date(cycleStartObj); 
-            d.setDate(d.getDate() + i); 
-            totalCycleHours += (dailyLogs[d.toISOString().split('T')[0]] || 0); 
-        }
+        let totalCycleHours = getTotalCycleHours();
+        let target = getWeeklyTarget();
         
-        // CHỈ PHẠT THUẾ 90P KHI TỔNG TUẦN DƯỚI 5H (Theo chuẩn mới)
-        if (totalCycleHours < 5.0) {
+        if (totalCycleHours < target) {
             if (!isPendingTax) impactStockMarket("PENALTY");
             isPendingTax = true; 
             localStorage.setItem('saasPendingTax', 'true'); 
         } else {
-            alert(`TỔNG KẾT TUẦN: Bạn đã hoàn thành ${totalCycleHours.toFixed(1)} giờ. Chu kỳ mới bắt đầu!`);
+            alert(`TỔNG KẾT TUẦN: Hoàn thành ${totalCycleHours.toFixed(1)}h (Chỉ tiêu: ${target}h). Bắt đầu tuần mới!`);
         }
         
-        // Tịnh tiến cycleStart lên đúng 7 ngày
-        cycleStartObj.setDate(cycleStartObj.getDate() + 7);
-        if (todayMidnight - cycleStartObj > 14 * 24 * 3600 * 1000) cycleStartObj = new Date(todayStr);
-        cycleStartDate = cycleStartObj.toISOString().split('T')[0];
+        cycleStartDate = currentMon;
         localStorage.setItem('saasCycleStart', cycleStartDate);
+        localStorage.removeItem('saasAchieved10h');
+        localStorage.removeItem('saasAchieved15h');
     }
 
     // =========================================================
@@ -1209,22 +1254,33 @@ function checkCycleAndStreak() {
 // KHỐI LOGIC THIẾT QUÂN LUẬT (CƠ CHẾ VƯỢT NGƯỠNG ĐẠI CHÚNG)
 // =====================================================================
 function renderKPI() {
-    let totalCycleHours = 0; 
-    let cycleStartObj = new Date(cycleStartDate);
-    for(let i=0; i<7; i++) { 
-        let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); 
-        let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        totalCycleHours += (dailyLogs[dStr] || 0); 
-    }
-    
-    // Tính toán % dựa trên chuẩn thương mại: 5.0h/tuần
-    let pct = Math.min(100, (totalCycleHours / 5.0) * 100);
+    let totalCycleHours = getTotalCycleHours(); 
+    let targetHours = getWeeklyTarget(); 
+
+    // Tính toán % dựa trên chỉ tiêu (có tính tỷ lệ thuận cho tân binh)
+    let pct = Math.min(100, (totalCycleHours / targetHours) * 100);
     let statusEl = document.getElementById('kpi-status'); 
     let fillEl = document.getElementById('kpi-bar-fill'); 
     let msgEl = document.getElementById('kpi-message');
     
+    // 👑 LOGIC HIỂN THỊ VƯƠNG MIỆN TRÊN AVATAR (MỐC 15H)
+    let userBadge = document.getElementById('user-auth-badge');
+    if (userBadge) {
+        let hasCrown = localStorage.getItem('saasAchieved15h') === 'true';
+        let existingCrown = document.getElementById('avatar-crown');
+        if (hasCrown && !existingCrown) {
+            let img = userBadge.querySelector('img');
+            if (img) {
+                img.insertAdjacentHTML('afterend', '<div id="avatar-crown" style="position:absolute; top:-10px; left:12px; font-size:1.2rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); z-index:10;">👑</div>');
+                userBadge.style.position = 'relative';
+            }
+        } else if (!hasCrown && existingCrown) {
+            existingCrown.remove();
+        }
+    }
+    
     if(statusEl && fillEl && msgEl) {
-        statusEl.innerText = `${totalCycleHours.toFixed(1)} / 5.0h`; 
+        statusEl.innerText = `${totalCycleHours.toFixed(1)} / ${targetHours}h`; 
         fillEl.style.width = `${pct}%`;
         
         let now = new Date(); 
@@ -1238,33 +1294,34 @@ function renderKPI() {
         
         let daysLeft = Math.max(1, 7 - diffCycleDays); 
         
-        // KIỂM TRA MỐC VƯỢT NGƯỠNG
-        if(totalCycleHours >= 5.0) {
-            msgEl.innerHTML = '<strong style="color:#eab308"><i class="fa-solid fa-crown"></i> Vượt ngưỡng xuất chúng! Bạn đã out-trình 90% bá tánh!</strong>'; 
+        // KIỂM TRA MỐC VƯỢT NGƯỠNG AN TOÀN
+        if(totalCycleHours >= targetHours) {
+            msgEl.innerHTML = '<strong style="color:#eab308"><i class="fa-solid fa-crown"></i> Đạt chuẩn an toàn! Bạn đã hoàn thành định mức tuần.</strong>'; 
             fillEl.style.background = '#eab308'; // Vàng hoàng kim
             fillEl.style.boxShadow = '0 0 20px #eab308';
             if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') { 
-                localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); fireConfetti(); 
+                localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); 
+                if (typeof fireConfetti === 'function') fireConfetti(); 
             }
         } else {
-            let remainingHrs = 5.0 - totalCycleHours;
+            let remainingHrs = targetHours - totalCycleHours;
             let reqPace = remainingHrs / daysLeft;
-            let standardPace = 1.0; // Chuẩn mới 1.0h/ngày
+            let standardPace = targetHours / 7; // Tính chuẩn linh hoạt theo mục tiêu thực tế
             let shortfall = remainingHrs - (standardPace * daysLeft);
             
             let paceColor = ""; let paceIcon = ""; let paceStatus = ""; let pctDiffStr = "";
             
-            if (reqPace <= 1.0) {
+            if (reqPace <= standardPace) {
                 paceColor = "var(--brand-break)"; paceIcon = "🟢"; paceStatus = "An toàn";
-                let diff = Math.round((1.0 - reqPace) / 1.0 * 100);
+                let diff = Math.round((standardPace - reqPace) / standardPace * 100);
                 pctDiffStr = `<strong style="color:var(--brand-break)">-${diff}%</strong>`;
-            } else if (reqPace <= 1.5) {
+            } else if (reqPace <= standardPace * 1.5) {
                 paceColor = "#f59e0b"; paceIcon = "🟡"; paceStatus = "Cần tăng tốc"; 
-                let diff = Math.round((reqPace - 1.0) / 1.0 * 100);
+                let diff = Math.round((reqPace - standardPace) / standardPace * 100);
                 pctDiffStr = `<strong style="color:#f59e0b">+${diff}%</strong>`;
             } else {
                 paceColor = "var(--brand-warning)"; paceIcon = "🔴"; paceStatus = "Nguy cơ quá tải"; 
-                let diff = Math.round((reqPace - 1.0) / 1.0 * 100);
+                let diff = Math.round((reqPace - standardPace) / standardPace * 100);
                 pctDiffStr = `<strong style="color:var(--brand-warning)">+${diff}%</strong>`;
             }
 
@@ -1277,10 +1334,10 @@ function renderKPI() {
                         ${paceIcon} Cần <span style="color: ${paceColor}">${reqPace.toFixed(1)}h/ngày</span> để đạt mục tiêu
                     </div>
                     <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: flex; flex-direction: column; gap: 6px;">
-                        <span>Tiêu chuẩn tự học: 1.0h/ngày &middot; ${pctDiffStr} <span style="opacity: 0.8">(${paceStatus})</span></span>
+                        <span>Tiêu chuẩn tự học: ${standardPace.toFixed(1)}h/ngày &middot; ${pctDiffStr} <span style="opacity: 0.8">(${paceStatus})</span></span>
                         ${shortfall > 0 
-                            ? `<span style="color: var(--brand-warning);"><i class="fa-solid fa-triangle-exclamation"></i> Nếu duy trì 1.0h/ngày &rarr; thiếu ~${shortfall.toFixed(1)}h vào cuối tuần</span>` 
-                            : `<span style="color: var(--brand-break);"><i class="fa-solid fa-check"></i> Duy trì 1.0h/ngày là đủ để về đích an toàn.</span>`}
+                            ? `<span style="color: var(--brand-warning);"><i class="fa-solid fa-triangle-exclamation"></i> Nếu duy trì ${standardPace.toFixed(1)}h/ngày &rarr; thiếu ~${shortfall.toFixed(1)}h</span>` 
+                            : `<span style="color: var(--brand-break);"><i class="fa-solid fa-check"></i> Duy trì ${standardPace.toFixed(1)}h/ngày là đủ về đích.</span>`}
                     </div>
                 </div>
             `;
@@ -2416,32 +2473,49 @@ function submitReport() {
         let currentHour = new Date().getHours(); // Lấy giờ thực tế để xét Nhiệm vụ buổi
 
         // ========================================================
-        // 💰 BỘ MÁY TÍNH LÃI VƯỢT CHỈ TIÊU (20% SAU 1.5H)
+        // 💰 HỆ THỐNG TRẢ THƯỞNG & 3 MỐC VINH QUANG (5-10-15)
         // ========================================================
         if (!isPunishment) {
             let baseEarn = activeSessionMinutes * 1; 
-            
-            // Tính số phút bệ hạ đã học TRƯỚC khi nộp phiên này
             let todayHrsBefore = dailyLogs[dateStr] || 0; 
             let todayMinsBefore = Math.round(todayHrsBefore * 60);
             
-            // Tìm phần thời gian của phiên này vượt qua ranh giới 90 phút (1.5h)
             let extraMins = Math.min(activeSessionMinutes, Math.max(0, todayMinsBefore + activeSessionMinutes - 90));
-            let bonusEarn = 0;
+            let bonusEarn = extraMins > 0 ? Math.floor(extraMins * 0.2) : 0;
             
-            if (extraMins > 0) {
-                bonusEarn = Math.floor(extraMins * 0.2); // Lãi 20% (0.2 USD / phút) cho số phút dư
-            }
+            let hoursEarned = activeSessionMinutes / 60;
+            let currentCycleHrs = getTotalCycleHours() + hoursEarned; 
+            
+            let rewardMultiplier = 1;
+            if (currentCycleHrs >= 15.0) rewardMultiplier = 3;
+            else if (currentCycleHrs >= 10.0) rewardMultiplier = 2;
 
-            let totalEarn = baseEarn + bonusEarn;
+            let totalEarn = (baseEarn + bonusEarn) * rewardMultiplier;
+            
             let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
             localStorage.setItem("usdBalance", currentUsd + totalEarn);
             updateUsdDisplay();
 
-            let msg = `HOÀN THÀNH PHIÊN TU LUYỆN:\n- Lương cơ bản: $${baseEarn}`;
-            if (bonusEarn > 0) msg += `\n- Lãi vượt tiêu chuẩn 1.5h (+20%): $${bonusEarn}`;
-            msg += `\n=> Tài sản thu về: $${totalEarn}`;
+            let msg = `HOÀN THÀNH PHIÊN HỌC:\n- Thu nhập: $${baseEarn + bonusEarn}`;
+            if (rewardMultiplier > 1) msg += `\n- Thưởng Hệ số (x${rewardMultiplier}): $${totalEarn}`;
             alert(msg);
+
+            // Kiểm tra và trao thưởng mốc mới
+            let achieved10h = localStorage.getItem('saasAchieved10h') === 'true';
+            let achieved15h = localStorage.getItem('saasAchieved15h') === 'true';
+            
+            if (currentCycleHrs >= 10.0 && !achieved10h) {
+                localStorage.setItem('saasAchieved10h', 'true');
+                let freezes = parseInt(localStorage.getItem('saasFreezes')) || 0;
+                localStorage.setItem('saasFreezes', freezes + 1); // Cấp Kim Bài Miễn Tử
+                setTimeout(() => alert("🎉 TẤN CẤP TINH ANH (10H): Nhận 1 Kim Bài Miễn Tử & X2 Thu nhập hệ thống!"), 500);
+                if (typeof fireConfetti === 'function') fireConfetti();
+            }
+            if (currentCycleHrs >= 15.0 && !achieved15h) {
+                localStorage.setItem('saasAchieved15h', 'true');
+                setTimeout(() => alert("👑 TẤN CẤP HUYỀN THOẠI (15H): Gắn Vương Miện Danh Dự & X3 Thu nhập hệ thống!"), 1000);
+                if (typeof fireConfetti === 'function') fireConfetti();
+            }
 
             impactStockMarket("SUCCESS"); 
         }
