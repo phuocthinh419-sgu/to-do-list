@@ -9,10 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <!-- Khai báo thẻ căn cước PWA -->
     <link rel="manifest" href="manifest.json">
 
-    <!-- Kích hoạt Service Worker để cài App -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
@@ -21,7 +19,6 @@
     </script>
 </head>
 <body>
-    <!-- MÀN HÌNH TRÌNH NGỌC ẤN (LOGIN OVERLAY) -->
     <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
         <div style="font-size: 5rem; color: var(--brand-focus);"><i class="fa-solid fa-layer-group"></i></div>
         <h1 style="color: var(--text-main); font-weight: 800; font-size: 2.5rem; letter-spacing: -1px; margin: 0;">ACADEMIC APEX</h1>
@@ -31,13 +28,10 @@
         </button>
     </div>
 
-    <!-- LỚP PHÁO HOA KHẢI HOÀN -->
     <canvas id="confetti-canvas"></canvas>
 
-    <!-- MOBILE OVERLAY -->
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="brand"><i class="fa-solid fa-layer-group"></i> Academic Planner</div>
         <div class="nav-menu">
@@ -45,8 +39,8 @@
             <a class="nav-item stagger-item" style="animation-delay: 0.12s" id="nav-timetable" onclick="switchTab('timetable')"><i class="fa-regular fa-calendar-days"></i> Thời khóa biểu</a>
             <a class="nav-item stagger-item" style="animation-delay: 0.15s" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-pie"></i> Phân tích tiến độ</a>
             <a class="nav-item stagger-item" style="animation-delay: 0.2s" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho lưu trữ</a>
+            <a class="nav-item stagger-item" style="animation-delay: 0.21s; color: var(--brand-trophy);" onclick="openLeaderboard()"><i class="fa-solid fa-ranking-star"></i> Bảng Xếp Hạng</a>
             
-            <!-- NGÂN KHỐ HOÀNG GIA -->
             <div class="nav-category stagger-item" style="animation-delay: 0.22s">Ngân Khố</div>
             <div class="stagger-item" style="padding: 0 16px; margin-bottom: 24px; animation-delay: 0.23s">
                 <div style="background: var(--bg-hover); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
@@ -60,7 +54,6 @@
                 <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
                 <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 14px; margin-top: 16px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-bento); backdrop-filter: blur(var(--bg-panel-blur));">
                     <div class="mini-progress-circle">
-                        <!-- ĐÃ VÁ LỖI VIEWBOX CHO VÒNG TRÒN GIỚI NGHIÊM Ở ĐÂY -->
                         <svg viewBox="0 0 44 44"><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
                     </div>
                     <div style="display: flex; flex-direction: column;">
@@ -91,9 +84,7 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- HEADER -->
         <header class="header">
             <div class="header-title-wrapper">
                 <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
@@ -109,10 +100,8 @@
             </div>
         </header>
 
-        <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="view-section">
             
-            <!-- 1. HERO CARD: WEEKLY STRATEGIC MISSION -->
             <div class="kpi-card stagger-item" style="animation-delay: 0.05s">
                 <div class="kpi-header">
                     <h3 style="font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-crosshairs" style="color: var(--brand-focus); margin-right: 8px;"></i> Thiết Quân Luật (Tuần)</h3>
@@ -124,7 +113,6 @@
                 <p id="kpi-message" style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted); margin-top: 18px;">Hệ thống đang theo dõi tiến độ cày ải của bệ hạ.</p>
             </div>
 
-            <!-- CHIẾN LƯỢC KHUYẾN NGHỊ (ACADEMIC ENGINE) -->
             <div class="recommendation-strip stagger-item" style="animation-delay: 0.08s; margin-bottom: 36px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
                     <h3 style="font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 10px;">
@@ -132,13 +120,10 @@
                     </h3>
                 </div>
                 <div id="recom-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
-                    <!-- Engine sẽ nhúng thẻ bài vào đây -->
-                </div>
+                    </div>
             </div>
 
-            <!-- 2. IDENTITY & RHYTHM -->
             <div class="gamification-strip">
-                <!-- Academic Status -->
                 <div class="rank-card stagger-item" style="animation-delay: 0.1s; padding: 32px; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 24px;">
                         <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">Cấp Bậc Học Thuật</span>
@@ -156,7 +141,6 @@
                     <div class="rank-desc" id="rank-desc" style="margin-top: 24px; font-size: 1rem; text-align: center; color: var(--text-muted);">Cần 10h để thăng cấp Học Giả</div>
                 </div>
 
-                <!-- Discipline Rhythm (Heatmap) -->
                 <div class="heatmap-card stagger-item" style="animation-delay: 0.2s; padding: 32px; display: flex; flex-direction: column;">
                     <div class="heatmap-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
@@ -187,7 +171,6 @@
                 </div>
             </div>
 
-            <!-- 3. TÀI NGUYÊN & SỰ KIỆN -->
             <div class="stock-strip stagger-item" style="animation-delay: 0.08s; padding: 0 24px 24px;">
                 <h3 style="font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-warning);"></i> Thương Hội Hoàng Gia</h3>
                 <div id="stock-market-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;"></div>
@@ -195,14 +178,12 @@
 
             <div class="countdown-strip" id="countdown-strip"></div>
             
-            <!-- 4. TACTICAL: ACTIVE OBJECTIVES -->
             <div style="padding: 0 24px 20px;">
                 <h3 style="font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-book-open" style="color: var(--brand-info);"></i> Tiến Độ Mục Tiêu</h3>
             </div>
             <div class="dashboard-grid" id="dashboard-grid"></div>
         </div>
 
-        <!-- TIMETABLE VIEW -->
         <div id="timetable-room" class="view-section" style="display: none;">
             <div class="timetable-header-controls stagger-item" style="animation-delay: 0.1s;">
                 <div class="tt-date-display">
@@ -230,7 +211,6 @@
             </div>
         </div>
 
-        <!-- TIMETABLE MODAL -->
         <div id="timetable-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
             <div class="modal-content" style="max-width: 500px; width: 100%;">
                 <div class="modal-header">
@@ -268,13 +248,10 @@
             </div>
         </div>
         
-        <!-- ANALYTICS ROOM VIEW -->
         <div id="analytics-room" class="view-section"></div>
 
-        <!-- TROPHY ROOM VIEW -->
         <div id="trophy-room" class="view-section"></div>
 
-        <!-- TROPHY DETAIL -->
         <div id="trophy-detail" class="view-section">
             <button class="btn-back stagger-item" style="animation-delay: 0.1s; margin-bottom: 24px;" onclick="switchTab('trophy')"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
             <h2 id="td-title" class="stagger-item" style="animation-delay: 0.2s; font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); letter-spacing: -1px;">Tên mục tiêu</h2>
@@ -283,22 +260,17 @@
         </div>
     </main>
 
-    <!-- KHU VỰC TẬP TRUNG (FOCUS ROOM V7 - THÀNH TRÌ BẤT HOẠI) -->
     <div id="focus-room" style="display: none; background-image: url('https://i.pinimg.com/originals/a4/f2/8d/a4f28d6f8fc6de94bc0283f510bd6d38.gif'); background-size: cover; background-position: center;">
         
-        <!-- Lớp màng sương mờ -->
         <div id="focus-overlay" style="position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 0;"></div>
 
-        <!-- THANH ĐIỀU HƯỚNG TRÊN CÙNG -->
         <div class="focus-nav">
             <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Rút lui</button>
             <div id="focus-target-info">Mục tiêu: Đang nạp...</div>
         </div>
 
-        <!-- LƯỚI CHỨA WIDGET (Tách biệt hoàn toàn với thanh điều hướng) -->
         <div class="focus-widget-grid">
             
-            <!-- WIDGET 1: ĐỒNG HỒ TRUNG TÂM -->
             <div id="widget-timer">
                 <div class="widget-header"><i class="fa-solid fa-crosshairs"></i> Bộ Chỉ Huy</div>
                 <div class="widget-body">
@@ -318,11 +290,9 @@
                 </div>
             </div>
 
-            <!-- WIDGET 2: NGỰ ÂM CÁC -->
             <div id="widget-music">
                 <div class="widget-header"><i class="fa-solid fa-music" style="color: #fbbf24;"></i> Ngự Âm Các (Quán Lofi)</div>
                 <div class="widget-body">
-                    <!-- Bảng giá thuê -->
                     <div id="music-shop" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
                         <div style="font-weight: 800; color: #fff; font-size: 1.05rem; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;"><i class="fa-solid fa-store" style="color: #fbbf24;"></i> Thuê Không Gian Âm Nhạc</div>
                         <button class="btn-timer" onclick="rentMusic(30, 10)" style="display:flex; justify-content: space-between; width: 100%; max-width:100%; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff;"><i class="fa-solid fa-mug-hot" style="color: #fbbf24; margin-right:8px;"></i>Gói 30 Phút</span><span style="color: #fbbf24; font-weight: 800;">$10</span></button>
@@ -330,7 +300,6 @@
                         <button class="btn-timer" onclick="rentMusic(120, 35)" style="display:flex; justify-content: space-between; width: 100%; max-width:100%; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff;"><i class="fa-solid fa-crown" style="color: #eab308; margin-right:8px;"></i>Gói 120 Phút</span><span style="color: #fbbf24; font-weight: 800;">$35</span></button>
                     </div>
 
-                    <!-- Trạm phát nhạc -->
                     <div id="music-player" style="display: none; flex-direction: column; gap: 16px; width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(251, 191, 36, 0.15); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.3);">
                             <span style="font-size: 0.85rem; font-weight: 800; color: #fbbf24; text-transform: uppercase;">Thời gian còn lại</span>
@@ -352,7 +321,6 @@
         </div>
     </div>
 
-    <!-- MODALS -->
     <div id="report-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -381,7 +349,6 @@
         </div>
     </div>
 
-    <!-- TRADING MODAL (CỬA HÀNG CHỨNG KHOÁN) -->
     <div id="trade-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
         <div class="modal-content" style="max-width: 450px; text-align: center; padding: 40px 32px;">
             <div style="font-size: 2.5rem; margin-bottom: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-dash);"></i></div>
@@ -407,12 +374,10 @@
         </div>
     </div>
     
-    <!-- MẠCH MÁU FIREBASE (BẮT BUỘC PHẢI CÓ TRƯỚC SCRIPT.JS) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
-    <!-- LIÊN KẾT VỚI LINH HỒN JAVASCRIPT -->
     <script src="script.js"></script>
 </body>
 </html>
