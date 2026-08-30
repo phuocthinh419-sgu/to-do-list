@@ -3722,16 +3722,25 @@ async function sendMessage() {
             isRead: false
         });
         
-        alert("Tin nhắn đã được gửi thành công!");
-        document.getElementById('compose-modal').style.display = 'none';
+        // Hiệu ứng thành công thay thế cho alert
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Thành công';
+        btn.style.background = '#10b981'; // Chuyển nút sang màu xanh lá
+        btn.style.borderColor = '#10b981';
+        
+        // Đợi 0.8 giây rồi tự động đóng cửa sổ và reset nút
+        setTimeout(() => {
+            document.getElementById('compose-modal').style.display = 'none';
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; 
+            btn.style.background = ''; // Trả lại màu gốc của CSS
+            btn.style.borderColor = '';
+            btn.disabled = false;
+        }, 800);
+        
     } catch (err) {
         console.error(err);
         alert("Lỗi hệ thống: Không thể gửi tin nhắn. Vui lòng thử lại sau.");
-    } finally {
-        if (btn) {
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; 
-            btn.disabled = false;
-        }
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; 
+        btn.disabled = false;
     }
 }
 
