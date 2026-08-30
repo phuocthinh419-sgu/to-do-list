@@ -280,11 +280,16 @@ async function syncToCloud() {
             lastRestDate: localStorage.getItem('saasLastRest') || "",
             achComeback: localStorage.getItem('ach_comeback') || "false",
             timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [], 
-            lastUpdated: Date.now()
+            lastUpdated: Date.now(),
+            
+            // 🏆 BỔ SUNG DỮ LIỆU ĐỂ LÊN BẢNG XẾP HẠNG
+            displayName: currentUser.displayName || "Ẩn danh",
+            photoURL: currentUser.photoURL || "",
+            weeklyHours: getTotalCycleHours()
         };
         localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
         await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
-        console.log("☁️ Đã đồng bộ mồ hôi và lịch trình lên Thiên Đình.");
+        console.log("☁️ Đã đồng bộ mồ hôi và điểm xếp hạng lên Thiên Đình.");
         
         let statusIcon = document.getElementById('status-box');
         if (statusIcon && !isSessionActive && !isBreakActive && !isGracePeriod) {
@@ -3312,4 +3317,127 @@ window.renderDashboard = function() {
     initDailyQuests();         
     renderDailyQuests();
     checkNoonPenalty(); // Triệu hồi đao phủ đi tuần tra     
+}
+
+// =====================================================================
+// BẢNG XẾP HẠNG TOÀN CẦU (GLOBAL LEADERBOARD REAL-TIME)
+// =====================================================================
+
+// Tự động chèn nút Bảng Xếp Hạng vào Menu
+setTimeout(() => {
+    let navMenu = document.querySelector('.nav-menu');
+    if (navMenu && !document.getElementById('btn-open-leaderboard')) {
+        let btnHtml = `
+        <div id="btn-open-leaderboard" class="nav-item stagger-item" onclick="openLeaderboard()" style="animation-delay: 0.5s; cursor: pointer; color: var(--brand-trophy);">
+            <i class="fa-solid fa-ranking-star"></i>
+            <span>Bảng Xếp Hạng</span>
+        </div>`;
+        navMenu.insertAdjacentHTML('beforeend', btnHtml);
+    }
+}, 1000);
+
+function openLeaderboard() {
+    // 1. Tạo giao diện Modal nếu chưa có
+    let modal = document.getElementById('leaderboard-modal');
+    if (!modal) {
+        let html = `
+        <div id="leaderboard-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+            <div style="background:var(--bg-panel); width:90%; max-width:500px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; overflow-y:auto; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-xmark"></i></button>
+                
+                <h2 style="margin-top:0; text-align:center; color:var(--brand-trophy); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng</h2>
+                
+                <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; margin-top: 20px;">
+                    <button id="tab-lb-hours" onclick="fetchLeaderboard('weeklyHours')" style="flex:1; padding:12px; border-radius:12px; background:var(--brand-focus); color:#fff; border:none; font-weight:800; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-fire"></i> Top Giờ Học</button>
+                    <button id="tab-lb-streak" onclick="fetchLeaderboard('streak')" style="flex:1; padding:12px; border-radius:12px; background:var(--bg-hover); color:var(--text-main); border:1px solid var(--border); font-weight:800; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-bolt"></i> Top Chuỗi Kỷ Luật</button>
+                </div>
+
+                <div id="leaderboard-content" style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px; color: var(--brand-focus);"></i><br>Đang tải dữ liệu từ máy chủ...</div>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        modal = document.getElementById('leaderboard-modal');
+    }
+    
+    modal.style.display = 'flex';
+    
+    // Ép đồng bộ điểm mới nhất của ngài lên server trước khi mở bảng
+    if (typeof syncToCloud === 'function') syncToCloud();
+    
+    fetchLeaderboard('weeklyHours');
+}
+
+async function fetchLeaderboard(orderByField) {
+    const content = document.getElementById('leaderboard-content');
+    
+    // Cập nhật UI nút Tab
+    document.getElementById('tab-lb-hours').style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+    document.getElementById('tab-lb-hours').style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)';
+    document.getElementById('tab-lb-streak').style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+    document.getElementById('tab-lb-streak').style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)';
+
+    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px; color: var(--brand-focus);"></i><br>Đang sắp xếp thứ hạng...</div>';
+    
+    try {
+        const snapshot = await db.collection("academic_apex")
+            .orderBy(orderByField, "desc")
+            .limit(30)
+            .get();
+            
+        if (snapshot.empty) {
+            content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">Chưa có dữ liệu trên bảng vàng.</div>';
+            return;
+        }
+
+        let html = '';
+        let rank = 1;
+        
+        snapshot.forEach((doc) => {
+            let data = doc.data();
+            let name = data.displayName || "Ẩn danh";
+            let photo = data.photoURL || "https://via.placeholder.com/44";
+            
+            // Xử lý điểm số tùy theo Tab đang mở
+            let score = orderByField === 'weeklyHours' 
+                ? (data.weeklyHours || 0).toFixed(1) + 'h' 
+                : (data.streak || 0) + ' Ngày';
+            
+            // Tùy chỉnh màu sắc Top 1, 2, 3
+            let rankStyle = "color:var(--text-muted); font-size:1.1rem; font-weight:800; width:35px; text-align:center;";
+            let crownHtml = "";
+            
+            if(rank === 1) {
+                rankStyle = "color:#eab308; font-size:1.5rem; font-weight:900; width:35px; text-align:center; text-shadow:0 0 15px rgba(234,179,8,0.4);";
+                crownHtml = '<i class="fa-solid fa-crown" style="color: #eab308; position: absolute; top: -10px; left: -10px; font-size: 1.2rem; transform: rotate(-20deg);"></i>';
+            }
+            else if(rank === 2) rankStyle = "color:#94a3b8; font-size:1.3rem; font-weight:800; width:35px; text-align:center;";
+            else if(rank === 3) rankStyle = "color:#b45309; font-size:1.2rem; font-weight:800; width:35px; text-align:center;";
+
+            let isMe = doc.id === USER_DOC_ID;
+            let bgStyle = isMe ? "background: linear-gradient(90deg, rgba(14,165,233,0.1) 0%, rgba(0,0,0,0) 100%); border: 1px solid var(--brand-focus);" : "background:var(--bg-hover); border:1px solid var(--border);";
+
+            html += `
+            <div class="stagger-item" style="animation-delay: ${rank * 0.05}s; display:flex; align-items:center; padding:14px; border-radius:16px; ${bgStyle} position: relative;">
+                <div style="${rankStyle}">${rank}</div>
+                <div style="position: relative; margin:0 14px;">
+                    ${crownHtml}
+                    <img src="${photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover; border: 2px solid ${isMe ? 'var(--brand-focus)' : 'transparent'};">
+                </div>
+                <div style="flex:1; overflow:hidden;">
+                    <div style="font-weight:800; color:var(--text-main); font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${name} ${isMe ? '<span style="font-size:0.7rem; color:var(--brand-focus); background: rgba(14,165,233,0.1); padding: 2px 6px; border-radius: 4px; vertical-align: middle;">Tài khoản của bạn</span>' : ''}
+                    </div>
+                </div>
+                <div style="font-weight:900; color:var(--brand-trophy); font-size:1.2rem; margin-left: 10px;">${score}</div>
+            </div>`;
+            rank++;
+        });
+        
+        content.innerHTML = html;
+    } catch (error) {
+        console.error("Lỗi tải BXH:", error);
+        content.innerHTML = '<div style="text-align:center; color:#ef4444; padding: 20px;">Lỗi kết nối Thiên Đình. Vui lòng kiểm tra lại mạng.</div>';
+    }
 }
