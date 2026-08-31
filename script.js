@@ -1284,8 +1284,32 @@ function renderKPI() {
     let totalCycleHours = getTotalCycleHours(); 
     let targetHours = getWeeklyTarget(); 
 
-    // Tính toán % dựa trên chỉ tiêu (có tính tỷ lệ thuận cho tân binh)
-    let pct = Math.min(100, (totalCycleHours / targetHours) * 100);
+    // --- LOGIC GAME HÓA 3 MÀN (Mới) ---
+    // Mặc định Màn 1 (0h - 5h)
+    let kpiTarget = 5;
+    let barColor = "var(--brand-focus)"; // Màu Xanh/Tím
+    let phaseText = "KHỞI ĐỘNG (Lương x1)";
+
+    // Xác định Màn chơi dựa trên số giờ thực tế
+    if (totalCycleHours >= 10) {
+        kpiTarget = 15;
+        barColor = "#ef4444"; // Đỏ (Mốc tử chiến)
+        phaseText = "TỬ CHIẾN (Lương x3)";
+    } else if (totalCycleHours >= 5) {
+        kpiTarget = 10;
+        barColor = "#f97316"; // Cam (Mốc đột phá)
+        phaseText = "ĐỘT PHÁ (Lương x2)";
+    }
+
+    // Hiệu ứng hoàn thành màn (Đầy thanh)
+    if (totalCycleHours === 5 || totalCycleHours === 10 || totalCycleHours >= 15) {
+        barColor = "#eab308"; // Vàng rực
+    }
+
+    // Tính % tiến độ dựa trên kpiTarget của màn chơi hiện tại
+    let pct = Math.min(100, (totalCycleHours / kpiTarget) * 100);
+    // ------------------------------------
+
     let statusEl = document.getElementById('kpi-status'); 
     let fillEl = document.getElementById('kpi-bar-fill'); 
     let msgEl = document.getElementById('kpi-message');
@@ -1307,10 +1331,13 @@ function renderKPI() {
     }
     
     if(statusEl && fillEl && msgEl) {
-        statusEl.innerText = `${totalCycleHours.toFixed(1)} / ${targetHours}h`; 
+        // Cập nhật giao diện thanh tiến độ theo Màn chơi
+        statusEl.innerText = `${totalCycleHours.toFixed(1)} / ${kpiTarget}h`; 
         fillEl.style.width = `${pct}%`;
+        fillEl.style.background = barColor;
+        fillEl.style.boxShadow = `0 0 10px ${barColor}`;
         
-       let now = new Date(); 
+        let now = new Date(); 
         let todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
         
         // Tính toán khoảng cách ngày chuẩn tuyệt đối
@@ -1321,19 +1348,22 @@ function renderKPI() {
         let diffCycleDays = Math.floor((todayMidnight - cycleMidnight) / (1000 * 60 * 60 * 24)); 
         let daysLeft = Math.max(1, 7 - diffCycleDays); 
         
-        // KIỂM TRA MỐC VƯỢT NGƯỠNG AN TOÀN
-        if(totalCycleHours >= targetHours) {
-            msgEl.innerHTML = '<strong style="color:#eab308"><i class="fa-solid fa-crown"></i> Đạt chuẩn an toàn! Bạn đã hoàn thành định mức tuần.</strong>'; 
-            fillEl.style.background = '#eab308'; // Vàng hoàng kim
-            fillEl.style.boxShadow = '0 0 20px #eab308';
+        // KIỂM TRA MỐC VƯỢT NGƯỠNG AN TOÀN (15H)
+        if(totalCycleHours >= 15) {
+            msgEl.innerHTML = `<strong style="color:#eab308"><i class="fa-solid fa-crown"></i> BÁ CHỦ TUẦN! Trạng thái: <span style="color:${barColor}">${phaseText}</span></strong>`; 
+            
             if(localStorage.getItem('saasKPIAchieved_' + cycleStartDate) !== 'true') { 
                 localStorage.setItem('saasKPIAchieved_' + cycleStartDate, 'true'); 
                 if (typeof fireConfetti === 'function') fireConfetti(); 
             }
         } else {
+            // Tính toán nhịp độ cần thiết cho MỐC TỐI THIỂU (Mốc đầu tiên: 5h hoặc mốc tùy chỉnh targetHours)
+            // Lưu ý: Phần phân tích này tính theo mốc cố định của tuần (targetHours), không tính theo mốc game (kpiTarget)
             let remainingHrs = targetHours - totalCycleHours;
+            if (remainingHrs < 0) remainingHrs = 0;
+
             let reqPace = remainingHrs / daysLeft;
-            let standardPace = targetHours / 7; // Tính chuẩn linh hoạt theo mục tiêu thực tế
+            let standardPace = targetHours / 7; 
             let shortfall = remainingHrs - (standardPace * daysLeft);
             
             let paceColor = ""; let paceIcon = ""; let paceStatus = ""; let pctDiffStr = "";
@@ -1353,25 +1383,25 @@ function renderKPI() {
             }
 
             let insightHtml = `
+                <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main);">
+                    Trạng thái cày ải: <strong style="color:${barColor}; text-transform: uppercase;">${phaseText}</strong>
+                </div>
                 <div style="margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                     <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 700; margin-bottom: 12px;">
-                        Còn thiếu <strong style="color:var(--text-main)">${remainingHrs.toFixed(1)}h</strong> &middot; Còn lại <strong style="color:var(--text-main)">${daysLeft} ngày</strong>
+                        Thiếu <strong style="color:var(--text-main)">${remainingHrs.toFixed(1)}h</strong> đến mốc an toàn (${targetHours}h) &middot; Còn lại <strong style="color:var(--text-main)">${daysLeft} ngày</strong>
                     </div>
                     <div style="font-size: 1.05rem; color: var(--text-main); font-weight: 800; margin-bottom: 8px;">
                         ${paceIcon} Cần <span style="color: ${paceColor}">${reqPace.toFixed(1)}h/ngày</span> để đạt mục tiêu
                     </div>
                     <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: flex; flex-direction: column; gap: 6px;">
                         <span>Tiêu chuẩn tự học: ${standardPace.toFixed(1)}h/ngày &middot; ${pctDiffStr} <span style="opacity: 0.8">(${paceStatus})</span></span>
-                        ${shortfall > 0 
+                        ${shortfall > 0 && remainingHrs > 0
                             ? `<span style="color: var(--brand-warning);"><i class="fa-solid fa-triangle-exclamation"></i> Nếu duy trì ${standardPace.toFixed(1)}h/ngày &rarr; thiếu ~${shortfall.toFixed(1)}h</span>` 
                             : `<span style="color: var(--brand-break);"><i class="fa-solid fa-check"></i> Duy trì ${standardPace.toFixed(1)}h/ngày là đủ về đích.</span>`}
                     </div>
                 </div>
             `;
-
             msgEl.innerHTML = insightHtml; 
-            fillEl.style.background = 'var(--brand-focus)'; // Xanh ngọc
-            fillEl.style.boxShadow = '0 0 10px rgba(234, 88, 12, 0.4)';
         }
     }
 }
