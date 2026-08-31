@@ -1288,17 +1288,17 @@ function renderKPI() {
     // Mặc định Màn 1 (0h - 5h)
     let kpiTarget = 5;
     let barColor = "var(--brand-focus)"; // Màu Xanh/Tím
-    let phaseText = "KHỞI ĐỘNG (Lương x1)";
+    let phaseText = "KHỞI ĐỘNG (Phần thưởng mặc định)";
 
     // Xác định Màn chơi dựa trên số giờ thực tế
     if (totalCycleHours >= 10) {
         kpiTarget = 15;
         barColor = "#ef4444"; // Đỏ (Mốc tử chiến)
-        phaseText = "TỬ CHIẾN (Lương x3)";
+        phaseText = "BỨT PHÁ (Phần thưởng x3)";
     } else if (totalCycleHours >= 5) {
         kpiTarget = 10;
         barColor = "#f97316"; // Cam (Mốc đột phá)
-        phaseText = "ĐỘT PHÁ (Lương x2)";
+        phaseText = "TĂNG TỐC (Phần thưởng x2)";
     }
 
     // Hiệu ứng hoàn thành màn (Đầy thanh)
