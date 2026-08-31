@@ -2338,7 +2338,10 @@ function startSession(minutes, isIce = false) {
     if(isSessionActive && !isGracePeriod) return;
     
     clearInterval(timerInterval); clearInterval(pauseInterval); clearInterval(graceInterval);
-    isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false;
+    
+    // 🛑 VÁ LỖI TẠI ĐÂY: Dập tắt công tắc Cày lố của phiên trước
+    isSessionActive = true; isPaused = false; isGracePeriod = false; isBreakActive = false; 
+    isOvertimePhase = false; overtimeMinutes = 0;
     
     // Đổi trạng thái thành Đang tập trung (Đèn đỏ)
     updateUserStatus('focusing');
