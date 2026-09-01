@@ -2783,8 +2783,9 @@ function autoHealDiscrepancy() {
         if(g.reports) {
             g.reports.forEach(r => {
                 let rDate = r.date.split(' - ')[0];
-                if(rDate === localDateStr) {
-                    let mins = parseInt(r.type.replace('p',''));
+                // Chuẩn hóa so sánh ngày bỏ số 0 thừa
+                if(rDate === localDateStr || rDate.replace(/^0/, '') === localDateStr.replace(/^0/, '')) {
+                    let mins = parseInt(r.type.replace(/\D/g, '')) || 0;
                     actualHoursToday += (mins / 60);
                 }
             });
@@ -2792,7 +2793,8 @@ function autoHealDiscrepancy() {
     });
     
     let currentLogged = dailyLogs[todayStr] || 0;
-    if (Math.abs(currentLogged - actualHoursToday) > 0.01) {
+    // CHỈ CẬP NHẬT TĂNG, TUYỆT ĐỐI KHÔNG TỰ Ý HẠ GIỜ XUỐNG 0
+    if (actualHoursToday > currentLogged) {
         dailyLogs[todayStr] = actualHoursToday;
         localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
     }
