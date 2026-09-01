@@ -2910,7 +2910,7 @@ function openTimetableModal() {
     twoMonths.setMonth(today.getMonth() + 2);
     
     // Ép dùng giờ địa phương (Local Time) và chuẩn hóa có số 0 ở đầu
-    let todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+   let todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
     let twoMonthsStr = twoMonths.getFullYear() + '-' + String(twoMonths.getMonth() + 1).padStart(2, '0') + '-' + String(twoMonths.getDate()).padStart(2, '0');
     
     document.getElementById('tt-start').value = todayStr;
