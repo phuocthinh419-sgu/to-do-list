@@ -2900,11 +2900,21 @@ function renderTimetable() {
 
 // 4. Modal & Lưu Dữ Liệu
 function openTimetableModal() {
-    document.getElementById('tt-name').value = ''; document.getElementById('tt-code').value = '';
-    document.getElementById('tt-room').value = ''; document.getElementById('tt-teacher').value = '';
-    let today = new Date(); let twoMonths = new Date(); twoMonths.setMonth(today.getMonth() + 2);
-    document.getElementById('tt-start').value = today.toISOString().split('T')[0];
-    document.getElementById('tt-end').value = twoMonths.toISOString().split('T')[0];
+    document.getElementById('tt-name').value = ''; 
+    document.getElementById('tt-code').value = '';
+    document.getElementById('tt-room').value = ''; 
+    document.getElementById('tt-teacher').value = '';
+    
+    let today = new Date(); 
+    let twoMonths = new Date(); 
+    twoMonths.setMonth(today.getMonth() + 2);
+    
+    // Ép dùng giờ địa phương (Local Time) và chuẩn hóa có số 0 ở đầu
+    let todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    let twoMonthsStr = twoMonths.getFullYear() + '-' + String(twoMonths.getMonth() + 1).padStart(2, '0') + '-' + String(twoMonths.getDate()).padStart(2, '0');
+    
+    document.getElementById('tt-start').value = todayStr;
+    document.getElementById('tt-end').value = twoMonthsStr;
     document.getElementById('timetable-modal').style.display = 'flex';
 }
 
