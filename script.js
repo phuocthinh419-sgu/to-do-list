@@ -1757,23 +1757,31 @@ function renderDashboard() {
 }
 
 // =====================================================================
-// 2. CẬP NHẬT RENDER ANALYTICS (THÊM TREND THÁNG & GỘP ACADEMIC INSIGHTS)
+// 2. CẬP NHẬT RENDER ANALYTICS (BẢN VÁ LỖI MÚI GIỜ & TREND TUẦN)
 // =====================================================================
 function renderAnalytics() {
     const room = document.getElementById('analytics-room'); room.innerHTML = ''; let allGoals = goals; 
-    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset()); let todayStr = todayObj.toISOString().split('T')[0];
-    let yesterdayObj = new Date(todayObj); yesterdayObj.setDate(yesterdayObj.getDate() - 1); let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+    
+    // 1. CHUẨN HÓA MÚI GIỜ LOCAL (Trảm đứt lệnh +7 tiếng gây lệch ngày)
+    let todayObj = new Date(); 
+    let todayStr = todayObj.getFullYear() + '-' + String(todayObj.getMonth() + 1).padStart(2, '0') + '-' + String(todayObj.getDate()).padStart(2, '0');
+    
+    let yesterdayObj = new Date(); yesterdayObj.setDate(yesterdayObj.getDate() - 1); 
+    let yesterdayStr = yesterdayObj.getFullYear() + '-' + String(yesterdayObj.getMonth() + 1).padStart(2, '0') + '-' + String(yesterdayObj.getDate()).padStart(2, '0');
 
     let todayHrs = dailyLogs[todayStr] || 0; let yesterdayHrs = dailyLogs[yesterdayStr] || 0;
-    let cycleStartObj = new Date(cycleStartDate);
+    
+    // 2. ÉP DÙNG TUẦN THỰC TẾ (Bỏ qua biến cycleStartDate bị kẹt tuần trước)
+    let parts = currentGlobalMonday.split('-'); 
+    let cycleStartObj = new Date(parts[0], parts[1]-1, parts[2]); 
     
     // Tính toán Trend Tuần
-    let thisWeekHrs = 0; for(let i=0; i<7; i++) { let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); thisWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); }
-    let lastWeekHrs = 0; for(let i=1; i<=7; i++) { let d = new Date(cycleStartObj); d.setDate(d.getDate() - i); lastWeekHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); }
+    let thisWeekHrs = 0; for(let i=0; i<7; i++) { let d = new Date(cycleStartObj); d.setDate(d.getDate() + i); let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); thisWeekHrs += (dailyLogs[dStr] || 0); }
+    let lastWeekHrs = 0; for(let i=1; i<=7; i++) { let d = new Date(cycleStartObj); d.setDate(d.getDate() - i); let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); lastWeekHrs += (dailyLogs[dStr] || 0); }
     
-    // Bổ sung: Tính toán Trend Tháng (30 Ngày)
-    let thisMonthHrs = 0; for(let i=0; i<30; i++) { let d = new Date(todayObj); d.setDate(d.getDate() - i); thisMonthHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); }
-    let lastMonthHrs = 0; for(let i=30; i<60; i++) { let d = new Date(todayObj); d.setDate(d.getDate() - i); lastMonthHrs += (dailyLogs[d.toISOString().split('T')[0]] || 0); }
+    // Tính toán Trend Tháng (30 Ngày)
+    let thisMonthHrs = 0; for(let i=0; i<30; i++) { let d = new Date(); d.setDate(d.getDate() - i); let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); thisMonthHrs += (dailyLogs[dStr] || 0); }
+    let lastMonthHrs = 0; for(let i=30; i<60; i++) { let d = new Date(); d.setDate(d.getDate() - i); let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); lastMonthHrs += (dailyLogs[dStr] || 0); }
 
     function getTrendHtml(current, previous, label, delay) {
         let diff = current - previous; let pct = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
@@ -1789,9 +1797,12 @@ function renderAnalytics() {
 
     // 1. PLANNED VS ACTUAL
     let plannedVsActualHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.3s; grid-column: 1 / -1;"><div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;"><h3>Nhịp độ Tác chiến (Planned vs Actual)</h3><span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-bullseye" style="color: var(--brand-warning);"></i> Định mức: 1.7h / ngày</span></div><div class="bar-chart" style="height: 220px; position: relative;"><div style="position: absolute; top: 57.5%; left: 0; width: 100%; border-top: 2px dashed var(--brand-warning); opacity: 0.6; z-index: 1;"></div>`;
+    
+    // VẼ CỘT BẰNG NGÀY GIỜ CHUẨN XÁC CỦA ĐỊA PHƯƠNG
     for(let i=6; i>=0; i--) {
-        let d = new Date(todayObj); d.setDate(d.getDate() - i);
-        let dStr = d.toISOString().split('T')[0]; let hrs = dailyLogs[dStr] || 0;
+        let d = new Date(); d.setDate(d.getDate() - i);
+        let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); 
+        let hrs = dailyLogs[dStr] || 0;
         let hPct = Math.min(100, (hrs / 4) * 100); let daysArr = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
         let dayName = i === 0 ? "Hôm nay" : daysArr[d.getDay()];
         let barColor = hrs >= 1.7 ? 'var(--brand-break)' : 'var(--brand-dash)';
@@ -1843,7 +1854,7 @@ function renderAnalytics() {
         let deadlineTime = new Date(g.deadline).getTime();
         let daysLeftToDeadline = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24));
         let logged = g.target - g.current;
-        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(cycleStartDate).getTime();
+        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(currentGlobalMonday).getTime();
         let daysElapsed = Math.max(1, Math.ceil((todayObj.getTime() - createdTime) / (1000 * 3600 * 24)));
         let currentPace = logged / daysElapsed;
         if (daysLeftToDeadline < 0 || (currentPace > 0 && todayObj.getTime() + (Math.ceil(g.current / currentPace) * 24 * 3600 * 1000) > deadlineTime) || (g.current > 0 && currentPace === 0 && daysLeftToDeadline > 0)) {
@@ -1852,7 +1863,7 @@ function renderAnalytics() {
         }
     });
 
-    // 3. TÍCH HỢP ACADEMIC INSIGHTS (GỘP TIÊN TRI & CỐ VẤN)
+    // 3. TÍCH HỢP ACADEMIC INSIGHTS
     let insightsHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.5s; grid-column: 1 / -1; background: linear-gradient(145deg, var(--bg-hover) 0%, var(--bg-panel) 100%); border-color: var(--brand-focus);">
         <h3 style="margin-bottom: 24px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--brand-focus); margin-right: 8px;"></i> Academic Insights</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">`;
@@ -1907,11 +1918,11 @@ function renderAnalytics() {
     let profileHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.6s; display: flex; flex-direction: column;"><h3 style="margin-bottom: 20px;">Hồ Sơ Học Thuật</h3><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1;"><div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;"><div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Giờ vàng</div><div style="font-size: 0.95rem; color: var(--text-main); font-weight: 800;">${timeName}</div></div><div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;"><div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Phiên TB</div><div style="font-size: 0.95rem; color: var(--text-main); font-weight: 800;">${avgSessionMins} phút</div></div><div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;"><div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Sở Trường</div><div style="font-size: 0.95rem; color: var(--brand-break); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${strongestGoal ? strongestGoal.name : 'Chưa có'}</div></div><div style="background: var(--bg-hover); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; min-width: 0;"><div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Báo Động</div><div style="font-size: 0.95rem; color: var(--brand-warning); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${weakestGoal ? weakestGoal.name : 'Chưa có'}</div></div></div></div>`;
     
     let dnaDiscipline = Math.min(100, Math.round(currentStreak * (100/14))); 
-    let activeDays30 = 0; for(let i=0; i<30; i++){ let d = new Date(todayObj); d.setDate(d.getDate()-i); if (dailyLogs[d.toISOString().split('T')[0]] > 0) activeDays30++; }
+    let activeDays30 = 0; for(let i=0; i<30; i++){ let d = new Date(); d.setDate(d.getDate()-i); let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); if (dailyLogs[dStr] > 0) activeDays30++; }
     let consistencyScore = Math.round((activeDays30 / 30) * 100);
     let dnaFocus = Math.min(100, Math.round((avgSessionMins / 30) * 100)); 
     let dnaPace = Math.min(100, Math.round(((thisWeekHrs / 7) / 1.7) * 100)); 
-    let onTrackGoalsCount = 0; activeOrLoggedGoals.forEach(g => { let logged = g.target - g.current; let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(cycleStartDate).getTime(); let daysElapsed = Math.max(1, Math.ceil((todayObj.getTime() - createdTime) / (1000 * 3600 * 24))); let pace = logged / daysElapsed; if (g.deadline) { let deadlineTime = new Date(g.deadline).getTime(); let daysLeft = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24)); let reqPace = daysLeft > 0 ? (g.current / daysLeft) : g.current; if (pace >= reqPace * 0.7) onTrackGoalsCount++; } else { onTrackGoalsCount++; } });
+    let onTrackGoalsCount = 0; activeOrLoggedGoals.forEach(g => { let logged = g.target - g.current; let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : new Date(currentGlobalMonday).getTime(); let daysElapsed = Math.max(1, Math.ceil((todayObj.getTime() - createdTime) / (1000 * 3600 * 24))); let pace = logged / daysElapsed; if (g.deadline) { let deadlineTime = new Date(g.deadline).getTime(); let daysLeft = Math.ceil((deadlineTime - todayObj.getTime()) / (1000 * 3600 * 24)); let reqPace = daysLeft > 0 ? (g.current / daysLeft) : g.current; if (pace >= reqPace * 0.7) onTrackGoalsCount++; } else { onTrackGoalsCount++; } });
     let dnaControl = activeOrLoggedGoals.length > 0 ? Math.round((onTrackGoalsCount / activeOrLoggedGoals.length) * 100) : 0;
     
     let dnaHtml = `<div class="analytics-card stagger-item" style="animation-delay: 0.65s; display: flex; flex-direction: column; justify-content: center;"><h3 style="margin-bottom: 24px;">ADN Học Thuật</h3><div class="stat-row"><div class="stat-label"><span>KỶ LUẬT (Streak)</span> <span>${dnaDiscipline}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaDiscipline}%; background: var(--brand-dash)"></div></div></div><div class="stat-row"><div class="stat-label"><span>BỀN BỈ (30 Ngày)</span> <span>${consistencyScore}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${consistencyScore}%; background: var(--brand-break)"></div></div></div><div class="stat-row"><div class="stat-label"><span>TẬP TRUNG (Focus)</span> <span>${dnaFocus}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaFocus}%; background: var(--brand-focus)"></div></div></div><div class="stat-row"><div class="stat-label"><span>TỐC ĐỘ (Pace)</span> <span>${dnaPace}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaPace}%; background: #a855f7"></div></div></div><div class="stat-row" style="margin-bottom: 0;"><div class="stat-label"><span>KIỂM SOÁT (Control)</span> <span>${dnaControl}%</span></div><div class="stat-bar" style="height:10px;"><div class="stat-fill" style="width: ${dnaControl}%; background: var(--brand-info)"></div></div></div></div>`;
