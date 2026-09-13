@@ -412,8 +412,12 @@ function initializeAppState() {
     randomDailyMarketFluctuation();
     updateUsdDisplay();
     autoHealDiscrepancy();
+    
+    // ĐẠO LUẬT THÉP: Ép hệ thống chốt sổ và phạt ngay khi vừa mở án thư
+    checkCycleAndStreak(); 
+
     renderCountdowns(); 
-    clearInterval(countdownInterval); // Xóa bộ đếm cũ nếu có
+    clearInterval(countdownInterval);
     countdownInterval = setInterval(() => { updateCountdownTicks(); updateCurfewCountdown(); }, 1000); 
     switchTab('dashboard'); 
     checkRecovery();
@@ -3015,14 +3019,13 @@ function renderRecommendations() {
         if (!isPausedToday && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate) {
             if(item.type === 'offline' || item.type === 'online') {
                 let existingGoal = goals.find(g => g.name.includes(item.name));
-                if(!existingGoal) {
-                    recommendations.push({
-                        type: 'review', label: 'Review Môn', icon: 'fa-book-open',
-                        title: item.name,
-                        desc: 'Bạn vừa học môn này hôm nay. Hãy ôn tập lại khi kiến thức còn nóng hổi!',
-                        suggestedTarget: 1.0
-                    });
-                }
+                recommendations.push({
+                    type: 'review', label: 'Review Môn', icon: 'fa-book-open',
+                    title: item.name,
+                    desc: 'Hôm nay ngài có lịch môn này. Hãy ôn lại để kiến thức thẩm thấu sâu hơn!',
+                    suggestedTarget: 1.0,
+                    goalId: existingGoal ? existingGoal.id : null // CÓ RỒI VẪN LƯU LẠI ID
+                });
             }
         }
     });
@@ -3036,14 +3039,13 @@ function renderRecommendations() {
         if (!isPausedTomorrow && parseInt(item.dow) === tomorrowDow && tomorrowObj >= sDate && tomorrowObj <= eDate) {
             if(item.type === 'offline' || item.type === 'online') {
                  let existingGoal = goals.find(g => g.name.includes(item.name));
-                 if(!existingGoal) {
-                    recommendations.push({
-                        type: 'prepare', label: 'Chuẩn bị', icon: 'fa-bolt',
-                        title: item.name,
-                        desc: 'Ngày mai có lịch môn này. Dành 30 phút xem trước bài sẽ làm chủ thế trận.',
-                        suggestedTarget: 0.5
-                    });
-                 }
+                 recommendations.push({
+                     type: 'prepare', label: 'Chuẩn bị', icon: 'fa-bolt',
+                     title: item.name,
+                     desc: 'Ngày mai ngài có lịch môn này. Dành 30 phút xem trước bài sẽ làm chủ thế trận.',
+                     suggestedTarget: 0.5,
+                     goalId: existingGoal ? existingGoal.id : null // CÓ RỒI VẪN LƯU LẠI ID
+                 });
             }
         }
     });
@@ -3051,19 +3053,25 @@ function renderRecommendations() {
     let topRecoms = recommendations.slice(0, 3);
     
     if(topRecoms.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bạn có thể tự do cày cuốc các môn học!</div>`;
+        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bệ hạ có thể tự do cày cuốc các môn học!</div>`;
         return;
     }
 
     topRecoms.forEach(r => {
         let badgeClass = r.type === 'review' ? 'review' : 'prepare';
         let targetText = r.suggestedTarget === 1.0 ? '1.0h' : '0.5h';
+        
+        // KIỂM TRA: Nếu đã có mục tiêu -> Học Ngay. Nếu chưa -> Tạo Mới.
+        let btnHtml = r.goalId 
+            ? `<button class="btn-accept-recom" onclick="openGoal(${r.goalId})" style="background: var(--brand-focus); border-color: var(--brand-focus); color: #fff;"><i class="fa-solid fa-play"></i> Học Ngay</button>`
+            : `<button class="btn-accept-recom" onclick="acceptRecommendation('[${r.label}] ${r.title}', ${r.suggestedTarget})"><i class="fa-solid fa-plus"></i> Tạo Mục Tiêu</button>`;
+
         container.innerHTML += `
             <div class="recom-card stagger-item">
                 <div class="recom-badge ${badgeClass}"><i class="fa-solid ${r.icon}"></i> ${r.label} &middot; Đề xuất: ${targetText}</div>
                 <div class="recom-title">${r.title}</div>
                 <div class="recom-meta">${r.desc}</div>
-                <button class="btn-accept-recom" onclick="acceptRecommendation('[${r.label}] ${r.title}', ${r.suggestedTarget})"><i class="fa-solid fa-plus"></i> Tạo Mục Tiêu Nhanh</button>
+                ${btnHtml}
             </div>
         `;
     });
