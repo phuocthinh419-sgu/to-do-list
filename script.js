@@ -1192,15 +1192,24 @@ function checkCycleAndStreak() {
             localStorage.setItem("isSealed", "true");
         }
 
-        let totalCycleHours = getTotalCycleHours();
+        // 🛑 VÁ LỖI CỐT LÕI: TÍNH TỔNG GIỜ CỦA TUẦN CŨ (cycleStartDate) ĐỂ CHỐT SỔ, TUYỆT ĐỐI KHÔNG TÍNH TUẦN MỚI
+        let oldCycleTotal = 0;
+        let parts = cycleStartDate.split('-'); 
+        for (let i = 0; i < 7; i++) { 
+            let d = new Date(parts[0], parts[1]-1, parts[2]); 
+            d.setDate(d.getDate() + i); 
+            let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+            oldCycleTotal += (dailyLogs[dStr] || 0); 
+        }
+
         let target = getWeeklyTarget();
         
-        if (totalCycleHours < target) {
+        if (oldCycleTotal < target) {
             if (!isPendingTax) impactStockMarket("PENALTY");
             isPendingTax = true; 
             localStorage.setItem('saasPendingTax', 'true'); 
         } else {
-            alert(`TỔNG KẾT TUẦN: Hoàn thành ${totalCycleHours.toFixed(1)}h (Chỉ tiêu: ${target}h). Bắt đầu tuần mới!`);
+            alert(`TỔNG KẾT TUẦN: Hoàn thành ${oldCycleTotal.toFixed(1)}h (Chỉ tiêu: ${target}h). Bắt đầu tuần mới!`);
         }
         
         cycleStartDate = currentMon;
