@@ -2807,7 +2807,7 @@ function autoHealDiscrepancy() {
         if(g.reports) {
             g.reports.forEach(r => {
                 let rDate = r.date.split(' - ')[0];
-                // Chuẩn hóa so sánh ngày bỏ số 0 thừa
+                // Xóa số 0 ở đầu để so sánh chuẩn ngày tháng
                 if(rDate === localDateStr || rDate.replace(/^0/, '') === localDateStr.replace(/^0/, '')) {
                     let mins = parseInt(r.type.replace(/\D/g, '')) || 0;
                     actualHoursToday += (mins / 60);
@@ -2817,7 +2817,7 @@ function autoHealDiscrepancy() {
     });
     
     let currentLogged = dailyLogs[todayStr] || 0;
-    // CHỈ CẬP NHẬT TĂNG, TUYỆT ĐỐI KHÔNG TỰ Ý HẠ GIỜ XUỐNG 0
+    // 🛡️ ĐẠO LUẬT THÉP: CHỈ CẬP NHẬT KHI GIỜ BÁO CÁO LỚN HƠN, TUYỆT ĐỐI KHÔNG XÓA XUỐNG
     if (actualHoursToday > currentLogged) {
         dailyLogs[todayStr] = actualHoursToday;
         localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
