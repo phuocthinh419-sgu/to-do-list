@@ -497,7 +497,11 @@ function activateRestDay() {
         alert("Không thể xả hơi khi đang mang trọng tội!"); 
         return; 
     }
-    let todayStr = new Date().toISOString().split('T')[0];
+
+    // 🛡️ VÁ LỖI MÚI GIỜ: DÙNG ĐÚNG GIỜ ĐỊA PHƯƠNG (VIỆT NAM)
+    let todayObj = new Date();
+    let todayStr = todayObj.getFullYear() + '-' + String(todayObj.getMonth() + 1).padStart(2, '0') + '-' + String(todayObj.getDate()).padStart(2, '0');
+    
     if (lastRestDate) {
         let diff = Math.floor((new Date(todayStr) - new Date(lastRestDate)) / (1000 * 60 * 60 * 24));
         if (diff < 7) { 
@@ -508,7 +512,7 @@ function activateRestDay() {
     if (confirm("Kích hoạt Nghỉ Bảo Tồn? Hôm nay bạn chỉ cần hoàn thành 45 phút (3 phiên ngắn) để duy trì chuỗi kỷ luật.")) {
         lastRestDate = todayStr; 
         localStorage.setItem('saasLastRest', lastRestDate);
-        syncToCloud();
+        if(typeof syncToCloud === 'function') syncToCloud();
         alert("Đã kích hoạt! Tận hưởng ngày nghỉ ngơi, nhưng đừng quên hoàn thành 45 phút nhẹ nhàng nhé.");
     }
 }
