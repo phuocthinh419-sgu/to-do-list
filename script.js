@@ -312,14 +312,19 @@ async function syncToCloud() {
             timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [], 
             lastUpdated: Date.now(),
             
-            // 🏆 BỔ SUNG DỮ LIỆU ĐỂ LÊN BẢNG XẾP HẠNG
+            // 🛡️ VÁ LỖI ĐỒNG BỘ: ĐƯA ÁN PHẠT VÀ NGÀY CHỐT SỔ LÊN MÂY
+            dailyDebt: parseInt(localStorage.getItem('saasDailyDebt')) || 0,
+            debtCheckedDate: localStorage.getItem('saasDebtCheckedDate') || "",
+            pendingTax: localStorage.getItem('saasPendingTax') || "false",
+            feePaidDate: localStorage.getItem('saasFeePaidDate') || "",
+            
             displayName: currentUser.displayName || "Ẩn danh",
             photoURL: currentUser.photoURL || "",
             weeklyHours: getTotalCycleHours()
         };
         localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
         await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
-        console.log("☁️ Đã đồng bộ mồ hôi và điểm xếp hạng lên Thiên Đình.");
+        console.log("☁️ Đã đồng bộ mồ hôi và hồ sơ án phạt lên Thiên Đình.");
         
         let statusIcon = document.getElementById('status-box');
         if (statusIcon && !isSessionActive && !isBreakActive && !isGracePeriod) {
@@ -346,6 +351,13 @@ function applyCloudDataToLocal(cloudData) {
     localStorage.setItem('saasLastRest', cloudData.lastRestDate || "");
     localStorage.setItem('ach_comeback', cloudData.achComeback || "false");
     localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable || []));
+    
+    // 🛡️ VÁ LỖI ĐỒNG BỘ: ÁP ĐẶT TÌNH TRẠNG NỢ NẦN TỪ MÂY XUỐNG
+    localStorage.setItem('saasDailyDebt', cloudData.dailyDebt || 0);
+    if(cloudData.debtCheckedDate) localStorage.setItem('saasDebtCheckedDate', cloudData.debtCheckedDate);
+    localStorage.setItem('saasPendingTax', cloudData.pendingTax || "false");
+    if(cloudData.feePaidDate) localStorage.setItem('saasFeePaidDate', cloudData.feePaidDate);
+
     localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
     
     // Nạp lại biến RAM để giao diện chạy đúng
@@ -358,6 +370,10 @@ function applyCloudDataToLocal(cloudData) {
     lastRestDate = localStorage.getItem('saasLastRest') || "";
     cycleStartDate = localStorage.getItem('saasCycleStart');
     timetableData = JSON.parse(localStorage.getItem('saasTimetable')) || [];
+    
+    // Cập nhật RAM cho án phạt để Giao diện không bị khóa oan
+    dailyDebtMinutes = parseInt(localStorage.getItem('saasDailyDebt')) || 0;
+    isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
 }
 
 async function initialPullFromCloud() {
