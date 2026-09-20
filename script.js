@@ -1241,8 +1241,9 @@ function checkCycleAndStreak() {
             let targetHrs = (lastRestDate === checkStr) ? 0.75 : 1.0; 
             let hrsDone = dailyLogs[checkStr] || 0;
             
-            if (hrsDone < targetHrs) {
-                let deficitHrs = targetHrs - hrsDone; 
+            let deficitHrs = targetHrs - hrsDone;
+            // 🛡️ VÁ LỖI THẬP PHÂN: Bỏ qua sai số dưới 0.01h (khoảng 36 giây)
+            if (deficitHrs > 0.01) {
                 let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5); // Nhân 1.5 lần lãi kép
                 if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
                 dailyDebtMinutes += penaltyMins; 
@@ -2802,30 +2803,39 @@ function startGracePeriod() {
 }
 
 function autoHealDiscrepancy() {
-    let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    let todayStr = todayObj.toISOString().split('T')[0];
-    let localDateStr = new Date().toLocaleDateString('vi-VN');
+    let logs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {};
+    let actualMinsPerDay = {};
     
-    let actualHoursToday = 0;
+    // Quét toàn bộ lịch sử báo cáo để tính ra số phút thực tế của TỪNG NGÀY
     goals.forEach(g => {
         if(g.reports) {
             g.reports.forEach(r => {
-                let rDate = r.date.split(' - ')[0];
-                // So sánh ngày chuẩn hóa
-                if(rDate === localDateStr || rDate.replace(/^0/, '') === localDateStr.replace(/^0/, '')) {
+                let datePart = r.date.split(' - ')[0]; // VD: "20/09/2026"
+                let parts = datePart.split('/');
+                if (parts.length === 3) {
+                    // Ép chuẩn định dạng YYYY-MM-DD
+                    let isoDate = parts[2] + '-' + parts[1].padStart(2, '0') + '-' + parts[0].padStart(2, '0');
                     let mins = parseInt(r.type.replace(/\D/g, '')) || 0;
-                    actualHoursToday += (mins / 60);
+                    actualMinsPerDay[isoDate] = (actualMinsPerDay[isoDate] || 0) + mins;
                 }
             });
         }
     });
-    
-    let currentLogged = dailyLogs[todayStr] || 0;
-    if (actualHoursToday > currentLogged) {
-        dailyLogs[todayStr] = actualHoursToday;
-        localStorage.setItem('saasDailyLogs', JSON.stringify(dailyLogs));
-        
-        // 🛡️ BẢN VÁ THÉP: Bắt buộc đóng dấu và ép đẩy lên Mây ngay lập tức!
+
+    let needsSync = false;
+    for (let date in actualMinsPerDay) {
+        let actualHrs = actualMinsPerDay[date] / 60;
+        let currentLogged = logs[date] || 0;
+        // 🛡️ CHỈ LẤY SỐ LỚN HƠN: Nếu mây đè mất giờ, lấy giờ thực tế đè lại Mây!
+        if (actualHrs > currentLogged) {
+            logs[date] = actualHrs;
+            needsSync = true;
+        }
+    }
+
+    if (needsSync) {
+        localStorage.setItem('saasDailyLogs', JSON.stringify(logs));
+        if (typeof dailyLogs !== 'undefined') dailyLogs = logs;
         localStorage.setItem('saasLastUpdated', Date.now());
         if (typeof syncToCloud === 'function') syncToCloud();
     }
