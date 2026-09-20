@@ -381,14 +381,17 @@ async function initialPullFromCloud() {
         const doc = await db.collection("academic_apex").doc(USER_DOC_ID).get();
         if (doc.exists) {
             const cloudData = doc.data();
-            const localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
+            let localUpdated = parseInt(localStorage.getItem('saasLastUpdated')) || 0;
             
-            // Nếu Cloud mới hơn, lấy Cloud đè Local
+            // 🛡️ BẢN VÁ TỐI THƯỢNG: Trảm các mốc thời gian "đến từ tương lai" do F12 gây ra
+            if (localUpdated > Date.now()) {
+                localUpdated = 0; // Đưa về 0 để ép buộc tải dữ liệu sạch từ mây đè lên
+            }
+
             if (cloudData.lastUpdated >= localUpdated) {
                 applyCloudDataToLocal(cloudData);
                 console.log("☁️ Đã nạp dữ liệu thành công từ mây!");
             } else {
-                // Nếu Local mới hơn (ví dụ cày offline), đẩy Local lên Cloud
                 console.log("☁️ Dữ liệu Local mới hơn, đang đẩy lên mây...");
                 syncToCloud();
             }
