@@ -2773,7 +2773,8 @@ async function submitReport() {
                 if (typeof fireConfetti === 'function') fireConfetti();
             }
 
-            impactStockMarket("SUCCESS"); 
+            impactStockMarket("SUCCESS");
+            if (typeof completeDispatchQuestSuccess === 'function') completeDispatchQuestSuccess();
         }
 
         // ========================================================
@@ -4063,3 +4064,294 @@ async function fetchLeaderboard(orderByField) {
         content.innerHTML = '<div style="text-align:center; color:#ef4444;">Lỗi kết nối máy chủ.</div>';
     }
 }
+
+// =====================================================================
+// HỆ THỐNG ĐIỀU PHỐI NHIỆM VỤ THỜI GIAN THỰC (SMART DISPATCH SYSTEM)
+// =====================================================================
+let dispatchRate = parseInt(localStorage.getItem('saasDispatchRate'));
+if (isNaN(dispatchRate)) dispatchRate = 100;
+
+let consecutiveRejects = parseInt(localStorage.getItem('saasConsecutiveRejects')) || 0;
+let activeDispatchQuest = null; 
+let dispatchCountdownTimer = null;
+let idleDispatchTimer = null;
+
+function saveDispatchState() {
+    localStorage.setItem('saasDispatchRate', dispatchRate);
+    localStorage.setItem('saasConsecutiveRejects', consecutiveRejects);
+}
+
+// 1. HIỂN THỊ CHỈ SỐ HIỆU SUẤT ĐIỀU PHỐI TRÊN DASHBOARD
+function renderDispatchStatusWidget() {
+    let dash = document.getElementById('view-dashboard');
+    if (!dash || dash.style.display === 'none') return;
+
+    let widget = document.getElementById('dispatch-status-widget');
+    if (!widget) {
+        widget = document.createElement('div');
+        widget.id = 'dispatch-status-widget';
+        widget.className = 'stagger-item';
+        widget.style.marginBottom = '20px';
+        let questBox = document.getElementById('imperial-quests');
+        if (questBox) dash.insertBefore(widget, questBox);
+        else dash.insertBefore(widget, document.getElementById('dashboard-grid'));
+    }
+
+    let statusColor = "#10b981";
+    let statusText = "Tối ưu (Ưu tiên nhiệm vụ thưởng x1.5 - x2.5)";
+    if (dispatchRate < 50 || consecutiveRejects >= 3) {
+        statusColor = "#ef4444";
+        statusText = "Chế tài (Áp dụng nhiệm vụ bắt buộc • Nhận 30% thưởng gốc)";
+    } else if (dispatchRate < 80) {
+        statusColor = "#f59e0b";
+        statusText = "Cảnh báo (Tạm ngưng đề xuất nhiệm vụ hệ số cao)";
+    }
+
+    widget.innerHTML = `
+        <div style="background: var(--bg-panel); border: 1px solid var(--border); border-left: 4px solid ${statusColor}; border-radius: 14px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: ${statusColor}15; color: ${statusColor}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái Điều phối Nhiệm vụ</div>
+                    <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 700;">${statusText}</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="text-align: right;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Hiệu suất nhận lệnh</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: ${statusColor};">${dispatchRate}%</div>
+                </div>
+                <button onclick="triggerDispatchPing(true)" style="background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.borderColor='var(--brand-focus)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <i class="fa-solid fa-bolt" style="color: var(--brand-warning);"></i> Nhận đề xuất
+                </button>
+            </div>
+        </div>`;
+}
+
+// 2. BỘ CẢM BIẾN TRÌ HOÃN (TỰ ĐỘNG ĐỀ XUẤT SAU 25 GIÂY TRÊN DASHBOARD)
+function scheduleIdleDispatch() {
+    clearTimeout(idleDispatchTimer);
+    if (isSessionActive || isBreakActive || isGracePeriod || isPendingTax || dailyDebtMinutes > 0) return;
+    
+    idleDispatchTimer = setTimeout(() => {
+        let dash = document.getElementById('view-dashboard');
+        let activeGoals = goals.filter(g => g.current > 0);
+        if (dash && dash.style.display !== 'none' && !isSessionActive && activeGoals.length > 0) {
+            triggerDispatchPing(false);
+        }
+    }, 25000);
+}
+
+// 3. THUẬT TOÁN PHÁT LỆNH BÀI (10 GIÂY QUYẾT ĐỊNH)
+function triggerDispatchPing(isManual = false) {
+    let activeGoals = goals.filter(g => g.current > 0);
+    if (activeGoals.length === 0) {
+        if (isManual) alert("Vui lòng khởi tạo ít nhất 1 Mục tiêu trước khi nhận nhiệm vụ điều phối!");
+        return;
+    }
+    if (isSessionActive || isBreakActive || isGracePeriod) return;
+    if (document.getElementById('dispatch-modal') && document.getElementById('dispatch-modal').style.display === 'flex') return;
+
+    let targetGoal = activeGoals[Math.floor(Math.random() * activeGoals.length)];
+    let duration = Math.random() < 0.5 ? 15 : 25;
+    let isMandatory = (consecutiveRejects >= 3 || dispatchRate < 50);
+
+    let hour = new Date().getHours();
+    let surgeMultiplier = 1.5;
+    let tierLabel = "Nhiệm vụ Tiêu chuẩn";
+
+    if (dispatchRate >= 80 && !isMandatory) {
+        if (hour >= 21 || hour < 6) {
+            surgeMultiplier = 2.5;
+            tierLabel = "Khung Giờ Cao Điểm Tối (x2.5 Thưởng)";
+        } else {
+            surgeMultiplier = 2.0;
+            tierLabel = "Nhiệm vụ Ưu tiên (x2.0 Thưởng)";
+        }
+    } else if (dispatchRate < 80 && !isMandatory) {
+        surgeMultiplier = 1.2;
+        tierLabel = "Nhiệm vụ Khôi phục Tín nhiệm";
+    }
+
+    let originalReward = Math.round(duration * surgeMultiplier + 20);
+    let finalReward = isMandatory ? Math.round(originalReward * 0.3) : originalReward;
+
+    activeDispatchQuest = {
+        goalId: targetGoal.id,
+        goalName: targetGoal.name,
+        duration: duration,
+        originalReward: originalReward,
+        finalReward: finalReward,
+        isMandatory: isMandatory,
+        tierLabel: isMandatory ? "NHIỆM VỤ BẮT BUỘC (KHÔI PHỤC HIỆU SUẤT)" : tierLabel
+    };
+
+    playAlertSound();
+    showDispatchModal();
+}
+
+function showDispatchModal() {
+    let modal = document.getElementById('dispatch-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'dispatch-modal';
+        modal.style.cssText = "display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.82); z-index:10001; align-items:center; justify-content:center; backdrop-filter:blur(6px);";
+        document.body.appendChild(modal);
+    }
+
+    let q = activeDispatchQuest;
+    let accentColor = q.isMandatory ? "#ef4444" : "#10b981";
+
+    let rewardDisplayHtml = q.isMandatory
+        ? `<div style="text-align:right;">
+               <div style="font-size:0.8rem; color:var(--text-muted); text-decoration:line-through;">Mức gốc: +$${q.originalReward}</div>
+               <div style="font-size:1.5rem; font-weight:900; color:#f59e0b;">+$${q.finalReward} <span style="font-size:0.75rem; background:rgba(245,158,11,0.15); padding:2px 6px; border-radius:4px;">30%</span></div>
+           </div>`
+        : `<div style="text-align:right;">
+               <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Thưởng hoàn thành</div>
+               <div style="font-size:1.6rem; font-weight:900; color:#10b981;">+$${q.finalReward}</div>
+           </div>`;
+
+    let actionButtonsHtml = q.isMandatory
+        ? `<div style="font-size:0.8rem; color:#ef4444; background:rgba(239,68,68,0.08); padding:10px 12px; border-radius:8px; margin-bottom:14px; font-weight:600; line-height:1.4;">
+               <i class="fa-solid fa-circle-exclamation"></i> Bạn đã từ chối liên tiếp 3 nhiệm vụ hoặc để Hiệu suất dưới 50%. Hệ thống yêu cầu hoàn thành phiên này (nhận 30% mức thưởng gốc) để khôi phục quyền lợi điều phối.
+           </div>
+           <button onclick="acceptDispatchQuest()" style="width:100%; padding:14px; border-radius:12px; border:none; background:#ef4444; color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(239,68,68,0.4);">
+               <i class="fa-solid fa-check-double"></i> BẮT ĐẦU NGAY (${q.duration} PHÚT)
+           </button>`
+        : `<div style="width:100%; height:6px; background:rgba(255,255,255,0.1); border-radius:6px; overflow:hidden; margin-bottom:16px;">
+               <div id="dispatch-timer-bar" style="width:100%; height:100%; background:${accentColor}; transition:width 1s linear;"></div>
+           </div>
+           <div style="display:flex; gap:12px;">
+               <button onclick="declineDispatchQuest()" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg-hover); color:var(--text-muted); font-weight:700; cursor:pointer;">
+                   Bỏ qua (-15%)
+               </button>
+               <button onclick="acceptDispatchQuest()" style="flex:2; padding:12px; border-radius:12px; border:none; background:${accentColor}; color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
+                   <i class="fa-solid fa-bolt"></i> Nhận nhiệm vụ (<span id="dispatch-sec-left">10</span>s)
+               </button>
+           </div>`;
+
+    modal.innerHTML = `
+        <div style="background:var(--bg-panel); width:92%; max-width:440px; border-radius:22px; padding:24px; border:2px solid ${accentColor}; box-shadow:0 15px 50px rgba(0,0,0,0.6);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <span style="background:${accentColor}20; color:${accentColor}; padding:4px 10px; border-radius:100px; font-size:0.75rem; font-weight:800;">
+                    <i class="fa-solid fa-satellite-dish"></i> ${q.tierLabel}
+                </span>
+                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">Hiệu suất: ${dispatchRate}%</span>
+            </div>
+            <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div style="overflow:hidden;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Mục tiêu chỉ định</div>
+                    <div style="font-size:1.15rem; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:4px 0;">${q.goalName}</div>
+                    <div style="font-size:0.85rem; color:var(--brand-focus); font-weight:700;"><i class="fa-regular fa-clock"></i> Thời lượng: ${q.duration} phút</div>
+                </div>
+                ${rewardDisplayHtml}
+            </div>
+            ${actionButtonsHtml}
+        </div>`;
+
+    modal.style.display = 'flex';
+
+    clearInterval(dispatchCountdownTimer);
+    if (!q.isMandatory) {
+        let sec = 10;
+        dispatchCountdownTimer = setInterval(() => {
+            sec--;
+            let secEl = document.getElementById('dispatch-sec-left');
+            let barEl = document.getElementById('dispatch-timer-bar');
+            if (secEl) secEl.innerText = sec;
+            if (barEl) barEl.style.width = `${(sec / 10) * 100}%`;
+
+            if (sec <= 0) {
+                clearInterval(dispatchCountdownTimer);
+                declineDispatchQuest();
+            }
+        }, 1000);
+    }
+}
+
+function acceptDispatchQuest() {
+    clearInterval(dispatchCountdownTimer);
+    let modal = document.getElementById('dispatch-modal');
+    if (modal) modal.style.display = 'none';
+
+    if (!activeDispatchQuest) return;
+    let q = activeDispatchQuest;
+
+    openGoal(q.goalId);
+    startSession(q.duration, false);
+
+    let badge = document.getElementById('focus-badge');
+    if (badge) {
+        badge.innerText = q.isMandatory ? `NHIỆM VỤ BẮT BUỘC (THƯỞNG 30%: +$${q.finalReward})` : `ĐANG CHẠY NHIỆM VỤ ĐIỀU PHỐI (+$${q.finalReward})`;
+    }
+}
+
+function declineDispatchQuest() {
+    clearInterval(dispatchCountdownTimer);
+    let modal = document.getElementById('dispatch-modal');
+    if (modal) modal.style.display = 'none';
+
+    activeDispatchQuest = null;
+    consecutiveRejects++;
+    dispatchRate = Math.max(0, dispatchRate - 15);
+    saveDispatchState();
+    renderDispatchStatusWidget();
+
+    if (consecutiveRejects >= 3) {
+        setTimeout(() => {
+            triggerDispatchPing(false);
+        }, 600);
+    } else {
+        scheduleIdleDispatch();
+    }
+}
+
+// 4. XỬ LÝ KHI HOÀN THÀNH HOẶC HỦY NHIỆM VỤ
+function completeDispatchQuestSuccess() {
+    if (!activeDispatchQuest) return;
+    let q = activeDispatchQuest;
+
+    let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    localStorage.setItem('usdBalance', currentUsd + q.finalReward);
+    updateUsdDisplay();
+
+    consecutiveRejects = 0;
+    dispatchRate = q.isMandatory ? Math.max(70, dispatchRate + 20) : Math.min(100, dispatchRate + 10);
+    saveDispatchState();
+
+    alert(`HOÀN THÀNH NHIỆM VỤ ĐIỀU PHỐI!\n- Thưởng điều phối: +$${q.finalReward}\n- Hiệu suất nhận lệnh phục hồi lên: ${dispatchRate}%`);
+    activeDispatchQuest = null;
+}
+
+const originalCancelSessionForDispatch = cancelSession;
+window.cancelSession = function() {
+    if (activeDispatchQuest) {
+        if (confirm("CẢNH BÁO HỦY NHIỆM VỤ ĐIỀU PHỐI:\nViệc hủy nhiệm vụ sau khi đã nhận sẽ bị trừ $50 phí hủy chuyến, giảm 30% Hiệu suất nhận lệnh và giảm 1% giá cổ phiếu. Bạn chắc chắn muốn hủy?")) {
+            let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+            localStorage.setItem('usdBalance', Math.max(0, currentUsd - 50));
+            updateUsdDisplay();
+
+            dispatchRate = Math.max(0, dispatchRate - 30);
+            consecutiveRejects++;
+            saveDispatchState();
+            activeDispatchQuest = null;
+
+            impactStockMarket("CANCEL");
+            clearInterval(timerInterval);
+            clearInterval(pauseInterval);
+            resetSystem();
+        }
+    } else {
+        originalCancelSessionForDispatch();
+    }
+};
+
+const prevRenderDashboardDispatch = window.renderDashboard;
+window.renderDashboard = function() {
+    if (typeof prevRenderDashboardDispatch === 'function') prevRenderDashboardDispatch();
+    renderDispatchStatusWidget();
+    scheduleIdleDispatch();
+};
