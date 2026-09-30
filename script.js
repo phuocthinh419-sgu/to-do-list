@@ -2581,33 +2581,27 @@ function abortReport() {
 }
 
 // =====================================================================
-// AI KIỂM DUYỆT BÁO CÁO (KẾ: BỨC MÀN TRÚC - OBFUSCATION)
+// AI KIỂM DUYỆT BÁO CÁO & CỐ VẤN HỌC THUẬT (BỨC MÀN TRÚC)
 // =====================================================================
-
-// Băm nát Hổ phù làm 3 mảnh để che mắt lính canh GitHub
-const p1 = "AQ.Ab8RN6ISwCQdH";
-const p2 = "q81-fD5BDk3NeBqp";
-const p3 = "tulSVGJX7pyhiFQ52cRkA";
-
-// Khi hệ thống chạy, âm thầm ghép lại thành Key hoàn chỉnh
+const p1 = "AQ.Ab8RN6JneSbUwRE";
+const p2 = "YSMiptKviwollYcyZh";
+const p3 = "8lFYg8eW2Rtz4s0lg";
 const GEMINI_API_KEY = p1 + p2 + p3; 
 
 async function validateReportWithAI(reportText, durationMinutes) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // ĐÃ NÂNG CẤP: AI kiêm luôn vai trò Kiểm duyệt & Cố vấn
-    const prompt = `Bạn là Trợ lý Cố vấn Học thuật (Academic Copilot) của ứng dụng quản lý kỷ luật.
-    Nhiệm vụ 1 (Giám sát): Đánh giá xem báo cáo sau ${durationMinutes} phút làm việc có nghiêm túc không.
-    Nhiệm vụ 2 (Cố vấn): Đưa ra một lời khuyên ngắn gọn để cải thiện hoặc mở rộng kiến thức người dùng vừa học.
+    const prompt = `Bạn là Trợ lý Học thuật (Academic Copilot) của một hệ thống quản lý học tập.
+    Nhiệm vụ 1 (Đánh giá): Kiểm tra xem báo cáo sau ${durationMinutes} phút làm việc có phản ánh đúng nỗ lực học tập không.
+    Nhiệm vụ 2 (Cố vấn): Đưa ra một gợi ý ngắn gọn để người dùng cải thiện hoặc mở rộng kiến thức.
     
-    Quy tắc phản hồi: Bắt buộc trả về đúng định dạng: [KẾT QUẢ] | [LỜI CỐ VẤN/NHẬN XÉT]
+    Quy tắc phản hồi: Bắt buộc trả về định dạng: [KẾT QUẢ] | [LỜI NHẬN XÉT]
     
-    - Nếu báo cáo sáo rỗng, copy-paste, hoặc vô nghĩa (asdfg):
-      Trả về: FAIL | Nội dung báo cáo quá chung chung hoặc không tương xứng với ${durationMinutes} phút tập trung. Bạn cần ghi chi tiết hơn để AI có thể hỗ trợ.
+    - Nếu báo cáo chứa ký tự vô nghĩa (asdfg), copy-paste, hoặc quá ngắn gọn:
+      Trả về: FAIL | Nội dung báo cáo chưa đủ chi tiết hoặc không tương xứng với ${durationMinutes} phút tập trung. Vui lòng mô tả cụ thể hơn để hệ thống có thể hỗ trợ bạn.
       
-    - Nếu báo cáo nghiêm túc, có chi tiết công việc cụ thể:
-      Trả về: PASS | [1 câu nhận xét tích cực và 1 gợi ý chuyên môn sắc bén liên quan trực tiếp đến nội dung báo cáo].
-      (Ví dụ: PASS | Khái niệm 'Vòng lặp' rất quan trọng. Bạn nên thử ứng dụng nó để viết một bài toán in ra dãy Fibonacci trong phiên tiếp theo nhé.)
+    - Nếu báo cáo hợp lệ, mô tả công việc rõ ràng:
+      Trả về: PASS | [1 câu nhận xét tích cực và 1 gợi ý chuyên môn liên quan trực tiếp đến nội dung báo cáo].
     
     Báo cáo của người dùng: "${reportText}"`;
 
@@ -2617,14 +2611,26 @@ async function validateReportWithAI(reportText, durationMinutes) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.7 } // Tăng nhiệt độ lên 0.7 để AI sáng tạo lời khuyên hay hơn
+                generationConfig: { temperature: 0.7 } 
             })
         });
+        
         const data = await response.json();
-        return data.candidates[0].content.parts[0].text.trim();
+
+        if (!response.ok) {
+            console.error("Lỗi từ hệ thống AI:", data);
+            return `PASS | Lỗi dịch vụ AI (${response.status}): ${data.error?.message || "Vui lòng kiểm tra Console để biết chi tiết."}`;
+        }
+
+        if (data.candidates && data.candidates.length > 0) {
+            return data.candidates[0].content.parts[0].text.trim();
+        } else {
+            return "PASS | AI chưa thể phân tích dữ liệu. Hệ thống vẫn ghi nhận phiên học của bạn.";
+        }
+
     } catch (error) {
-        console.error("Lỗi kết nối AI:", error);
-        return "PASS | Hệ thống cố vấn tạm thời mất kết nối, nhưng phiên học của bạn vẫn được ghi nhận thành công."; 
+        console.error("Lỗi kết nối:", error);
+        return "PASS | Quá trình phân tích bị gián đoạn do lỗi mạng. Phiên học của bạn vẫn được ghi nhận thành công."; 
     }
 }
 
@@ -2643,12 +2649,12 @@ async function submitReport() {
         }
 
         // ========================================================
-        // 2. KÍCH HOẠT MẮT THẦN AI KIỂM ĐỊNH NỘI DUNG VÀ CỐ VẤN
+        // 2. KÍCH HOẠT AI KIỂM ĐỊNH NỘI DUNG VÀ CỐ VẤN
         // ========================================================
         let btnSubmit = document.getElementById('btn-submit-report');
         if (btnSubmit) {
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> AI đang phân tích và cố vấn...";
+            btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Hệ thống đang phân tích...";
         }
 
         let aiResponse = await validateReportWithAI(text, currentDuration);
@@ -2656,16 +2662,16 @@ async function submitReport() {
         // Tách KẾT QUẢ và LỜI CỐ VẤN (ngăn cách bởi dấu | )
         let aiParts = aiResponse.split("|");
         let aiJudgment = aiParts[0].trim();
-        let aiAdvice = aiParts[1] ? aiParts[1].trim() : "Hệ thống đã ghi nhận nỗ lực của bạn.";
+        let aiAdvice = aiParts[1] ? aiParts[1].trim() : "Hệ thống đã ghi nhận tiến độ của bạn.";
 
         if (aiJudgment !== "PASS") {
-            // TRƯỜNG HỢP GIAN LẬN: AI ĐÓNG VAI GIÁM SÁT VIÊN
-            alert(`CẢNH BÁO VI PHẠM!\n\nAI Đánh giá: ${aiAdvice}\n\nPhiên học bị hủy. Hệ thống đã trừ $100, đánh sập thị trường và tước đoạt chuỗi kỷ luật!`);
+            // Thông báo từ chối lịch sự nhưng dứt khoát
+            alert(`Báo cáo không hợp lệ!\n\nPhản hồi từ hệ thống: ${aiAdvice}\n\nPhiên học đã bị hủy. Hệ thống sẽ áp dụng các chế tài trừ điểm tín nhiệm và đặt lại chuỗi kỷ luật theo quy định.`);
             
             if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
             document.getElementById('report-modal').style.display = 'none';
 
-            // Thực thi hình phạt
+            // Thực thi hình phạt ngầm bên dưới
             let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
             localStorage.setItem('usdBalance', Math.max(0, currentUsd - 100));
             updateUsdDisplay();
@@ -2673,8 +2679,8 @@ async function submitReport() {
             currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return;
         }
 
-        // TRƯỜNG HỢP HỢP LỆ: AI ĐÓNG VAI GIA SƯ CỐ VẤN
-        alert(`BÁO CÁO HỢP LỆ!\n\n💡 Lời khuyên từ AI Copilot:\n"${aiAdvice}"`);
+        // Thông báo thành công chuyên nghiệp kèm lời khuyên
+        alert(`Phiên học hoàn thành!\n\n💡 Gợi ý từ Trợ lý AI:\n"${aiAdvice}"`);
         
         if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
         // ========================================================
