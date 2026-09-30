@@ -2614,7 +2614,8 @@ const p3 = "8lFYg8eW2Rtz4s0lg";
 const GEMINI_API_KEY = p1 + p2 + p3; 
 
 async function validateReportWithAI(reportText, durationMinutes) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Danh sách mô hình thế hệ mới (Tự động chuyển đổi nếu Google cập nhật)
+    const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
     
     const prompt = `Bạn là Trợ lý Học thuật (Academic Copilot) của một hệ thống quản lý học tập.
     Nhiệm vụ 1 (Đánh giá): Kiểm tra xem báo cáo sau ${durationMinutes} phút làm việc có phản ánh đúng nỗ lực học tập không.
@@ -2630,33 +2631,39 @@ async function validateReportWithAI(reportText, durationMinutes) {
     
     Báo cáo của người dùng: "${reportText}"`;
 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.7 } 
-            })
-        });
-        
-        const data = await response.json();
+    let lastError = "";
 
-        if (!response.ok) {
-            console.error("Lỗi từ hệ thống AI:", data);
-            return `PASS | Lỗi dịch vụ AI (${response.status}): ${data.error?.message || "Vui lòng kiểm tra Console để biết chi tiết."}`;
+    for (let modelName of models) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7 } 
+                })
+            });
+            
+            const data = await response.json();
+
+            if (!response.ok) {
+                lastError = `(${response.status}) ${data.error?.message || "Lỗi không xác định"}`;
+                // Nếu lỗi 404 (sai tên model), tự động thử model tiếp theo trong danh sách
+                if (response.status === 404) continue;
+                return `PASS | Lỗi dịch vụ AI ${lastError}`;
+            }
+
+            if (data.candidates && data.candidates.length > 0) {
+                return data.candidates[0].content.parts[0].text.trim();
+            }
+        } catch (error) {
+            console.error("Lỗi kết nối:", error);
+            return "PASS | Quá trình phân tích bị gián đoạn do lỗi mạng. Phiên học của bạn vẫn được ghi nhận thành công."; 
         }
-
-        if (data.candidates && data.candidates.length > 0) {
-            return data.candidates[0].content.parts[0].text.trim();
-        } else {
-            return "PASS | AI chưa thể phân tích dữ liệu. Hệ thống vẫn ghi nhận phiên học của bạn.";
-        }
-
-    } catch (error) {
-        console.error("Lỗi kết nối:", error);
-        return "PASS | Quá trình phân tích bị gián đoạn do lỗi mạng. Phiên học của bạn vẫn được ghi nhận thành công."; 
     }
+
+    return `PASS | Hệ thống AI đang bảo trì (${lastError}). Phiên học của bạn vẫn được ghi nhận.`;
 }
 
 async function submitReport() {
