@@ -1444,48 +1444,74 @@ function renderKPI() {
 }
 
 function renderGamification() {
-    // ĐẠO LUẬT MỚI: Đếm tổng giờ từ toàn bộ Nhật ký, không phụ thuộc vào Mục tiêu nữa!
-    let totalHoursEarned = Object.values(dailyLogs).reduce((sum, val) => sum + val, 0); 
+    // 1. KHÓA CỨNG MỘT CHIỀU: Cấp độ & Giờ tích lũy chỉ tăng, không bao giờ giảm
+    let calcHours = Object.values(dailyLogs).reduce((sum, val) => sum + val, 0); 
+    let savedMaxHours = parseFloat(localStorage.getItem('saasImmortalHours')) || 0;
+    let totalHoursEarned = Math.max(calcHours, savedMaxHours);
+    localStorage.setItem('saasImmortalHours', totalHoursEarned.toFixed(2));
     
     document.getElementById('total-hours-metric').innerText = totalHoursEarned.toFixed(1) + 'h'; 
     document.getElementById('streak-count').innerText = currentStreak;
     
-  // Căn chỉnh để dữ liệu phán xét khớp 100% với số hiển thị
     let displayHours = parseFloat(totalHoursEarned.toFixed(1));
 
+    // 2. TÍNH LEVEL (Mỗi 2 giờ tích lũy = 1 Level) & TIẾN ĐỘ THĂNG HẠNG
+    let userLevel = Math.floor(displayHours / 2) + 1;
     let rankTitle = "Người Mới"; 
-    let rankDesc = "Cần 10h để thăng cấp Học Giả"; 
+    let rankDesc = ""; 
     let rankColor = "#94a3b8"; 
+    let minHrs = 0, nextHrs = 10;
 
     if (displayHours >= 300) { 
         rankTitle = "Huyền Thoại"; 
-        rankDesc = "Thành tích học tập xuất sắc"; 
         rankColor = "#f59e0b"; 
+        minHrs = 300; nextHrs = 1000;
+        rankDesc = `Đã đạt cấp bậc tối thượng • Bảo toàn vĩnh viễn`; 
     } else if (displayHours >= 100) { 
         rankTitle = "Bậc Thầy"; 
-        rankDesc = `Cần ${Math.ceil(300 - displayHours)}h để thăng cấp Huyền Thoại`; 
         rankColor = "#8b5cf6"; 
+        minHrs = 100; nextHrs = 300;
+        rankDesc = `Còn ${(nextHrs - displayHours).toFixed(1)}h để thăng cấp Huyền Thoại`; 
     } else if (displayHours >= 50) { 
         rankTitle = "Chuyên Gia"; 
-        rankDesc = `Cần ${Math.ceil(100 - displayHours)}h để thăng cấp Bậc Thầy`; 
         rankColor = "#ea580c"; 
+        minHrs = 50; nextHrs = 100;
+        rankDesc = `Còn ${(nextHrs - displayHours).toFixed(1)}h để thăng cấp Bậc Thầy`; 
     } else if (displayHours >= 10) { 
         rankTitle = "Học Giả"; 
-        rankDesc = `Cần ${Math.ceil(50 - displayHours)}h để thăng cấp Chuyên Gia`; 
         rankColor = "#10b981"; 
+        minHrs = 10; nextHrs = 50;
+        rankDesc = `Còn ${(nextHrs - displayHours).toFixed(1)}h để thăng cấp Chuyên Gia`; 
+    } else {
+        rankDesc = `Còn ${(10 - displayHours).toFixed(1)}h để thăng cấp Học Giả`;
     }
+
+    let rankProgressPct = Math.min(100, Math.max(0, ((displayHours - minHrs) / (nextHrs - minHrs)) * 100));
     
-    document.getElementById('rank-title').innerText = rankTitle; 
-    document.getElementById('rank-desc').innerText = rankDesc; 
+    // 3. HIỂN THỊ LEVEL, DANH HIỆU & THANH KINH NGHIỆM (NGÔN NGỮ TRUNG LẬP)
+    document.getElementById('rank-title').innerHTML = `
+        <span style="background:${rankColor}20; color:${rankColor}; border:1px solid ${rankColor}50; padding:2px 8px; border-radius:6px; font-size:0.8rem; font-weight:800; margin-right:6px; vertical-align:middle;">
+            Lv.${userLevel}
+        </span>${rankTitle}`; 
+
+    document.getElementById('rank-desc').innerHTML = `
+        <div style="margin-bottom: 6px;">${rankDesc}</div>
+        <div style="width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden;">
+            <div style="width: ${rankProgressPct}%; height: 100%; background: ${rankColor}; border-radius: 6px; transition: width 0.4s ease;"></div>
+        </div>
+        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; font-weight: 600;">
+            <i class="fa-solid fa-shield-halved" style="color:${rankColor};"></i> Cấp độ được bảo toàn vĩnh viễn
+        </div>`; 
+
     const iconEl = document.getElementById('rank-icon'); 
     iconEl.style.color = rankColor; 
     iconEl.style.filter = `drop-shadow(0 0 12px ${rankColor}80)`;
     
+    // 4. GIỮ NGUYÊN BIỂU ĐỒ NHIỆT (HEATMAP 35 NGÀY)
     const grid = document.getElementById('heatmap-grid'); 
     if(grid) grid.innerHTML = ''; 
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
     
-    // TÍNH TOÁN DỮ LIỆU TRONG ĐÚNG 35 NGÀY
     let activeDays35 = 0;
     let totalHours35 = 0;
 
@@ -1508,7 +1534,6 @@ function renderGamification() {
         if(grid) grid.innerHTML += `<div class="heat-cell ${heatClass}" title="${dateStr}: ${hours.toFixed(1)}h"></div>`;
     }
 
-    // ĐỔ SỐ LIỆU VÀO CÁC CHỈ SỐ MINI TRONG HTML
     let heatTotalEl = document.getElementById('heat-total-hrs');
     let heatActiveEl = document.getElementById('heat-active-days');
     let heatAvgEl = document.getElementById('heat-avg-hrs');
