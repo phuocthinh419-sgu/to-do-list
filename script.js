@@ -290,10 +290,18 @@ firebase.auth().onAuthStateChanged(async (user) => {
         document.getElementById('login-overlay').style.display = 'flex';
     }
 });
+let pendingSync = false;
+
 async function syncToCloud() {
-    if (isSyncing || !currentUser) return; 
+    if (!currentUser) return;
+    if (isSyncing) {
+        pendingSync = true; // Đánh dấu có dữ liệu mới hơn đang chờ đẩy lên mây
+        return;
+    }
     isSyncing = true;
     try {
+        const nowTs = Date.now();
+        localStorage.setItem('saasLastUpdated', nowTs);
         const dataToSync = {
             goals: JSON.parse(localStorage.getItem('saasGoalsPro')) || [],
             totalSessions: parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0,
@@ -309,29 +317,31 @@ async function syncToCloud() {
             stockMarketPrices: JSON.parse(localStorage.getItem('stockMarketPrices')) || {},
             lastRestDate: localStorage.getItem('saasLastRest') || "",
             achComeback: localStorage.getItem('ach_comeback') || "false",
-            timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [], 
-            lastUpdated: Date.now(),
-            
-            // 🛡️ VÁ LỖI ĐỒNG BỘ: ĐƯA ÁN PHẠT VÀ NGÀY CHỐT SỔ LÊN MÂY
+            timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [],
+            lastUpdated: nowTs,
             dailyDebt: parseInt(localStorage.getItem('saasDailyDebt')) || 0,
             debtCheckedDate: localStorage.getItem('saasDebtCheckedDate') || "",
             pendingTax: localStorage.getItem('saasPendingTax') || "false",
             feePaidDate: localStorage.getItem('saasFeePaidDate') || "",
-            
             displayName: currentUser.displayName || "Ẩn danh",
             photoURL: currentUser.photoURL || "",
             weeklyHours: getTotalCycleHours()
         };
-        localStorage.setItem('saasLastUpdated', dataToSync.lastUpdated);
         await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
-        console.log("☁️ Đã đồng bộ mồ hôi và hồ sơ án phạt lên Thiên Đình.");
-        
+        console.log("☁️ Đã đồng bộ dữ liệu lên Cloud.");
+
         let statusIcon = document.getElementById('status-box');
         if (statusIcon && !isSessionActive && !isBreakActive && !isGracePeriod) {
             statusIcon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up" style="color:var(--brand-info)"></i><span id="status-msg">Dữ liệu đã được bảo vệ trên Cloud.</span>`;
         }
     } catch (e) { console.error("Lỗi đồng bộ Cloud:", e); }
     isSyncing = false;
+
+    // Nếu trong lúc đang lưu mà có lệnh lưu mới (như vừa cộng giờ học xong), lập tức đồng bộ tiếp!
+    if (pendingSync) {
+        pendingSync = false;
+        syncToCloud();
+    }
 }
 
 // Hàm giải nén dữ liệu Cloud chép thẳng vào Local
@@ -2819,7 +2829,7 @@ async function submitReport() {
         if(!goal) goal = goals[0]; 
         if(!goal.reports) goal.reports = [];
         
-        let reportLabel = isPunishment ? `Phạt ${currentDuration}p` : `${currentDuration}p`;
+        let reportLabel = isPunishment ? `Phạt ${activeSessionMinutes}p` : `${activeSessionMinutes}p`;
         goal.reports.push({ 
             date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), 
             type: reportLabel, 
@@ -4130,12 +4140,15 @@ function renderDispatchStatusWidget() {
         </div>`;
 }
 
-// 2. BỘ CẢM BIẾN TRÌ HOÃN (TỰ ĐỘNG ĐỀ XUẤT SAU 25 GIÂY TRÊN DASHBOARD)
+// 2. BỘ CẢM BIẾN TRÌ HOÃN (TỰ ĐỘNG NGẮT KHI VÀO GIỜ GIỚI NGHIÊM)
 function scheduleIdleDispatch() {
     clearTimeout(idleDispatchTimer);
+    // Chặn hoàn toàn nếu đang trong Giờ giới nghiêm
+    if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
     if (isSessionActive || isBreakActive || isGracePeriod || isPendingTax || dailyDebtMinutes > 0) return;
     
     idleDispatchTimer = setTimeout(() => {
+        if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
         let dash = document.getElementById('view-dashboard');
         let activeGoals = goals.filter(g => g.current > 0);
         if (dash && dash.style.display !== 'none' && !isSessionActive && activeGoals.length > 0) {
@@ -4144,8 +4157,13 @@ function scheduleIdleDispatch() {
     }, 25000);
 }
 
-// 3. THUẬT TOÁN PHÁT LỆNH BÀI (10 GIÂY QUYẾT ĐỊNH)
+// 3. THUẬT TOÁN PHÁT LỆNH BÀI (KHÓA TRONG GIỜ GIỚI NGHIÊM)
 function triggerDispatchPing(isManual = false) {
+    if (typeof isCurfewActive === 'function' && isCurfewActive()) {
+        if (isManual) alert("Hệ thống đang trong Giờ Giới Nghiêm. Trạm điều phối tạm ngưng phát nhiệm vụ để đảm bảo thời gian nghỉ ngơi!");
+        return;
+    }
+
     let activeGoals = goals.filter(g => g.current > 0);
     if (activeGoals.length === 0) {
         if (isManual) alert("Vui lòng khởi tạo ít nhất 1 Mục tiêu trước khi nhận nhiệm vụ điều phối!");
