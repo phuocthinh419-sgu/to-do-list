@@ -2595,17 +2595,19 @@ const GEMINI_API_KEY = p1 + p2 + p3;
 async function validateReportWithAI(reportText, durationMinutes) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    const prompt = `Bạn là một hệ thống AI kiểm duyệt chất lượng báo cáo học tập.
-    Nhiệm vụ: Đánh giá tóm tắt của người dùng sau một phiên làm việc/học tập kéo dài ${durationMinutes} phút.
+    // ĐÃ NÂNG CẤP: AI kiêm luôn vai trò Kiểm duyệt & Cố vấn
+    const prompt = `Bạn là Trợ lý Cố vấn Học thuật (Academic Copilot) của ứng dụng quản lý kỷ luật.
+    Nhiệm vụ 1 (Giám sát): Đánh giá xem báo cáo sau ${durationMinutes} phút làm việc có nghiêm túc không.
+    Nhiệm vụ 2 (Cố vấn): Đưa ra một lời khuyên ngắn gọn để cải thiện hoặc mở rộng kiến thức người dùng vừa học.
     
-    Tiêu chí KHÔNG HỢP LỆ:
-    1. Báo cáo chứa ký tự vô nghĩa (asdfg), quá ngắn hoặc khối lượng công việc không tương xứng với ${durationMinutes} phút làm việc.
-    2. Sao chép nội dung rác, lời bài hát, tin tức hoặc không liên quan.
-    => Trả về ĐÚNG 1 dòng: FAIL|Lý do từ chối (Dưới 15 chữ, ngôn từ khách quan, lịch sự).
+    Quy tắc phản hồi: Bắt buộc trả về đúng định dạng: [KẾT QUẢ] | [LỜI CỐ VẤN/NHẬN XÉT]
     
-    Tiêu chí HỢP LỆ:
-    Nếu báo cáo mô tả chân thực và tương xứng với ${durationMinutes} phút (VD: "hoàn thành 20 từ vựng", "giải 5 bài toán"):
-    => Trả về ĐÚNG 1 chữ: PASS
+    - Nếu báo cáo sáo rỗng, copy-paste, hoặc vô nghĩa (asdfg):
+      Trả về: FAIL | Nội dung báo cáo quá chung chung hoặc không tương xứng với ${durationMinutes} phút tập trung. Bạn cần ghi chi tiết hơn để AI có thể hỗ trợ.
+      
+    - Nếu báo cáo nghiêm túc, có chi tiết công việc cụ thể:
+      Trả về: PASS | [1 câu nhận xét tích cực và 1 gợi ý chuyên môn sắc bén liên quan trực tiếp đến nội dung báo cáo].
+      (Ví dụ: PASS | Khái niệm 'Vòng lặp' rất quan trọng. Bạn nên thử ứng dụng nó để viết một bài toán in ra dãy Fibonacci trong phiên tiếp theo nhé.)
     
     Báo cáo của người dùng: "${reportText}"`;
 
@@ -2615,14 +2617,14 @@ async function validateReportWithAI(reportText, durationMinutes) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.2 } 
+                generationConfig: { temperature: 0.7 } // Tăng nhiệt độ lên 0.7 để AI sáng tạo lời khuyên hay hơn
             })
         });
         const data = await response.json();
         return data.candidates[0].content.parts[0].text.trim();
     } catch (error) {
         console.error("Lỗi kết nối AI:", error);
-        return "PASS"; 
+        return "PASS | Hệ thống cố vấn tạm thời mất kết nối, nhưng phiên học của bạn vẫn được ghi nhận thành công."; 
     }
 }
 
@@ -2641,19 +2643,24 @@ async function submitReport() {
         }
 
         // ========================================================
-        // 2. KÍCH HOẠT MẮT THẦN AI KIỂM ĐỊNH NỘI DUNG (MỚI)
+        // 2. KÍCH HOẠT MẮT THẦN AI KIỂM ĐỊNH NỘI DUNG VÀ CỐ VẤN
         // ========================================================
         let btnSubmit = document.getElementById('btn-submit-report');
         if (btnSubmit) {
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Hệ thống đang phân tích...";
+            btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> AI đang phân tích và cố vấn...";
         }
 
-        let aiJudgment = await validateReportWithAI(text, currentDuration);
+        let aiResponse = await validateReportWithAI(text, currentDuration);
+        
+        // Tách KẾT QUẢ và LỜI CỐ VẤN (ngăn cách bởi dấu | )
+        let aiParts = aiResponse.split("|");
+        let aiJudgment = aiParts[0].trim();
+        let aiAdvice = aiParts[1] ? aiParts[1].trim() : "Hệ thống đã ghi nhận nỗ lực của bạn.";
 
         if (aiJudgment !== "PASS") {
-            let reason = aiJudgment.split("|")[1] || "Báo cáo không phản ánh đúng khối lượng thời gian.";
-            alert(`Báo cáo không hợp lệ!\nLý do: ${reason}\n\nPhiên học bị hủy. Hệ thống đã trừ $100, đánh sập thị trường và tước đoạt chuỗi kỷ luật!`);
+            // TRƯỜNG HỢP GIAN LẬN: AI ĐÓNG VAI GIÁM SÁT VIÊN
+            alert(`CẢNH BÁO VI PHẠM!\n\nAI Đánh giá: ${aiAdvice}\n\nPhiên học bị hủy. Hệ thống đã trừ $100, đánh sập thị trường và tước đoạt chuỗi kỷ luật!`);
             
             if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
             document.getElementById('report-modal').style.display = 'none';
@@ -2663,10 +2670,12 @@ async function submitReport() {
             localStorage.setItem('usdBalance', Math.max(0, currentUsd - 100));
             updateUsdDisplay();
             impactStockMarket("PENALTY");
-            
             currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return;
         }
 
+        // TRƯỜNG HỢP HỢP LỆ: AI ĐÓNG VAI GIA SƯ CỐ VẤN
+        alert(`BÁO CÁO HỢP LỆ!\n\n💡 Lời khuyên từ AI Copilot:\n"${aiAdvice}"`);
+        
         if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
         // ========================================================
 
