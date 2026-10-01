@@ -6406,98 +6406,98 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// FOCUS ROOM PRO STUDIO OVERHAUL (100% COMPLETE & SYNTAX VERIFIED)
+// FOCUS ROOM TEMPLATE V4: 3-COLUMN SYMMETRIC STUDIO & AMBIENT DOCK
 // =====================================================================
 (function upgradeFocusRoomStudio() {
-    var currentFocusScene = localStorage.getItem('apexFocusScene') || 'lofi_room';
-    var ambientAudioCtx = null;
-    var ambientNoiseNode = null;
-    var isAmbientPlaying = false;
+    var activeAmbientType = null;
+    var ambientCtx = null;
+    var ambientSource = null;
+    var ambientGain = null;
+    var ambientVolume = 0.7;
 
-    var FOCUS_SCENES = {
-        lofi_room: {
-            label: "🎧 Lo-fi Room",
-            bg: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=85"
-        },
-        library: {
-            label: "🏛️ Library",
-            bg: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85"
-        },
-        rain_night: {
-            label: "🌧️ Rainy Night",
-            bg: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=85"
-        },
-        user_custom: {
-            label: "🌌 Nền Dashboard",
-            bg: ""
+    // 1. HỆ THỐNG ÂM THANH NỀN 5 CHẾ ĐỘ (RAIN, CAFE, FOREST, LO-FI, LIBRARY)
+    window.selectFocusAmbient = function(type) {
+        if (type === 'lofi') {
+            // Mở hộp thoại Trạm nhạc MP3 gốc nếu người dùng chọn Lo-fi
+            var musicModal = document.getElementById('focus-mp3-drawer');
+            if (musicModal) {
+                musicModal.style.display = (musicModal.style.display === 'flex') ? 'none' : 'flex';
+            }
         }
+
+        if (activeAmbientType === type && type !== 'lofi') {
+            stopAmbientSound();
+            activeAmbientType = null;
+            updateAmbientCardsUI();
+            return;
+        }
+
+        activeAmbientType = type;
+        startProceduralAmbient(type);
+        updateAmbientCardsUI();
     };
 
-    window.toggleFocusRainSound = function() {
-        var btn = document.getElementById('btn-ambient-rain');
-        if (!isAmbientPlaying) {
+    function startProceduralAmbient(type) {
+        stopAmbientSound();
+        try {
             var AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!ambientAudioCtx) ambientAudioCtx = new AudioContext();
-            if (ambientAudioCtx.state === 'suspended') ambientAudioCtx.resume();
+            if (!ambientCtx) ambientCtx = new AudioContext();
+            if (ambientCtx.state === 'suspended') ambientCtx.resume();
 
-            var bufferSize = 2 * ambientAudioCtx.sampleRate;
-            var noiseBuffer = ambientAudioCtx.createBuffer(1, bufferSize, ambientAudioCtx.sampleRate);
+            var bufferSize = 2 * ambientCtx.sampleRate;
+            var noiseBuffer = ambientCtx.createBuffer(1, bufferSize, ambientCtx.sampleRate);
             var output = noiseBuffer.getChannelData(0);
             var lastOut = 0.0;
             for (var i = 0; i < bufferSize; i++) {
                 var white = Math.random() * 2 - 1;
                 output[i] = (lastOut + (0.02 * white)) / 1.02;
                 lastOut = output[i];
-                output[i] *= 3.5;
+                output[i] *= 3.2;
             }
-            ambientNoiseNode = ambientAudioCtx.createBufferSource();
-            ambientNoiseNode.buffer = noiseBuffer;
-            ambientNoiseNode.loop = true;
 
-            var filter = ambientAudioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 850;
+            ambientSource = ambientCtx.createBufferSource();
+            ambientSource.buffer = noiseBuffer;
+            ambientSource.loop = true;
 
-            var gainNode = ambientAudioCtx.createGain();
-            gainNode.gain.value = 0.18;
+            var filter = ambientCtx.createBiquadFilter();
+            if (type === 'rain') { filter.type = 'lowpass'; filter.frequency.value = 800; }
+            else if (type === 'cafe') { filter.type = 'bandpass'; filter.frequency.value = 450; }
+            else if (type === 'forest') { filter.type = 'bandpass'; filter.frequency.value = 1100; }
+            else if (type === 'library') { filter.type = 'lowpass'; filter.frequency.value = 320; }
+            else { filter.type = 'lowpass'; filter.frequency.value = 650; }
 
-            ambientNoiseNode.connect(filter);
-            filter.connect(gainNode);
-            gainNode.connect(ambientAudioCtx.destination);
-            ambientNoiseNode.start(0);
-            isAmbientPlaying = true;
-            if (btn) {
-                btn.classList.add('active');
-                btn.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy" style="color:#38bdf8;"></i> Tiếng mưa: BẬT';
-            }
-        } else {
-            if (ambientNoiseNode) {
-                try { ambientNoiseNode.stop(); } catch (e) {}
-            }
-            isAmbientPlaying = false;
-            if (btn) {
-                btn.classList.remove('active');
-                btn.innerHTML = '<i class="fa-solid fa-cloud-rain"></i> Tiếng mưa: TẮT';
-            }
+            ambientGain = ambientCtx.createGain();
+            ambientGain.gain.value = ambientVolume * 0.25;
+
+            ambientSource.connect(filter);
+            filter.connect(ambientGain);
+            ambientGain.connect(ambientCtx.destination);
+            ambientSource.start(0);
+        } catch (e) {}
+    }
+
+    function stopAmbientSound() {
+        if (ambientSource) {
+            try { ambientSource.stop(); } catch (e) {}
+            ambientSource = null;
+        }
+    }
+
+    window.changeFocusAmbientVolume = function(val) {
+        ambientVolume = Number(val) / 100;
+        var lbl = document.getElementById('focus-vol-label');
+        if (lbl) lbl.innerText = val + '%';
+        if (ambientGain) {
+            ambientGain.gain.value = ambientVolume * 0.25;
         }
     };
 
-    window.switchFocusScene = function(sceneKey) {
-        currentFocusScene = sceneKey;
-        localStorage.setItem('apexFocusScene', sceneKey);
-        var focusRoom = document.getElementById('focus-room');
-        if (focusRoom) {
-            if (sceneKey === 'user_custom') {
-                var customUrl = localStorage.getItem('saasCustomWallpaper') || "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
-                focusRoom.style.setProperty('background-image', "url('" + customUrl + "')", 'important');
-            } else if (FOCUS_SCENES[sceneKey]) {
-                focusRoom.style.setProperty('background-image', "url('" + FOCUS_SCENES[sceneKey].bg + "')", 'important');
-            }
-        }
-        document.querySelectorAll('.focus-scene-pill').forEach(function(el) {
-            el.classList.toggle('active', el.getAttribute('data-scene') === sceneKey);
+    function updateAmbientCardsUI() {
+        document.querySelectorAll('.f-amb-card').forEach(function(el) {
+            var k = el.getAttribute('data-amb');
+            el.classList.toggle('active', k === activeAmbientType);
         });
-    };
+    }
 
     window.toggleFocusFullscreen = function() {
         if (!document.fullscreenElement) {
@@ -6507,203 +6507,543 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    function injectFocusStudioProCSS() {
-        if (document.getElementById('focus-studio-pro-css')) return;
+    // 2. CSS CHUẨN PHÔI ẢNH FOCUS ROOM MỚI (3 CỘT ĐỐI XỨNG + ĐÁY ÂM THANH)
+    function injectFocusTemplateCSS() {
+        var old = document.getElementById('focus-studio-pro-css');
+        if (old) old.remove();
+
         var st = document.createElement('style');
         st.id = 'focus-studio-pro-css';
         st.innerHTML = `
             #focus-room {
-                padding: 18px 32px !important;
-                transition: background-image 0.4s ease-in-out !important;
+                background-image: var(--user-wallpaper, url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85')) !important;
+                background-size: cover !important;
+                background-position: center !important;
+                padding: 16px 28px !important;
+                display: none;
+                flex-direction: column !important;
+                justify-content: space-between !important;
             }
             #focus-overlay {
-                background: radial-gradient(circle at 38% 48%, rgba(124, 58, 237, 0.18) 0%, rgba(10, 14, 28, 0.72) 50%, rgba(6, 8, 18, 0.92) 100%) !important;
-                backdrop-filter: blur(6px) !important;
-            }
-            .focus-ambient-bar {
-                display: flex; align-items: center; justify-content: center; gap: 8px;
-                flex-wrap: wrap; margin-bottom: 12px;
-            }
-            .focus-scene-pill {
-                background: rgba(15, 20, 38, 0.65);
-                border: 1px solid rgba(255, 255, 255, 0.12);
-                color: #cbd5e1; padding: 6px 14px; border-radius: 100px;
-                font-size: 0.75rem; font-weight: 600; cursor: pointer;
-                transition: all 0.2s ease; backdrop-filter: blur(8px);
-            }
-            .focus-scene-pill:hover, .focus-scene-pill.active {
-                background: rgba(139, 92, 246, 0.32);
-                border-color: #a855f7; color: #fff;
-                box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+                background: radial-gradient(circle at 50% 42%, rgba(18, 20, 46, 0.48) 0%, rgba(10, 12, 28, 0.78) 65%, rgba(6, 8, 18, 0.92) 100%) !important;
+                backdrop-filter: blur(4px) !important;
             }
 
-            /* Vòng Hào Quang Đôi Phát Sáng (Luôn sáng kể cả khi ở 00:00) */
-            .neon-timer-ring-wrapper {
-                position: relative !important;
-                width: 270px !important;
-                height: 270px !important;
-                border-radius: 50% !important;
-                background: radial-gradient(circle, rgba(124, 58, 237, 0.18) 0%, rgba(15, 20, 38, 0.72) 72%) !important;
-                box-shadow: 0 0 55px rgba(124, 58, 237, 0.32), inset 0 0 30px rgba(139, 92, 246, 0.2) !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                margin: 8px auto !important;
+            /* Ẩn khung cũ nhưng giữ nguyên ID cho script.js */
+            #focus-room .focus-nav,
+            #focus-room .focus-studio-layout {
+                display: none !important;
             }
-            .neon-timer-ring-wrapper::before {
-                content: "";
-                position: absolute;
-                inset: 16px;
-                border-radius: 50%;
-                border: 1px dashed rgba(192, 132, 252, 0.3);
-                pointer-events: none;
+
+            /* Bố cục Phôi Mới */
+            .ft-wrapper {
+                position: relative; z-index: 5; width: 100%; max-width: 1240px;
+                margin: 0 auto; height: 100%; display: flex; flex-direction: column;
+                justify-content: space-between; gap: 10px;
             }
-            .neon-timer-ring-wrapper svg {
-                width: 270px !important;
-                height: 270px !important;
-                filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.6)) !important;
+
+            /* Thanh Topbar */
+            .ft-topbar {
+                display: flex; justify-content: space-between; align-items: flex-start;
+                width: 100%; padding-top: 2px;
             }
-            #focus-room #session-timer {
-                font-size: 4rem !important;
-                font-weight: 900 !important;
-                color: #ffffff !important;
-                letter-spacing: -2px !important;
-                text-shadow: 0 0 28px rgba(192, 132, 252, 0.65) !important;
+            .ft-glass-btn {
+                background: rgba(17, 22, 40, 0.72); border: 1px solid rgba(255, 255, 255, 0.14);
+                color: #f1f5f9; padding: 8px 16px; border-radius: 100px; font-size: 0.78rem;
+                font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
+                gap: 8px; backdrop-filter: blur(12px); transition: 0.2s;
             }
-            #focus-sub-duration {
-                font-size: 0.85rem !important;
-                color: #c084fc !important;
-                font-weight: 700 !important;
-                margin-top: 6px !important;
+            .ft-glass-btn:hover {
+                background: rgba(139, 92, 246, 0.25); border-color: #a855f7; color: #fff;
             }
-            .focus-glass-panel {
-                background: linear-gradient(155deg, rgba(20, 25, 45, 0.78), rgba(12, 15, 28, 0.88)) !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
-                border-radius: 16px !important;
-                padding: 14px 16px !important;
-                backdrop-filter: blur(18px) !important;
-                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+
+            .ft-center-header { text-align: center; margin-top: 2px; }
+            .ft-room-tag {
+                font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px;
+                color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;
             }
+            .ft-goal-title {
+                font-size: 1.75rem; font-weight: 800; color: #ffffff;
+                display: inline-flex; align-items: center; gap: 10px; letter-spacing: -0.5px;
+            }
+            .ft-goal-sub {
+                font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;
+                display: flex; align-items: center; justify-content: center; gap: 6px;
+            }
+
+            /* 3 Nút Chọn Chế Độ (2 dòng chữ) */
+            .ft-mode-bar {
+                display: flex; justify-content: center; gap: 12px; margin: 4px 0;
+            }
+            .ft-mode-pill {
+                background: rgba(16, 20, 38, 0.75); border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 100px; padding: 7px 22px; color: #cbd5e1; cursor: pointer;
+                display: flex; align-items: center; gap: 10px; backdrop-filter: blur(12px);
+                transition: all 0.2s ease; text-align: left;
+            }
+            .ft-mode-pill strong { display: block; font-size: 0.78rem; color: #fff; font-weight: 700; line-height: 1.15; }
+            .ft-mode-pill span { display: block; font-size: 0.65rem; color: #94a3b8; }
+            .ft-mode-pill.active, .ft-mode-pill:hover {
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.55), rgba(99, 102, 241, 0.45));
+                border-color: #c084fc; box-shadow: 0 0 22px rgba(139, 92, 246, 0.45);
+            }
+            .ft-mode-pill.active span { color: #e9d5ff; }
+
+            /* Lưới 3 Cột Trung Tâm */
+            .ft-main-grid {
+                display: grid; grid-template-columns: 320px 1fr 320px;
+                gap: 24px; align-items: center; width: 100%; margin: auto 0;
+            }
+            @media (max-width: 1050px) {
+                .ft-main-grid { grid-template-columns: 1fr; }
+            }
+
+            .ft-card {
+                background: linear-gradient(160deg, rgba(19, 24, 44, 0.78) 0%, rgba(12, 16, 32, 0.86) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-top: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 18px; padding: 18px 20px;
+                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+                min-height: 295px; display: flex; flex-direction: column; justify-content: space-between;
+            }
+            .ft-card-header {
+                display: flex; justify-content: space-between; align-items: center;
+                font-size: 0.78rem; font-weight: 800; color: #f1f5f9;
+                text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;
+            }
+
+            /* Cột Giữa: Vòng Tròn Đôi Neon */
+            .ft-center-col {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+            }
+            .ft-ring-box {
+                position: relative; width: 250px; height: 250px; border-radius: 50%;
+                background: radial-gradient(circle, rgba(30, 27, 75, 0.45) 0%, rgba(15, 20, 38, 0.75) 75%);
+                box-shadow: 0 0 55px rgba(139, 92, 246, 0.35), inset 0 0 30px rgba(139, 92, 246, 0.2);
+                display: flex; align-items: center; justify-content: center;
+            }
+            .ft-ring-box::before {
+                content: ""; position: absolute; inset: 12px; border-radius: 50%;
+                border: 1px solid rgba(192, 132, 252, 0.22); pointer-events: none;
+            }
+            .ft-time-big {
+                font-size: 3.9rem; font-weight: 900; color: #ffffff;
+                letter-spacing: -1.5px; line-height: 1; font-variant-numeric: tabular-nums;
+                text-shadow: 0 4px 25px rgba(168, 85, 247, 0.55);
+            }
+            .ft-time-label {
+                font-size: 0.82rem; color: #cbd5e1; font-weight: 600;
+                margin-top: 8px; display: flex; align-items: center; gap: 6px;
+            }
+
+            .ft-start-btn {
+                margin-top: 16px;
+                background: linear-gradient(90deg, #a855f7 0%, #6366f1 100%);
+                color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25);
+                padding: 11px 42px; border-radius: 100px; font-size: 0.92rem; font-weight: 800;
+                cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+                box-shadow: 0 8px 28px rgba(139, 92, 246, 0.55); transition: 0.2s;
+            }
+            .ft-start-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+            /* Thanh Đáy: Âm Thanh Nền 5 Thẻ */
+            .ft-bottom-dock {
+                background: linear-gradient(160deg, rgba(17, 22, 40, 0.82), rgba(11, 14, 28, 0.9));
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 18px; padding: 12px 20px; width: 100%; max-width: 780px;
+                margin: 0 auto; backdrop-filter: blur(20px);
+                box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+            }
+            .ft-amb-grid {
+                display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px;
+            }
+            .f-amb-card {
+                background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 12px; padding: 8px 12px; cursor: pointer;
+                display: flex; align-items: center; gap: 10px; transition: 0.2s;
+            }
+            .f-amb-card:hover, .f-amb-card.active {
+                background: rgba(139, 92, 246, 0.22); border-color: #a855f7;
+                box-shadow: 0 0 16px rgba(139, 92, 246, 0.3);
+            }
+            .f-amb-card strong { display: block; font-size: 0.76rem; color: #fff; }
+            .f-amb-card span { display: block; font-size: 0.64rem; color: #94a3b8; }
         `;
         document.head.appendChild(st);
     }
 
-    function buildFocusStudioComponents() {
-        injectFocusStudioProCSS();
+    // 3. DỰNG KHUNG HTML PHÔI MỚI TRONG #focus-room
+    function ensureFocusTemplateDOM() {
+        injectFocusTemplateCSS();
         var focusRoom = document.getElementById('focus-room');
-        if (!focusRoom) return;
+        if (!focusRoom || document.getElementById('ft-custom-wrapper')) return;
 
-        // 1. Nhóm nút Tiếng mưa & Toàn màn hình ở góc phải trên
-        var tickBtn = document.getElementById('btn-tick');
-        if (tickBtn && !document.getElementById('focus-top-right-group')) {
-            var rightGroup = document.createElement('div');
-            rightGroup.id = 'focus-top-right-group';
-            rightGroup.style.cssText = "display:flex; align-items:center; gap:8px;";
+        var wrapper = document.createElement('div');
+        wrapper.id = 'ft-custom-wrapper';
+        wrapper.className = 'ft-wrapper';
+        wrapper.innerHTML = `
+            <!-- TOP HEADER & MODE BAR -->
+            <div>
+                <div class="ft-topbar">
+                    <button class="ft-glass-btn" onclick="backToDashboard()">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại mục tiêu
+                    </button>
 
-            var rainBtn = document.createElement('button');
-            rainBtn.id = 'btn-ambient-rain';
-            rainBtn.className = 'btn-back';
-            rainBtn.onclick = window.toggleFocusRainSound;
-            rainBtn.innerHTML = '<i class="fa-solid fa-cloud-rain"></i> Tiếng mưa: TẮT';
+                    <div class="ft-center-header">
+                        <div class="ft-room-tag">FOCUS ROOM</div>
+                        <div class="ft-goal-title">
+                            <span id="ft-goal-name-display">Mục tiêu học tập</span>
+                            <i class="fa-solid fa-chevron-right" style="font-size:0.85rem; color:#64748b;"></i>
+                        </div>
+                        <div class="ft-goal-sub">
+                            <i class="fa-solid fa-bullseye" style="color:#f43f5e;"></i>
+                            <span id="ft-goal-sub-display">0.0h còn lại • Hôm nay đã 0.0h</span>
+                        </div>
+                    </div>
 
-            var fsBtn = document.createElement('button');
-            fsBtn.className = 'btn-back';
-            fsBtn.onclick = window.toggleFocusFullscreen;
-            fsBtn.title = "Toàn màn hình";
-            fsBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
-
-            tickBtn.parentNode.insertBefore(rightGroup, tickBtn);
-            rightGroup.appendChild(rainBtn);
-            rightGroup.appendChild(tickBtn);
-            rightGroup.appendChild(fsBtn);
-        }
-
-        // 2. Thanh chọn Bối cảnh (Lo-fi Room, Library, Rainy Night, Nền Dashboard)
-        var badge = document.getElementById('focus-badge');
-        if (badge && !document.getElementById('focus-ambient-scene-bar')) {
-            var sceneBar = document.createElement('div');
-            sceneBar.id = 'focus-ambient-scene-bar';
-            sceneBar.className = 'focus-ambient-bar';
-            sceneBar.innerHTML = Object.keys(FOCUS_SCENES).map(function(k) {
-                return '<button class="focus-scene-pill ' + (currentFocusScene === k ? 'active' : '') + '" data-scene="' + k + '" onclick="switchFocusScene(\'' + k + '\')">' + FOCUS_SCENES[k].label + '</button>';
-            }).join('');
-            badge.parentNode.insertBefore(sceneBar, badge);
-        }
-
-        // 3. Câu trích dẫn & Nút Bắt đầu nhanh dưới vòng tròn
-        var ringWrap = focusRoom.querySelector('.neon-timer-ring-wrapper');
-        if (ringWrap && !document.getElementById('focus-studio-quote-box')) {
-            var quoteBox = document.createElement('div');
-            quoteBox.id = 'focus-studio-quote-box';
-            quoteBox.style.cssText = "text-align:center; margin: 10px 0 6px 0;";
-            quoteBox.innerHTML = `
-                <div style="color:rgba(255,255,255,0.8); font-style:italic; font-size:0.84rem; margin-bottom:10px;">
-                    "Stay focused. You've got this." ✨
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button class="ft-glass-btn" onclick="if(typeof openWallpaperPickerModal==='function') openWallpaperPickerModal();">
+                            <i class="fa-regular fa-image" style="color:#a855f7;"></i> Đổi ảnh nền
+                        </button>
+                        <button class="ft-glass-btn" id="ft-tick-mirror" onclick="toggleTick()">
+                            <i class="fa-solid fa-music" style="color:#38bdf8;"></i> <span id="ft-tick-text">Âm tích tắc: TẮT</span>
+                        </button>
+                        <button class="ft-glass-btn" onclick="toggleFocusFullscreen()" title="Toàn màn hình" style="padding:8px 11px;">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>
+                    </div>
                 </div>
-                <button id="btn-focus-quick-start" onclick="startSession(25)" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); color:#fff; border:none; padding:9px 26px; border-radius:100px; font-weight:800; font-size:0.82rem; cursor:pointer; box-shadow:0 6px 20px rgba(139,92,246,0.5); display:inline-flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-play"></i> Bắt đầu Pomodoro (25p)
-                </button>
-            `;
-            ringWrap.parentNode.insertBefore(quoteBox, ringWrap.nextSibling);
-        }
 
-        // 4. Bổ sung Thẻ "Thống kê phiên" ở cột phải
-        var todoListEl = document.getElementById('focus-room-todo-list');
-        var musicWidget = document.getElementById('widget-music');
-        if (todoListEl && todoListEl.parentElement) {
-            todoListEl.parentElement.className = 'focus-glass-panel';
-        }
-        if (musicWidget) {
-            musicWidget.className = 'focus-glass-panel';
-            if (!document.getElementById('focus-pro-stats-panel')) {
-                var statsPanel = document.createElement('div');
-                statsPanel.id = 'focus-pro-stats-panel';
-                statsPanel.className = 'focus-glass-panel';
-                statsPanel.innerHTML = `
-                    <div style="font-weight:700; color:#fff; font-size:0.82rem; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                        <span><i class="fa-solid fa-chart-pie" style="color:#38bdf8; margin-right:6px;"></i> Thống kê phiên</span>
-                        <span style="font-size:0.65rem; background:rgba(16,185,129,0.18); color:#34d399; padding:2px 8px; border-radius:6px; font-weight:700;">LIVE</span>
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.75rem;">
-                        <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px;">
-                            <div style="color:#94a3b8; font-size:0.66rem;">Chu kỳ</div>
-                            <strong style="color:#fff; font-size:0.9rem;">Pomodoro</strong>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px;">
-                            <div style="color:#94a3b8; font-size:0.66rem;">Hiệu suất</div>
-                            <strong style="color:#10b981; font-size:0.9rem;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong>
-                        </div>
-                    </div>
-                `;
-                musicWidget.parentElement.insertBefore(statsPanel, musicWidget);
-            }
-        }
+                <!-- 3 NÚT CHỌN CHẾ ĐỘ -->
+                <div class="ft-mode-bar">
+                    <button class="ft-mode-pill" id="ft-mode-5" onclick="selectFocusModePill(5)">
+                        <span style="font-size:1.15rem;">🔥</span>
+                        <div><strong>Khởi động</strong><span>(5 phút)</span></div>
+                    </button>
+                    <button class="ft-mode-pill" id="ft-mode-15" onclick="selectFocusModePill(15)">
+                        <span style="font-size:1.15rem;">⚡</span>
+                        <div><strong>Ngắn</strong><span>(15 phút)</span></div>
+                    </button>
+                    <button class="ft-mode-pill active" id="ft-mode-25" onclick="selectFocusModePill(25)">
+                        <span style="font-size:1.15rem;">🍅</span>
+                        <div><strong>Pomodoro</strong><span>(25 phút)</span></div>
+                    </button>
+                </div>
+            </div>
 
-        window.switchFocusScene(currentFocusScene);
+            <!-- MAIN 3-COLUMN WORKSPACE -->
+            <div class="ft-main-grid">
+                <!-- CỘT TRÁI: VIỆC CẦN LÀM -->
+                <div class="ft-card">
+                    <div>
+                        <div class="ft-card-header">
+                            <span><i class="fa-solid fa-thumbtack" style="color:#a855f7; margin-right:6px;"></i> VIỆC CẦN LÀM <span id="ft-todo-counter">(0/0)</span></span>
+                            <button onclick="addBentoTodoPrompt()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:24px; height:24px; border-radius:6px; cursor:pointer;">+</button>
+                        </div>
+                        <div id="ft-todo-list-container" style="display:flex; flex-direction:column; gap:6px; max-height:190px; overflow-y:auto;"></div>
+                    </div>
+                    <button onclick="addBentoTodoPrompt()" style="width:100%; padding:9px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e2e8f0; font-weight:700; font-size:0.78rem; cursor:pointer; margin-top:10px;">
+                        + Thêm nhiệm vụ
+                    </button>
+                </div>
+
+                <!-- CỘT GIỮA: ĐỒNG HỒ VÒNG TRÒN ĐÔI & NÚT BẮT ĐẦU -->
+                <div class="ft-center-col">
+                    <div class="ft-ring-box">
+                        <svg width="250" height="250" viewBox="0 0 260 260" style="position:absolute; transform:rotate(-90deg);">
+                            <circle cx="130" cy="130" r="114" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
+                            <circle id="ft-svg-progress" cx="130" cy="130" r="114" stroke="url(#ftRingGrad)" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="716.3" stroke-dashoffset="0" style="transition:stroke-dashoffset 0.5s linear; filter:drop-shadow(0 0 10px rgba(168,85,247,0.7));"/>
+                            <defs>
+                                <linearGradient id="ftRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#c084fc"/>
+                                    <stop offset="50%" stop-color="#8b5cf6"/>
+                                    <stop offset="100%" stop-color="#38bdf8"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div style="position:relative; z-index:3; display:flex; flex-direction:column; align-items:center;">
+                            <div class="ft-time-big" id="ft-time-display">25:00</div>
+                            <div class="ft-time-label" id="ft-mode-label">🍎 Pomodoro</div>
+                        </div>
+                    </div>
+
+                    <!-- Nút Khi Chưa Chạy -->
+                    <button class="ft-start-btn" id="ft-btn-start-main" onclick="triggerFocusMainStart()">
+                        <i class="fa-solid fa-play"></i> Bắt đầu
+                    </button>
+
+                    <!-- Cụm Nút Khi Đang Chạy -->
+                    <div id="ft-running-controls" style="display:none; gap:12px; margin-top:16px;">
+                        <button onclick="togglePause()" style="background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; border:none; padding:10px 24px; border-radius:100px; font-weight:700; font-size:0.82rem; cursor:pointer; box-shadow:0 6px 18px rgba(37,99,235,0.4);">
+                            <i class="fa-solid fa-pause"></i> Tạm dừng
+                        </button>
+                        <button onclick="cancelSession()" style="background:linear-gradient(135deg, #e11d48, #be123c); color:#fff; border:none; padding:10px 24px; border-radius:100px; font-weight:700; font-size:0.82rem; cursor:pointer; box-shadow:0 6px 18px rgba(225,29,72,0.4);">
+                            <i class="fa-solid fa-stop"></i> Kết thúc
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI: TIẾN ĐỘ MỤC TIÊU -->
+                <div class="ft-card">
+                    <div>
+                        <div class="ft-card-header">
+                            <span><i class="fa-solid fa-bullseye" style="color:#a855f7; margin-right:6px;"></i> TIẾN ĐỘ MỤC TIÊU</span>
+                            <span onclick="backToDashboard()" style="font-size:0.72rem; color:#94a3b8; cursor:pointer; text-transform:none; font-weight:600;">Chi tiết →</span>
+                        </div>
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                                <div style="width:42px; height:46px; background:linear-gradient(135deg, #f97316, #e11d48); clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.05rem; flex-shrink:0;">
+                                    <i class="fa-solid fa-crown"></i>
+                                </div>
+                                <div style="min-width:0;">
+                                    <div id="ft-right-goal-name" style="font-size:0.95rem; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Mục tiêu</div>
+                                    <div style="font-size:0.7rem; color:#94a3b8;">Tiến trình tích lũy</div>
+                                </div>
+                            </div>
+                            <div id="ft-right-goal-pct" style="font-size:1.5rem; font-weight:900; color:#fff;">0%</div>
+                        </div>
+
+                        <!-- Thanh Tiến Độ 1: Mục tiêu -->
+                        <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px;">
+                            <div id="ft-right-goal-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #8b5cf6, #c084fc); border-radius:100px;"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:16px;">
+                            <span id="ft-right-goal-done">0.0h / 0h</span>
+                            <span id="ft-right-goal-left">Còn 0.0h</span>
+                        </div>
+
+                        <!-- Thanh Tiến Độ 2: Hôm nay -->
+                        <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:#cbd5e1; font-weight:600; margin-bottom:6px;">
+                            <span>Hôm nay</span>
+                            <span id="ft-right-today-text">0.0h / 1.0h</span>
+                        </div>
+                        <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden;">
+                            <div id="ft-right-today-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #10b981, #34d399); border-radius:100px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3 Cột Chỉ Số Đáy Card Phải -->
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">
+                        <div>
+                            <div style="color:#f97316; font-size:0.85rem; margin-bottom:2px;">🔥</div>
+                            <strong id="ft-stat-streak" style="display:block; font-size:0.85rem; color:#fff;">0 ngày</strong>
+                            <span style="font-size:0.64rem; color:#94a3b8;">Chuỗi kỷ luật</span>
+                        </div>
+                        <div>
+                            <div style="color:#38bdf8; font-size:0.85rem; margin-bottom:2px;">📊</div>
+                            <strong id="ft-stat-total" style="display:block; font-size:0.85rem; color:#fff;">0.0h</strong>
+                            <span style="font-size:0.64rem; color:#94a3b8;">Tổng thời gian</span>
+                        </div>
+                        <div>
+                            <div style="color:#fbbf24; font-size:0.85rem; margin-bottom:2px;">🏆</div>
+                            <strong id="ft-stat-level" style="display:block; font-size:0.85rem; color:#fff;">Lv. 1</strong>
+                            <span id="ft-stat-rank" style="font-size:0.64rem; color:#94a3b8;">Học Giả</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM AMBIENT SOUND DOCK -->
+            <div class="ft-bottom-dock">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="font-size:0.75rem; font-weight:800; color:#e2e8f0; letter-spacing:0.8px; text-transform:uppercase;">
+                        <i class="fa-solid fa-music" style="color:#a855f7; margin-right:6px;"></i> ÂM THANH NỀN
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-volume-high" style="color:#94a3b8; font-size:0.8rem;"></i>
+                        <input type="range" min="0" max="100" value="70" oninput="changeFocusAmbientVolume(this.value)" style="width:110px; accent-color:#a855f7; cursor:pointer;">
+                        <span id="focus-vol-label" style="font-size:0.72rem; color:#cbd5e1; font-weight:700; min-width:32px;">70%</span>
+                    </div>
+                </div>
+
+                <div class="ft-amb-grid">
+                    <div class="f-amb-card" data-amb="rain" onclick="selectFocusAmbient('rain')">
+                        <i class="fa-solid fa-cloud-showers-heavy" style="color:#60a5fa; font-size:1.1rem;"></i>
+                        <div><strong>Rain</strong><span>Mưa rơi</span></div>
+                    </div>
+                    <div class="f-amb-card" data-amb="cafe" onclick="selectFocusAmbient('cafe')">
+                        <i class="fa-solid fa-mug-saucer" style="color:#fbbf24; font-size:1.1rem;"></i>
+                        <div><strong>Cafe</strong><span>Quán cà phê</span></div>
+                    </div>
+                    <div class="f-amb-card" data-amb="forest" onclick="selectFocusAmbient('forest')">
+                        <i class="fa-solid fa-tree" style="color:#34d399; font-size:1.1rem;"></i>
+                        <div><strong>Forest</strong><span>Rừng cây</span></div>
+                    </div>
+                    <div class="f-amb-card" data-amb="lofi" onclick="selectFocusAmbient('lofi')">
+                        <i class="fa-solid fa-headphones" style="color:#c084fc; font-size:1.1rem;"></i>
+                        <div><strong>Lo-fi</strong><span>Nhạc lo-fi</span></div>
+                    </div>
+                    <div class="f-amb-card" data-amb="library" onclick="selectFocusAmbient('library')">
+                        <i class="fa-solid fa-book-open" style="color:#f472b6; font-size:1.1rem;"></i>
+                        <div><strong>Library</strong><span>Thư viện</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        focusRoom.appendChild(wrapper);
     }
 
-    // 5. Giữ cho Vòng tròn Neon luôn sáng rực khi ở trạng thái chờ 00:00
-    setInterval(function() {
+    // 4. CHỌN CHẾ ĐỘ (5P / 15P / 25P) & BẮT ĐẦU
+    var selectedPendingMinutes = 25;
+    window.selectFocusModePill = function(mins) {
+        selectedPendingMinutes = mins;
+        document.querySelectorAll('.ft-mode-pill').forEach(function(btn) { btn.classList.remove('active'); });
+        var activeBtn = document.getElementById('ft-mode-' + mins);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        var timerText = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "00:00";
+        if (timerText === "00:00") {
+            var disp = document.getElementById('ft-time-display');
+            var lbl = document.getElementById('ft-mode-label');
+            if (disp) disp.innerText = String(mins).padStart(2, '0') + ":00";
+            if (lbl) lbl.innerHTML = mins === 5 ? "🔥 Khởi động" : (mins === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
+        }
+        // Nếu người dùng muốn bấm vào là chạy luôn
+        if (mins === 5 && typeof startIcebreaker === 'function') startIcebreaker();
+        else if (typeof startSession === 'function') startSession(mins);
+    };
+
+    window.triggerFocusMainStart = function() {
+        if (selectedPendingMinutes === 5 && typeof startIcebreaker === 'function') {
+            startIcebreaker();
+        } else if (typeof startSession === 'function') {
+            startSession(selectedPendingMinutes || 25);
+        }
+    };
+
+    // 5. ĐỒNG BỘ DỮ LIỆU MỤC TIÊU, VIỆC CẦN LÀM & ĐỒNG HỒ MỖI GIÂY
+    function syncFocusTemplateData() {
         var focusRoom = document.getElementById('focus-room');
         if (!focusRoom || focusRoom.style.display === 'none') return;
 
-        var timerText = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "00:00";
-        var ring = document.getElementById('focus-ring-circle');
-        var quickBtn = document.getElementById('btn-focus-quick-start');
-        var subDur = document.getElementById('focus-sub-duration');
+        ensureFocusTemplateDOM();
 
-        if (timerText === "00:00") {
-            if (ring) ring.style.strokeDashoffset = "0"; // Sáng满 vòng tròn khi chờ
-            if (subDur) subDur.innerText = "/ 25:00";
-            if (quickBtn) quickBtn.style.display = "inline-flex";
-        } else {
-            if (quickBtn) quickBtn.style.display = "none";
+        // A. Đồng bộ Việc cần làm bên trái
+        var todoBox = document.getElementById('ft-todo-list-container');
+        var todoCountEl = document.getElementById('ft-todo-counter');
+        if (todoBox && typeof bentoTodoList !== 'undefined') {
+            var doneC = bentoTodoList.filter(function(t) { return t.done; }).length;
+            if (todoCountEl) todoCountEl.innerText = "(" + doneC + "/" + bentoTodoList.length + ")";
+            todoBox.innerHTML = bentoTodoList.map(function(t) {
+                return `
+                    <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                            <div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done ? '#a855f7' : '#64748b'}; background:${t.done ? '#a855f7' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">
+                                ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                            </div>
+                            <span style="font-size:0.8rem; color:${t.done ? '#64748b' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${t.text}
+                            </span>
+                        </div>
+                        <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.7rem;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>`;
+            }).join('');
         }
-    }, 500);
 
+        // B. Đồng bộ Đồng hồ Trung tâm & Nút Bắt đầu / Tạm dừng
+        var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "00:00";
+        var pauseBtn = document.getElementById('btn-pause');
+        var isSessionRunning = (pauseBtn && pauseBtn.style.display !== 'none') || (rawTimer !== "00:00");
+
+        var ftTimeDisp = document.getElementById('ft-time-display');
+        var ftStartBtn = document.getElementById('ft-btn-start-main');
+        var ftRunCtrls = document.getElementById('ft-running-controls');
+        var ftSvgRing = document.getElementById('ft-svg-progress');
+
+        if (isSessionRunning && rawTimer !== "00:00") {
+            if (ftTimeDisp) ftTimeDisp.innerText = rawTimer;
+            if (ftStartBtn) ftStartBtn.style.display = 'none';
+            if (ftRunCtrls) ftRunCtrls.style.display = 'inline-flex';
+
+            if (ftSvgRing && rawTimer.includes(':')) {
+                var p = rawTimer.split(':').map(Number);
+                var remSec = (p[0] * 60) + (p[1] || 0);
+                var totSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
+                var ratio = Math.min(1, Math.max(0, remSec / totSec));
+                ftSvgRing.style.strokeDashoffset = 716.3 * (1 - ratio);
+            }
+        } else {
+            if (ftTimeDisp) ftTimeDisp.innerText = String(selectedPendingMinutes).padStart(2, '0') + ":00";
+            if (ftStartBtn) ftStartBtn.style.display = 'inline-flex';
+            if (ftRunCtrls) ftRunCtrls.style.display = 'none';
+            if (ftSvgRing) ftSvgRing.style.strokeDashoffset = "0";
+        }
+
+        // Đồng bộ trạng thái nút Âm tích tắc
+        var origTick = document.getElementById('btn-tick');
+        var mirrorTickTxt = document.getElementById('ft-tick-text');
+        if (origTick && mirrorTickTxt) {
+            mirrorTickTxt.innerText = origTick.innerText.trim();
+        }
+
+        // C. Đồng bộ dữ liệu Mục tiêu đang mở sang Cột Phải & Header
+        var activeGoal = null;
+        if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+            if (typeof currentGoalId !== 'undefined' && currentGoalId !== null) {
+                activeGoal = goals.find(function(g) { return g.id === currentGoalId; });
+            }
+            if (!activeGoal) {
+                var infoTxt = document.getElementById('focus-target-info') ? document.getElementById('focus-target-info').innerText : "";
+                activeGoal = goals.find(function(g) { return infoTxt.includes(g.name); }) || goals[0];
+            }
+        }
+
+        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 1.0 };
+        var todayDone = qInfo.doneHrs || 0;
+        var todayReq = Math.max(qInfo.requiredHrs || 1.0, 0.5);
+        var todayPct = Math.min(100, Math.round((todayDone / todayReq) * 100));
+
+        if (activeGoal) {
+            var targetH = Number(activeGoal.target || 10);
+            var leftH = Math.max(0, Number(activeGoal.current || 0));
+            var doneH = Math.max(0, targetH - leftH);
+            var pctG = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+
+            var gNameTop = document.getElementById('ft-goal-name-display');
+            var gSubTop = document.getElementById('ft-goal-sub-display');
+            var gNameRight = document.getElementById('ft-right-goal-name');
+            var gPctRight = document.getElementById('ft-right-goal-pct');
+            var gBarRight = document.getElementById('ft-right-goal-bar');
+            var gDoneRight = document.getElementById('ft-right-goal-done');
+            var gLeftRight = document.getElementById('ft-right-goal-left');
+
+            if (gNameTop) gNameTop.innerText = activeGoal.name;
+            if (gSubTop) gSubTop.innerText = leftH.toFixed(2) + "h còn lại • Hôm nay đã " + todayDone.toFixed(1) + "h";
+            if (gNameRight) gNameRight.innerText = activeGoal.name;
+            if (gPctRight) gPctRight.innerText = pctG + "%";
+            if (gBarRight) gBarRight.style.width = pctG + "%";
+            if (gDoneRight) gDoneRight.innerText = doneH.toFixed(1) + "h / " + targetH.toFixed(1).replace(/\.0$/, '') + "h";
+            if (gLeftRight) gLeftRight.innerText = "Còn " + leftH.toFixed(2) + "h";
+        }
+
+        var todayTxtEl = document.getElementById('ft-right-today-text');
+        var todayBarEl = document.getElementById('ft-right-today-bar');
+        if (todayTxtEl) todayTxtEl.innerText = todayDone.toFixed(1) + "h / " + todayReq.toFixed(1) + "h";
+        if (todayBarEl) todayBarEl.style.width = todayPct + "%";
+
+        var totalAllTimeHrs = 0;
+        if (typeof dailyLogs !== 'undefined') {
+            totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
+        }
+        var lv = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
+        var rTitle = lv >= 25 ? "Đại Học Sĩ" : (lv >= 15 ? "Chuyên Gia" : (lv >= 10 ? "Học Giả" : (lv >= 5 ? "Tinh Anh" : "Tân Binh")));
+
+        var stStreak = document.getElementById('ft-stat-streak');
+        var stTotal = document.getElementById('ft-stat-total');
+        var stLv = document.getElementById('ft-stat-level');
+        var stRank = document.getElementById('ft-stat-rank');
+        if (stStreak) stStreak.innerText = (typeof currentStreak !== 'undefined' ? currentStreak : 0) + " ngày";
+        if (stTotal) stTotal.innerText = totalAllTimeHrs.toFixed(1) + "h";
+        if (stLv) stLv.innerText = "Lv. " + lv;
+        if (stRank) stRank.innerText = rTitle;
+    }
+
+    setInterval(syncFocusTemplateData, 600);
     window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(buildFocusStudioComponents, 450);
+        setTimeout(ensureFocusTemplateDOM, 400);
     });
-    setTimeout(buildFocusStudioComponents, 200);
 })();
