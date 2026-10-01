@@ -5474,13 +5474,20 @@ function openFullStockMarketDrawer() {
     modal.style.display = 'flex';
 }
 
-// 2. CSS CHUẨN DEMO CHO TOÀN HỆ THỐNG
+// 1. THAY THẾ HÀM injectCleanLayoutCSS() ĐỂ XÓA SEARCH BAR & ĐẠI TU FOCUS ROOM
 function injectCleanLayoutCSS() {
-    if (document.getElementById('clean-layout-fix-css')) return;
+    var oldStyle = document.getElementById('clean-layout-fix-css');
+    if (oldStyle) oldStyle.remove();
+
     var style = document.createElement('style');
     style.id = 'clean-layout-fix-css';
     style.innerHTML = `
-        /* Cố định Sidebar sạch đẹp, không đè chữ */
+        /* LOẠI BỎ HOÀN TOÀN THANH SEARCH BAR VÔ DỤNG */
+        .bento-top-search, #global-goal-search {
+            display: none !important;
+        }
+
+        /* Cố định Sidebar sạch đẹp */
         .sidebar { padding: 14px 12px !important; overflow: hidden !important; background: #080a12 !important; }
         .sidebar .brand { position: relative !important; z-index: 5 !important; margin-bottom: 12px !important; padding: 4px 6px !important; background: #080a12 !important; }
         .sidebar .brand::before, .sidebar .brand::after { display: none !important; content: none !important; }
@@ -5492,11 +5499,10 @@ function injectCleanLayoutCSS() {
             display: flex !important; justify-content: space-between !important;
             align-items: center !important; flex-wrap: nowrap !important; gap: 12px !important;
         }
-        .bento-top-search { width: 230px !important; flex-shrink: 0 !important; }
         .top-quote-text {
-            font-size: 0.75rem !important; color: #64748b !important;
+            font-size: 0.82rem !important; color: #94a3b8 !important; font-weight: 600 !important;
             white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
-            max-width: 250px !important;
+            max-width: 420px !important;
         }
 
         /* Ẩn các khối cũ dư thừa trên Dashboard */
@@ -5533,7 +5539,6 @@ function injectCleanLayoutCSS() {
         .clean-link { font-size: 0.74rem; color: #a855f7; font-weight: 700; cursor: pointer; }
         .clean-link:hover { text-decoration: underline; }
 
-        /* Huy hiệu Lục giác (Hexagon Badge chuẩn Demo Mục 1 & Mục 5) */
         .hex-icon {
             width: 48px; height: 54px;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
@@ -5541,7 +5546,6 @@ function injectCleanLayoutCSS() {
             color: #fff; font-size: 1.2rem; flex-shrink: 0;
         }
 
-        /* Khung Đếm ngược sự kiện gọn gàng */
         .countdown-strip {
             display: grid !important;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
@@ -5551,7 +5555,6 @@ function injectCleanLayoutCSS() {
         .countdown-title { margin-bottom: 8px !important; font-size: 0.78rem !important; }
         .t-val { font-size: 1.1rem !important; }
 
-        /* Tab Pills trong Thành tựu & Phân tích */
         .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .demo-tab-pill {
             background: #131826; border: 1px solid rgba(255,255,255,0.07);
@@ -5562,6 +5565,116 @@ function injectCleanLayoutCSS() {
             background: linear-gradient(90deg, #7c3aed, #4f46e5);
             color: #fff; border-color: transparent;
             box-shadow: 0 4px 12px rgba(124,58,237,0.35);
+        }
+
+        /* ==============================================================
+           ĐẠI TU PHÒNG TẬP TRUNG (FOCUS ROOM LO-FI STUDIO CHUẨN DEMO)
+           ============================================================== */
+        #focus-room {
+            background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            display: none;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            padding: 16px 28px !important;
+        }
+        #focus-overlay {
+            background: radial-gradient(circle at 45% 45%, rgba(15, 18, 38, 0.55) 0%, rgba(8, 10, 22, 0.88) 100%) !important;
+            backdrop-filter: blur(5px) !important;
+        }
+
+        /* Định dạng 3 nút Pill chọn chế độ phía trên đồng hồ (Không còn bị trắng bệch) */
+        .focus-pill-btn {
+            background: rgba(19, 24, 42, 0.75) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            color: #e2e8f0 !important;
+            padding: 7px 16px !important;
+            border-radius: 100px !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            transition: all 0.2s ease !important;
+            backdrop-filter: blur(8px) !important;
+        }
+        .focus-pill-btn:hover, .focus-pill-btn.active {
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.5), rgba(79, 70, 229, 0.5)) !important;
+            border-color: #a855f7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.45) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* Đưa đồng hồ 00:00 vào chính giữa tâm vòng tròn Neon */
+        .neon-timer-ring-wrapper {
+            position: relative !important;
+            width: 260px !important;
+            height: 260px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 6px auto !important;
+        }
+        .neon-timer-ring-wrapper svg {
+            width: 260px !important;
+            height: 260px !important;
+        }
+        .neon-timer-center {
+            position: absolute !important;
+            inset: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 5 !important;
+            pointer-events: none !important;
+        }
+        #focus-room #session-timer {
+            font-size: 3.6rem !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            line-height: 1 !important;
+            margin: 0 !important;
+            letter-spacing: -1.5px !important;
+            text-shadow: 0 4px 24px rgba(168, 85, 247, 0.55) !important;
+            font-variant-numeric: tabular-nums !important;
+        }
+        #focus-sub-duration {
+            font-size: 0.85rem !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            font-weight: 700 !important;
+            margin-top: 6px !important;
+        }
+
+        /* Nút Tạm dừng & Kết thúc luôn hiển thị đẹp như Demo */
+        #focus-room #btn-pause {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 10px 24px !important;
+            border-radius: 11px !important;
+            font-weight: 700 !important;
+            font-size: 0.84rem !important;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+        }
+        #focus-room #btn-cancel {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            background: linear-gradient(135deg, #e11d48, #be123c) !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 10px 24px !important;
+            border-radius: 11px !important;
+            font-weight: 700 !important;
+            font-size: 0.84rem !important;
+            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;
         }
     `;
     document.head.appendChild(style);
@@ -6086,72 +6199,76 @@ window.renderAnalytics = function() {
 
 function renderFocusStudioRightPanel() {
     var todoBox = document.getElementById('focus-room-todo-list');
-    if (!todoBox) return;
-    todoBox.innerHTML = bentoTodoList.map(function(t) {
-        return `
-            <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; gap:8px; padding:5px 6px; border-radius:6px; cursor:pointer;">
-                <div style="width:15px; height:15px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.6rem; flex-shrink:0;">
-                    ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
+    if (todoBox) {
+        todoBox.innerHTML = bentoTodoList.map(function(t) {
+            return `
+                <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:7px; cursor:pointer; background:rgba(255,255,255,0.03);">
+                    <div style="width:15px; height:15px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.6rem; flex-shrink:0;">
+                        ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </div>
+                    <span style="font-size:0.78rem; color:${t.done ? 'rgba(255,255,255,0.45)' : '#fff'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        ${t.text}
+                    </span>
+                </div>`;
+        }).join('');
+    }
+
+    // Chèn thẻ "Thống kê phiên" vào cột phải giống hệt Mục 2 Ảnh Demo
+    var musicWidget = document.getElementById('widget-music');
+    if (musicWidget && musicWidget.parentElement && !document.getElementById('focus-session-stats-card')) {
+        var statsCard = document.createElement('div');
+        statsCard.id = 'focus-session-stats-card';
+        statsCard.style.cssText = "background:rgba(17,20,38,0.78); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; backdrop-filter:blur(12px);";
+        statsCard.innerHTML = `
+            <div style="font-weight:700; color:#fff; font-size:0.82rem; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-chart-simple" style="color:#38bdf8;"></i> Thống kê phiên
+            </div>
+            <div style="display:flex; flex-direction:column; gap:7px; font-size:0.76rem;">
+                <div style="display:flex; justify-content:space-between; color:#94a3b8;"><span>Thời gian đếm ngược</span><strong id="fs-stat-time" style="color:#fff;">00:25:00</strong></div>
+                <div style="display:flex; justify-content:space-between; color:#94a3b8;"><span>Chu kỳ Pomodoro</span><strong style="color:#fff;">1 / 4</strong></div>
+                <div style="display:flex; justify-content:space-between; color:#94a3b8;"><span>Trạng thái</span><strong style="color:#10b981;">Tập trung sâu</strong></div>
+                <div style="display:flex; justify-content:space-between; color:#94a3b8;"><span>Hiệu suất điều phối</span><strong style="color:#c084fc;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong></div>
+            </div>
+        `;
+        musicWidget.parentElement.insertBefore(statsCard, musicWidget);
+    }
+
+    // Chèn câu quote khích lệ ngay trên 2 nút Tạm dừng / Kết thúc
+    var timerControls = document.querySelector('#focus-room .timer-controls');
+    if (timerControls && !document.getElementById('focus-motivational-quote')) {
+        var qEl = document.createElement('div');
+        qEl.id = 'focus-motivational-quote';
+        qEl.style.cssText = "color:rgba(255,255,255,0.75); font-style:italic; font-size:0.86rem; margin:10px 0 4px 0; text-align:center;";
+        qEl.innerText = '"Stay focused. You\'ve got this."';
+        timerControls.parentElement.insertBefore(qEl, timerControls);
+    }
+
+    // Chèn Thanh phát nhạc Lo-fi nằm ngang ở dưới đáy Phòng Focus chuẩn Ảnh Demo
+    var focusRoom = document.getElementById('focus-room');
+    if (focusRoom && !document.getElementById('focus-bottom-lofi-bar')) {
+        var bar = document.createElement('div');
+        bar.id = 'focus-bottom-lofi-bar';
+        bar.style.cssText = "position:relative; z-index:2; width:100%; max-width:1120px; margin:8px auto 0 auto; background:rgba(15,18,34,0.82); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:10px 18px; display:flex; justify-content:space-between; align-items:center; gap:16px; backdrop-filter:blur(14px);";
+        bar.innerHTML = `
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:36px; height:36px; border-radius:9px; background:linear-gradient(135deg, #7c3aed, #ec4899); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.95rem;">
+                    <i class="fa-solid fa-compact-disc fa-spin"></i>
                 </div>
-                <span style="font-size:0.76rem; color:${t.done ? 'rgba(255,255,255,0.45)' : '#fff'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${t.text}
-                </span>
-            </div>`;
-    }).join('');
+                <div>
+                    <div style="font-size:0.82rem; font-weight:800; color:#fff;">Lo-fi Study</div>
+                    <div style="font-size:0.68rem; color:#94a3b8;">Chillhop • Ambient Focus</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px; color:#fff; font-size:0.9rem;">
+                <i class="fa-solid fa-backward-step" style="cursor:pointer; opacity:0.7;"></i>
+                <i class="fa-solid fa-play" style="cursor:pointer;" onclick="document.getElementById('local-audio-input')?.click()" title="Chọn nhạc từ máy"></i>
+                <i class="fa-solid fa-forward-step" style="cursor:pointer; opacity:0.7;"></i>
+                <i class="fa-solid fa-volume-high" style="font-size:0.78rem; opacity:0.8; margin-left:6px;"></i>
+                <div style="width:100px; height:5px; background:rgba(255,255,255,0.15); border-radius:10px; overflow:hidden;">
+                    <div style="width:75%; height:100%; background:linear-gradient(90deg, #3b82f6, #a855f7); border-radius:10px;"></div>
+                </div>
+            </div>
+        `;
+        focusRoom.appendChild(bar);
+    }
 }
-
-// Bắt dính sự kiện chuyển Tab để Thành tựu và Phân tích luôn hiện giao diện mới
-var origSwitchTabMaster = window.switchTab;
-window.switchTab = function(tabName) {
-    if (typeof origSwitchTabMaster === 'function') origSwitchTabMaster(tabName);
-    if (tabName === 'trophy') {
-        renderMasterTrophyAndArchive();
-        setTimeout(renderMasterTrophyAndArchive, 50);
-    } else if (tabName === 'analytics') {
-        window.renderAnalytics();
-        setTimeout(window.renderAnalytics, 50);
-    } else if (tabName === 'dashboard') {
-        renderBentoCommandCenter();
-    }
-};
-
-// Đồng hồ thời gian thực trên Topbar & Cố định thẻ User ở đáy Sidebar
-setInterval(function() {
-    var now = new Date();
-    var clockEl = document.getElementById('top-clock-label');
-    var dateEl = document.getElementById('top-date-label');
-    if (clockEl) {
-        clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-    }
-    if (dateEl) {
-        var dNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-        dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
-    }
-
-    var badge = document.getElementById('user-auth-badge');
-    var dock = document.getElementById('sidebar-bottom-dock');
-    if (badge && dock) {
-        if (badge.innerHTML.includes('Rời án thư')) {
-            badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
-        }
-        if (badge.nextElementSibling !== dock) {
-            badge.style.cssText = "margin: 8px 4px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.04); display: flex; align-items: center; gap: 8px; font-size: 0.75rem;";
-            dock.parentNode.insertBefore(badge, dock);
-        }
-    }
-}, 1000);
-
-var prevRenderDashMaster = window.renderDashboard;
-window.renderDashboard = function() {
-    if (typeof prevRenderDashMaster === 'function') prevRenderDashMaster();
-    renderBentoCommandCenter();
-    renderFocusStudioRightPanel();
-};
-
-window.addEventListener('DOMContentLoaded', function() {
-    injectCleanLayoutCSS();
-    setTimeout(function() {
-        renderBentoCommandCenter();
-        renderFocusStudioRightPanel();
-    }, 300);
-});
