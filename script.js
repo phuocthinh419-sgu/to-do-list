@@ -292,98 +292,251 @@ firebase.auth().onAuthStateChanged(async (user) => {
 });
 let pendingSync = false;
 
+// =====================================================================
+// CLOUD SYNC V2 — ĐỒNG BỘ ĐẦY ĐỦ CORE + GAMIFICATION + SETTINGS
+// =====================================================================
+
+function readLocalJSON(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : (JSON.parse(raw) ?? fallback);
+    } catch (e) {
+        console.warn(`Không đọc được JSON localStorage: ${key}`, e);
+        return fallback;
+    }
+}
+
+function readLocalInt(key, fallback = 0) {
+    const raw = localStorage.getItem(key);
+    if (raw === null || raw === '') return fallback;
+    const value = parseInt(raw, 10);
+    return Number.isFinite(value) ? value : fallback;
+}
+
+function readLocalFloat(key, fallback = 0) {
+    const raw = localStorage.getItem(key);
+    if (raw === null || raw === '') return fallback;
+    const value = parseFloat(raw);
+    return Number.isFinite(value) ? value : fallback;
+}
+
+function readLocalString(key, fallback = '') {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value;
+}
+
+function collectPrefixedLocalStorage(prefix) {
+    const result = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) result[key] = localStorage.getItem(key);
+    }
+    return result;
+}
+
+function applyOptionalCloudValue(cloudData, key, localKey = key) {
+    // Chỉ ghi đè nếu Cloud thực sự có field này.
+    // Điều này giúp tài khoản cũ không bị mất dữ liệu local khi migrate sang Sync V2.
+    if (Object.prototype.hasOwnProperty.call(cloudData, key)) {
+        const value = cloudData[key];
+        if (value === null || value === undefined) return;
+        localStorage.setItem(localKey, typeof value === 'object' ? JSON.stringify(value) : String(value));
+    }
+}
+
+function buildCloudData(nowTs) {
+    return {
+        schemaVersion: 2,
+
+        // ===== CORE =====
+        goals: readLocalJSON('saasGoalsPro', []),
+        totalSessions: readLocalFloat('saasTotalSessionsPro', 0),
+        countdowns: readLocalJSON('saasCountdownsPro', []),
+        dailyLogs: readLocalJSON('saasDailyLogs', {}),
+        streak: readLocalInt('saasStreak', 0),
+        lastActive: readLocalString('saasLastActive'),
+        s25: readLocalInt('saasS25', 0),
+        s15: readLocalInt('saasS15', 0),
+        cycleStart: readLocalString('saasCycleStart'),
+        weeklyHours: typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0,
+
+        // ===== ECONOMY / MARKET =====
+        usdBalance: readLocalInt('usdBalance', 0),
+        userPortfolio: readLocalJSON('userPortfolio', {}),
+        stockMarketPrices: readLocalJSON('stockMarketPrices', {}),
+        lastMarketFlucDate: readLocalString('lastMarketFlucDate'),
+        imperialEconomyActive: readLocalString('imperialEconomyActive', 'false'),
+
+        // ===== PENALTY / RECOVERY =====
+        lastRestDate: readLocalString('saasLastRest'),
+        dailyDebt: readLocalInt('saasDailyDebt', 0),
+        debtCheckedDate: readLocalString('saasDebtCheckedDate'),
+        pendingTax: readLocalString('saasPendingTax', 'false'),
+        feePaidDate: readLocalString('saasFeePaidDate'),
+        debtReducerVoucher: readLocalString('saasDebtReducerVoucher', 'false'),
+        freezes: readLocalInt('saasFreezes', 0),
+        achieved10h: readLocalString('saasAchieved10h', 'false'),
+        achieved15h: readLocalString('saasAchieved15h', 'false'),
+        streakCheckedDate: readLocalString('saasStreakCheckedDate'),
+        achComeback: readLocalString('ach_comeback', 'false'),
+
+        // ===== GAMIFICATION =====
+        immortalHours: readLocalFloat('saasImmortalHours', 0),
+        dailyQuests: readLocalJSON('saasDailyQuests', []),
+        questDate: readLocalString('saasQuestDate'),
+        xpBoostUntil: readLocalInt('saasXpBoostUntil', 0),
+        starHistory: readLocalJSON('saasStarHistory', [5, 5, 5, 5, 5]),
+
+        // ===== DISPATCH / REPUTATION =====
+        dispatchRate: readLocalInt('saasDispatchRate', 100),
+        consecutiveRejects: readLocalInt('saasConsecutiveRejects', 0),
+        dispatchSnoozeUntil: readLocalInt('saasDispatchSnoozeUntil', 0),
+        restModeDate: readLocalString('saasRestModeDate'),
+        freeSnoozeDate: readLocalString('saasFreeSnoozeDate'),
+
+        // ===== AI / DAILY LIMITS =====
+        copilotDate: readLocalString('saasCopilotDate'),
+        copilotUsed: readLocalInt('saasCopilotUsed', 0),
+
+        // ===== USER SETTINGS / UI =====
+        curfew: readLocalString('saasCurfew'),
+        plannerColor: readLocalString('plannerColor'),
+        plannerTheme: readLocalString('plannerTheme'),
+        blocklist: readLocalJSON('saasBlocklist', []),
+        timetable: readLocalJSON('saasTimetable', []),
+        joinDate: readLocalString('saasJoinDate'),
+        isSealed: readLocalString('isSealed', 'false'),
+
+        // Dynamic KPI achievement flags: saasKPIAchieved_<id>
+        kpiAchieved: collectPrefixedLocalStorage('saasKPIAchieved_'),
+
+        // ===== METADATA =====
+        lastUpdated: nowTs,
+        displayName: currentUser?.displayName || 'Ẩn danh',
+        photoURL: currentUser?.photoURL || ''
+    };
+}
+
 async function syncToCloud() {
     if (!currentUser) return;
     if (isSyncing) {
-        pendingSync = true; // Đánh dấu có dữ liệu mới hơn đang chờ đẩy lên mây
+        pendingSync = true;
         return;
     }
+
     isSyncing = true;
     try {
         const nowTs = Date.now();
         localStorage.setItem('saasLastUpdated', nowTs);
-        const dataToSync = {
-            goals: JSON.parse(localStorage.getItem('saasGoalsPro')) || [],
-            totalSessions: parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0,
-            countdowns: JSON.parse(localStorage.getItem('saasCountdownsPro')) || [],
-            dailyLogs: JSON.parse(localStorage.getItem('saasDailyLogs')) || {},
-            streak: parseInt(localStorage.getItem('saasStreak')) || 0,
-            lastActive: localStorage.getItem('saasLastActive') || "",
-            s25: parseInt(localStorage.getItem('saasS25')) || 0,
-            s15: parseInt(localStorage.getItem('saasS15')) || 0,
-            cycleStart: localStorage.getItem('saasCycleStart') || "",
-            usdBalance: parseInt(localStorage.getItem('usdBalance')) || 0,
-            userPortfolio: JSON.parse(localStorage.getItem('userPortfolio')) || {},
-            stockMarketPrices: JSON.parse(localStorage.getItem('stockMarketPrices')) || {},
-            lastRestDate: localStorage.getItem('saasLastRest') || "",
-            achComeback: localStorage.getItem('ach_comeback') || "false",
-            timetable: JSON.parse(localStorage.getItem('saasTimetable')) || [],
-            lastUpdated: nowTs,
-            dailyDebt: parseInt(localStorage.getItem('saasDailyDebt')) || 0,
-            debtCheckedDate: localStorage.getItem('saasDebtCheckedDate') || "",
-            pendingTax: localStorage.getItem('saasPendingTax') || "false",
-            feePaidDate: localStorage.getItem('saasFeePaidDate') || "",
-            displayName: currentUser.displayName || "Ẩn danh",
-            photoURL: currentUser.photoURL || "",
-            weeklyHours: getTotalCycleHours()
-        };
-        await db.collection("academic_apex").doc(USER_DOC_ID).set(dataToSync);
-        console.log("☁️ Đã đồng bộ dữ liệu lên Cloud.");
+        const dataToSync = buildCloudData(nowTs);
 
-        let statusIcon = document.getElementById('status-box');
+        await db.collection('academic_apex').doc(USER_DOC_ID).set(dataToSync);
+        console.log('☁️ Đã đồng bộ đầy đủ dữ liệu lên Cloud (Sync V2).');
+
+        const statusIcon = document.getElementById('status-box');
         if (statusIcon && !isSessionActive && !isBreakActive && !isGracePeriod) {
             statusIcon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up" style="color:var(--brand-info)"></i><span id="status-msg">Dữ liệu đã được bảo vệ trên Cloud.</span>`;
         }
-    } catch (e) { console.error("Lỗi đồng bộ Cloud:", e); }
-    isSyncing = false;
+    } catch (e) {
+        console.error('Lỗi đồng bộ Cloud:', e);
+    } finally {
+        isSyncing = false;
+    }
 
-    // Nếu trong lúc đang lưu mà có lệnh lưu mới (như vừa cộng giờ học xong), lập tức đồng bộ tiếp!
+    // Nếu có thay đổi phát sinh trong lúc đang ghi, chạy thêm 1 lượt.
     if (pendingSync) {
         pendingSync = false;
-        syncToCloud();
+        await syncToCloud();
     }
 }
 
 // Hàm giải nén dữ liệu Cloud chép thẳng vào Local
 function applyCloudDataToLocal(cloudData) {
+    // ===== CORE =====
     localStorage.setItem('saasGoalsPro', JSON.stringify(cloudData.goals || []));
-    localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions || 0);
+    localStorage.setItem('saasTotalSessionsPro', cloudData.totalSessions ?? 0);
     localStorage.setItem('saasCountdownsPro', JSON.stringify(cloudData.countdowns || []));
     localStorage.setItem('saasDailyLogs', JSON.stringify(cloudData.dailyLogs || {}));
-    localStorage.setItem('saasStreak', cloudData.streak || 0);
-    localStorage.setItem('saasLastActive', cloudData.lastActive || "");
-    localStorage.setItem('saasS25', cloudData.s25 || 0);
-    localStorage.setItem('saasS15', cloudData.s15 || 0);
-    if(cloudData.cycleStart) localStorage.setItem('saasCycleStart', cloudData.cycleStart);
-    localStorage.setItem('usdBalance', cloudData.usdBalance || 0);
+    localStorage.setItem('saasStreak', cloudData.streak ?? 0);
+    localStorage.setItem('saasLastActive', cloudData.lastActive || '');
+    localStorage.setItem('saasS25', cloudData.s25 ?? 0);
+    localStorage.setItem('saasS15', cloudData.s15 ?? 0);
+    if (cloudData.cycleStart) localStorage.setItem('saasCycleStart', cloudData.cycleStart);
+
+    // ===== ECONOMY / MARKET =====
+    localStorage.setItem('usdBalance', cloudData.usdBalance ?? 0);
     localStorage.setItem('userPortfolio', JSON.stringify(cloudData.userPortfolio || {}));
     localStorage.setItem('stockMarketPrices', JSON.stringify(cloudData.stockMarketPrices || {}));
-    localStorage.setItem('saasLastRest', cloudData.lastRestDate || "");
-    localStorage.setItem('ach_comeback', cloudData.achComeback || "false");
-    localStorage.setItem('saasTimetable', JSON.stringify(cloudData.timetable || []));
-    
-    // 🛡️ VÁ LỖI ĐỒNG BỘ: ÁP ĐẶT TÌNH TRẠNG NỢ NẦN TỪ MÂY XUỐNG
-    localStorage.setItem('saasDailyDebt', cloudData.dailyDebt || 0);
-    if(cloudData.debtCheckedDate) localStorage.setItem('saasDebtCheckedDate', cloudData.debtCheckedDate);
-    localStorage.setItem('saasPendingTax', cloudData.pendingTax || "false");
-    if(cloudData.feePaidDate) localStorage.setItem('saasFeePaidDate', cloudData.feePaidDate);
+    applyOptionalCloudValue(cloudData, 'lastMarketFlucDate');
+    applyOptionalCloudValue(cloudData, 'imperialEconomyActive');
 
-    localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
-    
-    // Nạp lại biến RAM để giao diện chạy đúng
-    goals = JSON.parse(localStorage.getItem('saasGoalsPro')) || [];
-    totalSessions = parseInt(localStorage.getItem('saasTotalSessionsPro')) || 0;
-    countdowns = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [];
-    dailyLogs = JSON.parse(localStorage.getItem('saasDailyLogs')) || {}; 
-    lastActiveDate = localStorage.getItem('saasLastActive') || "";
-    currentStreak = parseInt(localStorage.getItem('saasStreak')) || 0;
-    lastRestDate = localStorage.getItem('saasLastRest') || "";
+    // ===== PENALTY / RECOVERY =====
+    applyOptionalCloudValue(cloudData, 'lastRestDate', 'saasLastRest');
+    applyOptionalCloudValue(cloudData, 'dailyDebt', 'saasDailyDebt');
+    applyOptionalCloudValue(cloudData, 'debtCheckedDate', 'saasDebtCheckedDate');
+    applyOptionalCloudValue(cloudData, 'pendingTax', 'saasPendingTax');
+    applyOptionalCloudValue(cloudData, 'feePaidDate', 'saasFeePaidDate');
+    applyOptionalCloudValue(cloudData, 'debtReducerVoucher', 'saasDebtReducerVoucher');
+    applyOptionalCloudValue(cloudData, 'freezes', 'saasFreezes');
+    applyOptionalCloudValue(cloudData, 'achieved10h', 'saasAchieved10h');
+    applyOptionalCloudValue(cloudData, 'achieved15h', 'saasAchieved15h');
+    applyOptionalCloudValue(cloudData, 'streakCheckedDate', 'saasStreakCheckedDate');
+    applyOptionalCloudValue(cloudData, 'achComeback', 'ach_comeback');
+
+    // ===== GAMIFICATION =====
+    applyOptionalCloudValue(cloudData, 'immortalHours', 'saasImmortalHours');
+    applyOptionalCloudValue(cloudData, 'dailyQuests', 'saasDailyQuests');
+    applyOptionalCloudValue(cloudData, 'questDate', 'saasQuestDate');
+    applyOptionalCloudValue(cloudData, 'xpBoostUntil', 'saasXpBoostUntil');
+    applyOptionalCloudValue(cloudData, 'starHistory', 'saasStarHistory');
+
+    // ===== DISPATCH / REPUTATION =====
+    applyOptionalCloudValue(cloudData, 'dispatchRate', 'saasDispatchRate');
+    applyOptionalCloudValue(cloudData, 'consecutiveRejects', 'saasConsecutiveRejects');
+    applyOptionalCloudValue(cloudData, 'dispatchSnoozeUntil', 'saasDispatchSnoozeUntil');
+    applyOptionalCloudValue(cloudData, 'restModeDate', 'saasRestModeDate');
+    applyOptionalCloudValue(cloudData, 'freeSnoozeDate', 'saasFreeSnoozeDate');
+
+    // ===== AI / DAILY LIMITS =====
+    applyOptionalCloudValue(cloudData, 'copilotDate', 'saasCopilotDate');
+    applyOptionalCloudValue(cloudData, 'copilotUsed', 'saasCopilotUsed');
+
+    // ===== SETTINGS =====
+    applyOptionalCloudValue(cloudData, 'curfew', 'saasCurfew');
+    applyOptionalCloudValue(cloudData, 'plannerColor');
+    applyOptionalCloudValue(cloudData, 'plannerTheme');
+    applyOptionalCloudValue(cloudData, 'blocklist', 'saasBlocklist');
+    applyOptionalCloudValue(cloudData, 'timetable', 'saasTimetable');
+    applyOptionalCloudValue(cloudData, 'joinDate', 'saasJoinDate');
+    applyOptionalCloudValue(cloudData, 'isSealed');
+
+    // Dynamic KPI flags
+    if (cloudData.kpiAchieved && typeof cloudData.kpiAchieved === 'object') {
+        Object.entries(cloudData.kpiAchieved).forEach(([key, value]) => {
+            localStorage.setItem(key, value);
+        });
+    }
+
+    if (cloudData.lastUpdated) localStorage.setItem('saasLastUpdated', cloudData.lastUpdated);
+
+    // ===== RAM STATE =====
+    goals = readLocalJSON('saasGoalsPro', []);
+    totalSessions = parseFloat(localStorage.getItem('saasTotalSessionsPro')) || 0;
+    countdowns = readLocalJSON('saasCountdownsPro', []);
+    dailyLogs = readLocalJSON('saasDailyLogs', {});
+    lastActiveDate = readLocalString('saasLastActive');
+    currentStreak = readLocalInt('saasStreak', 0);
+    lastRestDate = readLocalString('saasLastRest');
     cycleStartDate = localStorage.getItem('saasCycleStart');
-    timetableData = JSON.parse(localStorage.getItem('saasTimetable')) || [];
-    
-    // Cập nhật RAM cho án phạt để Giao diện không bị khóa oan
-    dailyDebtMinutes = parseInt(localStorage.getItem('saasDailyDebt')) || 0;
+    timetableData = readLocalJSON('saasTimetable', []);
+    dailyDebtMinutes = readLocalInt('saasDailyDebt', 0);
     isPendingTax = localStorage.getItem('saasPendingTax') === 'true';
+
+    // Các biến đã tồn tại ở các module phía dưới.
+    if (typeof dispatchRate !== 'undefined') dispatchRate = readLocalInt('saasDispatchRate', 100);
+    if (typeof consecutiveRejects !== 'undefined') consecutiveRejects = readLocalInt('saasConsecutiveRejects', 0);
+    if (typeof dispatchSnoozeUntil !== 'undefined') dispatchSnoozeUntil = readLocalInt('saasDispatchSnoozeUntil', 0);
+    if (typeof starHistory !== 'undefined') starHistory = readLocalJSON('saasStarHistory', [5,5,5,5,5]);
 }
 
 async function initialPullFromCloud() {
