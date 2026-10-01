@@ -2625,20 +2625,19 @@ const p3 = "8lFYg8eW2Rtz4s0lg";
 const GEMINI_API_KEY = p1 + p2 + p3; 
 
 async function validateReportWithAI(reportText, durationMinutes) {
-    // Danh sách mô hình thế hệ mới (Tự động chuyển đổi nếu Google cập nhật)
     const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
     
-    const prompt = `Bạn là Trợ lý Học thuật (Academic Copilot) của một hệ thống quản lý học tập.
-    Nhiệm vụ 1 (Đánh giá): Kiểm tra xem báo cáo sau ${durationMinutes} phút làm việc có phản ánh đúng nỗ lực học tập không.
-    Nhiệm vụ 2 (Cố vấn): Đưa ra một gợi ý ngắn gọn để người dùng cải thiện hoặc mở rộng kiến thức.
+    const prompt = `Bạn là Trợ lý Học thuật (Academic Copilot) đánh giá chất lượng phiên học ${durationMinutes} phút.
+    Hãy chấm điểm báo cáo từ 1 đến 5 sao và đưa ra 1 lời khuyên chuyên môn ngắn gọn.
     
-    Quy tắc phản hồi: Bắt buộc trả về định dạng: [KẾT QUẢ] | [LỜI NHẬN XÉT]
+    Quy tắc phản hồi: Bắt buộc trả về đúng định dạng: [SỐ SAO TỪ 1 ĐẾN 5] | [LỜI NHẬN XÉT & GỢI Ý]
+    (Chỉ ghi đúng 1 chữ số từ 1 đến 5 ở phần đầu tiên).
     
-    - Nếu báo cáo chứa ký tự vô nghĩa (asdfg), copy-paste, hoặc quá ngắn gọn:
-      Trả về: FAIL | Nội dung báo cáo chưa đủ chi tiết hoặc không tương xứng với ${durationMinutes} phút tập trung. Vui lòng mô tả cụ thể hơn để hệ thống có thể hỗ trợ bạn.
-      
-    - Nếu báo cáo hợp lệ, mô tả công việc rõ ràng:
-      Trả về: PASS | [1 câu nhận xét tích cực và 1 gợi ý chuyên môn liên quan trực tiếp đến nội dung báo cáo].
+    Tiêu chí chấm sao:
+    - 1 hoặc 2: Ký tự vô nghĩa (asdfg), spam, hoặc viết đối phó không liên quan việc học.
+    - 3: Đạt yêu cầu cơ bản nhưng mô tả còn chung chung, ít chi tiết.
+    - 4: Báo cáo tốt, nêu rõ nội dung công việc đã hoàn thành.
+    - 5: Báo cáo xuất sắc, liệt kê cụ thể kiến thức, từ vựng, công thức hoặc đúc kết sâu sắc.
     
     Báo cáo của người dùng: "${reportText}"`;
 
@@ -2652,7 +2651,7 @@ async function validateReportWithAI(reportText, durationMinutes) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { temperature: 0.7 } 
+                    generationConfig: { temperature: 0.6 } 
                 })
             });
             
@@ -2660,7 +2659,6 @@ async function validateReportWithAI(reportText, durationMinutes) {
 
             if (!response.ok) {
                 lastError = `(${response.status}) ${data.error?.message || "Lỗi không xác định"}`;
-                // Nếu lỗi 404 (sai tên model), tự động thử model tiếp theo trong danh sách
                 if (response.status === 404) continue;
                 return `PASS | Lỗi dịch vụ AI ${lastError}`;
             }
@@ -2684,7 +2682,7 @@ async function submitReport() {
         let minTimeRequired = (currentDuration === 15) ? 12000 : 18000; 
         if (currentDuration >= 90) minTimeRequired = 30000; 
         
-        // 1. Kiểm tra chống spam tốc độ (Cũ)
+        // 1. Kiểm tra chống spam tốc độ
         if (timeElapsed < minTimeRequired) { 
             alert("PHÁT HIỆN BẤT THƯỜNG:\nTốc độ nhập liệu không hợp lý.\n\nPhiên học đã bị hủy và chuỗi kỷ luật trở về 0."); 
             document.getElementById('report-modal').style.display = 'none'; 
@@ -2692,29 +2690,36 @@ async function submitReport() {
         }
 
         // ========================================================
-        // 2. KÍCH HOẠT AI KIỂM ĐỊNH NỘI DUNG VÀ CỐ VẤN
+        // 2. KÍCH HOẠT AI CHẤM SAO (1 - 5 SAO) & CỐ VẤN
         // ========================================================
         let btnSubmit = document.getElementById('btn-submit-report');
         if (btnSubmit) {
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Hệ thống đang phân tích...";
+            btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Hệ thống đang chấm điểm...";
         }
 
         let aiResponse = await validateReportWithAI(text, currentDuration);
         
-        // Tách KẾT QUẢ và LỜI CỐ VẤN (ngăn cách bởi dấu | )
         let aiParts = aiResponse.split("|");
-        let aiJudgment = aiParts[0].trim();
+        let rawScore = aiParts[0].trim();
         let aiAdvice = aiParts[1] ? aiParts[1].trim() : "Hệ thống đã ghi nhận tiến độ của bạn.";
 
-        if (aiJudgment !== "PASS") {
-            // Thông báo từ chối lịch sự nhưng dứt khoát
-            alert(`Báo cáo không hợp lệ!\n\nPhản hồi từ hệ thống: ${aiAdvice}\n\nPhiên học đã bị hủy. Hệ thống sẽ áp dụng các chế tài trừ điểm tín nhiệm và đặt lại chuỗi kỷ luật theo quy định.`);
+        // Xử lý điểm Sao (Nếu lỗi mạng trả về PASS thì mặc định không tính vào lịch sử sao)
+        let starScore = parseInt(rawScore.replace(/\D/g, ''));
+        let isOfflinePass = (rawScore === "PASS" || isNaN(starScore));
+        if (!isOfflinePass) {
+            starScore = Math.max(1, Math.min(5, starScore));
+            if (typeof recordNewStarRating === 'function') recordNewStarRating(starScore);
+        }
+
+        // Nếu bị chấm 1 hoặc 2 sao -> Không đạt (FAIL)
+        if (!isOfflinePass && starScore <= 2) {
+            let starsVisual = "⭐".repeat(starScore);
+            alert(`ĐÁNH GIÁ BÁO CÁO: ${starsVisual} (${starScore}/5 Sao - Không đạt)\n\nPhản hồi từ hệ thống: ${aiAdvice}\n\nPhiên học đã bị hủy. Hệ thống áp dụng chế tài trừ $100 và đặt lại chuỗi kỷ luật.`);
             
             if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
             document.getElementById('report-modal').style.display = 'none';
 
-            // Thực thi hình phạt ngầm bên dưới
             let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
             localStorage.setItem('usdBalance', Math.max(0, currentUsd - 100));
             updateUsdDisplay();
@@ -2722,8 +2727,18 @@ async function submitReport() {
             currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return;
         }
 
-        // Thông báo thành công chuyên nghiệp kèm lời khuyên
-        alert(`Phiên học hoàn thành!\n\n💡 Gợi ý từ Trợ lý AI:\n"${aiAdvice}"`);
+        // Tính tiền Tip theo số Sao (4 sao: +$15 | 5 sao: +$35)
+        let tipAmount = 0;
+        if (!isOfflinePass) {
+            if (starScore === 4) tipAmount = 15;
+            if (starScore === 5) tipAmount = 35;
+        }
+
+        let ratingHeader = isOfflinePass 
+            ? "Phiên học hoàn thành!" 
+            : `ĐÁNH GIÁ CHẤT LƯỢNG: ${"⭐".repeat(starScore)} (${starScore}/5 Sao)${tipAmount > 0 ? `\n💰 Thưởng thêm Tiền Tip chất lượng: +$${tipAmount}` : ""}`;
+
+        alert(`${ratingHeader}\n\n💡 Nhận xét từ Trợ lý AI:\n"${aiAdvice}"`);
         
         if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
         // ========================================================
@@ -2757,14 +2772,16 @@ async function submitReport() {
             if (currentCycleHrs >= 15.0) rewardMultiplier = 3;
             else if (currentCycleHrs >= 10.0) rewardMultiplier = 2;
 
-            let totalEarn = (baseEarn + bonusEarn) * rewardMultiplier;
+            let totalEarn = ((baseEarn + bonusEarn) * rewardMultiplier) + tipAmount;
             
             let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
             localStorage.setItem("usdBalance", currentUsd + totalEarn);
             updateUsdDisplay();
 
-            let msg = `HOÀN THÀNH PHIÊN HỌC:\n- Thu nhập: $${baseEarn + bonusEarn}`;
-            if (rewardMultiplier > 1) msg += `\n- Thưởng Hệ số (x${rewardMultiplier}): $${totalEarn}`;
+            let msg = `HOÀN THÀNH PHIÊN HỌC:\n- Thu nhập cơ bản: $${baseEarn + bonusEarn}`;
+            if (rewardMultiplier > 1) msg += `\n- Hệ số nhân (x${rewardMultiplier}): $${(baseEarn + bonusEarn) * rewardMultiplier}`;
+            if (tipAmount > 0) msg += `\n- Tiền Tip (${starScore} Sao): +$${tipAmount}`;
+            msg += `\n=> Tổng thực nhận: +$${totalEarn}`;
             alert(msg);
 
             let achieved10h = localStorage.getItem('saasAchieved10h') === 'true';
@@ -2833,7 +2850,8 @@ async function submitReport() {
         goal.reports.push({ 
             date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), 
             type: reportLabel, 
-            text: text 
+            text: text,
+            stars: isOfflinePass ? 5 : starScore
         });
         
         let hoursEarned = activeSessionMinutes / 60; 
@@ -2863,7 +2881,7 @@ async function submitReport() {
             isHardcoreTax = false; 
             if (localStorage.getItem('saasPendingTax') === 'true') {
                 localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của ngài đã được cộng thẳng vào KPI tuần này.`);
+                alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của bạn đã được cộng thẳng vào KPI tuần này.`);
             } else { 
                 alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); 
             }
@@ -4513,3 +4531,82 @@ window.renderDashboard = function() {
     renderDispatchStatusWidget();
     scheduleIdleDispatch();
 };
+
+// =====================================================================
+// HỆ THỐNG CHẤM SAO CHẤT LƯỢNG & HUY HIỆU DƯỚI AVATAR (STAR RATING)
+// =====================================================================
+let starHistory = JSON.parse(localStorage.getItem('saasStarHistory'));
+if (!Array.isArray(starHistory) || starHistory.length === 0) {
+    starHistory = [5, 5, 5, 5, 5]; // Mặc định khởi đầu 5.00 sao
+    localStorage.setItem('saasStarHistory', JSON.stringify(starHistory));
+}
+
+function getAverageStarRating() {
+    if (!starHistory || starHistory.length === 0) return 5.0;
+    let sum = starHistory.reduce((a, b) => a + b, 0);
+    return sum / starHistory.length;
+}
+
+function recordNewStarRating(score) {
+    starHistory.push(score);
+    // Tính trung bình cộng 20 phiên gần nhất
+    if (starHistory.length > 20) starHistory.shift();
+    localStorage.setItem('saasStarHistory', JSON.stringify(starHistory));
+    renderAvatarStarBadge();
+}
+
+function renderAvatarStarBadge() {
+    let userBadge = document.getElementById('user-auth-badge');
+    if (!userBadge) return;
+
+    let img = userBadge.querySelector('img');
+    if (!img) return;
+
+    // Bọc ảnh đại diện vào khung định vị (nếu chưa bọc) để gắn Sao ngay dưới chân ảnh
+    let wrapper = document.getElementById('avatar-star-wrapper');
+    if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.id = 'avatar-star-wrapper';
+        wrapper.style.cssText = "position: relative; display: inline-flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-bottom: 6px;";
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+    }
+
+    let avg = getAverageStarRating();
+    let badgeColor = avg >= 4.5 ? "#f59e0b" : (avg >= 3.8 ? "#10b981" : "#ef4444");
+
+    let starBadge = document.getElementById('user-star-pill');
+    if (!starBadge) {
+        starBadge = document.createElement('div');
+        starBadge.id = 'user-star-pill';
+        wrapper.appendChild(starBadge);
+    }
+
+    starBadge.style.cssText = `
+        position: absolute;
+        bottom: -8px;
+        background: var(--bg-panel);
+        color: var(--text-main);
+        border: 1.5px solid ${badgeColor};
+        border-radius: 100px;
+        padding: 1px 6px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        z-index: 12;
+        white-space: nowrap;
+    `;
+    starBadge.title = `Điểm chất lượng báo cáo (Trung bình ${starHistory.length} phiên gần nhất)`;
+    starBadge.innerHTML = `<i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}`;
+}
+
+// Tự động gắn huy hiệu Sao dưới Avatar khi tải trang và mỗi khi cập nhật KPI
+const prevRenderKPIStar = window.renderKPI;
+window.renderKPI = function() {
+    if (typeof prevRenderKPIStar === 'function') prevRenderKPIStar();
+    renderAvatarStarBadge();
+};
+setTimeout(renderAvatarStarBadge, 1200);
