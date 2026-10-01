@@ -5316,12 +5316,13 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// CLEAN UI PATCH: DỌN DẸP BỐ CỤC, SỬA LỖI SIDEBAR, TOPBAR & DASHBOARD
+// APEX MASTER DESIGN ENGINE: DASHBOARD, STOCK MARKET, TROPHY & ANALYTICS
 // =====================================================================
 var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
     { id: 1, text: "Ôn lại từ vựng trọng tâm trong tuần", done: true },
     { id: 2, text: "Hoàn thành bài tập chuyên ngành", done: true },
-    { id: 3, text: "Chuẩn bị nội dung bài giảng / thuyết trình", done: false }
+    { id: 3, text: "Chuẩn bị nội dung bài giảng / thuyết trình", done: false },
+    { id: 4, text: "Đọc tài liệu nghiên cứu học thuật", done: false }
 ];
 
 function saveBentoTodos() {
@@ -5335,38 +5336,170 @@ function formatHrsToHM(decimalHours) {
     return h + "h " + String(m).padStart(2, '0') + "m";
 }
 
+// 1. HỆ THỐNG KẾT NỐI SÀN CHỨNG KHOÁN THÔNG MINH (KHẮC PHỤC LỖI KHÔNG BẤM ĐƯỢC)
+function getUnifiedStockArray() {
+    // Trường hợp 1: stockMarket là Object (VD: { BAYM: { price: 120, owned: 2 } })
+    if (typeof stockMarket !== 'undefined' && stockMarket && !Array.isArray(stockMarket) && typeof stockMarket === 'object') {
+        return Object.keys(stockMarket).map(function(k) {
+            var item = stockMarket[k] || {};
+            return {
+                code: k,
+                name: item.name || k,
+                price: Number(item.price || 100),
+                owned: Number(item.owned || 0),
+                change: Number(item.lastChange || item.change || 1.8)
+            };
+        });
+    }
+    // Trường hợp 2: stockMarket hoặc stocks là Array
+    var arr = (typeof stockMarket !== 'undefined' && Array.isArray(stockMarket)) ? stockMarket : ((typeof stocks !== 'undefined' && Array.isArray(stocks)) ? stocks : null);
+    if (arr && arr.length > 0) {
+        return arr.map(function(item) {
+            var c = item.code || item.symbol || "APX";
+            return {
+                code: c,
+                name: item.name || c,
+                price: Number(item.price || 100),
+                owned: Number(item.owned || 0),
+                change: Number(item.lastChange || item.change || 1.5)
+            };
+        });
+    }
+    // Trường hợp 3: Đọc trực tiếp từ các thẻ trong #stock-market-container
+    var domContainer = document.getElementById('stock-market-container');
+    if (domContainer && domContainer.children.length > 0) {
+        var parsed = [];
+        Array.from(domContainer.children).forEach(function(el) {
+            var txt = el.innerText || "";
+            var lines = txt.split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+            if (lines.length >= 2) {
+                var codeMatch = lines[0].match(/[A-Z]{3,5}/);
+                var priceMatch = txt.match(/\$([0-9.]+)/);
+                parsed.push({
+                    code: codeMatch ? codeMatch[0] : lines[0],
+                    name: lines[0],
+                    price: priceMatch ? Number(priceMatch[1]) : 100,
+                    owned: 0,
+                    change: 2.1,
+                    domElement: el
+                });
+            }
+        });
+        if (parsed.length > 0) return parsed;
+    }
+    return [
+        { code: "BAYM", name: "Bayern Munich", price: 128.4, owned: 0, change: 2.4 },
+        { code: "IELT", name: "IELTS 7.0+", price: 95.2, owned: 0, change: 1.6 },
+        { code: "TESL", name: "Master TESOL", price: 112.0, owned: 0, change: 0.9 }
+    ];
+}
+
+function triggerStockTrade(code) {
+    if (typeof openTradeModal === 'function') { openTradeModal(code); return; }
+    if (typeof openTrade === 'function') { openTrade(code); return; }
+    // Nếu hàm gốc được gắn trực tiếp vào onclick của phần tử trong #stock-market-container
+    var container = document.getElementById('stock-market-container');
+    if (container) {
+        var cards = container.querySelectorAll('[onclick]');
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].getAttribute('onclick').includes(code)) {
+                cards[i].click();
+                return;
+            }
+        }
+        if (cards[0]) { cards[0].click(); return; }
+    }
+    // Dự phòng: Mở trực tiếp #trade-modal
+    var modal = document.getElementById('trade-modal');
+    if (modal) {
+        if (typeof currentTradingStock !== 'undefined') currentTradingStock = code;
+        var tmCode = document.getElementById('tm-code');
+        var tmUsd = document.getElementById('tm-usd');
+        var tmPrice = document.getElementById('tm-price');
+        var tmOwned = document.getElementById('tm-owned');
+        var list = getUnifiedStockArray();
+        var found = list.find(function(s){ return s.code === code; }) || list[0];
+        if (tmCode) tmCode.innerText = found.code;
+        if (tmUsd) tmUsd.innerText = "$" + (localStorage.getItem('usdBalance') || 0);
+        if (tmPrice) tmPrice.innerText = "$" + found.price.toFixed(1);
+        if (tmOwned) tmOwned.innerText = found.owned || 0;
+        modal.style.display = 'flex';
+    }
+}
+
+function openFullStockMarketDrawer() {
+    var modal = document.getElementById('full-market-exchange-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'full-market-exchange-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:20px;";
+        document.body.appendChild(modal);
+    }
+    var list = getUnifiedStockArray();
+    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+
+    var cardsHtml = list.map(function(st) {
+        var isUp = st.change >= 0;
+        return `
+            <div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='none'">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-weight:800; font-size:0.95rem; color:#fff; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-layer-group" style="color:#8b5cf6;"></i> ${st.code}
+                    </span>
+                    <span style="font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:6px; background:${isUp ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}; color:${isUp ? '#10b981' : '#ef4444'};">
+                        ${isUp ? '+' : ''}${st.change.toFixed(1)}%
+                    </span>
+                </div>
+                <div style="font-size:1.4rem; font-weight:900; color:#fbbf24; margin-bottom:6px;">$${st.price.toFixed(1)}</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:#8b95b0;">
+                    <span>Đang sở hữu: <strong style="color:#fff;">${st.owned} cổ</strong></span>
+                    <span style="color:#a855f7; font-weight:700;">Giao dịch →</span>
+                </div>
+            </div>`;
+    }).join('');
+
+    modal.innerHTML = `
+        <div style="background:#101424; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px; width:100%; max-width:680px; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div>
+                    <h3 style="font-size:1.25rem; font-weight:800; color:#fff; margin:0;"><i class="fa-solid fa-chart-line" style="color:#10b981; margin-right:8px;"></i>Sàn Giao Dịch Cổ Phiếu Học Thuật</h3>
+                    <div style="font-size:0.78rem; color:#8b95b0; margin-top:4px;">Số dư khả dụng: <strong style="color:#fbbf24;">$${usd.toLocaleString()} USD</strong> • Nhấp vào mã bất kỳ để Mua / Bán</div>
+                </div>
+                <button onclick="document.getElementById('full-market-exchange-modal').style.display='none'" style="background:none; border:none; color:#8b95b0; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:12px;">
+                ${cardsHtml}
+            </div>
+        </div>`;
+    modal.style.display = 'flex';
+}
+
+// 2. CSS CHUẨN DEMO CHO TOÀN HỆ THỐNG
 function injectCleanLayoutCSS() {
     if (document.getElementById('clean-layout-fix-css')) return;
     var style = document.createElement('style');
     style.id = 'clean-layout-fix-css';
     style.innerHTML = `
-        /* 1. Sửa lỗi đè chữ ở đỉnh Sidebar & hiện đủ Menu */
-        .sidebar { padding: 14px 12px !important; overflow: hidden !important; }
-        .sidebar .brand {
-            position: relative !important; z-index: 5 !important;
-            margin-bottom: 12px !important; padding: 4px 6px !important;
-            background: #080a12 !important;
-        }
+        /* Cố định Sidebar sạch đẹp, không đè chữ */
+        .sidebar { padding: 14px 12px !important; overflow: hidden !important; background: #080a12 !important; }
+        .sidebar .brand { position: relative !important; z-index: 5 !important; margin-bottom: 12px !important; padding: 4px 6px !important; background: #080a12 !important; }
         .sidebar .brand::before, .sidebar .brand::after { display: none !important; content: none !important; }
         .nav-menu { flex: 1 !important; overflow-y: auto !important; padding-top: 4px !important; }
 
-        /* 2. Dọn gọn Thanh Header trên cùng */
-        @media (min-width: 1025px) {
-            .mobile-toggle { display: none !important; }
-        }
+        @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
         .header {
             padding: 10px 0 !important; margin-bottom: 14px !important;
             display: flex !important; justify-content: space-between !important;
             align-items: center !important; flex-wrap: nowrap !important; gap: 12px !important;
         }
-        .bento-top-search { width: 240px !important; flex-shrink: 0 !important; }
+        .bento-top-search { width: 230px !important; flex-shrink: 0 !important; }
         .top-quote-text {
-            font-size: 0.76rem !important; color: #64748b !important;
+            font-size: 0.75rem !important; color: #64748b !important;
             white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
-            max-width: 260px !important;
+            max-width: 250px !important;
         }
 
-        /* 3. Ẩn các khối cũ bị trùng trên Dashboard */
+        /* Ẩn các khối cũ dư thừa trên Dashboard */
         #view-dashboard > .kpi-card,
         #view-dashboard > .recommendation-strip,
         #view-dashboard > .gamification-strip,
@@ -5376,7 +5509,7 @@ function injectCleanLayoutCSS() {
             display: none !important;
         }
 
-        /* 4. Lưới Bento gọn gàng, sạch sẽ ở mức 100% Zoom */
+        /* Lưới Bento Dashboard */
         .clean-hero { margin: 0 0 14px 0; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; }
         .clean-hero h1 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 3px 0; letter-spacing: -0.4px; }
         .clean-hero p { font-size: 0.8rem; color: #8b95b0; margin: 0; }
@@ -5389,32 +5522,46 @@ function injectCleanLayoutCSS() {
         }
 
         .clean-card {
-            background: #121626; border: 1px solid rgba(255,255,255,0.07);
+            background: linear-gradient(155deg, #151a2d 0%, #101423 100%);
+            border: 1px solid rgba(255,255,255,0.07);
             border-radius: 16px; padding: 16px 18px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.32);
             display: flex; flex-direction: column; justify-content: space-between;
         }
         .clean-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .clean-card-title { font-size: 0.86rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
-        .clean-link { font-size: 0.74rem; color: #8b5cf6; font-weight: 600; cursor: pointer; }
+        .clean-card-title { font-size: 0.85rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
+        .clean-link { font-size: 0.74rem; color: #a855f7; font-weight: 700; cursor: pointer; }
         .clean-link:hover { text-decoration: underline; }
 
-        /* 5. Thu gọn khung đếm ngược sự kiện (IELTS) không bị tràn màn hình */
+        /* Huy hiệu Lục giác (Hexagon Badge chuẩn Demo Mục 1 & Mục 5) */
+        .hex-icon {
+            width: 48px; height: 54px;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        /* Khung Đếm ngược sự kiện gọn gàng */
         .countdown-strip {
             display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-            gap: 14px !important; margin-bottom: 18px !important;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+            gap: 12px !important; margin-bottom: 16px !important;
         }
-        .countdown-card {
-            padding: 14px 18px !important; border-radius: 14px !important;
-            background: #121626 !important;
-        }
-        .countdown-title { margin-bottom: 10px !important; font-size: 0.8rem !important; }
-        .t-val { font-size: 1.15rem !important; }
+        .countdown-card { padding: 12px 16px !important; border-radius: 14px !important; background: #121626 !important; }
+        .countdown-title { margin-bottom: 8px !important; font-size: 0.78rem !important; }
+        .t-val { font-size: 1.1rem !important; }
 
-        /* Thanh điều phối gọn đẹp */
-        #dispatch-status-widget > div {
-            padding: 10px 16px !important; border-radius: 12px !important; margin-bottom: 14px !important;
+        /* Tab Pills trong Thành tựu & Phân tích */
+        .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .demo-tab-pill {
+            background: #131826; border: 1px solid rgba(255,255,255,0.07);
+            color: #8b95b0; padding: 6px 14px; border-radius: 9px;
+            font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .demo-tab-pill.active, .demo-tab-pill:hover {
+            background: linear-gradient(90deg, #7c3aed, #4f46e5);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(124,58,237,0.35);
         }
     `;
     document.head.appendChild(style);
@@ -5447,6 +5594,9 @@ function deleteBentoTodo(e, id) {
     renderFocusStudioRightPanel();
 }
 
+// =====================================================================
+// 3. MÀN HÌNH 1: DASHBOARD BENTO GRID (TÍCH HỢP CHỨNG KHOÁN BẤM ĐƯỢC NGAY)
+// =====================================================================
 function renderBentoCommandCenter() {
     injectCleanLayoutCSS();
     var dash = document.getElementById('view-dashboard');
@@ -5464,7 +5614,6 @@ function renderBentoCommandCenter() {
     var greeting = hr < 12 ? "Chào buổi sáng" : (hr < 18 ? "Chào buổi chiều" : "Chào buổi tối");
     var userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.displayName) ? currentUser.displayName : "Phước Thịnh";
 
-    // 1. Tính Tiến độ hôm nay
     var qInfo = (typeof getTodayDispatchQuotaInfo === 'function')
         ? getTodayDispatchQuotaInfo()
         : { doneHrs: 0, requiredHrs: 1.0, busyShiftsCount: 0 };
@@ -5475,7 +5624,6 @@ function renderBentoCommandCenter() {
     var circumference = 2 * Math.PI * radius;
     var dashOffset = circumference - (pctToday / 100) * circumference;
 
-    // 2. Tính đúng Cấp bậc & Danh hiệu theo tổng giờ thực tế (Sửa lỗi Lv.10 Tân Binh)
     var totalAllTimeHrs = 0;
     if (typeof dailyLogs !== 'undefined') {
         totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
@@ -5488,9 +5636,9 @@ function renderBentoCommandCenter() {
     else if (level >= 5) rankTitle = "Tinh Anh";
 
     var nextLevelHrs = level * 10;
-    var levelPct = Math.min(100, Math.round((totalAllTimeHrs / nextLevelHrs) * 100));
+    var levelPct = Math.min(100, Math.round(((totalAllTimeHrs % 10) / 10) * 100));
 
-    // 3. Lịch học hôm nay
+    // Lịch học hôm nay
     var todayDow = now.getDay();
     var todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : now.toISOString().split('T')[0];
     var todaySchedules = [];
@@ -5505,7 +5653,7 @@ function renderBentoCommandCenter() {
     }
 
     var scheduleListHtml = todaySchedules.length === 0
-        ? '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.8rem;">Hôm nay trống lịch cố định trên TKB.</div>'
+        ? '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>'
         : todaySchedules.slice(0, 4).map(function(item) {
             var shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
             var barColor = item.shift === 'sang' ? '#3b82f6' : (item.shift === 'chieu' ? '#a855f7' : '#10b981');
@@ -5513,7 +5661,7 @@ function renderBentoCommandCenter() {
             return `
                 <div style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
                     <div style="width:4px; height:28px; border-radius:4px; background:${barColor}; flex-shrink:0;"></div>
-                    <div style="width:72px; flex-shrink:0; font-size:0.74rem; color:#94a3b8; font-weight:700;">${shiftTime}</div>
+                    <div style="width:70px; flex-shrink:0; font-size:0.73rem; color:#94a3b8; font-weight:700;">${shiftTime}</div>
                     <div style="overflow:hidden;">
                         <div style="font-size:0.82rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div>
                         <div style="font-size:0.7rem; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${subInfo}</div>
@@ -5521,7 +5669,7 @@ function renderBentoCommandCenter() {
                 </div>`;
         }).join('');
 
-    // 4. Nhiệm vụ hôm nay
+    // Nhiệm vụ hôm nay
     var doneCount = bentoTodoList.filter(function(t) { return t.done; }).length;
     var todoListHtml = bentoTodoList.map(function(t) {
         return `
@@ -5530,7 +5678,7 @@ function renderBentoCommandCenter() {
                     <div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">
                         ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
                     </div>
-                    <span style="font-size:0.8rem; color:${t.done ? '#64748b' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    <span style="font-size:0.78rem; color:${t.done ? '#64748b' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                         ${t.text}
                     </span>
                 </div>
@@ -5540,26 +5688,19 @@ function renderBentoCommandCenter() {
             </div>`;
     }).join('');
 
-    // 5. Thị trường cổ phiếu (Trung lập, đọc đúng dữ liệu thực tế)
-    var stockList = (typeof stocks !== 'undefined' && Array.isArray(stocks) && stocks.length > 0)
-        ? stocks.slice(0, 3)
-        : [
-            { code: "BAYM", price: 128.4, lastChange: 2.4 },
-            { code: "IELT", price: 95.0, lastChange: 1.5 },
-            { code: "TESL", price: 112.0, lastChange: 0.8 }
-        ];
-    var stockRowsHtml = stockList.map(function(st) {
-        var codeName = st.code || st.symbol || "APX";
-        var chg = (typeof st.lastChange !== 'undefined') ? st.lastChange : 1.2;
-        var isUp = chg >= 0;
+    // Thị trường cổ phiếu (Đọc trực tiếp từ stockMarket & bấm vào mua/bán ngay)
+    var stockList = getUnifiedStockArray();
+    var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
+        var isUp = st.change >= 0;
         return `
-            <div onclick="if(typeof openTrade==='function') openTrade('${codeName}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 4px; font-size:0.78rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;">
-                <span style="font-weight:700; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-chart-pie" style="color:#8b5cf6; font-size:0.7rem;"></i> ${codeName}
+            <div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 6px; font-size:0.78rem; border-radius:6px; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer; transition:0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'" title="Nhấn để giao dịch mã ${st.code}">
+                <span style="font-weight:800; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-coins" style="color:#fbbf24; font-size:0.7rem;"></i> ${st.code}
+                    ${st.owned > 0 ? `<small style="background:rgba(139,92,246,0.25); color:#c084fc; padding:1px 5px; border-radius:4px; font-size:0.62rem;">x${st.owned}</small>` : ''}
                 </span>
-                <span style="font-weight:700; color:#fff;">$${Number(st.price || 100).toFixed(1)}</span>
+                <span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span>
                 <span style="font-weight:700; color:${isUp ? '#10b981' : '#ef4444'}; font-size:0.74rem;">
-                    ${isUp ? '+' : ''}${Number(chg).toFixed(1)}%
+                    ${isUp ? '+' : ''}${st.change.toFixed(1)}%
                 </span>
             </div>`;
     }).join('');
@@ -5573,8 +5714,8 @@ function renderBentoCommandCenter() {
         </div>
 
         <div class="clean-row-2">
-            <!-- Tiến độ hôm nay -->
-            <div class="clean-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.16), rgba(124,58,237,0.14), #121626);">
+            <!-- Card Tiến độ hôm nay -->
+            <div class="clean-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.16), #121626); border-color:rgba(99,102,241,0.25);">
                 <div class="clean-card-head">
                     <span class="clean-card-title">Tiến độ hôm nay</span>
                     <span style="font-size:0.72rem; color:#8b95b0; font-weight:600;">Định mức TKB: ${dailyGoalHrs}h</span>
@@ -5603,14 +5744,14 @@ function renderBentoCommandCenter() {
                 </div>
             </div>
 
-            <!-- Cấp bậc học thuật -->
+            <!-- Card Cấp bậc học thuật -->
             <div class="clean-card">
                 <div class="clean-card-head">
                     <span class="clean-card-title">Cấp bậc học thuật</span>
                     <span style="font-size:0.74rem; color:#a855f7; font-weight:700;">${totalAllTimeHrs.toFixed(1)}h tích lũy</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <div style="width:56px; height:56px; border-radius:15px; background:linear-gradient(135deg, #7c3aed, #ec4899); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#fff; box-shadow:0 6px 20px rgba(124,58,237,0.4); flex-shrink:0;">
+                    <div class="hex-icon" style="width:56px; height:62px; background:linear-gradient(135deg, #a855f7, #4f46e5); font-size:1.45rem; box-shadow:0 6px 20px rgba(124,58,237,0.4);">
                         <i class="fa-solid fa-crown"></i>
                     </div>
                     <div style="flex:1;">
@@ -5650,33 +5791,298 @@ function renderBentoCommandCenter() {
                     </div>
                     <div style="max-height:135px; overflow-y:auto; margin-bottom:8px;">${todoListHtml}</div>
                 </div>
-                <button onclick="addBentoTodoPrompt()" style="width:100%; padding:7px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#8b95b0; font-weight:600; font-size:0.76rem; cursor:pointer;">
+                <button onclick="addBentoTodoPrompt()" style="width:100%; padding:7px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#8b95b0; font-weight:600; font-size:0.75rem; cursor:pointer;">
                     + Thêm nhiệm vụ
                 </button>
             </div>
 
-            <!-- Cột 3: Thị trường đầu tư (Trung lập) -->
+            <!-- Cột 3: Thị trường cổ phiếu (Đã sửa lỗi truy cập 100%) -->
             <div class="clean-card">
                 <div>
                     <div class="clean-card-head">
                         <span class="clean-card-title"><i class="fa-solid fa-chart-line" style="color:#10b981;"></i> Thị trường cổ phiếu</span>
-                        <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.68rem; font-weight:700;">LIVE</span>
+                        <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.68rem; font-weight:700;">+2.4%</span>
                     </div>
-                    <svg viewBox="0 0 240 42" style="width:100%; height:38px; margin-bottom:6px;">
+                    <svg viewBox="0 0 240 42" style="width:100%; height:36px; margin-bottom:4px;">
+                        <defs>
+                            <linearGradient id="stGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+                                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M0,34 Q35,30 60,18 T120,20 T180,9 T240,4 L240,42 L0,42 Z" fill="url(#stGrad)"/>
                         <path d="M0,34 Q35,30 60,18 T120,20 T180,9 T240,4" fill="none" stroke="#10b981" stroke-width="2"/>
                     </svg>
                     <div>${stockRowsHtml}</div>
                 </div>
+                <button onclick="openFullStockMarketDrawer()" style="margin-top:8px; width:100%; padding:7px; border-radius:8px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#10b981; font-weight:700; font-size:0.75rem; cursor:pointer;">
+                    Xem toàn bộ thị trường (${stockList.length} mã) →
+                </button>
             </div>
         </div>
     `;
 
-    // Đưa thanh Điều phối xuống dưới khối Bento để không làm rối đầu trang
     var dispatchWidget = document.getElementById('dispatch-status-widget');
     if (dispatchWidget && container.nextSibling !== dispatchWidget) {
         dash.insertBefore(dispatchWidget, container.nextSibling);
     }
 }
+
+// =====================================================================
+// 4. MÀN HÌNH 5: THÀNH TỰU & KHO LƯU TRỮ (GHI ĐÈ TRỰC TIẾP RENDERTROPHIES)
+// =====================================================================
+var currentTrophyFilter = 'all';
+
+function filterTrophyCategory(cat) {
+    currentTrophyFilter = cat;
+    renderMasterTrophyAndArchive();
+}
+
+function renderMasterTrophyAndArchive() {
+    injectCleanLayoutCSS();
+    var room = document.getElementById('trophy-room');
+    if (!room) return;
+
+    var totalAllTimeHrs = 0;
+    if (typeof dailyLogs !== 'undefined') {
+        totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
+    }
+    var completedGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current <= 0; }) : [];
+    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+    var totalReports = 0;
+    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+        goals.forEach(function(g) { totalReports += (g.reports ? g.reports.length : 0); });
+    }
+
+    var allAchievements = [
+        { id: 'fb', tier: 'rookie', name: "First Blood", desc: "Hoàn thành phiên học tập trung đầu tiên", icon: "fa-fire", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
+        { id: 'ap', tier: 'rookie', name: "Apprentice", desc: "Tích lũy cột mốc 10 giờ học tập thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 giờ" },
+        { id: 'fv', tier: 'rookie', name: "First Victory", desc: "Hoàn thành trọn vẹn 1 mục tiêu học thuật", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
+        { id: 'ss', tier: 'pro', name: "Silver Streak", desc: "Duy trì chuỗi kỷ luật 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
+        { id: 'iw', tier: 'pro', name: "Iron Will", desc: "Duy trì chuỗi kỷ luật 30 ngày liên tiếp", icon: "fa-shield-halved", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
+        { id: 'bh', tier: 'pro', name: "Bounty Hunter", desc: "Chinh phục hoàn tất 5 mục tiêu học tập", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
+        { id: 'sc', tier: 'elite', name: "Deep Worker", desc: "Vượt qua cột mốc 50 giờ tập trung sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: totalAllTimeHrs >= 50, tag: "50 giờ" },
+        { id: 'sh', tier: 'elite', name: "Sherlock", desc: "Viết và lưu trữ thành công 50 báo cáo", icon: "fa-magnifying-glass", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
+        { id: 'cp', tier: 'elite', name: "Capitalist", desc: "Tích lũy quỹ thưởng vượt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000" },
+        { id: 'cq', tier: 'legend', name: "Conqueror", desc: "Hoàn thành xuất sắc 10 mục tiêu lớn", icon: "fa-chess-knight", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
+        { id: 'ty', tier: 'legend', name: "Tycoon", desc: "Sở hữu khối tài sản đạt mốc $5,000 USD", icon: "fa-gem", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000" },
+        { id: 'apx', tier: 'legend', name: "The Apex", desc: "Đạt 100 giờ học tập bất tử trên hệ thống", icon: "fa-crown", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "Huyền thoại" }
+    ];
+
+    var unlockedCount = allAchievements.filter(function(a) { return a.unlocked; }).length;
+    var pctUnlock = Math.round((unlockedCount / allAchievements.length) * 100);
+
+    var filteredList = allAchievements.filter(function(a) {
+        if (currentTrophyFilter === 'all') return true;
+        return a.tier === currentTrophyFilter;
+    });
+
+    var achievementsHtml = filteredList.map(function(a) {
+        return `
+            <div class="clean-card" style="flex-direction:row; align-items:center; gap:14px; padding:14px 16px; opacity:${a.unlocked ? '1' : '0.42'}; border-color:${a.unlocked ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.05)'};">
+                <div class="hex-icon" style="background:${a.unlocked ? a.grad : '#1e293b'}; box-shadow:${a.unlocked ? '0 4px 15px rgba(0,0,0,0.4)' : 'none'};">
+                    <i class="fa-solid ${a.icon}"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <strong style="font-size:0.88rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${a.name}</strong>
+                        <span style="font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:6px; background:${a.unlocked ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)'}; color:${a.unlocked ? '#10b981' : '#64748b'}; flex-shrink:0;">
+                            ${a.unlocked ? '✓ Đã đạt' : a.tag}
+                        </span>
+                    </div>
+                    <div style="font-size:0.74rem; color:#8b95b0; margin-top:3px;">${a.desc}</div>
+                </div>
+            </div>`;
+    }).join('');
+
+    var archiveCardsHtml = completedGoals.length === 0
+        ? '<div style="grid-column:1/-1; padding:24px; text-align:center; color:#64748b; background:#121626; border-radius:14px;">Chưa có mục tiêu nào hoàn thành.</div>'
+        : completedGoals.map(function(g) {
+            // Sửa triệt để lỗi 5.583333333333333 Giờ
+            var cleanHrs = Number(g.target || 0).toFixed(1).replace(/\.0$/, '');
+            var repCount = (g.reports && g.reports.length) ? g.reports.length : 0;
+            return `
+                <div class="clean-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer; padding:15px 18px; transition:0.2s;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'; this.style.transform='none'">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="hex-icon" style="width:42px; height:48px; font-size:1rem; background:linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:800; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+                            <div style="font-size:0.68rem; color:#10b981; font-weight:700; margin-top:2px;">HOÀN THÀNH 100%</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color:#64748b; font-size:0.75rem;"></i>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05); font-size:0.73rem; color:#8b95b0;">
+                        <span><i class="fa-regular fa-clock" style="color:#60a5fa; margin-right:4px;"></i> Quy mô: <strong style="color:#fff;">${cleanHrs} giờ</strong></span>
+                        <span><i class="fa-regular fa-file-lines" style="color:#a855f7; margin-right:4px;"></i> Báo cáo: <strong style="color:#fff;">${repCount} bản</strong></span>
+                    </div>
+                </div>`;
+        }).join('');
+
+    room.innerHTML = `
+        <!-- Thanh Tổng kết Tiến trình Thành tựu chuẩn Mục 5 Ảnh Demo -->
+        <div class="clean-card" style="margin-bottom:16px; background:linear-gradient(135deg, rgba(124,58,237,0.22), rgba(37,99,235,0.12), #121626); border-color:rgba(139,92,246,0.3);">
+            <div style="display:flex; align-items:center; gap:18px;">
+                <div style="width:54px; height:54px; border-radius:50%; background:rgba(245,158,11,0.15); border:2px solid #f59e0b; display:flex; align-items:center; justify-content:center; color:#fbbf24; font-size:1.35rem; box-shadow:0 0 20px rgba(245,158,11,0.3); flex-shrink:0;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <div>
+                            <strong style="font-size:1.35rem; color:#fff; font-weight:900;">${unlockedCount} / ${allAchievements.length}</strong>
+                            <span style="font-size:0.8rem; color:#cbd5e1; margin-left:8px; font-weight:600;">Thành tựu đã mở khóa</span>
+                        </div>
+                        <strong style="color:#60a5fa; font-size:0.9rem; font-weight:800;">${pctUnlock}%</strong>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; margin-top:8px; overflow:hidden;">
+                        <div style="width:${pctUnlock}%; height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius:100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh lọc phân hạng giống hệt Mục 5 Ảnh Demo -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <div class="demo-filter-tabs" style="margin-bottom:0;">
+                <button class="demo-tab-pill ${currentTrophyFilter==='all'?'active':''}" onclick="filterTrophyCategory('all')">Tất cả (${allAchievements.length})</button>
+                <button class="demo-tab-pill ${currentTrophyFilter==='rookie'?'active':''}" onclick="filterTrophyCategory('rookie')">Tân binh</button>
+                <button class="demo-tab-pill ${currentTrophyFilter==='pro'?'active':''}" onclick="filterTrophyCategory('pro')">Chuyên nghiệp</button>
+                <button class="demo-tab-pill ${currentTrophyFilter==='elite'?'active':''}" onclick="filterTrophyCategory('elite')">Tinh anh</button>
+                <button class="demo-tab-pill ${currentTrophyFilter==='legend'?'active':''}" onclick="filterTrophyCategory('legend')">Huyền thoại</button>
+            </div>
+        </div>
+
+        <!-- Danh sách Huy hiệu Lục giác 2 cột -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:12px; margin-bottom:24px;">
+            ${achievementsHtml}
+        </div>
+
+        <!-- Kho Mục tiêu đã hoàn thành -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-size:0.86rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; letter-spacing:0.8px; margin:0;">
+                <i class="fa-solid fa-box-archive" style="color:#10b981; margin-right:6px;"></i> Kho lưu trữ mục tiêu đã hoàn thành (${completedGoals.length})
+            </h3>
+            <span style="font-size:0.74rem; color:#8b95b0;">Nhấn vào mục tiêu để xem lại toàn bộ báo cáo</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">
+            ${archiveCardsHtml}
+        </div>
+    `;
+}
+
+// Ghi đè cả 2 tên hàm trong script.js gốc để không bao giờ hiện lại 24 ô Emoji cũ
+window.renderTrophies = renderMasterTrophyAndArchive;
+window.renderTrophyRoom = renderMasterTrophyAndArchive;
+
+// =====================================================================
+// 5. MÀN HÌNH 4: PHÂN TÍCH TIẾN ĐỘ (BIỂU ĐỒ CỘT + DONUT MÔN HỌC CHUẨN DEMO)
+// =====================================================================
+window.renderAnalytics = function() {
+    injectCleanLayoutCSS();
+    var room = document.getElementById('analytics-room');
+    if (!room) return;
+
+    var totalHrs7Days = 0;
+    var barsHtml = '';
+    var dayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    for (var i = 6; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? dailyLogs[dStr] : 0;
+        totalHrs7Days += val;
+        var hPct = Math.min(100, Math.max(8, Math.round((val / 3.5) * 100)));
+        barsHtml += `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;">
+                <span style="font-size:0.65rem; color:#8b95b0; font-weight:600;">${val > 0 ? val.toFixed(1)+'h' : ''}</span>
+                <div style="height:120px; width:100%; max-width:26px; background:rgba(255,255,255,0.04); border-radius:7px; display:flex; align-items:flex-end; overflow:hidden;">
+                    <div style="width:100%; height:${hPct}%; background:linear-gradient(180deg, #60a5fa, #7c3aed); border-radius:7px; box-shadow:0 0 10px rgba(124,58,237,0.35);"></div>
+                </div>
+                <span style="font-size:0.72rem; color:#cbd5e1; font-weight:700;">${dayLabels[d.getDay()]}</span>
+            </div>`;
+    }
+
+    var palette = ['#3b82f6', '#a855f7', '#ec4899', '#10b981', '#f59e0b'];
+    var allGoals = (typeof goals !== 'undefined' && Array.isArray(goals) && goals.length > 0) ? goals.slice(0, 5) : [];
+    var goalStats = allGoals.map(function(g, idx) {
+        var spent = Math.max(0.5, (g.target || 5) - (g.current || 0));
+        return { name: g.name, spent: spent, color: palette[idx % palette.length] };
+    });
+    if (goalStats.length === 0) {
+        goalStats = [{ name: "Mục tiêu học tập", spent: 1, color: "#8b5cf6" }];
+    }
+    var sumSpent = goalStats.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
+
+    var conicParts = [];
+    var acc = 0;
+    var legendHtml = goalStats.map(function(g) {
+        var pct = Math.round((g.spent / sumSpent) * 100);
+        var start = acc;
+        acc += pct;
+        conicParts.push(g.color + " " + start + "% " + acc + "%");
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; margin-bottom:7px;">
+                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">
+                    <span style="width:8px; height:8px; border-radius:50%; background:${g.color}; flex-shrink:0;"></span>
+                    ${g.name}
+                </span>
+                <strong style="color:#fff;">${pct}%</strong>
+            </div>`;
+    }).join('');
+
+    var totalAllTimeHrs = 0;
+    if (typeof dailyLogs !== 'undefined') {
+        totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
+    }
+
+    room.innerHTML = `
+        <div class="clean-row-3">
+            <div class="clean-card">
+                <div style="font-size:0.75rem; color:#8b95b0; font-weight:600;">Tổng thời gian học (7 ngày qua)</div>
+                <div style="font-size:1.85rem; font-weight:800; color:#fff; margin:6px 0;">${formatHrsToHM(totalHrs7Days)}</div>
+                <div style="font-size:0.72rem; color:#10b981; font-weight:700;">↑ Tổng tích lũy: ${totalAllTimeHrs.toFixed(1)} giờ</div>
+            </div>
+            <div class="clean-card">
+                <div style="font-size:0.75rem; color:#8b95b0; font-weight:600;">Chuỗi kỷ luật hiện tại</div>
+                <div style="font-size:1.85rem; font-weight:800; color:#fff; margin:6px 0;">${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</div>
+                <div style="font-size:0.72rem; color:#fbbf24; font-weight:700;">🔥 Duy trì nhịp độ liên tục</div>
+            </div>
+            <div class="clean-card">
+                <div style="font-size:0.75rem; color:#8b95b0; font-weight:600;">Hiệu suất & Đánh giá</div>
+                <div style="font-size:1.85rem; font-weight:800; color:#fff; margin:6px 0;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</div>
+                <div style="font-size:0.72rem; color:#60a5fa; font-weight:700;">★ Chất lượng báo cáo: ${(typeof getAverageStarRating==='function'?getAverageStarRating():5).toFixed(2)} / 5.0</div>
+            </div>
+        </div>
+
+        <div class="clean-row-2">
+            <div class="clean-card">
+                <div class="clean-card-head">
+                    <span class="clean-card-title"><i class="fa-solid fa-chart-column" style="color:#60a5fa;"></i> Thời gian học (7 ngày qua)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; padding-top:8px;">
+                    ${barsHtml}
+                </div>
+            </div>
+
+            <div class="clean-card">
+                <div class="clean-card-head">
+                    <span class="clean-card-title"><i class="fa-solid fa-chart-pie" style="color:#a855f7;"></i> Phân bổ theo mục tiêu</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:22px; flex-wrap:wrap; margin:auto 0;">
+                    <div style="width:124px; height:124px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 20px rgba(0,0,0,0.4);">
+                        <div style="width:82px; height:82px; border-radius:50%; background:#121626; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                            <strong style="font-size:0.9rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
+                            <span style="font-size:0.65rem; color:#8b95b0;">Tổng</span>
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:150px;">${legendHtml}</div>
+                </div>
+            </div>
+        </div>
+    `;
+};
 
 function renderFocusStudioRightPanel() {
     var todoBox = document.getElementById('focus-room-todo-list');
@@ -5694,6 +6100,21 @@ function renderFocusStudioRightPanel() {
     }).join('');
 }
 
+// Bắt dính sự kiện chuyển Tab để Thành tựu và Phân tích luôn hiện giao diện mới
+var origSwitchTabMaster = window.switchTab;
+window.switchTab = function(tabName) {
+    if (typeof origSwitchTabMaster === 'function') origSwitchTabMaster(tabName);
+    if (tabName === 'trophy') {
+        renderMasterTrophyAndArchive();
+        setTimeout(renderMasterTrophyAndArchive, 50);
+    } else if (tabName === 'analytics') {
+        window.renderAnalytics();
+        setTimeout(window.renderAnalytics, 50);
+    } else if (tabName === 'dashboard') {
+        renderBentoCommandCenter();
+    }
+};
+
 // Đồng hồ thời gian thực trên Topbar & Cố định thẻ User ở đáy Sidebar
 setInterval(function() {
     var now = new Date();
@@ -5707,7 +6128,6 @@ setInterval(function() {
         dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
     }
 
-    // Đưa thẻ User xuống đáy Sidebar (không cho đè lên Logo ở đỉnh Sidebar)
     var badge = document.getElementById('user-auth-badge');
     var dock = document.getElementById('sidebar-bottom-dock');
     if (badge && dock) {
@@ -5721,9 +6141,9 @@ setInterval(function() {
     }
 }, 1000);
 
-var prevRenderDashClean = window.renderDashboard;
+var prevRenderDashMaster = window.renderDashboard;
 window.renderDashboard = function() {
-    if (typeof prevRenderDashClean === 'function') prevRenderDashClean();
+    if (typeof prevRenderDashMaster === 'function') prevRenderDashMaster();
     renderBentoCommandCenter();
     renderFocusStudioRightPanel();
 };
