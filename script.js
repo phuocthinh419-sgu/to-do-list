@@ -5611,7 +5611,6 @@ function injectPhoiLayoutCSS() {
         [data-color="neon-blue"]   { --theme-accent: #0ea5e9; --theme-accent-2: #3b82f6; --theme-soft: rgba(14,165,233,0.18); --theme-border: rgba(56,189,248,0.35); }
         [data-color="sakura"]      { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
 
-        /* Nền toàn trang nhận trực tiếp ảnh do người dùng chọn */
         body {
             background-color: #080b14 !important;
             background-image: linear-gradient(180deg, rgba(8, 11, 22, var(--user-bg-dim)) 0%, rgba(10, 14, 26, calc(var(--user-bg-dim) + 0.08)) 100%), var(--user-wallpaper) !important;
@@ -5666,7 +5665,6 @@ function injectPhoiLayoutCSS() {
         .phoi-hero-left p {
             font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0;
         }
-        /* Thanh 3 chỉ số nhỏ nằm ngang trong Hero */
         .phoi-hero-mini-bar {
             display: inline-flex; align-items: center; gap: 22px; flex-wrap: wrap;
             background: rgba(13, 18, 34, 0.78); border: 1px solid rgba(255, 255, 255, 0.1);
@@ -5676,27 +5674,42 @@ function injectPhoiLayoutCSS() {
         .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; line-height: 1.1; }
         .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; }
 
-        /* Cụm Orbit Vòng Tròn Chữ A bên phải Hero */
+        /* Cụm Orbit Vòng Tròn Chữ A (Đã vá lỗi dính chữ & căn đều 3 đỉnh) */
         .phoi-orbit-box {
-            position: relative; width: 250px; height: 145px;
+            position: relative; width: 270px; height: 188px;
             display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0;
         }
-        .phoi-orbit-ring1 { position: absolute; width: 125px; height: 125px; border-radius: 50%; border: 1px dashed rgba(168, 85, 247, 0.4); }
-        .phoi-orbit-ring2 { position: absolute; width: 195px; height: 195px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.08); }
+        .phoi-orbit-ring1 {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            width: 116px; height: 116px; border-radius: 50%; border: 1px dashed rgba(168, 85, 247, 0.45);
+        }
+        .phoi-orbit-ring2 {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            width: 182px; height: 182px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.08);
+        }
         .phoi-orbit-core {
-            width: 52px; height: 52px; border-radius: 50%;
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            width: 50px; height: 50px; border-radius: 50%;
             background: radial-gradient(circle, #7c3aed 0%, #311068 100%);
             border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center;
-            font-size: 1.35rem; font-weight: 900; color: #fff;
+            font-size: 1.3rem; font-weight: 900; color: #fff;
             box-shadow: 0 0 25px rgba(168, 85, 247, 0.75); z-index: 3;
         }
-        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; }
-        .phoi-sat-circle {
-            width: 32px; height: 32px; border-radius: 50%; background: rgba(15, 20, 38, 0.9);
-            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-bottom: 2px;
+        .phoi-sat {
+            position: absolute; display: flex; flex-direction: column; align-items: center;
+            z-index: 4; text-align: center; min-width: 72px;
         }
-        .phoi-sat strong { font-size: 0.66rem; color: #fff; line-height: 1.1; }
-        .phoi-sat span { font-size: 0.6rem; color: #cbd5e1; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(4) { top: 2px !important; left: 50% !important; transform: translateX(-50%) !important; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(5) { bottom: 4px !important; left: 8px !important; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(6) { bottom: 4px !important; right: 8px !important; }
+
+        .phoi-sat-circle {
+            width: 32px; height: 32px; border-radius: 50%; background: rgba(13, 18, 34, 0.95);
+            display: flex; align-items: center; justify-content: center; font-size: 0.78rem;
+            margin-bottom: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+        }
+        .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; font-weight: 800; }
+        .phoi-sat span { font-size: 0.62rem; color: #cbd5e1; line-height: 1.15; margin-top: 1px; }
 
         /* TẦNG 2: 4 THẺ CHỈ SỐ NHANH MÀU SẮC */
         .phoi-stat-grid {
@@ -5736,7 +5749,6 @@ function injectPhoiLayoutCSS() {
         .phoi-link { font-size: 0.72rem; color: #94a3b8; font-weight: 600; cursor: pointer; }
         .phoi-link:hover { color: #fff; text-decoration: underline; }
 
-        /* Ma trận Heatmap 7 hàng (T2-CN) x 12 cột ô vuông chuẩn Phôi */
         .phoi-heat-container { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
         .phoi-heat-labels {
             display: grid; grid-template-rows: repeat(7, 13px); gap: 4px;
@@ -5755,7 +5767,6 @@ function injectPhoiLayoutCSS() {
             .phoi-hero-left { max-width: 100%; }
         }
 
-        /* FOCUS ROOM */
         #focus-room {
             background-image: var(--user-wallpaper) !important;
             background-size: cover !important; background-position: center !important;
