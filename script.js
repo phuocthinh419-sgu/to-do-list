@@ -5316,13 +5316,14 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// APEX COMPLETE ENGINE (ALL-IN-ONE: TIMER FIX, KPI CARD, BENTO & STOCK)
+// APEX COMPLETE ENGINE: PHÔI DASHBOARD 4 TẦNG CHUẨN ẢNH & CUSTOM WALLPAPER
 // =====================================================================
 var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
-    { id: 1, text: "Ôn lại từ vựng trọng tâm trong tuần", done: true },
-    { id: 2, text: "Hoàn thành bài tập chuyên ngành", done: true },
-    { id: 3, text: "Chuẩn bị nội dung bài giảng / thuyết trình", done: false },
-    { id: 4, text: "Đọc tài liệu nghiên cứu học thuật", done: false }
+    { id: 1, text: "Ôn tập Giải tích 1 (Chương 3)", done: true },
+    { id: 2, text: "Làm đề Reading IELTS", done: true },
+    { id: 3, text: "Đọc sách chuyên ngành", done: false },
+    { id: 4, text: "Viết báo cáo dự án", done: false },
+    { id: 5, text: "Xem lại Flashcard từ vựng", done: false }
 ];
 
 function saveBentoTodos() {
@@ -5336,7 +5337,122 @@ function formatHrsToHM(decimalHours) {
     return h + "h " + String(m).padStart(2, '0') + "m";
 }
 
-// 1. KHÔI PHỤC THẺ "THIẾT QUÂN LUẬT (TUẦN)" NGAY TRÊN DASHBOARD
+// =====================================================================
+// 1. TRẠM TÙY CHỈNH ẢNH NỀN TỰ DO (CUSTOM WALLPAPER STUDIO)
+// =====================================================================
+var DEFAULT_WALLPAPER = "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
+
+function applyCustomWallpaper() {
+    var savedBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
+    var savedDim = localStorage.getItem('saasWallpaperDim') || "0.78";
+    document.documentElement.style.setProperty('--user-wallpaper', "url('" + savedBg + "')");
+    document.documentElement.style.setProperty('--user-bg-dim', savedDim);
+}
+
+function openWallpaperPickerModal() {
+    var modal = document.getElementById('wallpaper-picker-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'wallpaper-picker-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(10px); z-index:10002; align-items:center; justify-content:center; padding:20px;";
+        document.body.appendChild(modal);
+    }
+
+    var currentBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
+    var currentDim = localStorage.getItem('saasWallpaperDim') || "0.78";
+
+    var presets = [
+        { name: "Hồ Núi Đêm (Mặc định)", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Cực Quang Bắc Cực", url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Thư Viện Cổ Điển", url: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Bầu Trời Ngân Hà", url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Rừng Sương Mù", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Thành Phố Cyberpunk", url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85" }
+    ];
+
+    var presetHtml = presets.map(function(p) {
+        return `
+            <div onclick="setWallpaperUrl('${p.url}')" style="cursor:pointer; border-radius:10px; overflow:hidden; border:2px solid ${currentBg===p.url ? '#a855f7' : 'rgba(255,255,255,0.1)'}; position:relative; height:78px; background:url('${p.url}') center/cover no-repeat;">
+                <div style="position:absolute; inset:0; background:linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); display:flex; align-items:flex-end; padding:6px 8px;">
+                    <span style="font-size:0.7rem; font-weight:700; color:#fff;">${p.name}</span>
+                </div>
+            </div>`;
+    }).join('');
+
+    modal.innerHTML = `
+        <div style="background:#111526; border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:24px; width:100%; max-width:560px; box-shadow:0 25px 60px rgba(0,0,0,0.75); color:#fff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0; font-size:1.15rem; font-weight:800;"><i class="fa-regular fa-image" style="color:#a855f7; margin-right:8px;"></i>Tùy Chỉnh Ảnh Nền Giao Diện</h3>
+                <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:8px;">1. Tải ảnh từ máy tính hoặc dán Link ảnh</div>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <input type="text" id="custom-bg-url-input" placeholder="Dán link ảnh (https://...) vào đây" value="${currentBg.startsWith('data:') ? '' : currentBg}" style="flex:1; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.8rem; outline:none;">
+                <button onclick="setWallpaperUrl(document.getElementById('custom-bg-url-input').value)" style="background:#7c3aed; color:#fff; border:none; padding:0 16px; border-radius:10px; font-weight:700; font-size:0.8rem; cursor:pointer;">Áp dụng</button>
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:10px; border-radius:10px; border:1px dashed rgba(168,85,247,0.5); background:rgba(168,85,247,0.08); color:#e9d5ff; font-weight:700; font-size:0.8rem; cursor:pointer;">
+                    <i class="fa-solid fa-upload"></i> Chọn file ảnh từ máy tính của bạn (.jpg, .png, .webp)
+                    <input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)">
+                </label>
+            </div>
+
+            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:8px;">2. Độ tối lớp phủ kính (${Math.round(currentDim * 100)}%)</div>
+            <input type="range" min="0.35" max="0.95" step="0.05" value="${currentDim}" oninput="updateWallpaperDim(this.value)" style="width:100%; margin-bottom:18px; accent-color:#a855f7; cursor:pointer;">
+
+            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:8px;">3. Kho ảnh nền chọn lọc</div>
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+                ${presetHtml}
+            </div>
+        </div>`;
+    modal.style.display = 'flex';
+}
+
+window.setWallpaperUrl = function(url) {
+    if (!url || !url.trim()) return;
+    localStorage.setItem('saasCustomWallpaper', url.trim());
+    applyCustomWallpaper();
+    openWallpaperPickerModal();
+};
+
+window.updateWallpaperDim = function(val) {
+    localStorage.setItem('saasWallpaperDim', val);
+    applyCustomWallpaper();
+};
+
+window.handleLocalWallpaperUpload = function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var maxW = 1600;
+            var scale = Math.min(1, maxW / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            try {
+                localStorage.setItem('saasCustomWallpaper', dataUrl);
+                applyCustomWallpaper();
+                document.getElementById('wallpaper-picker-modal').style.display = 'none';
+            } catch (err) {
+                alert("Ảnh có dung lượng quá lớn! Vui lòng chọn ảnh nhẹ hơn hoặc dùng Link ảnh.");
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
+
+// =====================================================================
+// 2. KHÔI PHỤC THẺ THIẾT QUÂN LUẬT (TUẦN) & KẾT NỐI CHỨNG KHOÁN
+// =====================================================================
 function ensureMartialLawKpiCard() {
     var dash = document.getElementById('view-dashboard');
     if (!dash) return;
@@ -5345,33 +5461,30 @@ function ensureMartialLawKpiCard() {
     if (!kpiCard) {
         kpiCard = document.createElement('div');
         kpiCard.id = 'restored-kpi-card';
-        kpiCard.className = 'clean-card';
-        kpiCard.style.cssText = "margin-bottom: 16px; background: linear-gradient(135deg, rgba(15, 118, 110, 0.25), rgba(18, 22, 38, 0.96)); border: 1px solid rgba(20, 184, 166, 0.35);";
+        kpiCard.className = 'phoi-card';
+        kpiCard.style.cssText = "margin-bottom: 14px; border: 1px solid rgba(20, 184, 166, 0.3);";
 
         var kpiStatus = document.getElementById('kpi-status');
         var kpiBarFill = document.getElementById('kpi-bar-fill');
         var kpiMsg = document.getElementById('kpi-message');
 
         kpiCard.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-                <div style="display:flex; align-items:center; gap:8px; font-size:0.9rem; font-weight:800; color:#fff; text-transform:uppercase; letter-spacing:0.8px;">
-                    <i class="fa-solid fa-crosshairs" style="color:#14b8a6;"></i> Thiết Quân Luật (KPI Tuần)
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:8px; font-size:0.82rem; font-weight:800; color:#fff; text-transform:uppercase; letter-spacing:0.6px;">
+                    <i class="fa-solid fa-crosshairs" style="color:#14b8a6;"></i> Tiến Độ Mục Tiêu Tuần (KPI)
                 </div>
                 <div id="kpi-status-slot"></div>
             </div>
-            <div style="width:100%; height:10px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:10px;" id="kpi-bar-slot"></div>
+            <div style="width:100%; height:8px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:8px;" id="kpi-bar-slot"></div>
             <div id="kpi-msg-slot"></div>
         `;
 
         var bento = document.getElementById('bento-command-center');
-        if (bento && bento.nextSibling) {
-            dash.insertBefore(kpiCard, bento.nextSibling);
-        } else {
-            dash.insertBefore(kpiCard, dash.firstChild);
-        }
+        if (bento && bento.nextSibling) dash.insertBefore(kpiCard, bento.nextSibling);
+        else dash.insertBefore(kpiCard, dash.firstChild);
 
         if (kpiStatus) {
-            kpiStatus.style.cssText = "font-size: 1.65rem !important; font-weight: 900; color: #fff; line-height: 1;";
+            kpiStatus.style.cssText = "font-size: 1.45rem !important; font-weight: 900; color: #fff; line-height: 1;";
             document.getElementById('kpi-status-slot').appendChild(kpiStatus);
         }
         if (kpiBarFill) {
@@ -5379,13 +5492,12 @@ function ensureMartialLawKpiCard() {
             document.getElementById('kpi-bar-slot').appendChild(kpiBarFill);
         }
         if (kpiMsg) {
-            kpiMsg.style.cssText = "font-size: 0.8rem; font-weight: 600; color: #94a3b8; margin: 0;";
+            kpiMsg.style.cssText = "font-size: 0.76rem; font-weight: 600; color: #94a3b8; margin: 0;";
             document.getElementById('kpi-msg-slot').appendChild(kpiMsg);
         }
     }
 }
 
-// 2. KẾT NỐI SÀN CHỨNG KHOÁN
 function getUnifiedStockArray() {
     if (typeof stockMarket !== 'undefined' && stockMarket && !Array.isArray(stockMarket) && typeof stockMarket === 'object') {
         return Object.keys(stockMarket).map(function(k) {
@@ -5450,7 +5562,7 @@ function openFullStockMarketDrawer() {
         return `
             <div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-weight:800; font-size:0.95rem; color:#fff;"><i class="fa-solid fa-layer-group" style="color:#8b5cf6; margin-right:6px;"></i>${st.code}</span>
+                    <span style="font-weight:800; font-size:0.95rem; color:#fff;"><i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i>${st.code}</span>
                     <span style="font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:6px; background:${isUp ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}; color:${isUp ? '#10b981' : '#ef4444'};">${isUp ? '+' : ''}${st.change.toFixed(1)}%</span>
                 </div>
                 <div style="font-size:1.4rem; font-weight:900; color:#fbbf24; margin-bottom:6px;">$${st.price.toFixed(1)}</div>
@@ -5465,7 +5577,7 @@ function openFullStockMarketDrawer() {
         <div style="background:#101424; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px; width:100%; max-width:680px; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <div>
-                    <h3 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;"><i class="fa-solid fa-chart-line" style="color:#10b981; margin-right:8px;"></i>Sàn Giao Dịch Cổ Phiếu</h3>
+                    <h3 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;"><i class="fa-solid fa-chart-line" style="color:#10b981; margin-right:8px;"></i>Thị Trường Cổ Phiếu Học Thuật</h3>
                     <div style="font-size:0.78rem; color:#8b95b0; margin-top:4px;">Số dư khả dụng: <strong style="color:#fbbf24;">$${usd.toLocaleString()} USD</strong></div>
                 </div>
                 <button onclick="document.getElementById('full-market-exchange-modal').style.display='none'" style="background:none; border:none; color:#8b95b0; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
@@ -5475,138 +5587,197 @@ function openFullStockMarketDrawer() {
     modal.style.display = 'flex';
 }
 
-// 3. HỆ THỐNG CSS CHUẨN (KHÔNG ÉP DISPLAY !IMPORTANT LÊN NÚT TIMER ĐỂ ĐỒNG HỒ CHẠY MƯỢT)
-function injectCleanLayoutCSS() {
+// =====================================================================
+// 3. CSS CHUẨN PHÔI ẢNH DEMO (4 TẦNG + TÙY CHỈNH ẢNH NỀN ĐỘNG)
+// =====================================================================
+function injectPhoiLayoutCSS() {
+    applyCustomWallpaper();
     var oldStyle = document.getElementById('clean-layout-fix-css');
     if (oldStyle) oldStyle.remove();
 
     var style = document.createElement('style');
     style.id = 'clean-layout-fix-css';
     style.innerHTML = `
-        /* Ẩn thanh Search bar vô dụng */
-        .bento-top-search, #global-goal-search { display: none !important; }
-
-        .sidebar { padding: 14px 12px !important; overflow: hidden !important; background: #080a12 !important; }
-        .sidebar .brand { position: relative !important; z-index: 5 !important; margin-bottom: 12px !important; padding: 4px 6px !important; background: #080a12 !important; }
-        .nav-menu { flex: 1 !important; overflow-y: auto !important; padding-top: 4px !important; }
-
-        @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
-        .header {
-            padding: 10px 0 !important; margin-bottom: 14px !important;
-            display: flex !important; justify-content: space-between !important;
-            align-items: center !important; flex-wrap: nowrap !important; gap: 12px !important;
+        :root {
+            --user-wallpaper: url('${DEFAULT_WALLPAPER}');
+            --user-bg-dim: 0.78;
+            --theme-accent: #8b5cf6;
+            --theme-accent-2: #6366f1;
+            --theme-soft: rgba(139, 92, 246, 0.18);
+            --theme-border: rgba(139, 92, 246, 0.35);
         }
-        .top-quote-text {
-            font-size: 0.82rem !important; color: #94a3b8 !important; font-weight: 600 !important;
-            white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
-        }
+        [data-color="zen"]         { --theme-accent: #10b981; --theme-accent-2: #0ea5e9; --theme-soft: rgba(16,185,129,0.18); --theme-border: rgba(16,185,129,0.35); }
+        [data-color="neon-purple"] { --theme-accent: #a855f7; --theme-accent-2: #6366f1; --theme-soft: rgba(168,85,247,0.18); --theme-border: rgba(168,85,247,0.35); }
+        [data-color="neon-blue"]   { --theme-accent: #0ea5e9; --theme-accent-2: #3b82f6; --theme-soft: rgba(14,165,233,0.18); --theme-border: rgba(56,189,248,0.35); }
+        [data-color="sakura"]      { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
 
-        .clean-hero { margin: 0 0 14px 0; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; }
-        .clean-hero h1 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 3px 0; letter-spacing: -0.4px; }
-        .clean-hero p { font-size: 0.8rem; color: #8b95b0; margin: 0; }
-
-        .clean-row-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-bottom: 14px; }
-        .clean-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-        @media (max-width: 1100px) {
-            .clean-row-2, .clean-row-3 { grid-template-columns: 1fr; }
-            .top-quote-text { display: none !important; }
-        }
-
-        .clean-card {
-            background: linear-gradient(155deg, #151a2d 0%, #101423 100%);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 16px; padding: 16px 18px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.32);
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .clean-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .clean-card-title { font-size: 0.85rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
-        .clean-link { font-size: 0.74rem; color: #a855f7; font-weight: 700; cursor: pointer; }
-
-        .hex-icon {
-            width: 48px; height: 54px;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 1.2rem; flex-shrink: 0;
-        }
-
-        .countdown-strip {
-            display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
-            gap: 12px !important; margin-bottom: 16px !important;
-        }
-        .countdown-card { padding: 12px 16px !important; border-radius: 14px !important; background: #121626 !important; }
-
-        .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .demo-tab-pill {
-            background: #131826; border: 1px solid rgba(255,255,255,0.07);
-            color: #8b95b0; padding: 6px 14px; border-radius: 9px;
-            font-size: 0.76rem; font-weight: 700; cursor: pointer;
-        }
-        .demo-tab-pill.active, .demo-tab-pill:hover {
-            background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; border-color: transparent;
-        }
-
-        /* FOCUS ROOM STUDIO (KHÔNG DÙNG DISPLAY !IMPORTANT LÊN NÚT ĐỂ SCRIPT.JS ẨN/HIỆN TỰ NHIÊN) */
-        #focus-room {
-            background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85') !important;
+        /* Nền toàn trang nhận trực tiếp ảnh do người dùng chọn */
+        body {
+            background-color: #080b14 !important;
+            background-image: linear-gradient(180deg, rgba(8, 11, 22, var(--user-bg-dim)) 0%, rgba(10, 14, 26, calc(var(--user-bg-dim) + 0.08)) 100%), var(--user-wallpaper) !important;
             background-size: cover !important;
             background-position: center !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            padding: 16px 28px !important;
+            background-attachment: fixed !important;
+        }
+
+        .bento-top-search, #global-goal-search { display: none !important; }
+        @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
+
+        #view-dashboard > .kpi-card,
+        #view-dashboard > .recommendation-strip,
+        #view-dashboard > .gamification-strip,
+        #view-dashboard > #imperial-quests,
+        #view-dashboard > #legacy-stock-strip,
+        #view-dashboard > .stock-strip {
+            display: none !important;
+        }
+
+        /* TẦNG 1: HERO BANNER CHUẨN PHÔI ẢNH */
+        .phoi-hero-banner {
+            position: relative;
+            border-radius: 18px;
+            padding: 18px 24px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: 
+                linear-gradient(90deg, rgba(12, 16, 32, 0.88) 0%, rgba(18, 22, 44, 0.62) 55%, rgba(12, 16, 32, 0.78) 100%),
+                var(--user-wallpaper) center/cover no-repeat;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+        }
+        .phoi-hero-left { z-index: 2; flex: 1; max-width: 62%; }
+        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .phoi-pill-cmd {
+            background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem;
+            font-weight: 800; letter-spacing: 0.8px; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .phoi-pill-live {
+            background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800;
+        }
+        .phoi-hero-left h1 {
+            font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;
+            letter-spacing: -0.4px; text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        }
+        .phoi-hero-left p {
+            font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0;
+        }
+        /* Thanh 3 chỉ số nhỏ nằm ngang trong Hero */
+        .phoi-hero-mini-bar {
+            display: inline-flex; align-items: center; gap: 22px; flex-wrap: wrap;
+            background: rgba(13, 18, 34, 0.78); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); padding: 9px 18px; border-radius: 12px;
+        }
+        .phoi-mini-item { display: flex; align-items: center; gap: 9px; }
+        .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; line-height: 1.1; }
+        .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; }
+
+        /* Cụm Orbit Vòng Tròn Chữ A bên phải Hero */
+        .phoi-orbit-box {
+            position: relative; width: 250px; height: 145px;
+            display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0;
+        }
+        .phoi-orbit-ring1 { position: absolute; width: 125px; height: 125px; border-radius: 50%; border: 1px dashed rgba(168, 85, 247, 0.4); }
+        .phoi-orbit-ring2 { position: absolute; width: 195px; height: 195px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.08); }
+        .phoi-orbit-core {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: radial-gradient(circle, #7c3aed 0%, #311068 100%);
+            border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem; font-weight: 900; color: #fff;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.75); z-index: 3;
+        }
+        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; }
+        .phoi-sat-circle {
+            width: 32px; height: 32px; border-radius: 50%; background: rgba(15, 20, 38, 0.9);
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-bottom: 2px;
+        }
+        .phoi-sat strong { font-size: 0.66rem; color: #fff; line-height: 1.1; }
+        .phoi-sat span { font-size: 0.6rem; color: #cbd5e1; }
+
+        /* TẦNG 2: 4 THẺ CHỈ SỐ NHANH MÀU SẮC */
+        .phoi-stat-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px;
+        }
+        .phoi-stat-card {
+            border-radius: 15px; padding: 13px 15px;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+            display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+        }
+        .phoi-stat-card.s-purple { background: linear-gradient(135deg, rgba(88, 28, 135, 0.45), rgba(17, 22, 38, 0.85)); border-color: rgba(168, 85, 247, 0.3); }
+        .phoi-stat-card.s-cyan   { background: linear-gradient(135deg, rgba(12, 74, 110, 0.48), rgba(17, 22, 38, 0.85)); border-color: rgba(56, 189, 248, 0.3); }
+        .phoi-stat-card.s-amber  { background: linear-gradient(135deg, rgba(120, 53, 15, 0.48), rgba(17, 22, 38, 0.85)); border-color: rgba(245, 158, 11, 0.3); }
+        .phoi-stat-card.s-rose   { background: linear-gradient(135deg, rgba(136, 19, 55, 0.48), rgba(17, 22, 38, 0.85)); border-color: rgba(244, 63, 94, 0.3); }
+
+        .phoi-orb {
+            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        }
+
+        /* TẦNG 3 (3 CỘT) & TẦNG 4 (2 CỘT) */
+        .phoi-row-3col { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .phoi-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+        .phoi-card, .clean-card, .goal-card, .countdown-card {
+            background: rgba(17, 22, 38, 0.78) !important;
+            backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important; padding: 14px 16px !important;
+            box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35) !important;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .phoi-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .phoi-card-title { font-size: 0.75rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
+        .phoi-link { font-size: 0.72rem; color: #94a3b8; font-weight: 600; cursor: pointer; }
+        .phoi-link:hover { color: #fff; text-decoration: underline; }
+
+        /* Ma trận Heatmap 7 hàng (T2-CN) x 12 cột ô vuông chuẩn Phôi */
+        .phoi-heat-container { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+        .phoi-heat-labels {
+            display: grid; grid-template-rows: repeat(7, 13px); gap: 4px;
+            font-size: 0.6rem; color: #64748b; font-weight: 700; line-height: 13px;
+        }
+        .phoi-heat-matrix {
+            display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(7, 13px);
+            gap: 4px; flex: 1;
+        }
+        .phoi-heat-cell { height: 13px; border-radius: 3px; background: rgba(255,255,255,0.05); }
+
+        @media (max-width: 1150px) {
+            .phoi-stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .phoi-row-3col, .phoi-row-2col { grid-template-columns: 1fr; }
+            .phoi-orbit-box { display: none; }
+            .phoi-hero-left { max-width: 100%; }
+        }
+
+        /* FOCUS ROOM */
+        #focus-room {
+            background-image: var(--user-wallpaper) !important;
+            background-size: cover !important; background-position: center !important;
+            flex-direction: column !important; justify-content: space-between !important; padding: 16px 28px !important;
         }
         #focus-overlay {
             background: radial-gradient(circle at 45% 45%, rgba(15, 18, 38, 0.55) 0%, rgba(8, 10, 22, 0.88) 100%) !important;
             backdrop-filter: blur(5px) !important;
         }
         .focus-pill-btn {
-            background: rgba(19, 24, 42, 0.78);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #e2e8f0;
-            padding: 7px 16px;
-            border-radius: 100px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            background: rgba(19, 24, 42, 0.78); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0; padding: 7px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
         }
-        .focus-pill-btn:hover, .focus-pill-btn.active {
-            background: linear-gradient(90deg, rgba(124, 58, 237, 0.55), rgba(79, 70, 229, 0.55));
-            border-color: #a855f7;
-            color: #fff;
-            box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
-        }
-        .neon-timer-ring-wrapper {
-            position: relative !important;
-            width: 250px !important;
-            height: 250px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            margin: 6px auto !important;
-        }
+        .neon-timer-ring-wrapper { position: relative !important; width: 250px !important; height: 250px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 6px auto !important; }
         .neon-timer-ring-wrapper svg { width: 250px !important; height: 250px !important; }
-        .neon-timer-center {
-            position: absolute !important;
-            inset: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            z-index: 5 !important;
-            pointer-events: none !important;
-        }
-        #focus-room #session-timer {
-            font-size: 3.5rem !important;
-            font-weight: 900 !important;
-            color: #ffffff !important;
-            line-height: 1 !important;
-            margin: 0 !important;
-            letter-spacing: -1.5px !important;
-            text-shadow: 0 4px 24px rgba(168, 85, 247, 0.55) !important;
-            font-variant-numeric: tabular-nums !important;
-        }
+        .neon-timer-center { position: absolute !important; inset: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 5 !important; pointer-events: none !important; }
+        #focus-room #session-timer { font-size: 3.5rem !important; font-weight: 900 !important; color: #fff !important; line-height: 1 !important; margin: 0 !important; }
+
+        .hex-icon { width: 48px; height: 54px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; flex-shrink: 0; }
+        .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .demo-tab-pill { background: #131826; border: 1px solid rgba(255,255,255,0.07); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+        .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; border-color: transparent; }
     `;
     document.head.appendChild(style);
 }
@@ -5638,10 +5809,12 @@ function deleteBentoTodo(e, id) {
     renderFocusStudioRightPanel();
 }
 
-// 4. BẢNG ĐIỀU KHIỂN BENTO COMMAND CENTER
+// =====================================================================
+// 4. DỰNG BẢNG ĐIỀU KHIỂN KHỚP 100% PHÔI 4 TẦNG TRONG ẢNH
+// =====================================================================
 function renderBentoCommandCenter() {
     try {
-        injectCleanLayoutCSS();
+        injectPhoiLayoutCSS();
         var dash = document.getElementById('view-dashboard');
         if (!dash) return;
 
@@ -5650,6 +5823,17 @@ function renderBentoCommandCenter() {
             container = document.createElement('div');
             container.id = 'bento-command-center';
             dash.insertBefore(container, dash.firstChild);
+        }
+
+        // Thêm nút "🖼️ Ảnh nền" lên thanh Header nếu chưa có
+        var headerActions = document.querySelector('.header-actions');
+        if (headerActions && !document.getElementById('btn-open-wallpaper')) {
+            var wpBtn = document.createElement('button');
+            wpBtn.id = 'btn-open-wallpaper';
+            wpBtn.className = 'btn-ghost-action';
+            wpBtn.onclick = openWallpaperPickerModal;
+            wpBtn.innerHTML = '<i class="fa-regular fa-image" style="color:#a855f7;"></i> Ảnh nền';
+            headerActions.insertBefore(wpBtn, headerActions.firstChild);
         }
 
         var now = new Date();
@@ -5663,24 +5847,101 @@ function renderBentoCommandCenter() {
         var todayDoneHrs = qInfo.doneHrs || 0;
         var dailyGoalHrs = Math.max(qInfo.requiredHrs || 1.0, 0.25);
         var pctToday = Math.min(100, Math.round((todayDoneHrs / dailyGoalHrs) * 100));
-        var radius = 38;
-        var circumference = 2 * Math.PI * radius;
-        var dashOffset = circumference - (pctToday / 100) * circumference;
 
         var totalAllTimeHrs = 0;
         if (typeof dailyLogs !== 'undefined') {
             totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
         }
         var level = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
-        var rankTitle = "Tân Binh";
-        if (level >= 25) rankTitle = "Đại Học Sĩ";
-        else if (level >= 15) rankTitle = "Chuyên Gia";
-        else if (level >= 10) rankTitle = "Học Giả";
-        else if (level >= 5) rankTitle = "Tinh Anh";
-
-        var nextLevelHrs = level * 10;
         var levelPct = Math.min(100, Math.round(((totalAllTimeHrs % 10) / 10) * 100));
+        var totalXP = Math.round(totalAllTimeHrs * 100);
+        var todayXP = Math.round(todayDoneHrs * 100);
+        var todayPomodoros = Math.round((todayDoneHrs * 60) / 25);
+        var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
 
+        var doneCount = bentoTodoList.filter(function(t) { return t.done; }).length;
+        var totalTodos = Math.max(1, bentoTodoList.length);
+        var todoPct = Math.round((doneCount / totalTodos) * 100);
+
+        // TẦNG 3 - CỘT 1: Ma trận Lịch sử học tập (7 hàng x 12 cột = 84 ngày)
+        var heatCellsHtml = '';
+        for (var i = 83; i >= 0; i--) {
+            var d = new Date();
+            d.setDate(d.getDate() - i);
+            var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            var val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? dailyLogs[dStr] : 0;
+            var bg = 'rgba(255,255,255,0.05)';
+            if (val >= 2.0) bg = '#10b981';
+            else if (val >= 1.0) bg = 'rgba(16,185,129,0.72)';
+            else if (val > 0) bg = 'rgba(16,185,129,0.35)';
+            heatCellsHtml += `<div class="phoi-heat-cell" style="background:${bg};" title="${dStr}: ${val.toFixed(1)}h"></div>`;
+        }
+
+        // TẦNG 3 - CỘT 2: Mục tiêu hiện tại (3 mục tiêu kèm Icon tròn màu sắc)
+        var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current > 0; }).slice(0, 3) : [];
+        var gIcons = [
+            { icon: 'fa-book-open', color: '#a855f7', bg: 'rgba(168,85,247,0.2)' },
+            { icon: 'fa-bullseye',  color: '#f43f5e', bg: 'rgba(244,63,94,0.2)' },
+            { icon: 'fa-book',      color: '#10b981', bg: 'rgba(16,185,129,0.2)' }
+        ];
+        var currentGoalsHtml = activeGoals.length === 0
+            ? '<div style="padding:20px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>'
+            : activeGoals.map(function(g, idx) {
+                var st = gIcons[idx % gIcons.length];
+                var doneG = Math.max(0, (g.target || 1) - g.current);
+                var pctG = Math.min(100, Math.round((doneG / (g.target || 1)) * 100));
+                return `
+                    <div onclick="openGoal(${g.id})" style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
+                        <div style="width:34px; height:34px; border-radius:50%; background:${st.bg}; color:${st.color}; border:1px solid ${st.color}55; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">
+                            <i class="fa-solid ${st.icon}"></i>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:5px;">
+                                <span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span>
+                                <span style="color:#94a3b8; font-size:0.74rem;">${pctG}%</span>
+                            </div>
+                            <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
+                                <div style="width:${pctG}%; height:100%; background:${st.color}; border-radius:100px;"></div>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+        // TẦNG 3 - CỘT 3: Thị trường cổ phiếu
+        var stockList = getUnifiedStockArray();
+        var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
+            var isUp = st.change >= 0;
+            return `
+                <div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 4px; font-size:0.78rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight:800; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-coins" style="color:#fbbf24; font-size:0.7rem;"></i> ${st.code}
+                    </span>
+                    <span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span>
+                    <span style="font-weight:700; color:${isUp ? '#10b981' : '#ef4444'}; font-size:0.74rem;">
+                        ${isUp ? '+' : ''}${st.change.toFixed(1)}%
+                    </span>
+                </div>`;
+        }).join('');
+
+        // TẦNG 4 - CỘT 1: Nhiệm vụ hôm nay
+        var todoListHtml = bentoTodoList.map(function(t) {
+            return `
+                <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 6px; border-radius:8px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03);">
+                    <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                        <div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">
+                            ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                        </div>
+                        <span style="font-size:0.8rem; color:${t.done ? '#94a3b8' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${t.text}
+                        </span>
+                    </div>
+                    <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.7rem;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>`;
+        }).join('');
+
+        // TẦNG 4 - CỘT 2: Lịch trình sắp tới
         var todayDow = now.getDay();
         var todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : now.toISOString().split('T')[0];
         var todaySchedules = [];
@@ -5694,170 +5955,261 @@ function renderBentoCommandCenter() {
             }).sort(function(a, b) { return (shiftOrder[a.shift] || 9) - (shiftOrder[b.shift] || 9); });
         }
 
-        var scheduleListHtml = todaySchedules.length === 0
-            ? '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>'
-            : todaySchedules.slice(0, 4).map(function(item) {
+        var pillColors = [
+            { bg: 'rgba(99,102,241,0.22)', border: 'rgba(99,102,241,0.45)', text: '#a5b4fc' },
+            { bg: 'rgba(14,165,233,0.22)', border: 'rgba(14,165,233,0.45)', text: '#7dd3fc' },
+            { bg: 'rgba(244,63,94,0.22)',  border: 'rgba(244,63,94,0.45)',  text: '#fda4af' },
+            { bg: 'rgba(16,185,129,0.22)', border: 'rgba(16,185,129,0.45)', text: '#6ee7b7' }
+        ];
+        var scheduleRowsHtml = todaySchedules.length === 0
+            ? '<div style="padding:22px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay không có ca cố định trên Thời khóa biểu.</div>'
+            : todaySchedules.slice(0, 4).map(function(item, idx) {
+                var pc = pillColors[idx % pillColors.length];
                 var shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
-                var barColor = item.shift === 'sang' ? '#3b82f6' : (item.shift === 'chieu' ? '#a855f7' : '#10b981');
-                var subInfo = [item.room, item.teacher || item.lecturer].filter(Boolean).join(' • ') || 'Lịch trình cố định';
+                var rightMeta = item.room || item.teacher || 'Theo TKB';
                 return `
-                    <div style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <div style="width:4px; height:28px; border-radius:4px; background:${barColor}; flex-shrink:0;"></div>
-                        <div style="width:70px; flex-shrink:0; font-size:0.73rem; color:#94a3b8; font-weight:700;">${shiftTime}</div>
-                        <div style="overflow:hidden;">
-                            <div style="font-size:0.82rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div>
-                            <div style="font-size:0.7rem; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${subInfo}</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                            <span style="background:${pc.bg}; border:1px solid ${pc.border}; color:${pc.text}; padding:3px 9px; border-radius:7px; font-size:0.7rem; font-weight:800; flex-shrink:0;">
+                                ${shiftTime}
+                            </span>
+                            <span style="font-size:0.8rem; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${item.name}
+                            </span>
                         </div>
+                        <span style="font-size:0.72rem; color:#94a3b8; flex-shrink:0;">${rightMeta}</span>
                     </div>`;
             }).join('');
 
-        var doneCount = bentoTodoList.filter(function(t) { return t.done; }).length;
-        var todoListHtml = bentoTodoList.map(function(t) {
-            return `
-                <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; background:rgba(255,255,255,0.02); margin-bottom:4px;">
-                    <div style="display:flex; align-items:center; gap:9px; overflow:hidden;">
-                        <div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">
-                            ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
-                        </div>
-                        <span style="font-size:0.78rem; color:${t.done ? '#64748b' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                            ${t.text}
-                        </span>
-                    </div>
-                    <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.7rem;">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>`;
-        }).join('');
-
-        var stockList = getUnifiedStockArray();
-        var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
-            var isUp = st.change >= 0;
-            return `
-                <div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 6px; font-size:0.78rem; border-radius:6px; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;">
-                    <span style="font-weight:800; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-coins" style="color:#fbbf24; font-size:0.7rem;"></i> ${st.code}
-                        ${st.owned > 0 ? `<small style="background:rgba(139,92,246,0.25); color:#c084fc; padding:1px 5px; border-radius:4px; font-size:0.62rem;">x${st.owned}</small>` : ''}
-                    </span>
-                    <span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span>
-                    <span style="font-weight:700; color:${isUp ? '#10b981' : '#ef4444'}; font-size:0.74rem;">
-                        ${isUp ? '+' : ''}${st.change.toFixed(1)}%
-                    </span>
-                </div>`;
-        }).join('');
-
         container.innerHTML = `
-            <div class="clean-hero">
-                <div>
+            <!-- TẦNG 1: HERO BANNER CHUẨN PHÔI -->
+            <div class="phoi-hero-banner">
+                <div class="phoi-hero-left">
+                    <div class="phoi-badge-row">
+                        <span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span>
+                        <span class="phoi-pill-live">● LIVE</span>
+                    </div>
                     <h1>${greeting}, ${userName}! 👋</h1>
-                    <p>"Kỷ luật là cầu nối giữa mục tiêu và thành tựu."</p>
+                    <p>"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
+                    <div class="phoi-hero-mini-bar">
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">🔥</span>
+                            <div>
+                                <strong>${streak} ngày</strong>
+                                <span>Chuỗi kỷ luật</span>
+                            </div>
+                        </div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">📊</span>
+                            <div>
+                                <strong>${todayDoneHrs.toFixed(1)} giờ</strong>
+                                <span>Tập trung hôm nay</span>
+                            </div>
+                        </div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">🚩</span>
+                            <div>
+                                <strong>${doneCount} / ${bentoTodoList.length}</strong>
+                                <span>Nhiệm vụ hoàn thành</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phoi-orbit-box">
+                    <div class="phoi-orbit-ring1"></div>
+                    <div class="phoi-orbit-ring2"></div>
+                    <div class="phoi-orbit-core">A</div>
+
+                    <div class="phoi-sat" style="top: -4px; left: 50%; transform: translateX(-50%);">
+                        <div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div>
+                        <strong>Streak</strong>
+                        <span>${streak} ngày</span>
+                    </div>
+                    <div class="phoi-sat" style="bottom: 4px; left: 16px;">
+                        <div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-bullseye"></i></div>
+                        <strong>Focus</strong>
+                        <span>${todayDoneHrs.toFixed(1)} giờ</span>
+                    </div>
+                    <div class="phoi-sat" style="bottom: 4px; right: 16px;">
+                        <div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-chart-simple"></i></div>
+                        <strong>Growth</strong>
+                        <span>Lv. ${level}</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="clean-row-2">
-                <div class="clean-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.16), #121626); border-color:rgba(99,102,241,0.25);">
-                    <div class="clean-card-head">
-                        <span class="clean-card-title">Tiến độ hôm nay</span>
-                        <span style="font-size:0.72rem; color:#8b95b0; font-weight:600;">Định mức TKB: ${dailyGoalHrs}h</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:20px;">
-                        <div style="position:relative; width:90px; height:90px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <svg width="90" height="90" style="transform: rotate(-90deg);">
-                                <circle cx="45" cy="45" r="${radius}" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
-                                <circle cx="45" cy="45" r="${radius}" stroke="#8b5cf6" stroke-width="8" stroke-linecap="round" fill="transparent"
-                                    stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"/>
-                            </svg>
-                            <div style="position:absolute; font-size:0.98rem; font-weight:800; color:#fff;">${pctToday}%</div>
+            <!-- TẦNG 2: 4 THẺ CHỈ SỐ PHÁT SÁNG -->
+            <div class="phoi-stat-grid">
+                <div class="phoi-stat-card s-purple">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="phoi-orb" style="background:rgba(168,85,247,0.2); border:1.5px solid #a855f7; color:#d8b4fe;">
+                            <i class="fa-regular fa-clock"></i>
                         </div>
                         <div>
-                            <div style="font-size:1.85rem; font-weight:800; color:#fff; line-height:1.1;">${formatHrsToHM(todayDoneHrs)}</div>
-                            <div style="font-size:0.78rem; color:#8b95b0; margin:3px 0 10px 0;">/ ${formatHrsToHM(dailyGoalHrs)} mục tiêu hôm nay</div>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                <span style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#fbbf24; padding:3px 9px; border-radius:8px; font-size:0.72rem; font-weight:700;">
-                                    🔥 ${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày
-                                </span>
-                                <span style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; padding:3px 9px; border-radius:8px; font-size:0.72rem; font-weight:700;">
-                                    ★ Lv. ${level} • ${rankTitle}
-                                </span>
-                            </div>
+                            <div style="font-size:0.7rem; color:#cbd5e1;">Thời gian học hôm nay</div>
+                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayDoneHrs.toFixed(1)} giờ</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
+                            <div style="width:${pctToday}%; height:100%; background:linear-gradient(90deg, #8b5cf6, #c084fc);"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#94a3b8;">
+                            <span>Mục tiêu: ${dailyGoalHrs} giờ</span>
+                            <span>${pctToday}%</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="clean-card">
-                    <div class="clean-card-head">
-                        <span class="clean-card-title">Cấp bậc học thuật</span>
-                        <span style="font-size:0.74rem; color:#a855f7; font-weight:700;">${totalAllTimeHrs.toFixed(1)}h tích lũy</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:16px;">
-                        <div class="hex-icon" style="width:56px; height:62px; background:linear-gradient(135deg, #a855f7, #4f46e5); font-size:1.45rem;">
-                            <i class="fa-solid fa-crown"></i>
+                <div class="phoi-stat-card s-cyan">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="phoi-orb" style="background:rgba(14,165,233,0.2); border:1.5px solid #38bdf8; color:#7dd3fc;">
+                            <i class="fa-solid fa-check"></i>
                         </div>
-                        <div style="flex:1;">
-                            <div style="font-size:1.15rem; font-weight:800; color:#fff;">Lv. ${level} • ${rankTitle}</div>
-                            <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; margin:7px 0 5px 0; overflow:hidden;">
-                                <div style="width:${levelPct}%; height:100%; background:linear-gradient(90deg, #3b82f6, #a855f7); border-radius:100px;"></div>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#8b95b0; font-weight:600;">
-                                <span>${totalAllTimeHrs.toFixed(1)} / ${nextLevelHrs}h</span>
-                                <span>${levelPct}%</span>
-                            </div>
+                        <div>
+                            <div style="font-size:0.7rem; color:#cbd5e1;">Nhiệm vụ hoàn thành</div>
+                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">${doneCount} / ${bentoTodoList.length}</div>
                         </div>
                     </div>
-                    <div style="margin-top:8px; font-size:0.75rem; color:#64748b; font-style:italic;">
-                        "Người học hôm nay, dẫn đầu ngày mai."
+                    <div>
+                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
+                            <div style="width:${todoPct}%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8);"></div>
+                        </div>
+                        <div style="font-size:0.66rem; color:#38bdf8;">Hiệu suất: ${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</div>
+                    </div>
+                </div>
+
+                <div class="phoi-stat-card s-amber" onclick="if(typeof openAcademicShop==='function') openAcademicShop();" style="cursor:pointer;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="phoi-orb" style="background:rgba(245,158,11,0.2); border:1.5px solid #fbbf24; color:#fde68a;">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.7rem; color:#cbd5e1;">XP nhận được</div>
+                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">+${todayXP} XP</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
+                            <div style="width:${levelPct}%; height:100%; background:linear-gradient(90deg, #d97706, #fbbf24);"></div>
+                        </div>
+                        <div style="font-size:0.66rem; color:#fbbf24;">Tổng: ${totalXP.toLocaleString()} XP</div>
+                    </div>
+                </div>
+
+                <div class="phoi-stat-card s-rose">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="phoi-orb" style="background:rgba(244,63,94,0.2); border:1.5px solid #fb7185; color:#fda4af;">
+                            <i class="fa-solid fa-apple-whole"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.7rem; color:#cbd5e1;">Số phiên Pomodoro</div>
+                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayPomodoros} phiên</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
+                            <div style="width:${Math.min(100, Math.max(20, todayPomodoros * 25))}%; height:100%; background:linear-gradient(90deg, #e11d48, #fb7185);"></div>
+                        </div>
+                        <div style="font-size:0.66rem; color:#fda4af;">Đánh giá: ★ ${(typeof getAverageStarRating==='function'?getAverageStarRating():5).toFixed(2)}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="clean-row-3">
-                <div class="clean-card">
-                    <div>
-                        <div class="clean-card-head">
-                            <span class="clean-card-title"><i class="fa-regular fa-calendar-days" style="color:#3b82f6;"></i> Lịch học hôm nay</span>
-                            <span class="clean-link" onclick="switchTab('timetable')">Xem tất cả →</span>
+            <!-- TẦNG 3: LỊCH SỬ HỌC TẬP | MỤC TIÊU HIỆN TẠI | THỊ TRƯỜNG CỔ PHIẾU -->
+            <div class="phoi-row-3col">
+                <div class="phoi-card">
+                    <div class="phoi-card-head">
+                        <span class="phoi-card-title">Lịch sử học tập</span>
+                        <span style="font-size:0.68rem; color:#94a3b8;">30 ngày qua ⌄</span>
+                    </div>
+                    <div class="phoi-heat-container">
+                        <div class="phoi-heat-labels">
+                            <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
                         </div>
-                        <div>${scheduleListHtml}</div>
+                        <div class="phoi-heat-matrix">${heatCellsHtml}</div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; align-items:center; gap:4px; font-size:0.64rem; color:#94a3b8; margin-top:6px;">
+                        Ít hơn
+                        <i style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.1);display:inline-block;"></i>
+                        <i style="width:8px;height:8px;border-radius:50%;background:rgba(16,185,129,0.35);display:inline-block;"></i>
+                        <i style="width:8px;height:8px;border-radius:50%;background:rgba(16,185,129,0.7);display:inline-block;"></i>
+                        <i style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></i>
+                        Nhiều hơn
                     </div>
                 </div>
 
-                <div class="clean-card">
+                <div class="phoi-card">
                     <div>
-                        <div class="clean-card-head">
-                            <span class="clean-card-title"><i class="fa-solid fa-list-check" style="color:#10b981;"></i> Nhiệm vụ hôm nay (${doneCount}/${bentoTodoList.length})</span>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Mục tiêu hiện tại</span>
+                            <span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem tất cả →</span>
                         </div>
-                        <div style="max-height:135px; overflow-y:auto; margin-bottom:8px;">${todoListHtml}</div>
+                        <div>${currentGoalsHtml}</div>
                     </div>
-                    <button onclick="addBentoTodoPrompt()" style="width:100%; padding:7px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#8b95b0; font-weight:600; font-size:0.75rem; cursor:pointer;">
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Thị trường cổ phiếu</span>
+                            <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.65rem; font-weight:800;">LIVE</span>
+                        </div>
+                        <svg viewBox="0 0 240 42" style="width:100%; height:36px; margin-bottom:4px;">
+                            <defs>
+                                <linearGradient id="phoiStockGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,32 Q30,20 65,26 T130,14 T190,18 T240,6 L240,42 L0,42 Z" fill="url(#phoiStockGrad)"/>
+                            <path d="M0,32 Q30,20 65,26 T130,14 T190,18 T240,6" fill="none" stroke="#10b981" stroke-width="2"/>
+                        </svg>
+                        <div>${stockRowsHtml}</div>
+                    </div>
+                    <div onclick="openFullStockMarketDrawer()" style="margin-top:6px; text-align:center; font-size:0.73rem; color:#10b981; font-weight:700; cursor:pointer;">
+                        Xem toàn bộ thị trường (${stockList.length} mã) →
+                    </div>
+                </div>
+            </div>
+
+            <!-- TẦNG 4: NHIỆM VỤ HÔM NAY (TRÁI) & LỊCH TRÌNH SẮP TỚI (PHẢI) -->
+            <div class="phoi-row-2col">
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Nhiệm vụ hôm nay</span>
+                            <span style="font-size:0.72rem; color:#94a3b8;">${doneCount} / ${bentoTodoList.length} hoàn thành</span>
+                        </div>
+                        <div style="max-height:150px; overflow-y:auto;">${todoListHtml}</div>
+                    </div>
+                    <button onclick="addBentoTodoPrompt()" style="margin-top:8px; width:100%; padding:6px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#94a3b8; font-weight:600; font-size:0.74rem; cursor:pointer;">
                         + Thêm nhiệm vụ
                     </button>
                 </div>
 
-                <div class="clean-card">
+                <div class="phoi-card">
                     <div>
-                        <div class="clean-card-head">
-                            <span class="clean-card-title"><i class="fa-solid fa-chart-line" style="color:#10b981;"></i> Thị trường cổ phiếu</span>
-                            <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.68rem; font-weight:700;">LIVE</span>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Lịch trình sắp tới</span>
+                            <span class="phoi-link" onclick="switchTab('timetable')">Xem tất cả →</span>
                         </div>
-                        <svg viewBox="0 0 240 42" style="width:100%; height:36px; margin-bottom:4px;">
-                            <path d="M0,34 Q35,30 60,18 T120,20 T180,9 T240,4" fill="none" stroke="#10b981" stroke-width="2"/>
-                        </svg>
-                        <div>${stockRowsHtml}</div>
+                        <div>${scheduleRowsHtml}</div>
                     </div>
-                    <button onclick="openFullStockMarketDrawer()" style="margin-top:8px; width:100%; padding:7px; border-radius:8px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#10b981; font-weight:700; font-size:0.75rem; cursor:pointer;">
-                        Xem toàn bộ thị trường (${stockList.length} mã) →
-                    </button>
                 </div>
             </div>
         `;
 
-        // Khôi phục Thẻ Thiết Quân Luật (Tuần) ngay bên dưới khối Bento
         ensureMartialLawKpiCard();
     } catch (err) {
-        console.error("Bento Render Error:", err);
+        console.error("Phoi Dashboard Error:", err);
     }
 }
 
-// 5. TRANG THÀNH TỰU & KHO LƯU TRỮ
+// =====================================================================
+// 5. TRANG THÀNH TỰU, FOCUS ROOM & SIDEBAR CỐ ĐỊNH
+// =====================================================================
 var currentTrophyFilter = 'all';
 function filterTrophyCategory(cat) {
     currentTrophyFilter = cat;
@@ -5865,7 +6217,7 @@ function filterTrophyCategory(cat) {
 }
 
 function renderMasterTrophyAndArchive() {
-    injectCleanLayoutCSS();
+    injectPhoiLayoutCSS();
     var room = document.getElementById('trophy-room');
     if (!room) return;
 
@@ -5894,7 +6246,7 @@ function renderMasterTrophyAndArchive() {
 
     var achievementsHtml = filteredList.map(function(a) {
         return `
-            <div class="clean-card" style="flex-direction:row; align-items:center; gap:14px; padding:14px 16px; opacity:${a.unlocked ? '1' : '0.42'};">
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:14px; opacity:${a.unlocked ? '1' : '0.42'};">
                 <div class="hex-icon" style="background:${a.unlocked ? a.grad : '#1e293b'};"><i class="fa-solid ${a.icon}"></i></div>
                 <div style="flex:1;">
                     <strong style="font-size:0.88rem; color:#fff;">${a.name}</strong>
@@ -5907,7 +6259,7 @@ function renderMasterTrophyAndArchive() {
         var cleanHrs = Number(g.target || 0).toFixed(1).replace(/\.0$/, '');
         var repCount = (g.reports && g.reports.length) ? g.reports.length : 0;
         return `
-            <div class="clean-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer; padding:15px 18px;">
+            <div class="phoi-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer;">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <div class="hex-icon" style="width:42px; height:48px; font-size:1rem; background:linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-check-double"></i></div>
                     <div style="flex:1; min-width:0;">
@@ -5923,7 +6275,7 @@ function renderMasterTrophyAndArchive() {
     }).join('');
 
     room.innerHTML = `
-        <div class="clean-card" style="margin-bottom:16px;">
+        <div class="phoi-card" style="margin-bottom:16px;">
             <div style="display:flex; justify-content:space-between; align-items:baseline;">
                 <div><strong style="font-size:1.3rem; color:#fff;">${unlockedCount} / ${allAchievements.length}</strong> <span style="font-size:0.8rem; color:#cbd5e1; margin-left:8px;">Thành tựu đã mở khóa</span></div>
                 <strong style="color:#60a5fa; font-size:0.9rem;">${pctUnlock}%</strong>
@@ -5947,7 +6299,6 @@ function renderMasterTrophyAndArchive() {
 window.renderTrophies = renderMasterTrophyAndArchive;
 window.renderTrophyRoom = renderMasterTrophyAndArchive;
 
-// 6. CỘT PHẢI FOCUS ROOM
 function renderFocusStudioRightPanel() {
     try {
         var todoBox = document.getElementById('focus-room-todo-list');
@@ -5967,7 +6318,7 @@ function renderFocusStudioRightPanel() {
     } catch (e) {}
 }
 
-// 7. ĐỒNG BỘ ĐỒNG HỒ TOPBAR, VÒNG TRÒN FOCUS & SIDEBAR USER
+// Duy trì đồng hồ, cố định thẻ User ở đáy Sidebar (Không nhảy) & Nút đổi ảnh nền
 setInterval(function() {
     var now = new Date();
     var clockEl = document.getElementById('top-clock-label');
@@ -5978,13 +6329,28 @@ setInterval(function() {
         dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
     }
 
-    var badge = document.getElementById('user-auth-badge');
-    var dock = document.getElementById('sidebar-bottom-dock');
-    if (badge && dock) {
-        if (badge.innerHTML.includes('Rời án thư')) badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
-        if (badge.nextElementSibling !== dock) {
-            badge.style.cssText = "margin: 8px 4px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.04); display: flex; align-items: center; gap: 8px; font-size: 0.75rem;";
-            dock.parentNode.insertBefore(badge, dock);
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        var brandLogoBox = sidebar.querySelector('.brand > div:first-child');
+        if (brandLogoBox && !brandLogoBox.querySelector('.fa-layer-group')) {
+            brandLogoBox.style.cssText = "width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, #7c3aed, #4f46e5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.95rem; flex-shrink:0;";
+            brandLogoBox.innerHTML = '<i class="fa-solid fa-layer-group" style="color:#fff !important;"></i>';
+        }
+        var footerDock = document.getElementById('sidebar-bottom-dock');
+        var paletteBox = sidebar.querySelector('.palette-container');
+        var themeBtn = document.querySelector('.theme-toggle');
+        if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
+            paletteBox.appendChild(themeBtn);
+        }
+        if (footerDock) footerDock.remove();
+
+        var badge = document.getElementById('user-auth-badge');
+        if (badge) {
+            if (badge.innerHTML.includes('Rời án thư')) badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
+            if (sidebar.lastElementChild !== badge) {
+                badge.style.cssText = "margin: 8px 4px 0 4px; padding: 9px 10px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; flex-shrink: 0;";
+                sidebar.appendChild(badge);
+            }
         }
     }
 
@@ -6006,375 +6372,24 @@ setInterval(function() {
     }
 }, 1000);
 
-var origSwitchTabSafe = window.switchTab;
+var origSwitchTabPhoi = window.switchTab;
 window.switchTab = function(tabName) {
-    if (typeof origSwitchTabSafe === 'function') origSwitchTabSafe(tabName);
+    if (typeof origSwitchTabPhoi === 'function') origSwitchTabPhoi(tabName);
     if (tabName === 'trophy') setTimeout(renderMasterTrophyAndArchive, 30);
     if (tabName === 'dashboard') setTimeout(renderBentoCommandCenter, 30);
 };
 
-var prevRenderDashSafe = window.renderDashboard;
+var prevRenderDashPhoi = window.renderDashboard;
 window.renderDashboard = function() {
-    if (typeof prevRenderDashSafe === 'function') prevRenderDashSafe();
+    if (typeof prevRenderDashPhoi === 'function') prevRenderDashPhoi();
     renderBentoCommandCenter();
     renderFocusStudioRightPanel();
 };
 
 window.addEventListener('DOMContentLoaded', function() {
-    injectCleanLayoutCSS();
+    injectPhoiLayoutCSS();
     setTimeout(function() {
         renderBentoCommandCenter();
         renderFocusStudioRightPanel();
     }, 300);
 });
-
-// =====================================================================
-// SIDEBAR REDESIGN & DYNAMIC 4-COLOR PALETTE ENGINE (FIXED JUMPING BUG)
-// =====================================================================
-(function() {
-    function injectSidebarAndPaletteCSS() {
-        var old = document.getElementById('apex-sidebar-palette-css');
-        if (old) old.remove();
-
-        var st = document.createElement('style');
-        st.id = 'apex-sidebar-palette-css';
-        st.innerHTML = `
-            /* --- ĐỊNH NGHĨA 4 BẢNG MÀU RÕ RỆT --- */
-            :root, [data-color="zen"] {
-                --theme-bg: #090d16;
-                --theme-sidebar: #060911;
-                --theme-card: linear-gradient(155deg, #111827 0%, #0d1320 100%);
-                --theme-accent: #10b981;
-                --theme-accent-2: #0ea5e9;
-                --theme-soft: rgba(16, 185, 129, 0.14);
-                --theme-border: rgba(16, 185, 129, 0.25);
-                --brand-dash: #10b981 !important;
-                --brand-focus: #0ea5e9 !important;
-            }
-            [data-color="neon-purple"] {
-                --theme-bg: #090614;
-                --theme-sidebar: #06040f;
-                --theme-card: linear-gradient(155deg, #18112e 0%, #100b20 100%);
-                --theme-accent: #a855f7;
-                --theme-accent-2: #6366f1;
-                --theme-soft: rgba(168, 85, 247, 0.16);
-                --theme-border: rgba(168, 85, 247, 0.28);
-                --brand-dash: #8b5cf6 !important;
-                --brand-focus: #a855f7 !important;
-            }
-            [data-color="neon-blue"] {
-                --theme-bg: #040b18;
-                --theme-sidebar: #030711;
-                --theme-card: linear-gradient(155deg, #0d1e38 0%, #091426 100%);
-                --theme-accent: #0ea5e9;
-                --theme-accent-2: #3b82f6;
-                --theme-soft: rgba(14, 165, 233, 0.16);
-                --theme-border: rgba(56, 189, 248, 0.28);
-                --brand-dash: #0ea5e9 !important;
-                --brand-focus: #38bdf8 !important;
-            }
-            [data-color="sakura"] {
-                --theme-bg: #12060a;
-                --theme-sidebar: #0c0407;
-                --theme-card: linear-gradient(155deg, #260e18 0%, #170910 100%);
-                --theme-accent: #f43f5e;
-                --theme-accent-2: #f59e0b;
-                --theme-soft: rgba(244, 63, 94, 0.16);
-                --theme-border: rgba(244, 63, 94, 0.28);
-                --brand-dash: #e11d48 !important;
-                --brand-focus: #f43f5e !important;
-            }
-
-            /* Chế độ Sáng (Light Mode) */
-            body[data-light-mode="true"] {
-                --theme-bg: #f1f5f9 !important;
-                --theme-sidebar: #ffffff !important;
-                --theme-card: linear-gradient(155deg, #ffffff 0%, #f8fafc 100%) !important;
-                --text-main: #0f172a !important;
-                --text-muted: #475569 !important;
-                --border: rgba(15, 23, 42, 0.09) !important;
-            }
-            body[data-light-mode="true"] .clean-card,
-            body[data-light-mode="true"] .goal-card,
-            body[data-light-mode="true"] .countdown-card {
-                background: #ffffff !important;
-                border-color: rgba(15, 23, 42, 0.1) !important;
-                box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
-            }
-            body[data-light-mode="true"] .clean-hero h1,
-            body[data-light-mode="true"] .clean-card-title,
-            body[data-light-mode="true"] .goal-meta h3 {
-                color: #0f172a !important;
-            }
-
-            body { background-color: var(--theme-bg) !important; transition: background-color 0.3s ease; }
-            .clean-card, .goal-card, .countdown-card {
-                background: var(--theme-card) !important;
-                border: 1px solid rgba(255,255,255,0.07) !important;
-            }
-            .goal-card:hover, .clean-card:hover { border-color: var(--theme-border) !important; }
-            .btn-primary, .demo-tab-pill.active {
-                background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)) !important;
-                box-shadow: 0 4px 14px var(--theme-soft) !important;
-            }
-            .progress-bar { stroke: var(--theme-accent) !important; }
-            .clean-link, .t-lbl { color: var(--theme-accent) !important; }
-            #bento-command-center svg circle:nth-of-type(2) { stroke: var(--theme-accent) !important; }
-
-            /* SIDEBAR CHUẨN SAAS */
-            .sidebar {
-                width: 228px !important;
-                background: var(--theme-sidebar) !important;
-                border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
-                padding: 16px 12px 12px 12px !important;
-                display: flex !important;
-                flex-direction: column !important;
-            }
-
-            .sidebar .brand {
-                padding: 6px 10px 14px 10px !important;
-                margin-bottom: 8px !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-                background: transparent !important;
-            }
-
-            .sidebar .nav-item {
-                padding: 9px 12px !important;
-                margin-bottom: 3px !important;
-                border-radius: 10px !important;
-                font-size: 0.8rem !important;
-                font-weight: 600 !important;
-                color: #94a3b8 !important;
-                border: 1px solid transparent !important;
-                position: relative !important;
-                transition: all 0.18s ease !important;
-            }
-            .sidebar .nav-item i {
-                width: 18px !important;
-                font-size: 0.85rem !important;
-                color: #64748b !important;
-            }
-            .sidebar .nav-item:hover {
-                background: rgba(255, 255, 255, 0.04) !important;
-                color: #f8fafc !important;
-                transform: none !important;
-            }
-            .sidebar .nav-item:hover i { color: var(--theme-accent) !important; }
-
-            .sidebar .nav-item.active {
-                background: var(--theme-soft) !important;
-                color: #ffffff !important;
-                font-weight: 700 !important;
-                border: 1px solid var(--theme-border) !important;
-                box-shadow: none !important;
-            }
-            .sidebar .nav-item.active::before {
-                content: "";
-                position: absolute;
-                left: -1px; top: 22%; bottom: 22%;
-                width: 3.5px;
-                background: var(--theme-accent);
-                border-radius: 0 4px 4px 0;
-                box-shadow: 0 0 10px var(--theme-accent);
-            }
-            .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
-
-            .sidebar-wallet-pod {
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.07);
-                border-radius: 12px;
-                padding: 10px;
-                margin: 8px 4px 10px 4px;
-            }
-            #btn-open-academic-shop {
-                width: 100% !important;
-                margin: 8px 0 0 0 !important;
-                padding: 8px 10px !important;
-                border-radius: 8px !important;
-                background: linear-gradient(90deg, rgba(245,158,11,0.18), rgba(234,88,12,0.18)) !important;
-                border: 1px solid rgba(245,158,11,0.35) !important;
-                color: #fbbf24 !important;
-                font-size: 0.76rem !important;
-                font-weight: 700 !important;
-            }
-
-            .palette-container {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                background: rgba(255, 255, 255, 0.03) !important;
-                border: 1px solid rgba(255, 255, 255, 0.06) !important;
-                padding: 7px 10px !important;
-                border-radius: 10px !important;
-                margin: 6px 4px 10px 4px !important;
-            }
-            .color-btn {
-                width: 20px !important;
-                height: 20px !important;
-                border-radius: 50% !important;
-                cursor: pointer !important;
-                transition: transform 0.2s !important;
-            }
-            .color-btn.active {
-                outline: 2px solid #ffffff !important;
-                outline-offset: 2px !important;
-                transform: scale(1.12) !important;
-            }
-
-            .sidebar-backup-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-                margin: 4px 4px 8px 4px;
-            }
-            .sidebar-mini-btn {
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.07);
-                color: #94a3b8;
-                padding: 7px 6px;
-                border-radius: 8px;
-                font-size: 0.7rem;
-                font-weight: 600;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-            }
-            .sidebar-mini-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
-
-            /* Cố định tuyệt đối thẻ User ở đáy, không cho phép dịch chuyển */
-            #user-auth-badge {
-                margin: 8px 4px 0 4px !important;
-                padding: 9px 10px !important;
-                border-radius: 12px !important;
-                background: rgba(255, 255, 255, 0.04) !important;
-                border: 1px solid rgba(255, 255, 255, 0.07) !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 10px !important;
-                flex-shrink: 0 !important;
-            }
-        `;
-        document.head.appendChild(st);
-    }
-
-    function reorganizeSidebarDOM() {
-        var sidebar = document.getElementById('sidebar');
-        if (!sidebar) return;
-
-        // 1. Đổi biểu tượng chữ "A" thành biểu tượng Ô vuông xếp chồng (fa-layer-group)
-        var brandLogoBox = sidebar.querySelector('.brand > div:first-child');
-        if (brandLogoBox && !brandLogoBox.querySelector('.fa-layer-group')) {
-            brandLogoBox.style.cssText = "width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1rem; box-shadow:0 4px 14px var(--theme-soft); flex-shrink:0;";
-            brandLogoBox.innerHTML = '<i class="fa-solid fa-layer-group" style="color:#fff !important; font-size:1rem !important;"></i>';
-        }
-
-        // 2. Gom hộp USD và nút Cửa hàng vào chung 1 khung
-        var usdEl = document.getElementById('usd-balance');
-        var shopBtn = document.getElementById('btn-open-academic-shop');
-        if (usdEl && !document.querySelector('.sidebar-wallet-pod')) {
-            var walletOuter = usdEl.parentElement.parentElement;
-            if (walletOuter) {
-                walletOuter.className = 'sidebar-wallet-pod';
-                walletOuter.style.padding = '10px';
-                walletOuter.style.margin = '4px 4px 10px 4px';
-                if (shopBtn) walletOuter.appendChild(shopBtn);
-            }
-        } else if (shopBtn && document.querySelector('.sidebar-wallet-pod')) {
-            var pod = document.querySelector('.sidebar-wallet-pod');
-            if (shopBtn.parentElement !== pod) pod.appendChild(shopBtn);
-        }
-
-        // 3. Gom Sao lưu & Phục hồi thành 2 nút ngang
-        var navMenu = sidebar.querySelector('.nav-menu');
-        if (navMenu && !document.querySelector('.sidebar-backup-row')) {
-            var exportLink = navMenu.querySelector('[onclick*="exportData"]');
-            var importLink = navMenu.querySelector('[onclick*="import-file"]');
-            if (exportLink && importLink) {
-                var row = document.createElement('div');
-                row.className = 'sidebar-backup-row';
-                row.innerHTML = `
-                    <button class="sidebar-mini-btn" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu</button>
-                    <button class="sidebar-mini-btn" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi</button>
-                `;
-                exportLink.style.display = 'none';
-                importLink.style.display = 'none';
-                navMenu.appendChild(row);
-            }
-        }
-
-        // 4. Đưa nút Mặt trăng vào chung hộp 4 màu và xóa bỏ #sidebar-bottom-dock để triệt tiêu xung đột nhảy vị trí!
-        var paletteBox = sidebar.querySelector('.palette-container');
-        var footerDock = document.getElementById('sidebar-bottom-dock');
-        var themeBtn = document.querySelector('.theme-toggle');
-        if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
-            var zenBtn = paletteBox.querySelector('.color-btn.zen');
-            if (zenBtn) {
-                zenBtn.style.background = 'linear-gradient(135deg, #10b981, #0ea5e9)';
-                zenBtn.style.border = 'none';
-                zenBtn.title = 'Xanh Ngọc Lục Bảo (Mặc định)';
-            }
-            paletteBox.appendChild(themeBtn);
-        }
-        // Xóa hẳn thẻ #sidebar-bottom-dock khỏi DOM để hàm setInterval cũ không còn giật thẻ User nữa
-        if (footerDock) {
-            footerDock.remove();
-        }
-
-        // 5. Đặt thẻ User nằm im ở cuối Sidebar (chỉ chạy khi chưa nằm ở cuối)
-        var badge = document.getElementById('user-auth-badge');
-        if (badge) {
-            if (badge.innerHTML.includes('Rời án thư')) {
-                badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
-            }
-            if (sidebar.lastElementChild !== badge) {
-                sidebar.appendChild(badge);
-            }
-        }
-    }
-
-    window.changeColor = function(colorName) {
-        var valid = ['zen', 'neon-purple', 'neon-blue', 'sakura'];
-        var chosen = valid.includes(colorName) ? colorName : 'zen';
-        document.documentElement.setAttribute('data-color', chosen);
-        document.body.setAttribute('data-color', chosen);
-        localStorage.setItem('saasColorTheme', chosen);
-
-        document.querySelectorAll('.color-btn').forEach(function(btn) {
-            btn.classList.remove('active');
-            if (btn.classList.contains(chosen)) btn.classList.add('active');
-        });
-    };
-
-    window.toggleTheme = function() {
-        var isLight = document.body.getAttribute('data-light-mode') === 'true';
-        var nextState = !isLight;
-        document.body.setAttribute('data-light-mode', nextState ? 'true' : 'false');
-        localStorage.setItem('saasLightMode', nextState ? 'true' : 'false');
-
-        var icon = document.getElementById('theme-icon');
-        if (icon) {
-            icon.className = nextState ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            icon.style.color = nextState ? '#f59e0b' : '#e2e8f0';
-        }
-    };
-
-    function initSidebarAndPalette() {
-        injectSidebarAndPaletteCSS();
-        reorganizeSidebarDOM();
-
-        var savedColor = localStorage.getItem('saasColorTheme') || 'neon-purple';
-        window.changeColor(savedColor);
-
-        if (localStorage.getItem('saasLightMode') === 'true') {
-            document.body.setAttribute('data-light-mode', 'true');
-            var icon = document.getElementById('theme-icon');
-            if (icon) { icon.className = 'fa-solid fa-sun'; icon.style.color = '#f59e0b'; }
-        }
-    }
-
-    initSidebarAndPalette();
-    window.addEventListener('DOMContentLoaded', initSidebarAndPalette);
-    setInterval(reorganizeSidebarDOM, 1200);
-})();
