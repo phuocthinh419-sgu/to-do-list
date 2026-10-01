@@ -6404,3 +6404,397 @@ window.addEventListener('DOMContentLoaded', function() {
         renderFocusStudioRightPanel();
     }, 300);
 });
+
+// =====================================================================
+// FOCUS ROOM PRO STUDIO OVERHAUL (DROP-IN CUỐI FILE - KHÔNG CẦN XÓA CODE CŨ)
+// =====================================================================
+(function upgradeFocusRoomStudio() {
+    var currentFocusScene = localStorage.getItem('apexFocusScene') || 'lofi_room';
+    var ambientAudioCtx = null;
+    var ambientNoiseNode = null;
+    var ambientGainNode = null;
+    var isAmbientPlaying = false;
+
+    var FOCUS_SCENES = {
+        lofi_room: {
+            label: "🎧 Lo-fi Room",
+            bg: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=85"
+        },
+        library: {
+            label: "🏛️ Library",
+            bg: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85"
+        },
+        rain_night: {
+            label: "🌧️ Rainy Night",
+            bg: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=85"
+        },
+        user_custom: {
+            label: "🌌 Nền Dashboard",
+            bg: "" // Sẽ lấy theo ảnh nền người dùng chọn
+        }
+    };
+
+    // 1. BỘ TẠO ÂM THANH TRẮNG (TIẾNG MƯA RƠI ẤM ÁP) BẰNG WEB AUDIO API
+    window.toggleFocusRainSound = function() {
+        var btn = document.getElementById('btn-ambient-rain');
+        if (!isAmbientPlaying) {
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!ambientAudioCtx) ambientAudioCtx = new AudioContext();
+            if (ambientAudioCtx.state === 'suspended') ambientAudioCtx.resume();
+
+            var bufferSize = 2 * ambientAudioCtx.sampleRate;
+            var noiseBuffer = ambientAudioCtx.createBuffer(1, bufferSize, ambientAudioCtx.sampleRate);
+            var output = noiseBuffer.getChannelData(0);
+            var lastOut = 0.0;
+            for (var i = 0; i < bufferSize; i++) {
+                var white = Math.random() * 2 - 1;
+                output[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = output[i];
+                output[i] *= 3.5;
+            }
+            ambientNoiseNode = ambientAudioCtx.createBufferSource();
+            ambientNoiseNode.buffer = noiseBuffer;
+            ambientNoiseNode.loop = true;
+
+            var filter = ambientAudioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 850;
+
+            ambientGainNode = ambientAudioCtx.createGain();
+            ambientGainNode.gain.value = 0.18;
+
+            ambientNoiseNode.connect(filter);
+            filter.connect(ambientGainNode);
+            ambientGainNode.connect(ambientAudioCtx.destination);
+            ambientNoiseNode.start(0);
+            isAmbientPlaying = true;
+            if (btn) {
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy" style="color:#38bdf8;"></i> Tiếng mưa: BẬT';
+            }
+        } else {
+            if (ambientNoiseNode) { try { ambientNoiseNode.stop(); } catch(e){} }
+            isAmbientPlaying = false;
+            if (btn) {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-solid fa-cloud-rain"></i> Tiếng mưa: TẮT';
+            }
+        }
+    };
+
+    window.switchFocusScene = function(sceneKey) {
+        currentFocusScene = sceneKey;
+        localStorage.setItem('apexFocusScene', sceneKey);
+        var focusRoom = document.getElementById('focus-room');
+        if (focusRoom) {
+            if (sceneKey === 'user_custom') {
+                var customUrl = localStorage.getItem('saasCustomWallpaper') || "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
+                focusRoom.style.setProperty('background-image', "url('" + customUrl + "')", 'important');
+            } else if (FOCUS_SCENES[sceneKey]) {
+                focusRoom.style.setProperty('background-image', "url('" + FOCUS_SCENES[sceneKey].bg + "')", 'important');
+            }
+        }
+        document.querySelectorAll('.focus-scene-pill').forEach(function(el) {
+            el.classList.toggle('active', el.getAttribute('data-scene') === sceneKey);
+        });
+    };
+
+    window.toggleFocusFullscreen = function() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function(){});
+        } else {
+            document.exitFullscreen().catch(function(){});
+        }
+    };
+
+    // 2. CSS ĐỒ HỌA CAO CẤP CHO PHÒNG FOCUS
+    function injectFocusStudioProCSS() {
+        if (document.getElementById('focus-studio-pro-css')) return;
+        var st = document.createElement('style');
+        st.id = 'focus-studio-pro-css';
+        st.innerHTML = `
+            #focus-room {
+                padding: 18px 32px !important;
+                transition: background-image 0.5s ease-in-out !important;
+            }
+            #focus-overlay {
+                background: 
+                    radial-gradient(circle at 38% 48%, rgba(124, 58, 237, 0.16) 0%, rgba(10, 14, 28, 0.72) 48%, rgba(6, 8, 18, 0.92) 100%) !important;
+                backdrop-filter: blur(6px) !important;
+            }
+
+            /* Thanh chọn Bối cảnh & Âm thanh môi trường */
+            .focus-ambient-bar {
+                display: flex; align-items: center; justify-content: center; gap: 8px;
+                flex-wrap: wrap; margin-bottom: 14px;
+            }
+            .focus-scene-pill {
+                background: rgba(15, 20, 38, 0.65);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                color: #cbd5e1; padding: 5px 13px; border-radius: 100px;
+                font-size: 0.74rem; font-weight: 600; cursor: pointer;
+                transition: all 0.2s ease; backdrop-filter: blur(8px);
+                display: inline-flex; align-items: center; gap: 6px;
+            }
+            .focus-scene-pill:hover, .focus-scene-pill.active {
+                background: rgba(139, 92, 246, 0.28);
+                border-color: #a855f7; color: #fff;
+                box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+            }
+
+            /* Vòng Hào Quang Đôi (Dual-Ring Neon Halo) */
+            .neon-timer-ring-wrapper {
+                position: relative !important;
+                width: 280px !important;
+                height: 280px !important;
+                border-radius: 50% !important;
+                background: radial-gradient(circle, rgba(124, 58, 237, 0.14) 0%, rgba(15, 20, 38, 0.65) 70%) !important;
+                box-shadow: 
+                    0 0 50px rgba(124, 58, 237, 0.28),
+                    inset 0 0 30px rgba(139, 92, 246, 0.18) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                margin: 8px auto !important;
+            }
+            /* Vòng vạch chia độ (Dial Ticks) bên trong */
+            .neon-timer-ring-wrapper::before {
+                content: "";
+                position: absolute;
+                inset: 18px;
+                border-radius: 50%;
+                border: 1px dashed rgba(192, 132, 252, 0.25);
+                pointer-events: none;
+            }
+            .neon-timer-ring-wrapper svg {
+                width: 280px !important;
+                height: 280px !important;
+                filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.6)) !important;
+            }
+            #focus-room #session-timer {
+                font-size: 4.1rem !important;
+                font-weight: 900 !important;
+                color: #ffffff !important;
+                letter-spacing: -2px !important;
+                text-shadow: 0 0 28px rgba(192, 132, 252, 0.65) !important;
+            }
+            #focus-sub-duration {
+                font-size: 0.86rem !important;
+                color: #c084fc !important;
+                font-weight: 700 !important;
+                letter-spacing: 1px !important;
+                margin-top: 6px !important;
+            }
+
+            /* Nút Chọn Thời Lượng (5p / 15p / 25p) */
+            .focus-pill-btn {
+                background: rgba(17, 23, 42, 0.8) !important;
+                border: 1px solid rgba(255, 255, 255, 0.14) !important;
+                padding: 8px 18px !important;
+                border-radius: 12px !important;
+                font-size: 0.8rem !important;
+                font-weight: 700 !important;
+                color: #f1f5f9 !important;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.3) !important;
+            }
+            .focus-pill-btn:hover, .focus-pill-btn.active {
+                background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+                border-color: #c084fc !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 22px rgba(124, 58, 237, 0.5) !important;
+            }
+
+            /* Cột phải Studio (3 Thẻ Kính Mờ Đồng Bộ) */
+            .focus-studio-layout {
+                grid-template-columns: 1fr 330px !important;
+                gap: 28px !important;
+            }
+            .focus-glass-panel {
+                background: linear-gradient(155deg, rgba(20, 25, 45, 0.78), rgba(12, 15, 28, 0.88)) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 16px !important;
+                padding: 15px 16px !important;
+                backdrop-filter: blur(16px) !important;
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+            }
+
+            /* Sóng nhạc chuyển động ở thanh Lo-fi đáy */
+            @keyframes eqBounce {
+                0%, 100% { height: 4px; }
+                50% { height: 15px; }
+            }
+            .eq-bar {
+                width: 3px; background: #a855f7; border-radius: 3px;
+                display: inline-block; animation: eqBounce 1s infinite ease-in-out;
+            }
+        `;
+        document.head.appendChild(st);
+    }
+
+    // 3. LẮP RÁP ĐẦY ĐỦ CÁC THÀNH PHẦN STUDIO CHO PHÒNG FOCUS
+    function buildFocusStudioComponents() {
+        injectFocusStudioProCSS();
+        var focusRoom = document.getElementById('focus-room');
+        if (!focusRoom) return;
+
+        // A. Thêm nút Toàn màn hình & Tiếng mưa lên góc trên
+        var focusNav = focusRoom.querySelector('.focus-nav');
+        var tickBtn = document.getElementById('btn-tick');
+        if (focusNav && tickBtn && !document.getElementById('focus-top-right-group')) {
+            var rightGroup = document.createElement('div');
+            rightGroup.id = 'focus-top-right-group';
+            rightGroup.style.cssText = "display:flex; align-items:center; gap:8px;";
+
+            var rainBtn = document.createElement('button');
+            rainBtn.id = 'btn-ambient-rain';
+            rainBtn.className = 'btn-back';
+            rainBtn.onclick = window.toggleFocusRainSound;
+            rainBtn.innerHTML = '<i class="fa-solid fa-cloud-rain"></i> Tiếng mưa: TẮT';
+
+            var fsBtn = document.createElement('button');
+            fsBtn.className = 'btn-back';
+            fsBtn.onclick = window.toggleFocusFullscreen;
+            fsBtn.title = "Toàn màn hình";
+            fsBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
+
+            tickBtn.parentNode.insertBefore(rightGroup, tickBtn);
+            rightGroup.appendChild(rainBtn);
+            rightGroup.appendChild(tickBtn);
+            rightGroup.appendChild(fsBtn);
+        }
+
+        // B. Chèn thanh chọn Bối cảnh (Lo-fi Room / Library / Rainy Night / Nền Dashboard)
+        var badge = document.getElementById('focus-badge');
+        if (badge && !document.getElementById('focus-ambient-scene-bar')) {
+            var sceneBar = document.createElement('div');
+            sceneBar.id = 'focus-ambient-scene-bar';
+            sceneBar.className = 'focus-ambient-bar';
+            sceneBar.innerHTML = Object.keys(FOCUS_SCENES).map(function(k) {
+                return `<button class="focus-scene-pill ${currentFocusScene===k?'active':''}" data-scene="${k}" onclick="switchFocusScene('${k}')">${FOCUS_SCENES[k].label}</button>`;
+            }).join('');
+            badge.parentNode.insertBefore(sceneBar, badge);
+        }
+
+        // C. Chèn Câu trích dẫn & Nút Bắt đầu nổi bật dưới vòng tròn
+        var ringWrap = focusRoom.querySelector('.neon-timer-ring-wrapper');
+        if (ringWrap && !document.getElementById('focus-studio-quote-box')) {
+            var quoteBox = document.createElement('div');
+            quoteBox.id = 'focus-studio-quote-box';
+            quoteBox.style.cssText = "text-align:center; margin: 12px 0 6px 0;";
+            quoteBox.innerHTML = `
+                <div style="color:rgba(255,255,255,0.8); font-style:italic; font-size:0.86rem; margin-bottom:12px;">
+                    "Stay focused. You've got this." ✨
+                </div>
+                <button id="btn-focus-quick-start" onclick="startSession(25)" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); color:#fff; border:none; padding:10px 28px; border-radius:100px; font-weight:800; font-size:0.84rem; cursor:pointer; box-shadow:0 6px 22px rgba(139,92,246,0.5); display:inline-flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-play"></i> Bắt đầu phiên 25 phút
+                </button>
+            `;
+            ringWrap.parentNode.insertBefore(quoteBox, ringWrap.nextSibling);
+        }
+
+        // D. Nâng cấp Cột phải: Thêm thẻ "Thống kê phiên" ở giữa Việc cần làm & Không gian âm nhạc
+        var todoListEl = document.getElementById('focus-room-todo-list');
+        var musicWidget = document.getElementById('widget-music');
+        if (todoListEl && todoListEl.parentElement) {
+            todoListEl.parentElement.className = 'focus-glass-panel';
+        }
+        if (musicWidget) {
+            musicWidget.className = 'focus-glass-panel';
+            if (!document.getElementById('focus-pro-stats-panel')) {
+                var statsPanel = document.createElement('div');
+                statsPanel.id = 'focus-pro-stats-panel';
+                statsPanel.className = 'focus-glass-panel';
+                statsPanel.innerHTML = `
+                    <div style="font-weight:700; color:#fff; font-size:0.82rem; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><i class="fa-solid fa-chart-pie" style="color:#38bdf8; margin-right:6px;"></i> Thống kê phiên</span>
+                        <span style="font-size:0.66rem; background:rgba(16,185,129,0.18Bẩm bệ hạ, giao diện Focus Room hiện tại trông còn đơn giản chủ yếu do **bố cục đang bị trôi lơ lửng**, **vòng tròn đồng hồ chỉ là viền tĩnh** và **độ tương phản chất liệu kính (Glassmorphism) chưa đủ sâu**[cite: 1]. 
+
+Thần đề xuất 4 hướng nâng cấp trực diện kèm mã nguồn CSS/HTML để lột xác khu vực này:
+
+---
+
+### 1. 4 Điểm cần nâng cấp ngay
+
+* **Vòng tròn đồng hồ (Timer Ring) sang dạng SVG phát sáng:** Thay viền xám tĩnh hiện tại[cite: 1] bằng vòng tròn SVG có thanh tiến trình (progress bar) chạy mượt mà, phủ màu Gradient (Tím - Xanh Cyan) kèm hiệu ứng tỏa sáng (`drop-shadow`) và nhịp thở (pulse) khi đang đếm giờ.
+* **Nâng cấp chất liệu Kính mờ (Deep Glassmorphism):** Các khung `Việc cần làm`, `Không gian âm nhạc`[cite: 1] cần tăng độ mờ hậu cảnh (`backdrop-filter: blur(20px)`), thêm viền phản quang mỏng ở cạnh trên (`border-top: 1px solid rgba(255,255,255,0.2)`) để tạo chiều sâu 3D tách biệt khỏi nền trời đêm[cite: 1].
+* **Tái cấu trúc Bố cục (Grid cân đối):** Gom cụm chọn thời gian (`5p`, `15p`, `25p`)[cite: 1] thành một thanh trượt (Segmented Control) gọn gàng; đồng thời mở rộng kích thước cột bên phải và căn giữa toàn bộ khối nội dung theo tỷ lệ 60% (Đồng hồ) - 40% (Tiện ích).
+* **Typography & Nút điều khiển (CTA):** Tăng kích thước số `00:00`[cite: 1] với font chữ моно (`tabular-nums` để số không bị giật khi chạy) và bổ sung nút **Bắt đầu / Tạm dừng** nổi bật ngay dưới đáy vòng tròn.
+
+---
+
+### 2. Code mẫu nâng cấp (HTML + CSS)
+
+Bệ hạ có thể áp dụng cấu trúc HTML và CSS dưới đây để thay thế cho khu vực trung tâm hiện tại[cite: 1]:
+
+```html
+<div class="focus-workspace">
+  <!-- CỘT TRÁI: KHU VỰC ĐỒNG HỒ -->
+  <div class="timer-section">
+    <!-- Thanh chọn chế độ dạng Segmented Pill -->
+    <div class="mode-selector">
+      <button class="mode-btn">🔥 Khởi động <span>5p</span></button>
+      <button class="mode-btn">⚡ Ngắn <span>15p</span></button>
+      <button class="mode-btn active">🧠 Pomodoro <span>25p</span></button>
+    </div>
+
+    <div class="focus-badge">KHU VỰC TẬP TRUNG</div>
+
+    <!-- Vòng tròn đồng hồ SVG phát sáng -->
+    <div class="timer-ring-container">
+      <svg class="timer-svg" viewBox="0 0 260 260">
+        <defs>
+          <linearGradient id="focusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8b5cf6" />
+            <stop offset="100%" stop-color="#06b6d4" />
+          </linearGradient>
+        </defs>
+        <!-- Vòng nền -->
+        <circle class="ring-bg" cx="130" cy="130" r="115" />
+        <!-- Vòng tiến trình -->
+        <circle class="ring-progress" cx="130" cy="130" r="115" />
+      </svg>
+
+      <div class="timer-content">
+        <div class="time-main">00:00</div>
+        <div class="time-sub">/ 25:00</div>
+        <button class="btn-start-focus">BẮT ĐẦU</button>
+      </div>
+    </div>
+
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      Sẵn sàng. Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.
+    </div>
+  </div>
+
+  <!-- CỘT PHẢI: SIDEBAR TIỆN ÍCH -->
+  <div class="sidebar-section">
+    <div class="glass-card">
+      <div class="card-header">
+        <span>📑 Việc cần làm</span>
+        <button class="btn-icon">+</button>
+      </div>
+      <div class="task-empty">Chưa có nhiệm vụ nào cho phiên này.</div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-header">
+        <span>🎧 Không gian âm nhạc</span>
+      </div>
+      <div class="music-list">
+        <div class="music-item">
+          <span>Gói 30 phút</span>
+          <span class="price-tag">$10</span>
+        </div>
+        <div class="music-item">
+          <span>Gói 60 phút</span>
+          <span class="price-tag">$20</span>
+        </div>
+        <div class="music-item">
+          <span>Gói 120 phút</span>
+          <span class="price-tag">$35</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
