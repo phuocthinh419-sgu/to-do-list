@@ -1,24 +1,20 @@
 /* ==========================================================================
-   THE APEX: COMMAND CENTER - COMPLETE UI OVERHAUL (DEMO DESIGN MATCH)
+   ACADEMIC APEX: HIGH-DENSITY SAAS UI (OPTIMIZED FOR 100% ZOOM)
    ========================================================================== */
 
-/* 1. HỆ THỐNG BIẾN SỐ CỐT LÕI (MẶC ĐỊNH CHUẨN DARK INDIGO DEMO) */
 :root {
-    --bg-base: #0b0e17;
-    --bg-panel: #131826;
-    --bg-hover: #1c2236;
+    --bg-base: #0b0d17;
+    --bg-panel: #121626;
+    --bg-hover: #1a2036;
     --text-main: #f8fafc;
     --text-muted: #8b95b0;
     --border: rgba(255, 255, 255, 0.07);
     --border-highlight: rgba(255, 255, 255, 0.05);
-    --btn-bg: #6366f1;
-    --btn-text: #ffffff;
 
-    --sidebar-width: 255px;
+    --sidebar-width: 205px; /* Thu gọn để nhường không gian cho màn hình chính ở 100% zoom */
     --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-    --transition-smooth: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --transition-smooth: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 
-    /* Bảng màu thương hiệu chuẩn Demo */
     --brand-dash: #7c3aed;
     --brand-focus: #8b5cf6;
     --brand-info: #3b82f6;
@@ -26,107 +22,47 @@
     --brand-trophy: #f59e0b;
     --brand-warning: #ef4444;
 
-    --heat-1: rgba(139, 92, 246, 0.2);
-    --heat-2: rgba(139, 92, 246, 0.45);
-    --heat-3: rgba(139, 92, 246, 0.75);
-    --heat-4: #8b5cf6;
+    --heat-1: rgba(16, 185, 129, 0.22);
+    --heat-2: rgba(16, 185, 129, 0.48);
+    --heat-3: rgba(16, 185, 129, 0.75);
+    --heat-4: #10b981;
 
-    --bg-panel-blur: 20px;
-    --depth-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    --shadow-bento: 0 10px 28px rgba(0, 0, 0, 0.38);
-    --depth-glow: 0 0 20px rgba(124, 58, 237, 0.45);
-    --depth-transform: translateY(-3px);
-    --grid-bg: radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.08) 0%, transparent 45%),
-               radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 45%);
+    --depth-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+    --shadow-bento: 0 6px 20px rgba(0, 0, 0, 0.32);
 }
 
-/* 2. CÁC THEME PHỤ (KHI BẤM ĐỔI MÀU) */
-[data-theme="dark"] {
-    --bg-base: #0b0e17;
-    --bg-panel: #131826;
-    --bg-hover: #1c2236;
-    --text-main: #f8fafc;
-    --text-muted: #8b95b0;
-}
+[data-color="neon-purple"] { --bg-base: #090614; --bg-panel: #130e26; --bg-hover: #1d1538; }
+[data-color="neon-blue"]   { --bg-base: #060d1f; --bg-panel: #0e1930; --bg-hover: #162544; }
+[data-color="sakura"]      { --bg-base: #14070d; --bg-panel: #220c16; --bg-hover: #321221; }
 
-[data-color="neon-purple"] {
-    --bg-base: #090614;
-    --bg-panel: #140f29;
-    --bg-hover: #1f173d;
-    --border: rgba(168, 85, 247, 0.16);
-    --brand-dash: #9333ea;
-    --brand-focus: #a855f7;
-}
-
-[data-color="neon-blue"] {
-    --bg-base: #060d1f;
-    --bg-panel: #0f1b33;
-    --bg-hover: #172747;
-    --border: rgba(59, 130, 246, 0.18);
-    --brand-dash: #2563eb;
-    --brand-focus: #3b82f6;
-}
-
-[data-color="sakura"] {
-    --bg-base: #14070d;
-    --bg-panel: #240d18;
-    --bg-hover: #361424;
-    --border: rgba(244, 63, 94, 0.18);
-    --brand-dash: #e11d48;
-    --brand-focus: #f43f5e;
-}
-
-/* 3. BASE STYLES & BACKGROUND */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body, input, button, textarea, select { font-family: var(--font-main); }
 
 body {
     background-color: var(--bg-base);
     color: var(--text-main);
-    background-image: var(--grid-bg);
+    font-size: 13px; /* Chuẩn SaaS sắc nét ở 100% zoom */
     height: 100vh;
     overflow: hidden;
     display: flex;
-    transition: background-color 0.35s ease;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
-.view-section { display: none; animation: fadeIn 0.28s ease; }
+.view-section { display: none; animation: fadeIn 0.25s ease; }
 #view-dashboard { display: block; }
 
-/* 4. KHUNG KÍNH BENTO CARDS CAO CẤP */
-.rank-card, .heatmap-card, .countdown-card, .goal-card, .trophy-card, .analytics-card, .kpi-card, .timeline-item, .bento-card {
-    background: linear-gradient(155deg, rgba(24, 30, 48, 0.92), rgba(16, 20, 34, 0.96));
-    backdrop-filter: blur(var(--bg-panel-blur));
-    -webkit-backdrop-filter: blur(var(--bg-panel-blur));
-    border: 1px solid var(--border);
-    box-shadow: var(--depth-shadow);
-    border-radius: 18px;
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-}
-
-.goal-card:hover, .countdown-card:hover, .trophy-card:hover {
-    transform: var(--depth-transform);
-    border-color: rgba(139, 92, 246, 0.45);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 20px rgba(124, 58, 237, 0.15);
-}
-
-/* 5. SIDEBAR CHUẨN DEMO COMMAND CENTER */
+/* SIDEBAR COMPACT */
 .sidebar {
     width: var(--sidebar-width);
     background: #080a12;
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 20px 16px;
+    padding: 14px 10px;
     z-index: 110;
-    transition: margin-left 0.3s ease, transform 0.3s ease;
     flex-shrink: 0;
 }
 .sidebar.active { margin-left: calc(-1 * var(--sidebar-width)); }
@@ -134,407 +70,221 @@ body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 1.05rem;
-    font-weight: 800;
-    margin-bottom: 22px;
-    padding: 4px 8px;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 2px 6px;
     color: var(--text-main);
 }
 
-.nav-menu { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 2px; }
+.nav-menu { flex: 1; overflow-y: auto; overflow-x: hidden; }
 .nav-category {
-    margin: 16px 0 8px 10px;
-    font-size: 0.68rem;
+    margin: 10px 0 5px 8px;
+    font-size: 0.62rem;
     font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 0.8px;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
-    margin-bottom: 6px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 8px 10px;
+    margin-bottom: 3px;
+    border-radius: 9px;
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.78rem;
     cursor: pointer;
     transition: var(--transition-smooth);
 }
-.nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
-}
-
-/* Nút Menu đang chọn: Khối Tím Indigo phát sáng giống hệt Demo */
+.nav-item i { width: 16px; text-align: center; font-size: 0.82rem; }
+.nav-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
 .nav-item.active {
-    background: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%);
-    color: #ffffff !important;
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.28) 0%, rgba(79, 70, 229, 0.15) 100%);
+    color: #fff !important;
+    border: 1px solid rgba(139, 92, 246, 0.35);
     font-weight: 700;
-    border-left: none;
-    box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4);
 }
-.nav-item.active i { color: #ffffff !important; }
+.nav-item.active i { color: #a855f7 !important; }
 
-.palette-container { display: flex; gap: 10px; padding: 4px 12px; margin-bottom: 14px; flex-wrap: wrap; }
-.color-btn { width: 18px; height: 18px; border-radius: 50%; border: none; cursor: pointer; transition: 0.2s; }
-.color-btn:hover { transform: scale(1.2); }
-.color-btn.active { outline: 2px solid #fff; outline-offset: 2px; }
+.palette-container { display: flex; gap: 8px; padding: 4px 8px; margin-bottom: 8px; }
+.color-btn { width: 15px; height: 15px; border-radius: 50%; border: none; cursor: pointer; }
+.color-btn.active { outline: 2px solid #fff; outline-offset: 1px; }
 
 .curfew-input {
-    width: 100%;
-    padding: 9px 12px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    font-size: 0.86rem;
-    font-weight: 700;
-    outline: none;
+    width: 100%; padding: 6px 10px; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+    color: var(--text-main); font-size: 0.76rem; font-weight: 700; outline: none;
 }
 
-.mini-progress-circle { width: 36px; height: 36px; position: relative; flex-shrink: 0; }
+.mini-progress-circle { width: 30px; height: 30px; position: relative; flex-shrink: 0; }
 .mini-progress-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .mini-progress-circle circle { fill: none; stroke-width: 5; stroke-linecap: round; }
 .mini-bg { stroke: rgba(255,255,255,0.08); }
-.mini-bar { stroke: var(--brand-warning); stroke-dasharray: 113.1; transition: stroke-dashoffset 1s linear; }
+.mini-bar { stroke: var(--brand-warning); stroke-dasharray: 113.1; }
 
 .sidebar-footer {
-    margin-top: auto;
-    padding: 12px 8px 0 8px;
+    margin-top: auto; padding: 8px 6px 0 6px;
     border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8rem;
-    flex-shrink: 0;
+    display: flex; justify-content: space-between; align-items: center;
 }
 .theme-toggle {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+    color: var(--text-main); width: 28px; height: 28px; border-radius: 8px;
+    cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 0.75rem;
 }
 
 .mobile-toggle {
-    display: none;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    cursor: pointer;
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
+    display: none; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+    color: var(--text-main); cursor: pointer; width: 32px; height: 32px; border-radius: 8px;
+    align-items: center; justify-content: center;
 }
-
-.mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 105; backdrop-filter: blur(4px); }
+.mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 105; }
 .mobile-overlay.active { display: block; }
 
-/* 6. MAIN CONTENT & TOPBAR HEADER */
+/* MAIN CONTENT & COMPACT TOPBAR */
 .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    padding: 0 28px;
-    min-width: 0;
+    flex: 1; display: flex; flex-direction: column;
+    height: 100vh; overflow-y: auto; overflow-x: hidden;
+    padding: 0 18px 24px 18px; min-width: 0;
 }
 
 .header {
-    padding: 16px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    background: rgba(11, 14, 23, 0.85);
-    backdrop-filter: blur(14px);
-    z-index: 100;
-    margin-bottom: 18px;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-    gap: 14px;
+    padding: 10px 0; display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; background: rgba(11, 13, 23, 0.88);
+    backdrop-filter: blur(12px); z-index: 100; margin-bottom: 12px;
+    border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap;
 }
-.header-title-wrapper { display: flex; align-items: center; }
-.header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bento-top-search {
+    display: flex; align-items: center; gap: 8px;
+    background: #121626; border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 9px; width: 220px;
+}
+.bento-top-search i { color: var(--text-muted); font-size: 0.75rem; }
+.bento-top-search input {
+    background: transparent; border: none; color: var(--text-main);
+    outline: none; width: 100%; font-size: 0.76rem;
+}
+.top-quote-text {
+    font-size: 0.75rem; color: var(--text-muted); font-style: italic;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+@media (max-width: 1200px) { .top-quote-text { display: none; } }
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.top-datetime-box {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border); font-size: 0.74rem; color: var(--text-muted);
+}
+.top-datetime-box strong { font-size: 0.92rem; color: #fff; font-weight: 800; letter-spacing: 0.5px; }
 
 .btn-ghost-action, .btn-primary {
-    padding: 9px 16px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 0.84rem;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.76rem;
+    cursor: pointer; transition: var(--transition-smooth);
+    display: flex; align-items: center; gap: 6px; border: 1px solid var(--border);
 }
-.btn-ghost-action {
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text-main);
-}
-.btn-ghost-action:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(139, 92, 246, 0.4);
-}
+.btn-ghost-action { background: #121626; color: var(--text-main); }
+.btn-ghost-action:hover { background: var(--bg-hover); border-color: rgba(139, 92, 246, 0.4); }
 .btn-primary {
     background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-    color: #fff;
-    border: none;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
-}
-.btn-primary:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.1);
+    color: #fff; border: none; font-weight: 700;
 }
 
-/* 7. DASHBOARD & MỤC TIÊU */
-.kpi-card {
-    padding: 20px 24px;
-    margin-bottom: 22px;
-    border-color: rgba(124, 58, 237, 0.28);
+/* CARDS & GOALS GRID COMPACT */
+.goal-card, .countdown-card, .trophy-card, .analytics-card, .timeline-item {
+    background: #121626; border: 1px solid var(--border);
+    box-shadow: var(--shadow-bento); border-radius: 14px;
+    transition: var(--transition-smooth); position: relative; overflow: hidden;
 }
-.kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.kpi-bar-bg { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.06); border-radius: 100px; overflow: hidden; }
-.kpi-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 100px; transition: width 0.8s ease; }
-
-#stock-market-container div {
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 16px;
-    min-width: 130px;
-}
+.goal-card:hover { transform: translateY(-2px); border-color: rgba(139, 92, 246, 0.45); }
 
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 18px;
-    padding-bottom: 40px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px; padding-bottom: 24px;
 }
-.goal-card { padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
-.progress-circle { width: 64px; height: 64px; position: relative; flex-shrink: 0; }
+.goal-card { padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.progress-circle { width: 50px; height: 50px; position: relative; flex-shrink: 0; }
 .progress-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .progress-bg { stroke: rgba(255, 255, 255, 0.08); stroke-width: 6; fill: none; }
-.progress-bar { stroke: #8b5cf6; stroke-width: 6; stroke-linecap: round; fill: none; transition: stroke-dashoffset 0.8s ease; }
-.progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.9rem; font-weight: 800; color: var(--text-main); }
-.goal-meta { flex: 1; word-break: break-word; }
-.goal-meta h3 { font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
-.goal-meta p { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.progress-bar { stroke: #8b5cf6; stroke-width: 6; stroke-linecap: round; fill: none; }
+.progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.76rem; font-weight: 800; color: var(--text-main); }
+.goal-meta h3 { font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+.goal-meta p { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
 
 .btn-delete, .btn-delete-cd {
-    position: absolute; top: 12px; right: 12px;
-    background: rgba(255, 255, 255, 0.06); border: none;
-    width: 28px; height: 28px; border-radius: 8px;
-    color: var(--text-muted); opacity: 0; transition: 0.2s; cursor: pointer;
+    position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.06);
+    border: none; width: 24px; height: 24px; border-radius: 6px;
+    color: var(--text-muted); opacity: 0; cursor: pointer; font-size: 0.72rem;
 }
 .goal-card:hover .btn-delete, .countdown-card:hover .btn-delete-cd { opacity: 1; color: var(--brand-warning); }
 
-.countdown-strip { display: flex; gap: 16px; margin-bottom: 28px; overflow-x: auto; padding-bottom: 6px; }
-.countdown-card { padding: 18px; min-width: 260px; flex: 1; display: flex; flex-direction: column; align-items: center; }
-.countdown-title { font-size: 0.85rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; margin-bottom: 14px; }
-.time-blocks { display: flex; gap: 8px; width: 100%; }
-.time-box { background: rgba(255, 255, 255, 0.04); padding: 10px 0; flex: 1; text-align: center; border-radius: 10px; border: 1px solid var(--border); }
-.t-val { font-size: 1.35rem; color: var(--text-main); font-weight: 800; }
-.t-lbl { font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase; font-weight: 700; margin-top: 4px; display: block; }
+.countdown-strip { display: flex; gap: 12px; margin-bottom: 16px; overflow-x: auto; }
+.countdown-card { padding: 12px 14px; min-width: 220px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+.countdown-title { font-size: 0.76rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; margin-bottom: 8px; }
+.time-blocks { display: flex; gap: 6px; width: 100%; }
+.time-box { background: rgba(255, 255, 255, 0.04); padding: 6px 0; flex: 1; text-align: center; border-radius: 8px; border: 1px solid var(--border); }
+.t-val { font-size: 1.05rem; color: var(--text-main); font-weight: 800; }
+.t-lbl { font-size: 0.58rem; color: #8b5cf6; text-transform: uppercase; font-weight: 700; display: block; }
 
-/* 8. THỜI KHÓA BIỂU CHUẨN MÀU SẮC DEMO (MỤC 3 TRONG ẢNH) */
+/* TIMETABLE COMPACT */
 .timetable-header-controls {
     display: flex; justify-content: space-between; align-items: center;
-    background: var(--bg-panel); padding: 14px 20px; border-radius: 16px;
-    border: 1px solid var(--border); margin-bottom: 18px; flex-wrap: wrap; gap: 14px;
+    background: var(--bg-panel); padding: 10px 16px; border-radius: 12px;
+    border: 1px solid var(--border); margin-bottom: 12px;
 }
-.tt-btn-group { display: flex; gap: 8px; }
+.tt-btn-group { display: flex; gap: 6px; }
 .tt-btn {
     background: rgba(255, 255, 255, 0.05); color: var(--text-main);
-    border: 1px solid var(--border); padding: 8px 14px; border-radius: 10px;
-    font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: 0.2s;
+    border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px;
+    font-weight: 600; font-size: 0.76rem; cursor: pointer;
 }
-.tt-btn:hover { background: #7c3aed; color: #fff; border-color: #7c3aed; }
-.tt-date-display { font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+.tt-date-display { font-size: 0.92rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
 
-.timetable-wrapper { overflow-x: auto; background: #0e121f; border-radius: 18px; border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
-.timetable-grid { display: grid; grid-template-columns: 70px repeat(7, minmax(165px, 1fr)); min-width: 1000px; }
-.tt-cell { border: 1px solid rgba(255, 255, 255, 0.05); padding: 10px; }
+.timetable-wrapper { overflow-x: auto; background: #0e121f; border-radius: 14px; border: 1px solid var(--border); }
+.timetable-grid { display: grid; grid-template-columns: 55px repeat(7, minmax(135px, 1fr)); min-width: 920px; }
+.tt-cell { border: 1px solid rgba(255, 255, 255, 0.05); padding: 8px; }
+.tt-head { background: #131829; font-weight: 700; font-size: 0.78rem; text-align: center; color: var(--text-main); padding: 10px 6px; }
+.tt-head span:last-child { font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 2px; }
+.tt-head.is-today { background: rgba(124, 58, 237, 0.2) !important; color: #c084fc !important; border-bottom: 2px solid #8b5cf6 !important; }
+.tt-shift { background: #111524; font-weight: 800; font-size: 0.68rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 1.5px; }
+.tt-content { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.tt-item { padding: 8px 10px; border-radius: 8px; font-size: 0.74rem; line-height: 1.35; color: #fff; position: relative; cursor: pointer; overflow: hidden; }
+.tt-item strong { display: block; font-size: 0.8rem; margin-bottom: 2px; font-weight: 700; }
 
-.tt-head {
-    background: #131829; font-weight: 800; text-align: center; color: var(--text-main);
-    display: flex; flex-direction: column; justify-content: center; padding: 14px 8px;
-}
-.tt-head span:last-child { font-size: 0.76rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
-.tt-head.is-today {
-    background: linear-gradient(180deg, rgba(124, 58, 237, 0.25), rgba(59, 130, 246, 0.15)) !important;
-    color: #c084fc !important;
-    border-bottom: 3px solid #8b5cf6 !important;
-}
-.tt-content.is-today-col { background: rgba(139, 92, 246, 0.04) !important; }
+.tt-offline { background: rgba(59, 130, 246, 0.22); border-left: 3px solid #3b82f6; }
+.tt-online  { background: rgba(14, 165, 233, 0.22); border-left: 3px solid #0ea5e9; }
+.tt-exam    { background: rgba(245, 158, 11, 0.25); border-left: 3px solid #f59e0b; }
+.tt-work    { background: rgba(16, 185, 129, 0.22); border-left: 3px solid #10b981; }
+.tt-tutor   { background: rgba(168, 85, 247, 0.22); border-left: 3px solid #a855f7; }
+.tt-self    { background: rgba(236, 72, 153, 0.22); border-left: 3px solid #ec4899; }
+.tt-legend { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 600; color: var(--text-muted); }
+.legend-box { width: 18px; height: 10px; border-radius: 3px; }
 
-.tt-shift {
-    background: #111524; font-weight: 800; font-size: 0.78rem; color: var(--text-muted);
-    display: flex; align-items: center; justify-content: center;
-    text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 2px;
-}
+/* FOCUS ROOM & MODALS */
+#focus-room { position: fixed !important; inset: 0 !important; background-color: #090b14 !important; z-index: 9999 !important; flex-direction: column !important; align-items: center !important; overflow-y: auto !important; }
+.btn-back { background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.focus-badge { background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(168, 85, 247, 0.4); color: #e9d5ff; padding: 4px 14px; border-radius: 100px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.8px; }
 
-.tt-content { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
-.tt-item {
-    padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; line-height: 1.45;
-    color: #ffffff; position: relative; cursor: pointer; transition: 0.2s; overflow: hidden;
-}
-.tt-item:hover { transform: translateY(-2px); filter: brightness(1.12); }
-.tt-item strong { display: block; font-size: 0.88rem; margin-bottom: 4px; font-weight: 800; }
-
-/* Bảng màu thẻ môn học rực rỡ như Ảnh Demo */
-.tt-offline { background: rgba(59, 130, 246, 0.22); border-left: 4px solid #3b82f6; }
-.tt-online  { background: rgba(14, 165, 233, 0.22); border-left: 4px solid #0ea5e9; }
-.tt-exam    { background: rgba(245, 158, 11, 0.25); border-left: 4px solid #f59e0b; }
-.tt-work    { background: rgba(16, 185, 129, 0.22); border-left: 4px solid #10b981; }
-.tt-tutor   { background: rgba(168, 85, 247, 0.22); border-left: 4px solid #a855f7; }
-.tt-self    { background: rgba(236, 72, 153, 0.22); border-left: 4px solid #ec4899; }
-
-.tt-ribbon { position: absolute; top: 10px; left: -28px; background: #ef4444; color: #fff; font-size: 0.6rem; font-weight: 800; padding: 3px 28px; transform: rotate(-45deg); }
-.tt-item.is-paused { opacity: 0.45; filter: grayscale(0.6); }
-.tt-legend { display: flex; gap: 18px; margin-top: 16px; flex-wrap: wrap; }
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
-.legend-box { width: 24px; height: 14px; border-radius: 4px; }
-
-/* 9. PHÂN TÍCH TIẾN ĐỘ & KHO THÀNH TỰU (MỤC 4 & 5 TRONG ẢNH DEMO) */
-#analytics-room, #trophy-room, #trophy-detail { padding: 0 0 40px 0; }
-.analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-.analytics-card { padding: 24px; }
-.analytics-card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 18px; color: var(--text-main); }
-
-.bar-chart { display: flex; justify-content: space-between; align-items: flex-end; height: 170px; padding-top: 20px; gap: 10px; }
-.bar-col { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
-.bar-wrap {
-    height: 115px; width: 100%; max-width: 32px;
-    background: rgba(255, 255, 255, 0.05); border-radius: 8px;
-    display: flex; align-items: flex-end; overflow: hidden;
-}
-.bar-fill {
-    width: 100%;
-    background: linear-gradient(180deg, #60a5fa 0%, #6366f1 50%, #8b5cf6 100%);
-    border-radius: 8px;
-    transition: height 0.8s ease;
-    box-shadow: 0 0 14px rgba(99, 102, 241, 0.45);
-}
-.bar-col span { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); }
-
-.stat-row { margin-bottom: 14px; }
-.stat-label { display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--text-muted); }
-.stat-label span:last-child { color: var(--text-main); }
-.stat-bar { height: 9px; background: rgba(255, 255, 255, 0.06); border-radius: 100px; overflow: hidden; }
-.stat-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #a855f7); border-radius: 100px; transition: width 0.8s ease; }
-
-/* 10. FOCUS ROOM CHUẨN LO-FI STUDIO (MỤC 2 TRONG ẢNH DEMO) */
-#focus-room {
-    position: fixed !important;
-    inset: 0 !important;
-    background-color: #090b14 !important;
-    z-index: 9999 !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    overflow-y: auto !important;
-}
-
-.btn-back {
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 9px 18px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: 0.2s;
-}
-.btn-back:hover { background: rgba(255, 255, 255, 0.16); }
-
-.focus-badge {
-    background: rgba(139, 92, 246, 0.18);
-    border: 1px solid rgba(168, 85, 247, 0.4);
-    color: #e9d5ff;
-    padding: 6px 18px;
-    border-radius: 100px;
-    font-size: 0.76rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* 11. MODALS (REPORT, SHAME, TRADE) */
-#report-modal, #shame-modal, #trade-modal {
-    display: none; position: fixed; inset: 0;
-    background: rgba(5, 7, 15, 0.82); backdrop-filter: blur(8px);
-    z-index: 10000; justify-content: center; align-items: center; padding: 20px;
-}
-.modal-content, .shame-content {
-    background: #141929; border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 22px; padding: 32px; width: 100%; max-width: 560px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
-}
-.modal-header h3 { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
-textarea {
-    width: 100%; min-height: 160px; background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border); border-radius: 14px; padding: 16px;
-    color: var(--text-main); font-size: 0.95rem; resize: vertical; margin-top: 14px;
-}
-textarea:focus { outline: none; border-color: #8b5cf6; }
-.word-tracker { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-.word-count-val { font-weight: 800; color: #f59e0b; }
-.word-count-val.success { color: #10b981; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-.btn-ghost, .btn-submit {
-    padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
-    cursor: pointer; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center;
-}
+#report-modal, #shame-modal, #trade-modal { display: none; position: fixed; inset: 0; background: rgba(5, 7, 15, 0.82); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 16px; }
+.modal-content, .shame-content { background: #141929; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 24px; width: 100%; max-width: 480px; }
+textarea { width: 100%; min-height: 130px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: var(--text-main); font-size: 0.86rem; margin-top: 10px; }
+.word-tracker { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.78rem; color: var(--text-muted); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.btn-ghost, .btn-submit { padding: 8px 16px; font-weight: 700; font-size: 0.82rem; cursor: pointer; border-radius: 9px; }
 .btn-ghost { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid var(--border); }
 .btn-submit { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); border: 1px solid var(--border); pointer-events: none; }
 .btn-submit.active { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; border: none; pointer-events: auto; }
 
-.shame-content { text-align: center; max-width: 480px; }
-.shame-content i { font-size: 3.2rem; color: #ef4444; margin-bottom: 16px; }
-.shame-content h2 { color: #fff; font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
-.shame-content p { color: var(--text-muted); font-size: 0.92rem; margin-bottom: 24px; }
-.btn-shame-alt, .btn-shame { padding: 13px 24px; font-weight: 700; font-size: 0.92rem; border-radius: 12px; cursor: pointer; width: 100%; }
-.btn-shame-alt { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); margin-bottom: 10px; }
-.btn-shame { background: #ef4444; color: #fff; border: none; font-weight: 800; }
-
-.timeline-item { background: var(--bg-panel); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; border-radius: 14px; padding: 16px 20px; margin-bottom: 14px; }
-.tl-meta { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
-.tl-content { font-size: 0.92rem; color: var(--text-main); line-height: 1.55; }
-
-@keyframes slideUpFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-.stagger-item { animation: slideUpFade 0.35s ease forwards; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 10000; display: none; }
 
-/* 12. MOBILE RESPONSIVE (MỤC 8 TRONG ẢNH DEMO) */
 @media (max-width: 1024px) {
-    .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; margin-left: 0 !important; max-width: 82vw; background: #080a12; box-shadow: 10px 0 40px rgba(0,0,0,0.7); transition: left 0.3s ease !important; z-index: 110; }
+    .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; z-index: 110; }
     .sidebar.active { left: 0; }
     .mobile-toggle { display: flex; }
-    .main-content { padding: 0 16px; }
-    .dashboard-grid, .analytics-grid { grid-template-columns: 1fr; }
 }
