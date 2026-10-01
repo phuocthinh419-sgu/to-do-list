@@ -6029,10 +6029,9 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// SIDEBAR REDESIGN & DYNAMIC 4-COLOR PALETTE ENGINE (ADD-ON CUỐI FILE)
+// SIDEBAR REDESIGN & DYNAMIC 4-COLOR PALETTE ENGINE (FIXED JUMPING BUG)
 // =====================================================================
 (function() {
-    // 1. BỘ BIẾN MÀU ĐỘNG CHO CẢ 4 NÚT MÀU + CHẾ ĐỘ SÁNG/TỐI
     function injectSidebarAndPaletteCSS() {
         var old = document.getElementById('apex-sidebar-palette-css');
         if (old) old.remove();
@@ -6086,7 +6085,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 --brand-focus: #f43f5e !important;
             }
 
-            /* Chế độ Sáng (Light Mode) khi bấm nút Mặt Trăng/Mặt Trời */
+            /* Chế độ Sáng (Light Mode) */
             body[data-light-mode="true"] {
                 --theme-bg: #f1f5f9 !important;
                 --theme-sidebar: #ffffff !important;
@@ -6108,15 +6107,12 @@ window.addEventListener('DOMContentLoaded', function() {
                 color: #0f172a !important;
             }
 
-            /* Áp dụng biến màu động lên toàn bộ trang */
             body { background-color: var(--theme-bg) !important; transition: background-color 0.3s ease; }
             .clean-card, .goal-card, .countdown-card {
                 background: var(--theme-card) !important;
                 border: 1px solid rgba(255,255,255,0.07) !important;
             }
-            .goal-card:hover, .clean-card:hover {
-                border-color: var(--theme-border) !important;
-            }
+            .goal-card:hover, .clean-card:hover { border-color: var(--theme-border) !important; }
             .btn-primary, .demo-tab-pill.active {
                 background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)) !important;
                 box-shadow: 0 4px 14px var(--theme-soft) !important;
@@ -6125,9 +6121,7 @@ window.addEventListener('DOMContentLoaded', function() {
             .clean-link, .t-lbl { color: var(--theme-accent) !important; }
             #bento-command-center svg circle:nth-of-type(2) { stroke: var(--theme-accent) !important; }
 
-            /* ==========================================================
-               THIẾT KẾ LẠI SIDEBAR CHUẨN SAAS HIỆN ĐẠI (LINEAR STYLE)
-               ========================================================== */
+            /* SIDEBAR CHUẨN SAAS */
             .sidebar {
                 width: 228px !important;
                 background: var(--theme-sidebar) !important;
@@ -6135,10 +6129,8 @@ window.addEventListener('DOMContentLoaded', function() {
                 padding: 16px 12px 12px 12px !important;
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 0 !important;
             }
 
-            /* 1. Khối Logo Đỉnh */
             .sidebar .brand {
                 padding: 6px 10px 14px 10px !important;
                 margin-bottom: 8px !important;
@@ -6146,7 +6138,6 @@ window.addEventListener('DOMContentLoaded', function() {
                 background: transparent !important;
             }
 
-            /* 2. Các mục Menu: Thanh mảnh, có vạch sáng bên trái thay vì cục tím thô */
             .sidebar .nav-item {
                 padding: 9px 12px !important;
                 margin-bottom: 3px !important;
@@ -6162,7 +6153,6 @@ window.addEventListener('DOMContentLoaded', function() {
                 width: 18px !important;
                 font-size: 0.85rem !important;
                 color: #64748b !important;
-                transition: 0.18s !important;
             }
             .sidebar .nav-item:hover {
                 background: rgba(255, 255, 255, 0.04) !important;
@@ -6189,7 +6179,6 @@ window.addEventListener('DOMContentLoaded', function() {
             }
             .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
 
-            /* 3. Gom Quỹ thưởng & Cửa hàng thành 1 Thẻ Ví Thống Nhất */
             .sidebar-wallet-pod {
                 background: rgba(255, 255, 255, 0.03);
                 border: 1px solid rgba(255, 255, 255, 0.07);
@@ -6208,11 +6197,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 font-size: 0.76rem !important;
                 font-weight: 700 !important;
             }
-            #btn-open-academic-shop:hover {
-                background: linear-gradient(90deg, rgba(245,158,11,0.3), rgba(234,88,12,0.3)) !important;
-            }
 
-            /* 4. Bảng chọn 4 Màu sắc & Sáng/Tối gọn đẹp */
             .palette-container {
                 display: flex !important;
                 align-items: center !important;
@@ -6236,7 +6221,6 @@ window.addEventListener('DOMContentLoaded', function() {
                 transform: scale(1.12) !important;
             }
 
-            /* Nút Sao lưu & Phục hồi xếp thành 2 cột nhỏ gọn trên 1 hàng */
             .sidebar-backup-row {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
@@ -6256,16 +6240,11 @@ window.addEventListener('DOMContentLoaded', function() {
                 align-items: center;
                 justify-content: center;
                 gap: 5px;
-                transition: 0.2s;
             }
-            .sidebar-mini-btn:hover {
-                background: rgba(255, 255, 255, 0.08);
-                color: #fff;
-            }
+            .sidebar-mini-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
 
-            /* 5. Khóa cố định Thẻ Hồ Sơ User ở đáy cùng Sidebar */
+            /* Cố định tuyệt đối thẻ User ở đáy, không cho phép dịch chuyển */
             #user-auth-badge {
-                order: 99 !important;
                 margin: 8px 4px 0 4px !important;
                 padding: 9px 10px !important;
                 border-radius: 12px !important;
@@ -6274,17 +6253,24 @@ window.addEventListener('DOMContentLoaded', function() {
                 display: flex !important;
                 align-items: center !important;
                 gap: 10px !important;
+                flex-shrink: 0 !important;
             }
         `;
         document.head.appendChild(st);
     }
 
-    // 2. SẮP XẾP LẠI CẤU TRÚC DOM CỦA SIDEBAR CHO GỌN GÀNG
     function reorganizeSidebarDOM() {
         var sidebar = document.getElementById('sidebar');
         if (!sidebar) return;
 
-        // Gom hộp USD và nút Cửa hàng vào chung 1 khung .sidebar-wallet-pod
+        // 1. Đổi biểu tượng chữ "A" thành biểu tượng Ô vuông xếp chồng (fa-layer-group)
+        var brandLogoBox = sidebar.querySelector('.brand > div:first-child');
+        if (brandLogoBox && !brandLogoBox.querySelector('.fa-layer-group')) {
+            brandLogoBox.style.cssText = "width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1rem; box-shadow:0 4px 14px var(--theme-soft); flex-shrink:0;";
+            brandLogoBox.innerHTML = '<i class="fa-solid fa-layer-group" style="color:#fff !important; font-size:1rem !important;"></i>';
+        }
+
+        // 2. Gom hộp USD và nút Cửa hàng vào chung 1 khung
         var usdEl = document.getElementById('usd-balance');
         var shopBtn = document.getElementById('btn-open-academic-shop');
         if (usdEl && !document.querySelector('.sidebar-wallet-pod')) {
@@ -6300,7 +6286,7 @@ window.addEventListener('DOMContentLoaded', function() {
             if (shopBtn.parentElement !== pod) pod.appendChild(shopBtn);
         }
 
-        // Gom 2 dòng "Sao lưu dữ liệu" & "Phục hồi dữ liệu" thành 2 nút ngang nhỏ gọn
+        // 3. Gom Sao lưu & Phục hồi thành 2 nút ngang
         var navMenu = sidebar.querySelector('.nav-menu');
         if (navMenu && !document.querySelector('.sidebar-backup-row')) {
             var exportLink = navMenu.querySelector('[onclick*="exportData"]');
@@ -6309,8 +6295,8 @@ window.addEventListener('DOMContentLoaded', function() {
                 var row = document.createElement('div');
                 row.className = 'sidebar-backup-row';
                 row.innerHTML = `
-                    <button class="sidebar-mini-btn" onclick="exportData()" title="Sao lưu dữ liệu"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu</button>
-                    <button class="sidebar-mini-btn" onclick="document.getElementById('import-file').click()" title="Phục hồi dữ liệu"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi</button>
+                    <button class="sidebar-mini-btn" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu</button>
+                    <button class="sidebar-mini-btn" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi</button>
                 `;
                 exportLink.style.display = 'none';
                 importLink.style.display = 'none';
@@ -6318,12 +6304,11 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Đưa nút Mặt trăng/Mặt trời vào chung hàng với 4 nút màu để tiết kiệm đáy Sidebar
+        // 4. Đưa nút Mặt trăng vào chung hộp 4 màu và xóa bỏ #sidebar-bottom-dock để triệt tiêu xung đột nhảy vị trí!
         var paletteBox = sidebar.querySelector('.palette-container');
         var footerDock = document.getElementById('sidebar-bottom-dock');
-        var themeBtn = sidebar.querySelector('.theme-toggle');
+        var themeBtn = document.querySelector('.theme-toggle');
         if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
-            // Đổi màu nút Mặc định (Zen) thành Xanh Ngọc Lục Bảo để nhìn rõ trên nền tối
             var zenBtn = paletteBox.querySelector('.color-btn.zen');
             if (zenBtn) {
                 zenBtn.style.background = 'linear-gradient(135deg, #10b981, #0ea5e9)';
@@ -6331,19 +6316,24 @@ window.addEventListener('DOMContentLoaded', function() {
                 zenBtn.title = 'Xanh Ngọc Lục Bảo (Mặc định)';
             }
             paletteBox.appendChild(themeBtn);
-            if (footerDock) footerDock.style.display = 'none';
+        }
+        // Xóa hẳn thẻ #sidebar-bottom-dock khỏi DOM để hàm setInterval cũ không còn giật thẻ User nữa
+        if (footerDock) {
+            footerDock.remove();
         }
 
-        // Ép thẻ User (#user-auth-badge) nằm cố định ở dưới đáy cùng của Sidebar
+        // 5. Đặt thẻ User nằm im ở cuối Sidebar (chỉ chạy khi chưa nằm ở cuối)
         var badge = document.getElementById('user-auth-badge');
-        if (badge && badge.parentElement !== sidebar) {
-            sidebar.appendChild(badge);
-        } else if (badge && sidebar.lastElementChild !== badge) {
-            sidebar.appendChild(badge);
+        if (badge) {
+            if (badge.innerHTML.includes('Rời án thư')) {
+                badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
+            }
+            if (sidebar.lastElementChild !== badge) {
+                sidebar.appendChild(badge);
+            }
         }
     }
 
-    // 3. KÍCH HOẠT HÀM ĐỔI 4 BẢNG MÀU & CHẾ ĐỘ SÁNG/TỐI HOẠT ĐỘNG 100%
     window.changeColor = function(colorName) {
         var valid = ['zen', 'neon-purple', 'neon-blue', 'sakura'];
         var chosen = valid.includes(colorName) ? colorName : 'zen';
@@ -6370,7 +6360,6 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Khởi chạy ngay lập tức và duy trì vị trí Hồ sơ ở đáy Sidebar
     function initSidebarAndPalette() {
         injectSidebarAndPaletteCSS();
         reorganizeSidebarDOM();
@@ -6387,5 +6376,5 @@ window.addEventListener('DOMContentLoaded', function() {
 
     initSidebarAndPalette();
     window.addEventListener('DOMContentLoaded', initSidebarAndPalette);
-    setInterval(reorganizeSidebarDOM, 1000);
+    setInterval(reorganizeSidebarDOM, 1200);
 })();
