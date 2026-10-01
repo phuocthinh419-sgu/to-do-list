@@ -6027,3 +6027,365 @@ window.addEventListener('DOMContentLoaded', function() {
         renderFocusStudioRightPanel();
     }, 300);
 });
+
+// =====================================================================
+// SIDEBAR REDESIGN & DYNAMIC 4-COLOR PALETTE ENGINE (ADD-ON CUỐI FILE)
+// =====================================================================
+(function() {
+    // 1. BỘ BIẾN MÀU ĐỘNG CHO CẢ 4 NÚT MÀU + CHẾ ĐỘ SÁNG/TỐI
+    function injectSidebarAndPaletteCSS() {
+        var old = document.getElementById('apex-sidebar-palette-css');
+        if (old) old.remove();
+
+        var st = document.createElement('style');
+        st.id = 'apex-sidebar-palette-css';
+        st.innerHTML = `
+            /* --- ĐỊNH NGHĨA 4 BẢNG MÀU RÕ RỆT --- */
+            :root, [data-color="zen"] {
+                --theme-bg: #090d16;
+                --theme-sidebar: #060911;
+                --theme-card: linear-gradient(155deg, #111827 0%, #0d1320 100%);
+                --theme-accent: #10b981;
+                --theme-accent-2: #0ea5e9;
+                --theme-soft: rgba(16, 185, 129, 0.14);
+                --theme-border: rgba(16, 185, 129, 0.25);
+                --brand-dash: #10b981 !important;
+                --brand-focus: #0ea5e9 !important;
+            }
+            [data-color="neon-purple"] {
+                --theme-bg: #090614;
+                --theme-sidebar: #06040f;
+                --theme-card: linear-gradient(155deg, #18112e 0%, #100b20 100%);
+                --theme-accent: #a855f7;
+                --theme-accent-2: #6366f1;
+                --theme-soft: rgba(168, 85, 247, 0.16);
+                --theme-border: rgba(168, 85, 247, 0.28);
+                --brand-dash: #8b5cf6 !important;
+                --brand-focus: #a855f7 !important;
+            }
+            [data-color="neon-blue"] {
+                --theme-bg: #040b18;
+                --theme-sidebar: #030711;
+                --theme-card: linear-gradient(155deg, #0d1e38 0%, #091426 100%);
+                --theme-accent: #0ea5e9;
+                --theme-accent-2: #3b82f6;
+                --theme-soft: rgba(14, 165, 233, 0.16);
+                --theme-border: rgba(56, 189, 248, 0.28);
+                --brand-dash: #0ea5e9 !important;
+                --brand-focus: #38bdf8 !important;
+            }
+            [data-color="sakura"] {
+                --theme-bg: #12060a;
+                --theme-sidebar: #0c0407;
+                --theme-card: linear-gradient(155deg, #260e18 0%, #170910 100%);
+                --theme-accent: #f43f5e;
+                --theme-accent-2: #f59e0b;
+                --theme-soft: rgba(244, 63, 94, 0.16);
+                --theme-border: rgba(244, 63, 94, 0.28);
+                --brand-dash: #e11d48 !important;
+                --brand-focus: #f43f5e !important;
+            }
+
+            /* Chế độ Sáng (Light Mode) khi bấm nút Mặt Trăng/Mặt Trời */
+            body[data-light-mode="true"] {
+                --theme-bg: #f1f5f9 !important;
+                --theme-sidebar: #ffffff !important;
+                --theme-card: linear-gradient(155deg, #ffffff 0%, #f8fafc 100%) !important;
+                --text-main: #0f172a !important;
+                --text-muted: #475569 !important;
+                --border: rgba(15, 23, 42, 0.09) !important;
+            }
+            body[data-light-mode="true"] .clean-card,
+            body[data-light-mode="true"] .goal-card,
+            body[data-light-mode="true"] .countdown-card {
+                background: #ffffff !important;
+                border-color: rgba(15, 23, 42, 0.1) !important;
+                box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+            }
+            body[data-light-mode="true"] .clean-hero h1,
+            body[data-light-mode="true"] .clean-card-title,
+            body[data-light-mode="true"] .goal-meta h3 {
+                color: #0f172a !important;
+            }
+
+            /* Áp dụng biến màu động lên toàn bộ trang */
+            body { background-color: var(--theme-bg) !important; transition: background-color 0.3s ease; }
+            .clean-card, .goal-card, .countdown-card {
+                background: var(--theme-card) !important;
+                border: 1px solid rgba(255,255,255,0.07) !important;
+            }
+            .goal-card:hover, .clean-card:hover {
+                border-color: var(--theme-border) !important;
+            }
+            .btn-primary, .demo-tab-pill.active {
+                background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)) !important;
+                box-shadow: 0 4px 14px var(--theme-soft) !important;
+            }
+            .progress-bar { stroke: var(--theme-accent) !important; }
+            .clean-link, .t-lbl { color: var(--theme-accent) !important; }
+            #bento-command-center svg circle:nth-of-type(2) { stroke: var(--theme-accent) !important; }
+
+            /* ==========================================================
+               THIẾT KẾ LẠI SIDEBAR CHUẨN SAAS HIỆN ĐẠI (LINEAR STYLE)
+               ========================================================== */
+            .sidebar {
+                width: 228px !important;
+                background: var(--theme-sidebar) !important;
+                border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+                padding: 16px 12px 12px 12px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0 !important;
+            }
+
+            /* 1. Khối Logo Đỉnh */
+            .sidebar .brand {
+                padding: 6px 10px 14px 10px !important;
+                margin-bottom: 8px !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+                background: transparent !important;
+            }
+
+            /* 2. Các mục Menu: Thanh mảnh, có vạch sáng bên trái thay vì cục tím thô */
+            .sidebar .nav-item {
+                padding: 9px 12px !important;
+                margin-bottom: 3px !important;
+                border-radius: 10px !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                color: #94a3b8 !important;
+                border: 1px solid transparent !important;
+                position: relative !important;
+                transition: all 0.18s ease !important;
+            }
+            .sidebar .nav-item i {
+                width: 18px !important;
+                font-size: 0.85rem !important;
+                color: #64748b !important;
+                transition: 0.18s !important;
+            }
+            .sidebar .nav-item:hover {
+                background: rgba(255, 255, 255, 0.04) !important;
+                color: #f8fafc !important;
+                transform: none !important;
+            }
+            .sidebar .nav-item:hover i { color: var(--theme-accent) !important; }
+
+            .sidebar .nav-item.active {
+                background: var(--theme-soft) !important;
+                color: #ffffff !important;
+                font-weight: 700 !important;
+                border: 1px solid var(--theme-border) !important;
+                box-shadow: none !important;
+            }
+            .sidebar .nav-item.active::before {
+                content: "";
+                position: absolute;
+                left: -1px; top: 22%; bottom: 22%;
+                width: 3.5px;
+                background: var(--theme-accent);
+                border-radius: 0 4px 4px 0;
+                box-shadow: 0 0 10px var(--theme-accent);
+            }
+            .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
+
+            /* 3. Gom Quỹ thưởng & Cửa hàng thành 1 Thẻ Ví Thống Nhất */
+            .sidebar-wallet-pod {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                border-radius: 12px;
+                padding: 10px;
+                margin: 8px 4px 10px 4px;
+            }
+            #btn-open-academic-shop {
+                width: 100% !important;
+                margin: 8px 0 0 0 !important;
+                padding: 8px 10px !important;
+                border-radius: 8px !important;
+                background: linear-gradient(90deg, rgba(245,158,11,0.18), rgba(234,88,12,0.18)) !important;
+                border: 1px solid rgba(245,158,11,0.35) !important;
+                color: #fbbf24 !important;
+                font-size: 0.76rem !important;
+                font-weight: 700 !important;
+            }
+            #btn-open-academic-shop:hover {
+                background: linear-gradient(90deg, rgba(245,158,11,0.3), rgba(234,88,12,0.3)) !important;
+            }
+
+            /* 4. Bảng chọn 4 Màu sắc & Sáng/Tối gọn đẹp */
+            .palette-container {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                background: rgba(255, 255, 255, 0.03) !important;
+                border: 1px solid rgba(255, 255, 255, 0.06) !important;
+                padding: 7px 10px !important;
+                border-radius: 10px !important;
+                margin: 6px 4px 10px 4px !important;
+            }
+            .color-btn {
+                width: 20px !important;
+                height: 20px !important;
+                border-radius: 50% !important;
+                cursor: pointer !important;
+                transition: transform 0.2s !important;
+            }
+            .color-btn.active {
+                outline: 2px solid #ffffff !important;
+                outline-offset: 2px !important;
+                transform: scale(1.12) !important;
+            }
+
+            /* Nút Sao lưu & Phục hồi xếp thành 2 cột nhỏ gọn trên 1 hàng */
+            .sidebar-backup-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+                margin: 4px 4px 8px 4px;
+            }
+            .sidebar-mini-btn {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                color: #94a3b8;
+                padding: 7px 6px;
+                border-radius: 8px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                transition: 0.2s;
+            }
+            .sidebar-mini-btn:hover {
+                background: rgba(255, 255, 255, 0.08);
+                color: #fff;
+            }
+
+            /* 5. Khóa cố định Thẻ Hồ Sơ User ở đáy cùng Sidebar */
+            #user-auth-badge {
+                order: 99 !important;
+                margin: 8px 4px 0 4px !important;
+                padding: 9px 10px !important;
+                border-radius: 12px !important;
+                background: rgba(255, 255, 255, 0.04) !important;
+                border: 1px solid rgba(255, 255, 255, 0.07) !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+            }
+        `;
+        document.head.appendChild(st);
+    }
+
+    // 2. SẮP XẾP LẠI CẤU TRÚC DOM CỦA SIDEBAR CHO GỌN GÀNG
+    function reorganizeSidebarDOM() {
+        var sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+
+        // Gom hộp USD và nút Cửa hàng vào chung 1 khung .sidebar-wallet-pod
+        var usdEl = document.getElementById('usd-balance');
+        var shopBtn = document.getElementById('btn-open-academic-shop');
+        if (usdEl && !document.querySelector('.sidebar-wallet-pod')) {
+            var walletOuter = usdEl.parentElement.parentElement;
+            if (walletOuter) {
+                walletOuter.className = 'sidebar-wallet-pod';
+                walletOuter.style.padding = '10px';
+                walletOuter.style.margin = '4px 4px 10px 4px';
+                if (shopBtn) walletOuter.appendChild(shopBtn);
+            }
+        } else if (shopBtn && document.querySelector('.sidebar-wallet-pod')) {
+            var pod = document.querySelector('.sidebar-wallet-pod');
+            if (shopBtn.parentElement !== pod) pod.appendChild(shopBtn);
+        }
+
+        // Gom 2 dòng "Sao lưu dữ liệu" & "Phục hồi dữ liệu" thành 2 nút ngang nhỏ gọn
+        var navMenu = sidebar.querySelector('.nav-menu');
+        if (navMenu && !document.querySelector('.sidebar-backup-row')) {
+            var exportLink = navMenu.querySelector('[onclick*="exportData"]');
+            var importLink = navMenu.querySelector('[onclick*="import-file"]');
+            if (exportLink && importLink) {
+                var row = document.createElement('div');
+                row.className = 'sidebar-backup-row';
+                row.innerHTML = `
+                    <button class="sidebar-mini-btn" onclick="exportData()" title="Sao lưu dữ liệu"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu</button>
+                    <button class="sidebar-mini-btn" onclick="document.getElementById('import-file').click()" title="Phục hồi dữ liệu"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi</button>
+                `;
+                exportLink.style.display = 'none';
+                importLink.style.display = 'none';
+                navMenu.appendChild(row);
+            }
+        }
+
+        // Đưa nút Mặt trăng/Mặt trời vào chung hàng với 4 nút màu để tiết kiệm đáy Sidebar
+        var paletteBox = sidebar.querySelector('.palette-container');
+        var footerDock = document.getElementById('sidebar-bottom-dock');
+        var themeBtn = sidebar.querySelector('.theme-toggle');
+        if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
+            // Đổi màu nút Mặc định (Zen) thành Xanh Ngọc Lục Bảo để nhìn rõ trên nền tối
+            var zenBtn = paletteBox.querySelector('.color-btn.zen');
+            if (zenBtn) {
+                zenBtn.style.background = 'linear-gradient(135deg, #10b981, #0ea5e9)';
+                zenBtn.style.border = 'none';
+                zenBtn.title = 'Xanh Ngọc Lục Bảo (Mặc định)';
+            }
+            paletteBox.appendChild(themeBtn);
+            if (footerDock) footerDock.style.display = 'none';
+        }
+
+        // Ép thẻ User (#user-auth-badge) nằm cố định ở dưới đáy cùng của Sidebar
+        var badge = document.getElementById('user-auth-badge');
+        if (badge && badge.parentElement !== sidebar) {
+            sidebar.appendChild(badge);
+        } else if (badge && sidebar.lastElementChild !== badge) {
+            sidebar.appendChild(badge);
+        }
+    }
+
+    // 3. KÍCH HOẠT HÀM ĐỔI 4 BẢNG MÀU & CHẾ ĐỘ SÁNG/TỐI HOẠT ĐỘNG 100%
+    window.changeColor = function(colorName) {
+        var valid = ['zen', 'neon-purple', 'neon-blue', 'sakura'];
+        var chosen = valid.includes(colorName) ? colorName : 'zen';
+        document.documentElement.setAttribute('data-color', chosen);
+        document.body.setAttribute('data-color', chosen);
+        localStorage.setItem('saasColorTheme', chosen);
+
+        document.querySelectorAll('.color-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+            if (btn.classList.contains(chosen)) btn.classList.add('active');
+        });
+    };
+
+    window.toggleTheme = function() {
+        var isLight = document.body.getAttribute('data-light-mode') === 'true';
+        var nextState = !isLight;
+        document.body.setAttribute('data-light-mode', nextState ? 'true' : 'false');
+        localStorage.setItem('saasLightMode', nextState ? 'true' : 'false');
+
+        var icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.className = nextState ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            icon.style.color = nextState ? '#f59e0b' : '#e2e8f0';
+        }
+    };
+
+    // Khởi chạy ngay lập tức và duy trì vị trí Hồ sơ ở đáy Sidebar
+    function initSidebarAndPalette() {
+        injectSidebarAndPaletteCSS();
+        reorganizeSidebarDOM();
+
+        var savedColor = localStorage.getItem('saasColorTheme') || 'neon-purple';
+        window.changeColor(savedColor);
+
+        if (localStorage.getItem('saasLightMode') === 'true') {
+            document.body.setAttribute('data-light-mode', 'true');
+            var icon = document.getElementById('theme-icon');
+            if (icon) { icon.className = 'fa-solid fa-sun'; icon.style.color = '#f59e0b'; }
+        }
+    }
+
+    initSidebarAndPalette();
+    window.addEventListener('DOMContentLoaded', initSidebarAndPalette);
+    setInterval(reorganizeSidebarDOM, 1000);
+})();
