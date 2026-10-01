@@ -1267,7 +1267,7 @@ function checkCycleAndStreak() {
             let checkStr = d.toISOString().split('T')[0];
             
             // Hạ chuẩn: Chỉ cần đạt 1.0h/ngày là thoát án
-            let targetHrs = (lastRestDate === checkStr) ? 0.75 : 1.0; 
+            let targetHrs = (typeof getRequiredHoursForDate === 'function') ? getRequiredHoursForDate(d, checkStr) : ((lastRestDate === checkStr) ? 0.25 : 1.0); 
             let hrsDone = dailyLogs[checkStr] || 0;
             
             let deficitHrs = targetHrs - hrsDone;
@@ -4094,7 +4094,7 @@ async function fetchLeaderboard(orderByField) {
 }
 
 // =====================================================================
-// HỆ THỐNG ĐIỀU PHỐI NHIỆM VỤ THÔNG MINH (TIMETABLE-AWARE DISPATCHER)
+// 1. HỆ THỐNG ĐIỀU PHỐI NHIỆM VỤ THÔNG MINH (ĐỒNG BỘ TKB & ĐỊNH MỨC ĐỘNG)
 // =====================================================================
 let dispatchRate = parseInt(localStorage.getItem('saasDispatchRate'));
 if (isNaN(dispatchRate)) dispatchRate = 100;
@@ -4103,23 +4103,30 @@ let consecutiveRejects = parseInt(localStorage.getItem('saasConsecutiveRejects')
 let activeDispatchQuest = null; 
 let dispatchCountdownTimer = null;
 let idleDispatchTimer = null;
+let dispatchSnoozeUntil = parseInt(localStorage.getItem('saasDispatchSnoozeUntil')) || 0;
+let isFreeRestMode = false;
 
 function saveDispatchState() {
     localStorage.setItem('saasDispatchRate', dispatchRate);
     localStorage.setItem('saasConsecutiveRejects', consecutiveRejects);
 }
 
-// HÀM PHỤ TRỢ: Chuẩn hóa chuỗi để so khớp tên Mục tiêu và tên Môn học trong TKB
 function normalizeText(str) {
     return (str || "").toLowerCase().replace(/\[.*?\]/g, "").trim();
 }
 
-// HÀM PHỤ TRỢ: Kiểm tra xem hiện tại người dùng có đang vướng lịch trong TKB không
+function getLocalTodayStr() {
+    let now = new Date();
+    return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+}
+
+// Quét 3 ca tiêu chuẩn (Sáng: 6h-12h | Chiều: 12h-18h | Tối: 18h-22h)
 function getCurrentBusySchedule() {
     if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) return null;
     let now = new Date();
     let hour = now.getHours();
     let currentShift = null;
+
     if (hour >= 6 && hour < 12) currentShift = 'sang';
     else if (hour >= 12 && hour < 18) currentShift = 'chieu';
     else if (hour >= 18 && hour < 22) currentShift = 'toi';
@@ -4127,7 +4134,7 @@ function getCurrentBusySchedule() {
     if (!currentShift) return null;
 
     let todayDow = now.getDay();
-    let todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    let todayStr = getLocalTodayStr();
 
     return timetableData.find(item => {
         let sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
@@ -4137,11 +4144,121 @@ function getCurrentBusySchedule() {
     }) || null;
 }
 
-// HÀM CỐT LÕI: Quét TKB và Độ khẩn cấp để chọn Mục tiêu + Thời lượng hợp lý nhất
+// HÀM TÍNH ĐỊNH MỨC ĐỘNG CHO BẤT KỲ NGÀY NÀO (DÙNG CHUNG CHO CẢ ĐIỀU PHỐI & PHẠT LÃI KÉP)
+function getRequiredHoursForDate(dateObj, dateStr) {
+    if (typeof lastRestDate !== 'undefined' && lastRestDate === dateStr) return 0.25;
+
+    let dow = dateObj.getDay();
+    let busyShiftsCount = 0;
+
+    if (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) {
+        let shiftsSet = new Set();
+        timetableData.forEach(item => {
+            let sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
+            let eDate = new Date(item.endDate); eDate.setHours(23, 59, 59, 999);
+            let isPaused = item.pausedDates && item.pausedDates.includes(dateStr);
+            if (!isPaused && parseInt(item.dow) === dow && dateObj >= sDate && dateObj <= eDate) {
+                shiftsSet.add(item.shift);
+            }
+        });
+        busyShiftsCount = shiftsSet.size;
+    }
+
+    // 0 ca: 1.0h | 1 ca: 0.75h (45p) | 2 ca: 0.5h (30p) | 3 ca: 0.25h (15p)
+    if (busyShiftsCount === 0) return 1.0;
+    if (busyShiftsCount === 1) return 0.75;
+    if (busyShiftsCount === 2) return 0.5;
+    return 0.25;
+}
+
+function getTodayDispatchQuotaInfo() {
+    let todayStr = getLocalTodayStr();
+    let now = new Date();
+    let todayDow = now.getDay();
+    let busyShiftsCount = 0;
+
+    if (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) {
+        let shiftsSet = new Set();
+        timetableData.forEach(item => {
+            let sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
+            let eDate = new Date(item.endDate); eDate.setHours(23, 59, 59, 999);
+            let isPaused = item.pausedDates && item.pausedDates.includes(todayStr);
+            if (!isPaused && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate) {
+                shiftsSet.add(item.shift);
+            }
+        });
+        busyShiftsCount = shiftsSet.size;
+    }
+
+    let requiredHrs = getRequiredHoursForDate(now, todayStr);
+
+    // Đặc quyền: Nếu tổng giờ tuần đã đạt >= mục tiêu tuần (5.0h), hạ định mức ngày xuống 0.25h (15p giữ lửa)
+    if (typeof getTotalCycleHours === 'function' && typeof getWeeklyTarget === 'function') {
+        if (getTotalCycleHours() >= getWeeklyTarget()) {
+            requiredHrs = 0.25;
+        }
+    }
+
+    let doneHrs = (typeof dailyLogs !== 'undefined' && dailyLogs[todayStr]) ? dailyLogs[todayStr] : 0;
+    let isQuotaMet = (requiredHrs - doneHrs) <= 0.01;
+
+    return { busyShiftsCount, requiredHrs, doneHrs, isQuotaMet };
+}
+
+function handleDispatchRestAction() {
+    let qInfo = getTodayDispatchQuotaInfo();
+
+    if (qInfo.isQuotaMet) {
+        isFreeRestMode = !isFreeRestMode;
+        if (isFreeRestMode) clearTimeout(idleDispatchTimer);
+        else scheduleIdleDispatch(45000);
+        renderDispatchStatusWidget();
+        return;
+    }
+
+    if (Date.now() < dispatchSnoozeUntil) {
+        dispatchSnoozeUntil = 0;
+        localStorage.setItem('saasDispatchSnoozeUntil', '0');
+        scheduleIdleDispatch(45000);
+        renderDispatchStatusWidget();
+        return;
+    }
+
+    let todayStr = getLocalTodayStr();
+    let freeUsedDate = localStorage.getItem('saasFreeSnoozeDate');
+    let isFreeAvailable = (freeUsedDate !== todayStr);
+
+    if (isFreeAvailable) {
+        if (confirm(`Bạn chưa hoàn thành định mức hôm nay (${qInfo.doneHrs.toFixed(2)}h / ${qInfo.requiredHrs}h).\n\nKích hoạt 1 lượt HOÃN ĐIỀU PHỐI 15 PHÚT miễn phí trong ngày để xem thống kê hoặc sắp xếp lịch trình?`)) {
+            localStorage.setItem('saasFreeSnoozeDate', todayStr);
+            dispatchSnoozeUntil = Date.now() + 15 * 60 * 1000;
+            localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+            clearTimeout(idleDispatchTimer);
+            renderDispatchStatusWidget();
+            setTimeout(() => { renderDispatchStatusWidget(); scheduleIdleDispatch(15000); }, 15 * 60 * 1000 + 500);
+        }
+    } else {
+        let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+        if (confirm(`Bạn đã dùng hết lượt hoãn miễn phí hôm nay.\n\nChi trả $30 USD để tiếp tục hoãn điều phối thêm 15 phút?`)) {
+            if (usd < 30) {
+                alert("Số dư không đủ $30 USD!");
+                return;
+            }
+            localStorage.setItem('usdBalance', usd - 30);
+            if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
+            dispatchSnoozeUntil = Date.now() + 15 * 60 * 1000;
+            localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+            clearTimeout(idleDispatchTimer);
+            renderDispatchStatusWidget();
+            setTimeout(() => { renderDispatchStatusWidget(); scheduleIdleDispatch(15000); }, 15 * 60 * 1000 + 500);
+        }
+    }
+}
+
 function selectSmartDispatchTask(activeGoals) {
     let now = new Date();
     let todayDow = now.getDay();
-    let todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    let todayStr = getLocalTodayStr();
 
     let tomorrowObj = new Date(now);
     tomorrowObj.setDate(tomorrowObj.getDate() + 1);
@@ -4150,28 +4267,21 @@ function selectSmartDispatchTask(activeGoals) {
 
     let todayClasses = [];
     let tomorrowClasses = [];
-    let todayTotalShifts = 0;
+    let qInfo = getTodayDispatchQuotaInfo();
 
     if (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) {
         timetableData.forEach(item => {
             let sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
             let eDate = new Date(item.endDate); eDate.setHours(23, 59, 59, 999);
 
-            // Lịch hôm nay
             let isPausedToday = item.pausedDates && item.pausedDates.includes(todayStr);
             if (!isPausedToday && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate) {
-                todayTotalShifts++;
-                if (item.type === 'offline' || item.type === 'online' || item.type === 'exam') {
-                    todayClasses.push(item);
-                }
+                if (item.type === 'offline' || item.type === 'online' || item.type === 'exam') todayClasses.push(item);
             }
 
-            // Lịch ngày mai
             let isPausedTomorrow = item.pausedDates && item.pausedDates.includes(tomorrowStr);
             if (!isPausedTomorrow && parseInt(item.dow) === tomorrowDow && tomorrowObj >= sDate && tomorrowObj <= eDate) {
-                if (item.type === 'offline' || item.type === 'online' || item.type === 'exam') {
-                    tomorrowClasses.push(item);
-                }
+                if (item.type === 'offline' || item.type === 'online' || item.type === 'exam') tomorrowClasses.push(item);
             }
         });
     }
@@ -4179,33 +4289,26 @@ function selectSmartDispatchTask(activeGoals) {
     let chosenGoal = null;
     let reasonText = "";
 
-    // 1. Ưu tiên 1: Có lịch Thi hoặc Học ngay trong hôm nay khớp với Mục tiêu
     for (let cls of todayClasses) {
         let match = activeGoals.find(g => normalizeText(g.name).includes(normalizeText(cls.name)) || normalizeText(cls.name).includes(normalizeText(g.name)));
         if (match) {
             chosenGoal = match;
-            reasonText = cls.type === 'exam' 
-                ? `Lịch thi hôm nay trong TKB (${cls.name})` 
-                : `Ôn tập môn học hôm nay trong TKB (${cls.name})`;
+            reasonText = cls.type === 'exam' ? `Lịch thi hôm nay (${cls.name})` : `Ôn tập môn học hôm nay (${cls.name})`;
             break;
         }
     }
 
-    // 2. Ưu tiên 2: Chuẩn bị bài cho môn học/thi vào ngày mai trên TKB
     if (!chosenGoal) {
         for (let cls of tomorrowClasses) {
             let match = activeGoals.find(g => normalizeText(g.name).includes(normalizeText(cls.name)) || normalizeText(cls.name).includes(normalizeText(g.name)));
             if (match) {
                 chosenGoal = match;
-                reasonText = cls.type === 'exam'
-                    ? `Trọng tâm: Ngày mai có lịch thi (${cls.name})`
-                    : `Chuẩn bị trước cho lịch học ngày mai (${cls.name})`;
+                reasonText = cls.type === 'exam' ? `Trọng tâm: Ngày mai thi (${cls.name})` : `Chuẩn bị cho lịch học ngày mai (${cls.name})`;
                 break;
             }
         }
     }
 
-    // 3. Ưu tiên 3: Mục tiêu có Deadline gần nhất hoặc đang chậm tiến độ
     if (!chosenGoal) {
         let goalsWithDeadline = activeGoals.filter(g => g.deadline).sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
         if (goalsWithDeadline.length > 0) {
@@ -4214,26 +4317,22 @@ function selectSmartDispatchTask(activeGoals) {
         }
     }
 
-    // 4. Ưu tiên 4: Mục tiêu còn tồn đọng nhiều giờ nhất
     if (!chosenGoal) {
         let sortedByRemaining = [...activeGoals].sort((a, b) => b.current - a.current);
         chosenGoal = sortedByRemaining[0];
         reasonText = `Đẩy tiến độ mục tiêu trọng tâm (Còn ${chosenGoal.current.toFixed(1)}h)`;
     }
 
-    // Tính toán thời lượng thấu tình đạt lý:
-    // Nếu hôm nay đã bận >= 2 ca trong TKB, hoặc đã sau 21h đêm, hoặc mục tiêu chỉ còn <= 0.3h -> Giao phiên nhẹ 15p
-    let isTiredOrLate = (todayTotalShifts >= 2) || (now.getHours() >= 21) || (chosenGoal.current <= 0.3);
+    let isTiredOrLate = (qInfo.busyShiftsCount >= 2) || (now.getHours() >= 21) || (chosenGoal.current <= 0.3);
     let duration = isTiredOrLate ? 15 : 25;
 
-    if (todayTotalShifts >= 2) {
-        reasonText += ` • Phiên ngắn 15p (Hôm nay đã có ${todayTotalShifts} ca lịch trình)`;
+    if (qInfo.busyShiftsCount >= 2) {
+        reasonText += ` • Phiên 15p (Hôm nay có ${qInfo.busyShiftsCount} ca lịch trình)`;
     }
 
     return { goal: chosenGoal, duration: duration, reason: reasonText };
 }
 
-// 1. HIỂN THỊ CHỈ SỐ HIỆU SUẤT ĐIỀU PHỐI TRÊN DASHBOARD
 function renderDispatchStatusWidget() {
     let dash = document.getElementById('view-dashboard');
     if (!dash || dash.style.display === 'none') return;
@@ -4251,21 +4350,45 @@ function renderDispatchStatusWidget() {
 
     let busyItem = getCurrentBusySchedule();
     let isCurfew = (typeof isCurfewActive === 'function' && isCurfewActive());
+    let qInfo = getTodayDispatchQuotaInfo();
+    let isSnoozed = Date.now() < dispatchSnoozeUntil;
 
     let statusColor = "#10b981";
-    let statusText = "Tối ưu (Quét Thời khóa biểu • Thưởng x1.5 - x2.5)";
+    let statusText = `Trực tuyến (Định mức hôm nay: ${qInfo.doneHrs.toFixed(2)}h / ${qInfo.requiredHrs}h)`;
+
     if (isCurfew) {
         statusColor = "#64748b";
         statusText = "Đang trong Giờ Giới Nghiêm (Ngưng tự động điều phối)";
     } else if (busyItem) {
         statusColor = "#0ea5e9";
-        statusText = `Tạm ngưng làm phiền (Đang trong ca TKB: ${busyItem.name})`;
+        let shiftName = busyItem.shift === 'sang' ? 'Ca Sáng' : (busyItem.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối');
+        statusText = `Miễn làm phiền • Đang trong ${shiftName}: ${busyItem.name}`;
+    } else if (isFreeRestMode && qInfo.isQuotaMet) {
+        statusColor = "#64748b";
+        statusText = "Đang Tạm nghỉ (Đã hoàn thành định mức kỷ luật hôm nay)";
+    } else if (isSnoozed) {
+        let minsLeft = Math.ceil((dispatchSnoozeUntil - Date.now()) / 60000);
+        statusColor = "#8b5cf6";
+        statusText = `Đang hoãn điều phối tạm thời (Còn ~${minsLeft} phút)`;
     } else if (dispatchRate < 50 || consecutiveRejects >= 3) {
         statusColor = "#ef4444";
         statusText = "Chế tài (Áp dụng nhiệm vụ bắt buộc • Nhận 30% thưởng gốc)";
     } else if (dispatchRate < 80) {
         statusColor = "#f59e0b";
         statusText = "Cảnh báo (Tạm ngưng đề xuất nhiệm vụ hệ số cao)";
+    }
+
+    let restBtnLabel = "";
+    let restBtnStyle = "background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-muted);";
+    if (qInfo.isQuotaMet) {
+        restBtnLabel = isFreeRestMode ? `<i class="fa-solid fa-play"></i> Bật Trực tuyến` : `<i class="fa-solid fa-mug-hot"></i> Tạm nghỉ (Đã đủ ${qInfo.requiredHrs}h)`;
+        if (!isFreeRestMode) restBtnStyle = "background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #10b981;";
+    } else if (isSnoozed) {
+        restBtnLabel = `<i class="fa-solid fa-bolt"></i> Hủy hoãn`;
+        restBtnStyle = "background: rgba(139,92,246,0.12); border: 1px solid #8b5cf6; color: #8b5cf6;";
+    } else {
+        let isFree = (localStorage.getItem('saasFreeSnoozeDate') !== getLocalTodayStr());
+        restBtnLabel = `<i class="fa-regular fa-clock"></i> Hoãn 15p (${isFree ? 'Miễn phí' : '$30'})`;
     }
 
     widget.innerHTML = `
@@ -4275,41 +4398,58 @@ function renderDispatchStatusWidget() {
                     <i class="fa-solid fa-satellite-dish"></i>
                 </div>
                 <div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Điều phối Thông minh (Đồng bộ TKB)</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Điều phối Thông minh (Đồng bộ TKB • Hôm nay có ${qInfo.busyShiftsCount} ca lịch)</div>
                     <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 700;">${statusText}</div>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="text-align: right;">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Hiệu suất nhận lệnh</div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="text-align: right; margin-right: 6px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Hiệu suất</div>
                     <div style="font-size: 1.25rem; font-weight: 800; color: ${statusColor};">${dispatchRate}%</div>
                 </div>
-                <button onclick="triggerDispatchPing(true)" style="background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.borderColor='var(--brand-focus)'" onmouseout="this.style.borderColor='var(--border)'">
+                <button onclick="handleDispatchRestAction()" style="${restBtnStyle} padding: 8px 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.8rem; transition: 0.2s;">
+                    ${restBtnLabel}
+                </button>
+                <button onclick="triggerDispatchPing(true)" style="background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.82rem; transition: 0.2s;" onmouseover="this.style.borderColor='var(--brand-focus)'" onmouseout="this.style.borderColor='var(--border)'">
                     <i class="fa-solid fa-bolt" style="color: var(--brand-warning);"></i> Nhận đề xuất
                 </button>
             </div>
         </div>`;
 }
 
-// 2. BỘ CẢM BIẾN TRÌ HOÃN (TỰ ĐỘNG TẮT KHI GIỚI NGHIÊM HOẶC ĐANG CÓ LỊCH TKB)
-function scheduleIdleDispatch() {
+function scheduleIdleDispatch(customDelay = 45000) {
     clearTimeout(idleDispatchTimer);
     if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
-    if (getCurrentBusySchedule() !== null) return; // Đang trong ca học/ca làm trên TKB -> Không tự nổ cuốc!
+    if (getCurrentBusySchedule() !== null) return;
+    if (Date.now() < dispatchSnoozeUntil) return;
+    let qInfo = getTodayDispatchQuotaInfo();
+    if (isFreeRestMode && qInfo.isQuotaMet) return;
     if (isSessionActive || isBreakActive || isGracePeriod || isPendingTax || dailyDebtMinutes > 0) return;
     
     idleDispatchTimer = setTimeout(() => {
         if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
         if (getCurrentBusySchedule() !== null) return;
+        if (Date.now() < dispatchSnoozeUntil) return;
+        if (isFreeRestMode && getTodayDispatchQuotaInfo().isQuotaMet) return;
+
+        let lbOpen = document.getElementById('leaderboard-modal')?.style.display === 'flex';
+        let inboxOpen = document.getElementById('inbox-modal')?.style.display === 'flex';
+        let tradeOpen = document.getElementById('trade-modal')?.style.display === 'flex';
+        let shopOpen = document.getElementById('academic-shop-modal')?.style.display === 'flex';
+        let chatOpen = (typeof isCopilotOpen !== 'undefined' && isCopilotOpen);
+        if (lbOpen || inboxOpen || tradeOpen || shopOpen || chatOpen) {
+            scheduleIdleDispatch(45000);
+            return;
+        }
+
         let dash = document.getElementById('view-dashboard');
         let activeGoals = goals.filter(g => g.current > 0);
         if (dash && dash.style.display !== 'none' && !isSessionActive && activeGoals.length > 0) {
             triggerDispatchPing(false);
         }
-    }, 25000);
+    }, customDelay);
 }
 
-// 3. THUẬT TOÁN PHÁT LỆNH BÀI (ĐỒNG BỘ THỜI KHÓA BIỂU)
 function triggerDispatchPing(isManual = false) {
     if (typeof isCurfewActive === 'function' && isCurfewActive()) {
         if (isManual) alert("Hệ thống đang trong Giờ Giới Nghiêm. Trạm điều phối tạm ngưng phát nhiệm vụ để đảm bảo thời gian nghỉ ngơi!");
@@ -4324,7 +4464,6 @@ function triggerDispatchPing(isManual = false) {
     if (isSessionActive || isBreakActive || isGracePeriod) return;
     if (document.getElementById('dispatch-modal') && document.getElementById('dispatch-modal').style.display === 'flex') return;
 
-    // Gọi bộ lọc thông minh quét Thời khóa biểu & Deadline
     let smartPick = selectSmartDispatchTask(activeGoals);
     let targetGoal = smartPick.goal;
     let duration = smartPick.duration;
@@ -4376,6 +4515,7 @@ function showDispatchModal() {
 
     let q = activeDispatchQuest;
     let accentColor = q.isMandatory ? "#ef4444" : "#10b981";
+    const DECISION_SECONDS = 15;
 
     let rewardDisplayHtml = q.isMandatory
         ? `<div style="text-align:right; flex-shrink:0;">
@@ -4399,10 +4539,10 @@ function showDispatchModal() {
            </div>
            <div style="display:flex; gap:12px;">
                <button onclick="declineDispatchQuest()" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg-hover); color:var(--text-muted); font-weight:700; cursor:pointer;">
-                   Bỏ qua (-15%)
+                   Bỏ qua (-15% • Nghỉ 4p)
                </button>
                <button onclick="acceptDispatchQuest()" style="flex:2; padding:12px; border-radius:12px; border:none; background:${accentColor}; color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
-                   <i class="fa-solid fa-bolt"></i> Nhận nhiệm vụ (<span id="dispatch-sec-left">10</span>s)
+                   <i class="fa-solid fa-bolt"></i> Nhận nhiệm vụ (<span id="dispatch-sec-left">${DECISION_SECONDS}</span>s)
                </button>
            </div>`;
 
@@ -4432,13 +4572,13 @@ function showDispatchModal() {
 
     clearInterval(dispatchCountdownTimer);
     if (!q.isMandatory) {
-        let sec = 10;
+        let sec = DECISION_SECONDS;
         dispatchCountdownTimer = setInterval(() => {
             sec--;
             let secEl = document.getElementById('dispatch-sec-left');
             let barEl = document.getElementById('dispatch-timer-bar');
             if (secEl) secEl.innerText = sec;
-            if (barEl) barEl.style.width = `${(sec / 10) * 100}%`;
+            if (barEl) barEl.style.width = `${(sec / DECISION_SECONDS) * 100}%`;
 
             if (sec <= 0) {
                 clearInterval(dispatchCountdownTimer);
@@ -4481,11 +4621,10 @@ function declineDispatchQuest() {
             triggerDispatchPing(false);
         }, 600);
     } else {
-        scheduleIdleDispatch();
+        scheduleIdleDispatch(240000);
     }
 }
 
-// 4. XỬ LÝ KHI HOÀN THÀNH HOẶC HỦY NHIỆM VỤ
 function completeDispatchQuestSuccess() {
     if (!activeDispatchQuest) return;
     let q = activeDispatchQuest;
@@ -4498,7 +4637,10 @@ function completeDispatchQuestSuccess() {
     dispatchRate = q.isMandatory ? Math.max(70, dispatchRate + 20) : Math.min(100, dispatchRate + 10);
     saveDispatchState();
 
-    alert(`HOÀN THÀNH NHIỆM VỤ ĐIỀU PHỐI!\n- Thưởng điều phối: +$${q.finalReward}\n- Hiệu suất nhận lệnh phục hồi lên: ${dispatchRate}%`);
+    dispatchSnoozeUntil = Date.now() + 15 * 60 * 1000;
+    localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+
+    alert(`HOÀN THÀNH NHIỆM VỤ ĐIỀU PHỐI!\n- Thưởng điều phối: +$${q.finalReward}\n- Hiệu suất nhận lệnh phục hồi lên: ${dispatchRate}%\n- Hệ thống tự động cấp 15 phút nghỉ ngơi miễn làm phiền.`);
     activeDispatchQuest = null;
 }
 
@@ -4525,19 +4667,12 @@ window.cancelSession = function() {
     }
 };
 
-const prevRenderDashboardDispatch = window.renderDashboard;
-window.renderDashboard = function() {
-    if (typeof prevRenderDashboardDispatch === 'function') prevRenderDashboardDispatch();
-    renderDispatchStatusWidget();
-    scheduleIdleDispatch();
-};
-
 // =====================================================================
-// HỆ THỐNG CHẤM SAO CHẤT LƯỢNG & HUY HIỆU DƯỚI AVATAR (STAR RATING)
+// 2. HUY HIỆU SAO CHẤT LƯỢNG DƯỚI ẢNH ĐẠI DIỆN (STAR RATING)
 // =====================================================================
 let starHistory = JSON.parse(localStorage.getItem('saasStarHistory'));
 if (!Array.isArray(starHistory) || starHistory.length === 0) {
-    starHistory = [5, 5, 5, 5, 5]; // Mặc định khởi đầu 5.00 sao
+    starHistory = [5, 5, 5, 5, 5];
     localStorage.setItem('saasStarHistory', JSON.stringify(starHistory));
 }
 
@@ -4549,7 +4684,6 @@ function getAverageStarRating() {
 
 function recordNewStarRating(score) {
     starHistory.push(score);
-    // Tính trung bình cộng 20 phiên gần nhất
     if (starHistory.length > 20) starHistory.shift();
     localStorage.setItem('saasStarHistory', JSON.stringify(starHistory));
     renderAvatarStarBadge();
@@ -4562,7 +4696,6 @@ function renderAvatarStarBadge() {
     let img = userBadge.querySelector('img');
     if (!img) return;
 
-    // Bọc ảnh đại diện vào khung định vị (nếu chưa bọc) để gắn Sao ngay dưới chân ảnh
     let wrapper = document.getElementById('avatar-star-wrapper');
     if (!wrapper) {
         wrapper = document.createElement('div');
@@ -4603,26 +4736,17 @@ function renderAvatarStarBadge() {
     starBadge.innerHTML = `<i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}`;
 }
 
-// Tự động gắn huy hiệu Sao dưới Avatar khi tải trang và mỗi khi cập nhật KPI
-const prevRenderKPIStar = window.renderKPI;
-window.renderKPI = function() {
-    if (typeof prevRenderKPIStar === 'function') prevRenderKPIStar();
-    renderAvatarStarBadge();
-};
-setTimeout(renderAvatarStarBadge, 1200);
-
 // =====================================================================
-// TRỢ LÝ HỌC THUẬT AI (FLOATING COPILOT - CÓ KHÓA BẢO VỆ HẠN MỨC API)
+// 3. TRỢ LÝ HỌC THUẬT AI (FLOATING COPILOT - $30/CÂU VƯỢT MỨC)
 // =====================================================================
 let copilotHistory = [];
 let isCopilotOpen = false;
 let copilotLastAskTime = 0;
 const FREE_DAILY_CHATS = 3;
-const EXTRA_CHAT_COST = 30; // Đã nâng từ 15 lên 30 USD/câu
+const EXTRA_CHAT_COST = 30;
 
 function getCopilotQuota() {
-    let todayObj = new Date();
-    let todayStr = todayObj.getFullYear() + '-' + String(todayObj.getMonth() + 1).padStart(2, '0') + '-' + String(todayObj.getDate()).padStart(2, '0');
+    let todayStr = getLocalTodayStr();
     let savedDate = localStorage.getItem('saasCopilotDate');
     let used = parseInt(localStorage.getItem('saasCopilotUsed')) || 0;
 
@@ -4657,14 +4781,11 @@ function initAICopilotWidget() {
     const container = document.createElement('div');
     container.id = 'ai-copilot-container';
     container.innerHTML = `
-        <!-- Nút mở khung chat góc dưới bên phải -->
         <button id="ai-copilot-fab" onclick="toggleAICopilot()" title="Trợ lý Học thuật AI" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); color:#fff; border:none; box-shadow:0 8px 25px rgba(37,99,235,0.45); cursor:pointer; z-index:9998; font-size:1.35rem; display:flex; align-items:center; justify-content:center; transition:transform 0.2s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
             <i class="fa-solid fa-robot"></i>
         </button>
 
-        <!-- Cửa sổ Chat -->
         <div id="ai-copilot-window" style="display:none; position:fixed; bottom:92px; right:24px; width:360px; max-width:calc(100vw - 32px); height:520px; max-height:calc(100vh - 120px); background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; box-shadow:0 15px 45px rgba(0,0,0,0.4); z-index:9999; flex-direction:column; overflow:hidden;">
-            <!-- Header -->
             <div style="padding:14px 18px; background:linear-gradient(135deg, #2563eb, #7c3aed); color:#fff; display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
@@ -4680,21 +4801,18 @@ function initAICopilotWidget() {
                 </button>
             </div>
 
-            <!-- Danh sách tin nhắn -->
             <div id="ai-copilot-messages" style="flex:1; padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; font-size:0.86rem; line-height:1.5;">
                 <div style="background:var(--bg-hover); color:var(--text-main); padding:12px 14px; border-radius:14px 14px 14px 4px; border:1px solid var(--border); max-width:90%;">
-                    Xin chào! Tôi là <b>Trợ lý Học thuật</b>. Các nút tra cứu nhanh bên dưới hoàn toàn <b>không tốn lượt AI</b>. Khi bạn cần giải đáp chuyên môn sâu, hãy nhập câu hỏi vào ô chat.
+                    Xin chào! Tôi là <b>Trợ lý Học thuật</b>. Các nút tra cứu nhanh bên dưới hoàn toàn <b>miễn phí</b>. Khi cần giải đáp chuyên môn sâu, bạn có ${FREE_DAILY_CHATS} lượt miễn phí mỗi ngày (vượt mức: $${EXTRA_CHAT_COST}/câu).
                 </div>
             </div>
 
-            <!-- Gợi ý nhanh Nội bộ (0 tốn API) -->
             <div style="padding:8px 12px; border-top:1px solid var(--border); display:flex; gap:6px; overflow-x:auto; white-space:nowrap; background:var(--bg-panel);">
                 <button onclick="runLocalCopilotCheck('progress')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:5px 10px; border-radius:100px; font-size:0.74rem; font-weight:700; cursor:pointer;">📊 Phân tích tiến độ (0 phí)</button>
                 <button onclick="runLocalCopilotCheck('schedule')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:5px 10px; border-radius:100px; font-size:0.74rem; font-weight:700; cursor:pointer;">📅 Lịch trình & Ưu tiên</button>
                 <button onclick="runLocalCopilotCheck('reputation')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:5px 10px; border-radius:100px; font-size:0.74rem; font-weight:700; cursor:pointer;">⭐ Hồ sơ Tín nhiệm</button>
             </div>
 
-            <!-- Ô nhập tin nhắn gọi Gemini API -->
             <div style="padding:12px; border-top:1px solid var(--border); display:flex; gap:8px; background:var(--bg-panel);">
                 <input id="ai-copilot-input" type="text" placeholder="Hỏi AI về phương pháp, kiến thức..." onkeydown="if(event.key==='Enter') sendCopilotMessage()" style="flex:1; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-hover); color:var(--text-main); font-size:0.86rem; outline:none;">
                 <button id="ai-copilot-send" onclick="sendCopilotMessage()" style="background:#2563eb; color:#fff; border:none; width:40px; height:40px; border-radius:12px; cursor:pointer; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -4736,7 +4854,6 @@ function appendCopilotBubble(text, sender = 'ai') {
     return msgDiv;
 }
 
-// 1. CHẾ ĐỘ PHÂN TÍCH NỘI BỘ (KHÔNG TỐN LƯỢT GỌI API)
 function runLocalCopilotCheck(type) {
     let activeGoals = goals.filter(g => g.current > 0);
     let cycleHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : 0;
@@ -4745,7 +4862,8 @@ function runLocalCopilotCheck(type) {
     if (type === 'progress') {
         appendCopilotBubble("📊 Phân tích tiến độ hiện tại", 'user');
         let remainKPI = Math.max(0, targetHrs - cycleHrs);
-        let msg = `<b>Báo cáo Tiến độ Hệ thống:</b><br>• KPI Tuần này: <b>${cycleHrs.toFixed(1)}h / ${targetHrs}h</b> ${remainKPI > 0 ? `(Còn thiếu ${remainKPI.toFixed(1)}h)` : `(Đã hoàn thành chỉ tiêu an toàn)`}.<br>• Mục tiêu đang mở: <b>${activeGoals.length} mục tiêu</b>.`;
+        let qInfo = getTodayDispatchQuotaInfo();
+        let msg = `<b>Báo cáo Tiến độ Hệ thống:</b><br>• Định mức hôm nay (${qInfo.busyShiftsCount} ca TKB): <b>${qInfo.doneHrs.toFixed(2)}h / ${qInfo.requiredHrs}h</b><br>• KPI Tuần này: <b>${cycleHrs.toFixed(1)}h / ${targetHrs}h</b> ${remainKPI > 0 ? `(Còn thiếu ${remainKPI.toFixed(1)}h)` : `(Đã hoàn thành chỉ tiêu an toàn)`}.`;
         if (activeGoals.length > 0) {
             let pick = (typeof selectSmartDispatchTask === 'function') ? selectSmartDispatchTask(activeGoals) : { goal: activeGoals[0], duration: 25, reason: "Mục tiêu trọng tâm" };
             msg += `<br>• <b>Đề xuất hành động:</b> Ưu tiên thực hiện phiên <b>${pick.duration} phút</b> cho mục tiêu <b>"${pick.goal.name}"</b> (${pick.reason}).`;
@@ -4757,39 +4875,36 @@ function runLocalCopilotCheck(type) {
         if (busy) {
             appendCopilotBubble(`Hiện tại bạn đang trong ca lịch trình: <b>${busy.name}</b> ${busy.room ? `(Phòng: ${busy.room})` : ''}. Hệ thống đã tự động tạm ngưng phát nhiệm vụ điều phối để bạn tập trung.`, 'ai');
         } else {
-            appendCopilotBubble(`Hiện tại bạn đang trống lịch trên Thời khóa biểu. Đây là thời điểm lý tưởng để hoàn thành 1 phiên Pomodoro 25 phút nhằm tích lũy giờ học và giữ vững Hiệu suất điều phối.`, 'ai');
+            appendCopilotBubble(`Hiện tại bạn đang trống lịch trên Thời khóa biểu. Đây là thời điểm lý tưởng để hoàn thành 1 phiên học nhằm tích lũy giờ và giữ vững Hiệu suất điều phối.`, 'ai');
         }
     } else if (type === 'reputation') {
         appendCopilotBubble("⭐ Kiểm tra Hồ sơ Tín nhiệm", 'user');
         let avgStar = (typeof getAverageStarRating === 'function') ? getAverageStarRating().toFixed(2) : "5.00";
         let dRate = (typeof dispatchRate !== 'undefined') ? dispatchRate : 100;
         let usd = localStorage.getItem('usdBalance') || 0;
-        appendCopilotBubble(`<b>Hồ sơ Tín nhiệm Học thuật:</b><br>• Đánh giá chất lượng: <b>⭐ ${avgStar} / 5.00</b><br>• Hiệu suất nhận nhiệm vụ: <b>${dRate}%</b><br>• Ngân khố hiện tại: <b>$${usd}</b><br><i>Mẹo: Duy trì Hiệu suất >= 80% và viết báo cáo chi tiết (đạt 4-5 sao) để nhận thêm Tiền Tip từ $15 - $35 mỗi phiên.</i>`, 'ai');
+        appendCopilotBubble(`<b>Hồ sơ Tín nhiệm Học thuật:</b><br>• Đánh giá chất lượng: <b>⭐ ${avgStar} / 5.00</b><br>• Hiệu suất nhận nhiệm vụ: <b>${dRate}%</b><br>• Ngân khố hiện tại: <b>$${usd}</b>`, 'ai');
     }
 }
 
-// 2. CHẾ ĐỘ HỎI ĐÁP AI CHUYÊN SÂU (CÓ KIỂM SOÁT LƯỢT & THU PHÍ USD)
 async function sendCopilotMessage() {
     const input = document.getElementById('ai-copilot-input');
     if (!input) return;
     const userText = input.value.trim();
     if (!userText) return;
 
-    // Chặn spam liên tục (Cooldown 15 giây)
     let now = Date.now();
     let diffSec = Math.ceil((15000 - (now - copilotLastAskTime)) / 1000);
     if (now - copilotLastAskTime < 15000) {
-        alert(`Vui lòng đợi ${diffSec} giây trước khi gửi câu hỏi tiếp theo để đảm bảo ổn định kết nối AI.`);
+        alert(`Vui lòng đợi ${diffSec} giây trước khi gửi câu hỏi tiếp theo.`);
         return;
     }
 
-    // Kiểm tra hạn mức miễn phí & trừ tiền USD nếu vượt quá 3 câu/ngày
     let quota = getCopilotQuota();
     let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
 
     if (quota.remainingFree <= 0) {
         if (currentUsd < EXTRA_CHAT_COST) {
-            appendCopilotBubble(`⚠️ Bạn đã dùng hết ${FREE_DAILY_CHATS} lượt hỏi AI miễn phí hôm nay. Số dư hiện tại ($${currentUsd}) không đủ $${EXTRA_CHAT_COST} để mua thêm lượt tư vấn. Hãy hoàn thành thêm phiên học để tích lũy USD!`, 'ai');
+            appendCopilotBubble(`⚠️ Bạn đã dùng hết ${FREE_DAILY_CHATS} lượt hỏi AI miễn phí hôm nay. Số dư hiện tại ($${currentUsd}) không đủ $${EXTRA_CHAT_COST} để mua thêm lượt tư vấn.`, 'ai');
             return;
         }
         localStorage.setItem('usdBalance', currentUsd - EXTRA_CHAT_COST);
@@ -4809,8 +4924,7 @@ async function sendCopilotMessage() {
 
     const systemContext = `Bạn là Trợ lý Học thuật AI (Academic Copilot) trong ứng dụng quản lý học tập The Apex.
     Phong cách: Trung lập, chuyên nghiệp, đi thẳng vào trọng tâm, trình bày rõ ràng (dưới 130 từ).
-    Ngữ cảnh người dùng: Chuỗi ${currentStreak} ngày | Mục tiêu đang học: ${activeGoalsList}.
-    Hãy giải đáp câu hỏi học thuật hoặc tư vấn lộ trình ngắn gọn, súc tích.`;
+    Ngữ cảnh người dùng: Chuỗi ${currentStreak} ngày | Mục tiêu đang học: ${activeGoalsList}.`;
 
     copilotHistory.push(`Người dùng: ${userText}`);
     if (copilotHistory.length > 6) copilotHistory.shift();
@@ -4850,5 +4964,193 @@ async function sendCopilotMessage() {
     if (typeof syncToCloud === 'function') syncToCloud();
 }
 
-window.addEventListener('DOMContentLoaded', initAICopilotWidget);
-setTimeout(initAICopilotWidget, 1000);
+// =====================================================================
+// 4. CỬA HÀNG VẬT PHẨM HỌC THUẬT (ACADEMIC SHOP)
+// =====================================================================
+function injectShopButtonToSidebar() {
+    if (document.getElementById('btn-open-academic-shop')) return;
+    let usdEl = document.getElementById('usd-balance');
+    if (!usdEl) return;
+
+    let walletBox = usdEl.closest('div');
+    if (walletBox && walletBox.parentElement) {
+        let btn = document.createElement('button');
+        btn.id = 'btn-open-academic-shop';
+        btn.onclick = openAcademicShop;
+        btn.style.cssText = "width: calc(100% - 32px); margin: 8px 16px 16px 16px; padding: 10px 14px; border-radius: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(234,88,12,0.15)); border: 1px solid rgba(245,158,11,0.4); color: var(--brand-trophy); font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;";
+        btn.innerHTML = `<i class="fa-solid fa-store"></i> Cửa Hàng Vật Phẩm`;
+        walletBox.parentElement.insertBefore(btn, walletBox.nextSibling);
+    }
+}
+
+function openAcademicShop() {
+    let modal = document.getElementById('academic-shop-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'academic-shop-modal';
+        modal.style.cssText = "display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.82); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(6px);";
+        document.body.appendChild(modal);
+    }
+    renderAcademicShopContent();
+    modal.style.display = 'flex';
+}
+
+function renderAcademicShopContent() {
+    let modal = document.getElementById('academic-shop-modal');
+    if (!modal) return;
+
+    let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+    let xpBoostUntil = parseInt(localStorage.getItem('saasXpBoostUntil')) || 0;
+    let isBoostActive = Date.now() < xpBoostUntil;
+    let boostHrsLeft = isBoostActive ? Math.ceil((xpBoostUntil - Date.now()) / 3600000) : 0;
+
+    modal.innerHTML = `
+        <div style="background:var(--bg-panel); width:92%; max-width:560px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:88vh; overflow-y:auto; position:relative; box-shadow:0 15px 50px rgba(0,0,0,0.6);">
+            <button onclick="document.getElementById('academic-shop-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                <div style="width:46px; height:46px; border-radius:14px; background:rgba(245,158,11,0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div>
+                    <h2 style="margin:0; font-size:1.35rem; color:var(--text-main);">Cửa Hàng Vật Phẩm Học Thuật</h2>
+                    <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Số dư hiện tại: <strong style="color:#f59e0b;">$${usd} USD</strong></div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr; gap:14px;">
+                <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
+                    <div>
+                        <div style="font-weight:800; color:var(--text-main); font-size:1rem;">🛡️ Khiên Bảo Vệ Chuỗi (Streak Shield)</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin:4px 0;">Tự động kích hoạt khi bạn lỡ quên học qua đêm để xóa phạt Lãi kép ngày đó và bảo toàn Chuỗi kỷ luật.</div>
+                        <div style="font-size:0.78rem; color:#10b981; font-weight:700;">Đang sở hữu: ${shields} / 2 Khiên</div>
+                    </div>
+                    <button onclick="buyShopItem('shield')" style="background:#f59e0b; color:#fff; border:none; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; flex-shrink:0;">$1,500</button>
+                </div>
+
+                <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
+                    <div>
+                        <div style="font-weight:800; color:var(--text-main); font-size:1rem;">⚖️ Phiếu Giảm Án Phạt 50% (Debt Reducer)</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin:4px 0;">Cắt giảm ngay lập tức 50% số phút phạt Nợ Lãi Kép hiện tại (hoặc lưu trữ để tự động giảm 50% ở lần bị phạt tiếp theo).</div>
+                        <div style="font-size:0.78rem; color:var(--brand-info); font-weight:700;">Trạng thái: ${localStorage.getItem('saasDebtReducerVoucher') === 'true' ? 'Đã trang bị sẵn 1 phiếu' : 'Chưa trang bị'}</div>
+                    </div>
+                    <button onclick="buyShopItem('reducer')" style="background:#f59e0b; color:#fff; border:none; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; flex-shrink:0;">$800</button>
+                </div>
+
+                <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
+                    <div>
+                        <div style="font-weight:800; color:var(--text-main); font-size:1rem;">📡 Thẻ Khôi Phục Điều Phối (Dispatch Reset)</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin:4px 0;">Đưa Hiệu suất nhận lệnh quay về ngay mốc ưu tiên <b>85%</b> và xóa sạch chuỗi từ chối liên tiếp.</div>
+                        <div style="font-size:0.78rem; color:var(--brand-focus); font-weight:700;">Hiệu suất hiện tại: ${dispatchRate}%</div>
+                    </div>
+                    <button onclick="buyShopItem('dispatch_reset')" style="background:#f59e0b; color:#fff; border:none; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; flex-shrink:0;">$500</button>
+                </div>
+
+                <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
+                    <div>
+                        <div style="font-weight:800; color:var(--text-main); font-size:1rem;">⚡ Thẻ Tăng Trưởng Cấp Độ 24h (XP Boost x1.5)</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin:4px 0;">Trong 24 giờ tiếp theo, mỗi phiên học hoàn thành được cộng thêm <b>+50%</b> số giờ tích lũy vào thanh Cấp độ (Level).</div>
+                        <div style="font-size:0.78rem; color:#8b5cf6; font-weight:700;">${isBoostActive ? `Đang kích hoạt (Còn ${boostHrsLeft}h)` : 'Chưa kích hoạt'}</div>
+                    </div>
+                    <button onclick="buyShopItem('xp_boost')" style="background:#f59e0b; color:#fff; border:none; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; flex-shrink:0;">$1,200</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function buyShopItem(itemType) {
+    let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+
+    if (itemType === 'shield') {
+        let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+        if (shields >= 2) return alert("Bạn chỉ được tích trữ tối đa 2 Khiên Bảo Vệ Chuỗi cùng lúc!");
+        if (usd < 1500) return alert("Số dư không đủ $1,500 USD!");
+        localStorage.setItem('usdBalance', usd - 1500);
+        localStorage.setItem('saasFreezes', shields + 1);
+        alert("🛡️ Mua thành công 1 Khiên Bảo Vệ Chuỗi!");
+    } else if (itemType === 'reducer') {
+        if (usd < 800) return alert("Số dư không đủ $800 USD!");
+        if (dailyDebtMinutes > 0) {
+            localStorage.setItem('usdBalance', usd - 800);
+            dailyDebtMinutes = Math.max(15, Math.floor(dailyDebtMinutes / 2));
+            localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+            alert(`⚖️ Đã áp dụng Phiếu Giảm Án! Số phút phạt của bạn đã giảm một nửa, chỉ còn ${dailyDebtMinutes} phút.`);
+        } else {
+            if (localStorage.getItem('saasDebtReducerVoucher') === 'true') return alert("Bạn đã trang bị sẵn 1 Phiếu Giảm Án trong kho rồi!");
+            localStorage.setItem('usdBalance', usd - 800);
+            localStorage.setItem('saasDebtReducerVoucher', 'true');
+            alert("⚖️ Đã trang bị Phiếu Giảm Án 50%! Hệ thống sẽ tự động cắt giảm một nửa số phút phạt nếu bạn lỡ vi phạm định mức ngày.");
+        }
+    } else if (itemType === 'dispatch_reset') {
+        if (dispatchRate >= 85 && consecutiveRejects === 0) return alert("Hiệu suất của bạn đang ở mức Tối ưu (>= 85%), chưa cần dùng thẻ này!");
+        if (usd < 500) return alert("Số dư không đủ $500 USD!");
+        localStorage.setItem('usdBalance', usd - 500);
+        dispatchRate = Math.max(85, dispatchRate);
+        consecutiveRejects = 0;
+        saveDispatchState();
+        renderDispatchStatusWidget();
+        alert("📡 Đã khôi phục Hiệu suất nhận lệnh lên 85% và xóa toàn bộ chuỗi từ chối!");
+    } else if (itemType === 'xp_boost') {
+        if (usd < 1200) return alert("Số dư không đủ $1,200 USD!");
+        localStorage.setItem('usdBalance', usd - 1200);
+        let currentEnd = parseInt(localStorage.getItem('saasXpBoostUntil')) || 0;
+        let baseTime = currentEnd > Date.now() ? currentEnd : Date.now();
+        localStorage.setItem('saasXpBoostUntil', baseTime + 24 * 3600 * 1000);
+        alert("⚡ Đã kích hoạt Thẻ Tăng Trưởng Cấp Độ (x1.5 Level XP) trong 24 giờ!");
+    }
+
+    if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
+    renderAcademicShopContent();
+    if (typeof syncToCloud === 'function') syncToCloud();
+}
+
+const prevCheckCycleShop = window.checkCycleAndStreak;
+window.checkCycleAndStreak = function() {
+    let prevDebt = dailyDebtMinutes;
+    if (typeof prevCheckCycleShop === 'function') prevCheckCycleShop();
+
+    if (dailyDebtMinutes > prevDebt) {
+        let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+        if (shields > 0) {
+            localStorage.setItem('saasFreezes', shields - 1);
+            dailyDebtMinutes = 0;
+            localStorage.setItem('saasDailyDebt', '0');
+            let shameModal = document.getElementById('shame-modal');
+            if (shameModal) shameModal.style.display = 'none';
+            alert("🛡️ KHIÊN BẢO VỆ CHUỖI ĐÃ KÍCH HOẠT!\nHệ thống đã tự động dùng 1 Khiên để miễn trừ án phạt Lãi kép hôm qua và bảo vệ Chuỗi kỷ luật của bạn!");
+            if (typeof syncToCloud === 'function') syncToCloud();
+            return;
+        }
+        if (localStorage.getItem('saasDebtReducerVoucher') === 'true') {
+            localStorage.removeItem('saasDebtReducerVoucher');
+            dailyDebtMinutes = Math.max(15, Math.floor(dailyDebtMinutes / 2));
+            localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+            alert(`⚖️ PHIẾU GIẢM ÁN 50% ĐÃ KÍCH HOẠT!\nThời gian phạt khổ sai đã được giảm một nửa, chỉ còn ${dailyDebtMinutes} phút.`);
+        }
+    }
+};
+
+const prevRenderDashboardMaster = window.renderDashboard;
+window.renderDashboard = function() {
+    if (typeof prevRenderDashboardMaster === 'function') prevRenderDashboardMaster();
+    renderDispatchStatusWidget();
+    scheduleIdleDispatch(45000);
+    injectShopButtonToSidebar();
+};
+
+const prevRenderKPIMaster = window.renderKPI;
+window.renderKPI = function() {
+    if (typeof prevRenderKPIMaster === 'function') prevRenderKPIMaster();
+    renderAvatarStarBadge();
+    injectShopButtonToSidebar();
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+    initAICopilotWidget();
+    setTimeout(() => {
+        renderAvatarStarBadge();
+        injectShopButtonToSidebar();
+    }, 1200);
+});
