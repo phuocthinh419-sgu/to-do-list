@@ -6406,13 +6406,12 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// FOCUS ROOM PRO STUDIO OVERHAUL (DROP-IN CUỐI FILE - KHÔNG CẦN XÓA CODE CŨ)
+// FOCUS ROOM PRO STUDIO OVERHAUL (100% COMPLETE & SYNTAX VERIFIED)
 // =====================================================================
 (function upgradeFocusRoomStudio() {
     var currentFocusScene = localStorage.getItem('apexFocusScene') || 'lofi_room';
     var ambientAudioCtx = null;
     var ambientNoiseNode = null;
-    var ambientGainNode = null;
     var isAmbientPlaying = false;
 
     var FOCUS_SCENES = {
@@ -6430,11 +6429,10 @@ window.addEventListener('DOMContentLoaded', function() {
         },
         user_custom: {
             label: "🌌 Nền Dashboard",
-            bg: "" // Sẽ lấy theo ảnh nền người dùng chọn
+            bg: ""
         }
     };
 
-    // 1. BỘ TẠO ÂM THANH TRẮNG (TIẾNG MƯA RƠI ẤM ÁP) BẰNG WEB AUDIO API
     window.toggleFocusRainSound = function() {
         var btn = document.getElementById('btn-ambient-rain');
         if (!isAmbientPlaying) {
@@ -6460,12 +6458,12 @@ window.addEventListener('DOMContentLoaded', function() {
             filter.type = 'lowpass';
             filter.frequency.value = 850;
 
-            ambientGainNode = ambientAudioCtx.createGain();
-            ambientGainNode.gain.value = 0.18;
+            var gainNode = ambientAudioCtx.createGain();
+            gainNode.gain.value = 0.18;
 
             ambientNoiseNode.connect(filter);
-            filter.connect(ambientGainNode);
-            ambientGainNode.connect(ambientAudioCtx.destination);
+            filter.connect(gainNode);
+            gainNode.connect(ambientAudioCtx.destination);
             ambientNoiseNode.start(0);
             isAmbientPlaying = true;
             if (btn) {
@@ -6473,7 +6471,9 @@ window.addEventListener('DOMContentLoaded', function() {
                 btn.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy" style="color:#38bdf8;"></i> Tiếng mưa: BẬT';
             }
         } else {
-            if (ambientNoiseNode) { try { ambientNoiseNode.stop(); } catch(e){} }
+            if (ambientNoiseNode) {
+                try { ambientNoiseNode.stop(); } catch (e) {}
+            }
             isAmbientPlaying = false;
             if (btn) {
                 btn.classList.remove('active');
@@ -6507,7 +6507,6 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // 2. CSS ĐỒ HỌA CAO CẤP CHO PHÒNG FOCUS
     function injectFocusStudioProCSS() {
         if (document.getElementById('focus-studio-pro-css')) return;
         var st = document.createElement('style');
@@ -6515,132 +6514,89 @@ window.addEventListener('DOMContentLoaded', function() {
         st.innerHTML = `
             #focus-room {
                 padding: 18px 32px !important;
-                transition: background-image 0.5s ease-in-out !important;
+                transition: background-image 0.4s ease-in-out !important;
             }
             #focus-overlay {
-                background: 
-                    radial-gradient(circle at 38% 48%, rgba(124, 58, 237, 0.16) 0%, rgba(10, 14, 28, 0.72) 48%, rgba(6, 8, 18, 0.92) 100%) !important;
+                background: radial-gradient(circle at 38% 48%, rgba(124, 58, 237, 0.18) 0%, rgba(10, 14, 28, 0.72) 50%, rgba(6, 8, 18, 0.92) 100%) !important;
                 backdrop-filter: blur(6px) !important;
             }
-
-            /* Thanh chọn Bối cảnh & Âm thanh môi trường */
             .focus-ambient-bar {
                 display: flex; align-items: center; justify-content: center; gap: 8px;
-                flex-wrap: wrap; margin-bottom: 14px;
+                flex-wrap: wrap; margin-bottom: 12px;
             }
             .focus-scene-pill {
                 background: rgba(15, 20, 38, 0.65);
                 border: 1px solid rgba(255, 255, 255, 0.12);
-                color: #cbd5e1; padding: 5px 13px; border-radius: 100px;
-                font-size: 0.74rem; font-weight: 600; cursor: pointer;
+                color: #cbd5e1; padding: 6px 14px; border-radius: 100px;
+                font-size: 0.75rem; font-weight: 600; cursor: pointer;
                 transition: all 0.2s ease; backdrop-filter: blur(8px);
-                display: inline-flex; align-items: center; gap: 6px;
             }
             .focus-scene-pill:hover, .focus-scene-pill.active {
-                background: rgba(139, 92, 246, 0.28);
+                background: rgba(139, 92, 246, 0.32);
                 border-color: #a855f7; color: #fff;
-                box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+                box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
             }
 
-            /* Vòng Hào Quang Đôi (Dual-Ring Neon Halo) */
+            /* Vòng Hào Quang Đôi Phát Sáng (Luôn sáng kể cả khi ở 00:00) */
             .neon-timer-ring-wrapper {
                 position: relative !important;
-                width: 280px !important;
-                height: 280px !important;
+                width: 270px !important;
+                height: 270px !important;
                 border-radius: 50% !important;
-                background: radial-gradient(circle, rgba(124, 58, 237, 0.14) 0%, rgba(15, 20, 38, 0.65) 70%) !important;
-                box-shadow: 
-                    0 0 50px rgba(124, 58, 237, 0.28),
-                    inset 0 0 30px rgba(139, 92, 246, 0.18) !important;
+                background: radial-gradient(circle, rgba(124, 58, 237, 0.18) 0%, rgba(15, 20, 38, 0.72) 72%) !important;
+                box-shadow: 0 0 55px rgba(124, 58, 237, 0.32), inset 0 0 30px rgba(139, 92, 246, 0.2) !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 margin: 8px auto !important;
             }
-            /* Vòng vạch chia độ (Dial Ticks) bên trong */
             .neon-timer-ring-wrapper::before {
                 content: "";
                 position: absolute;
-                inset: 18px;
+                inset: 16px;
                 border-radius: 50%;
-                border: 1px dashed rgba(192, 132, 252, 0.25);
+                border: 1px dashed rgba(192, 132, 252, 0.3);
                 pointer-events: none;
             }
             .neon-timer-ring-wrapper svg {
-                width: 280px !important;
-                height: 280px !important;
-                filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.6)) !important;
+                width: 270px !important;
+                height: 270px !important;
+                filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.6)) !important;
             }
             #focus-room #session-timer {
-                font-size: 4.1rem !important;
+                font-size: 4rem !important;
                 font-weight: 900 !important;
                 color: #ffffff !important;
                 letter-spacing: -2px !important;
                 text-shadow: 0 0 28px rgba(192, 132, 252, 0.65) !important;
             }
             #focus-sub-duration {
-                font-size: 0.86rem !important;
+                font-size: 0.85rem !important;
                 color: #c084fc !important;
                 font-weight: 700 !important;
-                letter-spacing: 1px !important;
                 margin-top: 6px !important;
-            }
-
-            /* Nút Chọn Thời Lượng (5p / 15p / 25p) */
-            .focus-pill-btn {
-                background: rgba(17, 23, 42, 0.8) !important;
-                border: 1px solid rgba(255, 255, 255, 0.14) !important;
-                padding: 8px 18px !important;
-                border-radius: 12px !important;
-                font-size: 0.8rem !important;
-                font-weight: 700 !important;
-                color: #f1f5f9 !important;
-                box-shadow: 0 6px 16px rgba(0,0,0,0.3) !important;
-            }
-            .focus-pill-btn:hover, .focus-pill-btn.active {
-                background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
-                border-color: #c084fc !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 8px 22px rgba(124, 58, 237, 0.5) !important;
-            }
-
-            /* Cột phải Studio (3 Thẻ Kính Mờ Đồng Bộ) */
-            .focus-studio-layout {
-                grid-template-columns: 1fr 330px !important;
-                gap: 28px !important;
             }
             .focus-glass-panel {
                 background: linear-gradient(155deg, rgba(20, 25, 45, 0.78), rgba(12, 15, 28, 0.88)) !important;
                 border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
                 border-radius: 16px !important;
-                padding: 15px 16px !important;
-                backdrop-filter: blur(16px) !important;
+                padding: 14px 16px !important;
+                backdrop-filter: blur(18px) !important;
                 box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
-            }
-
-            /* Sóng nhạc chuyển động ở thanh Lo-fi đáy */
-            @keyframes eqBounce {
-                0%, 100% { height: 4px; }
-                50% { height: 15px; }
-            }
-            .eq-bar {
-                width: 3px; background: #a855f7; border-radius: 3px;
-                display: inline-block; animation: eqBounce 1s infinite ease-in-out;
             }
         `;
         document.head.appendChild(st);
     }
 
-    // 3. LẮP RÁP ĐẦY ĐỦ CÁC THÀNH PHẦN STUDIO CHO PHÒNG FOCUS
     function buildFocusStudioComponents() {
         injectFocusStudioProCSS();
         var focusRoom = document.getElementById('focus-room');
         if (!focusRoom) return;
 
-        // A. Thêm nút Toàn màn hình & Tiếng mưa lên góc trên
-        var focusNav = focusRoom.querySelector('.focus-nav');
+        // 1. Nhóm nút Tiếng mưa & Toàn màn hình ở góc phải trên
         var tickBtn = document.getElementById('btn-tick');
-        if (focusNav && tickBtn && !document.getElementById('focus-top-right-group')) {
+        if (tickBtn && !document.getElementById('focus-top-right-group')) {
             var rightGroup = document.createElement('div');
             rightGroup.id = 'focus-top-right-group';
             rightGroup.style.cssText = "display:flex; align-items:center; gap:8px;";
@@ -6663,36 +6619,36 @@ window.addEventListener('DOMContentLoaded', function() {
             rightGroup.appendChild(fsBtn);
         }
 
-        // B. Chèn thanh chọn Bối cảnh (Lo-fi Room / Library / Rainy Night / Nền Dashboard)
+        // 2. Thanh chọn Bối cảnh (Lo-fi Room, Library, Rainy Night, Nền Dashboard)
         var badge = document.getElementById('focus-badge');
         if (badge && !document.getElementById('focus-ambient-scene-bar')) {
             var sceneBar = document.createElement('div');
             sceneBar.id = 'focus-ambient-scene-bar';
             sceneBar.className = 'focus-ambient-bar';
             sceneBar.innerHTML = Object.keys(FOCUS_SCENES).map(function(k) {
-                return `<button class="focus-scene-pill ${currentFocusScene===k?'active':''}" data-scene="${k}" onclick="switchFocusScene('${k}')">${FOCUS_SCENES[k].label}</button>`;
+                return '<button class="focus-scene-pill ' + (currentFocusScene === k ? 'active' : '') + '" data-scene="' + k + '" onclick="switchFocusScene(\'' + k + '\')">' + FOCUS_SCENES[k].label + '</button>';
             }).join('');
             badge.parentNode.insertBefore(sceneBar, badge);
         }
 
-        // C. Chèn Câu trích dẫn & Nút Bắt đầu nổi bật dưới vòng tròn
+        // 3. Câu trích dẫn & Nút Bắt đầu nhanh dưới vòng tròn
         var ringWrap = focusRoom.querySelector('.neon-timer-ring-wrapper');
         if (ringWrap && !document.getElementById('focus-studio-quote-box')) {
             var quoteBox = document.createElement('div');
             quoteBox.id = 'focus-studio-quote-box';
-            quoteBox.style.cssText = "text-align:center; margin: 12px 0 6px 0;";
+            quoteBox.style.cssText = "text-align:center; margin: 10px 0 6px 0;";
             quoteBox.innerHTML = `
-                <div style="color:rgba(255,255,255,0.8); font-style:italic; font-size:0.86rem; margin-bottom:12px;">
+                <div style="color:rgba(255,255,255,0.8); font-style:italic; font-size:0.84rem; margin-bottom:10px;">
                     "Stay focused. You've got this." ✨
                 </div>
-                <button id="btn-focus-quick-start" onclick="startSession(25)" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); color:#fff; border:none; padding:10px 28px; border-radius:100px; font-weight:800; font-size:0.84rem; cursor:pointer; box-shadow:0 6px 22px rgba(139,92,246,0.5); display:inline-flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-play"></i> Bắt đầu phiên 25 phút
+                <button id="btn-focus-quick-start" onclick="startSession(25)" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); color:#fff; border:none; padding:9px 26px; border-radius:100px; font-weight:800; font-size:0.82rem; cursor:pointer; box-shadow:0 6px 20px rgba(139,92,246,0.5); display:inline-flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-play"></i> Bắt đầu Pomodoro (25p)
                 </button>
             `;
             ringWrap.parentNode.insertBefore(quoteBox, ringWrap.nextSibling);
         }
 
-        // D. Nâng cấp Cột phải: Thêm thẻ "Thống kê phiên" ở giữa Việc cần làm & Không gian âm nhạc
+        // 4. Bổ sung Thẻ "Thống kê phiên" ở cột phải
         var todoListEl = document.getElementById('focus-room-todo-list');
         var musicWidget = document.getElementById('widget-music');
         if (todoListEl && todoListEl.parentElement) {
@@ -6707,94 +6663,47 @@ window.addEventListener('DOMContentLoaded', function() {
                 statsPanel.innerHTML = `
                     <div style="font-weight:700; color:#fff; font-size:0.82rem; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                         <span><i class="fa-solid fa-chart-pie" style="color:#38bdf8; margin-right:6px;"></i> Thống kê phiên</span>
-                        <span style="font-size:0.66rem; background:rgba(16,185,129,0.18Bẩm bệ hạ, giao diện Focus Room hiện tại trông còn đơn giản chủ yếu do **bố cục đang bị trôi lơ lửng**, **vòng tròn đồng hồ chỉ là viền tĩnh** và **độ tương phản chất liệu kính (Glassmorphism) chưa đủ sâu**[cite: 1]. 
+                        <span style="font-size:0.65rem; background:rgba(16,185,129,0.18); color:#34d399; padding:2px 8px; border-radius:6px; font-weight:700;">LIVE</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.75rem;">
+                        <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px;">
+                            <div style="color:#94a3b8; font-size:0.66rem;">Chu kỳ</div>
+                            <strong style="color:#fff; font-size:0.9rem;">Pomodoro</strong>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px;">
+                            <div style="color:#94a3b8; font-size:0.66rem;">Hiệu suất</div>
+                            <strong style="color:#10b981; font-size:0.9rem;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong>
+                        </div>
+                    </div>
+                `;
+                musicWidget.parentElement.insertBefore(statsPanel, musicWidget);
+            }
+        }
 
-Thần đề xuất 4 hướng nâng cấp trực diện kèm mã nguồn CSS/HTML để lột xác khu vực này:
+        window.switchFocusScene(currentFocusScene);
+    }
 
----
+    // 5. Giữ cho Vòng tròn Neon luôn sáng rực khi ở trạng thái chờ 00:00
+    setInterval(function() {
+        var focusRoom = document.getElementById('focus-room');
+        if (!focusRoom || focusRoom.style.display === 'none') return;
 
-### 1. 4 Điểm cần nâng cấp ngay
+        var timerText = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "00:00";
+        var ring = document.getElementById('focus-ring-circle');
+        var quickBtn = document.getElementById('btn-focus-quick-start');
+        var subDur = document.getElementById('focus-sub-duration');
 
-* **Vòng tròn đồng hồ (Timer Ring) sang dạng SVG phát sáng:** Thay viền xám tĩnh hiện tại[cite: 1] bằng vòng tròn SVG có thanh tiến trình (progress bar) chạy mượt mà, phủ màu Gradient (Tím - Xanh Cyan) kèm hiệu ứng tỏa sáng (`drop-shadow`) và nhịp thở (pulse) khi đang đếm giờ.
-* **Nâng cấp chất liệu Kính mờ (Deep Glassmorphism):** Các khung `Việc cần làm`, `Không gian âm nhạc`[cite: 1] cần tăng độ mờ hậu cảnh (`backdrop-filter: blur(20px)`), thêm viền phản quang mỏng ở cạnh trên (`border-top: 1px solid rgba(255,255,255,0.2)`) để tạo chiều sâu 3D tách biệt khỏi nền trời đêm[cite: 1].
-* **Tái cấu trúc Bố cục (Grid cân đối):** Gom cụm chọn thời gian (`5p`, `15p`, `25p`)[cite: 1] thành một thanh trượt (Segmented Control) gọn gàng; đồng thời mở rộng kích thước cột bên phải và căn giữa toàn bộ khối nội dung theo tỷ lệ 60% (Đồng hồ) - 40% (Tiện ích).
-* **Typography & Nút điều khiển (CTA):** Tăng kích thước số `00:00`[cite: 1] với font chữ моно (`tabular-nums` để số không bị giật khi chạy) và bổ sung nút **Bắt đầu / Tạm dừng** nổi bật ngay dưới đáy vòng tròn.
+        if (timerText === "00:00") {
+            if (ring) ring.style.strokeDashoffset = "0"; // Sáng满 vòng tròn khi chờ
+            if (subDur) subDur.innerText = "/ 25:00";
+            if (quickBtn) quickBtn.style.display = "inline-flex";
+        } else {
+            if (quickBtn) quickBtn.style.display = "none";
+        }
+    }, 500);
 
----
-
-### 2. Code mẫu nâng cấp (HTML + CSS)
-
-Bệ hạ có thể áp dụng cấu trúc HTML và CSS dưới đây để thay thế cho khu vực trung tâm hiện tại[cite: 1]:
-
-```html
-<div class="focus-workspace">
-  <!-- CỘT TRÁI: KHU VỰC ĐỒNG HỒ -->
-  <div class="timer-section">
-    <!-- Thanh chọn chế độ dạng Segmented Pill -->
-    <div class="mode-selector">
-      <button class="mode-btn">🔥 Khởi động <span>5p</span></button>
-      <button class="mode-btn">⚡ Ngắn <span>15p</span></button>
-      <button class="mode-btn active">🧠 Pomodoro <span>25p</span></button>
-    </div>
-
-    <div class="focus-badge">KHU VỰC TẬP TRUNG</div>
-
-    <!-- Vòng tròn đồng hồ SVG phát sáng -->
-    <div class="timer-ring-container">
-      <svg class="timer-svg" viewBox="0 0 260 260">
-        <defs>
-          <linearGradient id="focusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#8b5cf6" />
-            <stop offset="100%" stop-color="#06b6d4" />
-          </linearGradient>
-        </defs>
-        <!-- Vòng nền -->
-        <circle class="ring-bg" cx="130" cy="130" r="115" />
-        <!-- Vòng tiến trình -->
-        <circle class="ring-progress" cx="130" cy="130" r="115" />
-      </svg>
-
-      <div class="timer-content">
-        <div class="time-main">00:00</div>
-        <div class="time-sub">/ 25:00</div>
-        <button class="btn-start-focus">BẮT ĐẦU</button>
-      </div>
-    </div>
-
-    <div class="status-pill">
-      <span class="status-dot"></span>
-      Sẵn sàng. Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.
-    </div>
-  </div>
-
-  <!-- CỘT PHẢI: SIDEBAR TIỆN ÍCH -->
-  <div class="sidebar-section">
-    <div class="glass-card">
-      <div class="card-header">
-        <span>📑 Việc cần làm</span>
-        <button class="btn-icon">+</button>
-      </div>
-      <div class="task-empty">Chưa có nhiệm vụ nào cho phiên này.</div>
-    </div>
-
-    <div class="glass-card">
-      <div class="card-header">
-        <span>🎧 Không gian âm nhạc</span>
-      </div>
-      <div class="music-list">
-        <div class="music-item">
-          <span>Gói 30 phút</span>
-          <span class="price-tag">$10</span>
-        </div>
-        <div class="music-item">
-          <span>Gói 60 phút</span>
-          <span class="price-tag">$20</span>
-        </div>
-        <div class="music-item">
-          <span>Gói 120 phút</span>
-          <span class="price-tag">$35</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+    window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(buildFocusStudioComponents, 450);
+    });
+    setTimeout(buildFocusStudioComponents, 200);
+})();
