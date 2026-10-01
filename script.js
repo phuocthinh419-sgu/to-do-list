@@ -4076,7 +4076,7 @@ async function fetchLeaderboard(orderByField) {
 }
 
 // =====================================================================
-// HỆ THỐNG ĐIỀU PHỐI NHIỆM VỤ THỜI GIAN THỰC (SMART DISPATCH SYSTEM)
+// HỆ THỐNG ĐIỀU PHỐI NHIỆM VỤ THÔNG MINH (TIMETABLE-AWARE DISPATCHER)
 // =====================================================================
 let dispatchRate = parseInt(localStorage.getItem('saasDispatchRate'));
 if (isNaN(dispatchRate)) dispatchRate = 100;
@@ -4089,6 +4089,130 @@ let idleDispatchTimer = null;
 function saveDispatchState() {
     localStorage.setItem('saasDispatchRate', dispatchRate);
     localStorage.setItem('saasConsecutiveRejects', consecutiveRejects);
+}
+
+// HÀM PHỤ TRỢ: Chuẩn hóa chuỗi để so khớp tên Mục tiêu và tên Môn học trong TKB
+function normalizeText(str) {
+    return (str || "").toLowerCase().replace(/\[.*?\]/g, "").trim();
+}
+
+// HÀM PHỤ TRỢ: Kiểm tra xem hiện tại người dùng có đang vướng lịch trong TKB không
+function getCurrentBusySchedule() {
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) return null;
+    let now = new Date();
+    let hour = now.getHours();
+    let currentShift = null;
+    if (hour >= 6 && hour < 12) currentShift = 'sang';
+    else if (hour >= 12 && hour < 18) currentShift = 'chieu';
+    else if (hour >= 18 && hour < 22) currentShift = 'toi';
+
+    if (!currentShift) return null;
+
+    let todayDow = now.getDay();
+    let todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+    return timetableData.find(item => {
+        let sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
+        let eDate = new Date(item.endDate); eDate.setHours(23, 59, 59, 999);
+        let isPaused = item.pausedDates && item.pausedDates.includes(todayStr);
+        return !isPaused && item.shift === currentShift && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate;
+    }) || null;
+}
+
+// HÀM CỐT LÕI: Quét TKB và Độ khẩn cấp để chọn Mục tiêu + Thời lượng hợp lý nhất
+function selectSmartDispatchTask(activeGoals) {
+    let now = new Date();
+    let todayDow = now.getDay();
+    let todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+    let tomorrowObj = new Date(now);
+    tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+    let tomorrowDow = tomorrowObj.getDay();
+    let tomorrowStr = tomorrowObj.getFullYear() + '-' + String(tomorrowObj.getMonth() + 1).padStart(2, '0') + '-' + String(tomorrowObj.getDate()).padStart(2, '0');
+
+    let todayClasses = [];
+    let tomorrowClasses = [];
+    let todayTotalShifts = 0;
+
+    if (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) {
+        timetableData.forEach(item => {
+            let sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
+            let eDate = new Date(item.endDate); eDate.setHours(23, 59, 59, 999);
+
+            // Lịch hôm nay
+            let isPausedToday = item.pausedDates && item.pausedDates.includes(todayStr);
+            if (!isPausedToday && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate) {
+                todayTotalShifts++;
+                if (item.type === 'offline' || item.type === 'online' || item.type === 'exam') {
+                    todayClasses.push(item);
+                }
+            }
+
+            // Lịch ngày mai
+            let isPausedTomorrow = item.pausedDates && item.pausedDates.includes(tomorrowStr);
+            if (!isPausedTomorrow && parseInt(item.dow) === tomorrowDow && tomorrowObj >= sDate && tomorrowObj <= eDate) {
+                if (item.type === 'offline' || item.type === 'online' || item.type === 'exam') {
+                    tomorrowClasses.push(item);
+                }
+            }
+        });
+    }
+
+    let chosenGoal = null;
+    let reasonText = "";
+
+    // 1. Ưu tiên 1: Có lịch Thi hoặc Học ngay trong hôm nay khớp với Mục tiêu
+    for (let cls of todayClasses) {
+        let match = activeGoals.find(g => normalizeText(g.name).includes(normalizeText(cls.name)) || normalizeText(cls.name).includes(normalizeText(g.name)));
+        if (match) {
+            chosenGoal = match;
+            reasonText = cls.type === 'exam' 
+                ? `Lịch thi hôm nay trong TKB (${cls.name})` 
+                : `Ôn tập môn học hôm nay trong TKB (${cls.name})`;
+            break;
+        }
+    }
+
+    // 2. Ưu tiên 2: Chuẩn bị bài cho môn học/thi vào ngày mai trên TKB
+    if (!chosenGoal) {
+        for (let cls of tomorrowClasses) {
+            let match = activeGoals.find(g => normalizeText(g.name).includes(normalizeText(cls.name)) || normalizeText(cls.name).includes(normalizeText(g.name)));
+            if (match) {
+                chosenGoal = match;
+                reasonText = cls.type === 'exam'
+                    ? `Trọng tâm: Ngày mai có lịch thi (${cls.name})`
+                    : `Chuẩn bị trước cho lịch học ngày mai (${cls.name})`;
+                break;
+            }
+        }
+    }
+
+    // 3. Ưu tiên 3: Mục tiêu có Deadline gần nhất hoặc đang chậm tiến độ
+    if (!chosenGoal) {
+        let goalsWithDeadline = activeGoals.filter(g => g.deadline).sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        if (goalsWithDeadline.length > 0) {
+            chosenGoal = goalsWithDeadline[0];
+            reasonText = `Ưu tiên mục tiêu sát hạn chót (${chosenGoal.deadline})`;
+        }
+    }
+
+    // 4. Ưu tiên 4: Mục tiêu còn tồn đọng nhiều giờ nhất
+    if (!chosenGoal) {
+        let sortedByRemaining = [...activeGoals].sort((a, b) => b.current - a.current);
+        chosenGoal = sortedByRemaining[0];
+        reasonText = `Đẩy tiến độ mục tiêu trọng tâm (Còn ${chosenGoal.current.toFixed(1)}h)`;
+    }
+
+    // Tính toán thời lượng thấu tình đạt lý:
+    // Nếu hôm nay đã bận >= 2 ca trong TKB, hoặc đã sau 21h đêm, hoặc mục tiêu chỉ còn <= 0.3h -> Giao phiên nhẹ 15p
+    let isTiredOrLate = (todayTotalShifts >= 2) || (now.getHours() >= 21) || (chosenGoal.current <= 0.3);
+    let duration = isTiredOrLate ? 15 : 25;
+
+    if (todayTotalShifts >= 2) {
+        reasonText += ` • Phiên ngắn 15p (Hôm nay đã có ${todayTotalShifts} ca lịch trình)`;
+    }
+
+    return { goal: chosenGoal, duration: duration, reason: reasonText };
 }
 
 // 1. HIỂN THỊ CHỈ SỐ HIỆU SUẤT ĐIỀU PHỐI TRÊN DASHBOARD
@@ -4107,9 +4231,18 @@ function renderDispatchStatusWidget() {
         else dash.insertBefore(widget, document.getElementById('dashboard-grid'));
     }
 
+    let busyItem = getCurrentBusySchedule();
+    let isCurfew = (typeof isCurfewActive === 'function' && isCurfewActive());
+
     let statusColor = "#10b981";
-    let statusText = "Tối ưu (Ưu tiên nhiệm vụ thưởng x1.5 - x2.5)";
-    if (dispatchRate < 50 || consecutiveRejects >= 3) {
+    let statusText = "Tối ưu (Quét Thời khóa biểu • Thưởng x1.5 - x2.5)";
+    if (isCurfew) {
+        statusColor = "#64748b";
+        statusText = "Đang trong Giờ Giới Nghiêm (Ngưng tự động điều phối)";
+    } else if (busyItem) {
+        statusColor = "#0ea5e9";
+        statusText = `Tạm ngưng làm phiền (Đang trong ca TKB: ${busyItem.name})`;
+    } else if (dispatchRate < 50 || consecutiveRejects >= 3) {
         statusColor = "#ef4444";
         statusText = "Chế tài (Áp dụng nhiệm vụ bắt buộc • Nhận 30% thưởng gốc)";
     } else if (dispatchRate < 80) {
@@ -4124,7 +4257,7 @@ function renderDispatchStatusWidget() {
                     <i class="fa-solid fa-satellite-dish"></i>
                 </div>
                 <div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Trạng thái Điều phối Nhiệm vụ</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Điều phối Thông minh (Đồng bộ TKB)</div>
                     <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 700;">${statusText}</div>
                 </div>
             </div>
@@ -4140,15 +4273,16 @@ function renderDispatchStatusWidget() {
         </div>`;
 }
 
-// 2. BỘ CẢM BIẾN TRÌ HOÃN (TỰ ĐỘNG NGẮT KHI VÀO GIỜ GIỚI NGHIÊM)
+// 2. BỘ CẢM BIẾN TRÌ HOÃN (TỰ ĐỘNG TẮT KHI GIỚI NGHIÊM HOẶC ĐANG CÓ LỊCH TKB)
 function scheduleIdleDispatch() {
     clearTimeout(idleDispatchTimer);
-    // Chặn hoàn toàn nếu đang trong Giờ giới nghiêm
     if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
+    if (getCurrentBusySchedule() !== null) return; // Đang trong ca học/ca làm trên TKB -> Không tự nổ cuốc!
     if (isSessionActive || isBreakActive || isGracePeriod || isPendingTax || dailyDebtMinutes > 0) return;
     
     idleDispatchTimer = setTimeout(() => {
         if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
+        if (getCurrentBusySchedule() !== null) return;
         let dash = document.getElementById('view-dashboard');
         let activeGoals = goals.filter(g => g.current > 0);
         if (dash && dash.style.display !== 'none' && !isSessionActive && activeGoals.length > 0) {
@@ -4157,7 +4291,7 @@ function scheduleIdleDispatch() {
     }, 25000);
 }
 
-// 3. THUẬT TOÁN PHÁT LỆNH BÀI (KHÓA TRONG GIỜ GIỚI NGHIÊM)
+// 3. THUẬT TOÁN PHÁT LỆNH BÀI (ĐỒNG BỘ THỜI KHÓA BIỂU)
 function triggerDispatchPing(isManual = false) {
     if (typeof isCurfewActive === 'function' && isCurfewActive()) {
         if (isManual) alert("Hệ thống đang trong Giờ Giới Nghiêm. Trạm điều phối tạm ngưng phát nhiệm vụ để đảm bảo thời gian nghỉ ngơi!");
@@ -4172,8 +4306,10 @@ function triggerDispatchPing(isManual = false) {
     if (isSessionActive || isBreakActive || isGracePeriod) return;
     if (document.getElementById('dispatch-modal') && document.getElementById('dispatch-modal').style.display === 'flex') return;
 
-    let targetGoal = activeGoals[Math.floor(Math.random() * activeGoals.length)];
-    let duration = Math.random() < 0.5 ? 15 : 25;
+    // Gọi bộ lọc thông minh quét Thời khóa biểu & Deadline
+    let smartPick = selectSmartDispatchTask(activeGoals);
+    let targetGoal = smartPick.goal;
+    let duration = smartPick.duration;
     let isMandatory = (consecutiveRejects >= 3 || dispatchRate < 50);
 
     let hour = new Date().getHours();
@@ -4203,6 +4339,7 @@ function triggerDispatchPing(isManual = false) {
         originalReward: originalReward,
         finalReward: finalReward,
         isMandatory: isMandatory,
+        reason: smartPick.reason,
         tierLabel: isMandatory ? "NHIỆM VỤ BẮT BUỘC (KHÔI PHỤC HIỆU SUẤT)" : tierLabel
     };
 
@@ -4223,11 +4360,11 @@ function showDispatchModal() {
     let accentColor = q.isMandatory ? "#ef4444" : "#10b981";
 
     let rewardDisplayHtml = q.isMandatory
-        ? `<div style="text-align:right;">
+        ? `<div style="text-align:right; flex-shrink:0;">
                <div style="font-size:0.8rem; color:var(--text-muted); text-decoration:line-through;">Mức gốc: +$${q.originalReward}</div>
                <div style="font-size:1.5rem; font-weight:900; color:#f59e0b;">+$${q.finalReward} <span style="font-size:0.75rem; background:rgba(245,158,11,0.15); padding:2px 6px; border-radius:4px;">30%</span></div>
            </div>`
-        : `<div style="text-align:right;">
+        : `<div style="text-align:right; flex-shrink:0;">
                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Thưởng hoàn thành</div>
                <div style="font-size:1.6rem; font-weight:900; color:#10b981;">+$${q.finalReward}</div>
            </div>`;
@@ -4252,20 +4389,23 @@ function showDispatchModal() {
            </div>`;
 
     modal.innerHTML = `
-        <div style="background:var(--bg-panel); width:92%; max-width:440px; border-radius:22px; padding:24px; border:2px solid ${accentColor}; box-shadow:0 15px 50px rgba(0,0,0,0.6);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="background:var(--bg-panel); width:92%; max-width:450px; border-radius:22px; padding:24px; border:2px solid ${accentColor}; box-shadow:0 15px 50px rgba(0,0,0,0.6);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                 <span style="background:${accentColor}20; color:${accentColor}; padding:4px 10px; border-radius:100px; font-size:0.75rem; font-weight:800;">
                     <i class="fa-solid fa-satellite-dish"></i> ${q.tierLabel}
                 </span>
                 <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">Hiệu suất: ${dispatchRate}%</span>
             </div>
-            <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div style="background:var(--bg-hover); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
                 <div style="overflow:hidden;">
-                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Mục tiêu chỉ định</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Mục tiêu đề xuất</div>
                     <div style="font-size:1.15rem; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:4px 0;">${q.goalName}</div>
                     <div style="font-size:0.85rem; color:var(--brand-focus); font-weight:700;"><i class="fa-regular fa-clock"></i> Thời lượng: ${q.duration} phút</div>
                 </div>
                 ${rewardDisplayHtml}
+            </div>
+            <div style="font-size:0.78rem; color:var(--brand-info); background:rgba(14,165,233,0.08); border:1px solid rgba(14,165,233,0.2); padding:8px 12px; border-radius:10px; margin-bottom:16px; font-weight:600;">
+                <i class="fa-solid fa-calendar-check"></i> <b>Căn cứ điều phối:</b> ${q.reason}
             </div>
             ${actionButtonsHtml}
         </div>`;
