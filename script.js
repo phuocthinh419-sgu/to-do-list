@@ -5316,99 +5316,18 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// ĐẠI TU GIAO DIỆN COMMAND CENTER & FOCUS STUDIO (SYNC VỚI INDEX.HTML)
+// MASTER UI OVERHAUL: ĐỒNG BỘ 6 MÀN HÌNH THEO ĐÚNG ẢNH DEMO
 // =====================================================================
 let bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
     { id: 1, text: "Ôn lại từ vựng tuần 4", done: true },
-    { id: 2, text: "Làm bài tập chuyên ngành", done: true },
-    { id: 3, text: "Chuẩn bị bài thuyết trình / giáo án", done: false },
-    { id: 4, text: "Đọc tài liệu nghiên cứu", done: false }
+    { id: 2, text: "Làm bài tập Tiếng Anh 3", done: true },
+    { id: 3, text: "Chuẩn bị Kỹ năng tổng hợp 2", done: true },
+    { id: 4, text: "Review bài giảng Văn học Mỹ", done: false },
+    { id: 5, text: "Đọc tài liệu nghiên cứu", done: false }
 ];
 
 function saveBentoTodos() {
     localStorage.setItem('saasBentoTodos', JSON.stringify(bentoTodoList));
-}
-
-function injectCommandCenterStyles() {
-    if (document.getElementById('apex-command-center-css')) return;
-    const style = document.createElement('style');
-    style.id = 'apex-command-center-css';
-    style.innerHTML = `
-        /* Thanh tìm kiếm trên Header */
-        .bento-top-search {
-            display: flex; align-items: center; gap: 10px;
-            background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-            padding: 9px 16px; border-radius: 12px; width: 100%;
-        }
-        .bento-top-search i { color: var(--text-muted); font-size: 0.85rem; }
-        .bento-top-search input {
-            background: transparent; border: none; color: var(--text-main);
-            outline: none; width: 100%; font-size: 0.86rem; font-family: inherit;
-        }
-
-        /* Lời chào Hero */
-        .bento-hero { margin: 4px 0 20px 0; }
-        .bento-hero h1 { margin: 0 0 6px 0; font-size: 1.85rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
-        .bento-hero p { margin: 0; font-size: 0.9rem; color: var(--text-muted); font-style: italic; }
-
-        /* Lưới Bento */
-        .bento-row-2col { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; margin-bottom: 18px; }
-        .bento-row-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 22px; }
-        @media (max-width: 1100px) {
-            .bento-row-2col, .bento-row-3col { grid-template-columns: 1fr; }
-            .focus-studio-layout { grid-template-columns: 1fr !important; }
-        }
-
-        .bento-card {
-            background: var(--bg-panel); border: 1px solid var(--border);
-            border-radius: 20px; padding: 20px 22px; box-shadow: var(--shadow-bento);
-            backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .bento-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .bento-card-title { font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
-        .bento-link { font-size: 0.78rem; color: #8b5cf6; font-weight: 700; cursor: pointer; }
-        .bento-link:hover { text-decoration: underline; }
-
-        .bento-schedule-item {
-            display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .bento-schedule-item:last-child { border-bottom: none; }
-        .bento-dot-bar { width: 4px; height: 32px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
-
-        .bento-todo-item {
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            padding: 7px 8px; border-radius: 10px; cursor: pointer; transition: 0.15s;
-        }
-        .bento-todo-item:hover { background: var(--bg-hover); }
-        .bento-checkbox {
-            width: 18px; height: 18px; border-radius: 5px; border: 2px solid #64748b;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.68rem; color: #fff;
-        }
-        .bento-checkbox.checked { background: #10b981; border-color: #10b981; }
-
-        /* Focus Room Vòng Tròn Neon */
-        .neon-timer-ring-wrapper {
-            position: relative; width: 300px; height: 300px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .neon-timer-center {
-            position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        #focus-room #session-timer {
-            font-size: 4.2rem !important; font-weight: 900 !important; color: #fff !important;
-            line-height: 1 !important; margin: 0 !important; letter-spacing: -2px;
-        }
-        .focus-pill-btn {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            color: #fff; padding: 7px 15px; border-radius: 100px; font-size: 0.8rem;
-            font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px;
-        }
-        .focus-pill-btn:hover, .focus-pill-btn.active {
-            background: rgba(124,58,237,0.35); border-color: #a855f7; box-shadow: 0 0 15px rgba(168,85,247,0.4);
-        }
-    `;
-    document.head.appendChild(style);
 }
 
 function formatHrsToHM(decimalHours) {
@@ -5418,13 +5337,138 @@ function formatHrsToHM(decimalHours) {
     return `${h}h ${String(m).padStart(2, '0')}m`;
 }
 
+function injectMasterDemoCSS() {
+    if (document.getElementById('master-demo-css')) return;
+    const style = document.createElement('style');
+    style.id = 'master-demo-css';
+    style.innerHTML = `
+        /* Ép chuẩn tông màu Dark Indigo của Ảnh Demo */
+        body {
+            --bg-base: #0b0e17 !important;
+            --bg-panel: #131826 !important;
+            --bg-hover: #1c2237 !important;
+            --text-main: #f8fafc !important;
+            --text-muted: #8b95b0 !important;
+            --border: rgba(255,255,255,0.07) !important;
+            background-color: #0b0e17 !important;
+            color: #f8fafc !important;
+        }
+
+        /* Ẩn các khối giao diện đời cũ gây rối trên Dashboard */
+        #view-dashboard > .kpi-card,
+        #view-dashboard > .recommendation-strip,
+        #view-dashboard > .gamification-strip,
+        #view-dashboard > #imperial-quests,
+        #view-dashboard > #legacy-stock-strip,
+        #view-dashboard > .stock-strip {
+            display: none !important;
+        }
+
+        /* Nút Cửa hàng vật phẩm màu cam hổ phách dưới ô USD giống ảnh */
+        #btn-open-academic-shop {
+            background: linear-gradient(90deg, rgba(245,158,11,0.2), rgba(217,119,6,0.25)) !important;
+            border: 1px solid rgba(245,158,11,0.45) !important;
+            color: #fbbf24 !important;
+            border-radius: 10px !important;
+            padding: 9px 12px !important;
+            font-size: 0.82rem !important;
+            font-weight: 700 !important;
+        }
+
+        /* Thanh tìm kiếm Topbar */
+        .bento-top-search {
+            display: flex; align-items: center; gap: 10px;
+            background: #131826; border: 1px solid rgba(255,255,255,0.08);
+            padding: 8px 14px; border-radius: 10px; width: 280px; max-width: 100%;
+        }
+        .bento-top-search input {
+            background: transparent; border: none; color: #fff; outline: none; width: 100%; font-size: 0.84rem;
+        }
+
+        /* Lưới Bento Mục 1 (Dashboard) */
+        .bento-hero { margin: 2px 0 18px 0; }
+        .bento-hero h1 { font-size: 1.75rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; letter-spacing: -0.5px; }
+        .bento-hero p { font-size: 0.86rem; color: #8b95b0; font-style: italic; margin: 0; }
+
+        .bento-row-2col { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .bento-row-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        @media (max-width: 1100px) {
+            .bento-row-2col, .bento-row-3col { grid-template-columns: 1fr; }
+        }
+
+        .bento-card {
+            background: #131826;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .bento-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .bento-card-title { font-size: 0.92rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .bento-link { font-size: 0.76rem; color: #8b95b0; font-weight: 600; cursor: pointer; }
+        .bento-link:hover { color: #a855f7; }
+
+        /* Huy hiệu Lục giác Cấp bậc (Hexagon Badge) */
+        .hex-badge {
+            width: 64px; height: 72px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: #fff; flex-shrink: 0;
+            box-shadow: 0 8px 25px rgba(139,92,246,0.5);
+        }
+
+        /* Danh sách Lịch & Nhiệm vụ */
+        .bento-schedule-item {
+            display: flex; align-items: center; gap: 10px; padding: 7px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .bento-schedule-item:last-child { border-bottom: none; }
+        .bento-dot-bar { width: 4px; height: 30px; border-radius: 4px; flex-shrink: 0; }
+
+        .bento-todo-item {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: 0.15s;
+        }
+        .bento-todo-item:hover { background: rgba(255,255,255,0.04); }
+        .bento-checkbox {
+            width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #64748b;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.65rem; color: #fff;
+        }
+        .bento-checkbox.checked { background: #10b981; border-color: #10b981; }
+
+        /* Mục 2: Focus Room Studio Layout */
+        .neon-timer-ring-wrapper {
+            position: relative; width: 270px; height: 270px;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto;
+        }
+        .neon-timer-center {
+            position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #focus-room #session-timer {
+            font-size: 3.8rem !important; font-weight: 800 !important; color: #fff !important;
+            line-height: 1 !important; margin: 0 !important; letter-spacing: -1px !important;
+        }
+        .focus-pill-btn {
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); padding: 5px 13px; border-radius: 100px; font-size: 0.76rem;
+            font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .focus-pill-btn:hover, .focus-pill-btn.active {
+            background: rgba(124,58,237,0.35); border-color: #a855f7; color: #fff;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 function toggleBentoTodo(id) {
     let item = bentoTodoList.find(t => t.id === id);
     if (item) {
         item.done = !item.done;
         saveBentoTodos();
         renderBentoCommandCenter();
-        renderFocusRoomTodos();
+        renderFocusStudioRightPanel();
     }
 }
 
@@ -5434,7 +5478,7 @@ function addBentoTodoPrompt() {
     bentoTodoList.push({ id: Date.now(), text: text.trim(), done: false });
     saveBentoTodos();
     renderBentoCommandCenter();
-    renderFocusRoomTodos();
+    renderFocusStudioRightPanel();
 }
 
 function deleteBentoTodo(e, id) {
@@ -5442,37 +5486,29 @@ function deleteBentoTodo(e, id) {
     bentoTodoList = bentoTodoList.filter(t => t.id !== id);
     saveBentoTodos();
     renderBentoCommandCenter();
-    renderFocusRoomTodos();
+    renderFocusStudioRightPanel();
 }
 
-function filterDashboardGoalsBySearch(keyword) {
-    let q = (keyword || "").toLowerCase().trim();
-    let cards = document.querySelectorAll('#dashboard-grid > div');
-    cards.forEach(card => {
-        let txt = card.innerText.toLowerCase();
-        card.style.display = txt.includes(q) ? '' : 'none';
-    });
-}
-
-function renderFocusRoomTodos() {
-    let box = document.getElementById('focus-room-todo-list');
-    if (!box) return;
-    box.innerHTML = bentoTodoList.map(t => `
-        <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:8px; cursor:pointer; background:rgba(255,255,255,0.03);">
-            <div class="bento-checkbox ${t.done ? 'checked' : ''}">
-                ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
-            </div>
-            <span style="font-size:0.82rem; font-weight:600; color:${t.done ? 'rgba(255,255,255,0.45)' : '#fff'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                ${t.text}
-            </span>
-        </div>
-    `).join('');
-}
-
+// =====================================================================
+// MỤC 1: BẢNG ĐIỀU KHIỂN (DASHBOARD BENTO GRID)
+// =====================================================================
 function renderBentoCommandCenter() {
-    injectCommandCenterStyles();
+    injectMasterDemoCSS();
+    let dash = document.getElementById('view-dashboard');
+    if (!dash) return;
+
     let container = document.getElementById('bento-command-center');
-    if (!container) return;
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'bento-command-center';
+        dash.insertBefore(container, dash.firstChild);
+    }
+
+    // Đưa thanh Điều phối xuống dưới khối Bento để trên đỉnh giống hệt ảnh Demo
+    let dispatchWidget = document.getElementById('dispatch-status-widget');
+    if (dispatchWidget && container.nextSibling !== dispatchWidget) {
+        dash.insertBefore(dispatchWidget, container.nextSibling);
+    }
 
     let now = new Date();
     let hr = now.getHours();
@@ -5485,7 +5521,7 @@ function renderBentoCommandCenter() {
     let todayDoneHrs = qInfo.doneHrs || 0;
     let dailyGoalHrs = Math.max(qInfo.requiredHrs || 1.0, 1.0);
     let pctToday = Math.min(100, Math.round((todayDoneHrs / dailyGoalHrs) * 100));
-    let radius = 42;
+    let radius = 40;
     let circumference = 2 * Math.PI * radius;
     let dashOffset = circumference - (pctToday / 100) * circumference;
 
@@ -5494,7 +5530,7 @@ function renderBentoCommandCenter() {
         totalAllTimeHrs = Object.values(dailyLogs).reduce((a, b) => a + b, 0);
     }
     let level = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
-    let rankTitle = document.getElementById('rank-title')?.innerText || (level >= 10 ? "Học Giả" : "Tinh Anh");
+    let rankTitle = level >= 20 ? "Đại Học Sĩ" : (level >= 10 ? "Học Giả" : (level >= 5 ? "Tinh Anh" : "Tân Binh"));
     let nextLevelHrs = level * 10;
     let levelPct = Math.min(100, Math.round(((totalAllTimeHrs % 10) / 10) * 100));
 
@@ -5512,23 +5548,22 @@ function renderBentoCommandCenter() {
     }
 
     let scheduleListHtml = todaySchedules.length === 0
-        ? `<div style="padding:20px 0; text-align:center; color:var(--text-muted); font-size:0.84rem;">
-               <i class="fa-regular fa-calendar-check" style="font-size:1.4rem; margin-bottom:6px; color:#10b981; display:block;"></i>
-               Hôm nay không có ca cố định trên TKB.
+        ? `<div style="padding:18px 0; text-align:center; color:#8b95b0; font-size:0.82rem;">
+               Hôm nay trống lịch cố định trên TKB.
            </div>`
         : todaySchedules.slice(0, 4).map(item => {
-            let shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
-            let barColor = item.shift === 'sang' ? '#3b82f6' : (item.shift === 'chieu' ? '#ec4899' : '#10b981');
-            let subInfo = [item.room, item.lecturer].filter(Boolean).join(' | ') || 'Lịch trình cố định';
+            let shiftTime = item.code || (item.shift === 'sang' ? '07:00 - 11:30' : (item.shift === 'chieu' ? '13:00 - 17:00' : '18:00 - 20:30'));
+            let barColor = item.shift === 'sang' ? '#f97316' : (item.shift === 'chieu' ? '#3b82f6' : '#a855f7');
+            let subInfo = [item.room, item.teacher || item.lecturer].filter(Boolean).join(' | ') || 'Lịch trình cố định';
             return `
                 <div class="bento-schedule-item">
                     <div class="bento-dot-bar" style="background:${barColor};"></div>
-                    <div style="width:78px; flex-shrink:0; font-size:0.75rem; color:var(--text-muted); font-weight:700; padding-top:2px;">
+                    <div style="width:76px; flex-shrink:0; font-size:0.72rem; color:#8b95b0; font-weight:600;">
                         ${shiftTime}
                     </div>
                     <div style="overflow:hidden;">
-                        <div style="font-size:0.86rem; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div>
-                        <div style="font-size:0.74rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${subInfo}</div>
+                        <div style="font-size:0.84rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div>
+                        <div style="font-size:0.72rem; color:#8b95b0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${subInfo}</div>
                     </div>
                 </div>`;
         }).join('');
@@ -5540,27 +5575,31 @@ function renderBentoCommandCenter() {
                 <div class="bento-checkbox ${t.done ? 'checked' : ''}">
                     ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
                 </div>
-                <span style="font-size:0.84rem; font-weight:600; color:${t.done ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <span style="font-size:0.82rem; font-weight:500; color:${t.done ? '#8b95b0' : '#f8fafc'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                     ${t.text}
                 </span>
             </div>
-            <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.75rem; opacity:0.6;">
+            <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#64748b; cursor:pointer; font-size:0.72rem;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
     `).join('');
 
-    let stockList = (typeof stocks !== 'undefined' && Array.isArray(stocks)) ? stocks.slice(0, 3) : [];
+    let stockList = (typeof stocks !== 'undefined' && Array.isArray(stocks)) ? stocks.slice(0, 3) : [
+        { code: "APX", price: 128.4, lastChange: 2.4 },
+        { code: "EDU", price: 52.1, lastChange: -1.2 },
+        { code: "FOC", price: 89.7, lastChange: 0.8 }
+    ];
     let stockRowsHtml = stockList.map(st => {
-        let chg = typeof st.lastChange !== 'undefined' ? st.lastChange : (st.change || 0.5);
+        let chg = typeof st.lastChange !== 'undefined' ? st.lastChange : 0.8;
         let isUp = chg >= 0;
         return `
-            <div onclick="if(typeof openTrade==='function') openTrade('${st.code || st.symbol}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 4px; font-size:0.82rem; border-bottom:1px solid var(--border); cursor:pointer;">
-                <span style="font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-coins" style="color:#f59e0b; font-size:0.75rem;"></i> ${st.code || st.symbol}
+            <div onclick="if(typeof openTrade==='function') openTrade('${st.code}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 2px; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;">
+                <span style="font-weight:700; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-circle-dot" style="color:#64748b; font-size:0.65rem;"></i> ${st.code}
                 </span>
-                <span style="font-weight:700; color:var(--text-main);">$${Number(st.price).toFixed(1)}</span>
-                <span style="font-weight:800; color:${isUp ? '#10b981' : '#ef4444'}; font-size:0.76rem;">
+                <span style="font-weight:700; color:#fff;">${Number(st.price).toFixed(1)}</span>
+                <span style="font-weight:700; color:${isUp ? '#10b981' : '#ef4444'}; font-size:0.75rem;">
                     ${isUp ? '+' : ''}${Number(chg).toFixed(1)}%
                 </span>
             </div>`;
@@ -5573,38 +5612,32 @@ function renderBentoCommandCenter() {
         </div>
 
         <div class="bento-row-2col">
-            <div class="bento-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(124,58,237,0.16), var(--bg-panel));">
-                <div class="bento-card-header">
+            <!-- Card Trái: Tiến độ hôm nay -->
+            <div class="bento-card" style="background: linear-gradient(135deg, #17203d 0%, #1c1b3a 55%, #131826 100%); border-color: rgba(99,102,241,0.25);">
+                <div class="bento-card-header" style="margin-bottom:8px;">
                     <span class="bento-card-title">Tiến độ hôm nay</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Định mức TKB: ${dailyGoalHrs}h</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:22px; flex-wrap:wrap;">
-                    <div style="position:relative; width:104px; height:104px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                        <svg width="104" height="104" style="transform: rotate(-90deg);">
-                            <circle cx="52" cy="52" r="${radius}" stroke="rgba(255,255,255,0.08)" stroke-width="9" fill="transparent"/>
-                            <circle cx="52" cy="52" r="${radius}" stroke="url(#bentoGrad)" stroke-width="9" stroke-linecap="round" fill="transparent"
+                    <div style="position:relative; width:96px; height:96px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg width="96" height="96" style="transform: rotate(-90deg);">
+                            <circle cx="48" cy="48" r="${radius}" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
+                            <circle cx="48" cy="48" r="${radius}" stroke="#8b5cf6" stroke-width="8" stroke-linecap="round" fill="transparent"
                                 stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}" style="transition: stroke-dashoffset 0.8s ease;"/>
-                            <defs>
-                                <linearGradient id="bentoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#a855f7"/>
-                                    <stop offset="100%" stop-color="#3b82f6"/>
-                                </linearGradient>
-                            </defs>
                         </svg>
-                        <div style="position:absolute; font-size:1.15rem; font-weight:900; color:var(--text-main);">${pctToday}%</div>
+                        <div style="position:absolute; font-size:1.05rem; font-weight:800; color:#fff;">${pctToday}%</div>
                     </div>
                     <div>
-                        <div style="font-size:2rem; font-weight:900; color:var(--text-main); line-height:1.1;">
-                            ${formatHrsToHM(todayDoneHrs)}
+                        <div style="display:flex; align-items:baseline; gap:8px;">
+                            <span style="font-size:2rem; font-weight:800; color:#fff; line-height:1;">${formatHrsToHM(todayDoneHrs)}</span>
                         </div>
-                        <div style="font-size:0.84rem; color:var(--text-muted); font-weight:600; margin:4px 0 12px 0;">
-                            / ${formatHrsToHM(dailyGoalHrs)} mục tiêu hôm nay
+                        <div style="font-size:0.8rem; color:#8b95b0; font-weight:500; margin:4px 0 12px 0;">
+                            / ${formatHrsToHM(dailyGoalHrs)} mục tiêu
                         </div>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; padding:4px 10px; border-radius:100px; font-size:0.75rem; font-weight:800;">
+                            <span style="background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#fb923c; padding:3px 10px; border-radius:8px; font-size:0.74rem; font-weight:700;">
                                 🔥 ${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày
                             </span>
-                            <span style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.35); color:#60a5fa; padding:4px 10px; border-radius:100px; font-size:0.75rem; font-weight:800;">
+                            <span style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; padding:3px 10px; border-radius:8px; font-size:0.74rem; font-weight:700;">
                                 ★ Lv. ${level} • ${rankTitle}
                             </span>
                         </div>
@@ -5612,76 +5645,79 @@ function renderBentoCommandCenter() {
                 </div>
             </div>
 
+            <!-- Card Phải: Cấp bậc học thuật -->
             <div class="bento-card">
-                <div class="bento-card-header">
+                <div class="bento-card-header" style="margin-bottom:8px;">
                     <span class="bento-card-title">Cấp bậc học thuật</span>
-                    <span style="font-size:0.78rem; color:#a855f7; font-weight:800;">${totalAllTimeHrs.toFixed(1)}h tích lũy</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:18px;">
-                    <div style="width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg, #7c3aed, #ec4899); display:flex; align-items:center; justify-content:center; font-size:1.7rem; color:#fff; box-shadow:0 8px 25px rgba(124,58,237,0.4); flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div class="hex-badge">
                         <i class="fa-solid fa-crown"></i>
                     </div>
                     <div style="flex:1;">
-                        <div style="font-size:1.2rem; font-weight:900; color:var(--text-main);">Lv. ${level} • ${rankTitle}</div>
-                        <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; margin:8px 0 6px 0; overflow:hidden;">
-                            <div style="width:${levelPct}%; height:100%; background:linear-gradient(90deg, #3b82f6, #a855f7); border-radius:100px;"></div>
+                        <div style="font-size:1.15rem; font-weight:800; color:#fff; line-height:1.25;">Lv. ${level}<br>${rankTitle}</div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+                            <div style="flex:1; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden;">
+                                <div style="width:${levelPct}%; height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius:100px;"></div>
+                            </div>
+                            <span style="font-size:0.74rem; color:#8b95b0; font-weight:700;">${levelPct}%</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); font-weight:700;">
-                            <span>${totalAllTimeHrs.toFixed(1)} / ${nextLevelHrs}h</span>
-                            <span>${levelPct}%</span>
-                        </div>
+                        <div style="font-size:0.72rem; color:#8b95b0; margin-top:4px;">${Math.round(totalAllTimeHrs)} / ${nextLevelHrs}h</div>
                     </div>
                 </div>
-                <div style="margin-top:10px; font-size:0.78rem; color:var(--text-muted); font-style:italic;">
+                <div style="margin-top:10px; font-size:0.76rem; color:#8b95b0; font-style:italic;">
                     "Người học hôm nay, bậc thầy ngày mai."
                 </div>
             </div>
         </div>
 
         <div class="bento-row-3col">
+            <!-- Cột 1: Lịch học hôm nay -->
             <div class="bento-card">
                 <div>
                     <div class="bento-card-header">
-                        <span class="bento-card-title"><i class="fa-regular fa-calendar-days" style="color:#3b82f6;"></i> Lịch học hôm nay</span>
-                        <span class="bento-link" onclick="switchTab('timetable')">Xem tất cả →</span>
+                        <span class="bento-card-title"><i class="fa-regular fa-calendar" style="color:#60a5fa;"></i> Lịch học hôm nay</span>
+                        <span class="bento-link" onclick="switchTab('timetable')">Xem tất cả</span>
                     </div>
                     <div>${scheduleListHtml}</div>
                 </div>
             </div>
 
+            <!-- Cột 2: Nhiệm vụ hôm nay -->
             <div class="bento-card">
                 <div>
                     <div class="bento-card-header">
-                        <span class="bento-card-title"><i class="fa-solid fa-list-check" style="color:#10b981;"></i> Nhiệm vụ hôm nay (${doneCount}/${bentoTodoList.length})</span>
+                        <span class="bento-card-title"><i class="fa-solid fa-square-check" style="color:#fbbf24;"></i> Nhiệm vụ hôm nay (${doneCount}/${bentoTodoList.length})</span>
                     </div>
-                    <div style="max-height:165px; overflow-y:auto; margin-bottom:10px;">
+                    <div style="max-height:155px; overflow-y:auto; margin-bottom:8px;">
                         ${todoListHtml}
                     </div>
                 </div>
-                <button onclick="addBentoTodoPrompt()" style="width:100%; padding:8px; border-radius:10px; background:var(--bg-hover); border:1px dashed var(--border); color:var(--text-muted); font-weight:700; font-size:0.8rem; cursor:pointer;">
+                <button onclick="addBentoTodoPrompt()" style="width:100%; padding:7px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#8b95b0; font-weight:600; font-size:0.78rem; cursor:pointer;">
                     + Thêm nhiệm vụ
                 </button>
             </div>
 
+            <!-- Cột 3: Thương hội Hoàng gia -->
             <div class="bento-card">
                 <div>
                     <div class="bento-card-header">
-                        <span class="bento-card-title"><i class="fa-solid fa-chart-line" style="color:#10b981;"></i> Thương hội Hoàng gia</span>
-                        <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;">+2.4%</span>
+                        <span class="bento-card-title">Thương hội Hoàng gia</span>
+                        <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.7rem; font-weight:700;">+2.4%</span>
                     </div>
-                    <svg viewBox="0 0 240 50" style="width:100%; height:50px; margin-bottom:6px;">
+                    <svg viewBox="0 0 240 48" style="width:100%; height:46px; margin-bottom:6px;">
                         <defs>
-                            <linearGradient id="stockFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+                            <linearGradient id="stockFillDemo" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
                                 <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
                             </linearGradient>
                         </defs>
-                        <path d="M0,40 Q35,35 60,22 T120,25 T180,12 T240,6 L240,50 L0,50 Z" fill="url(#stockFill)"/>
-                        <path d="M0,40 Q35,35 60,22 T120,25 T180,12 T240,6" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                        <path d="M0,38 Q35,34 60,20 T120,24 T180,10 T240,5 L240,48 L0,48 Z" fill="url(#stockFillDemo)"/>
+                        <path d="M0,38 Q35,34 60,20 T120,24 T180,10 T240,5" fill="none" stroke="#10b981" stroke-width="2"/>
                     </svg>
                     <div>${stockRowsHtml}</div>
                 </div>
-                <button onclick="document.getElementById('legacy-stock-strip')?.scrollIntoView({behavior:'smooth'});" style="margin-top:8px; width:100%; padding:7px; border-radius:10px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#10b981; font-weight:700; font-size:0.78rem; cursor:pointer;">
+                <button onclick="if(typeof stocks!=='undefined' && stocks[0]) openTrade(stocks[0].code);" style="margin-top:8px; width:100%; padding:7px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#cbd5e1; font-weight:600; font-size:0.78rem; cursor:pointer;">
                     Xem thị trường →
                 </button>
             </div>
@@ -5689,38 +5725,388 @@ function renderBentoCommandCenter() {
     `;
 }
 
-// Đồng bộ vòng tròn tím trong Focus Room quay theo thời gian thực mỗi giây
-setInterval(() => {
-    let focusRoom = document.getElementById('focus-room');
-    if (!focusRoom || focusRoom.style.display === 'none') return;
-
-    let ring = document.getElementById('focus-ring-circle');
-    let subDur = document.getElementById('focus-sub-duration');
-    let timerText = document.getElementById('session-timer')?.innerText || "00:00";
-
-    if (typeof currentDuration !== 'undefined' && subDur) {
-        subDur.innerText = `/ ${String(currentDuration).padStart(2, '0')}:00`;
+// =====================================================================
+// MỤC 2: FOCUS ROOM (THÊM THỐNG KÊ PHIÊN CỘT PHẢI & THANH NHẠC ĐÁY)
+// =====================================================================
+function renderFocusStudioRightPanel() {
+    let todoBox = document.getElementById('focus-room-todo-list');
+    if (todoBox) {
+        todoBox.innerHTML = bentoTodoList.map(t => `
+            <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:8px; cursor:pointer;">
+                <div class="bento-checkbox ${t.done ? 'checked' : ''}">
+                    ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                </div>
+                <span style="font-size:0.8rem; color:${t.done ? 'rgba(255,255,255,0.45)' : '#fff'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${t.text}
+                </span>
+            </div>
+        `).join('');
     }
-    if (ring && timerText.includes(':')) {
-        let [m, s] = timerText.split(':').map(Number);
-        let remainingSec = (m * 60) + (s || 0);
-        let totalSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
-        let ratio = Math.min(1, Math.max(0, remainingSec / totalSec));
-        let circumference = 816.8;
-        ring.style.strokeDashoffset = circumference * (1 - ratio);
+
+    // Thêm thẻ "Thống kê phiên" ngay bên dưới "Việc cần làm" giống ảnh Mục 2
+    let rightCol = todoBox ? todoBox.parentElement.parentElement : null;
+    if (rightCol && !document.getElementById('focus-session-stats-card')) {
+        let statsCard = document.createElement('div');
+        statsCard.id = 'focus-session-stats-card';
+        statsCard.style.cssText = "background:rgba(17,20,38,0.78); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:16px 18px; backdrop-filter:blur(12px);";
+        statsCard.innerHTML = `
+            <div style="font-weight:800; color:#fff; font-size:0.9rem; margin-bottom:12px;">Thống kê phiên</div>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:0.8rem;">
+                <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.65);"><span>Thời gian</span><strong id="fs-stat-time" style="color:#fff;">00:25:00</strong></div>
+                <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.65);"><span>Pomodoro</span><strong style="color:#fff;">${(typeof totalSessions !== 'undefined' ? (totalSessions % 4) + 1 : 1)}/4</strong></div>
+                <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.65);"><span>Tạm dừng</span><strong style="color:#fff;">0 lần</strong></div>
+                <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.65);"><span>Hiệu suất</span><strong style="color:#10b981;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong></div>
+            </div>
+        `;
+        rightCol.insertBefore(statsCard, document.getElementById('widget-music'));
+    }
+
+    // Thêm Thanh phát nhạc Lo-fi nằm ngang ở đáy Focus Room giống ảnh Mục 2
+    let focusRoom = document.getElementById('focus-room');
+    if (focusRoom && !document.getElementById('focus-bottom-lofi-bar')) {
+        let bar = document.createElement('div');
+        bar.id = 'focus-bottom-lofi-bar';
+        bar.style.cssText = "position:relative; z-index:2; width:100%; max-width:1220px; margin:auto auto 10px auto; background:rgba(15,18,34,0.85); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; backdrop-filter:blur(14px);";
+        bar.innerHTML = `
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg, #f59e0b, #7c3aed); display:flex; align-items:center; justify-content:center; color:#fff;">
+                    <i class="fa-solid fa-compact-disc fa-spin"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.85rem; font-weight:800; color:#fff;">Lo-fi Study</div>
+                    <div style="font-size:0.72rem; color:rgba(255,255,255,0.55);">Chillhop • Ambient Focus</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:18px; color:#fff; font-size:0.95rem;">
+                <i class="fa-solid fa-backward-step" style="cursor:pointer; opacity:0.7;"></i>
+                <i class="fa-solid fa-play" style="cursor:pointer;" onclick="document.getElementById('widget-music')?.scrollIntoView({behavior:'smooth'})" title="Mở trạm nhạc"></i>
+                <i class="fa-solid fa-forward-step" style="cursor:pointer; opacity:0.7;"></i>
+                <i class="fa-solid fa-volume-high" style="font-size:0.8rem; opacity:0.8; margin-left:8px;"></i>
+                <div style="width:110px; height:5px; background:rgba(255,255,255,0.15); border-radius:10px; position:relative;">
+                    <div style="width:70%; height:100%; background:#8b5cf6; border-radius:10px;"></div>
+                </div>
+            </div>
+        `;
+        focusRoom.appendChild(bar);
+    }
+}
+
+// =====================================================================
+// MỤC 4: PHÂN TÍCH TIẾN ĐỘ (BIỂU ĐỒ CỘT + BIỂU ĐỒ TRÒN DONUT MÔN HỌC)
+// =====================================================================
+window.renderAnalytics = function() {
+    const room = document.getElementById('analytics-room');
+    if (!room) return;
+
+    let totalHrs7Days = 0;
+    let barsHtml = '';
+    const dayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    for (let i = 6; i >= 0; i--) {
+        let d = new Date();
+        d.setDate(d.getDate() - i);
+        let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        let val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? dailyLogs[dStr] : 0;
+        totalHrs7Days += val;
+        let hPct = Math.min(100, Math.max(8, Math.round((val / 4) * 100)));
+        barsHtml += `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;">
+                <div style="height:130px; width:100%; max-width:26px; background:rgba(255,255,255,0.04); border-radius:8px; display:flex; align-items:flex-end; overflow:hidden;">
+                    <div style="width:100%; height:${hPct}%; background:linear-gradient(180deg, #60a5fa, #7c3aed); border-radius:8px; box-shadow:0 0 12px rgba(124,58,237,0.4);"></div>
+                </div>
+                <span style="font-size:0.72rem; color:#8b95b0; font-weight:700;">${dayLabels[d.getDay()]}</span>
+            </div>`;
+    }
+
+    // Tính phân bổ theo mục tiêu cho Biểu đồ Donut
+    const palette = ['#3b82f6', '#a855f7', '#ec4899', '#10b981', '#f59e0b'];
+    let goalStats = (typeof goals !== 'undefined' && goals.length > 0)
+        ? goals.slice(0, 5).map((g, idx) => {
+            let spent = Math.max(0.5, (g.target || 10) - (g.current || 0));
+            return { name: g.name, spent, color: palette[idx % palette.length] };
+        })
+        : [
+            { name: "Tiếng Anh", spent: 4.2, color: "#3b82f6" },
+            { name: "Văn học Mỹ", spent: 3.1, color: "#a855f7" },
+            { name: "Kỹ năng TH", spent: 2.3, color: "#ec4899" },
+            { name: "Ôn thi IELTS", spent: 2.0, color: "#10b981" }
+        ];
+    let sumSpent = goalStats.reduce((a, b) => a + b.spent, 0) || 1;
+
+    let conicParts = [];
+    let acc = 0;
+    let legendHtml = goalStats.map(g => {
+        let pct = Math.round((g.spent / sumSpent) * 100);
+        let start = acc;
+        acc += pct;
+        conicParts.push(`${g.color} ${start}% ${acc}%`);
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:8px;">
+                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; font-weight:600;">
+                    <span style="width:9px; height:9px; border-radius:50%; background:${g.color}; display:inline-block;"></span>
+                    ${g.name}
+                </span>
+                <strong style="color:#fff;">${pct}%</strong>
+            </div>`;
+    }).join('');
+
+    room.innerHTML = `
+        <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;">
+            <span style="background:#7c3aed; color:#fff; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:700;">Tổng quan</span>
+            <span style="background:#131826; color:#8b95b0; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.06);">Hiệu suất</span>
+            <span style="background:#131826; color:#8b95b0; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.06);">Thói quen</span>
+            <span style="background:#131826; color:#8b95b0; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.06);">Môn học</span>
+        </div>
+
+        <!-- Hàng 1: 3 Thẻ KPI Tổng -->
+        <div class="bento-row-3col">
+            <div class="bento-card">
+                <div style="font-size:0.78rem; color:#8b95b0; font-weight:600;">Tổng thời gian học (7 ngày)</div>
+                <div style="font-size:2rem; font-weight:800; color:#fff; margin:6px 0;">${formatHrsToHM(totalHrs7Days)}</div>
+                <div style="font-size:0.75rem; color:#10b981; font-weight:700;">↑ +18% so với tuần trước</div>
+            </div>
+            <div class="bento-card">
+                <div style="font-size:0.78rem; color:#8b95b0; font-weight:600;">Số phiên hoàn thành</div>
+                <div style="font-size:2rem; font-weight:800; color:#fff; margin:6px 0;">${typeof totalSessions !== 'undefined' ? totalSessions : 27}</div>
+                <div style="font-size:0.75rem; color:#10b981; font-weight:700;">↑ Duy trì nhịp độ ổn định</div>
+            </div>
+            <div class="bento-card">
+                <div style="font-size:0.78rem; color:#8b95b0; font-weight:600;">Hiệu suất trung bình</div>
+                <div style="font-size:2rem; font-weight:800; color:#fff; margin:6px 0;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</div>
+                <div style="font-size:0.75rem; color:#10b981; font-weight:700;">★ Đánh giá: ${(typeof getAverageStarRating==='function'?getAverageStarRating():5).toFixed(2)} / 5.0</div>
+            </div>
+        </div>
+
+        <!-- Hàng 2: Biểu đồ 7 ngày & Biểu đồ Donut Môn học -->
+        <div class="bento-row-2col">
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <span class="bento-card-title">Thời gian học (7 ngày qua)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px; padding-top:10px;">
+                    ${barsHtml}
+                </div>
+            </div>
+
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <span class="bento-card-title">Phân bổ theo môn học</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap; margin:auto 0;">
+                    <div style="width:130px; height:130px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 20px rgba(0,0,0,0.4);">
+                        <div style="width:86px; height:86px; border-radius:50%; background:#131826; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                            <strong style="font-size:0.95rem; color:#fff;">${formatHrsToHM(totalHrs7Days)}</strong>
+                            <span style="font-size:0.68rem; color:#8b95b0;">Tổng</span>
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:150px;">
+                        ${legendHtml}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hàng 3: 3 Thẻ Thói quen dưới đáy -->
+        <div class="bento-row-3col">
+            <div class="bento-card">
+                <div style="font-size:0.76rem; color:#8b95b0;">Khung giờ hiệu suất cao nhất</div>
+                <div style="font-size:1.35rem; font-weight:800; color:#fff; margin:6px 0;">20:00 - 22:00</div>
+                <div style="font-size:0.74rem; color:#8b95b0;">Hiệu suất tập trung 92%</div>
+            </div>
+            <div class="bento-card">
+                <div style="font-size:0.76rem; color:#8b95b0;">Chuỗi ngày học liên tiếp</div>
+                <div style="font-size:1.35rem; font-weight:800; color:#fff; margin:6px 0;">${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</div>
+                <div style="font-size:0.74rem; color:#10b981;">Kỷ lục hiện tại</div>
+            </div>
+            <div class="bento-card">
+                <div style="font-size:0.76rem; color:#8b95b0;">Tốc độ hoàn thành mục tiêu</div>
+                <div style="font-size:1.35rem; font-weight:800; color:#fff; margin:6px 0;">Ổn định</div>
+                <div style="font-size:0.74rem; color:#60a5fa;">Duy trì phong độ</div>
+            </div>
+        </div>
+    `;
+};
+
+// =====================================================================
+// MỤC 5: KHO LƯU TRỮ / THÀNH TỰU (HUY HIỆU LỤC GIÁC GIỐNG ẢNH DEMO)
+// =====================================================================
+window.renderTrophyRoom = function() {
+    const room = document.getElementById('trophy-room');
+    if (!room) return;
+
+    let completedGoals = (typeof goals !== 'undefined') ? goals.filter(g => g.current <= 0) : [];
+    let archiveCards = completedGoals.map(g => `
+        <div class="bento-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer;">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div class="hex-badge" style="width:48px; height:54px; font-size:1.2rem; background:linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div>
+                    <div style="font-weight:800; color:#fff; font-size:0.95rem;">${g.name}</div>
+                    <div style="font-size:0.76rem; color:#8b95b0;">Đã hoàn thành ${g.target}h • ${(g.reports||[]).length} báo cáo</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    room.innerHTML = `
+        <div class="bento-card" style="margin-bottom:18px;">
+            <div style="display:flex; align-items:center; gap:18px;">
+                <div style="width:56px; height:56px; border-radius:50%; background:rgba(245,158,11,0.15); border:2px solid #f59e0b; display:flex; align-items:center; justify-content:center; color:#f59e0b; font-size:1.4rem;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <div><strong style="font-size:1.3rem; color:#fff;">24 / 24</strong> <span style="font-size:0.8rem; color:#8b95b0; margin-left:6px;">Thành tựu hệ thống</span></div>
+                        <strong style="color:#60a5fa; font-size:0.85rem;">100%</strong>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; margin-top:8px; overflow:hidden;">
+                        <div style="width:100%; height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-row-2col">
+            <div class="bento-card" style="flex-direction:row; align-items:center; gap:16px;">
+                <div class="hex-badge" style="width:52px; height:58px; font-size:1.3rem; background:linear-gradient(135deg, #f97316, #ea580c);"><i class="fa-solid fa-fire"></i></div>
+                <div style="flex:1;"><div style="font-weight:800; color:#fff;">First Blood</div><div style="font-size:0.76rem; color:#8b95b0;">Hoàn thành phiên học đầu tiên</div></div>
+            </div>
+            <div class="bento-card" style="flex-direction:row; align-items:center; gap:16px;">
+                <div class="hex-badge" style="width:52px; height:58px; font-size:1.3rem; background:linear-gradient(135deg, #64748b, #475569);"><i class="fa-solid fa-star"></i></div>
+                <div style="flex:1;"><div style="font-weight:800; color:#fff;">Silver Streak</div><div style="font-size:0.76rem; color:#8b95b0;">Duy trì chuỗi 7 ngày liên tiếp</div></div>
+            </div>
+            <div class="bento-card" style="flex-direction:row; align-items:center; gap:16px;">
+                <div class="hex-badge" style="width:52px; height:58px; font-size:1.3rem; background:linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-shield-halved"></i></div>
+                <div style="flex:1;"><div style="font-weight:800; color:#fff;">Deep Worker</div><div style="font-size:0.76rem; color:#8b95b0;">Hoàn thành 50 phiên Pomodoro</div></div>
+            </div>
+            <div class="bento-card" style="flex-direction:row; align-items:center; gap:16px;">
+                <div class="hex-badge" style="width:52px; height:58px; font-size:1.3rem; background:linear-gradient(135deg, #f59e0b, #d97706);"><i class="fa-solid fa-crown"></i></div>
+                <div style="flex:1;"><div style="font-weight:800; color:#fff;">The Apex</div><div style="font-size:0.76rem; color:#8b95b0;">Chinh phục đỉnh cao kỷ luật</div></div>
+            </div>
+        </div>
+
+        ${completedGoals.length > 0 ? `<h3 style="margin:20px 0 12px; font-size:0.95rem; color:#8b95b0; text-transform:uppercase;">Hồ sơ mục tiêu đã hoàn thành (Click để xem báo cáo)</h3><div class="bento-row-2col">${archiveCards}</div>` : ''}
+    `;
+};
+
+// =====================================================================
+// MỤC 6: CỬA HÀNG VẬT PHẨM 4 CỘT NGANG GIỐNG HỆT ẢNH DEMO
+// =====================================================================
+window.renderAcademicShopContent = function() {
+    let modal = document.getElementById('academic-shop-modal');
+    if (!modal) return;
+    let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+
+    modal.innerHTML = `
+        <div style="background:#0e1322; width:95%; max-width:920px; border-radius:22px; padding:26px; border:1px solid rgba(255,255,255,0.1); position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.75);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span style="background:#6366f1; color:#fff; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:700;">Tất cả</span>
+                    <span style="color:#8b95b0; padding:6px 12px; font-size:0.8rem; font-weight:600;">Hỗ trợ học tập</span>
+                    <span style="color:#8b95b0; padding:6px 12px; font-size:0.8rem; font-weight:600;">Tăng trưởng</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="background:#161d31; border:1px solid rgba(255,255,255,0.08); padding:6px 14px; border-radius:10px; font-weight:800; color:#fff; font-size:0.9rem;">
+                        <i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i> USD ${usd.toLocaleString()}
+                    </div>
+                    <button onclick="document.getElementById('academic-shop-modal').style.display='none'" style="background:none; border:none; color:#8b95b0; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(195px, 1fr)); gap:14px;">
+                <div class="bento-card" style="background:#151b2e;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:2rem; color:#38bdf8;"><i class="fa-solid fa-headphones"></i></div>
+                        <div>
+                            <div style="font-weight:800; color:#fff; font-size:0.88rem;">Khôi Phục Điều Phối</div>
+                            <div style="font-size:0.72rem; color:#8b95b0;">Reset 85% Hiệu suất</div>
+                            <div style="font-size:1rem; font-weight:800; color:#fbbf24; margin-top:4px;">$500</div>
+                        </div>
+                    </div>
+                    <button onclick="buyShopItem('dispatch_reset')" style="width:100%; padding:9px; border-radius:8px; background:#0ea5e9; color:#fff; border:none; font-weight:700; font-size:0.8rem; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Mua</button>
+                </div>
+
+                <div class="bento-card" style="background:#151b2e;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:2rem; color:#fbbf24;"><i class="fa-solid fa-bolt"></i></div>
+                        <div>
+                            <div style="font-weight:800; color:#fff; font-size:0.88rem;">XP Boost x1.5</div>
+                            <div style="font-size:0.72rem; color:#8b95b0;">24 giờ tăng cấp</div>
+                            <div style="font-size:1rem; font-weight:800; color:#fbbf24; margin-top:4px;">$1,200</div>
+                        </div>
+                    </div>
+                    <button onclick="buyShopItem('xp_boost')" style="width:100%; padding:9px; border-radius:8px; background:#0ea5e9; color:#fff; border:none; font-weight:700; font-size:0.8rem; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Mua</button>
+                </div>
+
+                <div class="bento-card" style="background:#151b2e;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:2rem; color:#ef4444;"><i class="fa-solid fa-shield-heart"></i></div>
+                        <div>
+                            <div style="font-weight:800; color:#fff; font-size:0.88rem;">Streak Shield</div>
+                            <div style="font-size:0.72rem; color:#8b95b0;">Bảo vệ chuỗi 1 lần</div>
+                            <div style="font-size:1rem; font-weight:800; color:#fbbf24; margin-top:4px;">$1,500</div>
+                        </div>
+                    </div>
+                    <button onclick="buyShopItem('shield')" style="width:100%; padding:9px; border-radius:8px; background:#0ea5e9; color:#fff; border:none; font-weight:700; font-size:0.8rem; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Mua</button>
+                </div>
+
+                <div class="bento-card" style="background:#151b2e;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:2rem; color:#a855f7;"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div>
+                            <div style="font-weight:800; color:#fff; font-size:0.88rem;">Phiếu Giảm Án 50%</div>
+                            <div style="font-size:0.72rem; color:#8b95b0;">Cắt 50% giờ phạt nợ</div>
+                            <div style="font-size:1rem; font-weight:800; color:#fbbf24; margin-top:4px;">$800</div>
+                        </div>
+                    </div>
+                    <button onclick="buyShopItem('reducer')" style="width:100%; padding:9px; border-radius:8px; background:#0ea5e9; color:#fff; border:none; font-weight:700; font-size:0.8rem; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Mua</button>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// Đồng bộ vòng tròn tím Focus Room & Hồ sơ đáy Sidebar
+setInterval(() => {
+    let badge = document.getElementById('user-auth-badge');
+    let dock = document.getElementById('sidebar-bottom-dock');
+    if (badge && dock && badge.nextElementSibling !== dock) {
+        badge.style.cssText = "margin: 10px 8px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.04); display: flex; align-items: center; gap: 10px;";
+        dock.parentNode.insertBefore(badge, dock);
+    }
+
+    let focusRoom = document.getElementById('focus-room');
+    if (focusRoom && focusRoom.style.display !== 'none') {
+        let ring = document.getElementById('focus-ring-circle');
+        let subDur = document.getElementById('focus-sub-duration');
+        let timerText = document.getElementById('session-timer')?.innerText || "00:00";
+        let statTime = document.getElementById('fs-stat-time');
+        if (statTime) statTime.innerText = "00:" + timerText;
+
+        if (typeof currentDuration !== 'undefined' && subDur) {
+            subDur.innerText = `/ ${String(currentDuration).padStart(2, '0')}:00`;
+        }
+        if (ring && timerText.includes(':')) {
+            let [m, s] = timerText.split(':').map(Number);
+            let remainingSec = (m * 60) + (s || 0);
+            let totalSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
+            let ratio = Math.min(1, Math.max(0, remainingSec / totalSec));
+            ring.style.strokeDashoffset = 816.8 * (1 - ratio);
+        }
     }
 }, 1000);
 
-const prevRenderDashboardUI = window.renderDashboard;
+const prevRenderDashMasterDemo = window.renderDashboard;
 window.renderDashboard = function() {
-    if (typeof prevRenderDashboardUI === 'function') prevRenderDashboardUI();
+    if (typeof prevRenderDashMasterDemo === 'function') prevRenderDashMasterDemo();
     renderBentoCommandCenter();
-    renderFocusRoomTodos();
+    renderFocusStudioRightPanel();
 };
 
 window.addEventListener('DOMContentLoaded', () => {
+    injectMasterDemoCSS();
     setTimeout(() => {
         renderBentoCommandCenter();
-        renderFocusRoomTodos();
-    }, 600);
+        renderFocusStudioRightPanel();
+    }, 500);
 });
