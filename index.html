@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Planner | The Apex</title>
+    <title>Academic Apex | Command Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,79 +14,82 @@
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('Đã sẵn sàng hóa thân thành App!'));
+            .then(() => console.log('Service Worker Ready'));
         }
     </script>
 </head>
 <body>
-    <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
-        <div style="font-size: 5rem; color: var(--brand-focus);"><i class="fa-solid fa-layer-group"></i></div>
-        <h1 style="color: var(--text-main); font-weight: 800; font-size: 2.5rem; letter-spacing: -1px; margin: 0;">ACADEMIC APEX</h1>
-        <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">Vui lòng trình ngọc ấn để vào án thư</p>
-        <button onclick="loginWithGoogle()" style="background: #fff; color: #000; padding: 14px 28px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(255,255,255,0.2); transition: 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Đăng nhập bằng Google
+    <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="font-size: 3.8rem; color: var(--brand-focus);"><i class="fa-solid fa-layer-group"></i></div>
+        <h1 style="color: var(--text-main); font-weight: 800; font-size: 2rem; letter-spacing: -1px; margin: 0;">ACADEMIC APEX</h1>
+        <p style="color: var(--text-muted); font-weight: 500; font-size: 0.9rem; margin-bottom: 12px;">Hệ thống quản lý tiến độ và tối ưu hiệu suất học tập</p>
+        <button onclick="loginWithGoogle()" style="background: #fff; color: #000; padding: 11px 22px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.92rem; box-shadow: 0 4px 15px rgba(255,255,255,0.15); transition: 0.2s;">
+            <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Đăng nhập bằng Google
         </button>
     </div>
 
     <canvas id="confetti-canvas"></canvas>
-
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <aside class="sidebar" id="sidebar">
         <div class="brand">
-            <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #7c3aed, #4f46e5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; box-shadow:0 4px 14px rgba(124,58,237,0.4);">
-                <i class="fa-solid fa-graduation-cap"></i>
+            <div style="width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg, #7c3aed, #4f46e5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.9rem; font-weight:900; box-shadow:0 4px 12px rgba(124,58,237,0.4);">
+                A
             </div>
             <div>
-                <div style="font-weight:800; font-size:1rem; line-height:1.1;">Academic Planner</div>
-                <div style="font-size:0.68rem; color:var(--text-muted); font-weight:600;">Command Center</div>
+                <div style="font-weight:800; font-size:0.86rem; letter-spacing:0.3px; line-height:1.1;">ACADEMIC APEX</div>
+                <div style="font-size:0.6rem; color:var(--text-muted); font-weight:600; letter-spacing:0.8px;">COMMAND CENTER</div>
             </div>
         </div>
 
         <div class="nav-menu">
-            <a class="nav-item active stagger-item" style="animation-delay: 0.1s" id="nav-dash" onclick="switchTab('dashboard')"><i class="fa-solid fa-border-all"></i> Bảng điều khiển</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.12s" id="nav-timetable" onclick="switchTab('timetable')"><i class="fa-regular fa-calendar-days"></i> Thời khóa biểu</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.15s" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-pie"></i> Phân tích tiến độ</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.2s" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-box-archive"></i> Kho lưu trữ</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.21s; color: #fbbf24;" onclick="openLeaderboard()"><i class="fa-solid fa-ranking-star"></i> Bảng xếp hạng</a>
-            
-            <div class="nav-category stagger-item" style="animation-delay: 0.22s">Ngân Khố</div>
-            <div class="stagger-item" style="padding: 0 16px; margin-bottom: 18px; animation-delay: 0.23s">
-                <div style="background: rgba(255,255,255,0.04); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 700; color: var(--text-muted); font-size: 0.88rem;"><i class="fa-solid fa-coins" style="color: #fbbf24; margin-right: 6px;"></i> USD</span>
-                    <span id="usd-balance" style="font-weight: 800; font-size: 1.15rem; color: var(--text-main);">0</span>
+            <a class="nav-item active" id="nav-dash" onclick="switchTab('dashboard')"><i class="fa-solid fa-house"></i> Bảng điều khiển</a>
+            <a class="nav-item" id="nav-timetable" onclick="switchTab('timetable')"><i class="fa-regular fa-calendar-days"></i> Thời khóa biểu</a>
+            <a class="nav-item" onclick="switchTab('dashboard'); setTimeout(()=>document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'}),100);"><i class="fa-solid fa-bullseye"></i> Mục tiêu</a>
+            <a class="nav-item" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-column"></i> Phân tích tiến độ</a>
+            <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-trophy"></i> Thành tựu & Lưu trữ</a>
+            <a class="nav-item" onclick="openLeaderboard()"><i class="fa-solid fa-ranking-star" style="color:#fbbf24;"></i> Bảng xếp hạng</a>
+            <a class="nav-item" onclick="if(typeof toggleAICopilot==='function') toggleAICopilot();"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> Trợ lý AI</a>
+
+            <div class="nav-category">Tài chính & Cửa hàng</div>
+            <div style="padding: 0 8px; margin-bottom: 10px;">
+                <div style="background: rgba(255,255,255,0.03); padding: 7px 12px; border-radius: 9px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 700; color: var(--text-muted); font-size: 0.76rem;"><i class="fa-solid fa-coins" style="color: #fbbf24; margin-right: 5px;"></i> Quỹ thưởng</span>
+                    <span id="usd-balance" style="font-weight: 800; font-size: 0.92rem; color: var(--text-main);">0</span>
                 </div>
             </div>
 
-            <div class="nav-category stagger-item" style="animation-delay: 0.25s">Thiết lập</div>
-            <div class="stagger-item" style="padding: 0 16px; margin-bottom: 16px; animation-delay: 0.3s">
-                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:6px;"><i class="fa-solid fa-moon" style="margin-right:4px;"></i> Giờ giới nghiêm</div>
-                <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ Giới Nghiêm (Cưỡng chế sập nguồn)" class="curfew-input">
-                <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 12px; margin-top: 10px; padding: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px;">
+            <div class="nav-category">Cài đặt hệ thống</div>
+            <div style="padding: 0 8px; margin-bottom: 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:0.7rem; color:var(--text-muted); font-weight:600;"><i class="fa-regular fa-moon"></i> Giờ giới nghiêm</span>
+                </div>
+                <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ giới nghiêm" class="curfew-input">
+                <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;">
                     <div class="mini-progress-circle">
                         <svg viewBox="0 0 44 44"><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
                     </div>
                     <div style="display: flex; flex-direction: column;">
-                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Còn lại</span>
-                        <span id="curfew-timer-text" style="font-size: 1.05rem; font-weight: 800; color: var(--brand-warning); font-variant-numeric: tabular-nums;">00:00:00</span>
+                        <span style="font-size: 0.62rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Còn lại</span>
+                        <span id="curfew-timer-text" style="font-size: 0.88rem; font-weight: 800; color: var(--brand-warning); font-variant-numeric: tabular-nums;">00:00:00</span>
                     </div>
                 </div>
             </div>
 
-            <div class="palette-container stagger-item" style="animation-delay: 0.4s">
-                <button class="color-btn zen active" onclick="changeColor('zen')" style="background: #f7f5f2; border: 1px solid #d6d3d1;" title="Bento Zen Mặc Định"></button>
-                <button class="color-btn neon-purple" onclick="changeColor('neon-purple')" style="background: linear-gradient(135deg, #a855f7, #2e1065);" title="Tím Neon Huyền Bí"></button>
-                <button class="color-btn neon-blue" onclick="changeColor('neon-blue')" style="background: linear-gradient(135deg, #0ea5e9, #082f49);" title="Xanh Neon Tương Lai"></button>
-                <button class="color-btn sakura" onclick="changeColor('sakura')" style="background: linear-gradient(135deg, #e11d48, #881337);" title="Đỏ Neon Rực Rỡ"></button>
+            <div class="palette-container">
+                <button class="color-btn zen active" onclick="changeColor('zen')" style="background: #1e293b; border: 1px solid #475569;" title="Mặc định"></button>
+                <button class="color-btn neon-purple" onclick="changeColor('neon-purple')" style="background: linear-gradient(135deg, #a855f7, #2e1065);" title="Tím Indigo"></button>
+                <button class="color-btn neon-blue" onclick="changeColor('neon-blue')" style="background: linear-gradient(135deg, #0ea5e9, #082f49);" title="Xanh Đại Dương"></button>
+                <button class="color-btn sakura" onclick="changeColor('sakura')" style="background: linear-gradient(135deg, #e11d48, #881337);" title="Đỏ Ruby"></button>
             </div>
 
-            <a class="nav-item stagger-item" style="animation-delay: 0.5s" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu dữ liệu</a>
-            <a class="nav-item stagger-item" style="animation-delay: 0.55s" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi dữ liệu</a>
+            <a class="nav-item" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu dữ liệu</a>
+            <a class="nav-item" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Phục hồi dữ liệu</a>
             <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
         </div>
 
-        <div class="sidebar-footer stagger-item" style="animation-delay: 0.6s" id="sidebar-bottom-dock">
-            <span style="font-weight: 700; font-size:0.82rem;"><i class="fa-solid fa-palette"></i> Giao diện</span>
+        <div class="sidebar-footer" id="sidebar-bottom-dock">
+            <span style="font-weight: 600; font-size:0.74rem; color:var(--text-muted);">Chế độ hiển thị</span>
             <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
@@ -94,77 +97,69 @@
     </aside>
 
     <main class="main-content">
-        <!-- Top Header Bar chuẩn Demo -->
         <header class="header">
-            <div class="header-title-wrapper" style="flex:1; max-width:360px;">
+            <div class="header-title-wrapper" style="display:flex; align-items:center; gap:12px; flex:1;">
                 <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
                 <div class="bento-top-search">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="global-goal-search" placeholder="Tìm kiếm mục tiêu, môn học..." oninput="if(typeof filterDashboardGoalsBySearch==='function') filterDashboardGoalsBySearch(this.value)">
+                    <input type="text" id="global-goal-search" placeholder="Tìm kiếm mục tiêu, lịch trình..." oninput="if(typeof filterDashboardGoalsBySearch==='function') filterDashboardGoalsBySearch(this.value)">
                 </div>
-                <!-- Giữ ẩn 2 ID tiêu đề cũ để script.js không báo lỗi khi switchTab -->
+                <div class="top-quote-text">"A focused mind can move mountains." ✦</div>
                 <div style="display:none;">
                     <h1 id="main-title">Tổng Quan Học Tập</h1>
-                    <p id="main-desc">Kỷ luật là thước đo duy nhất của tham vọng.</p>
+                    <p id="main-desc">Theo dõi tiến độ và kỷ luật cá nhân.</p>
                 </div>
             </div>
 
             <div class="header-actions">
-                <button class="btn-ghost-action stagger-item" style="animation-delay: 0.05s; position: relative;" onclick="openInbox()" title="Hộp thư">
-                    <i class="fa-regular fa-bell" style="color: var(--brand-focus);"></i>
-                    <span id="unread-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--brand-warning); color:#fff; border-radius:50%; font-size:0.7rem; padding:2px 6px; font-weight:800;">0</span>
+                <div class="top-datetime-box">
+                    <span id="top-date-label"><i class="fa-regular fa-calendar"></i> --</span>
+                    <strong id="top-clock-label">00:00</strong>
+                </div>
+                <button class="btn-ghost-action" style="position: relative;" onclick="openInbox()" title="Hộp thư">
+                    <i class="fa-regular fa-bell"></i>
+                    <span id="unread-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:var(--brand-warning); color:#fff; border-radius:50%; font-size:0.62rem; padding:1px 5px; font-weight:800;">0</span>
                 </button>
-                <button class="btn-ghost-action stagger-item" style="animation-delay: 0.1s" id="btn-rest-day" onclick="activateRestDay()"><i class="fa-solid fa-mug-hot" style="color: var(--brand-focus);"></i> Nghỉ bảo tồn</button>
-                <button class="btn-ghost-action stagger-item" style="animation-delay: 0.2s" id="btn-create-countdown" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Sự kiện</button>
-                <button class="btn-primary stagger-item" style="animation-delay: 0.3s; background: linear-gradient(135deg, #7c3aed, #4f46e5); border:none;" id="btn-create-goal" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Mục tiêu</button>
+                <button class="btn-ghost-action" id="btn-rest-day" onclick="activateRestDay()"><i class="fa-solid fa-mug-hot"></i> Nghỉ bảo tồn</button>
+                <button class="btn-ghost-action" id="btn-create-countdown" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Sự kiện</button>
+                <button class="btn-primary" id="btn-create-goal" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Mục tiêu</button>
             </div>
         </header>
 
         <div id="view-dashboard" class="view-section">
-            <!-- Vùng Bento Command Center chính (sẽ được JS đổ dữ liệu tự động) -->
+            <!-- Bố cục 4 tầng chuẩn Concept -->
             <div id="bento-command-center"></div>
 
-            <!-- Các khối dữ liệu gốc được thu gọn/ẩn tinh tế để giữ 100% logic script.js -->
-            <div class="kpi-card stagger-item" style="animation-delay: 0.05s; margin-bottom: 24px;">
-                <div class="kpi-header">
-                    <h3 style="font-size: 1.05rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-crosshairs" style="color: var(--brand-focus); margin-right: 8px;"></i> Tiến độ KPI Tuần</h3>
-                    <span id="kpi-status" style="font-size: 2.2rem !important; font-weight: 800; color: var(--text-main); line-height: 1;">0.0 / 5.0h</span>
-                </div>
-                <div class="kpi-bar-bg" style="height: 10px; margin-top: 8px;">
-                    <div class="kpi-bar-fill" id="kpi-bar-fill"></div>
-                </div>
-                <p id="kpi-message" style="font-size: 0.92rem; font-weight: 600; color: var(--text-muted); margin-top: 12px;">Hệ thống đang theo dõi tiến độ của bạn.</p>
-            </div>
-
-            <!-- Ẩn các khối trùng lặp vì đã đưa lên Bento Grid ở trên, nhưng giữ nguyên ID cho script.js -->
+            <!-- Giữ ẩn các phần tử cũ để script.js không bị lỗi tham chiếu ID -->
             <div style="display:none;">
+                <div id="kpi-status">0.0 / 5.0h</div>
+                <div id="kpi-bar-fill"></div>
+                <p id="kpi-message"></p>
                 <div id="recom-container"></div>
                 <span id="streak-count">0</span>
                 <i id="rank-icon"></i>
-                <div id="rank-title">Người Mới</div>
+                <div id="rank-title">Tân Binh</div>
                 <div id="total-hours-metric">0.0h</div>
                 <div id="rank-desc"></div>
                 <div id="heat-total-hrs">0.0h</div>
                 <div id="heat-active-days">0/35</div>
                 <div id="heat-avg-hrs">0.0h</div>
                 <div id="heatmap-grid"></div>
-            </div>
-
-            <div class="stock-strip stagger-item" id="legacy-stock-strip" style="animation-delay: 0.08s; padding: 0 0 24px;">
-                <h3 style="font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-coins" style="color: #fbbf24;"></i> Danh Mục Mã Cổ Phiếu Giao Dịch</h3>
-                <div id="stock-market-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;"></div>
+                <div id="stock-market-container"></div>
             </div>
 
             <div class="countdown-strip" id="countdown-strip"></div>
-            
-            <div style="padding: 0 0 14px; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin:0;"><i class="fa-solid fa-book-open" style="color: var(--brand-info);"></i> Danh Sách Mục Tiêu Học Thuật</h3>
+
+            <div style="padding: 4px 0 10px; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="font-size: 0.82rem; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin:0;">
+                    <i class="fa-solid fa-layer-group" style="color: var(--brand-focus);"></i> Danh sách mục tiêu chi tiết
+                </h3>
             </div>
             <div class="dashboard-grid" id="dashboard-grid"></div>
         </div>
 
         <div id="timetable-room" class="view-section" style="display: none;">
-            <div class="timetable-header-controls stagger-item" style="animation-delay: 0.1s;">
+            <div class="timetable-header-controls">
                 <div class="tt-date-display">
                     <i class="fa-solid fa-calendar-week" style="color: var(--brand-focus);"></i> 
                     <span id="tt-week-label">Tuần hiện tại</span>
@@ -177,103 +172,94 @@
                 </div>
             </div>
             
-            <div class="timetable-wrapper stagger-item" style="animation-delay: 0.2s;">
+            <div class="timetable-wrapper">
                 <div class="timetable-grid" id="timetable-grid"></div>
             </div>
 
-            <div class="tt-legend stagger-item" style="animation-delay: 0.3s;">
-                <div class="legend-item"><div class="legend-box" style="background: rgba(59,130,246,0.25); border-left: 3px solid #3b82f6;"></div> Lịch ĐH</div>
-                <div class="legend-item"><div class="legend-box" style="background: rgba(245,158,11,0.25); border: 2px solid #f59e0b;"></div> Lịch Thi</div>
-                <div class="legend-item"><div class="legend-box" style="background: rgba(168, 85, 247, 0.25); border-left: 3px solid #a855f7;"></div> Dạy Trung Tâm</div>
-                <div class="legend-item"><div class="legend-box" style="background: rgba(16, 185, 129, 0.25); border-left: 3px solid #10b981;"></div> Dạy Gia Sư</div>
-                <div class="legend-item"><div class="legend-box" style="background: rgba(236, 72, 153, 0.25); border-left: 3px solid #ec4899;"></div> Khung Tự Học</div>
+            <div class="tt-legend">
+                <div class="legend-item"><div class="legend-box" style="background: rgba(59,130,246,0.25); border-left: 3px solid #3b82f6;"></div> Lịch học</div>
+                <div class="legend-item"><div class="legend-box" style="background: rgba(245,158,11,0.25); border: 2px solid #f59e0b;"></div> Lịch thi</div>
+                <div class="legend-item"><div class="legend-box" style="background: rgba(168, 85, 247, 0.25); border-left: 3px solid #a855f7;"></div> Dạy trung tâm</div>
+                <div class="legend-item"><div class="legend-box" style="background: rgba(16, 185, 129, 0.25); border-left: 3px solid #10b981;"></div> Dạy gia sư</div>
+                <div class="legend-item"><div class="legend-box" style="background: rgba(236, 72, 153, 0.25); border-left: 3px solid #ec4899;"></div> Tự học</div>
             </div>
         </div>
 
         <div id="timetable-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
-            <div class="modal-content" style="max-width: 500px; width: 100%;">
+            <div class="modal-content" style="max-width: 480px; width: 100%;">
                 <div class="modal-header">
-                    <h3 id="tt-modal-title">Thêm Lịch Học / Cá Nhân</h3>
+                    <h3 id="tt-modal-title">Thêm Lịch Học / Công Việc</h3>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px;">
-                    <div style="grid-column: 1/-1;"><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Tên Sự Kiện</label><input type="text" id="tt-name" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;" placeholder="VD: Lịch sử Đảng..."></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+                    <div style="grid-column: 1/-1;"><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Tên sự kiện</label><input type="text" id="tt-name" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
                     <div>
-                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Loại Lịch</label>
-                        <select id="tt-type" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;">
-                            <optgroup label="Đại Học">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Phân loại</label>
+                        <select id="tt-type" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;">
+                            <optgroup label="Học tập">
                                 <option value="offline">Lịch học (Offline)</option>
                                 <option value="online">Trực tuyến (Online)</option>
-                                <option value="exam">Lịch Thi</option>
+                                <option value="exam">Lịch thi</option>
                             </optgroup>
-                            <optgroup label="Công Việc & Cá Nhân">
-                                <option value="work">Dạy Trung Tâm</option>
-                                <option value="tutor">Dạy Gia Sư</option>
-                                <option value="self">Khung Tự Học</option>
+                            <optgroup label="Công việc & Cá nhân">
+                                <option value="work">Dạy trung tâm</option>
+                                <option value="tutor">Dạy gia sư</option>
+                                <option value="self">Khung tự học</option>
                             </optgroup>
                         </select>
                     </div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Mã lớp / Tiết</label><input type="text" id="tt-code" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;" placeholder="VD: Tiết 1-3"></div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Phòng học</label><input type="text" id="tt-room" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Giảng viên / Ghi chú</label><input type="text" id="tt-teacher" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Từ ngày</label><input type="date" id="tt-start" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Đến ngày</label><input type="date" id="tt-end" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Thứ</label><select id="tt-dow" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"><option value="1">Thứ 2</option><option value="2">Thứ 3</option><option value="3">Thứ 4</option><option value="4">Thứ 5</option><option value="5">Thứ 6</option><option value="6">Thứ 7</option><option value="0">Chủ nhật</option></select></div>
-                    <div><label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Ca học</label><select id="tt-shift" style="width:100%; padding:10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"><option value="sang">Sáng</option><option value="chieu">Chiều</option><option value="toi">Tối</option></select></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Mã lớp / Tiết / Giờ</label><input type="text" id="tt-code" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;" placeholder="VD: Tiết 1-3"></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Phòng học / Địa điểm</label><input type="text" id="tt-room" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Giảng viên / Ghi chú</label><input type="text" id="tt-teacher" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Từ ngày</label><input type="date" id="tt-start" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Đến ngày</label><input type="date" id="tt-end" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Thứ</label><select id="tt-dow" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"><option value="1">Thứ 2</option><option value="2">Thứ 3</option><option value="3">Thứ 4</option><option value="4">Thứ 5</option><option value="5">Thứ 6</option><option value="6">Thứ 7</option><option value="0">Chủ nhật</option></select></div>
+                    <div><label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Buổi</label><select id="tt-shift" style="width:100%; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); border-radius:8px;"><option value="sang">Sáng</option><option value="chieu">Chiều</option><option value="toi">Tối</option></select></div>
                 </div>
-                <div class="modal-footer" style="margin-top: 24px;">
+                <div class="modal-footer" style="margin-top: 18px;">
                     <button class="btn-ghost" onclick="document.getElementById('timetable-modal').style.display='none'">Hủy</button>
-                    <button class="btn-submit active" onclick="saveTimetableItem()">Lưu Lịch</button>
+                    <button class="btn-submit active" onclick="saveTimetableItem()">Lưu lịch</button>
                 </div>
             </div>
         </div>
         
         <div id="analytics-room" class="view-section"></div>
-
         <div id="trophy-room" class="view-section"></div>
 
         <div id="trophy-detail" class="view-section">
-            <button class="btn-back stagger-item" style="animation-delay: 0.1s; margin-bottom: 24px;" onclick="switchTab('trophy')"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
-            <h2 id="td-title" class="stagger-item" style="animation-delay: 0.2s; font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); letter-spacing: -1px;">Tên mục tiêu</h2>
-            <p id="td-meta" class="stagger-item" style="animation-delay: 0.3s; color: var(--text-muted); font-size: 0.95rem; font-weight: 600;">Hoàn thành 100h - Tổng số báo cáo: 0</p>
+            <button class="btn-back" style="margin-bottom: 16px;" onclick="switchTab('trophy')"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+            <h2 id="td-title" style="font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; color: var(--text-main);">Tên mục tiêu</h2>
+            <p id="td-meta" style="color: var(--text-muted); font-size: 0.84rem; font-weight: 600; margin-bottom: 14px;">Hoàn thành - Tổng số báo cáo: 0</p>
             <div class="timeline" id="td-timeline"></div>
         </div>
     </main>
 
-    <!-- =================================================================
-         2. FOCUS ROOM (CHUẨN LO-FI STUDIO DEMO - VÒNG TRÒN NEON + SIDEBAR PHẢI)
-         ================================================================= -->
+    <!-- FOCUS ROOM -->
     <div id="focus-room" style="display: none; background-image: url('https://i.pinimg.com/originals/a4/f2/8d/a4f28d6f8fc6de94bc0283f510bd6d38.gif'); background-size: cover; background-position: center;">
-        
-        <div id="focus-overlay" style="position: absolute; top:0; left:0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15, 18, 38, 0.58) 0%, rgba(9, 11, 24, 0.88) 100%); backdrop-filter: blur(6px); z-index: 0;"></div>
+        <div id="focus-overlay" style="position: absolute; top:0; left:0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15, 18, 38, 0.62) 0%, rgba(9, 11, 24, 0.9) 100%); backdrop-filter: blur(6px); z-index: 0;"></div>
 
-        <div class="focus-nav" style="position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; width:100%; max-width:1280px; margin:0 auto; padding:20px 28px;">
-            <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Rút lui</button>
+        <div class="focus-nav" style="position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; width:100%; max-width:1120px; margin:0 auto; padding:14px 20px;">
+            <button class="btn-back" id="btn-focus-back" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
             <div style="text-align:center;">
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); text-transform:uppercase; letter-spacing:1.5px; font-weight:700;">Đang tập trung</div>
-                <div id="focus-target-info" style="font-size:1.35rem; font-weight:900; color:#fff; margin-top:2px;">Mục tiêu: Đang nạp...</div>
+                <div style="font-size:0.68rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:1.2px; font-weight:700;">Đang tập trung</div>
+                <div id="focus-target-info" style="font-size:1.1rem; font-weight:800; color:#fff; margin-top:2px;">Mục tiêu: Đang tải...</div>
             </div>
-            <button class="btn-back" onclick="toggleTick()" id="btn-tick"><i class="fa-solid fa-clock"></i> Âm Tích Tắc: TẮT</button>
+            <button class="btn-back" onclick="toggleTick()" id="btn-tick"><i class="fa-solid fa-clock"></i> Âm tích tắc: TẮT</button>
         </div>
 
-        <div class="focus-studio-layout" style="position:relative; z-index:2; width:100%; max-width:1280px; margin:0 auto; padding:10px 28px 28px; display:grid; grid-template-columns: 1fr 330px; gap:28px; align-items:center; flex:1;">
-            
-            <!-- CỘT TRUNG TÂM: ĐỒNG HỒ VÒNG TRÒN TÍM NEON -->
+        <div class="focus-studio-layout" style="position:relative; z-index:2; width:100%; max-width:1120px; margin:0 auto; padding:6px 20px 20px; display:grid; grid-template-columns: 1fr 300px; gap:20px; align-items:center; flex:1;">
             <div id="widget-timer" style="background:transparent !important; border:none !important; box-shadow:none !important; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                 <div class="widget-header" style="display:none;"></div>
                 <div class="widget-body" style="display:flex; flex-direction:column; align-items:center; width:100%;">
-                    
-                    <!-- Các nút chọn chế độ nhanh phía trên vòng tròn -->
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:22px;">
-                        <button class="focus-pill-btn" id="btn-5" onclick="startIcebreaker()"><i class="fa-solid fa-fire" style="color:#f97316;"></i> Phá Băng (5p)</button>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:14px;">
+                        <button class="focus-pill-btn" id="btn-5" onclick="startIcebreaker()"><i class="fa-solid fa-fire" style="color:#f97316;"></i> Khởi động (5p)</button>
                         <button class="focus-pill-btn" id="btn-15" onclick="startSession(15)"><i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Ngắn (15p)</button>
                         <button class="focus-pill-btn active" id="btn-25" onclick="startSession(25)"><i class="fa-solid fa-brain" style="color:#a855f7;"></i> Pomodoro (25p)</button>
                     </div>
 
-                    <div class="focus-badge" id="focus-badge" style="margin-bottom:16px;">KHU VỰC TẬP TRUNG</div>
+                    <div class="focus-badge" id="focus-badge" style="margin-bottom:12px;">CHẾ ĐỘ TẬP TRUNG</div>
 
-                    <!-- Vòng tròn SVG Neon bao quanh đồng hồ -->
                     <div class="neon-timer-ring-wrapper">
-                        <svg width="300" height="300" viewBox="0 0 300 300" style="transform: rotate(-90deg);">
+                        <svg width="240" height="240" viewBox="0 0 300 300" style="transform: rotate(-90deg);">
                             <circle cx="150" cy="150" r="130" stroke="rgba(255,255,255,0.08)" stroke-width="10" fill="rgba(15,18,36,0.55)"/>
                             <circle id="focus-ring-circle" cx="150" cy="150" r="130" stroke="url(#focusRingGrad)" stroke-width="10" stroke-linecap="round" fill="transparent" stroke-dasharray="816.8" stroke-dashoffset="0" style="transition: stroke-dashoffset 0.5s linear; filter: drop-shadow(0 0 12px rgba(168,85,247,0.65));"/>
                             <defs>
@@ -286,123 +272,113 @@
                         </svg>
                         <div class="neon-timer-center">
                             <div class="timer-huge" id="session-timer">00:00</div>
-                            <div id="focus-sub-duration" style="font-size:0.9rem; color:rgba(255,255,255,0.55); font-weight:700; margin-top:4px;">/ 25:00</div>
+                            <div id="focus-sub-duration" style="font-size:0.8rem; color:rgba(255,255,255,0.55); font-weight:700; margin-top:4px;">/ 25:00</div>
                         </div>
                     </div>
 
-                    <p style="color:rgba(255,255,255,0.7); font-style:italic; font-size:0.95rem; margin:20px 0 18px 0;">"Stay focused. You've got this."</p>
-
-                    <!-- Nút Tạm dừng (Xanh) & Kết thúc/Hủy (Đỏ) chuẩn Demo -->
-                    <div class="timer-controls" style="display:flex; gap:14px; justify-content:center;">
-                        <button class="btn-timer" id="btn-pause" onclick="togglePause()" style="background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; border:none; padding:12px 26px; border-radius:12px; font-weight:800; box-shadow:0 6px 20px rgba(37,99,235,0.4);"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
-                        <button class="btn-timer" id="btn-cancel" onclick="cancelSession()" style="background:linear-gradient(135deg, #e11d48, #be123c); color:#fff; border:none; padding:12px 26px; border-radius:12px; font-weight:800; box-shadow:0 6px 20px rgba(225,29,72,0.4);"><i class="fa-solid fa-stop"></i> Kết thúc</button>
+                    <div class="timer-controls" style="display:flex; gap:12px; justify-content:center; margin-top:16px;">
+                        <button class="btn-timer" id="btn-pause" onclick="togglePause()" style="background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; border:none; padding:9px 20px; border-radius:10px; font-weight:700; font-size:0.82rem; cursor:pointer;"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
+                        <button class="btn-timer" id="btn-cancel" onclick="cancelSession()" style="background:linear-gradient(135deg, #e11d48, #be123c); color:#fff; border:none; padding:9px 20px; border-radius:10px; font-weight:700; font-size:0.82rem; cursor:pointer;"><i class="fa-solid fa-stop"></i> Kết thúc</button>
                     </div>
 
-                    <div class="status-box" id="status-box" style="margin-top:14px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:100px; padding:6px 18px;">
-                        <i class="fa-solid fa-circle-info"></i><span id="status-msg">Hệ thống tính giờ tuyệt đối.</span>
+                    <div class="status-box" id="status-box" style="margin-top:12px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:100px; padding:5px 14px; font-size:0.76rem; color:#cbd5e1;">
+                        <i class="fa-solid fa-circle-info"></i> <span id="status-msg">Đang theo dõi thời gian thực tế.</span>
                     </div>
                 </div>
             </div>
 
-            <!-- CỘT PHẢI: VIỆC CẦN LÀM + THỐNG KÊ PHIÊN + TRẠM NHẠC -->
-            <div style="display:flex; flex-direction:column; gap:16px;">
-                <!-- Box Việc cần làm trong Phòng Tập Trung -->
-                <div style="background:rgba(17,20,38,0.78); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:18px; backdrop-filter:blur(12px);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <span style="font-weight:800; color:#fff; font-size:0.92rem;"><i class="fa-solid fa-list-check" style="color:#a855f7; margin-right:6px;"></i> Việc cần làm</span>
-                        <button onclick="addBentoTodoPrompt()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:24px; height:24px; border-radius:6px; cursor:pointer; font-size:0.75rem;">+</button>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="background:rgba(17,20,38,0.78); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; backdrop-filter:blur(12px);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-weight:700; color:#fff; font-size:0.82rem;"><i class="fa-solid fa-list-check" style="color:#a855f7; margin-right:6px;"></i> Việc cần làm</span>
+                        <button onclick="addBentoTodoPrompt()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:22px; height:22px; border-radius:6px; cursor:pointer; font-size:0.75rem;">+</button>
                     </div>
-                    <div id="focus-room-todo-list" style="max-height:145px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
+                    <div id="focus-room-todo-list" style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;"></div>
                 </div>
 
-                <!-- Box Trạm Nhạc (Giữ nguyên 100% ID cho script.js) -->
-                <div id="widget-music" style="background:rgba(17,20,38,0.78) !important; border:1px solid rgba(255,255,255,0.1) !important; border-radius:18px !important; padding:18px !important; backdrop-filter:blur(12px);">
-                    <div class="widget-header" style="padding:0 0 10px 0; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:12px; font-size:0.9rem;"><i class="fa-solid fa-headphones" style="color: #a855f7;"></i> Không gian Âm nhạc Lo-fi</div>
+                <div id="widget-music" style="background:rgba(17,20,38,0.78) !important; border:1px solid rgba(255,255,255,0.1) !important; border-radius:14px !important; padding:14px !important; backdrop-filter:blur(12px);">
+                    <div class="widget-header" style="padding:0 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:10px; font-size:0.82rem; font-weight:700; color:#fff;"><i class="fa-solid fa-headphones" style="color: #a855f7;"></i> Không gian âm nhạc</div>
                     <div class="widget-body" style="padding:0;">
-                        <div id="music-shop" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                            <button class="btn-timer" onclick="rentMusic(30, 10)" style="display:flex; justify-content: space-between; width: 100%; max-width:100%; padding:9px 12px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff; font-size:0.82rem;"><i class="fa-solid fa-mug-hot" style="color: #fbbf24; margin-right:8px;"></i>Thuê 30 Phút</span><span style="color: #fbbf24; font-weight: 800;">$10</span></button>
-                            <button class="btn-timer" onclick="rentMusic(60, 20)" style="display:flex; justify-content: space-between; width: 100%; max-width:100%; padding:9px 12px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff; font-size:0.82rem;"><i class="fa-solid fa-headphones" style="color: #0ea5e9; margin-right:8px;"></i>Thuê 60 Phút</span><span style="color: #fbbf24; font-weight: 800;">$20</span></button>
-                            <button class="btn-timer" onclick="rentMusic(120, 35)" style="display:flex; justify-content: space-between; width: 100%; max-width:100%; padding:9px 12px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><span style="color:#fff; font-size:0.82rem;"><i class="fa-solid fa-crown" style="color: #eab308; margin-right:8px;"></i>Thuê 120 Phút</span><span style="color: #fbbf24; font-weight: 800;">$35</span></button>
+                        <div id="music-shop" style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                            <button class="btn-timer" onclick="rentMusic(30, 10)" style="display:flex; justify-content: space-between; width: 100%; padding:7px 10px; border-radius:8px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer;"><span style="color:#fff; font-size:0.76rem;">Gói 30 phút</span><span style="color: #fbbf24; font-weight: 700; font-size:0.76rem;">$10</span></button>
+                            <button class="btn-timer" onclick="rentMusic(60, 20)" style="display:flex; justify-content: space-between; width: 100%; padding:7px 10px; border-radius:8px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer;"><span style="color:#fff; font-size:0.76rem;">Gói 60 phút</span><span style="color: #fbbf24; font-weight: 700; font-size:0.76rem;">$20</span></button>
+                            <button class="btn-timer" onclick="rentMusic(120, 35)" style="display:flex; justify-content: space-between; width: 100%; padding:7px 10px; border-radius:8px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer;"><span style="color:#fff; font-size:0.76rem;">Gói 120 phút</span><span style="color: #fbbf24; font-weight: 700; font-size:0.76rem;">$35</span></button>
                         </div>
 
-                        <div id="music-player" style="display: none; flex-direction: column; gap: 12px; width: 100%;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(168, 85, 247, 0.15); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(168, 85, 247, 0.3);">
-                                <span style="font-size: 0.75rem; font-weight: 800; color: #c084fc; text-transform: uppercase;">Còn lại</span>
-                                <span id="music-timer-text" style="font-size: 1.1rem; font-weight: 800; color: #c084fc; font-variant-numeric: tabular-nums;">00:00</span>
+                        <div id="music-player" style="display: none; flex-direction: column; gap: 8px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(168, 85, 247, 0.15); padding: 6px 10px; border-radius: 8px;">
+                                <span style="font-size: 0.7rem; font-weight: 700; color: #c084fc;">Còn lại</span>
+                                <span id="music-timer-text" style="font-size: 0.95rem; font-weight: 800; color: #c084fc;">00:00</span>
                             </div>
-                            
-                            <div id="music-input-area" style="display: flex; flex-direction: column; gap: 8px;">
-                                <input type="file" id="local-audio-input" accept="audio/mp3, audio/wav, audio/mpeg, audio/flac" multiple style="width:100%; font-size: 0.78rem; color: #fff; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.2);">
-                                <button onclick="loadMusic()" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; padding: 10px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer;"><i class="fa-solid fa-play"></i> Phát Nhạc</button>
+                            <div id="music-input-area" style="display: flex; flex-direction: column; gap: 6px;">
+                                <input type="file" id="local-audio-input" accept="audio/mp3, audio/wav, audio/mpeg, audio/flac" multiple style="width:100%; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2);">
+                                <button onclick="loadMusic()" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; padding: 8px; border-radius: 8px; font-weight: 700; font-size:0.78rem; border: none; cursor: pointer;"><i class="fa-solid fa-play"></i> Phát nhạc</button>
                             </div>
-
-                            <div id="music-frame-container" style="display: none; width: 100%; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.6); padding: 10px; border: 1px solid rgba(255,255,255,0.1);"></div>
-                            <button id="btn-stop-music" onclick="stopMusicManually()" style="display: none; background: rgba(0,0,0,0.3); color: #c084fc; padding: 8px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(192, 132, 252, 0.4); cursor: pointer; font-size:0.8rem;"><i class="fa-solid fa-eject"></i> Đổi Playlist</button>
+                            <div id="music-frame-container" style="display: none; width: 100%; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.6); padding: 8px;"></div>
+                            <button id="btn-stop-music" onclick="stopMusicManually()" style="display: none; background: rgba(0,0,0,0.3); color: #c084fc; padding: 6px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(192, 132, 252, 0.4); cursor: pointer; font-size:0.75rem;">Đổi danh sách phát</button>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <div id="report-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Xác thực kết quả học tập</h3>
-                <p style="margin-top: 8px;">Mô tả chi tiết những gì bạn vừa hoàn thành. Yêu cầu tối thiểu <strong id="word-required" style="color:var(--text-main);">25</strong> từ.</p>
+                <h3>Báo cáo kết quả phiên học</h3>
+                <p style="margin-top: 6px; font-size:0.84rem; color:var(--text-muted);">Tóm tắt nội dung vừa hoàn thành. Tối thiểu <strong id="word-required" style="color:var(--text-main);">25</strong> từ.</p>
             </div>
-            <textarea id="report-input" placeholder="Đang chuẩn bị khung báo cáo..." oninput="updateWordCount()"></textarea>
+            <textarea id="report-input" placeholder="Nhập nội dung đã học..." oninput="updateWordCount()"></textarea>
             <div class="word-tracker">
                 <span id="word-warning">Chưa đủ độ dài...</span>
                 <span><span class="word-count-val" id="word-count">0</span> / <span id="word-req-display">25</span> từ</span>
             </div>
             <div class="modal-footer">
-                <button class="btn-ghost" onclick="abortReport()">Hủy (Bỏ qua)</button>
-                <button class="btn-submit" id="btn-submit-report" onclick="submitReport()">Lưu trữ kết quả</button>
+                <button class="btn-ghost" onclick="abortReport()">Bỏ qua</button>
+                <button class="btn-submit" id="btn-submit-report" onclick="submitReport()">Lưu kết quả</button>
             </div>
         </div>
     </div>
 
     <div id="shame-modal">
         <div class="shame-content">
-            <i class="fa-solid fa-skull-crossbones"></i>
-            <h2>CẢNH BÁO ĐỨT CHUỖI</h2>
-            <p>Sự xao nhãng đang đe dọa thành quả của bạn. Lựa chọn phán quyết:</p>
-            <button class="btn-shame-alt" onclick="acceptDefeat()">1. Nhận thua (Reset chuỗi về 1)</button>
-            <button class="btn-shame" onclick="startTaxSession()">2. Khôi phục (120 Phút Liên Tục)</button>
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h2>CẢNH BÁO GIÁN ĐOẠN CHUỖI</h2>
+            <p>Bạn chưa hoàn thành định mức kỷ luật. Vui lòng chọn phương án xử lý:</p>
+            <button class="btn-shame-alt" onclick="acceptDefeat()">1. Đặt lại chuỗi ngày học về 1</button>
+            <button class="btn-shame" onclick="startTaxSession()">2. Học bù để bảo toàn chuỗi</button>
         </div>
     </div>
 
     <div id="trade-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
-        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 40px 32px;">
-            <div style="font-size: 2.5rem; margin-bottom: 10px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-dash);"></i></div>
-            <h3 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">MÃ: <span id="tm-code" style="color: var(--brand-dash);"></span></h3>
-            <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 24px;">Ngân khố hiện tại: <strong id="tm-usd" style="color: #fbbf24; font-size: 1.2rem;"></strong></p>
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 28px 24px;">
+            <div style="font-size: 2rem; margin-bottom: 8px;"><i class="fa-solid fa-chart-line" style="color: var(--brand-dash);"></i></div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">MÃ: <span id="tm-code" style="color: var(--brand-dash);"></span></h3>
+            <p style="color: var(--text-muted); font-size:0.84rem; font-weight: 600; margin-bottom: 18px;">Số dư khả dụng: <strong id="tm-usd" style="color: #fbbf24; font-size: 1rem;"></strong></p>
             
-            <div style="display: flex; justify-content: space-between; background: var(--bg-hover); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; background: var(--bg-hover); padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 18px;">
                 <div>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Thị giá (1 Cổ)</div>
-                    <div id="tm-price" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);"></div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Giá hiện tại</div>
+                    <div id="tm-price" style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);"></div>
                 </div>
                 <div>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Đang Sở hữu</div>
-                    <div id="tm-owned" style="font-size: 1.5rem; font-weight: 800; color: var(--brand-focus);"></div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Đang nắm giữ</div>
+                    <div id="tm-owned" style="font-size: 1.25rem; font-weight: 800; color: var(--brand-focus);"></div>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; justify-content: center;">
-                <button onclick="sellStock()" style="flex: 1; background: var(--bg-panel); color: var(--brand-warning); border: 2px solid var(--brand-warning); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-arrow-trend-down"></i> BÁN 1</button>
-                <button onclick="buyStock()" style="flex: 1; background: var(--brand-break); color: #fff; border: 2px solid var(--brand-break); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-arrow-trend-up"></i> MUA 1</button>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="sellStock()" style="flex: 1; background: var(--bg-panel); color: var(--brand-warning); border: 1.5px solid var(--brand-warning); padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer;">BÁN 1</button>
+                <button onclick="buyStock()" style="flex: 1; background: var(--brand-break); color: #fff; border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer;">MUA 1</button>
             </div>
-            <button onclick="closeTradeModal()" class="btn-ghost" style="width: 100%; margin-top: 16px; padding: 12px; justify-content: center;">Rút lui</button>
+            <button onclick="closeTradeModal()" class="btn-ghost" style="width: 100%; margin-top: 12px; padding: 9px; justify-content: center;">Đóng</button>
         </div>
     </div>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-
     <script src="script.js"></script>
 </body>
 </html>
