@@ -4104,7 +4104,9 @@ let activeDispatchQuest = null;
 let dispatchCountdownTimer = null;
 let idleDispatchTimer = null;
 let dispatchSnoozeUntil = parseInt(localStorage.getItem('saasDispatchSnoozeUntil')) || 0;
-let isFreeRestMode = false;
+// Giữ nguyên trạng thái Tạm nghỉ suốt cả ngày (kể cả khi F5 hoặc tắt tab mở lại)
+let todayRestCheck = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0');
+let isFreeRestMode = (localStorage.getItem('saasRestModeDate') === todayRestCheck);
 
 function saveDispatchState() {
     localStorage.setItem('saasDispatchRate', dispatchRate);
@@ -4210,8 +4212,13 @@ function handleDispatchRestAction() {
 
     if (qInfo.isQuotaMet) {
         isFreeRestMode = !isFreeRestMode;
-        if (isFreeRestMode) clearTimeout(idleDispatchTimer);
-        else scheduleIdleDispatch(45000);
+        if (isFreeRestMode) {
+            localStorage.setItem('saasRestModeDate', getLocalTodayStr()); // Lưu cứng ngày đang Tạm nghỉ
+            clearTimeout(idleDispatchTimer);
+        } else {
+            localStorage.removeItem('saasRestModeDate'); // Hủy Tạm nghỉ -> Bật lại Trực tuyến
+            scheduleIdleDispatch(45000);
+        }
         renderDispatchStatusWidget();
         return;
     }
