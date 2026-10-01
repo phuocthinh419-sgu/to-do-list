@@ -4610,3 +4610,245 @@ window.renderKPI = function() {
     renderAvatarStarBadge();
 };
 setTimeout(renderAvatarStarBadge, 1200);
+
+// =====================================================================
+// TRỢ LÝ HỌC THUẬT AI (FLOATING COPILOT - CÓ KHÓA BẢO VỆ HẠN MỨC API)
+// =====================================================================
+let copilotHistory = [];
+let isCopilotOpen = false;
+let copilotLastAskTime = 0;
+const FREE_DAILY_CHATS = 3;
+const EXTRA_CHAT_COST = 30; // Đã nâng từ 15 lên 30 USD/câu
+
+function getCopilotQuota() {
+    let todayObj = new Date();
+    let todayStr = todayObj.getFullYear() + '-' + String(todayObj.getMonth() + 1).padStart(2, '0') + '-' + String(todayObj.getDate()).padStart(2, '0');
+    let savedDate = localStorage.getItem('saasCopilotDate');
+    let used = parseInt(localStorage.getItem('saasCopilotUsed')) || 0;
+
+    if (savedDate !== todayStr) {
+        used = 0;
+        localStorage.setItem('saasCopilotDate', todayStr);
+        localStorage.setItem('saasCopilotUsed', '0');
+    }
+    return { used, remainingFree: Math.max(0, FREE_DAILY_CHATS - used) };
+}
+
+function incrementCopilotQuota() {
+    let q = getCopilotQuota();
+    localStorage.setItem('saasCopilotUsed', q.used + 1);
+    updateCopilotQuotaBadge();
+}
+
+function updateCopilotQuotaBadge() {
+    let badge = document.getElementById('copilot-quota-info');
+    if (!badge) return;
+    let q = getCopilotQuota();
+    if (q.remainingFree > 0) {
+        badge.innerHTML = `<i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Miễn phí hôm nay: <b>${q.remainingFree}/${FREE_DAILY_CHATS} lượt</b>`;
+    } else {
+        badge.innerHTML = `<i class="fa-solid fa-coins" style="color:#fbbf24;"></i> Phí tư vấn AI: <b>$${EXTRA_CHAT_COST} / câu hỏi</b>`;
+    }
+}
+
+function initAICopilotWidget() {
+    if (document.getElementById('ai-copilot-container')) return;
+
+    const container = document.createElement('div');
+    container.id = 'ai-copilot-container';
+    container.innerHTML = `
+        <!-- Nút mở khung chat góc dưới bên phải -->
+        <button id="ai-copilot-fab" onclick="toggleAICopilot()" title="Trợ lý Học thuật AI" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); color:#fff; border:none; box-shadow:0 8px 25px rgba(37,99,235,0.45); cursor:pointer; z-index:9998; font-size:1.35rem; display:flex; align-items:center; justify-content:center; transition:transform 0.2s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+
+        <!-- Cửa sổ Chat -->
+        <div id="ai-copilot-window" style="display:none; position:fixed; bottom:92px; right:24px; width:360px; max-width:calc(100vw - 32px); height:520px; max-height:calc(100vh - 120px); background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; box-shadow:0 15px 45px rgba(0,0,0,0.4); z-index:9999; flex-direction:column; overflow:hidden;">
+            <!-- Header -->
+            <div style="padding:14px 18px; background:linear-gradient(135deg, #2563eb, #7c3aed); color:#fff; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:800; font-size:0.95rem;">Academic AI Copilot</div>
+                        <div id="copilot-quota-info" style="font-size:0.72rem; opacity:0.95;">Đang tải hạn mức...</div>
+                    </div>
+                </div>
+                <button onclick="toggleAICopilot()" style="background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer; opacity:0.85;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Danh sách tin nhắn -->
+            <div id="ai-copilot-messages" style="flex:1; padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; font-size:0.86rem; line-height:1.5;">
+                <div style="background:var(--bg-hover); color:var(--text-main); padding:12px 14px; border-radius:14px 14px 14px 4px; border:1px solid var(--border); max-width:90%;">
+                    Xin chào! Tôi là <b>Trợ lý Học thuật</b>. Các nút tra cứu nhanh bên dưới hoàn toàn <b>không tốn lượt AI</b>. Khi bạn cần giải đáp chuyên môn sâu, hãy nhập câu hỏi vào ô chat.
+                </div>
+            </div>
+
+            <!-- Gợi ý nhanh Nội bộ (0 tốn API) -->
+            <div style="padding:8px 12px; border-top:1px solid var(--border); display:flex; gap:6px; overflow-x:auto; white-space:nowrap; background:var(--bg-panel);">
+                <button onclick="runLocalCopilotCheck('progress')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:5px 10px; border-radius:100px; font-size:0.74rem; font-weight:700; cursor:pointer;">📊 Phân tích tiến độ (0 phí)</button>
+                <button onclick="runLocalCopilotCheck('schedule')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:5px 10px; border-radius:100px; font-size:0.74rem; font-weight:700; cursor:pointer;">📅 Lịch trình & Ưu tiên</button>
+                <button onclick="runLocalCopilotCheck('reputation')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); padding:5px 10px; border-radius:100px; font-size:0.74rem; font-weight:700; cursor:pointer;">⭐ Hồ sơ Tín nhiệm</button>
+            </div>
+
+            <!-- Ô nhập tin nhắn gọi Gemini API -->
+            <div style="padding:12px; border-top:1px solid var(--border); display:flex; gap:8px; background:var(--bg-panel);">
+                <input id="ai-copilot-input" type="text" placeholder="Hỏi AI về phương pháp, kiến thức..." onkeydown="if(event.key==='Enter') sendCopilotMessage()" style="flex:1; padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-hover); color:var(--text-main); font-size:0.86rem; outline:none;">
+                <button id="ai-copilot-send" onclick="sendCopilotMessage()" style="background:#2563eb; color:#fff; border:none; width:40px; height:40px; border-radius:12px; cursor:pointer; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(container);
+    updateCopilotQuotaBadge();
+}
+
+function toggleAICopilot() {
+    initAICopilotWidget();
+    const win = document.getElementById('ai-copilot-window');
+    isCopilotOpen = !isCopilotOpen;
+    win.style.display = isCopilotOpen ? 'flex' : 'none';
+    updateCopilotQuotaBadge();
+    if (isCopilotOpen) {
+        setTimeout(() => document.getElementById('ai-copilot-input')?.focus(), 100);
+    }
+}
+
+function appendCopilotBubble(text, sender = 'ai') {
+    initAICopilotWidget();
+    const box = document.getElementById('ai-copilot-messages');
+    if (!box) return;
+
+    const msgDiv = document.createElement('div');
+    if (sender === 'user') {
+        msgDiv.style.cssText = "align-self:flex-end; background:#2563eb; color:#fff; padding:10px 14px; border-radius:14px 14px 4px 14px; max-width:85%; word-wrap:break-word; font-weight:600;";
+        msgDiv.innerText = text;
+    } else {
+        msgDiv.style.cssText = "align-self:flex-start; background:var(--bg-hover); color:var(--text-main); padding:12px 14px; border-radius:14px 14px 14px 4px; border:1px solid var(--border); max-width:90%; word-wrap:break-word;";
+        msgDiv.innerHTML = text;
+    }
+    box.appendChild(msgDiv);
+    box.scrollTop = box.scrollHeight;
+    return msgDiv;
+}
+
+// 1. CHẾ ĐỘ PHÂN TÍCH NỘI BỘ (KHÔNG TỐN LƯỢT GỌI API)
+function runLocalCopilotCheck(type) {
+    let activeGoals = goals.filter(g => g.current > 0);
+    let cycleHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : 0;
+    let targetHrs = (typeof getWeeklyTarget === 'function') ? getWeeklyTarget() : 5.0;
+
+    if (type === 'progress') {
+        appendCopilotBubble("📊 Phân tích tiến độ hiện tại", 'user');
+        let remainKPI = Math.max(0, targetHrs - cycleHrs);
+        let msg = `<b>Báo cáo Tiến độ Hệ thống:</b><br>• KPI Tuần này: <b>${cycleHrs.toFixed(1)}h / ${targetHrs}h</b> ${remainKPI > 0 ? `(Còn thiếu ${remainKPI.toFixed(1)}h)` : `(Đã hoàn thành chỉ tiêu an toàn)`}.<br>• Mục tiêu đang mở: <b>${activeGoals.length} mục tiêu</b>.`;
+        if (activeGoals.length > 0) {
+            let pick = (typeof selectSmartDispatchTask === 'function') ? selectSmartDispatchTask(activeGoals) : { goal: activeGoals[0], duration: 25, reason: "Mục tiêu trọng tâm" };
+            msg += `<br>• <b>Đề xuất hành động:</b> Ưu tiên thực hiện phiên <b>${pick.duration} phút</b> cho mục tiêu <b>"${pick.goal.name}"</b> (${pick.reason}).`;
+        }
+        appendCopilotBubble(msg, 'ai');
+    } else if (type === 'schedule') {
+        appendCopilotBubble("📅 Kiểm tra lịch trình & ưu tiên", 'user');
+        let busy = (typeof getCurrentBusySchedule === 'function') ? getCurrentBusySchedule() : null;
+        if (busy) {
+            appendCopilotBubble(`Hiện tại bạn đang trong ca lịch trình: <b>${busy.name}</b> ${busy.room ? `(Phòng: ${busy.room})` : ''}. Hệ thống đã tự động tạm ngưng phát nhiệm vụ điều phối để bạn tập trung.`, 'ai');
+        } else {
+            appendCopilotBubble(`Hiện tại bạn đang trống lịch trên Thời khóa biểu. Đây là thời điểm lý tưởng để hoàn thành 1 phiên Pomodoro 25 phút nhằm tích lũy giờ học và giữ vững Hiệu suất điều phối.`, 'ai');
+        }
+    } else if (type === 'reputation') {
+        appendCopilotBubble("⭐ Kiểm tra Hồ sơ Tín nhiệm", 'user');
+        let avgStar = (typeof getAverageStarRating === 'function') ? getAverageStarRating().toFixed(2) : "5.00";
+        let dRate = (typeof dispatchRate !== 'undefined') ? dispatchRate : 100;
+        let usd = localStorage.getItem('usdBalance') || 0;
+        appendCopilotBubble(`<b>Hồ sơ Tín nhiệm Học thuật:</b><br>• Đánh giá chất lượng: <b>⭐ ${avgStar} / 5.00</b><br>• Hiệu suất nhận nhiệm vụ: <b>${dRate}%</b><br>• Ngân khố hiện tại: <b>$${usd}</b><br><i>Mẹo: Duy trì Hiệu suất >= 80% và viết báo cáo chi tiết (đạt 4-5 sao) để nhận thêm Tiền Tip từ $15 - $35 mỗi phiên.</i>`, 'ai');
+    }
+}
+
+// 2. CHẾ ĐỘ HỎI ĐÁP AI CHUYÊN SÂU (CÓ KIỂM SOÁT LƯỢT & THU PHÍ USD)
+async function sendCopilotMessage() {
+    const input = document.getElementById('ai-copilot-input');
+    if (!input) return;
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    // Chặn spam liên tục (Cooldown 15 giây)
+    let now = Date.now();
+    let diffSec = Math.ceil((15000 - (now - copilotLastAskTime)) / 1000);
+    if (now - copilotLastAskTime < 15000) {
+        alert(`Vui lòng đợi ${diffSec} giây trước khi gửi câu hỏi tiếp theo để đảm bảo ổn định kết nối AI.`);
+        return;
+    }
+
+    // Kiểm tra hạn mức miễn phí & trừ tiền USD nếu vượt quá 3 câu/ngày
+    let quota = getCopilotQuota();
+    let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+
+    if (quota.remainingFree <= 0) {
+        if (currentUsd < EXTRA_CHAT_COST) {
+            appendCopilotBubble(`⚠️ Bạn đã dùng hết ${FREE_DAILY_CHATS} lượt hỏi AI miễn phí hôm nay. Số dư hiện tại ($${currentUsd}) không đủ $${EXTRA_CHAT_COST} để mua thêm lượt tư vấn. Hãy hoàn thành thêm phiên học để tích lũy USD!`, 'ai');
+            return;
+        }
+        localStorage.setItem('usdBalance', currentUsd - EXTRA_CHAT_COST);
+        if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
+    }
+
+    copilotLastAskTime = now;
+    incrementCopilotQuota();
+    input.value = '';
+
+    appendCopilotBubble(userText, 'user');
+    const loadingBubble = appendCopilotBubble("<i class='fa-solid fa-spinner fa-spin'></i> Trợ lý AI đang phân tích...", 'ai');
+
+    let activeGoalsList = (typeof goals !== 'undefined' && goals.length > 0)
+        ? goals.filter(g => g.current > 0).map(g => `${g.name} (Còn ${g.current.toFixed(1)}h/${g.target}h)`).join("; ")
+        : "Chưa có mục tiêu";
+
+    const systemContext = `Bạn là Trợ lý Học thuật AI (Academic Copilot) trong ứng dụng quản lý học tập The Apex.
+    Phong cách: Trung lập, chuyên nghiệp, đi thẳng vào trọng tâm, trình bày rõ ràng (dưới 130 từ).
+    Ngữ cảnh người dùng: Chuỗi ${currentStreak} ngày | Mục tiêu đang học: ${activeGoalsList}.
+    Hãy giải đáp câu hỏi học thuật hoặc tư vấn lộ trình ngắn gọn, súc tích.`;
+
+    copilotHistory.push(`Người dùng: ${userText}`);
+    if (copilotHistory.length > 6) copilotHistory.shift();
+
+    const fullPrompt = `${systemContext}\n\nHội thoại:\n${copilotHistory.join("\n")}\n\nTrợ lý AI:`;
+    const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
+    let reply = "Hệ thống cố vấn tạm thời gián đoạn kết nối. Vui lòng thử lại sau.";
+
+    for (let modelName of models) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: fullPrompt }] }],
+                    generationConfig: { temperature: 0.7 }
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                if (response.status === 404) continue;
+                reply = `Hệ thống AI đang bận (${response.status}). Vui lòng thử lại sau ít phút.`;
+                break;
+            }
+            if (data.candidates && data.candidates.length > 0) {
+                reply = data.candidates[0].content.parts[0].text.trim();
+                copilotHistory.push(`Trợ lý AI: ${reply}`);
+                break;
+            }
+        } catch (err) {
+            console.error("Copilot Error:", err);
+        }
+    }
+
+    loadingBubble.innerHTML = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    if (typeof syncToCloud === 'function') syncToCloud();
+}
+
+window.addEventListener('DOMContentLoaded', initAICopilotWidget);
+setTimeout(initAICopilotWidget, 1000);
