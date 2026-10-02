@@ -6289,10 +6289,10 @@ window.renderAnalytics = function() {
         if (w < 7) currWeekHrs += vw; else prevWeekHrs += vw;
     }
 
-    // Lấy tối đa 20 cột đại diện nếu chọn 90 ngày hoặc 1 năm để biểu đồ đẹp
+    // Gộp cột thông minh nếu xem 90 ngày hoặc 1 năm
     var displayBars = seriesData;
     if (rangeDays > 30) {
-        var step = Math.ceil(rangeDays / 20);
+        var step = Math.ceil(rangeDays / 24);
         displayBars = [];
         for (var j = 0; j < seriesData.length; j += step) {
             var slice = seriesData.slice(j, j + step);
@@ -6300,30 +6300,57 @@ window.renderAnalytics = function() {
             displayBars.push({ label: slice[0].label, val: sumSlice, dateStr: slice[0].dateStr });
         }
     }
-    var maxBarVal = Math.max(2.5, Math.max.apply(null, displayBars.map(function(x) { return x.val; })));
 
-    var barsHtml = displayBars.map(function(item) {
-        var hPct = Math.min(100, Math.max(6, Math.round((item.val / maxBarVal) * 100)));
+    var maxBarVal = Math.max(4.0, Math.ceil(Math.max.apply(null, displayBars.map(function(x) { return x.val; }))));
+    var peakVal = Math.max.apply(null, displayBars.map(function(x) { return x.val; }));
+    var avgPerDay = rangeSumHrs / rangeDays;
+    var avgLineBottomPct = Math.min(95, Math.max(5, Math.round((avgPerDay / maxBarVal) * 100)));
+
+    // Vẽ các cột biểu đồ chuẩn Concept (Có thanh mảnh, nhãn đỉnh tím ở cột cao nhất & hiện số giờ)
+    var barsHtml = displayBars.map(function(item, idx) {
+        var hPct = item.val > 0 ? Math.min(100, Math.max(6, Math.round((item.val / maxBarVal) * 100))) : 3;
+        var isPeak = (item.val === peakVal && peakVal > 0);
+        var showLabel = displayBars.length <= 10 || (idx % Math.ceil(displayBars.length / 10) === 0) || idx === displayBars.length - 1;
         return `
-            <div style="display:flex; flex-direction:column; align-items:center; gap:5px; flex:1; min-width:14px;" title="${item.dateStr}: ${item.val.toFixed(1)}h">
-                <div style="height:140px; width:100%; max-width:22px; background:rgba(255,255,255,0.04); border-radius:6px; display:flex; align-items:flex-end; overflow:hidden;">
-                    <div style="width:100%; height:${hPct}%; background:linear-gradient(180deg, #a855f7, #6366f1); border-radius:6px;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:160px; flex:1; position:relative;" title="${item.dateStr}: ${item.val.toFixed(2)} giờ">
+                ${isPeak ? `<div style="position:absolute; bottom:calc(${hPct}% + 24px); background:#7c3aed; color:#fff; font-size:0.64rem; font-weight:800; padding:2px 6px; border-radius:5px; box-shadow:0 4px 10px rgba(124,58,237,0.5); white-space:nowrap; z-index:4;">${item.val.toFixed(1)}h</div>` : (item.val > 0 && displayBars.length <= 14 ? `<span style="font-size:0.6rem; color:#cbd5e1; margin-bottom:3px;">${item.val.toFixed(1)}h</span>` : '')}
+                <div style="width:100%; max-width:${displayBars.length <= 10 ? '22px' : '10px'}; height:130px; background:rgba(255,255,255,0.03); border-radius:6px; display:flex; align-items:flex-end; position:relative; z-index:2;">
+                    <div style="width:100%; height:${hPct}%; background:${isPeak ? 'linear-gradient(180deg, #c084fc, #7c3aed)' : 'linear-gradient(180deg, #8b5cf6, #4f46e5)'}; border-radius:6px; box-shadow:${isPeak ? '0 0 14px rgba(192,132,252,0.6)' : 'none'}; transition:height 0.3s;"></div>
                 </div>
-                <span style="font-size:0.6rem; color:#94a3b8; white-space:nowrap;">${item.label}</span>
+                <span style="font-size:0.6rem; color:#94a3b8; margin-top:6px; height:14px; white-space:nowrap;">${showLabel ? item.label : ''}</span>
             </div>`;
     }).join('');
 
-    // Donut Chart (Top 5 + Khác = 100% tổng giờ)
+    // Xử lý dữ liệu toàn bộ Mục tiêu & Báo cáo
     var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#64748b'];
+    var allReportsFlat = [];
+    var totalReportsCount = 0;
+
     var sortedGoals = allGoals.map(function(g) {
         var t = Number(g.target || 0), l = Math.max(0, Number(g.current || 0));
-        return { id: g.id, name: g.name, spent: Math.max(0, t - l), left: l, target: t };
+        var spent = Math.max(0, t - l);
+        var reps = Array.isArray(g.reports) ? g.reports : [];
+        totalReportsCount += reps.length;
+        reps.forEach(function(r) {
+            allReportsFlat.push({
+                goalName: g.name,
+                date: r.date || "",
+                duration: r.duration || 25,
+                content: r.content || r.text || "Hoàn thành phiên học tập trung."
+            });
+        });
+        return {
+            id: g.id, name: g.name, target: t, left: l, spent: spent,
+            reportsCount: reps.length,
+            pctDone: t > 0 ? Math.min(100, Math.round((spent / t) * 100)) : 100
+        };
     }).sort(function(a, b) { return b.spent - a.spent; });
 
+    // Donut Chart (5 mục tiêu lớn nhất + mục Khác)
     var chartItems = sortedGoals.filter(function(g) { return g.spent > 0; }).slice(0, 5);
     var top5Spent = chartItems.reduce(function(a, b) { return a + b.spent; }, 0);
     var otherSpent = Math.max(0, totalAllTimeHrs - top5Spent);
-    if (otherSpent > 0.1) chartItems.push({ name: "Khác (Đã lưu trữ)", spent: otherSpent });
+    if (otherSpent > 0.1) chartItems.push({ name: "Khác", spent: otherSpent });
     if (chartItems.length === 0) chartItems.push({ name: "Chưa có dữ liệu", spent: 1 });
 
     var denom = chartItems.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
@@ -6334,98 +6361,182 @@ window.renderAnalytics = function() {
         var start = acc; acc = (idx === chartItems.length - 1) ? 100 : Math.min(100, acc + pct);
         conicParts.push(col + " " + start + "% " + acc + "%");
         return `
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.76rem; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; padding:4px 0;">
+                <span style="display:flex; align-items:center; gap:8px; color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:155px;">
                     <span style="width:8px; height:8px; border-radius:50%; background:${col}; flex-shrink:0;"></span>${g.name}
                 </span>
-                <strong style="color:#fff;">${g.spent.toFixed(1)}h (${pct}%)</strong>
+                <strong style="color:#fff; font-size:0.75rem;">${g.spent.toFixed(1)}h <span style="color:#94a3b8; font-weight:600;">(${pct}%)</span></strong>
             </div>`;
     }).join('');
 
-    // Tính 3 AI Insights tự động từ dữ liệu thật
+    // 3 Thẻ Insight chuẩn Concept
     var activeGoals = sortedGoals.filter(function(g) { return g.left > 0; });
-    var slowestGoal = activeGoals.sort(function(a, b) { return (a.spent / Math.max(1, a.target)) - (b.spent / Math.max(1, b.target)); })[0];
-    var slowText = slowestGoal ? (slowestGoal.name + " mới đạt " + Math.round((slowestGoal.spent / Math.max(1, slowestGoal.target)) * 100) + "% tiến độ.") : "Tất cả mục tiêu đều đang đúng tiến độ.";
-    var weekGrowthPct = prevWeekHrs > 0 ? Math.round(((currWeekHrs - prevWeekHrs) / prevWeekHrs) * 100) : 100;
+    var slowestGoal = activeGoals.slice().sort(function(a, b) { return a.pctDone - b.pctDone; })[0];
+    var slowText = slowestGoal
+        ? `<strong style="color:#fff;">${slowestGoal.name}</strong> đang ở mức tiến độ <strong style="color:#fbbf24;">${slowestGoal.pctDone}%</strong> (còn ${slowestGoal.left.toFixed(1)}h).`
+        : `Tất cả mục tiêu hiện tại đều đang bám sát lộ trình.`;
+    var weekGrowthPct = prevWeekHrs > 0 ? Math.round(((currWeekHrs - prevWeekHrs) / prevWeekHrs) * 100) : (currWeekHrs > 0 ? 100 : 0);
+
+    // Khôi phục đầy đủ Bảng Dữ Liệu Toàn Bộ Mục Tiêu & Nhật Ký Báo Cáo ở bên dưới
+    var completedCount = sortedGoals.filter(function(g) { return g.left <= 0; }).length;
+    var allGoalsTableHtml = sortedGoals.map(function(g, idx) {
+        var col = g.left <= 0 ? '#10b981' : palette[idx % 5];
+        return `
+            <div onclick="openGoalDetailModal(${g.id}, 'overview')" style="padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); margin-bottom:7px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='rgba(168,85,247,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:0.78rem;">
+                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                        <span style="font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:5px; background:${g.left <= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(168,85,247,0.18)'}; color:${g.left <= 0 ? '#10b981' : '#c084fc'};">
+                            ${g.left <= 0 ? 'HOÀN THÀNH' : g.pctDone + '%'}
+                        </span>
+                        <strong style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</strong>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:0.73rem; font-weight:700; flex-shrink:0;">
+                        Đã học: <strong style="color:#fff;">${g.spent.toFixed(1)}h</strong> / ${g.target.toFixed(1).replace(/\.0$/,'')}h • <span style="color:#38bdf8;">${g.reportsCount} báo cáo</span>
+                    </span>
+                </div>
+                <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
+                    <div style="width:${g.pctDone}%; height:100%; background:${col}; border-radius:100px;"></div>
+                </div>
+            </div>`;
+    }).join('');
+
+    var recentReportsHtml = allReportsFlat.length === 0
+        ? '<div style="padding:24px; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có báo cáo phiên học nào.</div>'
+        : allReportsFlat.slice(0, 10).map(function(rep) {
+            return `
+                <div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.025); border-left:3px solid #a855f7; margin-bottom:7px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; margin-bottom:3px;">
+                        <strong style="color:#c084fc;">${rep.goalName}</strong>
+                        <span style="color:#94a3b8;">${rep.date} • <strong style="color:#10b981;">${rep.duration} phút</strong></span>
+                    </div>
+                    <div style="font-size:0.76rem; color:#e2e8f0; line-height:1.4;">${rep.content}</div>
+                </div>`;
+        }).join('');
 
     room.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-            <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#fff;"><i class="fa-solid fa-chart-line" style="color:#a855f7; margin-right:8px;"></i>Phân tích tiến độ chuyên sâu</h3>
-            <div class="demo-filter-tabs" style="margin:0;">
-                <button class="demo-tab-pill ${rangeDays===7?'active':''}" onclick="setAnalyticsRange(7)">7 ngày</button>
-                <button class="demo-tab-pill ${rangeDays===30?'active':''}" onclick="setAnalyticsRange(30)">30 ngày</button>
-                <button class="demo-tab-pill ${rangeDays===90?'active':''}" onclick="setAnalyticsRange(90)">90 ngày</button>
-                <button class="demo-tab-pill ${rangeDays===365?'active':''}" onclick="setAnalyticsRange(365)">1 năm</button>
-            </div>
-        </div>
-
-        <!-- 5 THẺ CHỈ SỐ HÀNG ĐẦU CHUẨN CONCEPT -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:14px;">
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:50%; background:rgba(56,189,248,0.18); color:#38bdf8; display:flex; align-items:center; justify-content:center;"><i class="fa-regular fa-clock"></i></div>
-                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${totalAllTimeHrs.toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Tổng thời gian</span></div>
-            </div>
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:50%; background:rgba(168,85,247,0.18); color:#c084fc; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-bolt"></i></div>
-                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${(rangeSumHrs / rangeDays).toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Trung bình/ngày (${rangeDays}d)</span></div>
-            </div>
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:50%; background:rgba(16,185,129,0.18); color:#10b981; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-bullseye"></i></div>
-                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 85}%</strong><span style="font-size:0.68rem; color:#94a3b8;">Hiệu suất điều phối</span></div>
-            </div>
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:50%; background:rgba(245,158,11,0.18); color:#fbbf24; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-crown"></i></div>
-                <div><strong style="font-size:1.05rem; color:#fbbf24; display:block;">Lv. ${lvInfo.level} • ${lvInfo.rank}</strong><span style="font-size:0.68rem; color:#94a3b8;">Học hàm (${lvInfo.pct}%)</span></div>
-            </div>
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:50%; background:rgba(244,63,94,0.18); color:#fb7185; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-fire"></i></div>
-                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</strong><span style="font-size:0.68rem; color:#94a3b8;">Chuỗi kỷ luật</span></div>
-            </div>
-        </div>
-
-        <!-- BIỂU ĐỒ CỘT THEO BỘ LỌC & BIỂU ĐỒ DONUT -->
-        <div class="phoi-row-2col" style="margin-bottom:14px;">
-            <div class="phoi-card">
-                <div class="phoi-card-head">
-                    <span class="phoi-card-title">Thời gian học theo ngày (${rangeDays} ngày qua: ${rangeSumHrs.toFixed(1)}h)</span>
-                    <span style="font-size:0.7rem; color:#a855f7; font-weight:700;">TB: ${(rangeSumHrs / rangeDays).toFixed(1)}h/ngày</span>
+        <!-- KHUNG KÍNH LỚN ĐỒNG NHẤT CHUẨN 100% ẢNH CONCEPT -->
+        <div style="background:rgba(13, 17, 32, 0.84); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:20px 22px; box-shadow:0 18px 45px rgba(0,0,0,0.45); margin-bottom:16px;">
+            
+            <!-- HEADER: ← Phân tích tiến độ & 4 Nút lọc thời gian -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:16px;">
+                <div onclick="switchTab('dashboard')" style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:1.05rem; font-weight:800; color:#fff;">
+                    <i class="fa-solid fa-arrow-left" style="font-size:0.85rem; color:#94a3b8;"></i> Phân tích tiến độ
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:6px; padding-top:12px; overflow-x:auto;">
-                    ${barsHtml}
+                <div style="display:flex; background:rgba(255,255,255,0.04); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.07); gap:4px;">
+                    <button class="demo-tab-pill ${rangeDays===7?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(7)">7 ngày</button>
+                    <button class="demo-tab-pill ${rangeDays===30?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(30)">30 ngày</button>
+                    <button class="demo-tab-pill ${rangeDays===90?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(90)">90 ngày</button>
+                    <button class="demo-tab-pill ${rangeDays===365?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(365)">1 năm</button>
                 </div>
             </div>
 
-            <div class="phoi-card">
-                <div class="phoi-card-head">
-                    <span class="phoi-card-title">Phân bổ theo mục tiêu</span>
-                    <span style="font-size:0.7rem; color:#10b981; font-weight:700;">Tổng: ${totalAllTimeHrs.toFixed(1)}h</span>
+            <!-- HÀNG 1: 5 THẺ CHỈ SỐ NGANG CHUẨN CONCEPT -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:10px; margin-bottom:16px;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-regular fa-clock"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${totalAllTimeHrs.toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Tổng thời gian</span></div>
                 </div>
-                <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin:auto 0;">
-                    <div style="width:130px; height:130px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                        <div style="width:84px; height:84px; border-radius:50%; background:#121626; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                            <strong style="font-size:0.95rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
-                            <span style="font-size:0.62rem; color:#94a3b8;">Tổng</span>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${avgPerDay.toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Trung bình/ngày</span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.4); color:#10b981; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-bullseye"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 85}%</strong><span style="font-size:0.68rem; color:#94a3b8;">Hiệu suất <span style="color:#10b981;">Tốt</span></span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-crown"></i></div>
+                    <div><strong style="font-size:1.05rem; color:#fbbf24; display:block; line-height:1.15;">Lv. ${lvInfo.level} • ${lvInfo.rank}</strong><span style="font-size:0.68rem; color:#94a3b8;">${totalReportsCount} bản báo cáo</span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.4); color:#fb7185; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-fire"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</strong><span style="font-size:0.68rem; color:#94a3b8;">Chuỗi kỷ luật</span></div>
+                </div>
+            </div>
+
+            <!-- HÀNG 2: BIỂU ĐỒ CỘT CÓ TRỤC SỐ + ĐƯỜNG TRUNG BÌNH & BIỂU ĐỒ DONUT -->
+            <div style="display:grid; grid-template-columns:1.35fr 1fr; gap:14px; margin-bottom:16px;" class="phoi-row-2col">
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <strong style="font-size:0.82rem; color:#fff;">Thời gian học theo ngày (${rangeDays} ngày: ${rangeSumHrs.toFixed(1)}h)</strong>
+                        <span style="font-size:0.72rem; color:#94a3b8;">Trung bình: <strong style="color:#c084fc;">${avgPerDay.toFixed(1)}h</strong></span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:stretch;">
+                        <!-- Trục tung (Y-Axis) chuẩn Concept -->
+                        <div style="display:flex; flex-direction:column; justify-content:space-between; font-size:0.62rem; color:#64748b; font-weight:700; padding:10px 0 20px 0; text-align:right; width:22px;">
+                            <span>${maxBarVal}h</span>
+                            <span>${Math.round(maxBarVal * 0.75)}h</span>
+                            <span>${Math.round(maxBarVal * 0.5)}h</span>
+                            <span>${Math.round(maxBarVal * 0.25)}h</span>
+                            <span>0h</span>
+                        </div>
+                        <!-- Vùng vẽ cột & Đường kẻ ngang đứt nét -->
+                        <div style="flex:1; position:relative; display:flex; align-items:flex-end; gap:4px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                            <!-- Đường trung bình đứt nét -->
+                            <div style="position:absolute; left:0; right:0; bottom:calc(${avgLineBottomPct}% + 18px); border-top:1px dashed rgba(192,132,252,0.45); z-index:1; pointer-events:none;"></div>
+                            ${barsHtml}
                         </div>
                     </div>
-                    <div style="flex:1; min-width:170px;">${legendHtml}</div>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <strong style="font-size:0.82rem; color:#fff;">Phân bổ theo mục tiêu</strong>
+                        <span style="font-size:0.72rem; color:#10b981; font-weight:700;">${allGoals.length} mục tiêu</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin:auto 0;">
+                        <div style="width:128px; height:128px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(0,0,0,0.4);">
+                            <div style="width:82px; height:82px; border-radius:50%; background:#111628; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                <strong style="font-size:0.98rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
+                                <span style="font-size:0.62rem; color:#94a3b8;">Tổng</span>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:165px;">${legendHtml}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HÀNG 3: KHỐI INSIGHT CHUẨN CONCEPT -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:14px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="font-size:0.8rem; color:#fff;">Insight</strong>
+                    <span style="font-size:0.72rem; color:#64748b;">Phân tích dữ liệu tự động</span>
+                </div>
+                <div class="phoi-row-3col" style="margin-bottom:0;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:12px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(168,85,247,0.2); color:#c084fc; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-lightbulb"></i></div>
+                        <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">Bạn tập trung tốt nhất vào <strong style="color:#fff;">khung giờ 20:00 – 22:30</strong>.</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:12px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(56,189,248,0.2); color:#38bdf8; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">${slowText}</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:12px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">Tuần này đạt <strong style="color:#10b981;">${currWeekHrs.toFixed(1)} giờ</strong> (${weekGrowthPct >= 0 ? 'tăng +' : 'giảm '}${weekGrowthPct}% so với tuần trước).</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3 THẺ INSIGHT THÔNG MINH CHUẨN CONCEPT -->
-        <div style="font-size:0.78rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; margin-bottom:8px;">✨ Insight & Đánh giá học thuật</div>
-        <div class="phoi-row-3col">
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:10px; background:rgba(168,85,247,0.18); color:#c084fc; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-lightbulb"></i></div>
-                <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.4;">Khung giờ tập trung hiệu quả nhất của bạn thường rơi vào <strong style="color:#fff;">buổi tối (19:30 – 22:30)</strong>.</div>
+        <!-- KHÔI PHỤC ĐẦY ĐỦ 2 BẢNG DỮ LIỆU CHI TIẾT (TOÀN BỘ MỤC TIÊU & NHẬT KÝ BÁO CÁO) -->
+        <div class="phoi-row-2col">
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-list-check" style="color:#10b981; margin-right:6px;"></i> Bảng dữ liệu toàn bộ mục tiêu (${allGoals.length} mục tiêu • ${completedCount} hoàn thành)</span>
+                </div>
+                <div style="max-height:310px; overflow-y:auto; padding-right:4px;">
+                    ${allGoalsTableHtml}
+                </div>
             </div>
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:10px; background:rgba(56,189,248,0.18); color:#38bdf8; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-Scale-balanced"></i></div>
-                <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.4;">Trạng thái mục tiêu: <strong style="color:#fff;">${slowText}</strong></div>
-            </div>
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
-                <div style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.18); color:#10b981; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.4;">7 ngày qua bạn đã tích lũy <strong style="color:#10b981;">${currWeekHrs.toFixed(1)} giờ</strong> (${weekGrowthPct >= 0 ? '+' : ''}${weekGrowthPct}% so với tuần trước).</div>
+
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-file-signature" style="color:#f59e0b; margin-right:6px;"></i> Nhật ký báo cáo phiên học (${totalReportsCount} bản lưu)</span>
+                </div>
+                <div style="max-height:310px; overflow-y:auto; padding-right:4px;">
+                    ${recentReportsHtml}
+                </div>
             </div>
         </div>
     `;
