@@ -7047,3 +7047,272 @@ window.addEventListener('DOMContentLoaded', function() {
         setTimeout(ensureFocusTemplateDOM, 400);
     });
 })();
+
+// =====================================================================
+// UI PRECISION PATCH: COMPACT GOAL CARDS, SYMMETRIC FOCUS & MOBILE FIX
+// =====================================================================
+(function applyPrecisionLayoutPatch() {
+    function injectPrecisionPatchCSS() {
+        var old = document.getElementById('apex-precision-patch-css');
+        if (old) old.remove();
+
+        var st = document.createElement('style');
+        st.id = 'apex-precision-patch-css';
+        st.innerHTML = `
+            /* ==========================================================
+               1. THU GỌN THẺ MỤC TIÊU (.goal-card) VỀ DẠNG NGANG CHUẨN
+               ========================================================== */
+            #dashboard-grid {
+                display: grid !important;
+                grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important;
+                gap: 12px !important;
+                align-items: stretch !important;
+            }
+            #dashboard-grid .goal-card {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 14px !important;
+                padding: 14px 16px !important;
+                border-radius: 14px !important;
+                min-height: unset !important;
+                height: auto !important;
+            }
+            #dashboard-grid .goal-card .progress-circle {
+                width: 54px !important;
+                height: 54px !important;
+                flex-shrink: 0 !important;
+                margin: 0 !important;
+            }
+            #dashboard-grid .goal-card .goal-meta {
+                flex: 1 !important;
+                min-width: 0 !important;
+                text-align: left !important;
+            }
+            #dashboard-grid .goal-card .goal-meta h3 {
+                font-size: 0.92rem !important;
+                font-weight: 800 !important;
+                line-height: 1.25 !important;
+                margin-bottom: 4px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            /* ==========================================================
+               2. CĂN TRỤC ĐỐI XỨNG TUYỆT ĐỐI CHO FOCUS ROOM (PC)
+               ========================================================== */
+            .ft-wrapper {
+                max-width: 1080px !important;
+                margin: 0 auto !important;
+                justify-content: center !important;
+                gap: 16px !important;
+                padding: 6px 0 !important;
+            }
+
+            /* Chia 3 cột lưới 1fr - auto - 1fr để Tiêu đề luôn nằm chính giữa 100% */
+            .ft-topbar {
+                display: grid !important;
+                grid-template-columns: 1fr auto 1fr !important;
+                align-items: center !important;
+                width: 100% !important;
+                margin-bottom: 6px !important;
+            }
+            .ft-topbar > button:first-child {
+                justify-self: start !important;
+                width: fit-content !important;
+            }
+            .ft-center-header {
+                justify-self: center !important;
+                text-align: center !important;
+                margin: 0 !important;
+            }
+            .ft-topbar > div:last-child {
+                justify-self: end !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            /* Gom 2 Card trái/phải lại gần Vòng tròn đồng hồ & bằng chiều cao nhau */
+            .ft-main-grid {
+                display: grid !important;
+                grid-template-columns: 310px 320px 310px !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+                gap: 24px !important;
+                width: 100% !important;
+                margin: 4px auto !important;
+            }
+            .ft-card {
+                min-height: 290px !important;
+                height: 100% !important;
+                padding: 16px 18px !important;
+                border-radius: 18px !important;
+            }
+            .ft-center-col {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 6px 0 !important;
+            }
+            .ft-ring-box {
+                width: 240px !important;
+                height: 240px !important;
+            }
+            .ft-ring-box svg {
+                width: 240px !important;
+                height: 240px !important;
+            }
+
+            /* Thanh âm thanh đáy khớp đúng độ rộng khối trung tâm */
+            .ft-bottom-dock {
+                max-width: 988px !important;
+                width: 100% !important;
+                padding: 12px 18px !important;
+                margin: 0 auto !important;
+            }
+
+            /* ==========================================================
+               3. TỐI ƯU HOÀN HẢO CHO ĐIỆN THOẠI (KHÔNG TRÀN MÀN HÌNH)
+               ========================================================== */
+            @media (max-width: 1024px) {
+                .ft-main-grid {
+                    grid-template-columns: 1fr !important;
+                    max-width: 460px !important;
+                    gap: 16px !important;
+                }
+                /* Đưa Đồng hồ lên đầu tiên trên điện thoại, 2 thẻ xuống dưới */
+                .ft-center-col { order: -1 !important; margin: 8px 0 !important; }
+                .ft-card { min-height: auto !important; }
+            }
+
+            @media (max-width: 768px) {
+                /* Dashboard & Header trên Mobile */
+                .main-content {
+                    padding: 0 12px 28px 12px !important;
+                    overflow-x: hidden !important;
+                }
+                .header {
+                    padding: 8px 10px !important;
+                    flex-wrap: wrap !important;
+                    gap: 8px !important;
+                }
+                .top-quote-text { display: none !important; }
+                .header-actions {
+                    width: 100% !important;
+                    justify-content: space-between !important;
+                    flex-wrap: wrap !important;
+                    gap: 6px !important;
+                }
+                .top-datetime-box {
+                    font-size: 0.68rem !important;
+                    padding: 4px 8px !important;
+                }
+                .btn-ghost-action, .btn-primary {
+                    padding: 6px 9px !important;
+                    font-size: 0.72rem !important;
+                }
+
+                /* Hero Banner & Bento trên Mobile */
+                .phoi-hero-banner {
+                    padding: 14px 16px !important;
+                    flex-direction: column !important;
+                    align-items: flex-start !important;
+                }
+                .phoi-hero-left { max-width: 100% !important; }
+                .phoi-hero-left h1 { font-size: 1.25rem !important; }
+                .phoi-hero-mini-bar {
+                    width: 100% !important;
+                    gap: 12px !important;
+                    padding: 8px 12px !important;
+                    justify-content: space-between !important;
+                }
+                .phoi-stat-grid {
+                    grid-template-columns: 1fr 1fr !important;
+                    gap: 8px !important;
+                }
+                .phoi-stat-card { padding: 10px 12px !important; }
+                .phoi-orb { width: 32px !important; height: 32px !important; font-size: 0.85rem !important; }
+                .phoi-heat-matrix {
+                    grid-template-columns: repeat(12, minmax(10px, 1fr)) !important;
+                    gap: 3px !important;
+                }
+                #dashboard-grid {
+                    grid-template-columns: 1fr !important;
+                }
+
+                /* Focus Room trên Mobile: Cho phép cuộn dọc mượt, không cắt tràn */
+                #focus-room {
+                    padding: 12px 14px 28px 14px !important;
+                    overflow-y: auto !important;
+                    overflow-x: hidden !important;
+                    justify-content: flex-start !important;
+                }
+                .ft-wrapper {
+                    height: auto !important;
+                    gap: 14px !important;
+                }
+                .ft-topbar {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    justify-content: space-between !important;
+                    gap: 8px !important;
+                }
+                .ft-center-header {
+                    order: 3 !important;
+                    width: 100% !important;
+                    margin-top: 4px !important;
+                }
+                .ft-goal-title { font-size: 1.3rem !important; }
+                .ft-glass-btn {
+                    padding: 6px 11px !important;
+                    font-size: 0.72rem !important;
+                }
+
+                /* 3 nút chế độ vừa khít 1 hàng ngang trên điện thoại */
+                .ft-mode-bar {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 6px !important;
+                    width: 100% !important;
+                }
+                .ft-mode-pill {
+                    padding: 6px 8px !important;
+                    justify-content: center !important;
+                    gap: 6px !important;
+                }
+                .ft-mode-pill strong { font-size: 0.72rem !important; }
+                .ft-mode-pill span { font-size: 0.58rem !important; }
+
+                .ft-ring-box {
+                    width: 210px !important;
+                    height: 210px !important;
+                }
+                .ft-ring-box svg {
+                    width: 210px !important;
+                    height: 210px !important;
+                }
+                .ft-time-big { font-size: 3.2rem !important; }
+
+                /* 5 thẻ âm thanh chuyển thành lưới 2 cột + thanh trượt gọn trên Mobile */
+                .ft-bottom-dock {
+                    padding: 12px 14px !important;
+                }
+                .ft-amb-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 8px !important;
+                }
+                .ft-amb-grid .f-amb-card:last-child {
+                    grid-column: 1 / -1 !important;
+                }
+            }
+        `;
+        document.head.appendChild(st);
+    }
+
+    injectPrecisionPatchCSS();
+    window.addEventListener('DOMContentLoaded', injectPrecisionPatchCSS);
+})();
