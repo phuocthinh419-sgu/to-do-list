@@ -7447,6 +7447,266 @@ window.changeColor = function(colorName) {
     });
 };
 
+// --- 11. TRỢ LÝ AI THỜI KHÓA BIỂU (NHẬP NHANH NLP & TỰ ĐỘNG LẤP LỊCH THEO TIẾN ĐỘ) ---
+function injectAiTimetableToolbar() {
+    var ttView = document.getElementById('view-timetable') || document.getElementById('timetable-room');
+    if (!ttView) {
+        var gridEl = document.querySelector('.timetable-grid') || document.getElementById('timetable-body');
+        if (gridEl) ttView = gridEl.parentElement;
+    }
+    if (!ttView || document.getElementById('apex-ai-tt-bar')) return;
+
+    var bar = document.createElement('div');
+    bar.id = 'apex-ai-tt-bar';
+    bar.className = 'phoi-card';
+    bar.style.cssText = "margin-bottom:14px; border:1px solid rgba(168,85,247,0.4) !important; background:linear-gradient(135deg, rgba(88,28,135,0.28), rgba(16,21,38,0.88)) !important; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:12px 18px !important;";
+    bar.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, #a855f7, #6366f1); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; box-shadow:0 4px 15px rgba(168,85,247,0.45); flex-shrink:0;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+                <div style="font-size:0.88rem; font-weight:800; color:#fff;">Trợ Lý AI Thời Khóa Biểu & Điều Phối Tiến Độ</div>
+                <div style="font-size:0.72rem; color:#cbd5e1;">Nhập lịch học/lịch dạy bằng văn bản tự nhiên hoặc để AI tự động lấp lịch cày mục tiêu vào khe trống.</div>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button onclick="openAiSmartScheduleModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#fff; padding:8px 14px; border-radius:10px; font-size:0.76rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhập lịch nhanh bằng chữ
+            </button>
+            <button onclick="runAiAutoFillGoalSchedule()" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:8px 15px; border-radius:10px; font-size:0.76rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(139,92,246,0.4);">
+                <i class="fa-solid fa-robot"></i> AI Tự xếp lịch Mục tiêu
+            </button>
+            <button onclick="clearAiGeneratedSchedules()" title="Xóa các ca tự học do AI tạo (Giữ nguyên lịch cố định)" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:8px 12px; border-radius:10px; font-size:0.74rem; font-weight:700; cursor:pointer;">
+                <i class="fa-solid fa-broom"></i> Dọn lịch [AI]
+            </button>
+        </div>
+    `;
+    ttView.insertBefore(bar, ttView.firstChild);
+}
+
+window.openAiSmartScheduleModal = function() {
+    var modal = document.getElementById('apex-ai-tt-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'apex-ai-tt-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(12px); z-index:10006; align-items:center; justify-content:center; padding:18px;";
+        document.body.appendChild(modal);
+    }
+    var now = new Date();
+    var defaultStart = now.toISOString().split('T')[0];
+    var endD = new Date(now); endD.setMonth(endD.getMonth() + 3);
+    var defaultEnd = endD.toISOString().split('T')[0];
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(160deg, #14192d 0%, #0c101d 100%); border:1px solid rgba(255,255,255,0.14); border-radius:20px; padding:22px 24px; width:100%; max-width:600px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div>
+                    <span style="font-size:0.65rem; font-weight:800; color:#a855f7; letter-spacing:1.5px; text-transform:uppercase;">AI NLP SCHEDULE PARSER</span>
+                    <h3 style="margin:2px 0 0 0; font-size:1.12rem; font-weight:800;">Nhập Lịch Học / Lịch Dạy Hàng Loạt</h3>
+                </div>
+                <button onclick="document.getElementById('apex-ai-tt-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px; line-height:1.45;">
+                Gõ hoặc dán nhiều dòng (mỗi dòng 1 lịch). Hệ thống tự động nhận diện <strong>Thứ, Tiết/Giờ, Ca Sáng/Chiều/Tối, Tên môn và Phòng học</strong>:<br>
+                <span style="color:#c084fc;">• Ví dụ 1:</span> <code>T6 Tiết 7-9 Văn học Mỹ phòng B502</code><br>
+                <span style="color:#c084fc;">• Ví dụ 2:</span> <code>T2, T4, T6 18h30-20h Đi dạy trung tâm phòng Cơ sở 1</code><br>
+                <span style="color:#c084fc;">• Ví dụ 3:</span> <code>CN 8h-10h30 Họp nhóm NCKH phòng Online</code>
+            </div>
+            <textarea id="ai-bulk-schedule-input" placeholder="Dán danh sách lịch học vào đây (mỗi dòng 1 môn)..." style="width:100%; height:150px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px; color:#fff; font-size:0.82rem; outline:none; margin-bottom:12px; resize:vertical;"></textarea>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                <div>
+                    <label style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:4px;">Áp dụng từ ngày:</label>
+                    <input type="date" id="ai-tt-start" value="${defaultStart}" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem;">
+                </div>
+                <div>
+                    <label style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:4px;">Đến ngày (Kết thúc học kỳ):</label>
+                    <input type="date" id="ai-tt-end" value="${defaultEnd}" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem;">
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="document.getElementById('apex-ai-tt-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#cbd5e1; padding:9px 16px; border-radius:10px; font-weight:700; font-size:0.78rem; cursor:pointer;">Hủy</button>
+                <button onclick="processAiBulkScheduleInput()" style="background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; padding:9px 20px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; box-shadow:0 4px 15px rgba(168,85,247,0.45);">⚡ Phân tích & Lưu vào TKB</button>
+            </div>
+        </div>`;
+    modal.style.display = 'flex';
+};
+
+window.processAiBulkScheduleInput = function() {
+    var raw = (document.getElementById('ai-bulk-schedule-input') ? document.getElementById('ai-bulk-schedule-input').value : '').trim();
+    if (!raw) { alert("Bệ hạ vui lòng nhập ít nhất 1 dòng lịch học!"); return; }
+
+    var startDate = document.getElementById('ai-tt-start').value || new Date().toISOString().split('T')[0];
+    var endDate = document.getElementById('ai-tt-end').value || startDate;
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) window.timetableData = [];
+
+    var lines = raw.split(/\n+/).map(function(l) { return l.trim(); }).filter(Boolean);
+    var addedCount = 0;
+
+    lines.forEach(function(line) {
+        // 1. Nhận diện các Thứ trong dòng (Hỗ trợ cả "T2, T4, T6" hoặc "Thứ 6" hoặc "CN")
+        var dows = [];
+        var dowMatches = line.match(/(?:thứ\s*|t)([2-7])|(?:chủ\s*nhật|cn)/gi);
+        if (dowMatches) {
+            dowMatches.forEach(function(m) {
+                var low = m.toLowerCase();
+                if (low.includes('cn') || low.includes('nhật')) dows.push(0);
+                else {
+                    var num = parseInt(low.replace(/\D/g, ''), 10);
+                    if (num >= 2 && num <= 7) dows.push(num - 1);
+                }
+            });
+        }
+        if (dows.length === 0) dows.push(new Date().getDay());
+
+        // 2. Nhận diện Tiết hoặc Khung giờ
+        var codeStr = "Ca học";
+        var shift = "sang";
+        var tietMatch = line.match(/tiết\s*(\d+\s*-\s*\d+|\d+)/i);
+        var timeMatch = line.match(/(\d{1,2}\s*[h:]\s*\d{0,2}\s*-\s*\d{1,2}\s*[h:]\s*\d{0,2}|\d{1,2}\s*[h:]\s*\d{0,2})/i);
+
+        if (tietMatch) {
+            codeStr = "Tiết: " + tietMatch[1].replace(/\s+/g, '');
+            var firstTiet = parseInt(tietMatch[1], 10);
+            shift = firstTiet >= 13 ? 'toi' : (firstTiet >= 7 ? 'chieu' : 'sang');
+        } else if (timeMatch) {
+            codeStr = timeMatch[1].replace(/\s+/g, '');
+            var firstHr = parseInt(codeStr, 10);
+            shift = firstHr >= 18 ? 'toi' : (firstHr >= 12 ? 'chieu' : 'sang');
+        } else if (/tối|đêm/i.test(line)) {
+            shift = 'toi'; codeStr = 'Ca Tối';
+        } else if (/chiều/i.test(line)) {
+            shift = 'chieu'; codeStr = 'Ca Chiều';
+        }
+
+        // 3. Nhận diện Phòng học
+        var roomStr = "TKB";
+        var roomMatch = line.match(/(?:phòng|p\.|tại|cơ sở)\s*([a-zA-Z0-9_.\-\s]+)$/i);
+        var cleanLine = line;
+        if (roomMatch) {
+            roomStr = roomMatch[1].trim();
+            cleanLine = cleanLine.replace(roomMatch[0], '');
+        }
+
+        // 4. Lọc ra Tên môn học / công việc
+        cleanLine = cleanLine
+            .replace(/(?:thứ\s*[2-7]|t[2-7]|chủ\s*nhật|cn)[,\s-]*/gi, ' ')
+            .replace(/tiết\s*(\d+\s*-\s*\d+|\d+)/gi, ' ')
+            .replace(/(\d{1,2}\s*[h:]\s*\d{0,2}\s*-\s*\d{1,2}\s*[h:]\s*\d{0,2}|\d{1,2}\s*[h:]\s*\d{0,2})/gi, ' ')
+            .replace(/\s+/g, ' ').trim();
+        var subjectName = cleanLine || "Lịch học tập";
+
+        dows.forEach(function(dNum) {
+            timetableData.push({
+                id: Date.now() + Math.floor(Math.random() * 10000) + addedCount,
+                dow: dNum,
+                shift: shift,
+                name: subjectName,
+                code: codeStr,
+                room: roomStr,
+                startDate: startDate,
+                endDate: endDate,
+                pausedDates: []
+            });
+            addedCount++;
+        });
+    });
+
+    localStorage.setItem('timetableData', JSON.stringify(timetableData));
+    if (typeof saveData === 'function') saveData();
+    if (typeof renderTimetable === 'function') renderTimetable();
+    renderBentoCommandCenter();
+    document.getElementById('apex-ai-tt-modal').style.display = 'none';
+    alert("✅ Trợ lý AI đã bóc tách và thêm thành công " + addedCount + " ca vào Thời khóa biểu!");
+};
+
+// Hàm AI Tự động quét khe trống trong tuần và xếp lịch học các Mục tiêu theo tiến độ
+window.runAiAutoFillGoalSchedule = function() {
+    var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals))
+        ? goals.filter(function(g) { return Number(g.current || 0) > 0; })
+        : [];
+    if (activeGoals.length === 0) {
+        alert("Hiện tại không có mục tiêu nào đang mở để AI xếp lịch!");
+        return;
+    }
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) window.timetableData = [];
+
+    // Xóa các lịch [AI] cũ trước khi xếp lịch tuần mới để không bị chồng chéo
+    timetableData = timetableData.filter(function(item) {
+        return !String(item.name || '').startsWith('[AI]');
+    });
+
+    // Sắp xếp mục tiêu theo độ ưu tiên (Môn còn nhiều giờ cần cày xếp trước)
+    var sortedGoals = activeGoals.slice().sort(function(a, b) {
+        return Number(b.current || 0) - Number(a.current || 0);
+    });
+
+    var now = new Date();
+    var startStr = now.toISOString().split('T')[0];
+    var endD = new Date(now); endD.setDate(endD.getDate() + 14);
+    var endStr = endD.toISOString().split('T')[0];
+
+    var shiftsOrder = [
+        { key: 'toi', code: '20h00-21h00', label: 'Ca Tối (Giờ vàng)' },
+        { key: 'sang', code: '08h30-09h30', label: 'Ca Sáng' },
+        { key: 'chieu', code: '15h00-16h00', label: 'Ca Chiều' }
+    ];
+
+    var scheduledCount = 0;
+    var goalIdx = 0;
+
+    // Quét từ Thứ 2 (1) đến Chủ Nhật (0)
+    var daysOrder = [1, 2, 3, 4, 5, 6, 0];
+    daysOrder.forEach(function(dowNum) {
+        var dayItems = timetableData.filter(function(it) { return parseInt(it.dow, 10) === dowNum; });
+        // Nếu ngày hôm đó đã có từ 3 ca trở lên thì AI cho nghỉ ngơi, không nhồi thêm
+        if (dayItems.length >= 3) return;
+
+        for (var s = 0; s < shiftsOrder.length; s++) {
+            var sh = shiftsOrder[s];
+            var isBusy = dayItems.some(function(it) { return it.shift === sh.key; });
+            if (!isBusy) {
+                var targetGoal = sortedGoals[goalIdx % sortedGoals.length];
+                var leftHrs = Number(targetGoal.current || 0).toFixed(1);
+                timetableData.push({
+                    id: Date.now() + Math.floor(Math.random() * 10000) + scheduledCount,
+                    dow: dowNum,
+                    shift: sh.key,
+                    name: "[AI] 🎯 " + targetGoal.name,
+                    code: sh.code,
+                    room: "Còn " + leftHrs + "h",
+                    startDate: startStr,
+                    endDate: endStr,
+                    pausedDates: []
+                });
+                scheduledCount++;
+                goalIdx++;
+                break; // Mỗi ngày AI chỉ chèn 1 ca mục tiêu trọng tâm vào khe trống tốt nhất để đảm bảo kỷ luật bền vững
+            }
+        }
+    });
+
+    localStorage.setItem('timetableData', JSON.stringify(timetableData));
+    if (typeof saveData === 'function') saveData();
+    if (typeof renderTimetable === 'function') renderTimetable();
+    renderBentoCommandCenter();
+    alert("🤖 AI đã phân tích khe trống trong tuần và xếp tự động " + scheduledCount + " phiên học Mục tiêu vào Thời khóa biểu!");
+};
+
+window.clearAiGeneratedSchedules = function() {
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) return;
+    var beforeLen = timetableData.length;
+    timetableData = timetableData.filter(function(item) {
+        return !String(item.name || '').startsWith('[AI]');
+    });
+    var removed = beforeLen - timetableData.length;
+    localStorage.setItem('timetableData', JSON.stringify(timetableData));
+    if (typeof saveData === 'function') saveData();
+    if (typeof renderTimetable === 'function') renderTimetable();
+    renderBentoCommandCenter();
+    alert("🧹 Đã dọn sạch " + removed + " ca tự học do [AI] đề xuất (Giữ nguyên toàn bộ lịch cố định của Bệ hạ).");
+};
+
 var origSwitchTabV4 = window.switchTab;
 window.switchTab = function(tabName) {
     if (typeof origSwitchTabV4 === 'function') origSwitchTabV4(tabName);
@@ -7458,6 +7718,8 @@ window.switchTab = function(tabName) {
         setTimeout(window.renderAnalytics, 40);
     } else if (tabName === 'dashboard') {
         renderBentoCommandCenter();
+    } else if (tabName === 'timetable') {
+        setTimeout(injectAiTimetableToolbar, 50);
     } else if (tabName === 'goals') {
         var firstG = (typeof goals !== 'undefined' && Array.isArray(goals)) ? (goals.find(function(g){return g.id===currentFocusedGoalId;}) || goals[0]) : null;
         if (firstG) openGoalDetailModal(firstG.id, 'overview');
