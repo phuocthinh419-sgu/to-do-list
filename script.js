@@ -5855,9 +5855,9 @@ function attachRoadmapButtonToAllGoalCards() {
 
     var cards = grid.querySelectorAll('.goal-card');
     cards.forEach(function(card) {
-        if (card.querySelector('.btn-goal-roadmap')) return;
+        var oldBtn = card.querySelector('.btn-goal-roadmap');
+        if (oldBtn) oldBtn.remove();
 
-        // Tìm ID của mục tiêu từ thuộc tính onclick="openGoal(123)"
         var oc = card.getAttribute('onclick') || "";
         var match = oc.match(/openGoal\s*\(\s*(\d+)\s*\)/);
         var gId = match ? Number(match[1]) : null;
@@ -5870,15 +5870,17 @@ function attachRoadmapButtonToAllGoalCards() {
         }
         if (!gId) return;
 
+        // Đặt nút Lộ trình ở góc trên bên phải của thẻ để KHÔNG ép hẹp hộp thông số bên dưới
+        card.style.position = 'relative';
         var btn = document.createElement('button');
         btn.className = 'btn-goal-roadmap';
-        btn.title = 'Xem Lộ trình 5 chặng, Nhiệm vụ & Ghi chú của mục tiêu này';
-        btn.style.cssText = "background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.45); color:#e9d5ff; padding:6px 11px; border-radius:9px; font-size:0.72rem; font-weight:800; cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; gap:5px; transition:0.2s; margin-left:auto; z-index:5;";
+        btn.title = 'Xem Lộ trình 5 chặng, Nhiệm vụ & Ghi chú';
+        btn.style.cssText = "position:absolute; top:14px; right:14px; background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.42); color:#e9d5ff; padding:5px 10px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:0.2s; z-index:5; backdrop-filter:blur(8px);";
         btn.innerHTML = '<i class="fa-solid fa-route" style="color:#c084fc;"></i> Lộ trình';
         btn.onmouseover = function() { btn.style.background = '#7c3aed'; btn.style.color = '#fff'; };
-        btn.onmouseout = function() { btn.style.background = 'rgba(168,85,247,0.18)'; btn.style.color = '#e9d5ff'; };
+        btn.onmouseout = function() { btn.style.background = 'rgba(168,85,247,0.16)'; btn.style.color = '#e9d5ff'; };
         btn.onclick = function(e) {
-            e.stopPropagation(); // Chặn không cho nhảy vào Focus Room, mở bảng Lộ trình!
+            e.stopPropagation();
             openGoalDetailModal(gId, 'overview');
         };
         card.appendChild(btn);
@@ -6124,6 +6126,23 @@ function injectUnifiedApexCSS() {
         #view-dashboard > #legacy-stock-strip, #view-dashboard > .stock-strip { display: none !important; }
         @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
 
+        /* XÓA BỎ HOÀN TOÀN HỘP ĐEN DƯ THỪA Ở THANH HEADER TRÊN CÙNG */
+        .header, header.header, .main-content > .header {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            padding: 12px 2px 6px 2px !important;
+            margin-bottom: 4px !important;
+        }
+        .top-quote-text {
+            color: rgba(226, 232, 240, 0.85) !important;
+            font-size: 0.84rem !important;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8) !important;
+        }
+
         /* Sidebar SaaS */
         .sidebar {
             width: 224px !important; background: rgba(8, 10, 18, 0.85) !important;
@@ -6145,10 +6164,10 @@ function injectUnifiedApexCSS() {
         }
         .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
 
-        /* Open-World Hero (Không hộp viền, giữ Quỹ đạo chữ A bên phải + 4 thẻ Glassmorphism) */
+        /* Open-World Hero (Không hộp viền, giữ Quỹ đạo chữ A bên phải) */
         .phoi-hero-banner {
             position: relative;
-            padding: 6px 8px 14px 4px !important;
+            padding: 4px 8px 14px 4px !important;
             margin-bottom: 12px !important;
             display: flex !important;
             justify-content: space-between !important;
@@ -6211,7 +6230,7 @@ function injectUnifiedApexCSS() {
         .phoi-mini-item strong { display: block; font-size: 0.86rem; color: #fff; font-weight: 800; line-height: 1.2; white-space: nowrap; }
         .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; white-space: nowrap; }
 
-        /* Quỹ đạo chữ A bên phải nổi trên nền trời Open-World */
+        /* Quỹ đạo chữ A bên phải */
         .phoi-orbit-box {
             position: relative; width: 260px; height: 182px;
             display: flex !important; align-items: center; justify-content: center;
@@ -6228,7 +6247,7 @@ function injectUnifiedApexCSS() {
         .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; }
         .phoi-sat span { font-size: 0.6rem; color: #cbd5e1; }
 
-        /* HIỆU ỨNG NGỌN LỬA ĐA TẦNG NHẤP NHÁY (APEX LIVING FLAME) */
+        /* HIỆU ỨNG NGỌN LỬA ĐA TẦNG NHẤP NHÁY */
         @keyframes apexFlameFlicker {
             0%, 100% {
                 transform: scale(1) rotate(-2deg) translateY(0);
@@ -6282,16 +6301,43 @@ function injectUnifiedApexCSS() {
         .phoi-card-title { font-size: 0.74rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
         .phoi-link { font-size: 0.72rem; color: var(--theme-accent); font-weight: 600; cursor: pointer; }
 
-        /* Compact Goal Cards */
-        #dashboard-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important; gap: 12px !important; }
-        #dashboard-grid .goal-card {
-            background: rgba(17,22,38,0.78) !important; backdrop-filter: blur(16px) !important; border: 1px solid rgba(255,255,255,0.08) !important;
-            display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important;
-            gap: 14px !important; padding: 14px 16px !important; border-radius: 14px !important; height: auto !important;
+        /* SỬA TRIỆT ĐỂ LỖI TRÀN CHỮ & GÃY DÒNG TRONG THẺ MỤC TIÊU (.goal-card) */
+        #dashboard-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+            gap: 14px !important;
         }
-        #dashboard-grid .goal-card .progress-circle { width: 54px !important; height: 54px !important; flex-shrink: 0 !important; }
-        #dashboard-grid .goal-card .goal-meta { flex: 1 !important; min-width: 0 !important; text-align: left !important; }
-        #dashboard-grid .goal-card .goal-meta h3 { font-size: 0.92rem !important; font-weight: 800 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+        #dashboard-grid .goal-card {
+            position: relative !important;
+            background: rgba(16, 21, 38, 0.82) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+            padding: 16px 18px !important;
+            border-radius: 16px !important;
+            height: auto !important;
+            overflow: hidden !important;
+        }
+        #dashboard-grid .goal-card h3 {
+            font-size: 0.96rem !important;
+            font-weight: 800 !important;
+            margin: 4px 0 2px 0 !important;
+            padding-right: 82px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        /* Giữ các con số 2.4h/ngày, 88.0h/100h trên cùng 1 hàng, tuyệt đối không rớt chữ "ày" */
+        #dashboard-grid .goal-card strong,
+        #dashboard-grid .goal-card b,
+        #dashboard-grid .goal-card span {
+            word-break: keep-all !important;
+            overflow-wrap: normal !important;
+        }
 
         /* Focus Room 3 Cột Đối Xứng */
         #focus-room { background-image: var(--user-wallpaper) !important; background-size: cover !important; background-position: center !important; padding: 16px 28px !important; flex-direction: column !important; justify-content: space-between !important; }
