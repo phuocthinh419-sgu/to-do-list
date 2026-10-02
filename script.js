@@ -5339,14 +5339,21 @@ function getTotalAccumulatedHours() {
     return 0;
 }
 function getUserLevelAndRank(totalHrs) {
-    var lv = Math.max(1, Math.floor((totalHrs || 0) / 10) + 1);
-    var title = "Tân Binh";
-    if (lv >= 25) title = "Đại Học Sĩ";
+    var hrs = Number(totalHrs || 0);
+    var lv = Math.max(1, Math.floor(hrs / 10) + 1);
+    var title = "Người Học Sơ Cấp";
+    if (lv >= 101) title = "Viện Sĩ Học Thuật";
+    else if (lv >= 90) title = "Giáo Sư Danh Dự";
+    else if (lv >= 70) title = "Phó Giáo Sư Danh Dự";
+    else if (lv >= 50) title = "Học Giả Cấp Cao";
+    else if (lv >= 35) title = "Nghiên Cứu Viên Chính";
+    else if (lv >= 25) title = "Nghiên Cứu Viên";
     else if (lv >= 15) title = "Chuyên Gia";
     else if (lv >= 10) title = "Học Giả";
-    else if (lv >= 5) title = "Tinh Anh";
+    else if (lv >= 5) title = "Học Viên Tiêu Biểu";
+
     var nextLvHrs = lv * 10;
-    var pct = Math.min(100, Math.round((((totalHrs || 0) % 10) / 10) * 100));
+    var pct = Math.min(100, Math.round(((hrs % 10) / 10) * 100));
     return { level: lv, rank: title, nextHrs: nextLvHrs, pct: pct };
 }
 
@@ -5914,27 +5921,73 @@ function renderMasterTrophyAndArchive() {
 
     var totalAllTimeHrs = getTotalAccumulatedHours();
     var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
-    var completedGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current <= 0; }) : [];
+    var allGoalsList = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals : [];
+    var completedGoals = allGoalsList.filter(function(g) { return g.current <= 0; });
+    var has100hGoal = allGoalsList.some(function(g) { return Number(g.target || 0) >= 100; });
     var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
     var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+
     var totalReports = 0;
-    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
-        goals.forEach(function(g) { totalReports += (g.reports ? g.reports.length : 0); });
-    }
+    var morningReports = 0;
+    var nightReports = 0;
+    allGoalsList.forEach(function(g) {
+        if (Array.isArray(g.reports)) {
+            totalReports += g.reports.length;
+            g.reports.forEach(function(r) {
+                var dStr = String(r.date || "");
+                var matchHr = dStr.match(/(\d{1,2}):\d{2}/);
+                if (matchHr) {
+                    var h = parseInt(matchHr[1], 10);
+                    if (h >= 5 && h < 11) morningReports++;
+                    if (h >= 20 || h < 2) nightReports++;
+                }
+            });
+        }
+    });
+
+    var totalPomodorosEst = Math.round((totalAllTimeHrs * 60) / 25);
+    var logDaysCount = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).filter(function(k) { return Number(dailyLogs[k]) > 0; }).length : 0;
 
     var allAchievements = [
-        { tier: 'rookie', name: "First Blood", desc: "Hoàn thành phiên học tập trung đầu tiên", icon: "fa-fire", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
-        { tier: 'rookie', name: "Apprentice", desc: "Tích lũy cột mốc 10 giờ học tập thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 giờ" },
-        { tier: 'rookie', name: "First Victory", desc: "Hoàn thành trọn vẹn 1 mục tiêu học thuật", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
-        { tier: 'pro', name: "Silver Streak", desc: "Duy trì chuỗi kỷ luật 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
-        { tier: 'pro', name: "Iron Will", desc: "Duy trì chuỗi kỷ luật 30 ngày liên tiếp", icon: "fa-shield-halved", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
-        { tier: 'pro', name: "Bounty Hunter", desc: "Chinh phục hoàn tất 5 mục tiêu học tập", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
-        { tier: 'elite', name: "Deep Worker", desc: "Vượt qua cột mốc 50 giờ tập trung sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: totalAllTimeHrs >= 50, tag: "50 giờ" },
-        { tier: 'elite', name: "Sherlock", desc: "Viết và lưu trữ thành công 50 báo cáo", icon: "fa-magnifying-glass", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
-        { tier: 'elite', name: "Capitalist", desc: "Tích lũy quỹ thưởng vượt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000" },
-        { tier: 'legend', name: "Conqueror", desc: "Hoàn thành xuất sắc 10 mục tiêu lớn", icon: "fa-chess-knight", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
-        { tier: 'legend', name: "Tycoon", desc: "Sở hữu khối tài sản đạt mốc $5,000 USD", icon: "fa-gem", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000" },
-        { tier: 'legend', name: "The Apex", desc: "Đạt 100 giờ học tập bất tử trên hệ thống", icon: "fa-crown", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 giờ" }
+        // 1. SƠ CẤP (ROOKIE) - 6 Huy hiệu
+        { tier: 'rookie', name: "First Step", desc: "Hoàn thành phiên học tập trung đầu tiên trên hệ thống", icon: "fa-flag", grad: "linear-gradient(135deg,#f43f5e,#e11d48)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
+        { tier: 'rookie', name: "Warm Up", desc: "Hoàn thành tích lũy tương đương 10 phiên Pomodoro", icon: "fa-clock", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalPomodorosEst >= 10, tag: "10 Phiên" },
+        { tier: 'rookie', name: "Apprentice", desc: "Đạt cột mốc 10 giờ học tập và nghiên cứu thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 Giờ" },
+        { tier: 'rookie', name: "Early Bird", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi sáng", icon: "fa-sun", grad: "linear-gradient(135deg,#fbbf24,#d97706)", unlocked: morningReports >= 10 || logDaysCount >= 10, tag: "10 Ca Sáng" },
+        { tier: 'rookie', name: "Night Owl", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi tối", icon: "fa-moon", grad: "linear-gradient(135deg,#818cf8,#4f46e5)", unlocked: nightReports >= 10 || totalReports >= 15, tag: "10 Ca Tối" },
+        { tier: 'rookie', name: "First Milestone", desc: "Hoàn thành 100% tiến độ của 1 mục tiêu học tập", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
+
+        // 2. TRUNG CẤP (PRO) - 6 Huy hiệu
+        { tier: 'pro', name: "Silver Streak", desc: "Duy trì thói quen học tập 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
+        { tier: 'pro', name: "Consistent Learner", desc: "Duy trì kỷ luật học tập 30 ngày liên tiếp", icon: "fa-calendar-check", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
+        { tier: 'pro', name: "Active Tracker", desc: "Ghi nhận dữ liệu học tập trên 20 ngày khác nhau", icon: "fa-chart-simple", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: logDaysCount >= 20, tag: "20 Ngày học" },
+        { tier: 'pro', name: "Goal Achiever", desc: "Hoàn thành trọn vẹn 5 mục tiêu trong kế hoạch", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
+        { tier: 'pro', name: "Long-term Planner", desc: "Thiết lập một mục tiêu dài hạn có quy mô từ 100 giờ", icon: "fa-route", grad: "linear-gradient(135deg,#06b6d4,#0284c7)", unlocked: has100hGoal, tag: "Mục tiêu 100h" },
+        { tier: 'pro', name: "Resource Manager", desc: "Tích lũy quỹ thưởng học tập đạt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000 USD" },
+
+        // 3. NÂNG CAO (ELITE) - 6 Huy hiệu
+        { tier: 'elite', name: "Scholar", desc: "Đạt cột mốc 50 giờ tập trung học tập (Lv. 6)", icon: "fa-graduation-cap", grad: "linear-gradient(135deg,#a855f7,#7e22ce)", unlocked: totalAllTimeHrs >= 50, tag: "50 Giờ" },
+        { tier: 'elite', name: "Deep Worker", desc: "Tích lũy 75 giờ làm việc và nghiên cứu chuyên sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#14b8a6,#0f766e)", unlocked: totalAllTimeHrs >= 75, tag: "75 Giờ" },
+        { tier: 'elite', name: "Documentarian", desc: "Viết và lưu trữ thành công 50 bản báo cáo kết quả", icon: "fa-file-lines", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
+        { tier: 'elite', name: "Project Master", desc: "Hoàn thành xuất sắc 10 mục tiêu học thuật", icon: "fa-check-double", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
+        { tier: 'elite', name: "Diamond Streak", desc: "Duy trì chuỗi học tập 60 ngày liên tục không gián đoạn", icon: "fa-gem", grad: "linear-gradient(135deg,#38bdf8,#1d4ed8)", unlocked: streak >= 60, tag: "60 Ngày" },
+        { tier: 'elite', name: "Senior Investor", desc: "Quỹ thưởng tích lũy từ hiệu suất học tập đạt $5,000 USD", icon: "fa-building-columns", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000 USD" },
+
+        // 4. CHUYÊN SÂU (LEGEND) - 6 Huy hiệu (100h -> 300h)
+        { tier: 'legend', name: "Centurion", desc: "Đạt cột mốc 100 giờ học tập tích lũy (Lv. 11)", icon: "fa-award", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 Giờ" },
+        { tier: 'legend', name: "Specialist", desc: "Đạt cấp bậc Chuyên Gia với 150 giờ tích lũy (Lv. 16)", icon: "fa-microscope", grad: "linear-gradient(135deg,#dc2626,#991b1b)", unlocked: totalAllTimeHrs >= 150, tag: "150 Giờ" },
+        { tier: 'legend', name: "Senior Author", desc: "Hoàn thành 100 bản báo cáo tổng kết phiên học", icon: "fa-pen-nib", grad: "linear-gradient(135deg,#d97706,#92400e)", unlocked: totalReports >= 100, tag: "100 Báo cáo" },
+        { tier: 'legend', name: "Time Architect", desc: "Làm chủ quỹ thời gian với 200 giờ tập trung (Lv. 21)", icon: "fa-hourglass-half", grad: "linear-gradient(135deg,#9333ea,#581c87)", unlocked: totalAllTimeHrs >= 200, tag: "200 Giờ" },
+        { tier: 'legend', name: "Researcher", desc: "Đạt cấp Nghiên Cứu Viên với 250 giờ tích lũy (Lv. 26)", icon: "fa-landmark", grad: "linear-gradient(135deg,#2563eb,#1e3a8a)", unlocked: totalAllTimeHrs >= 250, tag: "250 Giờ" },
+        { tier: 'legend', name: "100-Day Discipline", desc: "Duy trì chuỗi kỷ luật học tập 100 ngày liên tiếp", icon: "fa-fire", grad: "linear-gradient(135deg,#ef4444,#b91c1c)", unlocked: streak >= 100, tag: "100 Ngày" },
+
+        // 5. HỌC THUẬT ĐỈNH CAO (MYTHIC) - 6 Huy hiệu (350h -> 1000+ Giờ)
+        { tier: 'mythic', name: "Senior Researcher", desc: "Nghiên Cứu Viên Chính: Đạt 350 giờ tích lũy (Lv. 36)", icon: "fa-book-atlas", grad: "linear-gradient(135deg,#10b981,#065f46)", unlocked: totalAllTimeHrs >= 350, tag: "350 Giờ" },
+        { tier: 'mythic', name: "Senior Scholar", desc: "Học Giả Cấp Cao: Vượt cột mốc 500 giờ học (Lv. 51)", icon: "fa-compass-drafting", grad: "linear-gradient(135deg,#ec4899,#831843)", unlocked: totalAllTimeHrs >= 500, tag: "500 Giờ" },
+        { tier: 'mythic', name: "Endowment Fund", desc: "Quỹ học bổng tích lũy trên hệ thống đạt $15,000 USD", icon: "fa-chart-line", grad: "linear-gradient(135deg,#facc15,#854d0e)", unlocked: usd >= 15000, tag: "$15,000 USD" },
+        { tier: 'mythic', name: "Associate Fellow", desc: "Phó Giáo Sư Danh Dự: Chinh phục 700 giờ học (Lv. 71)", icon: "fa-user-graduate", grad: "linear-gradient(135deg,#0ea5e9,#0c4a6e)", unlocked: totalAllTimeHrs >= 700, tag: "700 Giờ" },
+        { tier: 'mythic', name: "Distinguished Fellow", desc: "Giáo Sư Danh Dự: Chinh phục 900 giờ học (Lv. 90)", icon: "fa-star", grad: "linear-gradient(135deg,#a855f7,#4c1d95)", unlocked: totalAllTimeHrs >= 900, tag: "900 Giờ" },
+        { tier: 'mythic', name: "Academician 1000h", desc: "Viện Sĩ Học Thuật: Cột mốc 1.000 giờ nghiên cứu (Lv. 101)", icon: "fa-crown", grad: "linear-gradient(135deg,#fbbf24,#f43f5e,#7c3aed)", unlocked: totalAllTimeHrs >= 1000, tag: "1.000 Giờ" }
     ];
 
     var unlockedCount = allAchievements.filter(function(a) { return a.unlocked; }).length;
@@ -5943,13 +5996,13 @@ function renderMasterTrophyAndArchive() {
 
     var achievementsHtml = filteredList.map(function(a) {
         return `
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:14px; opacity:${a.unlocked ? '1' : '0.42'}; border-color:${a.unlocked ? 'rgba(168,85,247,0.35)' : 'rgba(255,255,255,0.06)'} !important;">
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:14px; opacity:${a.unlocked ? '1' : '0.42'}; border-color:${a.unlocked ? 'rgba(168,85,247,0.38)' : 'rgba(255,255,255,0.06)'} !important;">
                 <div class="hex-icon" style="background:${a.unlocked ? a.grad : '#1e293b'};"><i class="fa-solid ${a.icon}"></i></div>
                 <div style="flex:1; min-width:0;">
                     <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                        <strong style="font-size:0.88rem; color:#fff;">${a.name}</strong>
-                        <span style="font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:6px; background:${a.unlocked ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.05)'}; color:${a.unlocked ? '#10b981' : '#64748b'};">
-                            ${a.unlocked ? '✓ Đã mở' : a.tag}
+                        <strong style="font-size:0.88rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${a.name}</strong>
+                        <span style="font-size:0.64rem; font-weight:700; padding:2px 7px; border-radius:6px; flex-shrink:0; background:${a.unlocked ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.06)'}; color:${a.unlocked ? '#10b981' : '#94a3b8'};">
+                            ${a.unlocked ? '✓ Đã đạt' : a.tag}
                         </span>
                     </div>
                     <div style="font-size:0.73rem; color:#94a3b8; margin-top:3px;">${a.desc}</div>
@@ -5986,7 +6039,7 @@ function renderMasterTrophyAndArchive() {
                     <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
                         <div>
                             <strong style="font-size:1.3rem; color:#fff;">${unlockedCount} / ${allAchievements.length} Thành tựu</strong>
-                            <span style="font-size:0.8rem; color:#fbbf24; margin-left:10px; font-weight:700;">★ Lv. ${lvInfo.level} • ${lvInfo.rank} (${totalAllTimeHrs.toFixed(1)}h tích lũy)</span>
+                            <span style="font-size:0.8rem; color:#fbbf24; margin-left:10px; font-weight:700;">★ Lv. ${lvInfo.level} • ${lvInfo.rank} (${totalAllTimeHrs.toFixed(1)}h / 1000h)</span>
                         </div>
                         <strong style="color:#60a5fa; font-size:0.9rem;">${pctUnlock}%</strong>
                     </div>
@@ -5998,10 +6051,11 @@ function renderMasterTrophyAndArchive() {
         </div>
         <div class="demo-filter-tabs">
             <button class="demo-tab-pill ${currentTrophyFilter==='all'?'active':''}" onclick="filterTrophyCategory('all')">Tất cả (${allAchievements.length})</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='rookie'?'active':''}" onclick="filterTrophyCategory('rookie')">Tân binh</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='pro'?'active':''}" onclick="filterTrophyCategory('pro')">Chuyên nghiệp</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='elite'?'active':''}" onclick="filterTrophyCategory('elite')">Tinh anh</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='legend'?'active':''}" onclick="filterTrophyCategory('legend')">Huyền thoại</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='rookie'?'active':''}" onclick="filterTrophyCategory('rookie')">Sơ cấp (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='pro'?'active':''}" onclick="filterTrophyCategory('pro')">Trung cấp (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='elite'?'active':''}" onclick="filterTrophyCategory('elite')">Nâng cao (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='legend'?'active':''}" onclick="filterTrophyCategory('legend')">Chuyên sâu (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='mythic'?'active':''}" onclick="filterTrophyCategory('mythic')">Viện sĩ 1000h (6)</button>
         </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:24px;">${achievementsHtml}</div>
         <h3 style="font-size:0.86rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; margin-bottom:12px;"><i class="fa-solid fa-box-archive" style="color:#10b981; margin-right:6px;"></i>Kho lưu trữ mục tiêu đã hoàn thành (${completedGoals.length})</h3>
