@@ -5316,7 +5316,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// APEX UNIFIED UI ENGINE V2 (FIXED OVERTIME PAUSE & REPORT BUTTON)
+// APEX UNIFIED UI ENGINE V3 (ALL-IN-ONE: DASHBOARD, ANALYTICS, TROPHY,
+// LEVEL/HOURS, 5-MIN PAUSE, OVERTIME REPORT, SIDEBAR & WALLPAPER)
 // =====================================================================
 var DEFAULT_WALLPAPER = "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
 var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
@@ -5330,6 +5331,23 @@ function saveBentoTodos() { localStorage.setItem('saasBentoTodos', JSON.stringif
 function formatHrsToHM(hDec) {
     var mTotal = Math.round((hDec || 0) * 60);
     return Math.floor(mTotal / 60) + "h " + String(mTotal % 60).padStart(2, '0') + "m";
+}
+function getTotalAccumulatedHours() {
+    if (typeof dailyLogs !== 'undefined' && dailyLogs) {
+        return Object.values(dailyLogs).reduce(function(a, b) { return Number(a || 0) + Number(b || 0); }, 0);
+    }
+    return 0;
+}
+function getUserLevelAndRank(totalHrs) {
+    var lv = Math.max(1, Math.floor((totalHrs || 0) / 10) + 1);
+    var title = "Tân Binh";
+    if (lv >= 25) title = "Đại Học Sĩ";
+    else if (lv >= 15) title = "Chuyên Gia";
+    else if (lv >= 10) title = "Học Giả";
+    else if (lv >= 5) title = "Tinh Anh";
+    var nextLvHrs = lv * 10;
+    var pct = Math.min(100, Math.round((((totalHrs || 0) % 10) / 10) * 100));
+    return { level: lv, rank: title, nextHrs: nextLvHrs, pct: pct };
 }
 
 function toggleBentoTodo(id) {
@@ -5348,7 +5366,7 @@ function deleteBentoTodo(e, id) {
     saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData();
 }
 
-// --- 1. QUẢN LÝ ẢNH NỀN TỰ DO ---
+// --- 1. QUẢN LÝ ẢNH NỀN TỰ DO & BẢNG MÀU ---
 function applyCustomWallpaper() {
     var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
     var dim = localStorage.getItem('saasWallpaperDim') || "0.78";
@@ -5452,7 +5470,7 @@ function openFullStockMarketDrawer() {
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(185px, 1fr)); gap:12px;">
                 ${list.map(function(st) {
                     var up = st.change >= 0;
-                    return `<div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; cursor:pointer;"><div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong style="color:#fff;">${st.code}</strong><span style="font-size:0.7rem; font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}\%</span></div><div style="font-size:1.3rem; font-weight:900; color:#fbbf24; margin-bottom:4px;">$${st.price.toFixed(1)}</div><div style="font-size:0.72rem; color:#8b95b0;">Đang giữ: <strong style="color:#fff;">${st.owned} cổ</strong></div></div>`;
+                    return `<div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; cursor:pointer;"><div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong style="color:#fff;">${st.code}</strong><span style="font-size:0.7rem; font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div><div style="font-size:1.3rem; font-weight:900; color:#fbbf24; margin-bottom:4px;">$${st.price.toFixed(1)}</div><div style="font-size:0.72rem; color:#8b95b0;">Đang giữ: <strong style="color:#fff;">${st.owned} cổ</strong></div></div>`;
                 }).join('')}
             </div>
         </div>`;
@@ -5467,7 +5485,7 @@ function ensureMartialLawKpiCard() {
     kpiCard.style.cssText = "margin-bottom: 14px; border: 1px solid rgba(20, 184, 166, 0.3);";
     kpiCard.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.8rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Tiến Độ KPI Tuần</span>
+            <span style="font-size:0.8rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Thiết Quân Luật (KPI Tuần)</span>
             <div id="kpi-status-slot"></div>
         </div>
         <div style="width:100%; height:8px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:8px;" id="kpi-bar-slot"></div>
@@ -5489,7 +5507,18 @@ function injectUnifiedApexCSS() {
     var st = document.createElement('style');
     st.id = 'apex-unified-master-css';
     st.innerHTML = `
-        :root { --user-wallpaper: url('${DEFAULT_WALLPAPER}'); --user-bg-dim: 0.78; }
+        :root, [data-color="neon-purple"] {
+            --user-wallpaper: url('${DEFAULT_WALLPAPER}');
+            --user-bg-dim: 0.78;
+            --theme-accent: #a855f7;
+            --theme-accent-2: #6366f1;
+            --theme-soft: rgba(168, 85, 247, 0.18);
+            --theme-border: rgba(168, 85, 247, 0.35);
+        }
+        [data-color="zen"]       { --theme-accent: #10b981; --theme-accent-2: #0ea5e9; --theme-soft: rgba(16,185,129,0.18); --theme-border: rgba(16,185,129,0.35); }
+        [data-color="neon-blue"] { --theme-accent: #0ea5e9; --theme-accent-2: #3b82f6; --theme-soft: rgba(14,165,233,0.18); --theme-border: rgba(56,189,248,0.35); }
+        [data-color="sakura"]    { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
+
         body {
             background-color: #080b14 !important;
             background-image: linear-gradient(180deg, rgba(8,11,22,var(--user-bg-dim)) 0%, rgba(10,14,26,calc(var(--user-bg-dim) + 0.08)) 100%), var(--user-wallpaper) !important;
@@ -5501,6 +5530,31 @@ function injectUnifiedApexCSS() {
         #view-dashboard > #legacy-stock-strip, #view-dashboard > .stock-strip { display: none !important; }
         @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
 
+        /* Sidebar SaaS */
+        .sidebar {
+            width: 224px !important;
+            background: rgba(8, 10, 18, 0.85) !important;
+            backdrop-filter: blur(20px) !important;
+            border-right: 1px solid rgba(255,255,255,0.08) !important;
+            padding: 14px 12px !important;
+            display: flex !important; flex-direction: column !important;
+        }
+        .sidebar .nav-item {
+            padding: 9px 12px !important; margin-bottom: 3px !important; border-radius: 10px !important;
+            font-size: 0.8rem !important; font-weight: 600 !important; color: #94a3b8 !important;
+            border: 1px solid transparent !important; position: relative !important;
+        }
+        .sidebar .nav-item.active {
+            background: var(--theme-soft) !important; color: #fff !important;
+            font-weight: 700 !important; border: 1px solid var(--theme-border) !important;
+            box-shadow: none !important;
+        }
+        .sidebar .nav-item.active::before {
+            content: ""; position: absolute; left: -1px; top: 22%; bottom: 22%;
+            width: 3.5px; background: var(--theme-accent); border-radius: 0 4px 4px 0;
+        }
+        .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
+
         /* Hero Banner & Orbit */
         .phoi-hero-banner {
             position: relative; border-radius: 18px; padding: 18px 24px; margin-bottom: 12px;
@@ -5510,15 +5564,15 @@ function injectUnifiedApexCSS() {
             box-shadow: 0 12px 32px rgba(0,0,0,0.45);
         }
         .phoi-hero-left { z-index: 2; flex: 1; max-width: 62%; }
-        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         .phoi-pill-cmd { background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
         .phoi-pill-live { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
-        .phoi-hero-left h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; }
+        .phoi-hero-left h1 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; }
         .phoi-hero-left p { font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0; }
-        .phoi-hero-mini-bar { display: inline-flex; align-items: center; gap: 22px; flex-wrap: wrap; background: rgba(13,18,34,0.78); border: 1px solid rgba(255,255,255,0.1); padding: 9px 18px; border-radius: 12px; }
-        .phoi-mini-item { display: flex; align-items: center; gap: 9px; }
+        .phoi-hero-mini-bar { display: inline-flex; align-items: center; gap: 20px; flex-wrap: wrap; background: rgba(13,18,34,0.82); border: 1px solid rgba(255,255,255,0.1); padding: 9px 16px; border-radius: 12px; }
+        .phoi-mini-item { display: flex; align-items: center; gap: 8px; }
         .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; }
-        .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; }
+        .phoi-mini-item span { font-size: 0.65rem; color: #94a3b8; }
 
         .phoi-orbit-box { position: relative; width: 270px; height: 188px; display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0; }
         .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 116px; height: 116px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.45); }
@@ -5603,8 +5657,8 @@ function injectUnifiedApexCSS() {
 
         .hex-icon { width: 48px; height: 54px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; flex-shrink: 0; }
         .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .demo-tab-pill { background: #131826; border: 1px solid rgba(255,255,255,0.07); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
-        .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; }
+        .demo-tab-pill { background: rgba(19,24,38,0.8); border: 1px solid rgba(255,255,255,0.08); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+        .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; border-color: transparent; }
 
         /* Mobile Responsive */
         @media (max-width: 1080px) {
@@ -5632,7 +5686,7 @@ function injectUnifiedApexCSS() {
     document.head.appendChild(st);
 }
 
-// --- 4. RENDER DASHBOARD 4 TẦNG ---
+// --- 4. RENDER DASHBOARD 4 TẦNG (CÓ ĐẦY ĐỦ TỔNG GIỜ TÍCH LŨY & LEVEL/RANK) ---
 function renderBentoCommandCenter() {
     try {
         injectUnifiedApexCSS();
@@ -5654,10 +5708,9 @@ function renderBentoCommandCenter() {
         var todayDone = qInfo.doneHrs || 0, dailyGoal = Math.max(qInfo.requiredHrs || 1.0, 0.25);
         var pctToday = Math.min(100, Math.round((todayDone / dailyGoal) * 100));
 
-        var totalAllTimeHrs = (typeof dailyLogs !== 'undefined') ? Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0) : 0;
-        var level = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
-        var levelPct = Math.min(100, Math.round(((totalAllTimeHrs % 10) / 10) * 100));
-        var totalXP = Math.round(totalAllTimeHrs * 100), todayXP = Math.round(todayDone * 100);
+        var totalAllTimeHrs = getTotalAccumulatedHours();
+        var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+        var level = lvInfo.level, rankTitle = lvInfo.rank, levelPct = lvInfo.pct, nextLvHrs = lvInfo.nextHrs;
         var todayPomodoros = Math.round((todayDone * 60) / 25), streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
         var doneCount = bentoTodoList.filter(function(t) { return t.done; }).length;
         var todoPct = Math.round((doneCount / Math.max(1, bentoTodoList.length)) * 100);
@@ -5702,27 +5755,38 @@ function renderBentoCommandCenter() {
         container.innerHTML = `
             <div class="phoi-hero-banner">
                 <div class="phoi-hero-left">
-                    <div class="phoi-badge-row"><span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span><span class="phoi-pill-live">● LIVE</span></div>
+                    <div class="phoi-badge-row">
+                        <span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span>
+                        <span class="phoi-pill-live">● LIVE</span>
+                        <span class="phoi-pill-cmd" style="border-color:rgba(245,158,11,0.4); color:#fbbf24;"><i class="fa-solid fa-crown"></i> Lv. ${level} • ${rankTitle} (${totalAllTimeHrs.toFixed(1)}h tích lũy)</span>
+                    </div>
                     <h1>${greeting}, ${userName}! 👋</h1>
                     <p>"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
                     <div class="phoi-hero-mini-bar">
                         <div class="phoi-mini-item"><span>🔥</span><div><strong>${streak} ngày</strong><span>Chuỗi kỷ luật</span></div></div>
-                        <div class="phoi-mini-item"><span>📊</span><div><strong>${todayDone.toFixed(1)} giờ</strong><span>Tập trung hôm nay</span></div></div>
-                        <div class="phoi-mini-item"><span>🚩</span><div><strong>${doneCount} / ${bentoTodoList.length}</strong><span>Nhiệm vụ hoàn thành</span></div></div>
+                        <div class="phoi-mini-item"><span>⚡</span><div><strong>${totalAllTimeHrs.toFixed(1)} giờ</strong><span>Tổng giờ tích lũy</span></div></div>
+                        <div class="phoi-mini-item"><span>🏆</span><div><strong>Lv. ${level} • ${rankTitle}</strong><span>Cấp bậc hiện tại</span></div></div>
                     </div>
                 </div>
                 <div class="phoi-orbit-box">
                     <div class="phoi-orbit-ring1"></div><div class="phoi-orbit-ring2"></div><div class="phoi-orbit-core">A</div>
                     <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div><strong>Streak</strong><span>${streak} ngày</span></div>
-                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-bullseye"></i></div><strong>Focus</strong><span>${todayDone.toFixed(1)} giờ</span></div>
-                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-chart-simple"></i></div><strong>Growth</strong><span>Lv. ${level}</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-hourglass-half"></i></div><strong>Tổng giờ</strong><span>${totalAllTimeHrs.toFixed(1)}h</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-award"></i></div><strong>Lv. ${level}</strong><span>${rankTitle}</span></div>
                 </div>
             </div>
             <div class="phoi-stat-grid">
-                <div class="phoi-stat-card s-purple"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(168,85,247,0.2); border:1.5px solid #a855f7; color:#d8b4fe;"><i class="fa-regular fa-clock"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Thời gian học hôm nay</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayDone.toFixed(1)} giờ</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${pctToday}%; height:100%; background:#a855f7;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#94a3b8;"><span>Mục tiêu: ${dailyGoal}h</span><span>${pctToday}%</span></div></div></div>
-                <div class="phoi-stat-card s-cyan"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(14,165,233,0.2); border:1.5px solid #38bdf8; color:#7dd3fc;"><i class="fa-solid fa-check"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Nhiệm vụ hoàn thành</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${doneCount} / ${bentoTodoList.length}</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${todoPct}%; height:100%; background:#38bdf8;"></div></div><div style="font-size:0.66rem; color:#38bdf8;">Hiệu suất: ${typeof dispatchRate!=='undefined'?dispatchRate:100}%</div></div></div>
-                <div class="phoi-stat-card s-amber" onclick="if(typeof openAcademicShop==='function') openAcademicShop();" style="cursor:pointer;"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(245,158,11,0.2); border:1.5px solid #fbbf24; color:#fde68a;"><i class="fa-solid fa-star"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">XP nhận được</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">+${todayXP} XP</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${levelPct}%; height:100%; background:#fbbf24;"></div></div><div style="font-size:0.66rem; color:#fbbf24;">Tổng: ${totalXP.toLocaleString()} XP</div></div></div>
-                <div class="phoi-stat-card s-rose"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(244,63,94,0.2); border:1.5px solid #fb7185; color:#fda4af;"><i class="fa-solid fa-apple-whole"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Số phiên Pomodoro</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayPomodoros} phiên</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${Math.min(100, Math.max(20, todayPomodoros * 25))}%; height:100%; background:#fb7185;"></div></div><div style="font-size:0.66rem; color:#fda4af;">Chuỗi: ${streak} ngày</div></div></div>
+                <!-- Card 1: Thời gian học hôm nay -->
+                <div class="phoi-stat-card s-purple"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(168,85,247,0.2); border:1.5px solid #a855f7; color:#d8b4fe;"><i class="fa-regular fa-clock"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Thời gian học hôm nay</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayDone.toFixed(1)} giờ</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${pctToday}%; height:100%; background:#a855f7;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#94a3b8;"><span>Định mức ngày: ${dailyGoal}h</span><span>${pctToday}%</span></div></div></div>
+
+                <!-- Card 2: Tổng Giờ Tích Lũy & Level (Hiển thị rõ ràng) -->
+                <div class="phoi-stat-card s-amber" onclick="switchTab('trophy')" style="cursor:pointer;"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(245,158,11,0.2); border:1.5px solid #fbbf24; color:#fde68a;"><i class="fa-solid fa-crown"></i></div><div><div style="font-size:0.7rem; color:#fde68a; font-weight:700;">Lv. ${level} • ${rankTitle}</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${totalAllTimeHrs.toFixed(1)} giờ</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${levelPct}%; height:100%; background:#fbbf24;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#fbbf24;"><span>Tiến trình: ${totalAllTimeHrs.toFixed(1)} / ${nextLvHrs}h</span><span>${levelPct}%</span></div></div></div>
+
+                <!-- Card 3: Nhiệm vụ hoàn thành -->
+                <div class="phoi-stat-card s-cyan"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(14,165,233,0.2); border:1.5px solid #38bdf8; color:#7dd3fc;"><i class="fa-solid fa-check"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Nhiệm vụ hoàn thành</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${doneCount} / ${bentoTodoList.length}</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${todoPct}%; height:100%; background:#38bdf8;"></div></div><div style="font-size:0.66rem; color:#38bdf8;">Hiệu suất điều phối: ${typeof dispatchRate!=='undefined'?dispatchRate:100}%</div></div></div>
+
+                <!-- Card 4: Số phiên Pomodoro -->
+                <div class="phoi-stat-card s-rose"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(244,63,94,0.2); border:1.5px solid #fb7185; color:#fda4af;"><i class="fa-solid fa-apple-whole"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Số phiên Pomodoro</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayPomodoros} phiên</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${Math.min(100, Math.max(20, todayPomodoros * 25))}%; height:100%; background:#fb7185;"></div></div><div style="font-size:0.66rem; color:#fda4af;">Đánh giá: ★ ${(typeof getAverageStarRating==='function'?getAverageStarRating():5).toFixed(2)}</div></div></div>
             </div>
             <div class="phoi-row-3col">
                 <div class="phoi-card"><div class="phoi-card-head"><span class="phoi-card-title">Lịch sử học tập</span><span style="font-size:0.68rem; color:#94a3b8;">84 ngày qua</span></div><div class="phoi-heat-container"><div class="phoi-heat-labels"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div><div class="phoi-heat-matrix">${heatCellsHtml}</div></div></div>
@@ -5737,8 +5801,219 @@ function renderBentoCommandCenter() {
     } catch (e) {}
 }
 
-// --- 5. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG (GIỮ NGUYÊN LOGIC GIỜ GỐC & THÊM NÚT BÁO CÁO) ---
+// --- 5. TRANG PHÂN TÍCH TIẾN ĐỘ (KHÔI PHỤC ĐẦY ĐỦ BIỂU ĐỒ CỘT & DONUT) ---
+window.renderAnalytics = function() {
+    injectUnifiedApexCSS();
+    var room = document.getElementById('analytics-room');
+    if (!room) return;
+
+    var totalHrs7Days = 0;
+    var barsHtml = '';
+    var dayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    for (var i = 6; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? Number(dailyLogs[dStr]) : 0;
+        totalHrs7Days += val;
+        var hPct = Math.min(100, Math.max(8, Math.round((val / 3.5) * 100)));
+        barsHtml += `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;">
+                <span style="font-size:0.65rem; color:#cbd5e1; font-weight:700;">${val > 0 ? val.toFixed(1)+'h' : '0h'}</span>
+                <div style="height:130px; width:100%; max-width:28px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:flex-end; overflow:hidden;">
+                    <div style="width:100%; height:${hPct}%; background:linear-gradient(180deg, #38bdf8, #8b5cf6); border-radius:8px; box-shadow:0 0 12px rgba(139,92,246,0.4);"></div>
+                </div>
+                <span style="font-size:0.72rem; color:#94a3b8; font-weight:700;">${dayLabels[d.getDay()]}</span>
+            </div>`;
+    }
+
+    var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e'];
+    var allGoals = (typeof goals !== 'undefined' && Array.isArray(goals) && goals.length > 0) ? goals.slice(0, 5) : [];
+    var goalStats = allGoals.map(function(g, idx) {
+        var spent = Math.max(0.2, Number(g.target || 1) - Number(g.current || 0));
+        return { name: g.name, spent: spent, color: palette[idx % palette.length] };
+    });
+    if (goalStats.length === 0) goalStats = [{ name: "Mục tiêu học tập", spent: 1, color: "#a855f7" }];
+    var sumSpent = goalStats.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
+
+    var conicParts = [], acc = 0;
+    var legendHtml = goalStats.map(function(g) {
+        var pct = Math.round((g.spent / sumSpent) * 100);
+        var start = acc; acc += pct;
+        conicParts.push(g.color + " " + start + "% " + acc + "%");
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; margin-bottom:8px;">
+                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">
+                    <span style="width:9px; height:9px; border-radius:50%; background:${g.color}; flex-shrink:0;"></span>${g.name}
+                </span>
+                <strong style="color:#fff;">${g.spent.toFixed(1)}h (${pct}%)</strong>
+            </div>`;
+    }).join('');
+
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+
+    room.innerHTML = `
+        <div class="phoi-row-3col">
+            <div class="phoi-card">
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Tổng thời gian học (7 ngày qua)</div>
+                <div style="font-size:1.9rem; font-weight:900; color:#fff; margin:6px 0;">${formatHrsToHM(totalHrs7Days)}</div>
+                <div style="font-size:0.72rem; color:#10b981; font-weight:700;">↑ Trung bình: ${(totalHrs7Days / 7).toFixed(1)} giờ/ngày</div>
+            </div>
+            <div class="phoi-card">
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Tổng giờ tích lũy & Cấp bậc</div>
+                <div style="font-size:1.9rem; font-weight:900; color:#fbbf24; margin:6px 0;">${totalAllTimeHrs.toFixed(1)} giờ</div>
+                <div style="font-size:0.72rem; color:#c084fc; font-weight:700;">★ Lv. ${lvInfo.level} • ${lvInfo.rank} (${lvInfo.pct}% tới Lv.${lvInfo.level + 1})</div>
+            </div>
+            <div class="phoi-card">
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Chuỗi kỷ luật & Hiệu suất</div>
+                <div style="font-size:1.9rem; font-weight:900; color:#fff; margin:6px 0;">🔥 ${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</div>
+                <div style="font-size:0.72rem; color:#38bdf8; font-weight:700;">Hiệu suất điều phối: ${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</div>
+            </div>
+        </div>
+
+        <div class="phoi-row-2col">
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-chart-column" style="color:#38bdf8; margin-right:6px;"></i> Biểu đồ giờ học 7 ngày gần nhất</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; padding-top:12px;">
+                    ${barsHtml}
+                </div>
+            </div>
+
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-chart-pie" style="color:#a855f7; margin-right:6px;"></i> Phân bổ thời gian theo mục tiêu</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap; margin:auto 0;">
+                    <div style="width:130px; height:130px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(0,0,0,0.45);">
+                        <div style="width:86px; height:86px; border-radius:50%; background:#121626; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                            <strong style="font-size:0.95rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
+                            <span style="font-size:0.65rem; color:#94a3b8;">Tích lũy</span>
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:160px;">${legendHtml}</div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// --- 6. TRANG THÀNH TỰU & LƯU TRỮ (LỤC GIÁC + LÀM TRÒN GIỜ) ---
+var currentTrophyFilter = 'all';
+window.filterTrophyCategory = function(cat) {
+    currentTrophyFilter = cat;
+    renderMasterTrophyAndArchive();
+};
+
+function renderMasterTrophyAndArchive() {
+    injectUnifiedApexCSS();
+    var room = document.getElementById('trophy-room');
+    if (!room) return;
+
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+    var completedGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current <= 0; }) : [];
+    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+    var totalReports = 0;
+    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+        goals.forEach(function(g) { totalReports += (g.reports ? g.reports.length : 0); });
+    }
+
+    var allAchievements = [
+        { tier: 'rookie', name: "First Blood", desc: "Hoàn thành phiên học tập trung đầu tiên", icon: "fa-fire", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
+        { tier: 'rookie', name: "Apprentice", desc: "Tích lũy cột mốc 10 giờ học tập thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 giờ" },
+        { tier: 'rookie', name: "First Victory", desc: "Hoàn thành trọn vẹn 1 mục tiêu học thuật", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
+        { tier: 'pro', name: "Silver Streak", desc: "Duy trì chuỗi kỷ luật 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
+        { tier: 'pro', name: "Iron Will", desc: "Duy trì chuỗi kỷ luật 30 ngày liên tiếp", icon: "fa-shield-halved", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
+        { tier: 'pro', name: "Bounty Hunter", desc: "Chinh phục hoàn tất 5 mục tiêu học tập", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
+        { tier: 'elite', name: "Deep Worker", desc: "Vượt qua cột mốc 50 giờ tập trung sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: totalAllTimeHrs >= 50, tag: "50 giờ" },
+        { tier: 'elite', name: "Sherlock", desc: "Viết và lưu trữ thành công 50 báo cáo", icon: "fa-magnifying-glass", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
+        { tier: 'elite', name: "Capitalist", desc: "Tích lũy quỹ thưởng vượt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000" },
+        { tier: 'legend', name: "Conqueror", desc: "Hoàn thành xuất sắc 10 mục tiêu lớn", icon: "fa-chess-knight", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
+        { tier: 'legend', name: "Tycoon", desc: "Sở hữu khối tài sản đạt mốc $5,000 USD", icon: "fa-gem", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000" },
+        { tier: 'legend', name: "The Apex", desc: "Đạt 100 giờ học tập bất tử trên hệ thống", icon: "fa-crown", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 giờ" }
+    ];
+
+    var unlockedCount = allAchievements.filter(function(a) { return a.unlocked; }).length;
+    var pctUnlock = Math.round((unlockedCount / allAchievements.length) * 100);
+    var filteredList = allAchievements.filter(function(a) { return currentTrophyFilter === 'all' || a.tier === currentTrophyFilter; });
+
+    var achievementsHtml = filteredList.map(function(a) {
+        return `
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:14px; opacity:${a.unlocked ? '1' : '0.42'}; border-color:${a.unlocked ? 'rgba(168,85,247,0.35)' : 'rgba(255,255,255,0.06)'} !important;">
+                <div class="hex-icon" style="background:${a.unlocked ? a.grad : '#1e293b'};"><i class="fa-solid ${a.icon}"></i></div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <strong style="font-size:0.88rem; color:#fff;">${a.name}</strong>
+                        <span style="font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:6px; background:${a.unlocked ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.05)'}; color:${a.unlocked ? '#10b981' : '#64748b'};">
+                            ${a.unlocked ? '✓ Đã mở' : a.tag}
+                        </span>
+                    </div>
+                    <div style="font-size:0.73rem; color:#94a3b8; margin-top:3px;">${a.desc}</div>
+                </div>
+            </div>`;
+    }).join('');
+
+    var archiveCardsHtml = completedGoals.map(function(g) {
+        var cleanHrs = Number(g.target || 0).toFixed(1).replace(/\.0$/, '');
+        var repCount = (g.reports && g.reports.length) ? g.reports.length : 0;
+        return `
+            <div class="phoi-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="hex-icon" style="width:42px; height:48px; font-size:1rem; background:linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-check-double"></i></div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+                        <div style="font-size:0.68rem; color:#10b981; font-weight:700; margin-top:2px;">HOÀN THÀNH 100%</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05); font-size:0.73rem; color:#8b95b0;">
+                    <span><i class="fa-regular fa-clock" style="color:#38bdf8; margin-right:4px;"></i>Quy mô: <strong style="color:#fff;">${cleanHrs} giờ</strong></span>
+                    <span><i class="fa-regular fa-file-lines" style="color:#a855f7; margin-right:4px;"></i>Báo cáo: <strong style="color:#fff;">${repCount} bản</strong></span>
+                </div>
+            </div>`;
+    }).join('');
+
+    room.innerHTML = `
+        <div class="phoi-card" style="margin-bottom:16px; border-color:rgba(168,85,247,0.35) !important;">
+            <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                <div class="hex-icon" style="width:56px; height:62px; background:linear-gradient(135deg, #f59e0b, #7c3aed); font-size:1.45rem;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div style="flex:1; min-width:220px;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <strong style="font-size:1.3rem; color:#fff;">${unlockedCount} / ${allAchievements.length} Thành tựu</strong>
+                            <span style="font-size:0.8rem; color:#fbbf24; margin-left:10px; font-weight:700;">★ Lv. ${lvInfo.level} • ${lvInfo.rank} (${totalAllTimeHrs.toFixed(1)}h tích lũy)</span>
+                        </div>
+                        <strong style="color:#60a5fa; font-size:0.9rem;">${pctUnlock}%</strong>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; margin-top:8px; overflow:hidden;">
+                        <div style="width:${pctUnlock}%; height:100%; background:linear-gradient(90deg, #3b82f6, #a855f7);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="demo-filter-tabs">
+            <button class="demo-tab-pill ${currentTrophyFilter==='all'?'active':''}" onclick="filterTrophyCategory('all')">Tất cả (${allAchievements.length})</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='rookie'?'active':''}" onclick="filterTrophyCategory('rookie')">Tân binh</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='pro'?'active':''}" onclick="filterTrophyCategory('pro')">Chuyên nghiệp</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='elite'?'active':''}" onclick="filterTrophyCategory('elite')">Tinh anh</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='legend'?'active':''}" onclick="filterTrophyCategory('legend')">Huyền thoại</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:24px;">${achievementsHtml}</div>
+        <h3 style="font-size:0.86rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; margin-bottom:12px;"><i class="fa-solid fa-box-archive" style="color:#10b981; margin-right:6px;"></i>Kho lưu trữ mục tiêu đã hoàn thành (${completedGoals.length})</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">${archiveCardsHtml}</div>
+    `;
+}
+window.renderTrophies = renderMasterTrophyAndArchive;
+window.renderTrophyRoom = renderMasterTrophyAndArchive;
+
+// --- 7. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG + TẠM DỪNG 5 PHÚT + NÚT BÁO CÁO ---
 var selectedPendingMinutes = 25;
+var ftPauseDeadline = null, wasPausedState = false;
 var activeAmbientType = null, ambientCtx = null, ambientSource = null, ambientGain = null, ambientVolume = 0.7;
 
 window.selectFocusAmbient = function(type) {
@@ -5780,16 +6055,12 @@ window.triggerFocusMainStart = function() {
     else if (typeof startSession === 'function') startSession(selectedPendingMinutes || 25);
 };
 
-// Hàm kích hoạt Báo cáo Kết quả học tập (Tự động tìm đúng hàm chốt phiên trong script.js gốc)
 window.triggerFocusFinishAndReport = function() {
-    // 1. Nếu có nút hoàn thành/báo cáo động trong .timer-controls gốc thì bấm vào nó
     var origControls = document.querySelector('#widget-timer .timer-controls');
     if (origControls) {
         var btns = origControls.querySelectorAll('button');
         for (var i = 0; i < btns.length; i++) {
-            var b = btns[i];
-            var id = b.id || "";
-            var txt = (b.innerText || "").toLowerCase();
+            var b = btns[i], id = b.id || "", txt = (b.innerText || "").toLowerCase();
             if (id !== 'btn-5' && id !== 'btn-15' && id !== 'btn-25' && id !== 'btn-pause' && id !== 'btn-cancel' && id !== 'btn-tick') {
                 if (b.style.display !== 'none') { b.click(); return; }
             }
@@ -5798,7 +6069,6 @@ window.triggerFocusFinishAndReport = function() {
             }
         }
     }
-    // 2. Gọi trực tiếp các tên hàm kết thúc phiên phổ biến trong script.js của bệ hạ
     if (typeof finishSession === 'function') { finishSession(); return; }
     if (typeof completeSession === 'function') { completeSession(); return; }
     if (typeof openReportModal === 'function') { openReportModal(); return; }
@@ -5806,20 +6076,14 @@ window.triggerFocusFinishAndReport = function() {
     if (typeof stopOvertimeAndReport === 'function') { stopOvertimeAndReport(); return; }
     if (typeof endSession === 'function') { endSession(); return; }
 
-    // 3. Nếu khi đang cày lố (+00:04) mà nút #btn-cancel đã được script.js đổi thành nút Báo cáo
     var cancelBtn = document.getElementById('btn-cancel');
     var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "";
     if (cancelBtn && (rawTimer.startsWith('+') || (cancelBtn.innerText || '').toLowerCase().includes('báo cáo'))) {
         cancelBtn.click(); return;
     }
-
-    // 4. Mở trực tiếp #report-modal và dừng bộ đếm
     if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
     var repModal = document.getElementById('report-modal');
-    if (repModal) {
-        repModal.style.display = 'flex';
-        if (typeof updateWordCount === 'function') updateWordCount();
-    }
+    if (repModal) { repModal.style.display = 'flex'; if (typeof updateWordCount === 'function') updateWordCount(); }
 };
 
 function ensureFocusTemplateDOM() {
@@ -5867,9 +6131,9 @@ function ensureFocusTemplateDOM() {
                     </div>
                 </div>
                 <button class="ft-start-btn" id="ft-btn-start-main" onclick="triggerFocusMainStart()"><i class="fa-solid fa-play"></i> Bắt đầu</button>
-                <div id="ft-running-controls" style="display:none; gap:10px; margin-top:16px; flex-wrap:wrap; justify-content:center;">
+                <div id="ft-running-controls" style="display:none; gap:10px; margin-top:14px; flex-wrap:wrap; justify-content:center;">
                     <button id="ft-btn-pause-mirror" onclick="togglePause()" style="background:#2563eb; color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-pause"></i> Tạm dừng
+                        <i class="fa-solid fa-pause"></i> Tạm dừng (5p)
                     </button>
                     <button id="ft-btn-report-now" onclick="triggerFocusFinishAndReport()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:800; font-size:0.8rem; cursor:pointer; display:none; align-items:center; gap:6px; box-shadow:0 6px 20px rgba(16,185,129,0.45);">
                         <i class="fa-solid fa-file-signature"></i> Hoàn thành & Báo cáo
@@ -5877,6 +6141,10 @@ function ensureFocusTemplateDOM() {
                     <button id="ft-btn-cancel-mirror" onclick="cancelSession()" style="background:#e11d48; color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                         <i class="fa-solid fa-xmark"></i> Hủy bỏ
                     </button>
+                </div>
+                <div id="ft-pause-status-pill" style="margin-top:10px; padding:6px 16px; border-radius:100px; background:rgba(15,23,42,0.75); border:1px solid rgba(255,255,255,0.1); font-size:0.75rem; font-weight:600; color:#cbd5e1; display:inline-flex; align-items:center; gap:8px; backdrop-filter:blur(8px);">
+                    <i class="fa-solid fa-circle-info" style="color:#a855f7;"></i>
+                    <span id="ft-status-msg-mirror">Hệ thống tính giờ tuyệt đối.</span>
                 </div>
             </div>
             <div class="ft-card">
@@ -5914,17 +6182,30 @@ function ensureFocusTemplateDOM() {
     focusRoom.appendChild(w);
 }
 
-// Đồng bộ tức thì (0ms delay) bằng MutationObserver mà KHÔNG ghi đè vào biến thời gian gốc
 function syncFocusClockInstant() {
     var focusRoom = document.getElementById('focus-room');
-    if (!focusRoom || focusRoom.style.display === 'none') return;
+    if (!focusRoom || focusRoom.style.display === 'none') {
+        ftPauseDeadline = null;
+        wasPausedState = false;
+        return;
+    }
     ensureFocusTemplateDOM();
 
     var rawEl = document.getElementById('session-timer');
     var rawTimer = rawEl ? rawEl.innerText.trim() : "00:00";
     var origPauseBtn = document.getElementById('btn-pause');
+    var origStatusMsg = document.getElementById('status-msg');
     var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none') || (rawTimer !== "00:00");
     var isOvertime = rawTimer.startsWith('+');
+    var currentlyPaused = (typeof isPaused !== 'undefined' && isPaused) || (origPauseBtn && origPauseBtn.innerText.toLowerCase().includes('tiếp tục'));
+
+    if (currentlyPaused && !wasPausedState) {
+        ftPauseDeadline = Date.now() + 5 * 60 * 1000;
+        wasPausedState = true;
+    } else if (!currentlyPaused && wasPausedState) {
+        ftPauseDeadline = null;
+        wasPausedState = false;
+    }
 
     var ftDisp = document.getElementById('ft-time-display');
     var ftStart = document.getElementById('ft-btn-start-main');
@@ -5932,31 +6213,60 @@ function syncFocusClockInstant() {
     var ftRing = document.getElementById('ft-svg-progress');
     var ftReportBtn = document.getElementById('ft-btn-report-now');
     var ftPauseMirror = document.getElementById('ft-btn-pause-mirror');
+    var ftStatusMirror = document.getElementById('ft-status-msg-mirror');
+    var ftStatusPill = document.getElementById('ft-pause-status-pill');
+    var ftModeLabel = document.getElementById('ft-mode-label');
 
     if (isRunning && rawTimer !== "00:00") {
         if (ftDisp && ftDisp.innerText !== rawTimer) ftDisp.innerText = rawTimer;
         if (ftStart) ftStart.style.display = 'none';
         if (ftCtrls) ftCtrls.style.display = 'inline-flex';
+        if (ftReportBtn) ftReportBtn.style.display = isOvertime ? 'inline-flex' : 'none';
 
-        // Đồng bộ chữ trên nút Tạm dừng / Tiếp tục từ nút gốc
-        if (origPauseBtn && ftPauseMirror) {
-            ftPauseMirror.innerHTML = origPauseBtn.innerHTML;
-        }
+        if (currentlyPaused) {
+            var remPauseSec = ftPauseDeadline ? Math.max(0, Math.ceil((ftPauseDeadline - Date.now()) / 1000)) : 300;
+            var pm = String(Math.floor(remPauseSec / 60)).padStart(2, '0');
+            var ps = String(remPauseSec % 60).padStart(2, '0');
+            var pauseStr = pm + ":" + ps;
 
-        // Khi đang cày lố (+00:04) hoặc có nút Báo cáo gốc -> Hiện nút "Hoàn thành & Báo cáo" màu xanh ngọc
-        if (ftReportBtn) {
-            ftReportBtn.style.display = isOvertime ? 'inline-flex' : 'none';
-        }
+            if (ftPauseMirror) {
+                ftPauseMirror.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                ftPauseMirror.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + pauseStr + ')';
+            }
+            if (ftModeLabel) ftModeLabel.innerHTML = '<span style="color:#fbbf24;">⏸ Đang tạm dừng (' + pauseStr + ')</span>';
+            if (ftStatusMirror && ftStatusPill) {
+                ftStatusPill.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                ftStatusMirror.innerHTML = '<span style="color:#fbbf24;">⏳ Tự động hủy phiên sau: <strong>' + pauseStr + '</strong> (Giới hạn 5 phút)</span>';
+            }
+            if (ftRing) ftRing.style.stroke = '#f59e0b';
 
-        if (ftRing) {
-            if (isOvertime) {
-                ftRing.style.stroke = '#10b981';
-                ftRing.style.strokeDashoffset = '0';
-            } else if (rawTimer.includes(':')) {
-                ftRing.style.stroke = '#a855f7';
-                var p = rawTimer.split(':').map(Number), rSec = (p[0] * 60) + (p[1] || 0);
-                var tSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
-                ftRing.style.strokeDashoffset = (716.3 * (1 - Math.min(1, Math.max(0, rSec / tSec)))).toFixed(1);
+            if (remPauseSec <= 0 && ftPauseDeadline) {
+                ftPauseDeadline = null;
+                wasPausedState = false;
+                if (typeof cancelSession === 'function') cancelSession();
+            }
+        } else {
+            if (ftPauseMirror) {
+                ftPauseMirror.style.background = '#2563eb';
+                ftPauseMirror.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (5p)';
+            }
+            if (ftStatusMirror && ftStatusPill) {
+                ftStatusPill.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                ftStatusMirror.innerText = origStatusMsg ? origStatusMsg.innerText : 'Thời gian đang trôi. Tuyệt đối không xao nhãng.';
+            }
+            if (ftModeLabel && ftModeLabel.innerHTML.includes('Đang tạm dừng')) {
+                ftModeLabel.innerHTML = selectedPendingMinutes === 5 ? "🔥 Khởi động" : (selectedPendingMinutes === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
+            }
+            if (ftRing) {
+                if (isOvertime) {
+                    ftRing.style.stroke = '#10b981';
+                    ftRing.style.strokeDashoffset = '0';
+                } else if (rawTimer.includes(':')) {
+                    ftRing.style.stroke = '#a855f7';
+                    var p = rawTimer.split(':').map(Number), rSec = (p[0] * 60) + (p[1] || 0);
+                    var tSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
+                    ftRing.style.strokeDashoffset = (716.3 * (1 - Math.min(1, Math.max(0, rSec / tSec)))).toFixed(1);
+                }
             }
         }
     } else {
@@ -5964,6 +6274,10 @@ function syncFocusClockInstant() {
         if (ftStart) ftStart.style.display = 'inline-flex';
         if (ftCtrls) ftCtrls.style.display = 'none';
         if (ftRing) { ftRing.style.stroke = '#a855f7'; ftRing.style.strokeDashoffset = "0"; }
+        if (ftStatusMirror && ftStatusPill) {
+            ftStatusPill.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            ftStatusMirror.innerText = origStatusMsg ? origStatusMsg.innerText : 'Sẵn sàng. Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.';
+        }
     }
 }
 
@@ -5972,7 +6286,6 @@ function syncFocusRoomData() {
     if (!focusRoom || focusRoom.style.display === 'none') return;
     ensureFocusTemplateDOM();
 
-    // 1. Việc cần làm bên trái
     var todoBox = document.getElementById('ft-todo-list-container');
     var todoCountEl = document.getElementById('ft-todo-counter');
     if (todoBox) {
@@ -5983,7 +6296,6 @@ function syncFocusRoomData() {
         }).join('');
     }
 
-    // 2. Tiến độ mục tiêu bên phải
     var activeGoal = null;
     if (typeof goals !== 'undefined' && Array.isArray(goals)) {
         if (typeof currentGoalId !== 'undefined' && currentGoalId !== null) {
@@ -6019,29 +6331,93 @@ function syncFocusRoomData() {
     if (todayTxtEl) todayTxtEl.innerText = todayDone.toFixed(1) + "h / " + todayReq.toFixed(1) + "h";
     if (todayBarEl) todayBarEl.style.width = todayPct + "%";
 
-    var totalAllTimeHrs = (typeof dailyLogs !== 'undefined') ? Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0) : 0;
-    var lv = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
-    var rTitle = lv >= 25 ? "Đại Học Sĩ" : (lv >= 15 ? "Chuyên Gia" : (lv >= 10 ? "Học Giả" : (lv >= 5 ? "Tinh Anh" : "Tân Binh")));
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
     var stStreak = document.getElementById('ft-stat-streak'), stTotal = document.getElementById('ft-stat-total'), stLv = document.getElementById('ft-stat-level'), stRank = document.getElementById('ft-stat-rank');
     if (stStreak) stStreak.innerText = (typeof currentStreak !== 'undefined' ? currentStreak : 0) + " ngày";
     if (stTotal) stTotal.innerText = totalAllTimeHrs.toFixed(1) + "h";
-    if (stLv) stLv.innerText = "Lv. " + lv;
-    if (stRank) stRank.innerText = rTitle;
+    if (stLv) stLv.innerText = "Lv. " + lvInfo.level;
+    if (stRank) stRank.innerText = lvInfo.rank;
 }
 
-// Gắn MutationObserver vào #session-timer để đồng bộ tức thì 0ms
 function attachTimerObserver() {
     var target = document.getElementById('session-timer');
-    if (!target || target.dataset.observedV2 === 'true') return;
-    target.dataset.observedV2 = 'true';
+    if (!target || target.dataset.observedV3 === 'true') return;
+    target.dataset.observedV3 = 'true';
     new MutationObserver(syncFocusClockInstant).observe(target, { childList: true, characterData: true, subtree: true });
 }
 
-// --- 6. VÒNG LẶP ĐỒNG BỘ DUY NHẤT ---
+// --- 8. CỐ ĐỊNH SIDEBAR, BẢNG MÀU & CHUYỂN TAB ---
+function maintainCleanSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    var brandLogoBox = sidebar.querySelector('.brand > div:first-child');
+    if (brandLogoBox && !brandLogoBox.querySelector('.fa-layer-group')) {
+        brandLogoBox.style.cssText = "width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, #7c3aed, #4f46e5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.95rem; flex-shrink:0;";
+        brandLogoBox.innerHTML = '<i class="fa-solid fa-layer-group" style="color:#fff !important;"></i>';
+    }
+
+    var footerDock = document.getElementById('sidebar-bottom-dock');
+    var paletteBox = sidebar.querySelector('.palette-container');
+    var themeBtn = document.querySelector('.theme-toggle');
+    if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
+        paletteBox.appendChild(themeBtn);
+    }
+    if (footerDock) footerDock.remove();
+
+    var badge = document.getElementById('user-auth-badge');
+    if (badge) {
+        if (badge.innerHTML.includes('Rời án thư')) badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
+        if (sidebar.lastElementChild !== badge) {
+            badge.style.cssText = "margin: 8px 4px 0 4px; padding: 9px 10px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; flex-shrink: 0;";
+            sidebar.appendChild(badge);
+        }
+    }
+
+    // Tự động thay thế ngay lập tức nếu trang Thành tựu bị hàm cũ vẽ "BẢNG VÀNG DANH HIỆU"
+    var trophyRoom = document.getElementById('trophy-room');
+    if (trophyRoom && trophyRoom.style.display !== 'none' && trophyRoom.innerHTML.includes('BẢNG VÀNG DANH HIỆU')) {
+        renderMasterTrophyAndArchive();
+    }
+    // Tự động vẽ ngay nếu trang Phân tích tiến độ đang mở mà bị trống
+    var analyticsRoom = document.getElementById('analytics-room');
+    if (analyticsRoom && analyticsRoom.style.display !== 'none' && analyticsRoom.innerHTML.trim() === '') {
+        window.renderAnalytics();
+    }
+}
+
+window.changeColor = function(colorName) {
+    var valid = ['zen', 'neon-purple', 'neon-blue', 'sakura'];
+    var chosen = valid.includes(colorName) ? colorName : 'neon-purple';
+    document.documentElement.setAttribute('data-color', chosen);
+    document.body.setAttribute('data-color', chosen);
+    localStorage.setItem('saasColorTheme', chosen);
+    document.querySelectorAll('.color-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.classList.contains(chosen));
+    });
+};
+
+var origSwitchTabV3 = window.switchTab;
+window.switchTab = function(tabName) {
+    if (typeof origSwitchTabV3 === 'function') origSwitchTabV3(tabName);
+    if (tabName === 'trophy') {
+        renderMasterTrophyAndArchive();
+        setTimeout(renderMasterTrophyAndArchive, 40);
+    } else if (tabName === 'analytics') {
+        window.renderAnalytics();
+        setTimeout(window.renderAnalytics, 40);
+    } else if (tabName === 'dashboard') {
+        renderBentoCommandCenter();
+    }
+};
+
+// Vòng lặp đồng bộ duy nhất
 setInterval(function() {
     attachTimerObserver();
     syncFocusClockInstant();
     syncFocusRoomData();
+    maintainCleanSidebar();
 
     var now = new Date();
     var clockEl = document.getElementById('top-clock-label'), dateEl = document.getElementById('top-date-label');
@@ -6052,13 +6428,14 @@ setInterval(function() {
     }
 }, 500);
 
-var prevRenderDashUnified = window.renderDashboard;
+var prevRenderDashV3 = window.renderDashboard;
 window.renderDashboard = function() {
-    if (typeof prevRenderDashUnified === 'function') prevRenderDashUnified();
+    if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
     renderBentoCommandCenter();
 };
 window.addEventListener('DOMContentLoaded', function() {
     injectUnifiedApexCSS();
     attachTimerObserver();
+    maintainCleanSidebar();
     setTimeout(renderBentoCommandCenter, 250);
 });
