@@ -5444,12 +5444,165 @@ function deleteBentoTodo(e, id) {
     saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData();
 }
 
-// --- 2. QUẢN LÝ ẢNH NỀN TỰ DO ---
+// --- 2. HỆ THỐNG THEME SYSTEM, PARALLAX & AMBIENT CANVAS ---
+var APEX_THEME_PRESETS = [
+    { id: 'twilight', name: "Apex Twilight", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85", accent: "#a855f7", accent2: "#6366f1", soft: "rgba(168,85,247,0.18)", border: "rgba(168,85,247,0.38)" },
+    { id: 'midnight', name: "Midnight Academy", url: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85", accent: "#38bdf8", accent2: "#2563eb", soft: "rgba(56,189,248,0.18)", border: "rgba(56,189,248,0.38)" },
+    { id: 'rainy', name: "Rainy Study", url: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=85", accent: "#0ea5e9", accent2: "#6366f1", soft: "rgba(14,165,233,0.18)", border: "rgba(14,165,233,0.38)" },
+    { id: 'forest', name: "Forest Focus", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85", accent: "#10b981", accent2: "#059669", soft: "rgba(16,185,129,0.18)", border: "rgba(16,185,129,0.38)" },
+    { id: 'golden', name: "Golden Hour", url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85", accent: "#f59e0b", accent2: "#ec4899", soft: "rgba(245,158,11,0.18)", border: "rgba(245,158,11,0.38)" }
+];
+
+var apexThemeConfig = JSON.parse(localStorage.getItem('apexThemeConfigV5')) || {
+    themeId: 'twilight',
+    overlayDim: 65,
+    bgBlur: 0,
+    bgBrightness: 100,
+    parallax: true,
+    ambient: true,
+    autoTime: false
+};
+
+function saveApexThemeConfig() {
+    localStorage.setItem('apexThemeConfigV5', JSON.stringify(apexThemeConfig));
+}
+
+function ensureEnvironmentLayers() {
+    if (!document.getElementById('apex-parallax-bg')) {
+        var bgLayer = document.createElement('div');
+        bgLayer.id = 'apex-parallax-bg';
+        bgLayer.style.cssText = "position:fixed; inset:-28px; z-index:-2; background-size:cover; background-position:center; transition:transform 0.15s ease-out, filter 0.3s ease; pointer-events:none;";
+        document.body.appendChild(bgLayer);
+
+        var ovLayer = document.createElement('div');
+        ovLayer.id = 'apex-overlay-bg';
+        ovLayer.style.cssText = "position:fixed; inset:0; z-index:-1; pointer-events:none; transition:background 0.3s ease, backdrop-filter 0.3s ease;";
+        document.body.appendChild(ovLayer);
+
+        var cvs = document.createElement('canvas');
+        cvs.id = 'apex-ambient-canvas';
+        cvs.style.cssText = "position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;";
+        document.body.appendChild(cvs);
+
+        window.addEventListener('mousemove', function(e) {
+            var layer = document.getElementById('apex-parallax-bg');
+            if (!layer) return;
+            if (!apexThemeConfig.parallax) {
+                layer.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                return;
+            }
+            var dx = (window.innerWidth / 2 - e.clientX) / 45;
+            var dy = (window.innerHeight / 2 - e.clientY) / 45;
+            layer.style.transform = 'translate3d(' + dx.toFixed(1) + 'px, ' + dy.toFixed(1) + 'px, 0) scale(1.04)';
+        });
+
+        startAmbientParticlesEngine();
+    }
+}
+
+var ambientAnimId = null;
+function startAmbientParticlesEngine() {
+    var cvs = document.getElementById('apex-ambient-canvas');
+    if (!cvs) return;
+    var ctx = cvs.getContext('2d');
+    var stars = [], shootingStar = null;
+
+    function resize() {
+        cvs.width = window.innerWidth;
+        cvs.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (var i = 0; i < 42; i++) {
+        stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: Math.random() * 1.7 + 0.5,
+            alpha: Math.random(),
+            dAlpha: (Math.random() * 0.015 + 0.004) * (Math.random() < 0.5 ? 1 : -1),
+            vy: -(Math.random() * 0.18 + 0.04),
+            warm: Math.random() > 0.72
+        });
+    }
+
+    function drawFrame() {
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+        if (apexThemeConfig.ambient) {
+            for (var i = 0; i < stars.length; i++) {
+                var s = stars[i];
+                s.alpha += s.dAlpha;
+                if (s.alpha > 0.95 || s.alpha < 0.15) s.dAlpha = -s.dAlpha;
+                s.y += s.vy;
+                if (s.y < 0) { s.y = cvs.height; s.x = Math.random() * cvs.width; }
+
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = s.warm ? 'rgba(251, 191, 36, ' + s.alpha.toFixed(2) + ')' : 'rgba(255, 255, 255, ' + (s.alpha * 0.8).toFixed(2) + ')';
+                ctx.fill();
+            }
+
+            // Sao băng ngẫu nhiên
+            if (!shootingStar && Math.random() < 0.004) {
+                shootingStar = { x: Math.random() * cvs.width * 0.8 + cvs.width * 0.2, y: Math.random() * cvs.height * 0.35, vx: -9, vy: 4.5, len: 75, life: 1 };
+            }
+            if (shootingStar) {
+                ctx.strokeStyle = 'rgba(255,255,255,' + shootingStar.life.toFixed(2) + ')';
+                ctx.lineWidth = 1.6;
+                ctx.beginPath();
+                ctx.moveTo(shootingStar.x, shootingStar.y);
+                ctx.lineTo(shootingStar.x - shootingStar.vx * 5, shootingStar.y - shootingStar.vy * 5);
+                ctx.stroke();
+                shootingStar.x += shootingStar.vx;
+                shootingStar.y += shootingStar.vy;
+                shootingStar.life -= 0.035;
+                if (shootingStar.life <= 0) shootingStar = null;
+            }
+        }
+        ambientAnimId = requestAnimationFrame(drawFrame);
+    }
+    if (ambientAnimId) cancelAnimationFrame(ambientAnimId);
+    drawFrame();
+}
+
 function applyCustomWallpaper() {
+    ensureEnvironmentLayers();
+
+    if (apexThemeConfig.autoTime) {
+        var hr = new Date().getHours();
+        var autoId = (hr >= 6 && hr < 15) ? 'forest' : ((hr >= 15 && hr < 18) ? 'golden' : 'twilight');
+        var autoPreset = APEX_THEME_PRESETS.find(function(p) { return p.id === autoId; });
+        if (autoPreset && apexThemeConfig.themeId !== autoId) {
+            apexThemeConfig.themeId = autoId;
+            localStorage.setItem('saasCustomWallpaper', autoPreset.url);
+        }
+    }
+
     var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
-    var dim = localStorage.getItem('saasWallpaperDim') || "0.78";
-    document.documentElement.style.setProperty('--user-wallpaper', "url('" + bg + "')");
-    document.documentElement.style.setProperty('--user-bg-dim', dim);
+    var preset = APEX_THEME_PRESETS.find(function(p) { return p.id === apexThemeConfig.themeId; }) || APEX_THEME_PRESETS[0];
+
+    var root = document.documentElement;
+    root.style.setProperty('--user-wallpaper', "url('" + bg + "')");
+    root.style.setProperty('--theme-accent', preset.accent);
+    root.style.setProperty('--theme-accent-2', preset.accent2);
+    root.style.setProperty('--theme-soft', preset.soft);
+    root.style.setProperty('--theme-border', preset.border);
+
+    var dimDec = (Number(apexThemeConfig.overlayDim) / 100).toFixed(2);
+    root.style.setProperty('--user-bg-dim', dimDec);
+
+    var bgLayer = document.getElementById('apex-parallax-bg');
+    var ovLayer = document.getElementById('apex-overlay-bg');
+    if (bgLayer) {
+        bgLayer.style.backgroundImage = "url('" + bg + "')";
+        bgLayer.style.filter = 'brightness(' + (apexThemeConfig.bgBrightness || 100) + '%)';
+        if (!apexThemeConfig.parallax) bgLayer.style.transform = 'translate3d(0,0,0) scale(1)';
+    }
+    if (ovLayer) {
+        var blurPx = Number(apexThemeConfig.bgBlur || 0);
+        ovLayer.style.backdropFilter = blurPx > 0 ? ('blur(' + blurPx + 'px)') : 'none';
+        ovLayer.style.background = 'linear-gradient(180deg, rgba(8,11,22,' + (dimDec * 0.85).toFixed(2) + ') 0%, rgba(10,14,26,' + Math.min(0.96, Number(dimDec) + 0.1).toFixed(2) + ') 100%)';
+    }
 }
 
 function openWallpaperPickerModal() {
@@ -5457,45 +5610,132 @@ function openWallpaperPickerModal() {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'wallpaper-picker-modal';
-        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(10px); z-index:10005; align-items:center; justify-content:center; padding:20px;";
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(12px); z-index:10005; align-items:center; justify-content:center; padding:18px; overflow-y:auto;";
         document.body.appendChild(modal);
     }
     var curBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
-    var curDim = localStorage.getItem('saasWallpaperDim') || "0.78";
-    var presets = [
-        { name: "Hồ Núi Đêm", url: DEFAULT_WALLPAPER },
-        { name: "Cực Quang", url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Thư Viện", url: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Ngân Hà", url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Rừng Sương", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Phòng Lo-fi", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=85" }
-    ];
+
+    var cardsHtml = APEX_THEME_PRESETS.map(function(p) {
+        var isSel = (apexThemeConfig.themeId === p.id && curBg === p.url);
+        return `
+            <div onclick="selectApexThemePreset('${p.id}')" style="cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid ${isSel ? p.accent : 'rgba(255,255,255,0.08)'}; background:#151a2d; transition:0.2s; box-shadow:${isSel ? '0 0 18px ' + p.soft : 'none'};">
+                <div style="height:68px; background:url('${p.url}') center/cover; position:relative;">
+                    ${isSel ? `<span style="position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%; background:${p.accent}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.6rem;"><i class="fa-solid fa-check"></i></span>` : ''}
+                </div>
+                <div style="padding:7px 6px; text-align:center; font-size:0.7rem; font-weight:700; color:${isSel ? '#fff' : '#cbd5e1'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${p.name}
+                </div>
+            </div>`;
+    }).join('');
+
+    function renderToggleSwitch(key, label, icon) {
+        var on = !!apexThemeConfig[key];
+        return `
+            <div onclick="toggleApexThemeSwitch('${key}')" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); cursor:pointer;">
+                <span style="font-size:0.76rem; color:#e2e8f0; font-weight:600; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid ${icon}" style="color:var(--theme-accent); width:14px;"></i> ${label}
+                </span>
+                <div style="width:38px; height:20px; border-radius:100px; background:${on ? 'var(--theme-accent)' : 'rgba(255,255,255,0.15)'}; position:relative; transition:0.25s;">
+                    <div style="width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:3px; left:${on ? '21px' : '3px'}; transition:0.25s;"></div>
+                </div>
+            </div>`;
+    }
+
     modal.innerHTML = `
-        <div style="background:#111526; border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:24px; width:100%; max-width:540px; color:#fff;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                <h3 style="margin:0; font-size:1.1rem; font-weight:800;"><i class="fa-regular fa-image" style="color:#a855f7; margin-right:8px;"></i>Tùy Chỉnh Ảnh Nền</h3>
-                <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.25rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <div style="background:linear-gradient(160deg, #13182b 0%, #0c101d 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:650px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <div>
+                    <div style="font-size:0.65rem; font-weight:800; letter-spacing:1.8px; color:var(--theme-accent); text-transform:uppercase;">THEME SYSTEM</div>
+                    <h3 style="margin:2px 0 0 0; font-size:1.15rem; font-weight:800; color:#fff;">Chọn chủ đề không gian học tập</h3>
+                </div>
+                <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <input type="text" id="custom-bg-url-input" placeholder="Dán link ảnh (https://...)" value="${curBg.startsWith('data:') ? '' : curBg}" style="flex:1; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.8rem; outline:none;">
-                <button onclick="setWallpaperUrl(document.getElementById('custom-bg-url-input').value)" style="background:#7c3aed; color:#fff; border:none; padding:0 16px; border-radius:10px; font-weight:700; font-size:0.8rem; cursor:pointer;">Áp dụng</button>
+
+            <!-- 5 CHỦ ĐỀ CHUẨN CONCEPT -->
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin:14px 0 18px 0;">
+                ${cardsHtml}
             </div>
-            <label style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:9px; margin-bottom:14px; border-radius:10px; border:1px dashed rgba(168,85,247,0.5); background:rgba(168,85,247,0.08); color:#e9d5ff; font-weight:700; font-size:0.78rem; cursor:pointer;">
-                <i class="fa-solid fa-upload"></i> Tải ảnh từ máy tính (.jpg, .png, .webp)
-                <input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)">
-            </label>
-            <div style="font-size:0.74rem; color:#94a3b8; font-weight:700; margin-bottom:6px;">Độ tối lớp phủ (${Math.round(curDim * 100)}%)</div>
-            <input type="range" min="0.35" max="0.95" step="0.05" value="${curDim}" oninput="updateWallpaperDim(this.value)" style="width:100%; margin-bottom:14px; accent-color:#a855f7; cursor:pointer;">
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
-                ${presets.map(function(p) {
-                    return `<div onclick="setWallpaperUrl('${p.url}')" style="cursor:pointer; border-radius:10px; overflow:hidden; border:2px solid ${curBg===p.url ? '#a855f7' : 'rgba(255,255,255,0.1)'}; height:70px; background:url('${p.url}') center/cover; display:flex; align-items:flex-end; padding:5px 8px;"><span style="font-size:0.68rem; font-weight:700; color:#fff; text-shadow:0 1px 4px #000;">${p.name}</span></div>`;
-                }).join('')}
+
+            <!-- TÙY CHỈNH NÂNG CAO (3 THANH TRƯỢT + 3 CÔNG TẮC HIỆU ỨNG) -->
+            <div style="font-size:0.76rem; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Tùy chỉnh nâng cao</div>
+            <div style="display:grid; grid-template-columns:1.15fr 1fr; gap:16px; margin-bottom:16px;" class="phoi-row-2col">
+                <div style="display:flex; flex-direction:column; gap:11px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); padding:12px 14px; border-radius:14px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;">
+                            <span><i class="fa-solid fa-circle-half-stroke" style="color:var(--theme-accent); margin-right:5px;"></i>Độ tối overlay</span>
+                            <strong id="lbl-theme-dim">${apexThemeConfig.overlayDim}%</strong>
+                        </div>
+                        <input type="range" min="20" max="92" value="${apexThemeConfig.overlayDim}" oninput="updateApexThemeSlider('overlayDim', this.value, 'lbl-theme-dim', '%')" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;">
+                            <span><i class="fa-solid fa-droplet" style="color:var(--theme-accent); margin-right:5px;"></i>Độ mờ background</span>
+                            <strong id="lbl-theme-blur">${apexThemeConfig.bgBlur * 5}%</strong>
+                        </div>
+                        <input type="range" min="0" max="16" value="${apexThemeConfig.bgBlur}" oninput="updateApexThemeSlider('bgBlur', this.value, 'lbl-theme-blur', '%', 5)" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;">
+                            <span><i class="fa-regular fa-sun" style="color:var(--theme-accent); margin-right:5px;"></i>Độ sáng</span>
+                            <strong id="lbl-theme-bright">${apexThemeConfig.bgBrightness}%</strong>
+                        </div>
+                        <input type="range" min="50" max="130" value="${apexThemeConfig.bgBrightness}" oninput="updateApexThemeSlider('bgBrightness', this.value, 'lbl-theme-bright', '%')" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;">
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; justify-content:space-between; gap:8px;">
+                    ${renderToggleSwitch('parallax', 'Hiệu ứng parallax', 'fa-arrows-up-down-left-right')}
+                    ${renderToggleSwitch('ambient', 'Hiệu ứng môi trường', 'fa-wand-magic-sparkles')}
+                    ${renderToggleSwitch('autoTime', 'Thay đổi theo thời gian', 'fa-clock')}
+                </div>
+            </div>
+
+            <!-- TẢI ẢNH CÁ NHÂN HOẶC DÁN LINK -->
+            <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px; flex-wrap:wrap;">
+                <input type="text" id="custom-bg-url-input" placeholder="Hoặc dán link ảnh nền tùy thích (https://...)" value="${curBg.startsWith('data:') ? '' : curBg}" style="flex:1; min-width:180px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.76rem; outline:none;">
+                <button onclick="setWallpaperUrl(document.getElementById('custom-bg-url-input').value)" style="background:var(--theme-accent); color:#fff; border:none; padding:8px 14px; border-radius:10px; font-weight:700; font-size:0.76rem; cursor:pointer;">Áp dụng Link</button>
+                <label style="display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:10px; border:1px dashed var(--theme-border); background:var(--theme-soft); color:#fff; font-weight:700; font-size:0.76rem; cursor:pointer;">
+                    <i class="fa-solid fa-upload"></i> Tải ảnh máy tính
+                    <input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)">
+                </label>
             </div>
         </div>`;
     modal.style.display = 'flex';
 }
-window.setWallpaperUrl = function(url) { if (url && url.trim()) { localStorage.setItem('saasCustomWallpaper', url.trim()); applyCustomWallpaper(); openWallpaperPickerModal(); } };
-window.updateWallpaperDim = function(val) { localStorage.setItem('saasWallpaperDim', val); applyCustomWallpaper(); };
+
+window.selectApexThemePreset = function(presetId) {
+    var p = APEX_THEME_PRESETS.find(function(x) { return x.id === presetId; });
+    if (!p) return;
+    apexThemeConfig.themeId = p.id;
+    apexThemeConfig.autoTime = false;
+    localStorage.setItem('saasCustomWallpaper', p.url);
+    saveApexThemeConfig();
+    applyCustomWallpaper();
+    openWallpaperPickerModal();
+};
+
+window.updateApexThemeSlider = function(key, val, labelId, suffix, mult) {
+    apexThemeConfig[key] = Number(val);
+    saveApexThemeConfig();
+    var lbl = document.getElementById(labelId);
+    if (lbl) lbl.innerText = Math.round(Number(val) * (mult || 1)) + (suffix || '');
+    applyCustomWallpaper();
+};
+
+window.toggleApexThemeSwitch = function(key) {
+    apexThemeConfig[key] = !apexThemeConfig[key];
+    saveApexThemeConfig();
+    applyCustomWallpaper();
+    openWallpaperPickerModal();
+};
+
+window.setWallpaperUrl = function(url) {
+    if (url && url.trim()) {
+        localStorage.setItem('saasCustomWallpaper', url.trim());
+        applyCustomWallpaper();
+        openWallpaperPickerModal();
+    }
+};
 window.handleLocalWallpaperUpload = function(e) {
     var file = e.target.files[0]; if (!file) return;
     var reader = new FileReader();
@@ -5505,8 +5745,11 @@ window.handleLocalWallpaperUpload = function(e) {
             var cvs = document.createElement('canvas'), s = Math.min(1, 1600 / img.width);
             cvs.width = img.width * s; cvs.height = img.height * s;
             cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
-            try { localStorage.setItem('saasCustomWallpaper', cvs.toDataURL('image/jpeg', 0.82)); applyCustomWallpaper(); document.getElementById('wallpaper-picker-modal').style.display = 'none'; }
-            catch (err) { alert("Ảnh quá nặng, vui lòng chọn ảnh nhẹ hơn!"); }
+            try {
+                localStorage.setItem('saasCustomWallpaper', cvs.toDataURL('image/jpeg', 0.82));
+                applyCustomWallpaper();
+                document.getElementById('wallpaper-picker-modal').style.display = 'none';
+            } catch (err) { alert("Ảnh quá nặng, vui lòng chọn ảnh nhẹ hơn!"); }
         };
         img.src = ev.target.result;
     };
@@ -5851,10 +6094,12 @@ window.saveGoalDetailNote = function(goalId) {
     if (area) { extra.notes = area.value; saveGoalDetailsStore(); alert("Đã lưu ghi chú môn học!"); }
 };
 
-// --- 5. BỘ CSS HỢP NHẤT DUY NHẤT ---
+// --- 5. BỘ CSS HỢP NHẤT DUY NHẤT (OPEN-WORLD HERO + QUỸ ĐẠO CHỮ A + LỬA NHẤP NHÁY) ---
 function injectUnifiedApexCSS() {
     applyCustomWallpaper();
-    if (document.getElementById('apex-unified-master-css')) return;
+    var oldSt = document.getElementById('apex-unified-master-css');
+    if (oldSt) oldSt.remove();
+
     var st = document.createElement('style');
     st.id = 'apex-unified-master-css';
     st.innerHTML = `
@@ -5871,9 +6116,7 @@ function injectUnifiedApexCSS() {
         [data-color="sakura"]    { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
 
         body {
-            background-color: #080b14 !important;
-            background-image: linear-gradient(180deg, rgba(8,11,22,var(--user-bg-dim)) 0%, rgba(10,14,26,calc(var(--user-bg-dim) + 0.08)) 100%), var(--user-wallpaper) !important;
-            background-size: cover !important; background-position: center !important; background-attachment: fixed !important;
+            background: transparent !important;
         }
         .bento-top-search, #global-goal-search,
         #view-dashboard > .kpi-card, #view-dashboard > .recommendation-strip,
@@ -5902,41 +6145,128 @@ function injectUnifiedApexCSS() {
         }
         .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
 
-        /* Hero Banner & 4-Stat Strip chuẩn Concept */
+        /* Open-World Hero (Không hộp viền, giữ Quỹ đạo chữ A bên phải + 4 thẻ Glassmorphism) */
         .phoi-hero-banner {
-            position: relative; border-radius: 18px; padding: 18px 24px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; align-items: center; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: linear-gradient(90deg, rgba(12,16,32,0.9) 0%, rgba(18,22,44,0.65) 55%, rgba(12,16,32,0.8) 100%), var(--user-wallpaper) center/cover no-repeat;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+            position: relative;
+            padding: 6px 8px 14px 4px !important;
+            margin-bottom: 12px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 20px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            overflow: visible !important;
         }
-        .phoi-hero-left { z-index: 2; flex: 1; max-width: 66%; }
-        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-        .phoi-pill-cmd { background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
-        .phoi-pill-live { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
-        .phoi-hero-left h1 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; }
-        .phoi-hero-left p { font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0; }
+        .phoi-hero-left {
+            z-index: 2;
+            flex: 1;
+            max-width: calc(100% - 275px) !important;
+        }
+        .phoi-badge-row {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+        }
+        .phoi-pill-cmd {
+            background: rgba(15,23,42,0.65); border: 1px solid rgba(255,255,255,0.15);
+            color: #e2e8f0; padding: 4px 12px; border-radius: 100px; font-size: 0.65rem;
+            font-weight: 800; backdrop-filter: blur(10px);
+        }
+        .phoi-pill-live {
+            background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.45);
+            color: #34d399; padding: 4px 12px; border-radius: 100px; font-size: 0.65rem; font-weight: 800;
+        }
+        .phoi-hero-left h1 {
+            font-size: 2.0rem !important; font-weight: 900 !important; color: #fff;
+            margin: 0 0 4px 0; text-shadow: 0 4px 24px rgba(0,0,0,0.65);
+        }
+        .phoi-hero-left p {
+            font-size: 0.85rem !important; color: #e2e8f0; font-style: italic;
+            margin: 0 0 16px 0; text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+        }
         .phoi-hero-mini-bar {
-            display: inline-flex; align-items: center; gap: 18px; flex-wrap: wrap;
-            background: rgba(11, 15, 30, 0.84); border: 1px solid rgba(255,255,255,0.1);
-            padding: 9px 16px; border-radius: 13px; backdrop-filter: blur(12px);
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(135px, 1fr)) !important;
+            gap: 10px !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            backdrop-filter: none !important;
+            width: 100% !important;
         }
-        .phoi-mini-item { display: flex; align-items: center; gap: 9px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.07); }
-        .phoi-mini-item:last-child { border-right: none; padding-right: 0; }
-        .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; line-height: 1.15; }
-        .phoi-mini-item span { font-size: 0.65rem; color: #94a3b8; }
+        .phoi-mini-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 13px !important;
+            background: rgba(14, 19, 36, 0.74) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 14px !important;
+            backdrop-filter: blur(16px) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .phoi-mini-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--theme-border) !important;
+        }
+        .phoi-mini-item strong { display: block; font-size: 0.86rem; color: #fff; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+        .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; white-space: nowrap; }
 
-        .phoi-orbit-box { position: relative; width: 260px; height: 182px; display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0; }
-        .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 114px; height: 114px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.45); }
-        .phoi-orbit-ring2 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 178px; height: 178px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); }
-        .phoi-orbit-core { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle, #7c3aed 0%, #311068 100%); border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 900; color: #fff; box-shadow: 0 0 25px rgba(168,85,247,0.75); z-index: 3; }
-        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; min-width: 70px; }
+        /* Quỹ đạo chữ A bên phải nổi trên nền trời Open-World */
+        .phoi-orbit-box {
+            position: relative; width: 260px; height: 182px;
+            display: flex !important; align-items: center; justify-content: center;
+            z-index: 2; flex-shrink: 0;
+        }
+        .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 114px; height: 114px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.55); box-shadow: 0 0 20px rgba(168,85,247,0.15) inset; }
+        .phoi-orbit-ring2 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 178px; height: 178px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12); }
+        .phoi-orbit-core { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle, #7c3aed 0%, #311068 100%); border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 900; color: #fff; box-shadow: 0 0 28px rgba(168,85,247,0.85); z-index: 3; }
+        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; min-width: 72px; text-shadow: 0 2px 8px rgba(0,0,0,0.85); }
         .phoi-orbit-box .phoi-sat:nth-of-type(4) { top: 2px; left: 50%; transform: translateX(-50%); }
         .phoi-orbit-box .phoi-sat:nth-of-type(5) { bottom: 4px; left: 8px; }
         .phoi-orbit-box .phoi-sat:nth-of-type(6) { bottom: 4px; right: 8px; }
-        .phoi-sat-circle { width: 30px; height: 30px; border-radius: 50%; background: rgba(13,18,34,0.95); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-bottom: 3px; }
+        .phoi-sat-circle { width: 32px; height: 32px; border-radius: 50%; background: rgba(13,18,34,0.92); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-bottom: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; }
         .phoi-sat span { font-size: 0.6rem; color: #cbd5e1; }
+
+        /* HIỆU ỨNG NGỌN LỬA ĐA TẦNG NHẤP NHÁY (APEX LIVING FLAME) */
+        @keyframes apexFlameFlicker {
+            0%, 100% {
+                transform: scale(1) rotate(-2deg) translateY(0);
+                filter: drop-shadow(0 0 6px rgba(249,115,22,0.85)) drop-shadow(0 0 14px rgba(239,68,68,0.55));
+            }
+            25% {
+                transform: scale(1.12, 1.06) rotate(2deg) translateY(-1.5px);
+                filter: drop-shadow(0 0 10px rgba(251,191,36,0.95)) drop-shadow(0 0 20px rgba(249,115,22,0.75));
+            }
+            50% {
+                transform: scale(0.95, 1.14) rotate(-1deg) translateY(-2px);
+                filter: drop-shadow(0 0 12px rgba(245,158,11,0.9)) drop-shadow(0 0 22px rgba(225,29,72,0.7));
+            }
+            75% {
+                transform: scale(1.08, 0.97) rotate(3deg) translateY(-0.5px);
+                filter: drop-shadow(0 0 8px rgba(251,191,36,0.9)) drop-shadow(0 0 16px rgba(249,115,22,0.65));
+            }
+        }
+        @keyframes apexFlameOrbPulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(249,115,22,0.35), inset 0 0 8px rgba(251,191,36,0.25); }
+            50% { box-shadow: 0 0 22px rgba(249,115,22,0.65), inset 0 0 12px rgba(251,191,36,0.45); }
+        }
+        .apex-flame-orb {
+            width: 38px; height: 38px; border-radius: 12px;
+            background: radial-gradient(circle at 50% 70%, rgba(251,191,36,0.28), rgba(249,115,22,0.18) 60%, rgba(225,29,72,0.08) 100%);
+            border: 1.5px solid rgba(251,146,60,0.55);
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0; animation: apexFlameOrbPulse 2.2s infinite ease-in-out;
+        }
+        .apex-living-fire {
+            background: linear-gradient(180deg, #fef08a 0%, #fbbf24 30%, #f97316 68%, #e11d48 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            font-size: 1.22rem;
+            animation: apexFlameFlicker 1.35s infinite ease-in-out;
+            transform-origin: center bottom;
+        }
 
         /* Bento 3-Column Grids */
         .phoi-row-3col { display: grid; grid-template-columns: 1.12fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -5950,7 +6280,7 @@ function injectUnifiedApexCSS() {
         }
         .phoi-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .phoi-card-title { font-size: 0.74rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
-        .phoi-link { font-size: 0.72rem; color: #a855f7; font-weight: 600; cursor: pointer; }
+        .phoi-link { font-size: 0.72rem; color: var(--theme-accent); font-weight: 600; cursor: pointer; }
 
         /* Compact Goal Cards */
         #dashboard-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important; gap: 12px !important; }
@@ -6008,15 +6338,14 @@ function injectUnifiedApexCSS() {
         @media (max-width: 1080px) {
             .phoi-stat-grid { grid-template-columns: repeat(2, 1fr); }
             .phoi-row-3col, .phoi-row-2col, .ft-main-grid { grid-template-columns: 1fr !important; max-width: 520px; margin: 0 auto 12px auto; }
-            .phoi-orbit-box { display: none; }
-            .phoi-hero-left { max-width: 100%; }
+            .phoi-orbit-box { display: none !important; }
+            .phoi-hero-left { max-width: 100% !important; }
+            .phoi-hero-mini-bar { grid-template-columns: repeat(2, 1fr) !important; }
             .ft-center-col { order: -1; margin: 8px 0; }
         }
         @media (max-width: 768px) {
             .main-content { padding: 0 12px 28px 12px !important; overflow-x: hidden !important; }
             .top-quote-text { display: none !important; }
-            .phoi-hero-mini-bar { width: 100%; justify-content: space-between; gap: 8px; padding: 8px 12px; }
-            .phoi-mini-item { border-right: none; padding-right: 0; }
             #dashboard-grid { grid-template-columns: 1fr !important; }
             #focus-room { padding: 12px 14px 28px 14px !important; overflow-y: auto !important; justify-content: flex-start !important; }
             .ft-wrapper { height: auto !important; }
