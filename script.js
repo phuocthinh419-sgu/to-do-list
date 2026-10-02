@@ -5316,37 +5316,44 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// APEX COMPLETE ENGINE: PHÔI DASHBOARD 4 TẦNG CHUẨN ẢNH & CUSTOM WALLPAPER
-// =====================================================================
-var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
-    { id: 1, text: "Ôn tập Giải tích 1 (Chương 3)", done: true },
-    { id: 2, text: "Làm đề Reading IELTS", done: true },
-    { id: 3, text: "Đọc sách chuyên ngành", done: false },
-    { id: 4, text: "Viết báo cáo dự án", done: false },
-    { id: 5, text: "Xem lại Flashcard từ vựng", done: false }
-];
-
-function saveBentoTodos() {
-    localStorage.setItem('saasBentoTodos', JSON.stringify(bentoTodoList));
-}
-
-function formatHrsToHM(decimalHours) {
-    var totalMins = Math.round((decimalHours || 0) * 60);
-    var h = Math.floor(totalMins / 60);
-    var m = totalMins % 60;
-    return h + "h " + String(m).padStart(2, '0') + "m";
-}
-
-// =====================================================================
-// 1. TRẠM TÙY CHỈNH ẢNH NỀN TỰ DO (CUSTOM WALLPAPER STUDIO)
+// APEX UNIFIED UI ENGINE V2 (FIXED OVERTIME PAUSE & REPORT BUTTON)
 // =====================================================================
 var DEFAULT_WALLPAPER = "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
+var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
+    { id: 1, text: "Ôn tập nội dung trọng tâm trong tuần", done: true },
+    { id: 2, text: "Làm bài tập thực hành chuyên ngành", done: true },
+    { id: 3, text: "Đọc tài liệu và ghi chú từ mới", done: false },
+    { id: 4, text: "Hoàn thành báo cáo tiến độ", done: false }
+];
 
+function saveBentoTodos() { localStorage.setItem('saasBentoTodos', JSON.stringify(bentoTodoList)); }
+function formatHrsToHM(hDec) {
+    var mTotal = Math.round((hDec || 0) * 60);
+    return Math.floor(mTotal / 60) + "h " + String(mTotal % 60).padStart(2, '0') + "m";
+}
+
+function toggleBentoTodo(id) {
+    var item = bentoTodoList.find(function(t) { return t.id === id; });
+    if (item) { item.done = !item.done; saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData(); }
+}
+function addBentoTodoPrompt() {
+    var text = prompt("Nhập nhiệm vụ cần hoàn thành hôm nay:");
+    if (!text || !text.trim()) return;
+    bentoTodoList.push({ id: Date.now(), text: text.trim(), done: false });
+    saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData();
+}
+function deleteBentoTodo(e, id) {
+    e.stopPropagation();
+    bentoTodoList = bentoTodoList.filter(function(t) { return t.id !== id; });
+    saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData();
+}
+
+// --- 1. QUẢN LÝ ẢNH NỀN TỰ DO ---
 function applyCustomWallpaper() {
-    var savedBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
-    var savedDim = localStorage.getItem('saasWallpaperDim') || "0.78";
-    document.documentElement.style.setProperty('--user-wallpaper', "url('" + savedBg + "')");
-    document.documentElement.style.setProperty('--user-bg-dim', savedDim);
+    var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
+    var dim = localStorage.getItem('saasWallpaperDim') || "0.78";
+    document.documentElement.style.setProperty('--user-wallpaper', "url('" + bg + "')");
+    document.documentElement.style.setProperty('--user-bg-dim', dim);
 }
 
 function openWallpaperPickerModal() {
@@ -5357,1962 +5364,701 @@ function openWallpaperPickerModal() {
         modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(10px); z-index:10002; align-items:center; justify-content:center; padding:20px;";
         document.body.appendChild(modal);
     }
-
-    var currentBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
-    var currentDim = localStorage.getItem('saasWallpaperDim') || "0.78";
-
+    var curBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
+    var curDim = localStorage.getItem('saasWallpaperDim') || "0.78";
     var presets = [
-        { name: "Hồ Núi Đêm (Mặc định)", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Cực Quang Bắc Cực", url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Thư Viện Cổ Điển", url: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Bầu Trời Ngân Hà", url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Rừng Sương Mù", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85" },
-        { name: "Thành Phố Cyberpunk", url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85" }
+        { name: "Hồ Núi Đêm", url: DEFAULT_WALLPAPER },
+        { name: "Cực Quang", url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Thư Viện", url: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Ngân Hà", url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Rừng Sương", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85" },
+        { name: "Phòng Lo-fi", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=85" }
     ];
-
-    var presetHtml = presets.map(function(p) {
-        return `
-            <div onclick="setWallpaperUrl('${p.url}')" style="cursor:pointer; border-radius:10px; overflow:hidden; border:2px solid ${currentBg===p.url ? '#a855f7' : 'rgba(255,255,255,0.1)'}; position:relative; height:78px; background:url('${p.url}') center/cover no-repeat;">
-                <div style="position:absolute; inset:0; background:linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); display:flex; align-items:flex-end; padding:6px 8px;">
-                    <span style="font-size:0.7rem; font-weight:700; color:#fff;">${p.name}</span>
-                </div>
-            </div>`;
-    }).join('');
-
     modal.innerHTML = `
-        <div style="background:#111526; border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:24px; width:100%; max-width:560px; box-shadow:0 25px 60px rgba(0,0,0,0.75); color:#fff;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="margin:0; font-size:1.15rem; font-weight:800;"><i class="fa-regular fa-image" style="color:#a855f7; margin-right:8px;"></i>Tùy Chỉnh Ảnh Nền Giao Diện</h3>
-                <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <div style="background:#111526; border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:24px; width:100%; max-width:540px; color:#fff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:1.1rem; font-weight:800;"><i class="fa-regular fa-image" style="color:#a855f7; margin-right:8px;"></i>Tùy Chỉnh Ảnh Nền</h3>
+                <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.25rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
-            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:8px;">1. Tải ảnh từ máy tính hoặc dán Link ảnh</div>
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-                <input type="text" id="custom-bg-url-input" placeholder="Dán link ảnh (https://...) vào đây" value="${currentBg.startsWith('data:') ? '' : currentBg}" style="flex:1; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.8rem; outline:none;">
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <input type="text" id="custom-bg-url-input" placeholder="Dán link ảnh (https://...)" value="${curBg.startsWith('data:') ? '' : curBg}" style="flex:1; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.8rem; outline:none;">
                 <button onclick="setWallpaperUrl(document.getElementById('custom-bg-url-input').value)" style="background:#7c3aed; color:#fff; border:none; padding:0 16px; border-radius:10px; font-weight:700; font-size:0.8rem; cursor:pointer;">Áp dụng</button>
             </div>
-
-            <div style="margin-bottom:18px;">
-                <label style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:10px; border-radius:10px; border:1px dashed rgba(168,85,247,0.5); background:rgba(168,85,247,0.08); color:#e9d5ff; font-weight:700; font-size:0.8rem; cursor:pointer;">
-                    <i class="fa-solid fa-upload"></i> Chọn file ảnh từ máy tính của bạn (.jpg, .png, .webp)
-                    <input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)">
-                </label>
-            </div>
-
-            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:8px;">2. Độ tối lớp phủ kính (${Math.round(currentDim * 100)}%)</div>
-            <input type="range" min="0.35" max="0.95" step="0.05" value="${currentDim}" oninput="updateWallpaperDim(this.value)" style="width:100%; margin-bottom:18px; accent-color:#a855f7; cursor:pointer;">
-
-            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:8px;">3. Kho ảnh nền chọn lọc</div>
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
-                ${presetHtml}
+            <label style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:9px; margin-bottom:14px; border-radius:10px; border:1px dashed rgba(168,85,247,0.5); background:rgba(168,85,247,0.08); color:#e9d5ff; font-weight:700; font-size:0.78rem; cursor:pointer;">
+                <i class="fa-solid fa-upload"></i> Tải ảnh từ máy tính (.jpg, .png, .webp)
+                <input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)">
+            </label>
+            <div style="font-size:0.74rem; color:#94a3b8; font-weight:700; margin-bottom:6px;">Độ tối lớp phủ (${Math.round(curDim * 100)}%)</div>
+            <input type="range" min="0.35" max="0.95" step="0.05" value="${curDim}" oninput="updateWallpaperDim(this.value)" style="width:100%; margin-bottom:14px; accent-color:#a855f7; cursor:pointer;">
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+                ${presets.map(function(p) {
+                    return `<div onclick="setWallpaperUrl('${p.url}')" style="cursor:pointer; border-radius:10px; overflow:hidden; border:2px solid ${curBg===p.url ? '#a855f7' : 'rgba(255,255,255,0.1)'}; height:70px; background:url('${p.url}') center/cover; display:flex; align-items:flex-end; padding:5px 8px;"><span style="font-size:0.68rem; font-weight:700; color:#fff; text-shadow:0 1px 4px #000;">${p.name}</span></div>`;
+                }).join('')}
             </div>
         </div>`;
     modal.style.display = 'flex';
 }
-
-window.setWallpaperUrl = function(url) {
-    if (!url || !url.trim()) return;
-    localStorage.setItem('saasCustomWallpaper', url.trim());
-    applyCustomWallpaper();
-    openWallpaperPickerModal();
-};
-
-window.updateWallpaperDim = function(val) {
-    localStorage.setItem('saasWallpaperDim', val);
-    applyCustomWallpaper();
-};
-
-window.handleLocalWallpaperUpload = function(event) {
-    var file = event.target.files[0];
-    if (!file) return;
+window.setWallpaperUrl = function(url) { if (url && url.trim()) { localStorage.setItem('saasCustomWallpaper', url.trim()); applyCustomWallpaper(); openWallpaperPickerModal(); } };
+window.updateWallpaperDim = function(val) { localStorage.setItem('saasWallpaperDim', val); applyCustomWallpaper(); };
+window.handleLocalWallpaperUpload = function(e) {
+    var file = e.target.files[0]; if (!file) return;
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function(ev) {
         var img = new Image();
         img.onload = function() {
-            var canvas = document.createElement('canvas');
-            var maxW = 1600;
-            var scale = Math.min(1, maxW / img.width);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-            try {
-                localStorage.setItem('saasCustomWallpaper', dataUrl);
-                applyCustomWallpaper();
-                document.getElementById('wallpaper-picker-modal').style.display = 'none';
-            } catch (err) {
-                alert("Ảnh có dung lượng quá lớn! Vui lòng chọn ảnh nhẹ hơn hoặc dùng Link ảnh.");
-            }
+            var cvs = document.createElement('canvas'), s = Math.min(1, 1600 / img.width);
+            cvs.width = img.width * s; cvs.height = img.height * s;
+            cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+            try { localStorage.setItem('saasCustomWallpaper', cvs.toDataURL('image/jpeg', 0.82)); applyCustomWallpaper(); document.getElementById('wallpaper-picker-modal').style.display = 'none'; }
+            catch (err) { alert("Ảnh quá nặng, vui lòng chọn ảnh nhẹ hơn!"); }
         };
-        img.src = e.target.result;
+        img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
 };
 
-// =====================================================================
-// 2. KHÔI PHỤC THẺ THIẾT QUÂN LUẬT (TUẦN) & KẾT NỐI CHỨNG KHOÁN
-// =====================================================================
-function ensureMartialLawKpiCard() {
-    var dash = document.getElementById('view-dashboard');
-    if (!dash) return;
-
-    var kpiCard = document.getElementById('restored-kpi-card');
-    if (!kpiCard) {
-        kpiCard = document.createElement('div');
-        kpiCard.id = 'restored-kpi-card';
-        kpiCard.className = 'phoi-card';
-        kpiCard.style.cssText = "margin-bottom: 14px; border: 1px solid rgba(20, 184, 166, 0.3);";
-
-        var kpiStatus = document.getElementById('kpi-status');
-        var kpiBarFill = document.getElementById('kpi-bar-fill');
-        var kpiMsg = document.getElementById('kpi-message');
-
-        kpiCard.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:8px;">
-                <div style="display:flex; align-items:center; gap:8px; font-size:0.82rem; font-weight:800; color:#fff; text-transform:uppercase; letter-spacing:0.6px;">
-                    <i class="fa-solid fa-crosshairs" style="color:#14b8a6;"></i> Tiến Độ Mục Tiêu Tuần (KPI)
-                </div>
-                <div id="kpi-status-slot"></div>
-            </div>
-            <div style="width:100%; height:8px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:8px;" id="kpi-bar-slot"></div>
-            <div id="kpi-msg-slot"></div>
-        `;
-
-        var bento = document.getElementById('bento-command-center');
-        if (bento && bento.nextSibling) dash.insertBefore(kpiCard, bento.nextSibling);
-        else dash.insertBefore(kpiCard, dash.firstChild);
-
-        if (kpiStatus) {
-            kpiStatus.style.cssText = "font-size: 1.45rem !important; font-weight: 900; color: #fff; line-height: 1;";
-            document.getElementById('kpi-status-slot').appendChild(kpiStatus);
-        }
-        if (kpiBarFill) {
-            kpiBarFill.style.cssText = "height: 100%; background: linear-gradient(90deg, #14b8a6, #3b82f6); border-radius: 100px; transition: width 0.8s ease;";
-            document.getElementById('kpi-bar-slot').appendChild(kpiBarFill);
-        }
-        if (kpiMsg) {
-            kpiMsg.style.cssText = "font-size: 0.76rem; font-weight: 600; color: #94a3b8; margin: 0;";
-            document.getElementById('kpi-msg-slot').appendChild(kpiMsg);
-        }
-    }
-}
-
+// --- 2. KẾT NỐI CHỨNG KHOÁN & THẺ KPI TUẦN ---
 function getUnifiedStockArray() {
     if (typeof stockMarket !== 'undefined' && stockMarket && !Array.isArray(stockMarket) && typeof stockMarket === 'object') {
         return Object.keys(stockMarket).map(function(k) {
-            var item = stockMarket[k] || {};
-            return {
-                code: k,
-                name: item.name || k,
-                price: Number(item.price || 100),
-                owned: Number(item.owned || 0),
-                change: Number(item.lastChange || item.change || 1.8)
-            };
-        });
-    }
-    var arr = (typeof stockMarket !== 'undefined' && Array.isArray(stockMarket)) ? stockMarket : ((typeof stocks !== 'undefined' && Array.isArray(stocks)) ? stocks : null);
-    if (arr && arr.length > 0) {
-        return arr.map(function(item) {
-            var c = item.code || item.symbol || "APX";
-            return {
-                code: c,
-                name: item.name || c,
-                price: Number(item.price || 100),
-                owned: Number(item.owned || 0),
-                change: Number(item.lastChange || item.change || 1.5)
-            };
+            var it = stockMarket[k] || {};
+            return { code: k, price: Number(it.price || 100), owned: Number(it.owned || 0), change: Number(it.lastChange || it.change || 1.8) };
         });
     }
     return [
-        { code: "BAYM", name: "Bayern Munich", price: 128.4, owned: 0, change: 2.4 },
-        { code: "IELT", name: "IELTS 7.0+", price: 95.2, owned: 0, change: 1.6 },
-        { code: "TESL", name: "Master TESOL", price: 112.0, owned: 0, change: 0.9 }
+        { code: "BAYM", price: 128.4, owned: 0, change: 2.4 },
+        { code: "IELT", price: 95.2, owned: 0, change: 1.6 },
+        { code: "TESL", price: 112.0, owned: 0, change: 0.9 }
     ];
 }
-
 function triggerStockTrade(code) {
     if (typeof openTradeModal === 'function') { openTradeModal(code); return; }
     if (typeof openTrade === 'function') { openTrade(code); return; }
-    var container = document.getElementById('stock-market-container');
-    if (container) {
-        var cards = container.querySelectorAll('[onclick]');
-        for (var i = 0; i < cards.length; i++) {
-            if (cards[i].getAttribute('onclick').includes(code)) {
-                cards[i].click();
-                return;
-            }
-        }
-    }
 }
-
 function openFullStockMarketDrawer() {
     var modal = document.getElementById('full-market-exchange-modal');
     if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'full-market-exchange-modal';
+        modal = document.createElement('div'); modal.id = 'full-market-exchange-modal';
         modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:20px;";
         document.body.appendChild(modal);
     }
-    var list = getUnifiedStockArray();
-    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
-
-    var cardsHtml = list.map(function(st) {
-        var isUp = st.change >= 0;
-        return `
-            <div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-weight:800; font-size:0.95rem; color:#fff;"><i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i>${st.code}</span>
-                    <span style="font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:6px; background:${isUp ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}; color:${isUp ? '#10b981' : '#ef4444'};">${isUp ? '+' : ''}${st.change.toFixed(1)}%</span>
-                </div>
-                <div style="font-size:1.4rem; font-weight:900; color:#fbbf24; margin-bottom:6px;">$${st.price.toFixed(1)}</div>
-                <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:#8b95b0;">
-                    <span>Sở hữu: <strong style="color:#fff;">${st.owned} cổ</strong></span>
-                    <span style="color:#a855f7; font-weight:700;">Giao dịch →</span>
-                </div>
-            </div>`;
-    }).join('');
-
+    var list = getUnifiedStockArray(), usd = parseInt(localStorage.getItem('usdBalance')) || 0;
     modal.innerHTML = `
-        <div style="background:#101424; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px; width:100%; max-width:680px; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-                <div>
-                    <h3 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;"><i class="fa-solid fa-chart-line" style="color:#10b981; margin-right:8px;"></i>Thị Trường Cổ Phiếu Học Thuật</h3>
-                    <div style="font-size:0.78rem; color:#8b95b0; margin-top:4px;">Số dư khả dụng: <strong style="color:#fbbf24;">$${usd.toLocaleString()} USD</strong></div>
-                </div>
+        <div style="background:#101424; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px; width:100%; max-width:660px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div><h3 style="font-size:1.15rem; font-weight:800; color:#fff; margin:0;">Thị Trường Cổ Phiếu</h3><div style="font-size:0.76rem; color:#8b95b0;">Số dư: <strong style="color:#fbbf24;">$${usd.toLocaleString()} USD</strong></div></div>
                 <button onclick="document.getElementById('full-market-exchange-modal').style.display='none'" style="background:none; border:none; color:#8b95b0; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:12px;">${cardsHtml}</div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(185px, 1fr)); gap:12px;">
+                ${list.map(function(st) {
+                    var up = st.change >= 0;
+                    return `<div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; cursor:pointer;"><div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong style="color:#fff;">${st.code}</strong><span style="font-size:0.7rem; font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}\%</span></div><div style="font-size:1.3rem; font-weight:900; color:#fbbf24; margin-bottom:4px;">$${st.price.toFixed(1)}</div><div style="font-size:0.72rem; color:#8b95b0;">Đang giữ: <strong style="color:#fff;">${st.owned} cổ</strong></div></div>`;
+                }).join('')}
+            </div>
         </div>`;
     modal.style.display = 'flex';
 }
 
-// =====================================================================
-// 3. CSS CHUẨN PHÔI ẢNH DEMO (4 TẦNG + TÙY CHỈNH ẢNH NỀN ĐỘNG)
-// =====================================================================
-function injectPhoiLayoutCSS() {
+function ensureMartialLawKpiCard() {
+    var dash = document.getElementById('view-dashboard');
+    if (!dash || document.getElementById('restored-kpi-card')) return;
+    var kpiCard = document.createElement('div');
+    kpiCard.id = 'restored-kpi-card'; kpiCard.className = 'phoi-card';
+    kpiCard.style.cssText = "margin-bottom: 14px; border: 1px solid rgba(20, 184, 166, 0.3);";
+    kpiCard.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:0.8rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Tiến Độ KPI Tuần</span>
+            <div id="kpi-status-slot"></div>
+        </div>
+        <div style="width:100%; height:8px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:8px;" id="kpi-bar-slot"></div>
+        <div id="kpi-msg-slot"></div>`;
+    var bento = document.getElementById('bento-command-center');
+    if (bento && bento.nextSibling) dash.insertBefore(kpiCard, bento.nextSibling);
+    else dash.insertBefore(kpiCard, dash.firstChild);
+
+    var s = document.getElementById('kpi-status'), b = document.getElementById('kpi-bar-fill'), m = document.getElementById('kpi-message');
+    if (s) { s.style.cssText = "font-size:1.4rem !important; font-weight:900; color:#fff;"; document.getElementById('kpi-status-slot').appendChild(s); }
+    if (b) { b.style.cssText = "height:100%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"; document.getElementById('kpi-bar-slot').appendChild(b); }
+    if (m) { m.style.cssText = "font-size:0.75rem; color:#94a3b8; margin:0;"; document.getElementById('kpi-msg-slot').appendChild(m); }
+}
+
+// --- 3. BỘ CSS HỢP NHẤT DUY NHẤT ---
+function injectUnifiedApexCSS() {
     applyCustomWallpaper();
-    var oldStyle = document.getElementById('clean-layout-fix-css');
-    if (oldStyle) oldStyle.remove();
-
-    var style = document.createElement('style');
-    style.id = 'clean-layout-fix-css';
-    style.innerHTML = `
-        :root {
-            --user-wallpaper: url('${DEFAULT_WALLPAPER}');
-            --user-bg-dim: 0.78;
-            --theme-accent: #8b5cf6;
-            --theme-accent-2: #6366f1;
-            --theme-soft: rgba(139, 92, 246, 0.18);
-            --theme-border: rgba(139, 92, 246, 0.35);
-        }
-        [data-color="zen"]         { --theme-accent: #10b981; --theme-accent-2: #0ea5e9; --theme-soft: rgba(16,185,129,0.18); --theme-border: rgba(16,185,129,0.35); }
-        [data-color="neon-purple"] { --theme-accent: #a855f7; --theme-accent-2: #6366f1; --theme-soft: rgba(168,85,247,0.18); --theme-border: rgba(168,85,247,0.35); }
-        [data-color="neon-blue"]   { --theme-accent: #0ea5e9; --theme-accent-2: #3b82f6; --theme-soft: rgba(14,165,233,0.18); --theme-border: rgba(56,189,248,0.35); }
-        [data-color="sakura"]      { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
-
+    if (document.getElementById('apex-unified-master-css')) return;
+    var st = document.createElement('style');
+    st.id = 'apex-unified-master-css';
+    st.innerHTML = `
+        :root { --user-wallpaper: url('${DEFAULT_WALLPAPER}'); --user-bg-dim: 0.78; }
         body {
             background-color: #080b14 !important;
-            background-image: linear-gradient(180deg, rgba(8, 11, 22, var(--user-bg-dim)) 0%, rgba(10, 14, 26, calc(var(--user-bg-dim) + 0.08)) 100%), var(--user-wallpaper) !important;
-            background-size: cover !important;
-            background-position: center !important;
-            background-attachment: fixed !important;
+            background-image: linear-gradient(180deg, rgba(8,11,22,var(--user-bg-dim)) 0%, rgba(10,14,26,calc(var(--user-bg-dim) + 0.08)) 100%), var(--user-wallpaper) !important;
+            background-size: cover !important; background-position: center !important; background-attachment: fixed !important;
         }
-
-        .bento-top-search, #global-goal-search { display: none !important; }
+        .bento-top-search, #global-goal-search,
+        #view-dashboard > .kpi-card, #view-dashboard > .recommendation-strip,
+        #view-dashboard > .gamification-strip, #view-dashboard > #imperial-quests,
+        #view-dashboard > #legacy-stock-strip, #view-dashboard > .stock-strip { display: none !important; }
         @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
 
-        #view-dashboard > .kpi-card,
-        #view-dashboard > .recommendation-strip,
-        #view-dashboard > .gamification-strip,
-        #view-dashboard > #imperial-quests,
-        #view-dashboard > #legacy-stock-strip,
-        #view-dashboard > .stock-strip {
-            display: none !important;
-        }
-
-        /* TẦNG 1: HERO BANNER CHUẨN PHÔI ẢNH */
+        /* Hero Banner & Orbit */
         .phoi-hero-banner {
-            position: relative;
-            border-radius: 18px;
-            padding: 18px 24px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: 
-                linear-gradient(90deg, rgba(12, 16, 32, 0.88) 0%, rgba(18, 22, 44, 0.62) 55%, rgba(12, 16, 32, 0.78) 100%),
-                var(--user-wallpaper) center/cover no-repeat;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+            position: relative; border-radius: 18px; padding: 18px 24px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(90deg, rgba(12,16,32,0.88) 0%, rgba(18,22,44,0.62) 55%, rgba(12,16,32,0.78) 100%), var(--user-wallpaper) center/cover no-repeat;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.45);
         }
         .phoi-hero-left { z-index: 2; flex: 1; max-width: 62%; }
         .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .phoi-pill-cmd {
-            background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #e2e8f0; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem;
-            font-weight: 800; letter-spacing: 0.8px; display: inline-flex; align-items: center; gap: 5px;
-        }
-        .phoi-pill-live {
-            background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #34d399; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800;
-        }
-        .phoi-hero-left h1 {
-            font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;
-            letter-spacing: -0.4px; text-shadow: 0 2px 12px rgba(0,0,0,0.5);
-        }
-        .phoi-hero-left p {
-            font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0;
-        }
-        .phoi-hero-mini-bar {
-            display: inline-flex; align-items: center; gap: 22px; flex-wrap: wrap;
-            background: rgba(13, 18, 34, 0.78); border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px); padding: 9px 18px; border-radius: 12px;
-        }
+        .phoi-pill-cmd { background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
+        .phoi-pill-live { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
+        .phoi-hero-left h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; }
+        .phoi-hero-left p { font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0; }
+        .phoi-hero-mini-bar { display: inline-flex; align-items: center; gap: 22px; flex-wrap: wrap; background: rgba(13,18,34,0.78); border: 1px solid rgba(255,255,255,0.1); padding: 9px 18px; border-radius: 12px; }
         .phoi-mini-item { display: flex; align-items: center; gap: 9px; }
-        .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; line-height: 1.1; }
+        .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; }
         .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; }
 
-        /* Cụm Orbit Vòng Tròn Chữ A (Đã vá lỗi dính chữ & căn đều 3 đỉnh) */
-        .phoi-orbit-box {
-            position: relative; width: 270px; height: 188px;
-            display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0;
-        }
-        .phoi-orbit-ring1 {
-            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
-            width: 116px; height: 116px; border-radius: 50%; border: 1px dashed rgba(168, 85, 247, 0.45);
-        }
-        .phoi-orbit-ring2 {
-            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
-            width: 182px; height: 182px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .phoi-orbit-core {
-            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
-            width: 50px; height: 50px; border-radius: 50%;
-            background: radial-gradient(circle, #7c3aed 0%, #311068 100%);
-            border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; font-weight: 900; color: #fff;
-            box-shadow: 0 0 25px rgba(168, 85, 247, 0.75); z-index: 3;
-        }
-        .phoi-sat {
-            position: absolute; display: flex; flex-direction: column; align-items: center;
-            z-index: 4; text-align: center; min-width: 72px;
-        }
-        .phoi-orbit-box .phoi-sat:nth-of-type(4) { top: 2px !important; left: 50% !important; transform: translateX(-50%) !important; }
-        .phoi-orbit-box .phoi-sat:nth-of-type(5) { bottom: 4px !important; left: 8px !important; }
-        .phoi-orbit-box .phoi-sat:nth-of-type(6) { bottom: 4px !important; right: 8px !important; }
+        .phoi-orbit-box { position: relative; width: 270px; height: 188px; display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0; }
+        .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 116px; height: 116px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.45); }
+        .phoi-orbit-ring2 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 182px; height: 182px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); }
+        .phoi-orbit-core { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle, #7c3aed 0%, #311068 100%); border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; color: #fff; box-shadow: 0 0 25px rgba(168,85,247,0.75); z-index: 3; }
+        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; min-width: 72px; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(4) { top: 2px; left: 50%; transform: translateX(-50%); }
+        .phoi-orbit-box .phoi-sat:nth-of-type(5) { bottom: 4px; left: 8px; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(6) { bottom: 4px; right: 8px; }
+        .phoi-sat-circle { width: 32px; height: 32px; border-radius: 50%; background: rgba(13,18,34,0.95); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; margin-bottom: 3px; }
+        .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; }
+        .phoi-sat span { font-size: 0.62rem; color: #cbd5e1; }
 
-        .phoi-sat-circle {
-            width: 32px; height: 32px; border-radius: 50%; background: rgba(13, 18, 34, 0.95);
-            display: flex; align-items: center; justify-content: center; font-size: 0.78rem;
-            margin-bottom: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.45);
-        }
-        .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; font-weight: 800; }
-        .phoi-sat span { font-size: 0.62rem; color: #cbd5e1; line-height: 1.15; margin-top: 1px; }
+        /* Dashboard Bento Grids */
+        .phoi-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+        .phoi-stat-card { border-radius: 15px; padding: 13px 15px; backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.09); display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+        .phoi-stat-card.s-purple { background: linear-gradient(135deg, rgba(88,28,135,0.45), rgba(17,22,38,0.85)); border-color: rgba(168,85,247,0.3); }
+        .phoi-stat-card.s-cyan   { background: linear-gradient(135deg, rgba(12,74,110,0.48), rgba(17,22,38,0.85)); border-color: rgba(56,189,248,0.3); }
+        .phoi-stat-card.s-amber  { background: linear-gradient(135deg, rgba(120,53,15,0.48), rgba(17,22,38,0.85)); border-color: rgba(245,158,11,0.3); }
+        .phoi-stat-card.s-rose   { background: linear-gradient(135deg, rgba(136,19,55,0.48), rgba(17,22,38,0.85)); border-color: rgba(244,63,94,0.3); }
+        .phoi-orb { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
 
-        /* TẦNG 2: 4 THẺ CHỈ SỐ NHANH MÀU SẮC */
-        .phoi-stat-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px;
-        }
-        .phoi-stat-card {
-            border-radius: 15px; padding: 13px 15px;
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
-            display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
-        }
-        .phoi-stat-card.s-purple { background: linear-gradient(135deg, rgba(88, 28, 135, 0.45), rgba(17, 22, 38, 0.85)); border-color: rgba(168, 85, 247, 0.3); }
-        .phoi-stat-card.s-cyan   { background: linear-gradient(135deg, rgba(12, 74, 110, 0.48), rgba(17, 22, 38, 0.85)); border-color: rgba(56, 189, 248, 0.3); }
-        .phoi-stat-card.s-amber  { background: linear-gradient(135deg, rgba(120, 53, 15, 0.48), rgba(17, 22, 38, 0.85)); border-color: rgba(245, 158, 11, 0.3); }
-        .phoi-stat-card.s-rose   { background: linear-gradient(135deg, rgba(136, 19, 55, 0.48), rgba(17, 22, 38, 0.85)); border-color: rgba(244, 63, 94, 0.3); }
-
-        .phoi-orb {
-            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; font-size: 1rem;
-        }
-
-        /* TẦNG 3 (3 CỘT) & TẦNG 4 (2 CỘT) */
         .phoi-row-3col { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .phoi-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-
-        .phoi-card, .clean-card, .goal-card, .countdown-card {
-            background: rgba(17, 22, 38, 0.78) !important;
-            backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 16px !important; padding: 14px 16px !important;
-            box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35) !important;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
+        .phoi-card { background: rgba(17,22,38,0.78) !important; backdrop-filter: blur(16px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 16px !important; padding: 14px 16px !important; display: flex; flex-direction: column; justify-content: space-between; }
         .phoi-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .phoi-card-title { font-size: 0.75rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
-        .phoi-link { font-size: 0.72rem; color: #94a3b8; font-weight: 600; cursor: pointer; }
-        .phoi-link:hover { color: #fff; text-decoration: underline; }
+        .phoi-link { font-size: 0.72rem; color: #a855f7; font-weight: 600; cursor: pointer; }
 
         .phoi-heat-container { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-        .phoi-heat-labels {
-            display: grid; grid-template-rows: repeat(7, 13px); gap: 4px;
-            font-size: 0.6rem; color: #64748b; font-weight: 700; line-height: 13px;
-        }
-        .phoi-heat-matrix {
-            display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(7, 13px);
-            gap: 4px; flex: 1;
-        }
+        .phoi-heat-labels { display: grid; grid-template-rows: repeat(7, 13px); gap: 4px; font-size: 0.6rem; color: #64748b; font-weight: 700; line-height: 13px; }
+        .phoi-heat-matrix { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(7, 13px); gap: 4px; flex: 1; }
         .phoi-heat-cell { height: 13px; border-radius: 3px; background: rgba(255,255,255,0.05); }
 
-        @media (max-width: 1150px) {
-            .phoi-stat-grid { grid-template-columns: repeat(2, 1fr); }
-            .phoi-row-3col, .phoi-row-2col { grid-template-columns: 1fr; }
-            .phoi-orbit-box { display: none; }
-            .phoi-hero-left { max-width: 100%; }
+        /* Compact Goal Cards */
+        #dashboard-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important; gap: 12px !important; }
+        #dashboard-grid .goal-card {
+            background: rgba(17,22,38,0.78) !important; backdrop-filter: blur(16px) !important; border: 1px solid rgba(255,255,255,0.08) !important;
+            display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important;
+            gap: 14px !important; padding: 14px 16px !important; border-radius: 14px !important; height: auto !important;
         }
+        #dashboard-grid .goal-card .progress-circle { width: 54px !important; height: 54px !important; flex-shrink: 0 !important; }
+        #dashboard-grid .goal-card .goal-meta { flex: 1 !important; min-width: 0 !important; text-align: left !important; }
+        #dashboard-grid .goal-card .goal-meta h3 { font-size: 0.92rem !important; font-weight: 800 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 
-        #focus-room {
-            background-image: var(--user-wallpaper) !important;
-            background-size: cover !important; background-position: center !important;
-            flex-direction: column !important; justify-content: space-between !important; padding: 16px 28px !important;
-        }
-        #focus-overlay {
-            background: radial-gradient(circle at 45% 45%, rgba(15, 18, 38, 0.55) 0%, rgba(8, 10, 22, 0.88) 100%) !important;
-            backdrop-filter: blur(5px) !important;
-        }
-        .focus-pill-btn {
-            background: rgba(19, 24, 42, 0.78); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #e2e8f0; padding: 7px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
-        }
-        .neon-timer-ring-wrapper { position: relative !important; width: 250px !important; height: 250px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 6px auto !important; }
-        .neon-timer-ring-wrapper svg { width: 250px !important; height: 250px !important; }
-        .neon-timer-center { position: absolute !important; inset: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 5 !important; pointer-events: none !important; }
-        #focus-room #session-timer { font-size: 3.5rem !important; font-weight: 900 !important; color: #fff !important; line-height: 1 !important; margin: 0 !important; }
+        /* Focus Room 3 Cột Đối Xứng */
+        #focus-room { background-image: var(--user-wallpaper) !important; background-size: cover !important; background-position: center !important; padding: 16px 28px !important; flex-direction: column !important; justify-content: space-between !important; }
+        #focus-overlay { background: radial-gradient(circle at 50% 42%, rgba(18,20,46,0.48) 0%, rgba(10,12,28,0.78) 65%, rgba(6,8,18,0.92) 100%) !important; backdrop-filter: blur(4px) !important; }
+        #focus-room .focus-nav, #focus-room .focus-studio-layout { display: none !important; }
+
+        .ft-wrapper { position: relative; z-index: 5; width: 100%; max-width: 1080px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+        .ft-topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; }
+        .ft-topbar > button:first-child { justify-self: start; width: fit-content; }
+        .ft-center-header { justify-self: center; text-align: center; }
+        .ft-topbar > div:last-child { justify-self: end; display: flex; align-items: center; gap: 8px; }
+        .ft-glass-btn { background: rgba(17,22,40,0.72); border: 1px solid rgba(255,255,255,0.14); color: #f1f5f9; padding: 8px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(12px); }
+        .ft-room-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+        .ft-goal-title { font-size: 1.7rem; font-weight: 800; color: #fff; display: inline-flex; align-items: center; gap: 8px; }
+        .ft-goal-sub { font-size: 0.8rem; color: #cbd5e1; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+        .ft-mode-bar { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
+        .ft-mode-pill { background: rgba(16,20,38,0.75); border: 1px solid rgba(255,255,255,0.12); border-radius: 100px; padding: 7px 22px; color: #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 10px; text-align: left; }
+        .ft-mode-pill strong { display: block; font-size: 0.78rem; color: #fff; }
+        .ft-mode-pill span { display: block; font-size: 0.65rem; color: #94a3b8; }
+        .ft-mode-pill.active { background: linear-gradient(135deg, rgba(139,92,246,0.55), rgba(99,102,241,0.45)); border-color: #c084fc; box-shadow: 0 0 22px rgba(139,92,246,0.45); }
+
+        .ft-main-grid { display: grid; grid-template-columns: 310px 320px 310px; justify-content: center; align-items: stretch; gap: 24px; width: 100%; margin: 4px auto; }
+        .ft-card { background: linear-gradient(160deg, rgba(19,24,44,0.78), rgba(12,16,32,0.86)); border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 16px 18px; backdrop-filter: blur(20px); min-height: 290px; display: flex; flex-direction: column; justify-content: space-between; }
+        .ft-card-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; margin-bottom: 12px; }
+        .ft-center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ft-ring-box { position: relative; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(30,27,75,0.45) 0%, rgba(15,20,38,0.75) 75%); box-shadow: 0 0 50px rgba(139,92,246,0.35); display: flex; align-items: center; justify-content: center; }
+        .ft-time-big { font-size: 3.6rem; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
+        .ft-time-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-top: 8px; }
+        .ft-start-btn { margin-top: 16px; background: linear-gradient(90deg, #a855f7, #6366f1); color: #fff; border: none; padding: 11px 42px; border-radius: 100px; font-size: 0.9rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 28px rgba(139,92,246,0.55); }
+
+        .ft-bottom-dock { background: linear-gradient(160deg, rgba(17,22,40,0.82), rgba(11,14,28,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 12px 18px; width: 100%; max-width: 988px; margin: 0 auto; backdrop-filter: blur(20px); }
+        .ft-amb-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        .f-amb-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .f-amb-card.active { background: rgba(139,92,246,0.22); border-color: #a855f7; }
+        .f-amb-card strong { display: block; font-size: 0.75rem; color: #fff; }
+        .f-amb-card span { display: block; font-size: 0.63rem; color: #94a3b8; }
 
         .hex-icon { width: 48px; height: 54px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; flex-shrink: 0; }
         .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .demo-tab-pill { background: #131826; border: 1px solid rgba(255,255,255,0.07); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
-        .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; border-color: transparent; }
+        .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; }
+
+        /* Mobile Responsive */
+        @media (max-width: 1080px) {
+            .phoi-stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .phoi-row-3col, .phoi-row-2col, .ft-main-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }
+            .phoi-orbit-box { display: none; }
+            .phoi-hero-left { max-width: 100%; }
+            .ft-center-col { order: -1; margin: 8px 0; }
+        }
+        @media (max-width: 768px) {
+            .main-content { padding: 0 12px 28px 12px !important; overflow-x: hidden !important; }
+            .top-quote-text { display: none !important; }
+            .phoi-hero-mini-bar { width: 100%; justify-content: space-between; gap: 10px; padding: 8px 12px; }
+            #dashboard-grid { grid-template-columns: 1fr !important; }
+            #focus-room { padding: 12px 14px 28px 14px !important; overflow-y: auto !important; justify-content: flex-start !important; }
+            .ft-wrapper { height: auto !important; }
+            .ft-topbar { display: flex !important; flex-wrap: wrap !important; justify-content: space-between !important; gap: 8px !important; }
+            .ft-center-header { order: 3; width: 100%; }
+            .ft-mode-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; }
+            .ft-mode-pill { padding: 6px 8px; justify-content: center; }
+            .ft-amb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .ft-amb-grid .f-amb-card:last-child { grid-column: 1 / -1; }
+        }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(st);
 }
 
-function toggleBentoTodo(id) {
-    var item = bentoTodoList.find(function(t) { return t.id === id; });
-    if (item) {
-        item.done = !item.done;
-        saveBentoTodos();
-        renderBentoCommandCenter();
-        renderFocusStudioRightPanel();
-    }
-}
-
-function addBentoTodoPrompt() {
-    var text = prompt("Nhập nhiệm vụ cần hoàn thành hôm nay:");
-    if (!text || !text.trim()) return;
-    bentoTodoList.push({ id: Date.now(), text: text.trim(), done: false });
-    saveBentoTodos();
-    renderBentoCommandCenter();
-    renderFocusStudioRightPanel();
-}
-
-function deleteBentoTodo(e, id) {
-    e.stopPropagation();
-    bentoTodoList = bentoTodoList.filter(function(t) { return t.id !== id; });
-    saveBentoTodos();
-    renderBentoCommandCenter();
-    renderFocusStudioRightPanel();
-}
-
-// =====================================================================
-// 4. DỰNG BẢNG ĐIỀU KHIỂN KHỚP 100% PHÔI 4 TẦNG TRONG ẢNH
-// =====================================================================
+// --- 4. RENDER DASHBOARD 4 TẦNG ---
 function renderBentoCommandCenter() {
     try {
-        injectPhoiLayoutCSS();
-        var dash = document.getElementById('view-dashboard');
-        if (!dash) return;
-
+        injectUnifiedApexCSS();
+        var dash = document.getElementById('view-dashboard'); if (!dash) return;
         var container = document.getElementById('bento-command-center');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'bento-command-center';
-            dash.insertBefore(container, dash.firstChild);
-        }
+        if (!container) { container = document.createElement('div'); container.id = 'bento-command-center'; dash.insertBefore(container, dash.firstChild); }
 
-        // Thêm nút "🖼️ Ảnh nền" lên thanh Header nếu chưa có
         var headerActions = document.querySelector('.header-actions');
         if (headerActions && !document.getElementById('btn-open-wallpaper')) {
-            var wpBtn = document.createElement('button');
-            wpBtn.id = 'btn-open-wallpaper';
-            wpBtn.className = 'btn-ghost-action';
-            wpBtn.onclick = openWallpaperPickerModal;
-            wpBtn.innerHTML = '<i class="fa-regular fa-image" style="color:#a855f7;"></i> Ảnh nền';
+            var wpBtn = document.createElement('button'); wpBtn.id = 'btn-open-wallpaper'; wpBtn.className = 'btn-ghost-action';
+            wpBtn.onclick = openWallpaperPickerModal; wpBtn.innerHTML = '<i class="fa-regular fa-image" style="color:#a855f7;"></i> Ảnh nền';
             headerActions.insertBefore(wpBtn, headerActions.firstChild);
         }
 
-        var now = new Date();
-        var hr = now.getHours();
+        var now = new Date(), hr = now.getHours();
         var greeting = hr < 12 ? "Chào buổi sáng" : (hr < 18 ? "Chào buổi chiều" : "Chào buổi tối");
         var userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.displayName) ? currentUser.displayName : "Phước Thịnh";
+        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 1.0 };
+        var todayDone = qInfo.doneHrs || 0, dailyGoal = Math.max(qInfo.requiredHrs || 1.0, 0.25);
+        var pctToday = Math.min(100, Math.round((todayDone / dailyGoal) * 100));
 
-        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function')
-            ? getTodayDispatchQuotaInfo()
-            : { doneHrs: 0, requiredHrs: 1.0, busyShiftsCount: 0 };
-        var todayDoneHrs = qInfo.doneHrs || 0;
-        var dailyGoalHrs = Math.max(qInfo.requiredHrs || 1.0, 0.25);
-        var pctToday = Math.min(100, Math.round((todayDoneHrs / dailyGoalHrs) * 100));
-
-        var totalAllTimeHrs = 0;
-        if (typeof dailyLogs !== 'undefined') {
-            totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
-        }
+        var totalAllTimeHrs = (typeof dailyLogs !== 'undefined') ? Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0) : 0;
         var level = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
         var levelPct = Math.min(100, Math.round(((totalAllTimeHrs % 10) / 10) * 100));
-        var totalXP = Math.round(totalAllTimeHrs * 100);
-        var todayXP = Math.round(todayDoneHrs * 100);
-        var todayPomodoros = Math.round((todayDoneHrs * 60) / 25);
-        var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
-
+        var totalXP = Math.round(totalAllTimeHrs * 100), todayXP = Math.round(todayDone * 100);
+        var todayPomodoros = Math.round((todayDone * 60) / 25), streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
         var doneCount = bentoTodoList.filter(function(t) { return t.done; }).length;
-        var totalTodos = Math.max(1, bentoTodoList.length);
-        var todoPct = Math.round((doneCount / totalTodos) * 100);
+        var todoPct = Math.round((doneCount / Math.max(1, bentoTodoList.length)) * 100);
 
-        // TẦNG 3 - CỘT 1: Ma trận Lịch sử học tập (7 hàng x 12 cột = 84 ngày)
         var heatCellsHtml = '';
         for (var i = 83; i >= 0; i--) {
-            var d = new Date();
-            d.setDate(d.getDate() - i);
+            var d = new Date(); d.setDate(d.getDate() - i);
             var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             var val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? dailyLogs[dStr] : 0;
-            var bg = 'rgba(255,255,255,0.05)';
-            if (val >= 2.0) bg = '#10b981';
-            else if (val >= 1.0) bg = 'rgba(16,185,129,0.72)';
-            else if (val > 0) bg = 'rgba(16,185,129,0.35)';
+            var bg = val >= 2 ? '#10b981' : (val >= 1 ? 'rgba(16,185,129,0.7)' : (val > 0 ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.05)'));
             heatCellsHtml += `<div class="phoi-heat-cell" style="background:${bg};" title="${dStr}: ${val.toFixed(1)}h"></div>`;
         }
 
-        // TẦNG 3 - CỘT 2: Mục tiêu hiện tại (3 mục tiêu kèm Icon tròn màu sắc)
         var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current > 0; }).slice(0, 3) : [];
-        var gIcons = [
-            { icon: 'fa-book-open', color: '#a855f7', bg: 'rgba(168,85,247,0.2)' },
-            { icon: 'fa-bullseye',  color: '#f43f5e', bg: 'rgba(244,63,94,0.2)' },
-            { icon: 'fa-book',      color: '#10b981', bg: 'rgba(16,185,129,0.2)' }
-        ];
-        var currentGoalsHtml = activeGoals.length === 0
-            ? '<div style="padding:20px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>'
-            : activeGoals.map(function(g, idx) {
-                var st = gIcons[idx % gIcons.length];
-                var doneG = Math.max(0, (g.target || 1) - g.current);
-                var pctG = Math.min(100, Math.round((doneG / (g.target || 1)) * 100));
-                return `
-                    <div onclick="openGoal(${g.id})" style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
-                        <div style="width:34px; height:34px; border-radius:50%; background:${st.bg}; color:${st.color}; border:1px solid ${st.color}55; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">
-                            <i class="fa-solid ${st.icon}"></i>
-                        </div>
-                        <div style="flex:1; min-width:0;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:5px;">
-                                <span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span>
-                                <span style="color:#94a3b8; font-size:0.74rem;">${pctG}%</span>
-                            </div>
-                            <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
-                                <div style="width:${pctG}%; height:100%; background:${st.color}; border-radius:100px;"></div>
-                            </div>
-                        </div>
-                    </div>`;
-            }).join('');
+        var gIcons = [{ icon: 'fa-book-open', color: '#a855f7' }, { icon: 'fa-bullseye', color: '#f43f5e' }, { icon: 'fa-book', color: '#10b981' }];
+        var currentGoalsHtml = activeGoals.map(function(g, idx) {
+            var st = gIcons[idx % 3], pctG = Math.min(100, Math.round((Math.max(0, (g.target || 1) - g.current) / (g.target || 1)) * 100));
+            return `<div onclick="openGoal(${g.id})" style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;"><div style="width:32px; height:32px; border-radius:50%; background:${st.color}22; color:${st.color}; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;"><i class="fa-solid ${st.icon}"></i></div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:700; margin-bottom:4px;"><span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span><span style="color:#94a3b8;">${pctG}%</span></div><div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;"><div style="width:${pctG}%; height:100%; background:${st.color};"></div></div></div></div>`;
+        }).join('') || '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>';
 
-        // TẦNG 3 - CỘT 3: Thị trường cổ phiếu
         var stockList = getUnifiedStockArray();
         var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
-            var isUp = st.change >= 0;
-            return `
-                <div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; align-items:center; padding:6px 4px; font-size:0.78rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
-                    <span style="font-weight:800; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-coins" style="color:#fbbf24; font-size:0.7rem;"></i> ${st.code}
-                    </span>
-                    <span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span>
-                    <span style="font-weight:700; color:${isUp ? '#10b981' : '#ef4444'}; font-size:0.74rem;">
-                        ${isUp ? '+' : ''}${st.change.toFixed(1)}%
-                    </span>
-                </div>`;
+            var up = st.change >= 0;
+            return `<div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; padding:6px 4px; font-size:0.78rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;"><span style="font-weight:800; color:#e2e8f0;"><i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i>${st.code}</span><span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span><span style="font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div>`;
         }).join('');
 
-        // TẦNG 4 - CỘT 1: Nhiệm vụ hôm nay
         var todoListHtml = bentoTodoList.map(function(t) {
-            return `
-                <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 6px; border-radius:8px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03);">
-                    <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-                        <div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">
-                            ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
-                        </div>
-                        <span style="font-size:0.8rem; color:${t.done ? '#94a3b8' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                            ${t.text}
-                        </span>
-                    </div>
-                    <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.7rem;">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>`;
+            return `<div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; padding:6px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03);"><div style="display:flex; align-items:center; gap:10px; overflow:hidden;"><div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done?'#10b981':'#64748b'}; background:${t.done?'#10b981':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">${t.done?'<i class="fa-solid fa-check"></i>':''}</div><span style="font-size:0.8rem; color:${t.done?'#94a3b8':'#f1f5f9'}; text-decoration:${t.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.text}</span></div><button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div>`;
         }).join('');
 
-        // TẦNG 4 - CỘT 2: Lịch trình sắp tới
-        var todayDow = now.getDay();
-        var todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : now.toISOString().split('T')[0];
-        var todaySchedules = [];
-        if (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) {
-            var shiftOrder = { sang: 1, chieu: 2, toi: 3 };
-            todaySchedules = timetableData.filter(function(item) {
-                var sDate = new Date(item.startDate); sDate.setHours(0, 0, 0, 0);
-                var eDate = new Date(item.endDate); eDate.setHours(23, 59, 59, 999);
-                var isPaused = item.pausedDates && item.pausedDates.includes(todayStr);
-                return !isPaused && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate;
-            }).sort(function(a, b) { return (shiftOrder[a.shift] || 9) - (shiftOrder[b.shift] || 9); });
-        }
-
-        var pillColors = [
-            { bg: 'rgba(99,102,241,0.22)', border: 'rgba(99,102,241,0.45)', text: '#a5b4fc' },
-            { bg: 'rgba(14,165,233,0.22)', border: 'rgba(14,165,233,0.45)', text: '#7dd3fc' },
-            { bg: 'rgba(244,63,94,0.22)',  border: 'rgba(244,63,94,0.45)',  text: '#fda4af' },
-            { bg: 'rgba(16,185,129,0.22)', border: 'rgba(16,185,129,0.45)', text: '#6ee7b7' }
-        ];
-        var scheduleRowsHtml = todaySchedules.length === 0
-            ? '<div style="padding:22px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay không có ca cố định trên Thời khóa biểu.</div>'
-            : todaySchedules.slice(0, 4).map(function(item, idx) {
-                var pc = pillColors[idx % pillColors.length];
-                var shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
-                var rightMeta = item.room || item.teacher || 'Theo TKB';
-                return `
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-                        <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-                            <span style="background:${pc.bg}; border:1px solid ${pc.border}; color:${pc.text}; padding:3px 9px; border-radius:7px; font-size:0.7rem; font-weight:800; flex-shrink:0;">
-                                ${shiftTime}
-                            </span>
-                            <span style="font-size:0.8rem; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                ${item.name}
-                            </span>
-                        </div>
-                        <span style="font-size:0.72rem; color:#94a3b8; flex-shrink:0;">${rightMeta}</span>
-                    </div>`;
-            }).join('');
+        var todayDow = now.getDay(), todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : now.toISOString().split('T')[0];
+        var todaySchedules = (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) ? timetableData.filter(function(item) {
+            var sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
+            var eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
+            return !(item.pausedDates && item.pausedDates.includes(todayStr)) && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate;
+        }) : [];
+        var scheduleRowsHtml = todaySchedules.slice(0, 4).map(function(item) {
+            var shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
+            return `<div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04);"><div style="display:flex; align-items:center; gap:10px; overflow:hidden;"><span style="background:rgba(99,102,241,0.22); border:1px solid rgba(99,102,241,0.45); color:#a5b4fc; padding:3px 9px; border-radius:7px; font-size:0.7rem; font-weight:800;">${shiftTime}</span><span style="font-size:0.8rem; font-weight:600; color:#f1f5f9;">${item.name}</span></div><span style="font-size:0.72rem; color:#94a3b8;">${item.room || ''}</span></div>`;
+        }).join('') || '<div style="padding:20px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>';
 
         container.innerHTML = `
-            <!-- TẦNG 1: HERO BANNER CHUẨN PHÔI -->
             <div class="phoi-hero-banner">
                 <div class="phoi-hero-left">
-                    <div class="phoi-badge-row">
-                        <span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span>
-                        <span class="phoi-pill-live">● LIVE</span>
-                    </div>
+                    <div class="phoi-badge-row"><span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span><span class="phoi-pill-live">● LIVE</span></div>
                     <h1>${greeting}, ${userName}! 👋</h1>
                     <p>"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
                     <div class="phoi-hero-mini-bar">
-                        <div class="phoi-mini-item">
-                            <span style="font-size:1.15rem;">🔥</span>
-                            <div>
-                                <strong>${streak} ngày</strong>
-                                <span>Chuỗi kỷ luật</span>
-                            </div>
-                        </div>
-                        <div class="phoi-mini-item">
-                            <span style="font-size:1.15rem;">📊</span>
-                            <div>
-                                <strong>${todayDoneHrs.toFixed(1)} giờ</strong>
-                                <span>Tập trung hôm nay</span>
-                            </div>
-                        </div>
-                        <div class="phoi-mini-item">
-                            <span style="font-size:1.15rem;">🚩</span>
-                            <div>
-                                <strong>${doneCount} / ${bentoTodoList.length}</strong>
-                                <span>Nhiệm vụ hoàn thành</span>
-                            </div>
-                        </div>
+                        <div class="phoi-mini-item"><span>🔥</span><div><strong>${streak} ngày</strong><span>Chuỗi kỷ luật</span></div></div>
+                        <div class="phoi-mini-item"><span>📊</span><div><strong>${todayDone.toFixed(1)} giờ</strong><span>Tập trung hôm nay</span></div></div>
+                        <div class="phoi-mini-item"><span>🚩</span><div><strong>${doneCount} / ${bentoTodoList.length}</strong><span>Nhiệm vụ hoàn thành</span></div></div>
                     </div>
                 </div>
-
                 <div class="phoi-orbit-box">
-                    <div class="phoi-orbit-ring1"></div>
-                    <div class="phoi-orbit-ring2"></div>
-                    <div class="phoi-orbit-core">A</div>
-
-                    <div class="phoi-sat" style="top: -4px; left: 50%; transform: translateX(-50%);">
-                        <div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div>
-                        <strong>Streak</strong>
-                        <span>${streak} ngày</span>
-                    </div>
-                    <div class="phoi-sat" style="bottom: 4px; left: 16px;">
-                        <div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-bullseye"></i></div>
-                        <strong>Focus</strong>
-                        <span>${todayDoneHrs.toFixed(1)} giờ</span>
-                    </div>
-                    <div class="phoi-sat" style="bottom: 4px; right: 16px;">
-                        <div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-chart-simple"></i></div>
-                        <strong>Growth</strong>
-                        <span>Lv. ${level}</span>
-                    </div>
+                    <div class="phoi-orbit-ring1"></div><div class="phoi-orbit-ring2"></div><div class="phoi-orbit-core">A</div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div><strong>Streak</strong><span>${streak} ngày</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-bullseye"></i></div><strong>Focus</strong><span>${todayDone.toFixed(1)} giờ</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-chart-simple"></i></div><strong>Growth</strong><span>Lv. ${level}</span></div>
                 </div>
             </div>
-
-            <!-- TẦNG 2: 4 THẺ CHỈ SỐ PHÁT SÁNG -->
             <div class="phoi-stat-grid">
-                <div class="phoi-stat-card s-purple">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="phoi-orb" style="background:rgba(168,85,247,0.2); border:1.5px solid #a855f7; color:#d8b4fe;">
-                            <i class="fa-regular fa-clock"></i>
-                        </div>
-                        <div>
-                            <div style="font-size:0.7rem; color:#cbd5e1;">Thời gian học hôm nay</div>
-                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayDoneHrs.toFixed(1)} giờ</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
-                            <div style="width:${pctToday}%; height:100%; background:linear-gradient(90deg, #8b5cf6, #c084fc);"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#94a3b8;">
-                            <span>Mục tiêu: ${dailyGoalHrs} giờ</span>
-                            <span>${pctToday}%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="phoi-stat-card s-cyan">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="phoi-orb" style="background:rgba(14,165,233,0.2); border:1.5px solid #38bdf8; color:#7dd3fc;">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                        <div>
-                            <div style="font-size:0.7rem; color:#cbd5e1;">Nhiệm vụ hoàn thành</div>
-                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">${doneCount} / ${bentoTodoList.length}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
-                            <div style="width:${todoPct}%; height:100%; background:linear-gradient(90deg, #0284c7, #38bdf8);"></div>
-                        </div>
-                        <div style="font-size:0.66rem; color:#38bdf8;">Hiệu suất: ${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</div>
-                    </div>
-                </div>
-
-                <div class="phoi-stat-card s-amber" onclick="if(typeof openAcademicShop==='function') openAcademicShop();" style="cursor:pointer;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="phoi-orb" style="background:rgba(245,158,11,0.2); border:1.5px solid #fbbf24; color:#fde68a;">
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                        <div>
-                            <div style="font-size:0.7rem; color:#cbd5e1;">XP nhận được</div>
-                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">+${todayXP} XP</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
-                            <div style="width:${levelPct}%; height:100%; background:linear-gradient(90deg, #d97706, #fbbf24);"></div>
-                        </div>
-                        <div style="font-size:0.66rem; color:#fbbf24;">Tổng: ${totalXP.toLocaleString()} XP</div>
-                    </div>
-                </div>
-
-                <div class="phoi-stat-card s-rose">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="phoi-orb" style="background:rgba(244,63,94,0.2); border:1.5px solid #fb7185; color:#fda4af;">
-                            <i class="fa-solid fa-apple-whole"></i>
-                        </div>
-                        <div>
-                            <div style="font-size:0.7rem; color:#cbd5e1;">Số phiên Pomodoro</div>
-                            <div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayPomodoros} phiên</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;">
-                            <div style="width:${Math.min(100, Math.max(20, todayPomodoros * 25))}%; height:100%; background:linear-gradient(90deg, #e11d48, #fb7185);"></div>
-                        </div>
-                        <div style="font-size:0.66rem; color:#fda4af;">Đánh giá: ★ ${(typeof getAverageStarRating==='function'?getAverageStarRating():5).toFixed(2)}</div>
-                    </div>
-                </div>
+                <div class="phoi-stat-card s-purple"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(168,85,247,0.2); border:1.5px solid #a855f7; color:#d8b4fe;"><i class="fa-regular fa-clock"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Thời gian học hôm nay</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayDone.toFixed(1)} giờ</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${pctToday}%; height:100%; background:#a855f7;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#94a3b8;"><span>Mục tiêu: ${dailyGoal}h</span><span>${pctToday}%</span></div></div></div>
+                <div class="phoi-stat-card s-cyan"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(14,165,233,0.2); border:1.5px solid #38bdf8; color:#7dd3fc;"><i class="fa-solid fa-check"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Nhiệm vụ hoàn thành</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${doneCount} / ${bentoTodoList.length}</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${todoPct}%; height:100%; background:#38bdf8;"></div></div><div style="font-size:0.66rem; color:#38bdf8;">Hiệu suất: ${typeof dispatchRate!=='undefined'?dispatchRate:100}%</div></div></div>
+                <div class="phoi-stat-card s-amber" onclick="if(typeof openAcademicShop==='function') openAcademicShop();" style="cursor:pointer;"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(245,158,11,0.2); border:1.5px solid #fbbf24; color:#fde68a;"><i class="fa-solid fa-star"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">XP nhận được</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">+${todayXP} XP</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${levelPct}%; height:100%; background:#fbbf24;"></div></div><div style="font-size:0.66rem; color:#fbbf24;">Tổng: ${totalXP.toLocaleString()} XP</div></div></div>
+                <div class="phoi-stat-card s-rose"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(244,63,94,0.2); border:1.5px solid #fb7185; color:#fda4af;"><i class="fa-solid fa-apple-whole"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Số phiên Pomodoro</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayPomodoros} phiên</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${Math.min(100, Math.max(20, todayPomodoros * 25))}%; height:100%; background:#fb7185;"></div></div><div style="font-size:0.66rem; color:#fda4af;">Chuỗi: ${streak} ngày</div></div></div>
             </div>
-
-            <!-- TẦNG 3: LỊCH SỬ HỌC TẬP | MỤC TIÊU HIỆN TẠI | THỊ TRƯỜNG CỔ PHIẾU -->
             <div class="phoi-row-3col">
-                <div class="phoi-card">
-                    <div class="phoi-card-head">
-                        <span class="phoi-card-title">Lịch sử học tập</span>
-                        <span style="font-size:0.68rem; color:#94a3b8;">30 ngày qua ⌄</span>
-                    </div>
-                    <div class="phoi-heat-container">
-                        <div class="phoi-heat-labels">
-                            <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
-                        </div>
-                        <div class="phoi-heat-matrix">${heatCellsHtml}</div>
-                    </div>
-                    <div style="display:flex; justify-content:flex-end; align-items:center; gap:4px; font-size:0.64rem; color:#94a3b8; margin-top:6px;">
-                        Ít hơn
-                        <i style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.1);display:inline-block;"></i>
-                        <i style="width:8px;height:8px;border-radius:50%;background:rgba(16,185,129,0.35);display:inline-block;"></i>
-                        <i style="width:8px;height:8px;border-radius:50%;background:rgba(16,185,129,0.7);display:inline-block;"></i>
-                        <i style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></i>
-                        Nhiều hơn
-                    </div>
-                </div>
-
-                <div class="phoi-card">
-                    <div>
-                        <div class="phoi-card-head">
-                            <span class="phoi-card-title">Mục tiêu hiện tại</span>
-                            <span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem tất cả →</span>
-                        </div>
-                        <div>${currentGoalsHtml}</div>
-                    </div>
-                </div>
-
-                <div class="phoi-card">
-                    <div>
-                        <div class="phoi-card-head">
-                            <span class="phoi-card-title">Thị trường cổ phiếu</span>
-                            <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.65rem; font-weight:800;">LIVE</span>
-                        </div>
-                        <svg viewBox="0 0 240 42" style="width:100%; height:36px; margin-bottom:4px;">
-                            <defs>
-                                <linearGradient id="phoiStockGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
-                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-                                </linearGradient>
-                            </defs>
-                            <path d="M0,32 Q30,20 65,26 T130,14 T190,18 T240,6 L240,42 L0,42 Z" fill="url(#phoiStockGrad)"/>
-                            <path d="M0,32 Q30,20 65,26 T130,14 T190,18 T240,6" fill="none" stroke="#10b981" stroke-width="2"/>
-                        </svg>
-                        <div>${stockRowsHtml}</div>
-                    </div>
-                    <div onclick="openFullStockMarketDrawer()" style="margin-top:6px; text-align:center; font-size:0.73rem; color:#10b981; font-weight:700; cursor:pointer;">
-                        Xem toàn bộ thị trường (${stockList.length} mã) →
-                    </div>
-                </div>
+                <div class="phoi-card"><div class="phoi-card-head"><span class="phoi-card-title">Lịch sử học tập</span><span style="font-size:0.68rem; color:#94a3b8;">84 ngày qua</span></div><div class="phoi-heat-container"><div class="phoi-heat-labels"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div><div class="phoi-heat-matrix">${heatCellsHtml}</div></div></div>
+                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Mục tiêu hiện tại</span><span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem tất cả →</span></div><div>${currentGoalsHtml}</div></div></div>
+                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Thị trường cổ phiếu</span><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.65rem; font-weight:800;">LIVE</span></div><svg viewBox="0 0 240 38" style="width:100%; height:32px; margin-bottom:4px;"><path d="M0,30 Q30,18 65,24 T130,12 T190,16 T240,5" fill="none" stroke="#10b981" stroke-width="2"/></svg><div>${stockRowsHtml}</div></div><div onclick="openFullStockMarketDrawer()" style="margin-top:6px; text-align:center; font-size:0.73rem; color:#10b981; font-weight:700; cursor:pointer;">Xem toàn bộ thị trường →</div></div>
             </div>
-
-            <!-- TẦNG 4: NHIỆM VỤ HÔM NAY (TRÁI) & LỊCH TRÌNH SẮP TỚI (PHẢI) -->
             <div class="phoi-row-2col">
-                <div class="phoi-card">
-                    <div>
-                        <div class="phoi-card-head">
-                            <span class="phoi-card-title">Nhiệm vụ hôm nay</span>
-                            <span style="font-size:0.72rem; color:#94a3b8;">${doneCount} / ${bentoTodoList.length} hoàn thành</span>
-                        </div>
-                        <div style="max-height:150px; overflow-y:auto;">${todoListHtml}</div>
-                    </div>
-                    <button onclick="addBentoTodoPrompt()" style="margin-top:8px; width:100%; padding:6px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#94a3b8; font-weight:600; font-size:0.74rem; cursor:pointer;">
-                        + Thêm nhiệm vụ
-                    </button>
-                </div>
-
-                <div class="phoi-card">
-                    <div>
-                        <div class="phoi-card-head">
-                            <span class="phoi-card-title">Lịch trình sắp tới</span>
-                            <span class="phoi-link" onclick="switchTab('timetable')">Xem tất cả →</span>
-                        </div>
-                        <div>${scheduleRowsHtml}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
+                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Nhiệm vụ hôm nay</span><span style="font-size:0.72rem; color:#94a3b8;">${doneCount}/${bentoTodoList.length} hoàn thành</span></div><div style="max-height:145px; overflow-y:auto;">${todoListHtml}</div></div><button onclick="addBentoTodoPrompt()" style="margin-top:8px; width:100%; padding:6px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#94a3b8; font-weight:600; font-size:0.74rem; cursor:pointer;">+ Thêm nhiệm vụ</button></div>
+                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Lịch trình sắp tới</span><span class="phoi-link" onclick="switchTab('timetable')">Xem tất cả →</span></div><div>${scheduleRowsHtml}</div></div></div>
+            </div>`;
         ensureMartialLawKpiCard();
-    } catch (err) {
-        console.error("Phoi Dashboard Error:", err);
-    }
-}
-
-// =====================================================================
-// 5. TRANG THÀNH TỰU, FOCUS ROOM & SIDEBAR CỐ ĐỊNH
-// =====================================================================
-var currentTrophyFilter = 'all';
-function filterTrophyCategory(cat) {
-    currentTrophyFilter = cat;
-    renderMasterTrophyAndArchive();
-}
-
-function renderMasterTrophyAndArchive() {
-    injectPhoiLayoutCSS();
-    var room = document.getElementById('trophy-room');
-    if (!room) return;
-
-    var totalAllTimeHrs = 0;
-    if (typeof dailyLogs !== 'undefined') {
-        totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
-    }
-    var completedGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current <= 0; }) : [];
-    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
-    var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
-
-    var allAchievements = [
-        { tier: 'rookie', name: "First Blood", desc: "Hoàn thành phiên học đầu tiên", icon: "fa-fire", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalAllTimeHrs > 0 },
-        { tier: 'rookie', name: "Apprentice", desc: "Tích lũy 10 giờ học tập thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10 },
-        { tier: 'pro', name: "Silver Streak", desc: "Duy trì chuỗi kỷ luật 14 ngày", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14 },
-        { tier: 'pro', name: "Iron Will", desc: "Duy trì chuỗi kỷ luật 30 ngày", icon: "fa-shield-halved", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30 },
-        { tier: 'elite', name: "Deep Worker", desc: "Vượt mốc 50 giờ tập trung sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: totalAllTimeHrs >= 50 },
-        { tier: 'elite', name: "Capitalist", desc: "Quỹ thưởng vượt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000 },
-        { tier: 'legend', name: "Tycoon", desc: "Sở hữu tài sản đạt $5,000 USD", icon: "fa-gem", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000 },
-        { tier: 'legend', name: "The Apex", desc: "Đạt 100 giờ học tập bất tử", icon: "fa-crown", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100 }
-    ];
-
-    var unlockedCount = allAchievements.filter(function(a) { return a.unlocked; }).length;
-    var pctUnlock = Math.round((unlockedCount / allAchievements.length) * 100);
-    var filteredList = allAchievements.filter(function(a) { return currentTrophyFilter === 'all' || a.tier === currentTrophyFilter; });
-
-    var achievementsHtml = filteredList.map(function(a) {
-        return `
-            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:14px; opacity:${a.unlocked ? '1' : '0.42'};">
-                <div class="hex-icon" style="background:${a.unlocked ? a.grad : '#1e293b'};"><i class="fa-solid ${a.icon}"></i></div>
-                <div style="flex:1;">
-                    <strong style="font-size:0.88rem; color:#fff;">${a.name}</strong>
-                    <div style="font-size:0.74rem; color:#8b95b0; margin-top:3px;">${a.desc}</div>
-                </div>
-            </div>`;
-    }).join('');
-
-    var archiveCardsHtml = completedGoals.map(function(g) {
-        var cleanHrs = Number(g.target || 0).toFixed(1).replace(/\.0$/, '');
-        var repCount = (g.reports && g.reports.length) ? g.reports.length : 0;
-        return `
-            <div class="phoi-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div class="hex-icon" style="width:42px; height:48px; font-size:1rem; background:linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-check-double"></i></div>
-                    <div style="flex:1; min-width:0;">
-                        <div style="font-weight:800; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
-                        <div style="font-size:0.68rem; color:#10b981; font-weight:700; margin-top:2px;">HOÀN THÀNH 100%</div>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05); font-size:0.73rem; color:#8b95b0;">
-                    <span>Quy mô: <strong style="color:#fff;">${cleanHrs} giờ</strong></span>
-                    <span>Báo cáo: <strong style="color:#fff;">${repCount} bản</strong></span>
-                </div>
-            </div>`;
-    }).join('');
-
-    room.innerHTML = `
-        <div class="phoi-card" style="margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                <div><strong style="font-size:1.3rem; color:#fff;">${unlockedCount} / ${allAchievements.length}</strong> <span style="font-size:0.8rem; color:#cbd5e1; margin-left:8px;">Thành tựu đã mở khóa</span></div>
-                <strong style="color:#60a5fa; font-size:0.9rem;">${pctUnlock}%</strong>
-            </div>
-            <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; margin-top:8px; overflow:hidden;">
-                <div style="width:${pctUnlock}%; height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6);"></div>
-            </div>
-        </div>
-        <div class="demo-filter-tabs">
-            <button class="demo-tab-pill ${currentTrophyFilter==='all'?'active':''}" onclick="filterTrophyCategory('all')">Tất cả</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='rookie'?'active':''}" onclick="filterTrophyCategory('rookie')">Tân binh</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='pro'?'active':''}" onclick="filterTrophyCategory('pro')">Chuyên nghiệp</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='elite'?'active':''}" onclick="filterTrophyCategory('elite')">Tinh anh</button>
-            <button class="demo-tab-pill ${currentTrophyFilter==='legend'?'active':''}" onclick="filterTrophyCategory('legend')">Huyền thoại</button>
-        </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:24px;">${achievementsHtml}</div>
-        <h3 style="font-size:0.86rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; margin-bottom:12px;">Kho lưu trữ mục tiêu đã hoàn thành (${completedGoals.length})</h3>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">${archiveCardsHtml}</div>
-    `;
-}
-window.renderTrophies = renderMasterTrophyAndArchive;
-window.renderTrophyRoom = renderMasterTrophyAndArchive;
-
-function renderFocusStudioRightPanel() {
-    try {
-        var todoBox = document.getElementById('focus-room-todo-list');
-        if (todoBox) {
-            todoBox.innerHTML = bentoTodoList.map(function(t) {
-                return `
-                    <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:7px; cursor:pointer; background:rgba(255,255,255,0.03);">
-                        <div style="width:15px; height:15px; border-radius:4px; border:1.5px solid ${t.done ? '#10b981' : '#64748b'}; background:${t.done ? '#10b981' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.6rem; flex-shrink:0;">
-                            ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
-                        </div>
-                        <span style="font-size:0.78rem; color:${t.done ? 'rgba(255,255,255,0.45)' : '#fff'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                            ${t.text}
-                        </span>
-                    </div>`;
-            }).join('');
-        }
     } catch (e) {}
 }
 
-// Duy trì đồng hồ, cố định thẻ User ở đáy Sidebar (Không nhảy) & Nút đổi ảnh nền
+// --- 5. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG (GIỮ NGUYÊN LOGIC GIỜ GỐC & THÊM NÚT BÁO CÁO) ---
+var selectedPendingMinutes = 25;
+var activeAmbientType = null, ambientCtx = null, ambientSource = null, ambientGain = null, ambientVolume = 0.7;
+
+window.selectFocusAmbient = function(type) {
+    if (activeAmbientType === type) {
+        if (ambientSource) { try { ambientSource.stop(); } catch(e){} ambientSource = null; }
+        activeAmbientType = null;
+    } else {
+        activeAmbientType = type;
+        if (ambientSource) { try { ambientSource.stop(); } catch(e){} }
+        try {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (!ambientCtx) ambientCtx = new AC();
+            if (ambientCtx.state === 'suspended') ambientCtx.resume();
+            var buf = ambientCtx.createBuffer(1, 2 * ambientCtx.sampleRate, ambientCtx.sampleRate), out = buf.getChannelData(0), last = 0;
+            for (var i = 0; i < buf.length; i++) { var w = Math.random() * 2 - 1; out[i] = (last + 0.02 * w) / 1.02; last = out[i]; out[i] *= 3.2; }
+            ambientSource = ambientCtx.createBufferSource(); ambientSource.buffer = buf; ambientSource.loop = true;
+            var flt = ambientCtx.createBiquadFilter(); flt.type = (type==='cafe'||type==='forest') ? 'bandpass' : 'lowpass';
+            flt.frequency.value = type==='rain' ? 800 : (type==='cafe' ? 450 : (type==='forest' ? 1100 : 350));
+            ambientGain = ambientCtx.createGain(); ambientGain.gain.value = ambientVolume * 0.25;
+            ambientSource.connect(flt); flt.connect(ambientGain); ambientGain.connect(ambientCtx.destination); ambientSource.start(0);
+        } catch(e){}
+    }
+    document.querySelectorAll('.f-amb-card').forEach(function(el) { el.classList.toggle('active', el.getAttribute('data-amb') === activeAmbientType); });
+};
+window.changeFocusAmbientVolume = function(v) { ambientVolume = Number(v)/100; var l = document.getElementById('focus-vol-label'); if(l) l.innerText = v+'%'; if(ambientGain) ambientGain.gain.value = ambientVolume * 0.25; };
+window.toggleFocusFullscreen = function() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function(){}); else document.exitFullscreen().catch(function(){}); };
+
+window.selectFocusModePill = function(mins) {
+    selectedPendingMinutes = mins;
+    document.querySelectorAll('.ft-mode-pill').forEach(function(b) { b.classList.remove('active'); });
+    var btn = document.getElementById('ft-mode-' + mins); if (btn) btn.classList.add('active');
+    var lbl = document.getElementById('ft-mode-label');
+    if (lbl) lbl.innerHTML = mins === 5 ? "🔥 Khởi động" : (mins === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
+    if (mins === 5 && typeof startIcebreaker === 'function') startIcebreaker();
+    else if (typeof startSession === 'function') startSession(mins);
+};
+window.triggerFocusMainStart = function() {
+    if (selectedPendingMinutes === 5 && typeof startIcebreaker === 'function') startIcebreaker();
+    else if (typeof startSession === 'function') startSession(selectedPendingMinutes || 25);
+};
+
+// Hàm kích hoạt Báo cáo Kết quả học tập (Tự động tìm đúng hàm chốt phiên trong script.js gốc)
+window.triggerFocusFinishAndReport = function() {
+    // 1. Nếu có nút hoàn thành/báo cáo động trong .timer-controls gốc thì bấm vào nó
+    var origControls = document.querySelector('#widget-timer .timer-controls');
+    if (origControls) {
+        var btns = origControls.querySelectorAll('button');
+        for (var i = 0; i < btns.length; i++) {
+            var b = btns[i];
+            var id = b.id || "";
+            var txt = (b.innerText || "").toLowerCase();
+            if (id !== 'btn-5' && id !== 'btn-15' && id !== 'btn-25' && id !== 'btn-pause' && id !== 'btn-cancel' && id !== 'btn-tick') {
+                if (b.style.display !== 'none') { b.click(); return; }
+            }
+            if (txt.includes('báo cáo') || txt.includes('hoàn thành') || txt.includes('chốt') || txt.includes('lưu') || txt.includes('xong')) {
+                b.click(); return;
+            }
+        }
+    }
+    // 2. Gọi trực tiếp các tên hàm kết thúc phiên phổ biến trong script.js của bệ hạ
+    if (typeof finishSession === 'function') { finishSession(); return; }
+    if (typeof completeSession === 'function') { completeSession(); return; }
+    if (typeof openReportModal === 'function') { openReportModal(); return; }
+    if (typeof showReportModal === 'function') { showReportModal(); return; }
+    if (typeof stopOvertimeAndReport === 'function') { stopOvertimeAndReport(); return; }
+    if (typeof endSession === 'function') { endSession(); return; }
+
+    // 3. Nếu khi đang cày lố (+00:04) mà nút #btn-cancel đã được script.js đổi thành nút Báo cáo
+    var cancelBtn = document.getElementById('btn-cancel');
+    var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "";
+    if (cancelBtn && (rawTimer.startsWith('+') || (cancelBtn.innerText || '').toLowerCase().includes('báo cáo'))) {
+        cancelBtn.click(); return;
+    }
+
+    // 4. Mở trực tiếp #report-modal và dừng bộ đếm
+    if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+    var repModal = document.getElementById('report-modal');
+    if (repModal) {
+        repModal.style.display = 'flex';
+        if (typeof updateWordCount === 'function') updateWordCount();
+    }
+};
+
+function ensureFocusTemplateDOM() {
+    var focusRoom = document.getElementById('focus-room');
+    if (!focusRoom || document.getElementById('ft-custom-wrapper')) return;
+    var w = document.createElement('div'); w.id = 'ft-custom-wrapper'; w.className = 'ft-wrapper';
+    w.innerHTML = `
+        <div>
+            <div class="ft-topbar">
+                <button class="ft-glass-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Quay lại mục tiêu</button>
+                <div class="ft-center-header">
+                    <div class="ft-room-tag">FOCUS ROOM</div>
+                    <div class="ft-goal-title"><span id="ft-goal-name-display">Mục tiêu</span> <i class="fa-solid fa-chevron-right" style="font-size:0.85rem; color:#64748b;"></i></div>
+                    <div class="ft-goal-sub"><i class="fa-solid fa-bullseye" style="color:#f43f5e;"></i> <span id="ft-goal-sub-display">0.0h còn lại</span></div>
+                </div>
+                <div>
+                    <button class="ft-glass-btn" onclick="openWallpaperPickerModal()"><i class="fa-regular fa-image" style="color:#a855f7;"></i> Đổi ảnh nền</button>
+                    <button class="ft-glass-btn" onclick="toggleTick()"><i class="fa-solid fa-music" style="color:#38bdf8;"></i> <span id="ft-tick-text">Âm tích tắc: TẮT</span></button>
+                    <button class="ft-glass-btn" onclick="toggleFocusFullscreen()" style="padding:8px 11px;"><i class="fa-solid fa-expand"></i></button>
+                </div>
+            </div>
+            <div class="ft-mode-bar">
+                <button class="ft-mode-pill" id="ft-mode-5" onclick="selectFocusModePill(5)"><span>🔥</span><div><strong>Khởi động</strong><span>(5 phút)</span></div></button>
+                <button class="ft-mode-pill" id="ft-mode-15" onclick="selectFocusModePill(15)"><span>⚡</span><div><strong>Ngắn</strong><span>(15 phút)</span></div></button>
+                <button class="ft-mode-pill active" id="ft-mode-25" onclick="selectFocusModePill(25)"><span>🍅</span><div><strong>Pomodoro</strong><span>(25 phút)</span></div></button>
+            </div>
+        </div>
+        <div class="ft-main-grid">
+            <div class="ft-card">
+                <div>
+                    <div class="ft-card-header"><span>📌 VIỆC CẦN LÀM <span id="ft-todo-counter"></span></span><button onclick="addBentoTodoPrompt()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:24px; height:24px; border-radius:6px; cursor:pointer;">+</button></div>
+                    <div id="ft-todo-list-container" style="display:flex; flex-direction:column; gap:6px; max-height:190px; overflow-y:auto;"></div>
+                </div>
+                <button onclick="addBentoTodoPrompt()" style="width:100%; padding:9px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e2e8f0; font-weight:700; font-size:0.78rem; cursor:pointer;">+ Thêm nhiệm vụ</button>
+            </div>
+            <div class="ft-center-col">
+                <div class="ft-ring-box">
+                    <svg width="240" height="240" viewBox="0 0 260 260" style="position:absolute; transform:rotate(-90deg);">
+                        <circle cx="130" cy="130" r="114" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
+                        <circle id="ft-svg-progress" cx="130" cy="130" r="114" stroke="#a855f7" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="716.3" stroke-dashoffset="0"/>
+                    </svg>
+                    <div style="position:relative; z-index:3; text-align:center;">
+                        <div class="ft-time-big" id="ft-time-display">25:00</div>
+                        <div class="ft-time-label" id="ft-mode-label">🍎 Pomodoro</div>
+                    </div>
+                </div>
+                <button class="ft-start-btn" id="ft-btn-start-main" onclick="triggerFocusMainStart()"><i class="fa-solid fa-play"></i> Bắt đầu</button>
+                <div id="ft-running-controls" style="display:none; gap:10px; margin-top:16px; flex-wrap:wrap; justify-content:center;">
+                    <button id="ft-btn-pause-mirror" onclick="togglePause()" style="background:#2563eb; color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-pause"></i> Tạm dừng
+                    </button>
+                    <button id="ft-btn-report-now" onclick="triggerFocusFinishAndReport()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:800; font-size:0.8rem; cursor:pointer; display:none; align-items:center; gap:6px; box-shadow:0 6px 20px rgba(16,185,129,0.45);">
+                        <i class="fa-solid fa-file-signature"></i> Hoàn thành & Báo cáo
+                    </button>
+                    <button id="ft-btn-cancel-mirror" onclick="cancelSession()" style="background:#e11d48; color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-xmark"></i> Hủy bỏ
+                    </button>
+                </div>
+            </div>
+            <div class="ft-card">
+                <div>
+                    <div class="ft-card-header"><span>🎯 TIẾN ĐỘ MỤC TIÊU</span><span onclick="backToDashboard()" style="font-size:0.72rem; color:#94a3b8; cursor:pointer; text-transform:none;">Chi tiết →</span></div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <div id="ft-right-goal-name" style="font-size:0.95rem; font-weight:800; color:#fff;">Mục tiêu</div>
+                        <div id="ft-right-goal-pct" style="font-size:1.45rem; font-weight:900; color:#fff;">0%</div>
+                    </div>
+                    <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px;"><div id="ft-right-goal-bar" style="width:0%; height:100%; background:#a855f7;"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:16px;"><span id="ft-right-goal-done">0.0h</span><span id="ft-right-goal-left">Còn 0.0h</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:#cbd5e1; margin-bottom:6px;"><span>Hôm nay</span><span id="ft-right-today-text">0.0h</span></div>
+                    <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden;"><div id="ft-right-today-bar" style="width:0%; height:100%; background:#10b981;"></div></div>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">
+                    <div><div>🔥</div><strong id="ft-stat-streak" style="font-size:0.85rem; color:#fff;">0 ngày</strong><div style="font-size:0.64rem; color:#94a3b8;">Chuỗi</div></div>
+                    <div><div>📊</div><strong id="ft-stat-total" style="font-size:0.85rem; color:#fff;">0.0h</strong><div style="font-size:0.64rem; color:#94a3b8;">Tổng giờ</div></div>
+                    <div><div>🏆</div><strong id="ft-stat-level" style="font-size:0.85rem; color:#fff;">Lv. 1</strong><div id="ft-stat-rank" style="font-size:0.64rem; color:#94a3b8;">Học Giả</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="ft-bottom-dock">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; font-weight:800; color:#e2e8f0;"><i class="fa-solid fa-music" style="color:#a855f7; margin-right:6px;"></i> ÂM THANH NỀN</span>
+                <div style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-volume-high" style="color:#94a3b8; font-size:0.8rem;"></i><input type="range" min="0" max="100" value="70" oninput="changeFocusAmbientVolume(this.value)" style="width:110px; accent-color:#a855f7;"><span id="focus-vol-label" style="font-size:0.72rem; color:#cbd5e1;">70%</span></div>
+            </div>
+            <div class="ft-amb-grid">
+                <div class="f-amb-card" data-amb="rain" onclick="selectFocusAmbient('rain')"><i class="fa-solid fa-cloud-showers-heavy" style="color:#60a5fa;"></i><div><strong>Rain</strong><span>Mưa rơi</span></div></div>
+                <div class="f-amb-card" data-amb="cafe" onclick="selectFocusAmbient('cafe')"><i class="fa-solid fa-mug-saucer" style="color:#fbbf24;"></i><div><strong>Cafe</strong><span>Quán cà phê</span></div></div>
+                <div class="f-amb-card" data-amb="forest" onclick="selectFocusAmbient('forest')"><i class="fa-solid fa-tree" style="color:#34d399;"></i><div><strong>Forest</strong><span>Rừng cây</span></div></div>
+                <div class="f-amb-card" data-amb="lofi" onclick="selectFocusAmbient('lofi')"><i class="fa-solid fa-headphones" style="color:#c084fc;"></i><div><strong>Lo-fi</strong><span>Nhạc lo-fi</span></div></div>
+                <div class="f-amb-card" data-amb="library" onclick="selectFocusAmbient('library')"><i class="fa-solid fa-book-open" style="color:#f472b6;"></i><div><strong>Library</strong><span>Thư viện</span></div></div>
+            </div>
+        </div>`;
+    focusRoom.appendChild(w);
+}
+
+// Đồng bộ tức thì (0ms delay) bằng MutationObserver mà KHÔNG ghi đè vào biến thời gian gốc
+function syncFocusClockInstant() {
+    var focusRoom = document.getElementById('focus-room');
+    if (!focusRoom || focusRoom.style.display === 'none') return;
+    ensureFocusTemplateDOM();
+
+    var rawEl = document.getElementById('session-timer');
+    var rawTimer = rawEl ? rawEl.innerText.trim() : "00:00";
+    var origPauseBtn = document.getElementById('btn-pause');
+    var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none') || (rawTimer !== "00:00");
+    var isOvertime = rawTimer.startsWith('+');
+
+    var ftDisp = document.getElementById('ft-time-display');
+    var ftStart = document.getElementById('ft-btn-start-main');
+    var ftCtrls = document.getElementById('ft-running-controls');
+    var ftRing = document.getElementById('ft-svg-progress');
+    var ftReportBtn = document.getElementById('ft-btn-report-now');
+    var ftPauseMirror = document.getElementById('ft-btn-pause-mirror');
+
+    if (isRunning && rawTimer !== "00:00") {
+        if (ftDisp && ftDisp.innerText !== rawTimer) ftDisp.innerText = rawTimer;
+        if (ftStart) ftStart.style.display = 'none';
+        if (ftCtrls) ftCtrls.style.display = 'inline-flex';
+
+        // Đồng bộ chữ trên nút Tạm dừng / Tiếp tục từ nút gốc
+        if (origPauseBtn && ftPauseMirror) {
+            ftPauseMirror.innerHTML = origPauseBtn.innerHTML;
+        }
+
+        // Khi đang cày lố (+00:04) hoặc có nút Báo cáo gốc -> Hiện nút "Hoàn thành & Báo cáo" màu xanh ngọc
+        if (ftReportBtn) {
+            ftReportBtn.style.display = isOvertime ? 'inline-flex' : 'none';
+        }
+
+        if (ftRing) {
+            if (isOvertime) {
+                ftRing.style.stroke = '#10b981';
+                ftRing.style.strokeDashoffset = '0';
+            } else if (rawTimer.includes(':')) {
+                ftRing.style.stroke = '#a855f7';
+                var p = rawTimer.split(':').map(Number), rSec = (p[0] * 60) + (p[1] || 0);
+                var tSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
+                ftRing.style.strokeDashoffset = (716.3 * (1 - Math.min(1, Math.max(0, rSec / tSec)))).toFixed(1);
+            }
+        }
+    } else {
+        if (ftDisp) ftDisp.innerText = String(selectedPendingMinutes).padStart(2, '0') + ":00";
+        if (ftStart) ftStart.style.display = 'inline-flex';
+        if (ftCtrls) ftCtrls.style.display = 'none';
+        if (ftRing) { ftRing.style.stroke = '#a855f7'; ftRing.style.strokeDashoffset = "0"; }
+    }
+}
+
+function syncFocusRoomData() {
+    var focusRoom = document.getElementById('focus-room');
+    if (!focusRoom || focusRoom.style.display === 'none') return;
+    ensureFocusTemplateDOM();
+
+    // 1. Việc cần làm bên trái
+    var todoBox = document.getElementById('ft-todo-list-container');
+    var todoCountEl = document.getElementById('ft-todo-counter');
+    if (todoBox) {
+        var doneC = bentoTodoList.filter(function(t) { return t.done; }).length;
+        if (todoCountEl) todoCountEl.innerText = "(" + doneC + "/" + bentoTodoList.length + ")";
+        todoBox.innerHTML = bentoTodoList.map(function(t) {
+            return `<div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.04);"><div style="display:flex; align-items:center; gap:10px; overflow:hidden;"><div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done?'#a855f7':'#64748b'}; background:${t.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">${t.done?'<i class="fa-solid fa-check"></i>':''}</div><span style="font-size:0.8rem; color:${t.done?'#64748b':'#f1f5f9'}; text-decoration:${t.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.text}</span></div><button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div>`;
+        }).join('');
+    }
+
+    // 2. Tiến độ mục tiêu bên phải
+    var activeGoal = null;
+    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+        if (typeof currentGoalId !== 'undefined' && currentGoalId !== null) {
+            activeGoal = goals.find(function(g) { return g.id === currentGoalId; });
+        }
+        if (!activeGoal) {
+            var infoTxt = document.getElementById('focus-target-info') ? document.getElementById('focus-target-info').innerText : "";
+            activeGoal = goals.find(function(g) { return infoTxt.includes(g.name); }) || goals[0];
+        }
+    }
+
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 1.0 };
+    var todayDone = qInfo.doneHrs || 0, todayReq = Math.max(qInfo.requiredHrs || 1.0, 0.5);
+    var todayPct = Math.min(100, Math.round((todayDone / todayReq) * 100));
+
+    if (activeGoal) {
+        var targetH = Number(activeGoal.target || 1), leftH = Math.max(0, Number(activeGoal.current || 0));
+        var doneH = Math.max(0, targetH - leftH), pctG = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+        var gNameTop = document.getElementById('ft-goal-name-display'), gSubTop = document.getElementById('ft-goal-sub-display');
+        var gNameRight = document.getElementById('ft-right-goal-name'), gPctRight = document.getElementById('ft-right-goal-pct');
+        var gBarRight = document.getElementById('ft-right-goal-bar'), gDoneRight = document.getElementById('ft-right-goal-done'), gLeftRight = document.getElementById('ft-right-goal-left');
+
+        if (gNameTop) gNameTop.innerText = activeGoal.name;
+        if (gSubTop) gSubTop.innerText = leftH.toFixed(2) + "h còn lại • Hôm nay đã " + todayDone.toFixed(1) + "h";
+        if (gNameRight) gNameRight.innerText = activeGoal.name;
+        if (gPctRight) gPctRight.innerText = pctG + "%";
+        if (gBarRight) gBarRight.style.width = pctG + "%";
+        if (gDoneRight) gDoneRight.innerText = doneH.toFixed(1) + "h / " + targetH.toFixed(1).replace(/\.0$/, '') + "h";
+        if (gLeftRight) gLeftRight.innerText = "Còn " + leftH.toFixed(2) + "h";
+    }
+
+    var todayTxtEl = document.getElementById('ft-right-today-text'), todayBarEl = document.getElementById('ft-right-today-bar');
+    if (todayTxtEl) todayTxtEl.innerText = todayDone.toFixed(1) + "h / " + todayReq.toFixed(1) + "h";
+    if (todayBarEl) todayBarEl.style.width = todayPct + "%";
+
+    var totalAllTimeHrs = (typeof dailyLogs !== 'undefined') ? Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0) : 0;
+    var lv = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
+    var rTitle = lv >= 25 ? "Đại Học Sĩ" : (lv >= 15 ? "Chuyên Gia" : (lv >= 10 ? "Học Giả" : (lv >= 5 ? "Tinh Anh" : "Tân Binh")));
+    var stStreak = document.getElementById('ft-stat-streak'), stTotal = document.getElementById('ft-stat-total'), stLv = document.getElementById('ft-stat-level'), stRank = document.getElementById('ft-stat-rank');
+    if (stStreak) stStreak.innerText = (typeof currentStreak !== 'undefined' ? currentStreak : 0) + " ngày";
+    if (stTotal) stTotal.innerText = totalAllTimeHrs.toFixed(1) + "h";
+    if (stLv) stLv.innerText = "Lv. " + lv;
+    if (stRank) stRank.innerText = rTitle;
+}
+
+// Gắn MutationObserver vào #session-timer để đồng bộ tức thì 0ms
+function attachTimerObserver() {
+    var target = document.getElementById('session-timer');
+    if (!target || target.dataset.observedV2 === 'true') return;
+    target.dataset.observedV2 = 'true';
+    new MutationObserver(syncFocusClockInstant).observe(target, { childList: true, characterData: true, subtree: true });
+}
+
+// --- 6. VÒNG LẶP ĐỒNG BỘ DUY NHẤT ---
 setInterval(function() {
+    attachTimerObserver();
+    syncFocusClockInstant();
+    syncFocusRoomData();
+
     var now = new Date();
-    var clockEl = document.getElementById('top-clock-label');
-    var dateEl = document.getElementById('top-date-label');
+    var clockEl = document.getElementById('top-clock-label'), dateEl = document.getElementById('top-date-label');
     if (clockEl) clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     if (dateEl) {
         var dNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
         dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
     }
+}, 500);
 
-    var sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        var brandLogoBox = sidebar.querySelector('.brand > div:first-child');
-        if (brandLogoBox && !brandLogoBox.querySelector('.fa-layer-group')) {
-            brandLogoBox.style.cssText = "width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, #7c3aed, #4f46e5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.95rem; flex-shrink:0;";
-            brandLogoBox.innerHTML = '<i class="fa-solid fa-layer-group" style="color:#fff !important;"></i>';
-        }
-        var footerDock = document.getElementById('sidebar-bottom-dock');
-        var paletteBox = sidebar.querySelector('.palette-container');
-        var themeBtn = document.querySelector('.theme-toggle');
-        if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
-            paletteBox.appendChild(themeBtn);
-        }
-        if (footerDock) footerDock.remove();
-
-        var badge = document.getElementById('user-auth-badge');
-        if (badge) {
-            if (badge.innerHTML.includes('Rời án thư')) badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
-            if (sidebar.lastElementChild !== badge) {
-                badge.style.cssText = "margin: 8px 4px 0 4px; padding: 9px 10px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; flex-shrink: 0;";
-                sidebar.appendChild(badge);
-            }
-        }
-    }
-
-    var focusRoom = document.getElementById('focus-room');
-    if (focusRoom && focusRoom.style.display !== 'none') {
-        var ring = document.getElementById('focus-ring-circle');
-        var subDur = document.getElementById('focus-sub-duration');
-        var timerText = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText : "00:00";
-        if (typeof currentDuration !== 'undefined' && subDur) {
-            subDur.innerText = "/ " + String(currentDuration).padStart(2, '0') + ":00";
-        }
-        if (ring && timerText.includes(':')) {
-            var parts = timerText.split(':').map(Number);
-            var remainingSec = (parts[0] * 60) + (parts[1] || 0);
-            var totalSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
-            var ratio = Math.min(1, Math.max(0, remainingSec / totalSec));
-            ring.style.strokeDashoffset = 816.8 * (1 - ratio);
-        }
-    }
-}, 1000);
-
-var origSwitchTabPhoi = window.switchTab;
-window.switchTab = function(tabName) {
-    if (typeof origSwitchTabPhoi === 'function') origSwitchTabPhoi(tabName);
-    if (tabName === 'trophy') setTimeout(renderMasterTrophyAndArchive, 30);
-    if (tabName === 'dashboard') setTimeout(renderBentoCommandCenter, 30);
-};
-
-var prevRenderDashPhoi = window.renderDashboard;
+var prevRenderDashUnified = window.renderDashboard;
 window.renderDashboard = function() {
-    if (typeof prevRenderDashPhoi === 'function') prevRenderDashPhoi();
+    if (typeof prevRenderDashUnified === 'function') prevRenderDashUnified();
     renderBentoCommandCenter();
-    renderFocusStudioRightPanel();
 };
-
 window.addEventListener('DOMContentLoaded', function() {
-    injectPhoiLayoutCSS();
-    setTimeout(function() {
-        renderBentoCommandCenter();
-        renderFocusStudioRightPanel();
-    }, 300);
+    injectUnifiedApexCSS();
+    attachTimerObserver();
+    setTimeout(renderBentoCommandCenter, 250);
 });
-
-// =====================================================================
-// FOCUS ROOM TEMPLATE V4: 3-COLUMN SYMMETRIC STUDIO & AMBIENT DOCK
-// =====================================================================
-(function upgradeFocusRoomStudio() {
-    var activeAmbientType = null;
-    var ambientCtx = null;
-    var ambientSource = null;
-    var ambientGain = null;
-    var ambientVolume = 0.7;
-
-    // 1. HỆ THỐNG ÂM THANH NỀN 5 CHẾ ĐỘ (RAIN, CAFE, FOREST, LO-FI, LIBRARY)
-    window.selectFocusAmbient = function(type) {
-        if (type === 'lofi') {
-            // Mở hộp thoại Trạm nhạc MP3 gốc nếu người dùng chọn Lo-fi
-            var musicModal = document.getElementById('focus-mp3-drawer');
-            if (musicModal) {
-                musicModal.style.display = (musicModal.style.display === 'flex') ? 'none' : 'flex';
-            }
-        }
-
-        if (activeAmbientType === type && type !== 'lofi') {
-            stopAmbientSound();
-            activeAmbientType = null;
-            updateAmbientCardsUI();
-            return;
-        }
-
-        activeAmbientType = type;
-        startProceduralAmbient(type);
-        updateAmbientCardsUI();
-    };
-
-    function startProceduralAmbient(type) {
-        stopAmbientSound();
-        try {
-            var AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!ambientCtx) ambientCtx = new AudioContext();
-            if (ambientCtx.state === 'suspended') ambientCtx.resume();
-
-            var bufferSize = 2 * ambientCtx.sampleRate;
-            var noiseBuffer = ambientCtx.createBuffer(1, bufferSize, ambientCtx.sampleRate);
-            var output = noiseBuffer.getChannelData(0);
-            var lastOut = 0.0;
-            for (var i = 0; i < bufferSize; i++) {
-                var white = Math.random() * 2 - 1;
-                output[i] = (lastOut + (0.02 * white)) / 1.02;
-                lastOut = output[i];
-                output[i] *= 3.2;
-            }
-
-            ambientSource = ambientCtx.createBufferSource();
-            ambientSource.buffer = noiseBuffer;
-            ambientSource.loop = true;
-
-            var filter = ambientCtx.createBiquadFilter();
-            if (type === 'rain') { filter.type = 'lowpass'; filter.frequency.value = 800; }
-            else if (type === 'cafe') { filter.type = 'bandpass'; filter.frequency.value = 450; }
-            else if (type === 'forest') { filter.type = 'bandpass'; filter.frequency.value = 1100; }
-            else if (type === 'library') { filter.type = 'lowpass'; filter.frequency.value = 320; }
-            else { filter.type = 'lowpass'; filter.frequency.value = 650; }
-
-            ambientGain = ambientCtx.createGain();
-            ambientGain.gain.value = ambientVolume * 0.25;
-
-            ambientSource.connect(filter);
-            filter.connect(ambientGain);
-            ambientGain.connect(ambientCtx.destination);
-            ambientSource.start(0);
-        } catch (e) {}
-    }
-
-    function stopAmbientSound() {
-        if (ambientSource) {
-            try { ambientSource.stop(); } catch (e) {}
-            ambientSource = null;
-        }
-    }
-
-    window.changeFocusAmbientVolume = function(val) {
-        ambientVolume = Number(val) / 100;
-        var lbl = document.getElementById('focus-vol-label');
-        if (lbl) lbl.innerText = val + '%';
-        if (ambientGain) {
-            ambientGain.gain.value = ambientVolume * 0.25;
-        }
-    };
-
-    function updateAmbientCardsUI() {
-        document.querySelectorAll('.f-amb-card').forEach(function(el) {
-            var k = el.getAttribute('data-amb');
-            el.classList.toggle('active', k === activeAmbientType);
-        });
-    }
-
-    window.toggleFocusFullscreen = function() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(function(){});
-        } else {
-            document.exitFullscreen().catch(function(){});
-        }
-    };
-
-    // 2. CSS CHUẨN PHÔI ẢNH FOCUS ROOM MỚI (3 CỘT ĐỐI XỨNG + ĐÁY ÂM THANH)
-    function injectFocusTemplateCSS() {
-        var old = document.getElementById('focus-studio-pro-css');
-        if (old) old.remove();
-
-        var st = document.createElement('style');
-        st.id = 'focus-studio-pro-css';
-        st.innerHTML = `
-            #focus-room {
-                background-image: var(--user-wallpaper, url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85')) !important;
-                background-size: cover !important;
-                background-position: center !important;
-                padding: 16px 28px !important;
-                display: none;
-                flex-direction: column !important;
-                justify-content: space-between !important;
-            }
-            #focus-overlay {
-                background: radial-gradient(circle at 50% 42%, rgba(18, 20, 46, 0.48) 0%, rgba(10, 12, 28, 0.78) 65%, rgba(6, 8, 18, 0.92) 100%) !important;
-                backdrop-filter: blur(4px) !important;
-            }
-
-            /* Ẩn khung cũ nhưng giữ nguyên ID cho script.js */
-            #focus-room .focus-nav,
-            #focus-room .focus-studio-layout {
-                display: none !important;
-            }
-
-            /* Bố cục Phôi Mới */
-            .ft-wrapper {
-                position: relative; z-index: 5; width: 100%; max-width: 1240px;
-                margin: 0 auto; height: 100%; display: flex; flex-direction: column;
-                justify-content: space-between; gap: 10px;
-            }
-
-            /* Thanh Topbar */
-            .ft-topbar {
-                display: flex; justify-content: space-between; align-items: flex-start;
-                width: 100%; padding-top: 2px;
-            }
-            .ft-glass-btn {
-                background: rgba(17, 22, 40, 0.72); border: 1px solid rgba(255, 255, 255, 0.14);
-                color: #f1f5f9; padding: 8px 16px; border-radius: 100px; font-size: 0.78rem;
-                font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
-                gap: 8px; backdrop-filter: blur(12px); transition: 0.2s;
-            }
-            .ft-glass-btn:hover {
-                background: rgba(139, 92, 246, 0.25); border-color: #a855f7; color: #fff;
-            }
-
-            .ft-center-header { text-align: center; margin-top: 2px; }
-            .ft-room-tag {
-                font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px;
-                color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;
-            }
-            .ft-goal-title {
-                font-size: 1.75rem; font-weight: 800; color: #ffffff;
-                display: inline-flex; align-items: center; gap: 10px; letter-spacing: -0.5px;
-            }
-            .ft-goal-sub {
-                font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;
-                display: flex; align-items: center; justify-content: center; gap: 6px;
-            }
-
-            /* 3 Nút Chọn Chế Độ (2 dòng chữ) */
-            .ft-mode-bar {
-                display: flex; justify-content: center; gap: 12px; margin: 4px 0;
-            }
-            .ft-mode-pill {
-                background: rgba(16, 20, 38, 0.75); border: 1px solid rgba(255, 255, 255, 0.12);
-                border-radius: 100px; padding: 7px 22px; color: #cbd5e1; cursor: pointer;
-                display: flex; align-items: center; gap: 10px; backdrop-filter: blur(12px);
-                transition: all 0.2s ease; text-align: left;
-            }
-            .ft-mode-pill strong { display: block; font-size: 0.78rem; color: #fff; font-weight: 700; line-height: 1.15; }
-            .ft-mode-pill span { display: block; font-size: 0.65rem; color: #94a3b8; }
-            .ft-mode-pill.active, .ft-mode-pill:hover {
-                background: linear-gradient(135deg, rgba(139, 92, 246, 0.55), rgba(99, 102, 241, 0.45));
-                border-color: #c084fc; box-shadow: 0 0 22px rgba(139, 92, 246, 0.45);
-            }
-            .ft-mode-pill.active span { color: #e9d5ff; }
-
-            /* Lưới 3 Cột Trung Tâm */
-            .ft-main-grid {
-                display: grid; grid-template-columns: 320px 1fr 320px;
-                gap: 24px; align-items: center; width: 100%; margin: auto 0;
-            }
-            @media (max-width: 1050px) {
-                .ft-main-grid { grid-template-columns: 1fr; }
-            }
-
-            .ft-card {
-                background: linear-gradient(160deg, rgba(19, 24, 44, 0.78) 0%, rgba(12, 16, 32, 0.86) 100%);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-top: 1px solid rgba(255, 255, 255, 0.18);
-                border-radius: 18px; padding: 18px 20px;
-                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-                min-height: 295px; display: flex; flex-direction: column; justify-content: space-between;
-            }
-            .ft-card-header {
-                display: flex; justify-content: space-between; align-items: center;
-                font-size: 0.78rem; font-weight: 800; color: #f1f5f9;
-                text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;
-            }
-
-            /* Cột Giữa: Vòng Tròn Đôi Neon */
-            .ft-center-col {
-                display: flex; flex-direction: column; align-items: center; justify-content: center;
-            }
-            .ft-ring-box {
-                position: relative; width: 250px; height: 250px; border-radius: 50%;
-                background: radial-gradient(circle, rgba(30, 27, 75, 0.45) 0%, rgba(15, 20, 38, 0.75) 75%);
-                box-shadow: 0 0 55px rgba(139, 92, 246, 0.35), inset 0 0 30px rgba(139, 92, 246, 0.2);
-                display: flex; align-items: center; justify-content: center;
-            }
-            .ft-ring-box::before {
-                content: ""; position: absolute; inset: 12px; border-radius: 50%;
-                border: 1px solid rgba(192, 132, 252, 0.22); pointer-events: none;
-            }
-            .ft-time-big {
-                font-size: 3.9rem; font-weight: 900; color: #ffffff;
-                letter-spacing: -1.5px; line-height: 1; font-variant-numeric: tabular-nums;
-                text-shadow: 0 4px 25px rgba(168, 85, 247, 0.55);
-            }
-            .ft-time-label {
-                font-size: 0.82rem; color: #cbd5e1; font-weight: 600;
-                margin-top: 8px; display: flex; align-items: center; gap: 6px;
-            }
-
-            .ft-start-btn {
-                margin-top: 16px;
-                background: linear-gradient(90deg, #a855f7 0%, #6366f1 100%);
-                color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25);
-                padding: 11px 42px; border-radius: 100px; font-size: 0.92rem; font-weight: 800;
-                cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
-                box-shadow: 0 8px 28px rgba(139, 92, 246, 0.55); transition: 0.2s;
-            }
-            .ft-start-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
-            /* Thanh Đáy: Âm Thanh Nền 5 Thẻ */
-            .ft-bottom-dock {
-                background: linear-gradient(160deg, rgba(17, 22, 40, 0.82), rgba(11, 14, 28, 0.9));
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 18px; padding: 12px 20px; width: 100%; max-width: 780px;
-                margin: 0 auto; backdrop-filter: blur(20px);
-                box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
-            }
-            .ft-amb-grid {
-                display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px;
-            }
-            .f-amb-card {
-                background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 12px; padding: 8px 12px; cursor: pointer;
-                display: flex; align-items: center; gap: 10px; transition: 0.2s;
-            }
-            .f-amb-card:hover, .f-amb-card.active {
-                background: rgba(139, 92, 246, 0.22); border-color: #a855f7;
-                box-shadow: 0 0 16px rgba(139, 92, 246, 0.3);
-            }
-            .f-amb-card strong { display: block; font-size: 0.76rem; color: #fff; }
-            .f-amb-card span { display: block; font-size: 0.64rem; color: #94a3b8; }
-        `;
-        document.head.appendChild(st);
-    }
-
-    // 3. DỰNG KHUNG HTML PHÔI MỚI TRONG #focus-room
-    function ensureFocusTemplateDOM() {
-        injectFocusTemplateCSS();
-        var focusRoom = document.getElementById('focus-room');
-        if (!focusRoom || document.getElementById('ft-custom-wrapper')) return;
-
-        var wrapper = document.createElement('div');
-        wrapper.id = 'ft-custom-wrapper';
-        wrapper.className = 'ft-wrapper';
-        wrapper.innerHTML = `
-            <!-- TOP HEADER & MODE BAR -->
-            <div>
-                <div class="ft-topbar">
-                    <button class="ft-glass-btn" onclick="backToDashboard()">
-                        <i class="fa-solid fa-arrow-left"></i> Quay lại mục tiêu
-                    </button>
-
-                    <div class="ft-center-header">
-                        <div class="ft-room-tag">FOCUS ROOM</div>
-                        <div class="ft-goal-title">
-                            <span id="ft-goal-name-display">Mục tiêu học tập</span>
-                            <i class="fa-solid fa-chevron-right" style="font-size:0.85rem; color:#64748b;"></i>
-                        </div>
-                        <div class="ft-goal-sub">
-                            <i class="fa-solid fa-bullseye" style="color:#f43f5e;"></i>
-                            <span id="ft-goal-sub-display">0.0h còn lại • Hôm nay đã 0.0h</span>
-                        </div>
-                    </div>
-
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <button class="ft-glass-btn" onclick="if(typeof openWallpaperPickerModal==='function') openWallpaperPickerModal();">
-                            <i class="fa-regular fa-image" style="color:#a855f7;"></i> Đổi ảnh nền
-                        </button>
-                        <button class="ft-glass-btn" id="ft-tick-mirror" onclick="toggleTick()">
-                            <i class="fa-solid fa-music" style="color:#38bdf8;"></i> <span id="ft-tick-text">Âm tích tắc: TẮT</span>
-                        </button>
-                        <button class="ft-glass-btn" onclick="toggleFocusFullscreen()" title="Toàn màn hình" style="padding:8px 11px;">
-                            <i class="fa-solid fa-gear"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3 NÚT CHỌN CHẾ ĐỘ -->
-                <div class="ft-mode-bar">
-                    <button class="ft-mode-pill" id="ft-mode-5" onclick="selectFocusModePill(5)">
-                        <span style="font-size:1.15rem;">🔥</span>
-                        <div><strong>Khởi động</strong><span>(5 phút)</span></div>
-                    </button>
-                    <button class="ft-mode-pill" id="ft-mode-15" onclick="selectFocusModePill(15)">
-                        <span style="font-size:1.15rem;">⚡</span>
-                        <div><strong>Ngắn</strong><span>(15 phút)</span></div>
-                    </button>
-                    <button class="ft-mode-pill active" id="ft-mode-25" onclick="selectFocusModePill(25)">
-                        <span style="font-size:1.15rem;">🍅</span>
-                        <div><strong>Pomodoro</strong><span>(25 phút)</span></div>
-                    </button>
-                </div>
-            </div>
-
-            <!-- MAIN 3-COLUMN WORKSPACE -->
-            <div class="ft-main-grid">
-                <!-- CỘT TRÁI: VIỆC CẦN LÀM -->
-                <div class="ft-card">
-                    <div>
-                        <div class="ft-card-header">
-                            <span><i class="fa-solid fa-thumbtack" style="color:#a855f7; margin-right:6px;"></i> VIỆC CẦN LÀM <span id="ft-todo-counter">(0/0)</span></span>
-                            <button onclick="addBentoTodoPrompt()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:24px; height:24px; border-radius:6px; cursor:pointer;">+</button>
-                        </div>
-                        <div id="ft-todo-list-container" style="display:flex; flex-direction:column; gap:6px; max-height:190px; overflow-y:auto;"></div>
-                    </div>
-                    <button onclick="addBentoTodoPrompt()" style="width:100%; padding:9px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e2e8f0; font-weight:700; font-size:0.78rem; cursor:pointer; margin-top:10px;">
-                        + Thêm nhiệm vụ
-                    </button>
-                </div>
-
-                <!-- CỘT GIỮA: ĐỒNG HỒ VÒNG TRÒN ĐÔI & NÚT BẮT ĐẦU -->
-                <div class="ft-center-col">
-                    <div class="ft-ring-box">
-                        <svg width="250" height="250" viewBox="0 0 260 260" style="position:absolute; transform:rotate(-90deg);">
-                            <circle cx="130" cy="130" r="114" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
-                            <circle id="ft-svg-progress" cx="130" cy="130" r="114" stroke="url(#ftRingGrad)" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="716.3" stroke-dashoffset="0" style="transition:stroke-dashoffset 0.5s linear; filter:drop-shadow(0 0 10px rgba(168,85,247,0.7));"/>
-                            <defs>
-                                <linearGradient id="ftRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#c084fc"/>
-                                    <stop offset="50%" stop-color="#8b5cf6"/>
-                                    <stop offset="100%" stop-color="#38bdf8"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <div style="position:relative; z-index:3; display:flex; flex-direction:column; align-items:center;">
-                            <div class="ft-time-big" id="ft-time-display">25:00</div>
-                            <div class="ft-time-label" id="ft-mode-label">🍎 Pomodoro</div>
-                        </div>
-                    </div>
-
-                    <!-- Nút Khi Chưa Chạy -->
-                    <button class="ft-start-btn" id="ft-btn-start-main" onclick="triggerFocusMainStart()">
-                        <i class="fa-solid fa-play"></i> Bắt đầu
-                    </button>
-
-                    <!-- Cụm Nút Khi Đang Chạy -->
-                    <div id="ft-running-controls" style="display:none; gap:12px; margin-top:16px;">
-                        <button onclick="togglePause()" style="background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; border:none; padding:10px 24px; border-radius:100px; font-weight:700; font-size:0.82rem; cursor:pointer; box-shadow:0 6px 18px rgba(37,99,235,0.4);">
-                            <i class="fa-solid fa-pause"></i> Tạm dừng
-                        </button>
-                        <button onclick="cancelSession()" style="background:linear-gradient(135deg, #e11d48, #be123c); color:#fff; border:none; padding:10px 24px; border-radius:100px; font-weight:700; font-size:0.82rem; cursor:pointer; box-shadow:0 6px 18px rgba(225,29,72,0.4);">
-                            <i class="fa-solid fa-stop"></i> Kết thúc
-                        </button>
-                    </div>
-                </div>
-
-                <!-- CỘT PHẢI: TIẾN ĐỘ MỤC TIÊU -->
-                <div class="ft-card">
-                    <div>
-                        <div class="ft-card-header">
-                            <span><i class="fa-solid fa-bullseye" style="color:#a855f7; margin-right:6px;"></i> TIẾN ĐỘ MỤC TIÊU</span>
-                            <span onclick="backToDashboard()" style="font-size:0.72rem; color:#94a3b8; cursor:pointer; text-transform:none; font-weight:600;">Chi tiết →</span>
-                        </div>
-
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
-                            <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-                                <div style="width:42px; height:46px; background:linear-gradient(135deg, #f97316, #e11d48); clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.05rem; flex-shrink:0;">
-                                    <i class="fa-solid fa-crown"></i>
-                                </div>
-                                <div style="min-width:0;">
-                                    <div id="ft-right-goal-name" style="font-size:0.95rem; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Mục tiêu</div>
-                                    <div style="font-size:0.7rem; color:#94a3b8;">Tiến trình tích lũy</div>
-                                </div>
-                            </div>
-                            <div id="ft-right-goal-pct" style="font-size:1.5rem; font-weight:900; color:#fff;">0%</div>
-                        </div>
-
-                        <!-- Thanh Tiến Độ 1: Mục tiêu -->
-                        <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px;">
-                            <div id="ft-right-goal-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #8b5cf6, #c084fc); border-radius:100px;"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:16px;">
-                            <span id="ft-right-goal-done">0.0h / 0h</span>
-                            <span id="ft-right-goal-left">Còn 0.0h</span>
-                        </div>
-
-                        <!-- Thanh Tiến Độ 2: Hôm nay -->
-                        <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:#cbd5e1; font-weight:600; margin-bottom:6px;">
-                            <span>Hôm nay</span>
-                            <span id="ft-right-today-text">0.0h / 1.0h</span>
-                        </div>
-                        <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden;">
-                            <div id="ft-right-today-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #10b981, #34d399); border-radius:100px;"></div>
-                        </div>
-                    </div>
-
-                    <!-- 3 Cột Chỉ Số Đáy Card Phải -->
-                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">
-                        <div>
-                            <div style="color:#f97316; font-size:0.85rem; margin-bottom:2px;">🔥</div>
-                            <strong id="ft-stat-streak" style="display:block; font-size:0.85rem; color:#fff;">0 ngày</strong>
-                            <span style="font-size:0.64rem; color:#94a3b8;">Chuỗi kỷ luật</span>
-                        </div>
-                        <div>
-                            <div style="color:#38bdf8; font-size:0.85rem; margin-bottom:2px;">📊</div>
-                            <strong id="ft-stat-total" style="display:block; font-size:0.85rem; color:#fff;">0.0h</strong>
-                            <span style="font-size:0.64rem; color:#94a3b8;">Tổng thời gian</span>
-                        </div>
-                        <div>
-                            <div style="color:#fbbf24; font-size:0.85rem; margin-bottom:2px;">🏆</div>
-                            <strong id="ft-stat-level" style="display:block; font-size:0.85rem; color:#fff;">Lv. 1</strong>
-                            <span id="ft-stat-rank" style="font-size:0.64rem; color:#94a3b8;">Học Giả</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BOTTOM AMBIENT SOUND DOCK -->
-            <div class="ft-bottom-dock">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div style="font-size:0.75rem; font-weight:800; color:#e2e8f0; letter-spacing:0.8px; text-transform:uppercase;">
-                        <i class="fa-solid fa-music" style="color:#a855f7; margin-right:6px;"></i> ÂM THANH NỀN
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <i class="fa-solid fa-volume-high" style="color:#94a3b8; font-size:0.8rem;"></i>
-                        <input type="range" min="0" max="100" value="70" oninput="changeFocusAmbientVolume(this.value)" style="width:110px; accent-color:#a855f7; cursor:pointer;">
-                        <span id="focus-vol-label" style="font-size:0.72rem; color:#cbd5e1; font-weight:700; min-width:32px;">70%</span>
-                    </div>
-                </div>
-
-                <div class="ft-amb-grid">
-                    <div class="f-amb-card" data-amb="rain" onclick="selectFocusAmbient('rain')">
-                        <i class="fa-solid fa-cloud-showers-heavy" style="color:#60a5fa; font-size:1.1rem;"></i>
-                        <div><strong>Rain</strong><span>Mưa rơi</span></div>
-                    </div>
-                    <div class="f-amb-card" data-amb="cafe" onclick="selectFocusAmbient('cafe')">
-                        <i class="fa-solid fa-mug-saucer" style="color:#fbbf24; font-size:1.1rem;"></i>
-                        <div><strong>Cafe</strong><span>Quán cà phê</span></div>
-                    </div>
-                    <div class="f-amb-card" data-amb="forest" onclick="selectFocusAmbient('forest')">
-                        <i class="fa-solid fa-tree" style="color:#34d399; font-size:1.1rem;"></i>
-                        <div><strong>Forest</strong><span>Rừng cây</span></div>
-                    </div>
-                    <div class="f-amb-card" data-amb="lofi" onclick="selectFocusAmbient('lofi')">
-                        <i class="fa-solid fa-headphones" style="color:#c084fc; font-size:1.1rem;"></i>
-                        <div><strong>Lo-fi</strong><span>Nhạc lo-fi</span></div>
-                    </div>
-                    <div class="f-amb-card" data-amb="library" onclick="selectFocusAmbient('library')">
-                        <i class="fa-solid fa-book-open" style="color:#f472b6; font-size:1.1rem;"></i>
-                        <div><strong>Library</strong><span>Thư viện</span></div>
-                    </div>
-                </div>
-            </div>
-        `;
-        focusRoom.appendChild(wrapper);
-    }
-
-    // 4. CHỌN CHẾ ĐỘ (5P / 15P / 25P) & BẮT ĐẦU
-    var selectedPendingMinutes = 25;
-    window.selectFocusModePill = function(mins) {
-        selectedPendingMinutes = mins;
-        document.querySelectorAll('.ft-mode-pill').forEach(function(btn) { btn.classList.remove('active'); });
-        var activeBtn = document.getElementById('ft-mode-' + mins);
-        if (activeBtn) activeBtn.classList.add('active');
-
-        var timerText = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "00:00";
-        if (timerText === "00:00") {
-            var disp = document.getElementById('ft-time-display');
-            var lbl = document.getElementById('ft-mode-label');
-            if (disp) disp.innerText = String(mins).padStart(2, '0') + ":00";
-            if (lbl) lbl.innerHTML = mins === 5 ? "🔥 Khởi động" : (mins === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
-        }
-        // Nếu người dùng muốn bấm vào là chạy luôn
-        if (mins === 5 && typeof startIcebreaker === 'function') startIcebreaker();
-        else if (typeof startSession === 'function') startSession(mins);
-    };
-
-    window.triggerFocusMainStart = function() {
-        if (selectedPendingMinutes === 5 && typeof startIcebreaker === 'function') {
-            startIcebreaker();
-        } else if (typeof startSession === 'function') {
-            startSession(selectedPendingMinutes || 25);
-        }
-    };
-
-    // 5. ĐỒNG BỘ DỮ LIỆU MỤC TIÊU, VIỆC CẦN LÀM & ĐỒNG HỒ MỖI GIÂY
-    function syncFocusTemplateData() {
-        var focusRoom = document.getElementById('focus-room');
-        if (!focusRoom || focusRoom.style.display === 'none') return;
-
-        ensureFocusTemplateDOM();
-
-        // A. Đồng bộ Việc cần làm bên trái
-        var todoBox = document.getElementById('ft-todo-list-container');
-        var todoCountEl = document.getElementById('ft-todo-counter');
-        if (todoBox && typeof bentoTodoList !== 'undefined') {
-            var doneC = bentoTodoList.filter(function(t) { return t.done; }).length;
-            if (todoCountEl) todoCountEl.innerText = "(" + doneC + "/" + bentoTodoList.length + ")";
-            todoBox.innerHTML = bentoTodoList.map(function(t) {
-                return `
-                    <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.04);">
-                        <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-                            <div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done ? '#a855f7' : '#64748b'}; background:${t.done ? '#a855f7' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">
-                                ${t.done ? '<i class="fa-solid fa-check"></i>' : ''}
-                            </div>
-                            <span style="font-size:0.8rem; color:${t.done ? '#64748b' : '#f1f5f9'}; text-decoration:${t.done ? 'line-through' : 'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                ${t.text}
-                            </span>
-                        </div>
-                        <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.7rem;">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>`;
-            }).join('');
-        }
-
-        // B. Đồng bộ Đồng hồ Trung tâm & Nút Bắt đầu / Tạm dừng
-        var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "00:00";
-        var pauseBtn = document.getElementById('btn-pause');
-        var isSessionRunning = (pauseBtn && pauseBtn.style.display !== 'none') || (rawTimer !== "00:00");
-
-        var ftTimeDisp = document.getElementById('ft-time-display');
-        var ftStartBtn = document.getElementById('ft-btn-start-main');
-        var ftRunCtrls = document.getElementById('ft-running-controls');
-        var ftSvgRing = document.getElementById('ft-svg-progress');
-
-        if (isSessionRunning && rawTimer !== "00:00") {
-            if (ftTimeDisp) ftTimeDisp.innerText = rawTimer;
-            if (ftStartBtn) ftStartBtn.style.display = 'none';
-            if (ftRunCtrls) ftRunCtrls.style.display = 'inline-flex';
-
-            if (ftSvgRing && rawTimer.includes(':')) {
-                var p = rawTimer.split(':').map(Number);
-                var remSec = (p[0] * 60) + (p[1] || 0);
-                var totSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
-                var ratio = Math.min(1, Math.max(0, remSec / totSec));
-                ftSvgRing.style.strokeDashoffset = 716.3 * (1 - ratio);
-            }
-        } else {
-            if (ftTimeDisp) ftTimeDisp.innerText = String(selectedPendingMinutes).padStart(2, '0') + ":00";
-            if (ftStartBtn) ftStartBtn.style.display = 'inline-flex';
-            if (ftRunCtrls) ftRunCtrls.style.display = 'none';
-            if (ftSvgRing) ftSvgRing.style.strokeDashoffset = "0";
-        }
-
-        // Đồng bộ trạng thái nút Âm tích tắc
-        var origTick = document.getElementById('btn-tick');
-        var mirrorTickTxt = document.getElementById('ft-tick-text');
-        if (origTick && mirrorTickTxt) {
-            mirrorTickTxt.innerText = origTick.innerText.trim();
-        }
-
-        // C. Đồng bộ dữ liệu Mục tiêu đang mở sang Cột Phải & Header
-        var activeGoal = null;
-        if (typeof goals !== 'undefined' && Array.isArray(goals)) {
-            if (typeof currentGoalId !== 'undefined' && currentGoalId !== null) {
-                activeGoal = goals.find(function(g) { return g.id === currentGoalId; });
-            }
-            if (!activeGoal) {
-                var infoTxt = document.getElementById('focus-target-info') ? document.getElementById('focus-target-info').innerText : "";
-                activeGoal = goals.find(function(g) { return infoTxt.includes(g.name); }) || goals[0];
-            }
-        }
-
-        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 1.0 };
-        var todayDone = qInfo.doneHrs || 0;
-        var todayReq = Math.max(qInfo.requiredHrs || 1.0, 0.5);
-        var todayPct = Math.min(100, Math.round((todayDone / todayReq) * 100));
-
-        if (activeGoal) {
-            var targetH = Number(activeGoal.target || 10);
-            var leftH = Math.max(0, Number(activeGoal.current || 0));
-            var doneH = Math.max(0, targetH - leftH);
-            var pctG = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
-
-            var gNameTop = document.getElementById('ft-goal-name-display');
-            var gSubTop = document.getElementById('ft-goal-sub-display');
-            var gNameRight = document.getElementById('ft-right-goal-name');
-            var gPctRight = document.getElementById('ft-right-goal-pct');
-            var gBarRight = document.getElementById('ft-right-goal-bar');
-            var gDoneRight = document.getElementById('ft-right-goal-done');
-            var gLeftRight = document.getElementById('ft-right-goal-left');
-
-            if (gNameTop) gNameTop.innerText = activeGoal.name;
-            if (gSubTop) gSubTop.innerText = leftH.toFixed(2) + "h còn lại • Hôm nay đã " + todayDone.toFixed(1) + "h";
-            if (gNameRight) gNameRight.innerText = activeGoal.name;
-            if (gPctRight) gPctRight.innerText = pctG + "%";
-            if (gBarRight) gBarRight.style.width = pctG + "%";
-            if (gDoneRight) gDoneRight.innerText = doneH.toFixed(1) + "h / " + targetH.toFixed(1).replace(/\.0$/, '') + "h";
-            if (gLeftRight) gLeftRight.innerText = "Còn " + leftH.toFixed(2) + "h";
-        }
-
-        var todayTxtEl = document.getElementById('ft-right-today-text');
-        var todayBarEl = document.getElementById('ft-right-today-bar');
-        if (todayTxtEl) todayTxtEl.innerText = todayDone.toFixed(1) + "h / " + todayReq.toFixed(1) + "h";
-        if (todayBarEl) todayBarEl.style.width = todayPct + "%";
-
-        var totalAllTimeHrs = 0;
-        if (typeof dailyLogs !== 'undefined') {
-            totalAllTimeHrs = Object.values(dailyLogs).reduce(function(a, b) { return a + b; }, 0);
-        }
-        var lv = Math.max(1, Math.floor(totalAllTimeHrs / 10) + 1);
-        var rTitle = lv >= 25 ? "Đại Học Sĩ" : (lv >= 15 ? "Chuyên Gia" : (lv >= 10 ? "Học Giả" : (lv >= 5 ? "Tinh Anh" : "Tân Binh")));
-
-        var stStreak = document.getElementById('ft-stat-streak');
-        var stTotal = document.getElementById('ft-stat-total');
-        var stLv = document.getElementById('ft-stat-level');
-        var stRank = document.getElementById('ft-stat-rank');
-        if (stStreak) stStreak.innerText = (typeof currentStreak !== 'undefined' ? currentStreak : 0) + " ngày";
-        if (stTotal) stTotal.innerText = totalAllTimeHrs.toFixed(1) + "h";
-        if (stLv) stLv.innerText = "Lv. " + lv;
-        if (stRank) stRank.innerText = rTitle;
-    }
-
-    setInterval(syncFocusTemplateData, 600);
-    window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(ensureFocusTemplateDOM, 400);
-    });
-})();
-
-// =====================================================================
-// UI PRECISION PATCH: COMPACT GOAL CARDS, SYMMETRIC FOCUS & MOBILE FIX
-// =====================================================================
-(function applyPrecisionLayoutPatch() {
-    function injectPrecisionPatchCSS() {
-        var old = document.getElementById('apex-precision-patch-css');
-        if (old) old.remove();
-
-        var st = document.createElement('style');
-        st.id = 'apex-precision-patch-css';
-        st.innerHTML = `
-            /* ==========================================================
-               1. THU GỌN THẺ MỤC TIÊU (.goal-card) VỀ DẠNG NGANG CHUẨN
-               ========================================================== */
-            #dashboard-grid {
-                display: grid !important;
-                grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important;
-                gap: 12px !important;
-                align-items: stretch !important;
-            }
-            #dashboard-grid .goal-card {
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                justify-content: flex-start !important;
-                gap: 14px !important;
-                padding: 14px 16px !important;
-                border-radius: 14px !important;
-                min-height: unset !important;
-                height: auto !important;
-            }
-            #dashboard-grid .goal-card .progress-circle {
-                width: 54px !important;
-                height: 54px !important;
-                flex-shrink: 0 !important;
-                margin: 0 !important;
-            }
-            #dashboard-grid .goal-card .goal-meta {
-                flex: 1 !important;
-                min-width: 0 !important;
-                text-align: left !important;
-            }
-            #dashboard-grid .goal-card .goal-meta h3 {
-                font-size: 0.92rem !important;
-                font-weight: 800 !important;
-                line-height: 1.25 !important;
-                margin-bottom: 4px !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-            }
-
-            /* ==========================================================
-               2. CĂN TRỤC ĐỐI XỨNG TUYỆT ĐỐI CHO FOCUS ROOM (PC)
-               ========================================================== */
-            .ft-wrapper {
-                max-width: 1080px !important;
-                margin: 0 auto !important;
-                justify-content: center !important;
-                gap: 16px !important;
-                padding: 6px 0 !important;
-            }
-
-            /* Chia 3 cột lưới 1fr - auto - 1fr để Tiêu đề luôn nằm chính giữa 100% */
-            .ft-topbar {
-                display: grid !important;
-                grid-template-columns: 1fr auto 1fr !important;
-                align-items: center !important;
-                width: 100% !important;
-                margin-bottom: 6px !important;
-            }
-            .ft-topbar > button:first-child {
-                justify-self: start !important;
-                width: fit-content !important;
-            }
-            .ft-center-header {
-                justify-self: center !important;
-                text-align: center !important;
-                margin: 0 !important;
-            }
-            .ft-topbar > div:last-child {
-                justify-self: end !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-            }
-
-            /* Gom 2 Card trái/phải lại gần Vòng tròn đồng hồ & bằng chiều cao nhau */
-            .ft-main-grid {
-                display: grid !important;
-                grid-template-columns: 310px 320px 310px !important;
-                justify-content: center !important;
-                align-items: stretch !important;
-                gap: 24px !important;
-                width: 100% !important;
-                margin: 4px auto !important;
-            }
-            .ft-card {
-                min-height: 290px !important;
-                height: 100% !important;
-                padding: 16px 18px !important;
-                border-radius: 18px !important;
-            }
-            .ft-center-col {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                padding: 6px 0 !important;
-            }
-            .ft-ring-box {
-                width: 240px !important;
-                height: 240px !important;
-            }
-            .ft-ring-box svg {
-                width: 240px !important;
-                height: 240px !important;
-            }
-
-            /* Thanh âm thanh đáy khớp đúng độ rộng khối trung tâm */
-            .ft-bottom-dock {
-                max-width: 988px !important;
-                width: 100% !important;
-                padding: 12px 18px !important;
-                margin: 0 auto !important;
-            }
-
-            /* ==========================================================
-               3. TỐI ƯU HOÀN HẢO CHO ĐIỆN THOẠI (KHÔNG TRÀN MÀN HÌNH)
-               ========================================================== */
-            @media (max-width: 1024px) {
-                .ft-main-grid {
-                    grid-template-columns: 1fr !important;
-                    max-width: 460px !important;
-                    gap: 16px !important;
-                }
-                /* Đưa Đồng hồ lên đầu tiên trên điện thoại, 2 thẻ xuống dưới */
-                .ft-center-col { order: -1 !important; margin: 8px 0 !important; }
-                .ft-card { min-height: auto !important; }
-            }
-
-            @media (max-width: 768px) {
-                /* Dashboard & Header trên Mobile */
-                .main-content {
-                    padding: 0 12px 28px 12px !important;
-                    overflow-x: hidden !important;
-                }
-                .header {
-                    padding: 8px 10px !important;
-                    flex-wrap: wrap !important;
-                    gap: 8px !important;
-                }
-                .top-quote-text { display: none !important; }
-                .header-actions {
-                    width: 100% !important;
-                    justify-content: space-between !important;
-                    flex-wrap: wrap !important;
-                    gap: 6px !important;
-                }
-                .top-datetime-box {
-                    font-size: 0.68rem !important;
-                    padding: 4px 8px !important;
-                }
-                .btn-ghost-action, .btn-primary {
-                    padding: 6px 9px !important;
-                    font-size: 0.72rem !important;
-                }
-
-                /* Hero Banner & Bento trên Mobile */
-                .phoi-hero-banner {
-                    padding: 14px 16px !important;
-                    flex-direction: column !important;
-                    align-items: flex-start !important;
-                }
-                .phoi-hero-left { max-width: 100% !important; }
-                .phoi-hero-left h1 { font-size: 1.25rem !important; }
-                .phoi-hero-mini-bar {
-                    width: 100% !important;
-                    gap: 12px !important;
-                    padding: 8px 12px !important;
-                    justify-content: space-between !important;
-                }
-                .phoi-stat-grid {
-                    grid-template-columns: 1fr 1fr !important;
-                    gap: 8px !important;
-                }
-                .phoi-stat-card { padding: 10px 12px !important; }
-                .phoi-orb { width: 32px !important; height: 32px !important; font-size: 0.85rem !important; }
-                .phoi-heat-matrix {
-                    grid-template-columns: repeat(12, minmax(10px, 1fr)) !important;
-                    gap: 3px !important;
-                }
-                #dashboard-grid {
-                    grid-template-columns: 1fr !important;
-                }
-
-                /* Focus Room trên Mobile: Cho phép cuộn dọc mượt, không cắt tràn */
-                #focus-room {
-                    padding: 12px 14px 28px 14px !important;
-                    overflow-y: auto !important;
-                    overflow-x: hidden !important;
-                    justify-content: flex-start !important;
-                }
-                .ft-wrapper {
-                    height: auto !important;
-                    gap: 14px !important;
-                }
-                .ft-topbar {
-                    display: flex !important;
-                    flex-wrap: wrap !important;
-                    justify-content: space-between !important;
-                    gap: 8px !important;
-                }
-                .ft-center-header {
-                    order: 3 !important;
-                    width: 100% !important;
-                    margin-top: 4px !important;
-                }
-                .ft-goal-title { font-size: 1.3rem !important; }
-                .ft-glass-btn {
-                    padding: 6px 11px !important;
-                    font-size: 0.72rem !important;
-                }
-
-                /* 3 nút chế độ vừa khít 1 hàng ngang trên điện thoại */
-                .ft-mode-bar {
-                    display: grid !important;
-                    grid-template-columns: repeat(3, 1fr) !important;
-                    gap: 6px !important;
-                    width: 100% !important;
-                }
-                .ft-mode-pill {
-                    padding: 6px 8px !important;
-                    justify-content: center !important;
-                    gap: 6px !important;
-                }
-                .ft-mode-pill strong { font-size: 0.72rem !important; }
-                .ft-mode-pill span { font-size: 0.58rem !important; }
-
-                .ft-ring-box {
-                    width: 210px !important;
-                    height: 210px !important;
-                }
-                .ft-ring-box svg {
-                    width: 210px !important;
-                    height: 210px !important;
-                }
-                .ft-time-big { font-size: 3.2rem !important; }
-
-                /* 5 thẻ âm thanh chuyển thành lưới 2 cột + thanh trượt gọn trên Mobile */
-                .ft-bottom-dock {
-                    padding: 12px 14px !important;
-                }
-                .ft-amb-grid {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                    gap: 8px !important;
-                }
-                .ft-amb-grid .f-amb-card:last-child {
-                    grid-column: 1 / -1 !important;
-                }
-            }
-        `;
-        document.head.appendChild(st);
-    }
-
-    injectPrecisionPatchCSS();
-    window.addEventListener('DOMContentLoaded', injectPrecisionPatchCSS);
-})();
