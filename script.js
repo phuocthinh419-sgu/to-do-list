@@ -6412,12 +6412,50 @@ window.switchTab = function(tabName) {
     }
 };
 
-// Vòng lặp đồng bộ duy nhất
+// Vòng lặp đồng bộ duy nhất (Tự động phát hiện ngay khi Firebase tải xong dữ liệu)
 setInterval(function() {
     attachTimerObserver();
     syncFocusClockInstant();
     syncFocusRoomData();
     maintainCleanSidebar();
+
+    // Kiểm tra: Nếu Firebase vừa tải dữ liệu xong làm thay đổi goals hoặc dailyLogs,
+    // hoặc #dashboard-grid đang trống trong khi mảng goals đã có dữ liệu -> Vẽ lại ngay lập tức!
+    var currentGoalsLen = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g){ return g.current > 0; }).length : 0;
+    var currentLogsLen = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).length : 0;
+    var dashGrid = document.getElementById('dashboard-grid');
+    var kpiStatusEl = document.getElementById('kpi-status');
+
+    var isGridEmptyButHasGoals = dashGrid && currentGoalsLen > 0 && dashGrid.children.length === 0;
+    var isDataJustLoaded = (currentGoalsLen !== lastKnownGoalCount) || (currentLogsLen !== lastKnownLogKeys);
+
+    if (isGridEmptyButHasGoals || isDataJustLoaded) {
+        lastKnownGoalCount = currentGoalsLen;
+        lastKnownLogKeys = currentLogsLen;
+        if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
+        if (typeof updateKPI === 'function') updateKPI();
+        if (typeof renderGoals === 'function') renderGoals();
+        renderBentoCommandCenter();
+    }
+
+    // Tự động tính chuẩn KPI Tuần thực tế nếu #kpi-status vẫn bị kẹt ở 0.0 / 5.0h
+    if (kpiStatusEl && kpiStatusEl.innerText.indexOf('0.0') === 0 && currentLogsLen > 0) {
+        var weekSum = 0;
+        var nowTime = new Date();
+        var dayOfWeek = nowTime.getDay() || 7; // Thứ 2 = 1 ... Chủ nhật = 7
+        for (var i = 0; i < dayOfWeek; i++) {
+            var d = new Date(nowTime);
+            d.setDate(nowTime.getDate() - i);
+            var dKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            if (dailyLogs[dKey]) weekSum += Number(dailyLogs[dKey] || 0);
+        }
+        if (weekSum > 0) {
+            var kpiTarget = (typeof weeklyKpiTarget !== 'undefined') ? weeklyKpiTarget : 5.0;
+            kpiStatusEl.innerText = weekSum.toFixed(1) + ' / ' + Number(kpiTarget).toFixed(1) + 'h';
+            var barFill = document.getElementById('kpi-bar-fill');
+            if (barFill) barFill.style.width = Math.min(100, Math.round((weekSum / kpiTarget) * 100)) + '%';
+        }
+    }
 
     var now = new Date();
     var clockEl = document.getElementById('top-clock-label'), dateEl = document.getElementById('top-date-label');
@@ -6437,5 +6475,8 @@ window.addEventListener('DOMContentLoaded', function() {
     injectUnifiedApexCSS();
     attachTimerObserver();
     maintainCleanSidebar();
-    setTimeout(renderBentoCommandCenter, 250);
+    setTimeout(function() {
+        if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
+        renderBentoCommandCenter();
+    }, 300);
 });
