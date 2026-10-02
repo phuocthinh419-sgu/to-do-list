@@ -6412,7 +6412,7 @@ window.switchTab = function(tabName) {
     }
 };
 
-// Khai báo 2 biến theo dõi trạng thái dữ liệu (Bắt buộc phải có để không bị ReferenceError)
+// Khai báo biến theo dõi trạng thái dữ liệu & Khóa Điều Phối Thông Minh
 var lastKnownGoalCount = -1;
 var lastKnownLogKeys = -1;
 var prevRenderDashV3 = window.renderDashboard;
@@ -6422,10 +6422,77 @@ window.renderDashboard = function() {
     renderBentoCommandCenter();
 };
 
+// Bọc hàm bật/tắt Điều phối gốc để lưu chính xác ý muốn của Bệ hạ vào localStorage
+(function hookDispatchTogglePersistence() {
+    var toggleFnNames = ['toggleDispatchOnline', 'toggleDispatch', 'toggleSmartDispatch', 'setDispatchStatus'];
+    toggleFnNames.forEach(function(fnName) {
+        if (typeof window[fnName] === 'function' && !window[fnName]._hooked) {
+            var origFn = window[fnName];
+            var wrapped = function() {
+                var res = origFn.apply(this, arguments);
+                setTimeout(function() {
+                    var todayKey = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : new Date().toISOString().split('T')[0];
+                    // Kiểm tra chữ trên nút hoặc trạng thái hiện tại sau khi bấm
+                    var stripText = document.body.innerText || "";
+                    var isNowPaused = (typeof isDispatchOnline !== 'undefined' && !isDispatchOnline) ||
+                                      (typeof dispatchOnline !== 'undefined' && !dispatchOnline) ||
+                                      stripText.includes('Bật Trực tuyến') ||
+                                      stripText.includes('Đang Tạm nghỉ');
+                    localStorage.setItem('apexDispatchManualState_' + todayKey, isNowPaused ? 'OFF' : 'ON');
+                }, 50);
+                return res;
+            };
+            wrapped._hooked = true;
+            window[fnName] = wrapped;
+        }
+    });
+})();
+
+// Hàm ép thanh Điều phối phải Tắt nếu đã đủ KPI hôm nay hoặc đã được Bệ hạ tắt thủ công
+function enforceSmartDispatchState() {
+    var todayKey = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : new Date().toISOString().split('T')[0];
+    var manualState = localStorage.getItem('apexDispatchManualState_' + todayKey);
+
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function')
+        ? getTodayDispatchQuotaInfo()
+        : { doneHrs: (typeof dailyLogs !== 'undefined' && dailyLogs[todayKey]) ? Number(dailyLogs[todayKey]) : 0, requiredHrs: 0.5 };
+
+    var isQuotaDone = (qInfo.doneHrs || 0) >= Math.max(0.1, qInfo.requiredHrs || 0.5);
+
+    // Nếu đã hoàn thành KPI hôm nay (mà chưa ép bật lại) HOẶC đã bấm Tắt thủ công -> Bắt buộc Tạm nghỉ!
+    var shouldBeOff = (manualState === 'OFF') || (isQuotaDone && manualState !== 'ON');
+
+    if (shouldBeOff) {
+        if (typeof isDispatchOnline !== 'undefined' && isDispatchOnline === true) {
+            isDispatchOnline = false;
+            localStorage.setItem('isDispatchOnline', 'false');
+            if (typeof updateDispatchUI === 'function') updateDispatchUI();
+            if (typeof renderRecommendationStrip === 'function') renderRecommendationStrip();
+        }
+        if (typeof dispatchOnline !== 'undefined' && dispatchOnline === true) {
+            dispatchOnline = false;
+            localStorage.setItem('dispatchOnline', 'false');
+        }
+
+        // Nếu trên giao diện vẫn đang hiện nút "Tạm nghỉ" (tức là đang Bật) -> Tự động chuyển về "Đang Tạm nghỉ"
+        var allBtns = document.querySelectorAll('button');
+        for (var i = 0; i < allBtns.length; i++) {
+            var b = allBtns[i];
+            var txt = (b.innerText || "").trim();
+            var oc = b.getAttribute('onclick') || "";
+            if ((oc.toLowerCase().includes('dispatch') || txt.includes('Tạm nghỉ')) && !txt.includes('Bật Trực tuyến')) {
+                b.click();
+                localStorage.setItem('apexDispatchManualState_' + todayKey, 'OFF');
+                break;
+            }
+        }
+    }
+}
+
 // Vòng lặp đồng bộ duy nhất
 setInterval(function() {
     try {
-        // 1. CẬP NHẬT NGÀY & GIỜ LÊN ĐẦU TIÊN (Đảm bảo không bao giờ bị kẹt ở -- 00:00)
+        // 1. CẬP NHẬT NGÀY & GIỜ LÊN ĐẦU TIÊN
         var now = new Date();
         var clockEl = document.getElementById('top-clock-label');
         var dateEl = document.getElementById('top-date-label');
@@ -6437,11 +6504,12 @@ setInterval(function() {
             dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
         }
 
-        // 2. Đồng bộ Phòng Focus & Sidebar
+        // 2. Đồng bộ Phòng Focus, Sidebar & Khóa trạng thái Điều phối
         attachTimerObserver();
         syncFocusClockInstant();
         syncFocusRoomData();
         maintainCleanSidebar();
+        enforceSmartDispatchState();
 
         // 3. Tự động vẽ lại ngay khi Firebase tải xong goals hoặc dailyLogs
         var currentGoalsLen = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.length : 0;
@@ -6460,13 +6528,14 @@ setInterval(function() {
             if (typeof updateKPI === 'function') updateKPI();
             if (typeof renderGoals === 'function') renderGoals();
             if (typeof renderCountdowns === 'function') renderCountdowns();
+            enforceSmartDispatchState();
             renderBentoCommandCenter();
         }
 
         // 4. Tính chuẩn KPI Tuần thực tế từ dailyLogs
         if (kpiStatusEl && currentLogsLen > 0) {
             var weekSum = 0;
-            var dayOfWeek = now.getDay() || 7; // Thứ 2 = 1 ... Chủ nhật = 7
+            var dayOfWeek = now.getDay() || 7;
             for (var i = 0; i < dayOfWeek; i++) {
                 var d = new Date(now);
                 d.setDate(now.getDate() - i);
@@ -6492,6 +6561,7 @@ window.addEventListener('DOMContentLoaded', function() {
     maintainCleanSidebar();
     setTimeout(function() {
         if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
+        enforceSmartDispatchState();
         renderBentoCommandCenter();
     }, 300);
 });
