@@ -5316,18 +5316,24 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// APEX UNIFIED UI ENGINE V3 (ALL-IN-ONE: DASHBOARD, ANALYTICS, TROPHY,
-// LEVEL/HOURS, 5-MIN PAUSE, OVERTIME REPORT, SIDEBAR & WALLPAPER)
+// APEX UNIFIED UI ENGINE V4 (CONCEPT 2026: 3-TIER DASHBOARD, GOAL DETAIL
+// ROADMAP, 4-FILTER ANALYTICS + AI INSIGHTS, 1000H RANKS & FOCUS STUDIO)
 // =====================================================================
 var DEFAULT_WALLPAPER = "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
 var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
-    { id: 1, text: "Ôn tập nội dung trọng tâm trong tuần", done: true },
-    { id: 2, text: "Làm bài tập thực hành chuyên ngành", done: true },
-    { id: 3, text: "Đọc tài liệu và ghi chú từ mới", done: false },
-    { id: 4, text: "Hoàn thành báo cáo tiến độ", done: false }
+    { id: 1, text: "Giám sát học sinh học từ vựng", done: true },
+    { id: 2, text: "Làm bài tập ngữ pháp chuyên ngành", done: false },
+    { id: 3, text: "Review bài cũ và ghi chú từ mới", done: false }
 ];
+var goalDetailsStore = JSON.parse(localStorage.getItem('apexGoalDetailsStore')) || {};
+var currentFocusedGoalId = Number(localStorage.getItem('apexFocusedGoalId')) || null;
+var currentAnalyticsRange = 30;
+var currentGoalModalTab = 'overview';
+var activeGoalDetailId = null;
 
 function saveBentoTodos() { localStorage.setItem('saasBentoTodos', JSON.stringify(bentoTodoList)); }
+function saveGoalDetailsStore() { localStorage.setItem('apexGoalDetailsStore', JSON.stringify(goalDetailsStore)); }
+
 function formatHrsToHM(hDec) {
     var mTotal = Math.round((hDec || 0) * 60);
     return Math.floor(mTotal / 60) + "h " + String(mTotal % 60).padStart(2, '0') + "m";
@@ -5338,6 +5344,8 @@ function getTotalAccumulatedHours() {
     }
     return 0;
 }
+
+// 1. HỆ THỐNG 10 BẬC HỌC HÀM / DANH HIỆU HỌC THUẬT TRUNG LẬP (0H -> 1000+ GIỜ)
 function getUserLevelAndRank(totalHrs) {
     var hrs = Number(totalHrs || 0);
     var lv = Math.max(1, Math.floor(hrs / 10) + 1);
@@ -5357,6 +5365,69 @@ function getUserLevelAndRank(totalHrs) {
     return { level: lv, rank: title, nextHrs: nextLvHrs, pct: pct };
 }
 
+function getAllAchievementsList() {
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var allGoalsList = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals : [];
+    var completedGoals = allGoalsList.filter(function(g) { return g.current <= 0; });
+    var has100hGoal = allGoalsList.some(function(g) { return Number(g.target || 0) >= 100; });
+    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+
+    var totalReports = 0, morningReports = 0, nightReports = 0;
+    allGoalsList.forEach(function(g) {
+        if (Array.isArray(g.reports)) {
+            totalReports += g.reports.length;
+            g.reports.forEach(function(r) {
+                var matchHr = String(r.date || "").match(/(\d{1,2}):\d{2}/);
+                if (matchHr) {
+                    var h = parseInt(matchHr[1], 10);
+                    if (h >= 5 && h < 11) morningReports++;
+                    if (h >= 20 || h < 2) nightReports++;
+                }
+            });
+        }
+    });
+    var totalPomodorosEst = Math.round((totalAllTimeHrs * 60) / 25);
+    var logDaysCount = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).filter(function(k) { return Number(dailyLogs[k]) > 0; }).length : 0;
+
+    return [
+        { tier: 'rookie', name: "First Step", desc: "Hoàn thành phiên học tập trung đầu tiên trên hệ thống", icon: "fa-flag", grad: "linear-gradient(135deg,#f43f5e,#e11d48)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
+        { tier: 'rookie', name: "Warm Up", desc: "Hoàn thành tích lũy tương đương 10 phiên Pomodoro", icon: "fa-clock", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalPomodorosEst >= 10, tag: "10 Phiên" },
+        { tier: 'rookie', name: "Apprentice", desc: "Đạt cột mốc 10 giờ học tập và nghiên cứu thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 Giờ" },
+        { tier: 'rookie', name: "Early Bird", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi sáng", icon: "fa-sun", grad: "linear-gradient(135deg,#fbbf24,#d97706)", unlocked: morningReports >= 10 || logDaysCount >= 10, tag: "10 Ca Sáng" },
+        { tier: 'rookie', name: "Night Owl", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi tối", icon: "fa-moon", grad: "linear-gradient(135deg,#818cf8,#4f46e5)", unlocked: nightReports >= 10 || totalReports >= 15, tag: "10 Ca Tối" },
+        { tier: 'rookie', name: "First Milestone", desc: "Hoàn thành 100% tiến độ của 1 mục tiêu học tập", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
+
+        { tier: 'pro', name: "Silver Streak", desc: "Duy trì thói quen học tập 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
+        { tier: 'pro', name: "Consistent Learner", desc: "Duy trì kỷ luật học tập 30 ngày liên tiếp", icon: "fa-calendar-check", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
+        { tier: 'pro', name: "Active Tracker", desc: "Ghi nhận dữ liệu học tập trên 20 ngày khác nhau", icon: "fa-chart-simple", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: logDaysCount >= 20, tag: "20 Ngày học" },
+        { tier: 'pro', name: "Goal Achiever", desc: "Hoàn thành trọn vẹn 5 mục tiêu trong kế hoạch", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
+        { tier: 'pro', name: "Long-term Planner", desc: "Thiết lập một mục tiêu dài hạn có quy mô từ 100 giờ", icon: "fa-route", grad: "linear-gradient(135deg,#06b6d4,#0284c7)", unlocked: has100hGoal, tag: "Mục tiêu 100h" },
+        { tier: 'pro', name: "Resource Manager", desc: "Tích lũy quỹ thưởng học tập đạt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000 USD" },
+
+        { tier: 'elite', name: "Scholar", desc: "Đạt cột mốc 50 giờ tập trung học tập (Lv. 6)", icon: "fa-graduation-cap", grad: "linear-gradient(135deg,#a855f7,#7e22ce)", unlocked: totalAllTimeHrs >= 50, tag: "50 Giờ" },
+        { tier: 'elite', name: "Deep Worker", desc: "Tích lũy 75 giờ làm việc và nghiên cứu chuyên sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#14b8a6,#0f766e)", unlocked: totalAllTimeHrs >= 75, tag: "75 Giờ" },
+        { tier: 'elite', name: "Documentarian", desc: "Viết và lưu trữ thành công 50 bản báo cáo kết quả", icon: "fa-file-lines", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
+        { tier: 'elite', name: "Project Master", desc: "Hoàn thành xuất sắc 10 mục tiêu học thuật", icon: "fa-check-double", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
+        { tier: 'elite', name: "Diamond Streak", desc: "Duy trì chuỗi học tập 60 ngày liên tục không gián đoạn", icon: "fa-gem", grad: "linear-gradient(135deg,#38bdf8,#1d4ed8)", unlocked: streak >= 60, tag: "60 Ngày" },
+        { tier: 'elite', name: "Senior Investor", desc: "Quỹ thưởng tích lũy từ hiệu suất học tập đạt $5,000 USD", icon: "fa-building-columns", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000 USD" },
+
+        { tier: 'legend', name: "Centurion", desc: "Đạt cột mốc 100 giờ học tập tích lũy (Lv. 11)", icon: "fa-award", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 Giờ" },
+        { tier: 'legend', name: "Specialist", desc: "Đạt cấp bậc Chuyên Gia với 150 giờ tích lũy (Lv. 16)", icon: "fa-microscope", grad: "linear-gradient(135deg,#dc2626,#991b1b)", unlocked: totalAllTimeHrs >= 150, tag: "150 Giờ" },
+        { tier: 'legend', name: "Senior Author", desc: "Hoàn thành 100 bản báo cáo tổng kết phiên học", icon: "fa-pen-nib", grad: "linear-gradient(135deg,#d97706,#92400e)", unlocked: totalReports >= 100, tag: "100 Báo cáo" },
+        { tier: 'legend', name: "Time Architect", desc: "Làm chủ quỹ thời gian với 200 giờ tập trung (Lv. 21)", icon: "fa-hourglass-half", grad: "linear-gradient(135deg,#9333ea,#581c87)", unlocked: totalAllTimeHrs >= 200, tag: "200 Giờ" },
+        { tier: 'legend', name: "Researcher", desc: "Đạt cấp Nghiên Cứu Viên với 250 giờ tích lũy (Lv. 26)", icon: "fa-landmark", grad: "linear-gradient(135deg,#2563eb,#1e3a8a)", unlocked: totalAllTimeHrs >= 250, tag: "250 Giờ" },
+        { tier: 'legend', name: "100-Day Discipline", desc: "Duy trì chuỗi kỷ luật học tập 100 ngày liên tiếp", icon: "fa-fire", grad: "linear-gradient(135deg,#ef4444,#b91c1c)", unlocked: streak >= 100, tag: "100 Ngày" },
+
+        { tier: 'mythic', name: "Senior Researcher", desc: "Nghiên Cứu Viên Chính: Đạt 350 giờ tích lũy (Lv. 36)", icon: "fa-book-atlas", grad: "linear-gradient(135deg,#10b981,#065f46)", unlocked: totalAllTimeHrs >= 350, tag: "350 Giờ" },
+        { tier: 'mythic', name: "Senior Scholar", desc: "Học Giả Cấp Cao: Vượt cột mốc 500 giờ học (Lv. 51)", icon: "fa-compass-drafting", grad: "linear-gradient(135deg,#ec4899,#831843)", unlocked: totalAllTimeHrs >= 500, tag: "500 Giờ" },
+        { tier: 'mythic', name: "Endowment Fund", desc: "Quỹ học bổng tích lũy trên hệ thống đạt $15,000 USD", icon: "fa-chart-line", grad: "linear-gradient(135deg,#facc15,#854d0e)", unlocked: usd >= 15000, tag: "$15,000 USD" },
+        { tier: 'mythic', name: "Associate Fellow", desc: "Phó Giáo Sư Danh Dự: Chinh phục 700 giờ học (Lv. 71)", icon: "fa-user-graduate", grad: "linear-gradient(135deg,#0ea5e9,#0c4a6e)", unlocked: totalAllTimeHrs >= 700, tag: "700 Giờ" },
+        { tier: 'mythic', name: "Distinguished Fellow", desc: "Giáo Sư Danh Dự: Chinh phục 900 giờ học (Lv. 90)", icon: "fa-star", grad: "linear-gradient(135deg,#a855f7,#4c1d95)", unlocked: totalAllTimeHrs >= 900, tag: "900 Giờ" },
+        { tier: 'mythic', name: "Academician 1000h", desc: "Viện Sĩ Học Thuật: Cột mốc 1.000 giờ nghiên cứu (Lv. 101)", icon: "fa-crown", grad: "linear-gradient(135deg,#fbbf24,#f43f5e,#7c3aed)", unlocked: totalAllTimeHrs >= 1000, tag: "1.000 Giờ" }
+    ];
+}
+
 function toggleBentoTodo(id) {
     var item = bentoTodoList.find(function(t) { return t.id === id; });
     if (item) { item.done = !item.done; saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData(); }
@@ -5373,7 +5444,7 @@ function deleteBentoTodo(e, id) {
     saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData();
 }
 
-// --- 1. QUẢN LÝ ẢNH NỀN TỰ DO & BẢNG MÀU ---
+// --- 2. QUẢN LÝ ẢNH NỀN TỰ DO ---
 function applyCustomWallpaper() {
     var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
     var dim = localStorage.getItem('saasWallpaperDim') || "0.78";
@@ -5386,7 +5457,7 @@ function openWallpaperPickerModal() {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'wallpaper-picker-modal';
-        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(10px); z-index:10002; align-items:center; justify-content:center; padding:20px;";
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(10px); z-index:10005; align-items:center; justify-content:center; padding:20px;";
         document.body.appendChild(modal);
     }
     var curBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
@@ -5442,7 +5513,7 @@ window.handleLocalWallpaperUpload = function(e) {
     reader.readAsDataURL(file);
 };
 
-// --- 2. KẾT NỐI CHỨNG KHOÁN & THẺ KPI TUẦN ---
+// --- 3. CHỨNG KHOÁN & THẺ KPI TUẦN ---
 function getUnifiedStockArray() {
     if (typeof stockMarket !== 'undefined' && stockMarket && !Array.isArray(stockMarket) && typeof stockMarket === 'object') {
         return Object.keys(stockMarket).map(function(k) {
@@ -5507,7 +5578,227 @@ function ensureMartialLawKpiCard() {
     if (m) { m.style.cssText = "font-size:0.75rem; color:#94a3b8; margin:0;"; document.getElementById('kpi-msg-slot').appendChild(m); }
 }
 
-// --- 3. BỘ CSS HỢP NHẤT DUY NHẤT ---
+// --- 4. MÀN HÌNH CHI TIẾT MỤC TIÊU (GOALS DETAIL VIEW - LỘ TRÌNH 5 CHẶNG & NHIỆM VỤ MÔN HỌC) ---
+function getGoalExtraData(goal) {
+    var id = goal.id;
+    if (!goalDetailsStore[id]) {
+        var targetH = Number(goal.target || 20);
+        var stepH = Math.max(1, Math.round(targetH / 5));
+        goalDetailsStore[id] = {
+            subtitle: "Lộ trình chinh phục " + targetH + " giờ",
+            milestones: [
+                { title: "Chặng 1", sub: "Nền tảng (" + stepH + "h)" },
+                { title: "Chặng 2", sub: "Tăng tốc (" + (stepH * 2) + "h)" },
+                { title: "Chặng 3", sub: "Chuyên sâu (" + (stepH * 3) + "h)" },
+                { title: "Chặng 4", sub: "Thực chiến (" + (stepH * 4) + "h)" },
+                { title: "Chặng 5", sub: "Về đích (" + targetH + "h)" }
+            ],
+            tasks: [
+                { id: 101, text: "Ôn tập kiến thức trọng tâm chương hiện tại", mins: 30, done: true },
+                { id: 102, text: "Làm bài tập thực hành / Luyện đề chuyên sâu", mins: 45, done: false },
+                { id: 103, text: "Tổng hợp ghi chú & từ vựng quan trọng", mins: 25, done: false }
+            ],
+            notes: "Ghi chú trọng tâm cho mục tiêu " + goal.name + "..."
+        };
+        saveGoalDetailsStore();
+    }
+    return goalDetailsStore[id];
+}
+
+window.openGoalDetailModal = function(goalId, defaultTab) {
+    if (typeof goals === 'undefined' || !Array.isArray(goals)) return;
+    var g = goals.find(function(item) { return item.id === goalId; }) || goals[0];
+    if (!g) return;
+
+    activeGoalDetailId = g.id;
+    currentFocusedGoalId = g.id;
+    localStorage.setItem('apexFocusedGoalId', String(g.id));
+    if (defaultTab) currentGoalModalTab = defaultTab;
+
+    var modal = document.getElementById('apex-goal-detail-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'apex-goal-detail-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.84); backdrop-filter:blur(12px); z-index:10001; align-items:center; justify-content:center; padding:18px; overflow-y:auto;";
+        document.body.appendChild(modal);
+    }
+
+    var extra = getGoalExtraData(g);
+    var targetH = Number(g.target || 1);
+    var leftH = Math.max(0, Number(g.current || 0));
+    var doneH = Math.max(0, targetH - leftH);
+    var pct = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+    var curStageIdx = Math.min(4, Math.floor((pct / 100) * 5));
+
+    // Stepper 5 chặng chuẩn Concept
+    var stepperHtml = extra.milestones.map(function(ms, idx) {
+        var isDone = idx < curStageIdx || pct >= 100;
+        var isCurrent = idx === curStageIdx && pct < 100;
+        var circleBg = isDone ? '#10b981' : (isCurrent ? '#a855f7' : 'rgba(255,255,255,0.08)');
+        var borderCol = isDone ? '#10b981' : (isCurrent ? '#c084fc' : 'rgba(255,255,255,0.15)');
+        return `
+            <div style="display:flex; flex-direction:column; align-items:center; position:relative; flex:1; z-index:2;">
+                <div style="width:28px; height:28px; border-radius:50%; background:${circleBg}; border:2px solid ${borderCol}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:800; box-shadow:${isCurrent?'0 0 15px rgba(168,85,247,0.6)':'none'};">
+                    ${isDone ? '<i class="fa-solid fa-check"></i>' : (idx + 1)}
+                </div>
+                <strong style="font-size:0.74rem; color:${isCurrent?'#c084fc':'#fff'}; margin-top:6px;">${ms.title}</strong>
+                <span style="font-size:0.64rem; color:#94a3b8; text-align:center;">${isCurrent ? 'Hiện tại' : ms.sub}</span>
+            </div>`;
+    }).join('');
+
+    var tasksHtml = extra.tasks.map(function(tk) {
+        return `
+            <div onclick="toggleGoalDetailTask(${g.id}, ${tk.id})" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); margin-bottom:7px; cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                    <div style="width:17px; height:17px; border-radius:5px; border:1.5px solid ${tk.done?'#a855f7':'#64748b'}; background:${tk.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.65rem; flex-shrink:0;">
+                        ${tk.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </div>
+                    <span style="font-size:0.82rem; color:${tk.done?'#64748b':'#f1f5f9'}; text-decoration:${tk.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tk.text}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                    <span style="font-size:0.74rem; color:#94a3b8;">${tk.mins} phút</span>
+                    <span style="font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:6px; background:${tk.done?'rgba(16,185,129,0.18)':'rgba(255,255,255,0.06)'}; color:${tk.done?'#10b981':'#94a3b8'};">
+                        ${tk.done ? 'Hoàn thành' : 'Chưa làm'}
+                    </span>
+                    <button onclick="deleteGoalDetailTask(event, ${g.id}, ${tk.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>`;
+    }).join('');
+
+    var reportsList = Array.isArray(g.reports) ? g.reports : [];
+    var reportsHtml = reportsList.length === 0
+        ? '<div style="padding:20px; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có bản báo cáo nào cho mục tiêu này.</div>'
+        : reportsList.slice(0, 8).map(function(r) {
+            return `<div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border-left:3px solid #a855f7; margin-bottom:7px;"><div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:3px;"><span>${r.date || ''}</span><strong style="color:#10b981;">${r.duration || 25} phút</strong></div><div style="font-size:0.78rem; color:#e2e8f0;">${r.content || r.text || ''}</div></div>`;
+        }).join('');
+
+    var tabBodyHtml = '';
+    if (currentGoalModalTab === 'overview' || currentGoalModalTab === 'tasks') {
+        tabBodyHtml = `
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px; margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="font-size:0.8rem; font-weight:800; color:#fff;">Lộ trình đề xuất (5 Chặng)</span>
+                    <span style="font-size:0.72rem; color:#a855f7; font-weight:700; cursor:pointer;" onclick="customizeGoalMilestones(${g.id})"><i class="fa-solid fa-pen"></i> Đổi tên chặng</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; position:relative; padding:4px 0;">
+                    <div style="position:absolute; top:18px; left:10%; right:10%; height:3px; background:rgba(255,255,255,0.08); z-index:1;">
+                        <div style="width:${pct}%; height:100%; background:linear-gradient(90deg, #10b981, #a855f7);"></div>
+                    </div>
+                    ${stepperHtml}
+                </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:0.8rem; font-weight:800; color:#fff;">Nhiệm vụ chính (${extra.tasks.length})</span>
+                    <button onclick="addGoalDetailTaskPrompt(${g.id})" style="background:none; border:none; color:#a855f7; font-size:0.76rem; font-weight:700; cursor:pointer;">+ Thêm nhiệm vụ</button>
+                </div>
+                <div style="max-height:210px; overflow-y:auto;">${tasksHtml}</div>
+            </div>`;
+    } else if (currentGoalModalTab === 'stats') {
+        tabBodyHtml = `
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;">
+                <div style="font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:10px;">Lịch sử báo cáo môn học (${reportsList.length} bản)</div>
+                <div style="max-height:260px; overflow-y:auto;">${reportsHtml}</div>
+            </div>`;
+    } else if (currentGoalModalTab === 'notes') {
+        tabBodyHtml = `
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;">
+                <div style="font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:8px;">Sổ tay ghi chú môn học</div>
+                <textarea id="goal-detail-note-area" style="width:100%; height:180px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; font-size:0.82rem; outline:none; resize:vertical;">${extra.notes || ''}</textarea>
+                <button onclick="saveGoalDetailNote(${g.id})" style="margin-top:10px; background:#7c3aed; color:#fff; border:none; padding:8px 18px; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer;">Lưu ghi chú</button>
+            </div>`;
+    }
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(160deg, #14192d 0%, #0d1120 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:680px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.75);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; padding:6px 14px; border-radius:100px; font-size:0.76rem; font-weight:600; cursor:pointer;">
+                    ← Quay lại
+                </button>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.45);">
+                        ▶ Vào Phòng Focus
+                    </button>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:16px; margin-bottom:16px;">
+                <div style="width:62px; height:62px; border-radius:14px; background:linear-gradient(135deg, #f97316, #db2777); display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; flex-shrink:0;">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <div>
+                            <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:#fff;">${g.name}</h3>
+                            <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">${extra.subtitle}</div>
+                        </div>
+                        <strong style="font-size:1.4rem; font-weight:900; color:#fff;">${pct}%</strong>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin:8px 0 6px 0;">
+                        <div style="width:${pct}%; height:100%; background:linear-gradient(90deg, #8b5cf6, #38bdf8); border-radius:100px;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#94a3b8;">
+                        <span>Đã học: <strong style="color:#fff;">${doneH.toFixed(1)}h / ${targetH.toFixed(1).replace(/\.0$/,'')}h</strong></span>
+                        <span>Còn lại: <strong style="color:#c084fc;">${leftH.toFixed(2)}h</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:10px;">
+                <button class="demo-tab-pill ${currentGoalModalTab==='overview'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'overview')">Tổng quan</button>
+                <button class="demo-tab-pill ${currentGoalModalTab==='tasks'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'tasks')">Nhiệm vụ (${extra.tasks.length})</button>
+                <button class="demo-tab-pill ${currentGoalModalTab==='stats'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'stats')">Thống kê (${reportsList.length})</button>
+                <button class="demo-tab-pill ${currentGoalModalTab==='notes'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'notes')">Ghi chú</button>
+            </div>
+
+            ${tabBodyHtml}
+        </div>`;
+    modal.style.display = 'flex';
+};
+
+window.toggleGoalDetailTask = function(goalId, taskId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    var tk = extra.tasks.find(function(t) { return t.id === taskId; });
+    if (tk) { tk.done = !tk.done; saveGoalDetailsStore(); openGoalDetailModal(goalId); }
+};
+window.addGoalDetailTaskPrompt = function(goalId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var txt = prompt("Nhập tên nhiệm vụ cho mục tiêu " + g.name + ":");
+    if (!txt || !txt.trim()) return;
+    var mins = parseInt(prompt("Thời lượng dự kiến (phút):", "30")) || 30;
+    var extra = getGoalExtraData(g);
+    extra.tasks.push({ id: Date.now(), text: txt.trim(), mins: mins, done: false });
+    saveGoalDetailsStore(); openGoalDetailModal(goalId);
+};
+window.deleteGoalDetailTask = function(e, goalId, taskId) {
+    e.stopPropagation();
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    extra.tasks = extra.tasks.filter(function(t) { return t.id !== taskId; });
+    saveGoalDetailsStore(); openGoalDetailModal(goalId);
+};
+window.customizeGoalMilestones = function(goalId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    var currentNames = extra.milestones.map(function(m) { return m.title; }).join(', ');
+    var input = prompt("Nhập tên 5 cột mốc lộ trình (cách nhau bằng dấu phẩy):", currentNames);
+    if (!input) return;
+    var parts = input.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+    for (var i = 0; i < 5; i++) {
+        if (parts[i]) extra.milestones[i].title = parts[i];
+    }
+    saveGoalDetailsStore(); openGoalDetailModal(goalId);
+};
+window.saveGoalDetailNote = function(goalId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    var area = document.getElementById('goal-detail-note-area');
+    if (area) { extra.notes = area.value; saveGoalDetailsStore(); alert("Đã lưu ghi chú môn học!"); }
+};
+
+// --- 5. BỘ CSS HỢP NHẤT DUY NHẤT ---
 function injectUnifiedApexCSS() {
     applyCustomWallpaper();
     if (document.getElementById('apex-unified-master-css')) return;
@@ -5539,12 +5830,9 @@ function injectUnifiedApexCSS() {
 
         /* Sidebar SaaS */
         .sidebar {
-            width: 224px !important;
-            background: rgba(8, 10, 18, 0.85) !important;
-            backdrop-filter: blur(20px) !important;
-            border-right: 1px solid rgba(255,255,255,0.08) !important;
-            padding: 14px 12px !important;
-            display: flex !important; flex-direction: column !important;
+            width: 224px !important; background: rgba(8, 10, 18, 0.85) !important;
+            backdrop-filter: blur(20px) !important; border-right: 1px solid rgba(255,255,255,0.08) !important;
+            padding: 14px 12px !important; display: flex !important; flex-direction: column !important;
         }
         .sidebar .nav-item {
             padding: 9px 12px !important; margin-bottom: 3px !important; border-radius: 10px !important;
@@ -5553,8 +5841,7 @@ function injectUnifiedApexCSS() {
         }
         .sidebar .nav-item.active {
             background: var(--theme-soft) !important; color: #fff !important;
-            font-weight: 700 !important; border: 1px solid var(--theme-border) !important;
-            box-shadow: none !important;
+            font-weight: 700 !important; border: 1px solid var(--theme-border) !important; box-shadow: none !important;
         }
         .sidebar .nav-item.active::before {
             content: ""; position: absolute; left: -1px; top: 22%; bottom: 22%;
@@ -5562,57 +5849,55 @@ function injectUnifiedApexCSS() {
         }
         .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
 
-        /* Hero Banner & Orbit */
+        /* Hero Banner & 4-Stat Strip chuẩn Concept */
         .phoi-hero-banner {
             position: relative; border-radius: 18px; padding: 18px 24px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.12);
-            background: linear-gradient(90deg, rgba(12,16,32,0.88) 0%, rgba(18,22,44,0.62) 55%, rgba(12,16,32,0.78) 100%), var(--user-wallpaper) center/cover no-repeat;
+            background: linear-gradient(90deg, rgba(12,16,32,0.9) 0%, rgba(18,22,44,0.65) 55%, rgba(12,16,32,0.8) 100%), var(--user-wallpaper) center/cover no-repeat;
             box-shadow: 0 12px 32px rgba(0,0,0,0.45);
         }
-        .phoi-hero-left { z-index: 2; flex: 1; max-width: 62%; }
-        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .phoi-hero-left { z-index: 2; flex: 1; max-width: 66%; }
+        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
         .phoi-pill-cmd { background: rgba(15,23,42,0.75); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
         .phoi-pill-live { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 3px 10px; border-radius: 100px; font-size: 0.64rem; font-weight: 800; }
         .phoi-hero-left h1 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; }
         .phoi-hero-left p { font-size: 0.8rem; color: #cbd5e1; font-style: italic; margin: 0 0 14px 0; }
-        .phoi-hero-mini-bar { display: inline-flex; align-items: center; gap: 20px; flex-wrap: wrap; background: rgba(13,18,34,0.82); border: 1px solid rgba(255,255,255,0.1); padding: 9px 16px; border-radius: 12px; }
-        .phoi-mini-item { display: flex; align-items: center; gap: 8px; }
-        .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; }
+        .phoi-hero-mini-bar {
+            display: inline-flex; align-items: center; gap: 18px; flex-wrap: wrap;
+            background: rgba(11, 15, 30, 0.84); border: 1px solid rgba(255,255,255,0.1);
+            padding: 9px 16px; border-radius: 13px; backdrop-filter: blur(12px);
+        }
+        .phoi-mini-item { display: flex; align-items: center; gap: 9px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.07); }
+        .phoi-mini-item:last-child { border-right: none; padding-right: 0; }
+        .phoi-mini-item strong { display: block; font-size: 0.84rem; color: #fff; font-weight: 800; line-height: 1.15; }
         .phoi-mini-item span { font-size: 0.65rem; color: #94a3b8; }
 
-        .phoi-orbit-box { position: relative; width: 270px; height: 188px; display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0; }
-        .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 116px; height: 116px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.45); }
-        .phoi-orbit-ring2 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 182px; height: 182px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); }
-        .phoi-orbit-core { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle, #7c3aed 0%, #311068 100%); border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; color: #fff; box-shadow: 0 0 25px rgba(168,85,247,0.75); z-index: 3; }
-        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; min-width: 72px; }
+        .phoi-orbit-box { position: relative; width: 260px; height: 182px; display: flex; align-items: center; justify-content: center; z-index: 2; flex-shrink: 0; }
+        .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 114px; height: 114px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.45); }
+        .phoi-orbit-ring2 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 178px; height: 178px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); }
+        .phoi-orbit-core { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle, #7c3aed 0%, #311068 100%); border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 900; color: #fff; box-shadow: 0 0 25px rgba(168,85,247,0.75); z-index: 3; }
+        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; min-width: 70px; }
         .phoi-orbit-box .phoi-sat:nth-of-type(4) { top: 2px; left: 50%; transform: translateX(-50%); }
         .phoi-orbit-box .phoi-sat:nth-of-type(5) { bottom: 4px; left: 8px; }
         .phoi-orbit-box .phoi-sat:nth-of-type(6) { bottom: 4px; right: 8px; }
-        .phoi-sat-circle { width: 32px; height: 32px; border-radius: 50%; background: rgba(13,18,34,0.95); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; margin-bottom: 3px; }
+        .phoi-sat-circle { width: 30px; height: 30px; border-radius: 50%; background: rgba(13,18,34,0.95); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-bottom: 3px; }
         .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; }
-        .phoi-sat span { font-size: 0.62rem; color: #cbd5e1; }
+        .phoi-sat span { font-size: 0.6rem; color: #cbd5e1; }
 
-        /* Dashboard Bento Grids */
-        .phoi-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
-        .phoi-stat-card { border-radius: 15px; padding: 13px 15px; backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.09); display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
-        .phoi-stat-card.s-purple { background: linear-gradient(135deg, rgba(88,28,135,0.45), rgba(17,22,38,0.85)); border-color: rgba(168,85,247,0.3); }
-        .phoi-stat-card.s-cyan   { background: linear-gradient(135deg, rgba(12,74,110,0.48), rgba(17,22,38,0.85)); border-color: rgba(56,189,248,0.3); }
-        .phoi-stat-card.s-amber  { background: linear-gradient(135deg, rgba(120,53,15,0.48), rgba(17,22,38,0.85)); border-color: rgba(245,158,11,0.3); }
-        .phoi-stat-card.s-rose   { background: linear-gradient(135deg, rgba(136,19,55,0.48), rgba(17,22,38,0.85)); border-color: rgba(244,63,94,0.3); }
-        .phoi-orb { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
-
-        .phoi-row-3col { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        /* Bento 3-Column Grids */
+        .phoi-row-3col { display: grid; grid-template-columns: 1.12fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .phoi-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-        .phoi-card { background: rgba(17,22,38,0.78) !important; backdrop-filter: blur(16px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 16px !important; padding: 14px 16px !important; display: flex; flex-direction: column; justify-content: space-between; }
+        .phoi-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+        .phoi-card {
+            background: rgba(16, 21, 38, 0.8) !important; backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important; border-radius: 16px !important;
+            padding: 14px 16px !important; display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.35) !important;
+        }
         .phoi-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .phoi-card-title { font-size: 0.75rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
+        .phoi-card-title { font-size: 0.74rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
         .phoi-link { font-size: 0.72rem; color: #a855f7; font-weight: 600; cursor: pointer; }
-
-        .phoi-heat-container { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-        .phoi-heat-labels { display: grid; grid-template-rows: repeat(7, 13px); gap: 4px; font-size: 0.6rem; color: #64748b; font-weight: 700; line-height: 13px; }
-        .phoi-heat-matrix { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(7, 13px); gap: 4px; flex: 1; }
-        .phoi-heat-cell { height: 13px; border-radius: 3px; background: rgba(255,255,255,0.05); }
 
         /* Compact Goal Cards */
         #dashboard-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important; gap: 12px !important; }
@@ -5637,7 +5922,7 @@ function injectUnifiedApexCSS() {
         .ft-topbar > div:last-child { justify-self: end; display: flex; align-items: center; gap: 8px; }
         .ft-glass-btn { background: rgba(17,22,40,0.72); border: 1px solid rgba(255,255,255,0.14); color: #f1f5f9; padding: 8px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(12px); }
         .ft-room-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
-        .ft-goal-title { font-size: 1.7rem; font-weight: 800; color: #fff; display: inline-flex; align-items: center; gap: 8px; }
+        .ft-goal-title { font-size: 1.7rem; font-weight: 800; color: #fff; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
         .ft-goal-sub { font-size: 0.8rem; color: #cbd5e1; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
         .ft-mode-bar { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
@@ -5663,14 +5948,13 @@ function injectUnifiedApexCSS() {
         .f-amb-card span { display: block; font-size: 0.63rem; color: #94a3b8; }
 
         .hex-icon { width: 48px; height: 54px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; flex-shrink: 0; }
-        .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .demo-tab-pill { background: rgba(19,24,38,0.8); border: 1px solid rgba(255,255,255,0.08); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+        .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .demo-tab-pill { background: rgba(19,24,38,0.8); border: 1px solid rgba(255,255,255,0.08); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
         .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; border-color: transparent; }
 
-        /* Mobile Responsive */
         @media (max-width: 1080px) {
             .phoi-stat-grid { grid-template-columns: repeat(2, 1fr); }
-            .phoi-row-3col, .phoi-row-2col, .ft-main-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }
+            .phoi-row-3col, .phoi-row-2col, .ft-main-grid { grid-template-columns: 1fr !important; max-width: 520px; margin: 0 auto 12px auto; }
             .phoi-orbit-box { display: none; }
             .phoi-hero-left { max-width: 100%; }
             .ft-center-col { order: -1; margin: 8px 0; }
@@ -5678,7 +5962,8 @@ function injectUnifiedApexCSS() {
         @media (max-width: 768px) {
             .main-content { padding: 0 12px 28px 12px !important; overflow-x: hidden !important; }
             .top-quote-text { display: none !important; }
-            .phoi-hero-mini-bar { width: 100%; justify-content: space-between; gap: 10px; padding: 8px 12px; }
+            .phoi-hero-mini-bar { width: 100%; justify-content: space-between; gap: 8px; padding: 8px 12px; }
+            .phoi-mini-item { border-right: none; padding-right: 0; }
             #dashboard-grid { grid-template-columns: 1fr !important; }
             #focus-room { padding: 12px 14px 28px 14px !important; overflow-y: auto !important; justify-content: flex-start !important; }
             .ft-wrapper { height: auto !important; }
@@ -5693,7 +5978,7 @@ function injectUnifiedApexCSS() {
     document.head.appendChild(st);
 }
 
-// --- 4. RENDER DASHBOARD 4 TẦNG (CÓ ĐẦY ĐỦ TỔNG GIỜ TÍCH LŨY & LEVEL/RANK) ---
+// --- 6. RENDER DASHBOARD 3 TẦNG CHUẨN CONCEPT MỚI ---
 function renderBentoCommandCenter() {
     try {
         injectUnifiedApexCSS();
@@ -5711,104 +5996,269 @@ function renderBentoCommandCenter() {
         var now = new Date(), hr = now.getHours();
         var greeting = hr < 12 ? "Chào buổi sáng" : (hr < 18 ? "Chào buổi chiều" : "Chào buổi tối");
         var userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.displayName) ? currentUser.displayName : "Phước Thịnh";
-        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 1.0 };
-        var todayDone = qInfo.doneHrs || 0, dailyGoal = Math.max(qInfo.requiredHrs || 1.0, 0.25);
+        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 0.5 };
+        var todayDone = qInfo.doneHrs || 0, dailyGoal = Math.max(qInfo.requiredHrs || 0.5, 0.25);
         var pctToday = Math.min(100, Math.round((todayDone / dailyGoal) * 100));
 
         var totalAllTimeHrs = getTotalAccumulatedHours();
         var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
-        var level = lvInfo.level, rankTitle = lvInfo.rank, levelPct = lvInfo.pct, nextLvHrs = lvInfo.nextHrs;
-        var todayPomodoros = Math.round((todayDone * 60) / 25), streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
-        var doneCount = bentoTodoList.filter(function(t) { return t.done; }).length;
-        var todoPct = Math.round((doneCount / Math.max(1, bentoTodoList.length)) * 100);
+        var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+        var achList = getAllAchievementsList();
+        var unlockedAchCount = achList.filter(function(a) { return a.unlocked; }).length;
 
-        var heatCellsHtml = '';
-        for (var i = 83; i >= 0; i--) {
-            var d = new Date(); d.setDate(d.getDate() - i);
-            var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-            var val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? dailyLogs[dStr] : 0;
-            var bg = val >= 2 ? '#10b981' : (val >= 1 ? 'rgba(16,185,129,0.7)' : (val > 0 ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.05)'));
-            heatCellsHtml += `<div class="phoi-heat-cell" style="background:${bg};" title="${dStr}: ${val.toFixed(1)}h"></div>`;
+        // Vòng tròn SVG cho thẻ HÔM NAY (Gộp vòng tròn + 3 nhiệm vụ quan trọng)
+        var ringRadius = 42, ringCircum = 2 * Math.PI * ringRadius;
+        var ringOffset = ringCircum - (pctToday / 100) * ringCircum;
+
+        var todoListHtml = bentoTodoList.slice(0, 3).map(function(t) {
+            return `
+                <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; padding:5px 6px; border-radius:7px; cursor:pointer; background:rgba(255,255,255,0.02); margin-bottom:4px;">
+                    <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                        <div style="width:15px; height:15px; border-radius:4px; border:1.5px solid ${t.done?'#a855f7':'#64748b'}; background:${t.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.58rem; flex-shrink:0;">
+                            ${t.done?'<i class="fa-solid fa-check"></i>':''}
+                        </div>
+                        <span style="font-size:0.76rem; color:${t.done?'#94a3b8':'#f1f5f9'}; text-decoration:${t.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.text}</span>
+                    </div>
+                    <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.68rem;"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+        }).join('');
+
+        // Thẻ MỤC TIÊU ĐANG TẬP TRUNG (Giữa Hàng 2)
+        var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current > 0; }) : [];
+        var focusGoal = activeGoals.find(function(g) { return g.id === currentFocusedGoalId; }) || activeGoals[0];
+        var focusGoalHtml = '';
+        if (focusGoal) {
+            var fgTarget = Number(focusGoal.target || 1), fgLeft = Math.max(0, Number(focusGoal.current || 0));
+            var fgDone = Math.max(0, fgTarget - fgLeft), fgPct = Math.min(100, Math.round((fgDone / Math.max(0.1, fgTarget)) * 100));
+            var fgExtra = getGoalExtraData(focusGoal);
+            focusGoalHtml = `
+                <div>
+                    <div class="phoi-card-head">
+                        <span class="phoi-card-title">Mục tiêu đang tập trung</span>
+                        <span class="phoi-link" onclick="openGoalDetailModal(${focusGoal.id}, 'overview')">Lộ trình & Chi tiết →</span>
+                    </div>
+                    <div onclick="openGoalDetailModal(${focusGoal.id}, 'overview')" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0 10px 0; cursor:pointer;">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                            <div style="width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, #ec4899, #8b5cf6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1rem; flex-shrink:0; box-shadow:0 4px 14px rgba(236,72,153,0.35);">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div style="font-size:0.98rem; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${focusGoal.name}</div>
+                                <div style="font-size:0.7rem; color:#94a3b8;">${fgExtra.subtitle}</div>
+                            </div>
+                        </div>
+                        <strong style="font-size:1.15rem; font-weight:900; color:#fff;">${fgPct}%</strong>
+                    </div>
+                    <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px;">
+                        <div style="width:${fgPct}%; height:100%; background:linear-gradient(90deg, #a855f7, #38bdf8); border-radius:100px;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:12px;">
+                        <span>${fgDone.toFixed(1)}h / ${fgTarget.toFixed(1).replace(/\.0$/,'')}h</span>
+                        <span>Còn ${fgLeft.toFixed(2)}h</span>
+                    </div>
+                </div>
+                <button onclick="openGoal(${focusGoal.id})" style="width:100%; padding:9px; border-radius:10px; background:linear-gradient(90deg, #7c3aed, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.8rem; cursor:pointer; box-shadow:0 6px 18px rgba(124,58,237,0.4);">
+                    <i class="fa-solid fa-play" style="margin-right:6px;"></i> Tiếp tục học
+                </button>`;
+        } else {
+            focusGoalHtml = `<div style="padding:30px 0; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có mục tiêu đang mở. Hãy tạo mục tiêu mới!</div>`;
         }
 
-        var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current > 0; }).slice(0, 3) : [];
-        var gIcons = [{ icon: 'fa-book-open', color: '#a855f7' }, { icon: 'fa-bullseye', color: '#f43f5e' }, { icon: 'fa-book', color: '#10b981' }];
-        var currentGoalsHtml = activeGoals.map(function(g, idx) {
-            var st = gIcons[idx % 3], pctG = Math.min(100, Math.round((Math.max(0, (g.target || 1) - g.current) / (g.target || 1)) * 100));
-            return `<div onclick="openGoal(${g.id})" style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;"><div style="width:32px; height:32px; border-radius:50%; background:${st.color}22; color:${st.color}; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;"><i class="fa-solid ${st.icon}"></i></div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:700; margin-bottom:4px;"><span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span><span style="color:#94a3b8;">${pctG}%</span></div><div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;"><div style="width:${pctG}%; height:100%; background:${st.color};"></div></div></div></div>`;
-        }).join('') || '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>';
-
-        var stockList = getUnifiedStockArray();
-        var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
-            var up = st.change >= 0;
-            return `<div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; padding:6px 4px; font-size:0.78rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;"><span style="font-weight:800; color:#e2e8f0;"><i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i>${st.code}</span><span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span><span style="font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div>`;
-        }).join('');
-
-        var todoListHtml = bentoTodoList.map(function(t) {
-            return `<div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; padding:6px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03);"><div style="display:flex; align-items:center; gap:10px; overflow:hidden;"><div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done?'#10b981':'#64748b'}; background:${t.done?'#10b981':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">${t.done?'<i class="fa-solid fa-check"></i>':''}</div><span style="font-size:0.8rem; color:${t.done?'#94a3b8':'#f1f5f9'}; text-decoration:${t.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.text}</span></div><button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div>`;
-        }).join('');
-
+        // Thẻ LỊCH TRÌNH HÔM NAY (Phải Hàng 2)
         var todayDow = now.getDay(), todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : now.toISOString().split('T')[0];
         var todaySchedules = (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) ? timetableData.filter(function(item) {
             var sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
             var eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
             return !(item.pausedDates && item.pausedDates.includes(todayStr)) && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate;
         }) : [];
-        var scheduleRowsHtml = todaySchedules.slice(0, 4).map(function(item) {
+        var pillCols = ['#8b5cf6', '#0ea5e9', '#f43f5e', '#10b981'];
+        var scheduleRowsHtml = todaySchedules.slice(0, 4).map(function(item, idx) {
+            var c = pillCols[idx % 4];
             var shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
-            return `<div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04);"><div style="display:flex; align-items:center; gap:10px; overflow:hidden;"><span style="background:rgba(99,102,241,0.22); border:1px solid rgba(99,102,241,0.45); color:#a5b4fc; padding:3px 9px; border-radius:7px; font-size:0.7rem; font-weight:800;">${shiftTime}</span><span style="font-size:0.8rem; font-weight:600; color:#f1f5f9;">${item.name}</span></div><span style="font-size:0.72rem; color:#94a3b8;">${item.room || ''}</span></div>`;
-        }).join('') || '<div style="padding:20px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>';
+            return `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <div style="display:flex; align-items:center; gap:9px; overflow:hidden;">
+                        <span style="background:${c}25; border:1px solid ${c}60; color:#fff; padding:2px 8px; border-radius:6px; font-size:0.68rem; font-weight:800; flex-shrink:0;">${shiftTime}</span>
+                        <span style="font-size:0.78rem; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</span>
+                    </div>
+                    <span style="font-size:0.7rem; color:#94a3b8; flex-shrink:0;">${item.room || 'TKB'} ›</span>
+                </div>`;
+        }).join('') || '<div style="padding:26px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>';
+
+        // Hàng 3 - Cột 1: BIỂU ĐỒ THỜI GIAN HỌC (7 NGÀY) chuẩn Concept
+        var logsObj = (typeof dailyLogs !== 'undefined' && dailyLogs) ? dailyLogs : {};
+        var maxBar7 = 3.0;
+        for (var m = 6; m >= 0; m--) {
+            var dm = new Date(); dm.setDate(dm.getDate() - m);
+            var km = dm.getFullYear() + '-' + String(dm.getMonth() + 1).padStart(2, '0') + '-' + String(dm.getDate()).padStart(2, '0');
+            if (Number(logsObj[km] || 0) > maxBar7) maxBar7 = Number(logsObj[km]);
+        }
+        var dLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        var miniBars7Html = '';
+        for (var b = 6; b >= 0; b--) {
+            var db = new Date(); db.setDate(db.getDate() - b);
+            var kb = db.getFullYear() + '-' + String(db.getMonth() + 1).padStart(2, '0') + '-' + String(db.getDate()).padStart(2, '0');
+            var vb = Number(logsObj[kb] || 0);
+            var hp = Math.min(100, Math.max(8, Math.round((vb / maxBar7) * 100)));
+            miniBars7Html += `
+                <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;" title="${kb}: ${vb.toFixed(1)}h">
+                    <span style="font-size:0.62rem; color:#cbd5e1; font-weight:700;">${vb > 0 ? vb.toFixed(1)+'h' : ''}</span>
+                    <div style="height:88px; width:100%; max-width:20px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; align-items:flex-end; overflow:hidden;">
+                        <div style="width:100%; height:${hp}%; background:linear-gradient(180deg, #38bdf8, #6366f1); border-radius:6px;"></div>
+                    </div>
+                    <span style="font-size:0.65rem; color:#94a3b8; font-weight:700;">${dLabels[db.getDay()]}</span>
+                </div>`;
+        }
+
+        // Hàng 3 - Cột 2: TIẾN ĐỘ CÁC MỤC TIÊU (Bấm mở Goal Detail Modal)
+        var gIcons = [{ icon: 'fa-book-open', color: '#a855f7' }, { icon: 'fa-bullseye', color: '#f43f5e' }, { icon: 'fa-laptop-code', color: '#10b981' }];
+        var currentGoalsHtml = activeGoals.slice(0, 3).map(function(g, idx) {
+            var st = gIcons[idx % 3], pctG = Math.min(100, Math.round((Math.max(0, (g.target || 1) - g.current) / (g.target || 1)) * 100));
+            return `
+                <div onclick="openGoalDetailModal(${g.id}, 'overview')" style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
+                    <div style="width:30px; height:30px; border-radius:8px; background:${st.color}22; color:${st.color}; display:flex; align-items:center; justify-content:center; font-size:0.78rem; flex-shrink:0;"><i class="fa-solid ${st.icon}"></i></div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:700; margin-bottom:4px;">
+                            <span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span>
+                            <span style="color:#94a3b8;">${pctG}%</span>
+                        </div>
+                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
+                            <div style="width:${pctG}%; height:100%; background:${st.color};"></div>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('') || '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>';
+
+        // Hàng 3 - Cột 3: THỊ TRƯỜNG CỔ PHIẾU
+        var stockList = getUnifiedStockArray();
+        var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
+            var up = st.change >= 0;
+            return `<div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; padding:5px 4px; font-size:0.77rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;"><span style="font-weight:800; color:#e2e8f0;"><i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i>${st.code}</span><span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span><span style="font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div>`;
+        }).join('');
 
         container.innerHTML = `
+            <!-- TẦNG 1: HERO BANNER VỚI THANH 4 CHỈ SỐ CỐT LÕI -->
             <div class="phoi-hero-banner">
                 <div class="phoi-hero-left">
                     <div class="phoi-badge-row">
                         <span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span>
                         <span class="phoi-pill-live">● LIVE</span>
-                        <span class="phoi-pill-cmd" style="border-color:rgba(245,158,11,0.4); color:#fbbf24;"><i class="fa-solid fa-crown"></i> Lv. ${level} • ${rankTitle} (${totalAllTimeHrs.toFixed(1)}h tích lũy)</span>
                     </div>
                     <h1>${greeting}, ${userName}! 👋</h1>
-                    <p>"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
+                    <p>"Kỷ luật là cầu nối giữa mục tiêu và thành tựu."</p>
                     <div class="phoi-hero-mini-bar">
-                        <div class="phoi-mini-item"><span>🔥</span><div><strong>${streak} ngày</strong><span>Chuỗi kỷ luật</span></div></div>
-                        <div class="phoi-mini-item"><span>⚡</span><div><strong>${totalAllTimeHrs.toFixed(1)} giờ</strong><span>Tổng giờ tích lũy</span></div></div>
-                        <div class="phoi-mini-item"><span>🏆</span><div><strong>Lv. ${level} • ${rankTitle}</strong><span>Cấp bậc hiện tại</span></div></div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">🔥</span>
+                            <div><strong>${streak} ngày</strong><span>Chuỗi kỷ luật</span></div>
+                        </div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">⏱️</span>
+                            <div><strong>${totalAllTimeHrs.toFixed(1)} giờ</strong><span>Tổng thời gian</span></div>
+                        </div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">👑</span>
+                            <div><strong style="color:#fbbf24;">Lv. ${lvInfo.level} • ${lvInfo.rank}</strong><span>Học hàm hiện tại</span></div>
+                        </div>
+                        <div class="phoi-mini-item" onclick="switchTab('trophy')" style="cursor:pointer;">
+                            <span style="font-size:1.15rem;">🎯</span>
+                            <div><strong>${unlockedAchCount} / ${achList.length} →</strong><span>Thành tựu</span></div>
+                        </div>
                     </div>
                 </div>
                 <div class="phoi-orbit-box">
                     <div class="phoi-orbit-ring1"></div><div class="phoi-orbit-ring2"></div><div class="phoi-orbit-core">A</div>
-                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div><strong>Streak</strong><span>${streak} ngày</span></div>
-                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-hourglass-half"></i></div><strong>Tổng giờ</strong><span>${totalAllTimeHrs.toFixed(1)}h</span></div>
-                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-award"></i></div><strong>Lv. ${level}</strong><span>${rankTitle}</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div><strong>${streak} ngày</strong><span>Streak</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-hourglass-half"></i></div><strong>${totalAllTimeHrs.toFixed(1)}h</strong><span>Tổng giờ</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-award"></i></div><strong>Lv. ${lvInfo.level}</strong><span>${lvInfo.rank}</span></div>
                 </div>
             </div>
-            <div class="phoi-stat-grid">
-                <!-- Card 1: Thời gian học hôm nay -->
-                <div class="phoi-stat-card s-purple"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(168,85,247,0.2); border:1.5px solid #a855f7; color:#d8b4fe;"><i class="fa-regular fa-clock"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Thời gian học hôm nay</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayDone.toFixed(1)} giờ</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${pctToday}%; height:100%; background:#a855f7;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#94a3b8;"><span>Định mức ngày: ${dailyGoal}h</span><span>${pctToday}%</span></div></div></div>
 
-                <!-- Card 2: Tổng Giờ Tích Lũy & Level (Hiển thị rõ ràng) -->
-                <div class="phoi-stat-card s-amber" onclick="switchTab('trophy')" style="cursor:pointer;"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(245,158,11,0.2); border:1.5px solid #fbbf24; color:#fde68a;"><i class="fa-solid fa-crown"></i></div><div><div style="font-size:0.7rem; color:#fde68a; font-weight:700;">Lv. ${level} • ${rankTitle}</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${totalAllTimeHrs.toFixed(1)} giờ</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${levelPct}%; height:100%; background:#fbbf24;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.66rem; color:#fbbf24;"><span>Tiến trình: ${totalAllTimeHrs.toFixed(1)} / ${nextLvHrs}h</span><span>${levelPct}%</span></div></div></div>
-
-                <!-- Card 3: Nhiệm vụ hoàn thành -->
-                <div class="phoi-stat-card s-cyan"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(14,165,233,0.2); border:1.5px solid #38bdf8; color:#7dd3fc;"><i class="fa-solid fa-check"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Nhiệm vụ hoàn thành</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${doneCount} / ${bentoTodoList.length}</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${todoPct}%; height:100%; background:#38bdf8;"></div></div><div style="font-size:0.66rem; color:#38bdf8;">Hiệu suất điều phối: ${typeof dispatchRate!=='undefined'?dispatchRate:100}%</div></div></div>
-
-                <!-- Card 4: Số phiên Pomodoro -->
-                <div class="phoi-stat-card s-rose"><div style="display:flex; align-items:center; gap:12px;"><div class="phoi-orb" style="background:rgba(244,63,94,0.2); border:1.5px solid #fb7185; color:#fda4af;"><i class="fa-solid fa-apple-whole"></i></div><div><div style="font-size:0.7rem; color:#cbd5e1;">Số phiên Pomodoro</div><div style="font-size:1.35rem; font-weight:800; color:#fff;">${todayPomodoros} phiên</div></div></div><div><div style="width:100%; height:5px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:5px;"><div style="width:${Math.min(100, Math.max(20, todayPomodoros * 25))}%; height:100%; background:#fb7185;"></div></div><div style="font-size:0.66rem; color:#fda4af;">Đánh giá: ★ ${(typeof getAverageStarRating==='function'?getAverageStarRating():5).toFixed(2)}</div></div></div>
-            </div>
+            <!-- TẦNG 2: HÔM NAY (GỘP) | MỤC TIÊU ĐANG TẬP TRUNG | LỊCH TRÌNH HÔM NAY -->
             <div class="phoi-row-3col">
-                <div class="phoi-card"><div class="phoi-card-head"><span class="phoi-card-title">Lịch sử học tập</span><span style="font-size:0.68rem; color:#94a3b8;">84 ngày qua</span></div><div class="phoi-heat-container"><div class="phoi-heat-labels"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div><div class="phoi-heat-matrix">${heatCellsHtml}</div></div></div>
-                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Mục tiêu hiện tại</span><span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem tất cả →</span></div><div>${currentGoalsHtml}</div></div></div>
-                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Thị trường cổ phiếu</span><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.65rem; font-weight:800;">LIVE</span></div><svg viewBox="0 0 240 38" style="width:100%; height:32px; margin-bottom:4px;"><path d="M0,30 Q30,18 65,24 T130,12 T190,16 T240,5" fill="none" stroke="#10b981" stroke-width="2"/></svg><div>${stockRowsHtml}</div></div><div onclick="openFullStockMarketDrawer()" style="margin-top:6px; text-align:center; font-size:0.73rem; color:#10b981; font-weight:700; cursor:pointer;">Xem toàn bộ thị trường →</div></div>
+                <div class="phoi-card">
+                    <div class="phoi-card-head">
+                        <span class="phoi-card-title">Hôm nay</span>
+                        <span style="font-size:0.7rem; color:#fbbf24;">☀️ Định mức: ${dailyGoal}h</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px;">
+                        <div style="position:relative; width:96px; height:96px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <svg width="96" height="96" style="transform:rotate(-90deg);">
+                                <circle cx="48" cy="48" r="${ringRadius}" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
+                                <circle cx="48" cy="48" r="${ringRadius}" stroke="#a855f7" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="${ringCircum}" stroke-dashoffset="${ringOffset}"/>
+                            </svg>
+                            <div style="position:absolute; text-align:center;">
+                                <strong style="display:block; font-size:1.05rem; color:#fff; line-height:1;">${todayDone.toFixed(1)}h</strong>
+                                <span style="font-size:0.6rem; color:#94a3b8;">/ ${dailyGoal}h</span>
+                                <div style="font-size:0.62rem; color:#c084fc; font-weight:800;">${pctToday}%</div>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:6px;">Nhiệm vụ quan trọng (${bentoTodoList.filter(function(x){return x.done;}).length}/${bentoTodoList.length})</div>
+                            <div>${todoListHtml}</div>
+                            <button onclick="addBentoTodoPrompt()" style="margin-top:4px; width:100%; padding:5px; border-radius:7px; background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.12); color:#94a3b8; font-size:0.7rem; font-weight:600; cursor:pointer;">+ Thêm nhiệm vụ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phoi-card">
+                    ${focusGoalHtml}
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Lịch trình hôm nay</span>
+                            <span class="phoi-link" onclick="switchTab('timetable')">Xem tất cả →</span>
+                        </div>
+                        <div>${scheduleRowsHtml}</div>
+                    </div>
+                </div>
             </div>
-            <div class="phoi-row-2col">
-                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Nhiệm vụ hôm nay</span><span style="font-size:0.72rem; color:#94a3b8;">${doneCount}/${bentoTodoList.length} hoàn thành</span></div><div style="max-height:145px; overflow-y:auto;">${todoListHtml}</div></div><button onclick="addBentoTodoPrompt()" style="margin-top:8px; width:100%; padding:6px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); color:#94a3b8; font-weight:600; font-size:0.74rem; cursor:pointer;">+ Thêm nhiệm vụ</button></div>
-                <div class="phoi-card"><div><div class="phoi-card-head"><span class="phoi-card-title">Lịch trình sắp tới</span><span class="phoi-link" onclick="switchTab('timetable')">Xem tất cả →</span></div><div>${scheduleRowsHtml}</div></div></div>
+
+            <!-- TẦNG 3: BIỂU ĐỒ 7 NGÀY | TIẾN ĐỘ CÁC MỤC TIÊU | THỊ TRƯỜNG CỔ PHIẾU -->
+            <div class="phoi-row-3col">
+                <div class="phoi-card">
+                    <div class="phoi-card-head">
+                        <span class="phoi-card-title">Biểu đồ thời gian học (7 ngày)</span>
+                        <span class="phoi-link" onclick="switchTab('analytics')">Chi tiết →</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:8px; padding-top:6px;">
+                        ${miniBars7Html}
+                    </div>
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Tiến độ các mục tiêu</span>
+                            <span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem tất cả →</span>
+                        </div>
+                        <div>${currentGoalsHtml}</div>
+                    </div>
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Thị trường cổ phiếu</span>
+                            <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.65rem; font-weight:800;">LIVE</span>
+                        </div>
+                        <svg viewBox="0 0 240 34" style="width:100%; height:28px; margin-bottom:4px;"><path d="M0,28 Q30,16 65,22 T130,10 T190,14 T240,4" fill="none" stroke="#10b981" stroke-width="2"/></svg>
+                        <div>${stockRowsHtml}</div>
+                    </div>
+                    <div onclick="openFullStockMarketDrawer()" style="margin-top:4px; text-align:center; font-size:0.72rem; color:#10b981; font-weight:700; cursor:pointer;">Xem toàn bộ thị trường →</div>
+                </div>
             </div>`;
         ensureMartialLawKpiCard();
     } catch (e) {}
 }
 
-// --- 5. TRANG PHÂN TÍCH TIẾN ĐỘ TOÀN DIỆN (4 TẦNG DỮ LIỆU ĐẦY ĐỦ) ---
+// --- 7. TRANG PHÂN TÍCH TIẾN ĐỘ (BỘ LỌC 7/30/90/365 NGÀY + DONUT + 3 THẺ INSIGHT) ---
+window.setAnalyticsRange = function(days) {
+    currentAnalyticsRange = days;
+    window.renderAnalytics();
+};
+
 window.renderAnalytics = function() {
     injectUnifiedApexCSS();
     var room = document.getElementById('analytics-room');
@@ -5819,257 +6269,169 @@ window.renderAnalytics = function() {
     var totalAllTimeHrs = getTotalAccumulatedHours();
     var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
 
-    // 1. Thống kê 7 ngày & 30 ngày gần nhất + Tìm ngày học cao kỷ lục
-    var totalHrs7Days = 0;
-    var totalHrs30Days = 0;
-    var bestDayHrs = 0;
-    var bestDayDate = "Chưa có";
-    var activeDaysCount = 0;
+    var rangeDays = currentAnalyticsRange || 30;
+    var rangeSumHrs = 0;
+    var prevWeekHrs = 0, currWeekHrs = 0;
+    var seriesData = [];
 
-    Object.keys(logsObj).forEach(function(k) {
-        var val = Number(logsObj[k] || 0);
-        if (val > 0) activeDaysCount++;
-        if (val > bestDayHrs) {
-            bestDayHrs = val;
-            bestDayDate = k;
+    for (var i = rangeDays - 1; i >= 0; i--) {
+        var d = new Date(); d.setDate(d.getDate() - i);
+        var k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var v = Number(logsObj[k] || 0);
+        rangeSumHrs += v;
+        seriesData.push({ label: d.getDate() + '/' + (d.getMonth() + 1), val: v, dateStr: k });
+    }
+
+    for (var w = 13; w >= 0; w--) {
+        var dw = new Date(); dw.setDate(dw.getDate() - w);
+        var kw = dw.getFullYear() + '-' + String(dw.getMonth() + 1).padStart(2, '0') + '-' + String(dw.getDate()).padStart(2, '0');
+        var vw = Number(logsObj[kw] || 0);
+        if (w < 7) currWeekHrs += vw; else prevWeekHrs += vw;
+    }
+
+    // Lấy tối đa 20 cột đại diện nếu chọn 90 ngày hoặc 1 năm để biểu đồ đẹp
+    var displayBars = seriesData;
+    if (rangeDays > 30) {
+        var step = Math.ceil(rangeDays / 20);
+        displayBars = [];
+        for (var j = 0; j < seriesData.length; j += step) {
+            var slice = seriesData.slice(j, j + step);
+            var sumSlice = slice.reduce(function(a, b) { return a + b.val; }, 0);
+            displayBars.push({ label: slice[0].label, val: sumSlice, dateStr: slice[0].dateStr });
         }
-    });
-
-    for (var d30 = 29; d30 >= 0; d30--) {
-        var dt = new Date();
-        dt.setDate(dt.getDate() - d30);
-        var k30 = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-        var v30 = Number(logsObj[k30] || 0);
-        totalHrs30Days += v30;
-        if (d30 < 7) totalHrs7Days += v30;
     }
+    var maxBarVal = Math.max(2.5, Math.max.apply(null, displayBars.map(function(x) { return x.val; })));
 
-    // 2. Biểu đồ cột 7 ngày gần nhất (Tự động co giãn theo ngày cao nhất trong tuần)
-    var max7DayVal = 3.0;
-    for (var m = 6; m >= 0; m--) {
-        var dm = new Date(); dm.setDate(dm.getDate() - m);
-        var km = dm.getFullYear() + '-' + String(dm.getMonth() + 1).padStart(2, '0') + '-' + String(dm.getDate()).padStart(2, '0');
-        if (Number(logsObj[km] || 0) > max7DayVal) max7DayVal = Number(logsObj[km]);
-    }
-
-    var barsHtml = '';
-    var dayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    for (var i = 6; i >= 0; i--) {
-        var d = new Date();
-        d.setDate(d.getDate() - i);
-        var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        var val = Number(logsObj[dStr] || 0);
-        var hPct = Math.min(100, Math.max(6, Math.round((val / max7DayVal) * 100)));
-        var isToday = (i === 0);
-        barsHtml += `
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;" title="${dStr}: ${val.toFixed(2)} giờ">
-                <span style="font-size:0.68rem; color:${isToday ? '#fbbf24' : '#cbd5e1'}; font-weight:700;">${val > 0 ? val.toFixed(1)+'h' : '0h'}</span>
-                <div style="height:135px; width:100%; max-width:30px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:flex-end; overflow:hidden; padding:2px;">
-                    <div style="width:100%; height:${hPct}%; background:${isToday ? 'linear-gradient(180deg, #fbbf24, #f59e0b)' : 'linear-gradient(180deg, #38bdf8, #8b5cf6)'}; border-radius:6px; box-shadow:0 0 12px rgba(139,92,246,0.35);"></div>
+    var barsHtml = displayBars.map(function(item) {
+        var hPct = Math.min(100, Math.max(6, Math.round((item.val / maxBarVal) * 100)));
+        return `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:5px; flex:1; min-width:14px;" title="${item.dateStr}: ${item.val.toFixed(1)}h">
+                <div style="height:140px; width:100%; max-width:22px; background:rgba(255,255,255,0.04); border-radius:6px; display:flex; align-items:flex-end; overflow:hidden;">
+                    <div style="width:100%; height:${hPct}%; background:linear-gradient(180deg, #a855f7, #6366f1); border-radius:6px;"></div>
                 </div>
-                <span style="font-size:0.72rem; color:${isToday ? '#fbbf24' : '#94a3b8'}; font-weight:800;">${isToday ? 'H.Nay' : dayLabels[d.getDay()]}</span>
+                <span style="font-size:0.6rem; color:#94a3b8; white-space:nowrap;">${item.label}</span>
             </div>`;
-    }
+    }).join('');
 
-    // 3. Phân bổ thời gian theo Toàn bộ Mục tiêu (Sắp xếp giảm dần & Gom nhóm "Mục tiêu khác" để khớp 100% tổng số giờ)
-    var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#6366f1', '#14b8a6'];
+    // Donut Chart (Top 5 + Khác = 100% tổng giờ)
+    var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#64748b'];
     var sortedGoals = allGoals.map(function(g) {
-        var targetH = Number(g.target || 0);
-        var leftH = Math.max(0, Number(g.current || 0));
-        var spentH = Math.max(0, targetH - leftH);
-        var repCount = Array.isArray(g.reports) ? g.reports.length : 0;
-        var pctDone = targetH > 0 ? Math.min(100, Math.round((spentH / targetH) * 100)) : 100;
-        return {
-            id: g.id,
-            name: g.name,
-            target: targetH,
-            left: leftH,
-            spent: spentH,
-            reportsCount: repCount,
-            pctDone: pctDone,
-            rawReports: Array.isArray(g.reports) ? g.reports : []
-        };
+        var t = Number(g.target || 0), l = Math.max(0, Number(g.current || 0));
+        return { id: g.id, name: g.name, spent: Math.max(0, t - l), left: l, target: t };
     }).sort(function(a, b) { return b.spent - a.spent; });
 
-    var totalGoalSpent = sortedGoals.reduce(function(a, b) { return a + b.spent; }, 0);
     var chartItems = sortedGoals.filter(function(g) { return g.spent > 0; }).slice(0, 5);
     var top5Spent = chartItems.reduce(function(a, b) { return a + b.spent; }, 0);
-    var otherSpent = Math.max(0, Math.max(totalAllTimeHrs, totalGoalSpent) - top5Spent);
+    var otherSpent = Math.max(0, totalAllTimeHrs - top5Spent);
+    if (otherSpent > 0.1) chartItems.push({ name: "Khác (Đã lưu trữ)", spent: otherSpent });
+    if (chartItems.length === 0) chartItems.push({ name: "Chưa có dữ liệu", spent: 1 });
 
-    if (otherSpent > 0.1) {
-        chartItems.push({ name: "Các mục tiêu hoàn thành khác", spent: otherSpent, isOther: true });
-    }
-    if (chartItems.length === 0) {
-        chartItems.push({ name: "Chưa có dữ liệu mục tiêu", spent: 1, isOther: true });
-    }
-
-    var denomSpent = chartItems.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
-    var conicParts = [], accPct = 0;
+    var denom = chartItems.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
+    var conicParts = [], acc = 0;
     var legendHtml = chartItems.map(function(g, idx) {
-        var color = palette[idx % palette.length];
-        var pct = Math.round((g.spent / denomSpent) * 100);
-        var start = accPct;
-        accPct = (idx === chartItems.length - 1) ? 100 : Math.min(100, accPct + pct);
-        conicParts.push(color + " " + start + "% " + accPct + "%");
+        var col = palette[idx % palette.length];
+        var pct = Math.round((g.spent / denom) * 100);
+        var start = acc; acc = (idx === chartItems.length - 1) ? 100 : Math.min(100, acc + pct);
+        conicParts.push(col + " " + start + "% " + acc + "%");
         return `
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.77rem; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;">
-                    <span style="width:9px; height:9px; border-radius:50%; background:${color}; flex-shrink:0;"></span>${g.name}
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.76rem; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">
+                    <span style="width:8px; height:8px; border-radius:50%; background:${col}; flex-shrink:0;"></span>${g.name}
                 </span>
-                <strong style="color:#fff; flex-shrink:0; margin-left:8px;">${g.spent.toFixed(1)}h (${pct}%)</strong>
+                <strong style="color:#fff;">${g.spent.toFixed(1)}h (${pct}%)</strong>
             </div>`;
     }).join('');
 
-    // 4. Tổng hợp toàn bộ Báo cáo học tập & Thống kê Phiên
-    var allReportsFlat = [];
-    var totalReportsCount = 0;
-    sortedGoals.forEach(function(g) {
-        totalReportsCount += g.reportsCount;
-        g.rawReports.forEach(function(r) {
-            allReportsFlat.push({
-                goalName: g.name,
-                date: r.date || "",
-                duration: r.duration || 25,
-                content: r.content || r.text || "Hoàn thành phiên học tập trung."
-            });
-        });
-    });
+    // Tính 3 AI Insights tự động từ dữ liệu thật
+    var activeGoals = sortedGoals.filter(function(g) { return g.left > 0; });
+    var slowestGoal = activeGoals.sort(function(a, b) { return (a.spent / Math.max(1, a.target)) - (b.spent / Math.max(1, b.target)); })[0];
+    var slowText = slowestGoal ? (slowestGoal.name + " mới đạt " + Math.round((slowestGoal.spent / Math.max(1, slowestGoal.target)) * 100) + "% tiến độ.") : "Tất cả mục tiêu đều đang đúng tiến độ.";
+    var weekGrowthPct = prevWeekHrs > 0 ? Math.round(((currWeekHrs - prevWeekHrs) / prevWeekHrs) * 100) : 100;
 
-    var completedGoalsCount = allGoals.filter(function(g) { return Number(g.current || 0) <= 0; }).length;
-    var activeGoalsCount = allGoals.length - completedGoalsCount;
-
-    // 5. Bảng Tiến độ Chi tiết tất cả các Mục tiêu (Có thanh tiến trình & số báo cáo)
-    var goalBreakdownHtml = sortedGoals.slice(0, 8).map(function(g, idx) {
-        var barColor = g.left <= 0 ? '#10b981' : palette[idx % palette.length];
-        return `
-            <div style="padding:9px 10px; border-radius:10px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); margin-bottom:7px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; font-size:0.79rem;">
-                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                        <span style="font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:5px; background:${g.left <= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(168,85,247,0.18)'}; color:${g.left <= 0 ? '#10b981' : '#c084fc'};">
-                            ${g.left <= 0 ? 'XONG' : g.pctDone + '%'}
-                        </span>
-                        <strong style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</strong>
-                    </div>
-                    <span style="color:#cbd5e1; font-size:0.74rem; font-weight:700; flex-shrink:0;">
-                        ${g.spent.toFixed(1)}h / ${g.target.toFixed(1).replace(/\.0$/, '')}h • <span style="color:#38bdf8;">${g.reportsCount} báo cáo</span>
-                    </span>
-                </div>
-                <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
-                    <div style="width:${g.pctDone}%; height:100%; background:${barColor}; border-radius:100px;"></div>
-                </div>
-            </div>`;
-    }).join('');
-
-    // 6. Nhật ký các Bản Báo Cáo Học Tập Gần Đây
-    var recentReportsHtml = allReportsFlat.length === 0
-        ? '<div style="padding:24px; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có bản báo cáo phiên học nào được lưu.</div>'
-        : allReportsFlat.slice(0, 6).map(function(rep) {
-            return `
-                <div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.025); border-left:3px solid #a855f7; margin-bottom:7px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; margin-bottom:4px;">
-                        <strong style="color:#c084fc;">${rep.goalName}</strong>
-                        <span style="color:#94a3b8;">${rep.date} • <strong style="color:#10b981;">${rep.duration} phút</strong></span>
-                    </div>
-                    <div style="font-size:0.76rem; color:#e2e8f0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                        ${rep.content}
-                    </div>
-                </div>`;
-        }).join('');
-
-    // 7. Render giao diện Phân Tích 4 Tầng đầy đặn
     room.innerHTML = `
-        <!-- TẦNG 1: 4 THẺ CHỈ SỐ TỔNG QUAN HỌC THUẬT -->
-        <div class="phoi-stat-grid" style="margin-bottom:14px;">
-            <div class="phoi-card">
-                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Thời gian học (7 ngày / 30 ngày)</div>
-                <div style="font-size:1.7rem; font-weight:900; color:#fff; margin:5px 0;">${formatHrsToHM(totalHrs7Days)}</div>
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#10b981; font-weight:700;">
-                    <span>30 ngày: ${totalHrs30Days.toFixed(1)}h</span>
-                    <span>TB: ${(totalHrs7Days / 7).toFixed(1)}h/ngày</span>
-                </div>
-            </div>
-
-            <div class="phoi-card">
-                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Tổng giờ tích lũy & Học hàm</div>
-                <div style="font-size:1.7rem; font-weight:900; color:#fbbf24; margin:5px 0;">${totalAllTimeHrs.toFixed(1)} giờ</div>
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#c084fc; font-weight:700;">
-                    <span>★ Lv. ${lvInfo.level} • ${lvInfo.rank}</span>
-                    <span>${lvInfo.pct}% → Lv.${lvInfo.level + 1}</span>
-                </div>
-            </div>
-
-            <div class="phoi-card">
-                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Chuỗi kỷ luật & Ngày hoạt động</div>
-                <div style="font-size:1.7rem; font-weight:900; color:#fff; margin:5px 0;">🔥 ${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</div>
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#38bdf8; font-weight:700;">
-                    <span>Tổng ngày học: ${activeDaysCount} ngày</span>
-                    <span>Hiệu suất: ${typeof dispatchRate !== 'undefined' ? dispatchRate : 85}%</span>
-                </div>
-            </div>
-
-            <div class="phoi-card">
-                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Hồ sơ Mục tiêu & Báo cáo</div>
-                <div style="font-size:1.7rem; font-weight:900; color:#10b981; margin:5px 0;">${totalReportsCount} báo cáo</div>
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#f472b6; font-weight:700;">
-                    <span>Xong: ${completedGoalsCount}/${allGoals.length} mục tiêu</span>
-                    <span>Kỷ lục: ${bestDayHrs.toFixed(1)}h/ngày</span>
-                </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+            <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#fff;"><i class="fa-solid fa-chart-line" style="color:#a855f7; margin-right:8px;"></i>Phân tích tiến độ chuyên sâu</h3>
+            <div class="demo-filter-tabs" style="margin:0;">
+                <button class="demo-tab-pill ${rangeDays===7?'active':''}" onclick="setAnalyticsRange(7)">7 ngày</button>
+                <button class="demo-tab-pill ${rangeDays===30?'active':''}" onclick="setAnalyticsRange(30)">30 ngày</button>
+                <button class="demo-tab-pill ${rangeDays===90?'active':''}" onclick="setAnalyticsRange(90)">90 ngày</button>
+                <button class="demo-tab-pill ${rangeDays===365?'active':''}" onclick="setAnalyticsRange(365)">1 năm</button>
             </div>
         </div>
 
-        <!-- TẦNG 2: BIỂU ĐỒ 7 NGÀY & PHÂN BỔ 100% THỜI GIAN -->
+        <!-- 5 THẺ CHỈ SỐ HÀNG ĐẦU CHUẨN CONCEPT -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:14px;">
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:50%; background:rgba(56,189,248,0.18); color:#38bdf8; display:flex; align-items:center; justify-content:center;"><i class="fa-regular fa-clock"></i></div>
+                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${totalAllTimeHrs.toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Tổng thời gian</span></div>
+            </div>
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:50%; background:rgba(168,85,247,0.18); color:#c084fc; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-bolt"></i></div>
+                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${(rangeSumHrs / rangeDays).toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Trung bình/ngày (${rangeDays}d)</span></div>
+            </div>
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:50%; background:rgba(16,185,129,0.18); color:#10b981; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-bullseye"></i></div>
+                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 85}%</strong><span style="font-size:0.68rem; color:#94a3b8;">Hiệu suất điều phối</span></div>
+            </div>
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:50%; background:rgba(245,158,11,0.18); color:#fbbf24; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-crown"></i></div>
+                <div><strong style="font-size:1.05rem; color:#fbbf24; display:block;">Lv. ${lvInfo.level} • ${lvInfo.rank}</strong><span style="font-size:0.68rem; color:#94a3b8;">Học hàm (${lvInfo.pct}%)</span></div>
+            </div>
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:50%; background:rgba(244,63,94,0.18); color:#fb7185; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-fire"></i></div>
+                <div><strong style="font-size:1.15rem; color:#fff; display:block;">${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</strong><span style="font-size:0.68rem; color:#94a3b8;">Chuỗi kỷ luật</span></div>
+            </div>
+        </div>
+
+        <!-- BIỂU ĐỒ CỘT THEO BỘ LỌC & BIỂU ĐỒ DONUT -->
         <div class="phoi-row-2col" style="margin-bottom:14px;">
             <div class="phoi-card">
                 <div class="phoi-card-head">
-                    <span class="phoi-card-title"><i class="fa-solid fa-chart-column" style="color:#38bdf8; margin-right:6px;"></i> Biểu đồ giờ học 7 ngày gần nhất</span>
-                    <span style="font-size:0.7rem; color:#94a3b8;">Đỉnh tuần: ${max7DayVal.toFixed(1)}h</span>
+                    <span class="phoi-card-title">Thời gian học theo ngày (${rangeDays} ngày qua: ${rangeSumHrs.toFixed(1)}h)</span>
+                    <span style="font-size:0.7rem; color:#a855f7; font-weight:700;">TB: ${(rangeSumHrs / rangeDays).toFixed(1)}h/ngày</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; padding-top:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:6px; padding-top:12px; overflow-x:auto;">
                     ${barsHtml}
                 </div>
             </div>
 
             <div class="phoi-card">
                 <div class="phoi-card-head">
-                    <span class="phoi-card-title"><i class="fa-solid fa-chart-pie" style="color:#a855f7; margin-right:6px;"></i> Phân bổ tổng quỹ thời gian (${totalAllTimeHrs.toFixed(1)}h)</span>
-                    <span style="font-size:0.7rem; color:#10b981; font-weight:700;">${allGoals.length} mục tiêu</span>
+                    <span class="phoi-card-title">Phân bổ theo mục tiêu</span>
+                    <span style="font-size:0.7rem; color:#10b981; font-weight:700;">Tổng: ${totalAllTimeHrs.toFixed(1)}h</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:22px; flex-wrap:wrap; margin:auto 0;">
-                    <div style="width:132px; height:132px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(0,0,0,0.45);">
-                        <div style="width:86px; height:86px; border-radius:50%; background:#121626; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                            <strong style="font-size:0.98rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
-                            <span style="font-size:0.64rem; color:#94a3b8;">Tổng tích lũy</span>
+                <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin:auto 0;">
+                    <div style="width:130px; height:130px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <div style="width:84px; height:84px; border-radius:50%; background:#121626; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                            <strong style="font-size:0.95rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
+                            <span style="font-size:0.62rem; color:#94a3b8;">Tổng</span>
                         </div>
                     </div>
-                    <div style="flex:1; min-width:180px;">${legendHtml}</div>
+                    <div style="flex:1; min-width:170px;">${legendHtml}</div>
                 </div>
             </div>
         </div>
 
-        <!-- TẦNG 3: THỐNG KÊ CHI TIẾT TỪNG MỤC TIÊU & NHẬT KÝ BÁO CÁO GẦN ĐÂY -->
-        <div class="phoi-row-2col">
-            <div class="phoi-card">
-                <div class="phoi-card-head">
-                    <span class="phoi-card-title"><i class="fa-solid fa-list-ol" style="color:#10b981; margin-right:6px;"></i> Thống kê khối lượng theo mục tiêu (${activeGoalsCount} đang mở, ${completedGoalsCount} hoàn thành)</span>
-                </div>
-                <div style="max-height:270px; overflow-y:auto; padding-right:4px;">
-                    ${goalBreakdownHtml}
-                </div>
+        <!-- 3 THẺ INSIGHT THÔNG MINH CHUẨN CONCEPT -->
+        <div style="font-size:0.78rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; margin-bottom:8px;">✨ Insight & Đánh giá học thuật</div>
+        <div class="phoi-row-3col">
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:10px; background:rgba(168,85,247,0.18); color:#c084fc; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-lightbulb"></i></div>
+                <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.4;">Khung giờ tập trung hiệu quả nhất của bạn thường rơi vào <strong style="color:#fff;">buổi tối (19:30 – 22:30)</strong>.</div>
             </div>
-
-            <div class="phoi-card">
-                <div class="phoi-card-head">
-                    <span class="phoi-card-title"><i class="fa-solid fa-clock-rotate-left" style="color:#f59e0b; margin-right:6px;"></i> Nhật ký báo cáo học thuật gần đây (${totalReportsCount} bản lưu)</span>
-                </div>
-                <div style="max-height:270px; overflow-y:auto; padding-right:4px;">
-                    ${recentReportsHtml}
-                </div>
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:10px; background:rgba(56,189,248,0.18); color:#38bdf8; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-Scale-balanced"></i></div>
+                <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.4;">Trạng thái mục tiêu: <strong style="color:#fff;">${slowText}</strong></div>
+            </div>
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.18); color:#10b981; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div style="font-size:0.76rem; color:#cbd5e1; line-height:1.4;">7 ngày qua bạn đã tích lũy <strong style="color:#10b981;">${currWeekHrs.toFixed(1)} giờ</strong> (${weekGrowthPct >= 0 ? '+' : ''}${weekGrowthPct}% so với tuần trước).</div>
             </div>
         </div>
     `;
 };
 
-// --- 6. TRANG THÀNH TỰU & LƯU TRỮ (LỤC GIÁC + LÀM TRÒN GIỜ) ---
+// --- 8. TRANG THÀNH TỰU & LƯU TRỮ (30 THÀNH TỰU HỌC THUẬT TRUNG LẬP) ---
 var currentTrophyFilter = 'all';
 window.filterTrophyCategory = function(cat) {
     currentTrophyFilter = cat;
@@ -6085,72 +6447,7 @@ function renderMasterTrophyAndArchive() {
     var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
     var allGoalsList = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals : [];
     var completedGoals = allGoalsList.filter(function(g) { return g.current <= 0; });
-    var has100hGoal = allGoalsList.some(function(g) { return Number(g.target || 0) >= 100; });
-    var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
-    var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
-
-    var totalReports = 0;
-    var morningReports = 0;
-    var nightReports = 0;
-    allGoalsList.forEach(function(g) {
-        if (Array.isArray(g.reports)) {
-            totalReports += g.reports.length;
-            g.reports.forEach(function(r) {
-                var dStr = String(r.date || "");
-                var matchHr = dStr.match(/(\d{1,2}):\d{2}/);
-                if (matchHr) {
-                    var h = parseInt(matchHr[1], 10);
-                    if (h >= 5 && h < 11) morningReports++;
-                    if (h >= 20 || h < 2) nightReports++;
-                }
-            });
-        }
-    });
-
-    var totalPomodorosEst = Math.round((totalAllTimeHrs * 60) / 25);
-    var logDaysCount = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).filter(function(k) { return Number(dailyLogs[k]) > 0; }).length : 0;
-
-    var allAchievements = [
-        // 1. SƠ CẤP (ROOKIE) - 6 Huy hiệu
-        { tier: 'rookie', name: "First Step", desc: "Hoàn thành phiên học tập trung đầu tiên trên hệ thống", icon: "fa-flag", grad: "linear-gradient(135deg,#f43f5e,#e11d48)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
-        { tier: 'rookie', name: "Warm Up", desc: "Hoàn thành tích lũy tương đương 10 phiên Pomodoro", icon: "fa-clock", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalPomodorosEst >= 10, tag: "10 Phiên" },
-        { tier: 'rookie', name: "Apprentice", desc: "Đạt cột mốc 10 giờ học tập và nghiên cứu thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 Giờ" },
-        { tier: 'rookie', name: "Early Bird", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi sáng", icon: "fa-sun", grad: "linear-gradient(135deg,#fbbf24,#d97706)", unlocked: morningReports >= 10 || logDaysCount >= 10, tag: "10 Ca Sáng" },
-        { tier: 'rookie', name: "Night Owl", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi tối", icon: "fa-moon", grad: "linear-gradient(135deg,#818cf8,#4f46e5)", unlocked: nightReports >= 10 || totalReports >= 15, tag: "10 Ca Tối" },
-        { tier: 'rookie', name: "First Milestone", desc: "Hoàn thành 100% tiến độ của 1 mục tiêu học tập", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
-
-        // 2. TRUNG CẤP (PRO) - 6 Huy hiệu
-        { tier: 'pro', name: "Silver Streak", desc: "Duy trì thói quen học tập 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
-        { tier: 'pro', name: "Consistent Learner", desc: "Duy trì kỷ luật học tập 30 ngày liên tiếp", icon: "fa-calendar-check", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
-        { tier: 'pro', name: "Active Tracker", desc: "Ghi nhận dữ liệu học tập trên 20 ngày khác nhau", icon: "fa-chart-simple", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: logDaysCount >= 20, tag: "20 Ngày học" },
-        { tier: 'pro', name: "Goal Achiever", desc: "Hoàn thành trọn vẹn 5 mục tiêu trong kế hoạch", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
-        { tier: 'pro', name: "Long-term Planner", desc: "Thiết lập một mục tiêu dài hạn có quy mô từ 100 giờ", icon: "fa-route", grad: "linear-gradient(135deg,#06b6d4,#0284c7)", unlocked: has100hGoal, tag: "Mục tiêu 100h" },
-        { tier: 'pro', name: "Resource Manager", desc: "Tích lũy quỹ thưởng học tập đạt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000 USD" },
-
-        // 3. NÂNG CAO (ELITE) - 6 Huy hiệu
-        { tier: 'elite', name: "Scholar", desc: "Đạt cột mốc 50 giờ tập trung học tập (Lv. 6)", icon: "fa-graduation-cap", grad: "linear-gradient(135deg,#a855f7,#7e22ce)", unlocked: totalAllTimeHrs >= 50, tag: "50 Giờ" },
-        { tier: 'elite', name: "Deep Worker", desc: "Tích lũy 75 giờ làm việc và nghiên cứu chuyên sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#14b8a6,#0f766e)", unlocked: totalAllTimeHrs >= 75, tag: "75 Giờ" },
-        { tier: 'elite', name: "Documentarian", desc: "Viết và lưu trữ thành công 50 bản báo cáo kết quả", icon: "fa-file-lines", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
-        { tier: 'elite', name: "Project Master", desc: "Hoàn thành xuất sắc 10 mục tiêu học thuật", icon: "fa-check-double", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
-        { tier: 'elite', name: "Diamond Streak", desc: "Duy trì chuỗi học tập 60 ngày liên tục không gián đoạn", icon: "fa-gem", grad: "linear-gradient(135deg,#38bdf8,#1d4ed8)", unlocked: streak >= 60, tag: "60 Ngày" },
-        { tier: 'elite', name: "Senior Investor", desc: "Quỹ thưởng tích lũy từ hiệu suất học tập đạt $5,000 USD", icon: "fa-building-columns", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000 USD" },
-
-        // 4. CHUYÊN SÂU (LEGEND) - 6 Huy hiệu (100h -> 300h)
-        { tier: 'legend', name: "Centurion", desc: "Đạt cột mốc 100 giờ học tập tích lũy (Lv. 11)", icon: "fa-award", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 Giờ" },
-        { tier: 'legend', name: "Specialist", desc: "Đạt cấp bậc Chuyên Gia với 150 giờ tích lũy (Lv. 16)", icon: "fa-microscope", grad: "linear-gradient(135deg,#dc2626,#991b1b)", unlocked: totalAllTimeHrs >= 150, tag: "150 Giờ" },
-        { tier: 'legend', name: "Senior Author", desc: "Hoàn thành 100 bản báo cáo tổng kết phiên học", icon: "fa-pen-nib", grad: "linear-gradient(135deg,#d97706,#92400e)", unlocked: totalReports >= 100, tag: "100 Báo cáo" },
-        { tier: 'legend', name: "Time Architect", desc: "Làm chủ quỹ thời gian với 200 giờ tập trung (Lv. 21)", icon: "fa-hourglass-half", grad: "linear-gradient(135deg,#9333ea,#581c87)", unlocked: totalAllTimeHrs >= 200, tag: "200 Giờ" },
-        { tier: 'legend', name: "Researcher", desc: "Đạt cấp Nghiên Cứu Viên với 250 giờ tích lũy (Lv. 26)", icon: "fa-landmark", grad: "linear-gradient(135deg,#2563eb,#1e3a8a)", unlocked: totalAllTimeHrs >= 250, tag: "250 Giờ" },
-        { tier: 'legend', name: "100-Day Discipline", desc: "Duy trì chuỗi kỷ luật học tập 100 ngày liên tiếp", icon: "fa-fire", grad: "linear-gradient(135deg,#ef4444,#b91c1c)", unlocked: streak >= 100, tag: "100 Ngày" },
-
-        // 5. HỌC THUẬT ĐỈNH CAO (MYTHIC) - 6 Huy hiệu (350h -> 1000+ Giờ)
-        { tier: 'mythic', name: "Senior Researcher", desc: "Nghiên Cứu Viên Chính: Đạt 350 giờ tích lũy (Lv. 36)", icon: "fa-book-atlas", grad: "linear-gradient(135deg,#10b981,#065f46)", unlocked: totalAllTimeHrs >= 350, tag: "350 Giờ" },
-        { tier: 'mythic', name: "Senior Scholar", desc: "Học Giả Cấp Cao: Vượt cột mốc 500 giờ học (Lv. 51)", icon: "fa-compass-drafting", grad: "linear-gradient(135deg,#ec4899,#831843)", unlocked: totalAllTimeHrs >= 500, tag: "500 Giờ" },
-        { tier: 'mythic', name: "Endowment Fund", desc: "Quỹ học bổng tích lũy trên hệ thống đạt $15,000 USD", icon: "fa-chart-line", grad: "linear-gradient(135deg,#facc15,#854d0e)", unlocked: usd >= 15000, tag: "$15,000 USD" },
-        { tier: 'mythic', name: "Associate Fellow", desc: "Phó Giáo Sư Danh Dự: Chinh phục 700 giờ học (Lv. 71)", icon: "fa-user-graduate", grad: "linear-gradient(135deg,#0ea5e9,#0c4a6e)", unlocked: totalAllTimeHrs >= 700, tag: "700 Giờ" },
-        { tier: 'mythic', name: "Distinguished Fellow", desc: "Giáo Sư Danh Dự: Chinh phục 900 giờ học (Lv. 90)", icon: "fa-star", grad: "linear-gradient(135deg,#a855f7,#4c1d95)", unlocked: totalAllTimeHrs >= 900, tag: "900 Giờ" },
-        { tier: 'mythic', name: "Academician 1000h", desc: "Viện Sĩ Học Thuật: Cột mốc 1.000 giờ nghiên cứu (Lv. 101)", icon: "fa-crown", grad: "linear-gradient(135deg,#fbbf24,#f43f5e,#7c3aed)", unlocked: totalAllTimeHrs >= 1000, tag: "1.000 Giờ" }
-    ];
+    var allAchievements = getAllAchievementsList();
 
     var unlockedCount = allAchievements.filter(function(a) { return a.unlocked; }).length;
     var pctUnlock = Math.round((unlockedCount / allAchievements.length) * 100);
@@ -6227,7 +6524,7 @@ function renderMasterTrophyAndArchive() {
 window.renderTrophies = renderMasterTrophyAndArchive;
 window.renderTrophyRoom = renderMasterTrophyAndArchive;
 
-// --- 7. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG + TẠM DỪNG 5 PHÚT + NÚT BÁO CÁO ---
+// --- 9. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG + TẠM DỪNG 5 PHÚT + NÚT BÁO CÁO ---
 var selectedPendingMinutes = 25;
 var ftPauseDeadline = null, wasPausedState = false;
 var activeAmbientType = null, ambientCtx = null, ambientSource = null, ambientGain = null, ambientVolume = 0.7;
@@ -6312,7 +6609,7 @@ function ensureFocusTemplateDOM() {
                 <button class="ft-glass-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Quay lại mục tiêu</button>
                 <div class="ft-center-header">
                     <div class="ft-room-tag">FOCUS ROOM</div>
-                    <div class="ft-goal-title"><span id="ft-goal-name-display">Mục tiêu</span> <i class="fa-solid fa-chevron-right" style="font-size:0.85rem; color:#64748b;"></i></div>
+                    <div class="ft-goal-title" onclick="if(typeof currentGoalId!=='undefined') openGoalDetailModal(currentGoalId, 'overview')"><span id="ft-goal-name-display">Mục tiêu</span> <i class="fa-solid fa-chevron-right" style="font-size:0.85rem; color:#64748b;"></i></div>
                     <div class="ft-goal-sub"><i class="fa-solid fa-bullseye" style="color:#f43f5e;"></i> <span id="ft-goal-sub-display">0.0h còn lại</span></div>
                 </div>
                 <div>
@@ -6365,7 +6662,7 @@ function ensureFocusTemplateDOM() {
             </div>
             <div class="ft-card">
                 <div>
-                    <div class="ft-card-header"><span>🎯 TIẾN ĐỘ MỤC TIÊU</span><span onclick="backToDashboard()" style="font-size:0.72rem; color:#94a3b8; cursor:pointer; text-transform:none;">Chi tiết →</span></div>
+                    <div class="ft-card-header"><span>🎯 TIẾN ĐỘ MỤC TIÊU</span><span onclick="if(typeof currentGoalId!=='undefined') openGoalDetailModal(currentGoalId, 'overview')" style="font-size:0.72rem; color:#a855f7; cursor:pointer; text-transform:none;">Chi tiết →</span></div>
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                         <div id="ft-right-goal-name" style="font-size:0.95rem; font-weight:800; color:#fff;">Mục tiêu</div>
                         <div id="ft-right-goal-pct" style="font-size:1.45rem; font-weight:900; color:#fff;">0%</div>
@@ -6401,9 +6698,7 @@ function ensureFocusTemplateDOM() {
 function syncFocusClockInstant() {
     var focusRoom = document.getElementById('focus-room');
     if (!focusRoom || focusRoom.style.display === 'none') {
-        ftPauseDeadline = null;
-        wasPausedState = false;
-        return;
+        ftPauseDeadline = null; wasPausedState = false; return;
     }
     ensureFocusTemplateDOM();
 
@@ -6416,21 +6711,15 @@ function syncFocusClockInstant() {
     var currentlyPaused = (typeof isPaused !== 'undefined' && isPaused) || (origPauseBtn && origPauseBtn.innerText.toLowerCase().includes('tiếp tục'));
 
     if (currentlyPaused && !wasPausedState) {
-        ftPauseDeadline = Date.now() + 5 * 60 * 1000;
-        wasPausedState = true;
+        ftPauseDeadline = Date.now() + 5 * 60 * 1000; wasPausedState = true;
     } else if (!currentlyPaused && wasPausedState) {
-        ftPauseDeadline = null;
-        wasPausedState = false;
+        ftPauseDeadline = null; wasPausedState = false;
     }
 
-    var ftDisp = document.getElementById('ft-time-display');
-    var ftStart = document.getElementById('ft-btn-start-main');
-    var ftCtrls = document.getElementById('ft-running-controls');
-    var ftRing = document.getElementById('ft-svg-progress');
-    var ftReportBtn = document.getElementById('ft-btn-report-now');
-    var ftPauseMirror = document.getElementById('ft-btn-pause-mirror');
-    var ftStatusMirror = document.getElementById('ft-status-msg-mirror');
-    var ftStatusPill = document.getElementById('ft-pause-status-pill');
+    var ftDisp = document.getElementById('ft-time-display'), ftStart = document.getElementById('ft-btn-start-main');
+    var ftCtrls = document.getElementById('ft-running-controls'), ftRing = document.getElementById('ft-svg-progress');
+    var ftReportBtn = document.getElementById('ft-btn-report-now'), ftPauseMirror = document.getElementById('ft-btn-pause-mirror');
+    var ftStatusMirror = document.getElementById('ft-status-msg-mirror'), ftStatusPill = document.getElementById('ft-pause-status-pill');
     var ftModeLabel = document.getElementById('ft-mode-label');
 
     if (isRunning && rawTimer !== "00:00") {
@@ -6441,10 +6730,7 @@ function syncFocusClockInstant() {
 
         if (currentlyPaused) {
             var remPauseSec = ftPauseDeadline ? Math.max(0, Math.ceil((ftPauseDeadline - Date.now()) / 1000)) : 300;
-            var pm = String(Math.floor(remPauseSec / 60)).padStart(2, '0');
-            var ps = String(remPauseSec % 60).padStart(2, '0');
-            var pauseStr = pm + ":" + ps;
-
+            var pauseStr = String(Math.floor(remPauseSec / 60)).padStart(2, '0') + ":" + String(remPauseSec % 60).padStart(2, '0');
             if (ftPauseMirror) {
                 ftPauseMirror.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
                 ftPauseMirror.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + pauseStr + ')';
@@ -6455,10 +6741,8 @@ function syncFocusClockInstant() {
                 ftStatusMirror.innerHTML = '<span style="color:#fbbf24;">⏳ Tự động hủy phiên sau: <strong>' + pauseStr + '</strong> (Giới hạn 5 phút)</span>';
             }
             if (ftRing) ftRing.style.stroke = '#f59e0b';
-
             if (remPauseSec <= 0 && ftPauseDeadline) {
-                ftPauseDeadline = null;
-                wasPausedState = false;
+                ftPauseDeadline = null; wasPausedState = false;
                 if (typeof cancelSession === 'function') cancelSession();
             }
         } else {
@@ -6474,10 +6758,8 @@ function syncFocusClockInstant() {
                 ftModeLabel.innerHTML = selectedPendingMinutes === 5 ? "🔥 Khởi động" : (selectedPendingMinutes === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
             }
             if (ftRing) {
-                if (isOvertime) {
-                    ftRing.style.stroke = '#10b981';
-                    ftRing.style.strokeDashoffset = '0';
-                } else if (rawTimer.includes(':')) {
+                if (isOvertime) { ftRing.style.stroke = '#10b981'; ftRing.style.strokeDashoffset = '0'; }
+                else if (rawTimer.includes(':')) {
                     ftRing.style.stroke = '#a855f7';
                     var p = rawTimer.split(':').map(Number), rSec = (p[0] * 60) + (p[1] || 0);
                     var tSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
@@ -6502,8 +6784,7 @@ function syncFocusRoomData() {
     if (!focusRoom || focusRoom.style.display === 'none') return;
     ensureFocusTemplateDOM();
 
-    var todoBox = document.getElementById('ft-todo-list-container');
-    var todoCountEl = document.getElementById('ft-todo-counter');
+    var todoBox = document.getElementById('ft-todo-list-container'), todoCountEl = document.getElementById('ft-todo-counter');
     if (todoBox) {
         var doneC = bentoTodoList.filter(function(t) { return t.done; }).length;
         if (todoCountEl) todoCountEl.innerText = "(" + doneC + "/" + bentoTodoList.length + ")";
@@ -6516,6 +6797,7 @@ function syncFocusRoomData() {
     if (typeof goals !== 'undefined' && Array.isArray(goals)) {
         if (typeof currentGoalId !== 'undefined' && currentGoalId !== null) {
             activeGoal = goals.find(function(g) { return g.id === currentGoalId; });
+            if (activeGoal) { currentFocusedGoalId = activeGoal.id; localStorage.setItem('apexFocusedGoalId', String(activeGoal.id)); }
         }
         if (!activeGoal) {
             var infoTxt = document.getElementById('focus-target-info') ? document.getElementById('focus-target-info').innerText : "";
@@ -6523,8 +6805,8 @@ function syncFocusRoomData() {
         }
     }
 
-    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 1.0 };
-    var todayDone = qInfo.doneHrs || 0, todayReq = Math.max(qInfo.requiredHrs || 1.0, 0.5);
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 0.5 };
+    var todayDone = qInfo.doneHrs || 0, todayReq = Math.max(qInfo.requiredHrs || 0.5, 0.25);
     var todayPct = Math.min(100, Math.round((todayDone / todayReq) * 100));
 
     if (activeGoal) {
@@ -6558,12 +6840,12 @@ function syncFocusRoomData() {
 
 function attachTimerObserver() {
     var target = document.getElementById('session-timer');
-    if (!target || target.dataset.observedV3 === 'true') return;
-    target.dataset.observedV3 = 'true';
+    if (!target || target.dataset.observedV4 === 'true') return;
+    target.dataset.observedV4 = 'true';
     new MutationObserver(syncFocusClockInstant).observe(target, { childList: true, characterData: true, subtree: true });
 }
 
-// --- 8. CỐ ĐỊNH SIDEBAR, BẢNG MÀU & CHUYỂN TAB ---
+// --- 10. DUY TRÌ SIDEBAR, CHUYỂN TAB & KHÓA ĐIỀU PHỐI AN TOÀN ---
 function maintainCleanSidebar() {
     var sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
@@ -6591,12 +6873,10 @@ function maintainCleanSidebar() {
         }
     }
 
-    // Tự động thay thế ngay lập tức nếu trang Thành tựu bị hàm cũ vẽ "BẢNG VÀNG DANH HIỆU"
     var trophyRoom = document.getElementById('trophy-room');
     if (trophyRoom && trophyRoom.style.display !== 'none' && trophyRoom.innerHTML.includes('BẢNG VÀNG DANH HIỆU')) {
         renderMasterTrophyAndArchive();
     }
-    // Tự động vẽ ngay nếu trang Phân tích tiến độ đang mở mà bị trống
     var analyticsRoom = document.getElementById('analytics-room');
     if (analyticsRoom && analyticsRoom.style.display !== 'none' && analyticsRoom.innerHTML.trim() === '') {
         window.renderAnalytics();
@@ -6614,9 +6894,9 @@ window.changeColor = function(colorName) {
     });
 };
 
-var origSwitchTabV3 = window.switchTab;
+var origSwitchTabV4 = window.switchTab;
 window.switchTab = function(tabName) {
-    if (typeof origSwitchTabV3 === 'function') origSwitchTabV3(tabName);
+    if (typeof origSwitchTabV4 === 'function') origSwitchTabV4(tabName);
     if (tabName === 'trophy') {
         renderMasterTrophyAndArchive();
         setTimeout(renderMasterTrophyAndArchive, 40);
@@ -6625,78 +6905,58 @@ window.switchTab = function(tabName) {
         setTimeout(window.renderAnalytics, 40);
     } else if (tabName === 'dashboard') {
         renderBentoCommandCenter();
+    } else if (tabName === 'goals') {
+        var firstG = (typeof goals !== 'undefined' && Array.isArray(goals)) ? (goals.find(function(g){return g.id===currentFocusedGoalId;}) || goals[0]) : null;
+        if (firstG) openGoalDetailModal(firstG.id, 'overview');
     }
 };
 
-// Khai báo biến theo dõi trạng thái dữ liệu (An toàn tuyệt đối - KHÔNG tự động click nút)
 var lastKnownGoalCount = -1;
 var lastKnownLogKeys = -1;
 var hasRestoredDispatchPenalty = false;
-var prevRenderDashV3 = window.renderDashboard;
+var prevRenderDashV4 = window.renderDashboard;
 
 window.renderDashboard = function() {
-    if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
+    if (typeof prevRenderDashV4 === 'function') prevRenderDashV4();
     renderBentoCommandCenter();
 };
 
-// Hàm khóa Điều phối an toàn bằng biến (Tuyệt đối KHÔNG dùng b.click() để tránh bấm nhầm nút Nhận đề xuất)
 function safeLockDispatchIfQuotaDone() {
-    // Khôi phục 1 lần cho Bệ hạ nếu Hiệu suất đang bị tụt dưới 85% do lỗi vừa rồi
     if (!hasRestoredDispatchPenalty) {
         hasRestoredDispatchPenalty = true;
         if (typeof dispatchRate !== 'undefined' && dispatchRate < 85) {
-            dispatchRate = 85;
-            localStorage.setItem('dispatchRate', '85');
+            dispatchRate = 85; localStorage.setItem('dispatchRate', '85');
         }
         if (typeof consecutiveRejects !== 'undefined') consecutiveRejects = 0;
         if (typeof rejectStreak !== 'undefined') rejectStreak = 0;
-        localStorage.setItem('consecutiveRejects', '0');
-        localStorage.setItem('rejectStreak', '0');
+        localStorage.setItem('consecutiveRejects', '0'); localStorage.setItem('rejectStreak', '0');
     }
-
-    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function')
-        ? getTodayDispatchQuotaInfo()
-        : { doneHrs: 0, requiredHrs: 0.5 };
-
-    // Nếu hôm nay đã hoàn thành đủ định mức giờ học -> Đặt biến trạng thái về false và dừng bộ hẹn giờ bắn nhiệm vụ
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 0.5 };
     if ((qInfo.doneHrs || 0) >= Math.max(0.1, qInfo.requiredHrs || 0.5)) {
         if (typeof isDispatchOnline !== 'undefined' && isDispatchOnline) {
-            isDispatchOnline = false;
-            localStorage.setItem('isDispatchOnline', 'false');
+            isDispatchOnline = false; localStorage.setItem('isDispatchOnline', 'false');
         }
-        if (typeof dispatchTimer !== 'undefined' && dispatchTimer) {
-            clearInterval(dispatchTimer);
-            clearTimeout(dispatchTimer);
-        }
-        if (typeof autoDispatchTimeout !== 'undefined' && autoDispatchTimeout) {
-            clearTimeout(autoDispatchTimeout);
-        }
+        if (typeof dispatchTimer !== 'undefined' && dispatchTimer) { clearInterval(dispatchTimer); clearTimeout(dispatchTimer); }
+        if (typeof autoDispatchTimeout !== 'undefined' && autoDispatchTimeout) { clearTimeout(autoDispatchTimeout); }
     }
 }
 
-// Vòng lặp đồng bộ duy nhất
 setInterval(function() {
     try {
-        // 1. CẬP NHẬT NGÀY & GIỜ LÊN ĐẦU TIÊN
         var now = new Date();
-        var clockEl = document.getElementById('top-clock-label');
-        var dateEl = document.getElementById('top-date-label');
-        if (clockEl) {
-            clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        }
+        var clockEl = document.getElementById('top-clock-label'), dateEl = document.getElementById('top-date-label');
+        if (clockEl) clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
         if (dateEl) {
             var dNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
             dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
         }
 
-        // 2. Đồng bộ Phòng Focus, Sidebar & Khóa Điều phối an toàn
         attachTimerObserver();
         syncFocusClockInstant();
         syncFocusRoomData();
         maintainCleanSidebar();
         safeLockDispatchIfQuotaDone();
 
-        // 3. Tự động vẽ lại ngay khi Firebase tải xong goals hoặc dailyLogs
         var currentGoalsLen = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.length : 0;
         var currentLogsLen = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).length : 0;
         var dashGrid = document.getElementById('dashboard-grid');
@@ -6710,34 +6970,28 @@ setInterval(function() {
             lastKnownGoalCount = currentGoalsLen;
             lastKnownLogKeys = currentLogsLen;
             safeLockDispatchIfQuotaDone();
-            if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
+            if (typeof prevRenderDashV4 === 'function') prevRenderDashV4();
             if (typeof updateKPI === 'function') updateKPI();
             if (typeof renderGoals === 'function') renderGoals();
             if (typeof renderCountdowns === 'function') renderCountdowns();
             renderBentoCommandCenter();
         }
 
-        // 4. Tính chuẩn KPI Tuần thực tế từ dailyLogs
         if (kpiStatusEl && currentLogsLen > 0) {
-            var weekSum = 0;
-            var dayOfWeek = now.getDay() || 7;
+            var weekSum = 0, dayOfWeek = now.getDay() || 7;
             for (var i = 0; i < dayOfWeek; i++) {
-                var d = new Date(now);
-                d.setDate(now.getDate() - i);
+                var d = new Date(now); d.setDate(now.getDate() - i);
                 var dKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 if (dailyLogs[dKey]) weekSum += Number(dailyLogs[dKey] || 0);
             }
             var kpiTarget = (typeof weeklyKpiTarget !== 'undefined') ? Number(weeklyKpiTarget) : 5.0;
-            var expectedText = weekSum.toFixed(1) + ' / ' + kpiTarget.toFixed(1) + 'h';
             if (kpiStatusEl.innerText.indexOf('0.0') === 0 && weekSum > 0) {
-                kpiStatusEl.innerText = expectedText;
+                kpiStatusEl.innerText = weekSum.toFixed(1) + ' / ' + kpiTarget.toFixed(1) + 'h';
                 var barFill = document.getElementById('kpi-bar-fill');
                 if (barFill) barFill.style.width = Math.min(100, Math.round((weekSum / kpiTarget) * 100)) + '%';
             }
         }
-    } catch (err) {
-        console.warn("Sync Loop Warning:", err);
-    }
+    } catch (err) {}
 }, 500);
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -6746,7 +7000,7 @@ window.addEventListener('DOMContentLoaded', function() {
     maintainCleanSidebar();
     setTimeout(function() {
         safeLockDispatchIfQuotaDone();
-        if (typeof prevRenderDashV3 === 'function') prevRenderDashV3();
+        if (typeof prevRenderDashV4 === 'function') prevRenderDashV4();
         renderBentoCommandCenter();
     }, 300);
 });
