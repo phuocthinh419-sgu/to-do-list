@@ -5605,9 +5605,53 @@ function getGoalExtraData(goal) {
     return goalDetailsStore[id];
 }
 
+// Hàm tự động gắn nút "🗺️ Lộ trình" lên TẤT CẢ các thẻ .goal-card bên dưới Dashboard
+function attachRoadmapButtonToAllGoalCards() {
+    var grid = document.getElementById('dashboard-grid');
+    if (!grid || typeof goals === 'undefined' || !Array.isArray(goals)) return;
+
+    var cards = grid.querySelectorAll('.goal-card');
+    cards.forEach(function(card) {
+        if (card.querySelector('.btn-goal-roadmap')) return;
+
+        // Tìm ID của mục tiêu từ thuộc tính onclick="openGoal(123)"
+        var oc = card.getAttribute('onclick') || "";
+        var match = oc.match(/openGoal\s*\(\s*(\d+)\s*\)/);
+        var gId = match ? Number(match[1]) : null;
+        if (!gId) {
+            var titleEl = card.querySelector('h3');
+            if (titleEl) {
+                var found = goals.find(function(x) { return x.name === titleEl.innerText.trim(); });
+                if (found) gId = found.id;
+            }
+        }
+        if (!gId) return;
+
+        var btn = document.createElement('button');
+        btn.className = 'btn-goal-roadmap';
+        btn.title = 'Xem Lộ trình 5 chặng, Nhiệm vụ & Ghi chú của mục tiêu này';
+        btn.style.cssText = "background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.45); color:#e9d5ff; padding:6px 11px; border-radius:9px; font-size:0.72rem; font-weight:800; cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; gap:5px; transition:0.2s; margin-left:auto; z-index:5;";
+        btn.innerHTML = '<i class="fa-solid fa-route" style="color:#c084fc;"></i> Lộ trình';
+        btn.onmouseover = function() { btn.style.background = '#7c3aed'; btn.style.color = '#fff'; };
+        btn.onmouseout = function() { btn.style.background = 'rgba(168,85,247,0.18)'; btn.style.color = '#e9d5ff'; };
+        btn.onclick = function(e) {
+            e.stopPropagation(); // Chặn không cho nhảy vào Focus Room, mở bảng Lộ trình!
+            openGoalDetailModal(gId, 'overview');
+        };
+        card.appendChild(btn);
+    });
+}
+
+// Hàm đổi mục tiêu đang ghim ở thẻ "Mục tiêu đang tập trung"
+window.changePinnedFocusGoal = function(newGoalId) {
+    currentFocusedGoalId = Number(newGoalId);
+    localStorage.setItem('apexFocusedGoalId', String(currentFocusedGoalId));
+    renderBentoCommandCenter();
+};
+
 window.openGoalDetailModal = function(goalId, defaultTab) {
     if (typeof goals === 'undefined' || !Array.isArray(goals)) return;
-    var g = goals.find(function(item) { return item.id === goalId; }) || goals[0];
+    var g = goals.find(function(item) { return item.id == goalId; }) || goals[0];
     if (!g) return;
 
     activeGoalDetailId = g.id;
@@ -5623,6 +5667,12 @@ window.openGoalDetailModal = function(goalId, defaultTab) {
         document.body.appendChild(modal);
     }
 
+    // Tạo danh sách Dropdown để chuyển nhanh giữa TẤT CẢ các mục tiêu ngay trong Modal
+    var allGoalsSelectorHtml = goals.map(function(item) {
+        var isCompleted = Number(item.current || 0) <= 0;
+        return `<option value="${item.id}" ${item.id === g.id ? 'selected' : ''} style="background:#14192d; color:#fff;">${isCompleted ? '✓ ' : '🎯 '}${item.name}</option>`;
+    }).join('');
+
     var extra = getGoalExtraData(g);
     var targetH = Number(g.target || 1);
     var leftH = Math.max(0, Number(g.current || 0));
@@ -5630,7 +5680,6 @@ window.openGoalDetailModal = function(goalId, defaultTab) {
     var pct = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
     var curStageIdx = Math.min(4, Math.floor((pct / 100) * 5));
 
-    // Stepper 5 chặng chuẩn Concept
     var stepperHtml = extra.milestones.map(function(ms, idx) {
         var isDone = idx < curStageIdx || pct >= 100;
         var isCurrent = idx === curStageIdx && pct < 100;
@@ -5668,7 +5717,7 @@ window.openGoalDetailModal = function(goalId, defaultTab) {
     var reportsList = Array.isArray(g.reports) ? g.reports : [];
     var reportsHtml = reportsList.length === 0
         ? '<div style="padding:20px; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có bản báo cáo nào cho mục tiêu này.</div>'
-        : reportsList.slice(0, 8).map(function(r) {
+        : reportsList.slice(0, 12).map(function(r) {
             return `<div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border-left:3px solid #a855f7; margin-bottom:7px;"><div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:3px;"><span>${r.date || ''}</span><strong style="color:#10b981;">${r.duration || 25} phút</strong></div><div style="font-size:0.78rem; color:#e2e8f0;">${r.content || r.text || ''}</div></div>`;
         }).join('');
 
@@ -5678,7 +5727,7 @@ window.openGoalDetailModal = function(goalId, defaultTab) {
             <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px; margin-bottom:14px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <span style="font-size:0.8rem; font-weight:800; color:#fff;">Lộ trình đề xuất (5 Chặng)</span>
-                    <span style="font-size:0.72rem; color:#a855f7; font-weight:700; cursor:pointer;" onclick="customizeGoalMilestones(${g.id})"><i class="fa-solid fa-pen"></i> Đổi tên chặng</span>
+                    <span style="font-size:0.72rem; color:#a855f7; font-weight:700; cursor:pointer;" onclick="customizeGoalMilestones(${g.id})"><i class="fa-solid fa-pen"></i> Đổi tên 5 chặng</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; position:relative; padding:4px 0;">
                     <div style="position:absolute; top:18px; left:10%; right:10%; height:3px; background:rgba(255,255,255,0.08); z-index:1;">
@@ -5712,15 +5761,19 @@ window.openGoalDetailModal = function(goalId, defaultTab) {
 
     modal.innerHTML = `
         <div style="background:linear-gradient(160deg, #14192d 0%, #0d1120 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:680px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.75);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; padding:6px 14px; border-radius:100px; font-size:0.76rem; font-weight:600; cursor:pointer;">
-                    ← Quay lại
-                </button>
-                <div style="display:flex; gap:8px;">
-                    <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.45);">
-                        ▶ Vào Phòng Focus
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; padding:6px 14px; border-radius:100px; font-size:0.76rem; font-weight:600; cursor:pointer;">
+                        ← Đóng
                     </button>
+                    <!-- Menu chọn xem Lộ trình của BẤT KỲ mục tiêu nào -->
+                    <select onchange="openGoalDetailModal(Number(this.value), '${currentGoalModalTab}')" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); color:#fff; padding:6px 12px; border-radius:10px; font-size:0.78rem; font-weight:700; outline:none; cursor:pointer;">
+                        ${allGoalsSelectorHtml}
+                    </select>
                 </div>
+                <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.45);">
+                    ▶ Vào Phòng Focus
+                </button>
             </div>
 
             <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:16px; margin-bottom:16px;">
@@ -6006,7 +6059,6 @@ function renderBentoCommandCenter() {
         var achList = getAllAchievementsList();
         var unlockedAchCount = achList.filter(function(a) { return a.unlocked; }).length;
 
-        // Vòng tròn SVG cho thẻ HÔM NAY (Gộp vòng tròn + 3 nhiệm vụ quan trọng)
         var ringRadius = 42, ringCircum = 2 * Math.PI * ringRadius;
         var ringOffset = ringCircum - (pctToday / 100) * ringCircum;
 
@@ -6023,19 +6075,25 @@ function renderBentoCommandCenter() {
                 </div>`;
         }).join('');
 
-        // Thẻ MỤC TIÊU ĐANG TẬP TRUNG (Giữa Hàng 2)
+        // Thẻ MỤC TIÊU ĐANG TẬP TRUNG (Có Dropdown tự do chọn bất kỳ mục tiêu nào để ghim)
         var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current > 0; }) : [];
-        var focusGoal = activeGoals.find(function(g) { return g.id === currentFocusedGoalId; }) || activeGoals[0];
+        var focusGoal = activeGoals.find(function(g) { return g.id == currentFocusedGoalId; }) || activeGoals[0];
         var focusGoalHtml = '';
         if (focusGoal) {
             var fgTarget = Number(focusGoal.target || 1), fgLeft = Math.max(0, Number(focusGoal.current || 0));
             var fgDone = Math.max(0, fgTarget - fgLeft), fgPct = Math.min(100, Math.round((fgDone / Math.max(0.1, fgTarget)) * 100));
             var fgExtra = getGoalExtraData(focusGoal);
+            var pinOptionsHtml = activeGoals.map(function(ag) {
+                return `<option value="${ag.id}" ${ag.id === focusGoal.id ? 'selected' : ''} style="background:#14192d; color:#fff;">📌 ${ag.name}</option>`;
+            }).join('');
+
             focusGoalHtml = `
                 <div>
-                    <div class="phoi-card-head">
-                        <span class="phoi-card-title">Mục tiêu đang tập trung</span>
-                        <span class="phoi-link" onclick="openGoalDetailModal(${focusGoal.id}, 'overview')">Lộ trình & Chi tiết →</span>
+                    <div class="phoi-card-head" style="gap:6px;">
+                        <select onchange="changePinnedFocusGoal(this.value)" title="Đổi mục tiêu đang ghim tập trung" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:#f1f5f9; padding:3px 8px; border-radius:7px; font-size:0.7rem; font-weight:800; outline:none; cursor:pointer; max-width:175px;">
+                            ${pinOptionsHtml}
+                        </select>
+                        <span class="phoi-link" onclick="openGoalDetailModal(${focusGoal.id}, 'overview')">🗺️ Lộ trình →</span>
                     </div>
                     <div onclick="openGoalDetailModal(${focusGoal.id}, 'overview')" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0 10px 0; cursor:pointer;">
                         <div style="display:flex; align-items:center; gap:12px; min-width:0;">
@@ -6057,9 +6115,14 @@ function renderBentoCommandCenter() {
                         <span>Còn ${fgLeft.toFixed(2)}h</span>
                     </div>
                 </div>
-                <button onclick="openGoal(${focusGoal.id})" style="width:100%; padding:9px; border-radius:10px; background:linear-gradient(90deg, #7c3aed, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.8rem; cursor:pointer; box-shadow:0 6px 18px rgba(124,58,237,0.4);">
-                    <i class="fa-solid fa-play" style="margin-right:6px;"></i> Tiếp tục học
-                </button>`;
+                <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:8px;">
+                    <button onclick="openGoal(${focusGoal.id})" style="padding:9px; border-radius:10px; background:linear-gradient(90deg, #7c3aed, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.78rem; cursor:pointer; box-shadow:0 6px 18px rgba(124,58,237,0.4);">
+                        <i class="fa-solid fa-play" style="margin-right:5px;"></i> Tiếp tục học
+                    </button>
+                    <button onclick="openGoalDetailModal(${focusGoal.id}, 'overview')" style="padding:9px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#e2e8f0; font-weight:700; font-size:0.76rem; cursor:pointer;">
+                        <i class="fa-solid fa-route" style="color:#a855f7; margin-right:4px;"></i> Xem lộ trình
+                    </button>
+                </div>`;
         } else {
             focusGoalHtml = `<div style="padding:30px 0; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có mục tiêu đang mở. Hãy tạo mục tiêu mới!</div>`;
         }
@@ -6085,7 +6148,7 @@ function renderBentoCommandCenter() {
                 </div>`;
         }).join('') || '<div style="padding:26px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>';
 
-        // Hàng 3 - Cột 1: BIỂU ĐỒ THỜI GIAN HỌC (7 NGÀY) chuẩn Concept
+        // Hàng 3 - Cột 1: BIỂU ĐỒ THỜI GIAN HỌC (7 NGÀY)
         var logsObj = (typeof dailyLogs !== 'undefined' && dailyLogs) ? dailyLogs : {};
         var maxBar7 = 3.0;
         for (var m = 6; m >= 0; m--) {
@@ -6110,24 +6173,24 @@ function renderBentoCommandCenter() {
                 </div>`;
         }
 
-        // Hàng 3 - Cột 2: TIẾN ĐỘ CÁC MỤC TIÊU (Bấm mở Goal Detail Modal)
-        var gIcons = [{ icon: 'fa-book-open', color: '#a855f7' }, { icon: 'fa-bullseye', color: '#f43f5e' }, { icon: 'fa-laptop-code', color: '#10b981' }];
-        var currentGoalsHtml = activeGoals.slice(0, 3).map(function(g, idx) {
-            var st = gIcons[idx % 3], pctG = Math.min(100, Math.round((Math.max(0, (g.target || 1) - g.current) / (g.target || 1)) * 100));
+        // Hàng 3 - Cột 2: TIẾN ĐỘ CÁC MỤC TIÊU (Hiển thị TẤT CẢ mục tiêu đang mở, bấm vào mở ngay Lộ trình)
+        var gIcons = [{ icon: 'fa-book-open', color: '#a855f7' }, { icon: 'fa-bullseye', color: '#f43f5e' }, { icon: 'fa-laptop-code', color: '#10b981' }, { icon: 'fa-graduation-cap', color: '#38bdf8' }, { icon: 'fa-bolt', color: '#f59e0b' }];
+        var currentGoalsHtml = `<div style="max-height:130px; overflow-y:auto; padding-right:4px;">` + (activeGoals.map(function(g, idx) {
+            var st = gIcons[idx % gIcons.length], pctG = Math.min(100, Math.round((Math.max(0, (g.target || 1) - g.current) / (g.target || 1)) * 100));
             return `
-                <div onclick="openGoalDetailModal(${g.id}, 'overview')" style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
-                    <div style="width:30px; height:30px; border-radius:8px; background:${st.color}22; color:${st.color}; display:flex; align-items:center; justify-content:center; font-size:0.78rem; flex-shrink:0;"><i class="fa-solid ${st.icon}"></i></div>
+                <div onclick="openGoalDetailModal(${g.id}, 'overview')" title="Bấm để xem Lộ trình 5 chặng & Nhiệm vụ của ${g.name}" style="display:flex; align-items:center; gap:10px; padding:7px 4px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:28px; height:28px; border-radius:8px; background:${st.color}22; color:${st.color}; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;"><i class="fa-solid ${st.icon}"></i></div>
                     <div style="flex:1; min-width:0;">
-                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:700; margin-bottom:4px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.76rem; font-weight:700; margin-bottom:3px;">
                             <span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span>
-                            <span style="color:#94a3b8;">${pctG}%</span>
+                            <span style="color:#c084fc; font-size:0.7rem;">Lộ trình • ${pctG}%</span>
                         </div>
                         <div style="width:100%; height:5px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
                             <div style="width:${pctG}%; height:100%; background:${st.color};"></div>
                         </div>
                     </div>
                 </div>`;
-        }).join('') || '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>';
+        }).join('') || '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>') + `</div>`;
 
         // Hàng 3 - Cột 3: THỊ TRƯỜNG CỔ PHIẾU
         var stockList = getUnifiedStockArray();
@@ -6230,8 +6293,8 @@ function renderBentoCommandCenter() {
                 <div class="phoi-card">
                     <div>
                         <div class="phoi-card-head">
-                            <span class="phoi-card-title">Tiến độ các mục tiêu</span>
-                            <span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem tất cả →</span>
+                            <span class="phoi-card-title">Tiến độ các mục tiêu (${activeGoals.length})</span>
+                            <span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem thẻ dưới →</span>
                         </div>
                         <div>${currentGoalsHtml}</div>
                     </div>
@@ -6250,6 +6313,7 @@ function renderBentoCommandCenter() {
                 </div>
             </div>`;
         ensureMartialLawKpiCard();
+        attachRoadmapButtonToAllGoalCards();
     } catch (e) {}
 }
 
