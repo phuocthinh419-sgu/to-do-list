@@ -5808,99 +5808,261 @@ function renderBentoCommandCenter() {
     } catch (e) {}
 }
 
-// --- 5. TRANG PHÂN TÍCH TIẾN ĐỘ (KHÔI PHỤC ĐẦY ĐỦ BIỂU ĐỒ CỘT & DONUT) ---
+// --- 5. TRANG PHÂN TÍCH TIẾN ĐỘ TOÀN DIỆN (4 TẦNG DỮ LIỆU ĐẦY ĐỦ) ---
 window.renderAnalytics = function() {
     injectUnifiedApexCSS();
     var room = document.getElementById('analytics-room');
     if (!room) return;
 
+    var logsObj = (typeof dailyLogs !== 'undefined' && dailyLogs) ? dailyLogs : {};
+    var allGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals : [];
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+
+    // 1. Thống kê 7 ngày & 30 ngày gần nhất + Tìm ngày học cao kỷ lục
     var totalHrs7Days = 0;
+    var totalHrs30Days = 0;
+    var bestDayHrs = 0;
+    var bestDayDate = "Chưa có";
+    var activeDaysCount = 0;
+
+    Object.keys(logsObj).forEach(function(k) {
+        var val = Number(logsObj[k] || 0);
+        if (val > 0) activeDaysCount++;
+        if (val > bestDayHrs) {
+            bestDayHrs = val;
+            bestDayDate = k;
+        }
+    });
+
+    for (var d30 = 29; d30 >= 0; d30--) {
+        var dt = new Date();
+        dt.setDate(dt.getDate() - d30);
+        var k30 = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+        var v30 = Number(logsObj[k30] || 0);
+        totalHrs30Days += v30;
+        if (d30 < 7) totalHrs7Days += v30;
+    }
+
+    // 2. Biểu đồ cột 7 ngày gần nhất (Tự động co giãn theo ngày cao nhất trong tuần)
+    var max7DayVal = 3.0;
+    for (var m = 6; m >= 0; m--) {
+        var dm = new Date(); dm.setDate(dm.getDate() - m);
+        var km = dm.getFullYear() + '-' + String(dm.getMonth() + 1).padStart(2, '0') + '-' + String(dm.getDate()).padStart(2, '0');
+        if (Number(logsObj[km] || 0) > max7DayVal) max7DayVal = Number(logsObj[km]);
+    }
+
     var barsHtml = '';
     var dayLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     for (var i = 6; i >= 0; i--) {
         var d = new Date();
         d.setDate(d.getDate() - i);
         var dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        var val = (typeof dailyLogs !== 'undefined' && dailyLogs[dStr]) ? Number(dailyLogs[dStr]) : 0;
-        totalHrs7Days += val;
-        var hPct = Math.min(100, Math.max(8, Math.round((val / 3.5) * 100)));
+        var val = Number(logsObj[dStr] || 0);
+        var hPct = Math.min(100, Math.max(6, Math.round((val / max7DayVal) * 100)));
+        var isToday = (i === 0);
         barsHtml += `
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;">
-                <span style="font-size:0.65rem; color:#cbd5e1; font-weight:700;">${val > 0 ? val.toFixed(1)+'h' : '0h'}</span>
-                <div style="height:130px; width:100%; max-width:28px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:flex-end; overflow:hidden;">
-                    <div style="width:100%; height:${hPct}%; background:linear-gradient(180deg, #38bdf8, #8b5cf6); border-radius:8px; box-shadow:0 0 12px rgba(139,92,246,0.4);"></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;" title="${dStr}: ${val.toFixed(2)} giờ">
+                <span style="font-size:0.68rem; color:${isToday ? '#fbbf24' : '#cbd5e1'}; font-weight:700;">${val > 0 ? val.toFixed(1)+'h' : '0h'}</span>
+                <div style="height:135px; width:100%; max-width:30px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:flex-end; overflow:hidden; padding:2px;">
+                    <div style="width:100%; height:${hPct}%; background:${isToday ? 'linear-gradient(180deg, #fbbf24, #f59e0b)' : 'linear-gradient(180deg, #38bdf8, #8b5cf6)'}; border-radius:6px; box-shadow:0 0 12px rgba(139,92,246,0.35);"></div>
                 </div>
-                <span style="font-size:0.72rem; color:#94a3b8; font-weight:700;">${dayLabels[d.getDay()]}</span>
+                <span style="font-size:0.72rem; color:${isToday ? '#fbbf24' : '#94a3b8'}; font-weight:800;">${isToday ? 'H.Nay' : dayLabels[d.getDay()]}</span>
             </div>`;
     }
 
-    var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e'];
-    var allGoals = (typeof goals !== 'undefined' && Array.isArray(goals) && goals.length > 0) ? goals.slice(0, 5) : [];
-    var goalStats = allGoals.map(function(g, idx) {
-        var spent = Math.max(0.2, Number(g.target || 1) - Number(g.current || 0));
-        return { name: g.name, spent: spent, color: palette[idx % palette.length] };
-    });
-    if (goalStats.length === 0) goalStats = [{ name: "Mục tiêu học tập", spent: 1, color: "#a855f7" }];
-    var sumSpent = goalStats.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
+    // 3. Phân bổ thời gian theo Toàn bộ Mục tiêu (Sắp xếp giảm dần & Gom nhóm "Mục tiêu khác" để khớp 100% tổng số giờ)
+    var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#6366f1', '#14b8a6'];
+    var sortedGoals = allGoals.map(function(g) {
+        var targetH = Number(g.target || 0);
+        var leftH = Math.max(0, Number(g.current || 0));
+        var spentH = Math.max(0, targetH - leftH);
+        var repCount = Array.isArray(g.reports) ? g.reports.length : 0;
+        var pctDone = targetH > 0 ? Math.min(100, Math.round((spentH / targetH) * 100)) : 100;
+        return {
+            id: g.id,
+            name: g.name,
+            target: targetH,
+            left: leftH,
+            spent: spentH,
+            reportsCount: repCount,
+            pctDone: pctDone,
+            rawReports: Array.isArray(g.reports) ? g.reports : []
+        };
+    }).sort(function(a, b) { return b.spent - a.spent; });
 
-    var conicParts = [], acc = 0;
-    var legendHtml = goalStats.map(function(g) {
-        var pct = Math.round((g.spent / sumSpent) * 100);
-        var start = acc; acc += pct;
-        conicParts.push(g.color + " " + start + "% " + acc + "%");
+    var totalGoalSpent = sortedGoals.reduce(function(a, b) { return a + b.spent; }, 0);
+    var chartItems = sortedGoals.filter(function(g) { return g.spent > 0; }).slice(0, 5);
+    var top5Spent = chartItems.reduce(function(a, b) { return a + b.spent; }, 0);
+    var otherSpent = Math.max(0, Math.max(totalAllTimeHrs, totalGoalSpent) - top5Spent);
+
+    if (otherSpent > 0.1) {
+        chartItems.push({ name: "Các mục tiêu hoàn thành khác", spent: otherSpent, isOther: true });
+    }
+    if (chartItems.length === 0) {
+        chartItems.push({ name: "Chưa có dữ liệu mục tiêu", spent: 1, isOther: true });
+    }
+
+    var denomSpent = chartItems.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
+    var conicParts = [], accPct = 0;
+    var legendHtml = chartItems.map(function(g, idx) {
+        var color = palette[idx % palette.length];
+        var pct = Math.round((g.spent / denomSpent) * 100);
+        var start = accPct;
+        accPct = (idx === chartItems.length - 1) ? 100 : Math.min(100, accPct + pct);
+        conicParts.push(color + " " + start + "% " + accPct + "%");
         return `
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; margin-bottom:8px;">
-                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">
-                    <span style="width:9px; height:9px; border-radius:50%; background:${g.color}; flex-shrink:0;"></span>${g.name}
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.77rem; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                <span style="display:flex; align-items:center; gap:8px; color:#e2e8f0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;">
+                    <span style="width:9px; height:9px; border-radius:50%; background:${color}; flex-shrink:0;"></span>${g.name}
                 </span>
-                <strong style="color:#fff;">${g.spent.toFixed(1)}h (${pct}%)</strong>
+                <strong style="color:#fff; flex-shrink:0; margin-left:8px;">${g.spent.toFixed(1)}h (${pct}%)</strong>
             </div>`;
     }).join('');
 
-    var totalAllTimeHrs = getTotalAccumulatedHours();
-    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+    // 4. Tổng hợp toàn bộ Báo cáo học tập & Thống kê Phiên
+    var allReportsFlat = [];
+    var totalReportsCount = 0;
+    sortedGoals.forEach(function(g) {
+        totalReportsCount += g.reportsCount;
+        g.rawReports.forEach(function(r) {
+            allReportsFlat.push({
+                goalName: g.name,
+                date: r.date || "",
+                duration: r.duration || 25,
+                content: r.content || r.text || "Hoàn thành phiên học tập trung."
+            });
+        });
+    });
 
+    var completedGoalsCount = allGoals.filter(function(g) { return Number(g.current || 0) <= 0; }).length;
+    var activeGoalsCount = allGoals.length - completedGoalsCount;
+
+    // 5. Bảng Tiến độ Chi tiết tất cả các Mục tiêu (Có thanh tiến trình & số báo cáo)
+    var goalBreakdownHtml = sortedGoals.slice(0, 8).map(function(g, idx) {
+        var barColor = g.left <= 0 ? '#10b981' : palette[idx % palette.length];
+        return `
+            <div style="padding:9px 10px; border-radius:10px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); margin-bottom:7px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; font-size:0.79rem;">
+                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                        <span style="font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:5px; background:${g.left <= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(168,85,247,0.18)'}; color:${g.left <= 0 ? '#10b981' : '#c084fc'};">
+                            ${g.left <= 0 ? 'XONG' : g.pctDone + '%'}
+                        </span>
+                        <strong style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</strong>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:0.74rem; font-weight:700; flex-shrink:0;">
+                        ${g.spent.toFixed(1)}h / ${g.target.toFixed(1).replace(/\.0$/, '')}h • <span style="color:#38bdf8;">${g.reportsCount} báo cáo</span>
+                    </span>
+                </div>
+                <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
+                    <div style="width:${g.pctDone}%; height:100%; background:${barColor}; border-radius:100px;"></div>
+                </div>
+            </div>`;
+    }).join('');
+
+    // 6. Nhật ký các Bản Báo Cáo Học Tập Gần Đây
+    var recentReportsHtml = allReportsFlat.length === 0
+        ? '<div style="padding:24px; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có bản báo cáo phiên học nào được lưu.</div>'
+        : allReportsFlat.slice(0, 6).map(function(rep) {
+            return `
+                <div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.025); border-left:3px solid #a855f7; margin-bottom:7px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; margin-bottom:4px;">
+                        <strong style="color:#c084fc;">${rep.goalName}</strong>
+                        <span style="color:#94a3b8;">${rep.date} • <strong style="color:#10b981;">${rep.duration} phút</strong></span>
+                    </div>
+                    <div style="font-size:0.76rem; color:#e2e8f0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                        ${rep.content}
+                    </div>
+                </div>`;
+        }).join('');
+
+    // 7. Render giao diện Phân Tích 4 Tầng đầy đặn
     room.innerHTML = `
-        <div class="phoi-row-3col">
+        <!-- TẦNG 1: 4 THẺ CHỈ SỐ TỔNG QUAN HỌC THUẬT -->
+        <div class="phoi-stat-grid" style="margin-bottom:14px;">
             <div class="phoi-card">
-                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Tổng thời gian học (7 ngày qua)</div>
-                <div style="font-size:1.9rem; font-weight:900; color:#fff; margin:6px 0;">${formatHrsToHM(totalHrs7Days)}</div>
-                <div style="font-size:0.72rem; color:#10b981; font-weight:700;">↑ Trung bình: ${(totalHrs7Days / 7).toFixed(1)} giờ/ngày</div>
+                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Thời gian học (7 ngày / 30 ngày)</div>
+                <div style="font-size:1.7rem; font-weight:900; color:#fff; margin:5px 0;">${formatHrsToHM(totalHrs7Days)}</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#10b981; font-weight:700;">
+                    <span>30 ngày: ${totalHrs30Days.toFixed(1)}h</span>
+                    <span>TB: ${(totalHrs7Days / 7).toFixed(1)}h/ngày</span>
+                </div>
             </div>
+
             <div class="phoi-card">
-                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Tổng giờ tích lũy & Cấp bậc</div>
-                <div style="font-size:1.9rem; font-weight:900; color:#fbbf24; margin:6px 0;">${totalAllTimeHrs.toFixed(1)} giờ</div>
-                <div style="font-size:0.72rem; color:#c084fc; font-weight:700;">★ Lv. ${lvInfo.level} • ${lvInfo.rank} (${lvInfo.pct}% tới Lv.${lvInfo.level + 1})</div>
+                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Tổng giờ tích lũy & Học hàm</div>
+                <div style="font-size:1.7rem; font-weight:900; color:#fbbf24; margin:5px 0;">${totalAllTimeHrs.toFixed(1)} giờ</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#c084fc; font-weight:700;">
+                    <span>★ Lv. ${lvInfo.level} • ${lvInfo.rank}</span>
+                    <span>${lvInfo.pct}% → Lv.${lvInfo.level + 1}</span>
+                </div>
             </div>
+
             <div class="phoi-card">
-                <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Chuỗi kỷ luật & Hiệu suất</div>
-                <div style="font-size:1.9rem; font-weight:900; color:#fff; margin:6px 0;">🔥 ${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</div>
-                <div style="font-size:0.72rem; color:#38bdf8; font-weight:700;">Hiệu suất điều phối: ${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</div>
+                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Chuỗi kỷ luật & Ngày hoạt động</div>
+                <div style="font-size:1.7rem; font-weight:900; color:#fff; margin:5px 0;">🔥 ${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#38bdf8; font-weight:700;">
+                    <span>Tổng ngày học: ${activeDaysCount} ngày</span>
+                    <span>Hiệu suất: ${typeof dispatchRate !== 'undefined' ? dispatchRate : 85}%</span>
+                </div>
+            </div>
+
+            <div class="phoi-card">
+                <div style="font-size:0.73rem; color:#94a3b8; font-weight:600;">Hồ sơ Mục tiêu & Báo cáo</div>
+                <div style="font-size:1.7rem; font-weight:900; color:#10b981; margin:5px 0;">${totalReportsCount} báo cáo</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#f472b6; font-weight:700;">
+                    <span>Xong: ${completedGoalsCount}/${allGoals.length} mục tiêu</span>
+                    <span>Kỷ lục: ${bestDayHrs.toFixed(1)}h/ngày</span>
+                </div>
             </div>
         </div>
 
-        <div class="phoi-row-2col">
+        <!-- TẦNG 2: BIỂU ĐỒ 7 NGÀY & PHÂN BỔ 100% THỜI GIAN -->
+        <div class="phoi-row-2col" style="margin-bottom:14px;">
             <div class="phoi-card">
                 <div class="phoi-card-head">
                     <span class="phoi-card-title"><i class="fa-solid fa-chart-column" style="color:#38bdf8; margin-right:6px;"></i> Biểu đồ giờ học 7 ngày gần nhất</span>
+                    <span style="font-size:0.7rem; color:#94a3b8;">Đỉnh tuần: ${max7DayVal.toFixed(1)}h</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; padding-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; padding-top:10px;">
                     ${barsHtml}
                 </div>
             </div>
 
             <div class="phoi-card">
                 <div class="phoi-card-head">
-                    <span class="phoi-card-title"><i class="fa-solid fa-chart-pie" style="color:#a855f7; margin-right:6px;"></i> Phân bổ thời gian theo mục tiêu</span>
+                    <span class="phoi-card-title"><i class="fa-solid fa-chart-pie" style="color:#a855f7; margin-right:6px;"></i> Phân bổ tổng quỹ thời gian (${totalAllTimeHrs.toFixed(1)}h)</span>
+                    <span style="font-size:0.7rem; color:#10b981; font-weight:700;">${allGoals.length} mục tiêu</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap; margin:auto 0;">
-                    <div style="width:130px; height:130px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(0,0,0,0.45);">
+                <div style="display:flex; align-items:center; gap:22px; flex-wrap:wrap; margin:auto 0;">
+                    <div style="width:132px; height:132px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(0,0,0,0.45);">
                         <div style="width:86px; height:86px; border-radius:50%; background:#121626; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                            <strong style="font-size:0.95rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
-                            <span style="font-size:0.65rem; color:#94a3b8;">Tích lũy</span>
+                            <strong style="font-size:0.98rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
+                            <span style="font-size:0.64rem; color:#94a3b8;">Tổng tích lũy</span>
                         </div>
                     </div>
-                    <div style="flex:1; min-width:160px;">${legendHtml}</div>
+                    <div style="flex:1; min-width:180px;">${legendHtml}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 3: THỐNG KÊ CHI TIẾT TỪNG MỤC TIÊU & NHẬT KÝ BÁO CÁO GẦN ĐÂY -->
+        <div class="phoi-row-2col">
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-list-ol" style="color:#10b981; margin-right:6px;"></i> Thống kê khối lượng theo mục tiêu (${activeGoalsCount} đang mở, ${completedGoalsCount} hoàn thành)</span>
+                </div>
+                <div style="max-height:270px; overflow-y:auto; padding-right:4px;">
+                    ${goalBreakdownHtml}
+                </div>
+            </div>
+
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-clock-rotate-left" style="color:#f59e0b; margin-right:6px;"></i> Nhật ký báo cáo học thuật gần đây (${totalReportsCount} bản lưu)</span>
+                </div>
+                <div style="max-height:270px; overflow-y:auto; padding-right:4px;">
+                    ${recentReportsHtml}
                 </div>
             </div>
         </div>
