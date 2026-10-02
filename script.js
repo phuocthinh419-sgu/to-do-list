@@ -6126,8 +6126,11 @@ function injectUnifiedApexCSS() {
         #view-dashboard > #legacy-stock-strip, #view-dashboard > .stock-strip { display: none !important; }
         @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
 
-        /* XÓA BỎ HOÀN TOÀN HỘP ĐEN DƯ THỪA Ở THANH HEADER TRÊN CÙNG */
+       /* XÓA HỘP ĐEN & CỐ ĐỊNH TẠI ĐỈNH TRANG (KHÔNG CHẠY THEO KHI SCROLL) */
         .header, header.header, .main-content > .header {
+            position: relative !important;
+            top: auto !important;
+            z-index: 10 !important;
             background: transparent !important;
             background-color: transparent !important;
             border: none !important;
