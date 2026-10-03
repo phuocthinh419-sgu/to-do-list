@@ -8190,11 +8190,27 @@ setInterval(function() {
                 var dKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 if (dailyLogs[dKey]) weekSum += Number(dailyLogs[dKey] || 0);
             }
-            var kpiTarget = (typeof weeklyKpiTarget !== 'undefined') ? Number(weeklyKpiTarget) : 5.0;
-            if (kpiStatusEl.innerText.indexOf('0.0') === 0 && weekSum > 0) {
-                kpiStatusEl.innerText = weekSum.toFixed(1) + ' / ' + kpiTarget.toFixed(1) + 'h';
+
+            // Tự động nâng mốc KPI tuần theo nấc 5 giờ: Đạt 5.0h -> nhảy lên 10.0h, đạt 10.0h -> nhảy lên 15.0h...
+            var autoTierTarget = Math.max(5.0, (Math.floor(weekSum / 5.0) + 1) * 5.0);
+            if (typeof weeklyKpiTarget !== 'undefined' && Number(weeklyKpiTarget) !== autoTierTarget) {
+                weeklyKpiTarget = autoTierTarget;
+                localStorage.setItem('weeklyKpiTarget', String(autoTierTarget));
+                if (typeof updateKPI === 'function') updateKPI();
+            }
+
+            var expectedText = weekSum.toFixed(1) + ' / ' + autoTierTarget.toFixed(1) + 'h';
+            if (kpiStatusEl.innerText.trim() !== expectedText) {
+                kpiStatusEl.innerText = expectedText;
                 var barFill = document.getElementById('kpi-bar-fill');
-                if (barFill) barFill.style.width = Math.min(100, Math.round((weekSum / kpiTarget) * 100)) + '%';
+                if (barFill) {
+                    barFill.style.width = Math.min(100, Math.round((weekSum / autoTierTarget) * 100)) + '%';
+                }
+                var kpiMsgEl = document.getElementById('kpi-message');
+                if (kpiMsgEl && weekSum >= 5.0) {
+                    var tierNum = Math.floor(weekSum / 5.0);
+                    kpiMsgEl.innerHTML = '🔥 <span style="color:#10b981; font-weight:700;">Đã chinh phục Mốc ' + (tierNum * 5) + 'h!</span> Hệ thống tự động mở khóa mục tiêu <strong>' + autoTierTarget.toFixed(1) + 'h</strong> (Còn ' + Math.max(0, autoTierTarget - weekSum).toFixed(1) + 'h).';
+                }
             }
         }
     } catch (err) {}
