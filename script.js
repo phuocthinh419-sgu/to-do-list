@@ -406,6 +406,7 @@ function buildCloudData(nowTs) {
         timetable: readLocalJSON('saasTimetable', []),
         joinDate: readLocalString('saasJoinDate'),
         isSealed: readLocalString('isSealed', 'false'),
+        ownedThemes: readLocalJSON('apexOwnedThemesV1', ['twilight']),
 
         // Dynamic KPI achievement flags: saasKPIAchieved_<id>
         kpiAchieved: collectPrefixedLocalStorage('saasKPIAchieved_'),
@@ -509,6 +510,7 @@ function applyCloudDataToLocal(cloudData) {
     applyOptionalCloudValue(cloudData, 'timetable', 'saasTimetable');
     applyOptionalCloudValue(cloudData, 'joinDate', 'saasJoinDate');
     applyOptionalCloudValue(cloudData, 'isSealed');
+    if (typeof ownedThemesList !== 'undefined') ownedThemesList = readLocalJSON('apexOwnedThemesV1', ['twilight']);
 
     // Dynamic KPI flags
     if (cloudData.kpiAchieved && typeof cloudData.kpiAchieved === 'object') {
@@ -5446,12 +5448,18 @@ function deleteBentoTodo(e, id) {
 
 // --- 2. HỆ THỐNG THEME SYSTEM, PARALLAX & AMBIENT CANVAS ---
 var APEX_THEME_PRESETS = [
-    { id: 'twilight', name: "Apex Twilight", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85", accent: "#a855f7", accent2: "#6366f1", soft: "rgba(168,85,247,0.18)", border: "rgba(168,85,247,0.38)" },
-    { id: 'midnight', name: "Midnight Academy", url: "https://images.unsplash.com/photo-1507842229356-51c61504d3ab?auto=format&fit=crop&w=1920&q=85", accent: "#38bdf8", accent2: "#2563eb", soft: "rgba(56,189,248,0.18)", border: "rgba(56,189,248,0.38)" },
-    { id: 'rainy', name: "Rainy Study", url: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=85", accent: "#0ea5e9", accent2: "#6366f1", soft: "rgba(14,165,233,0.18)", border: "rgba(14,165,233,0.38)" },
-    { id: 'forest', name: "Forest Focus", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85", accent: "#10b981", accent2: "#059669", soft: "rgba(16,185,129,0.18)", border: "rgba(16,185,129,0.38)" },
-    { id: 'golden', name: "Golden Hour", url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85", accent: "#f59e0b", accent2: "#ec4899", soft: "rgba(245,158,11,0.18)", border: "rgba(245,158,11,0.38)" }
+    { id: 'twilight', price: 0,    name: "Apex Twilight",    url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85", accent: "#a855f7", accent2: "#6366f1", soft: "rgba(168,85,247,0.18)", border: "rgba(168,85,247,0.38)" },
+    { id: 'midnight', price: 1000, name: "Midnight Academy", url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1920&q=85", accent: "#38bdf8", accent2: "#2563eb", soft: "rgba(56,189,248,0.18)", border: "rgba(56,189,248,0.38)" },
+    { id: 'rainy',    price: 1000, name: "Rainy Study",      url: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=85", accent: "#0ea5e9", accent2: "#6366f1", soft: "rgba(14,165,233,0.18)", border: "rgba(14,165,233,0.38)" },
+    { id: 'forest',   price: 1000, name: "Forest Focus",     url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85", accent: "#10b981", accent2: "#059669", soft: "rgba(16,185,129,0.18)", border: "rgba(16,185,129,0.38)" },
+    { id: 'golden',   price: 1000, name: "Golden Hour",      url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85", accent: "#f59e0b", accent2: "#ec4899", soft: "rgba(245,158,11,0.18)", border: "rgba(245,158,11,0.38)" }
 ];
+
+// Danh sách các Theme đã sở hữu (Mặc định sở hữu sẵn 'twilight')
+var ownedThemesList = JSON.parse(localStorage.getItem('apexOwnedThemesV1')) || ['twilight'];
+function saveOwnedThemesList() {
+    localStorage.setItem('apexOwnedThemesV1', JSON.stringify(ownedThemesList));
+}
 
 var apexThemeConfig = JSON.parse(localStorage.getItem('apexThemeConfigV5')) || {
     themeId: 'twilight',
@@ -5542,7 +5550,6 @@ function startAmbientParticlesEngine() {
                 ctx.fill();
             }
 
-            // Sao băng ngẫu nhiên
             if (!shootingStar && Math.random() < 0.004) {
                 shootingStar = { x: Math.random() * cvs.width * 0.8 + cvs.width * 0.2, y: Math.random() * cvs.height * 0.35, vx: -9, vy: 4.5, len: 75, life: 1 };
             }
@@ -5571,6 +5578,8 @@ function applyCustomWallpaper() {
     if (apexThemeConfig.autoTime) {
         var hr = new Date().getHours();
         var autoId = (hr >= 6 && hr < 15) ? 'forest' : ((hr >= 15 && hr < 18) ? 'golden' : 'twilight');
+        // Chỉ tự động chuyển sang chủ đề đã sở hữu
+        if (ownedThemesList.indexOf(autoId) === -1) autoId = 'twilight';
         var autoPreset = APEX_THEME_PRESETS.find(function(p) { return p.id === autoId; });
         if (autoPreset && apexThemeConfig.themeId !== autoId) {
             apexThemeConfig.themeId = autoId;
@@ -5614,16 +5623,22 @@ function openWallpaperPickerModal() {
         document.body.appendChild(modal);
     }
     var curBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
+    var curUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
 
     var cardsHtml = APEX_THEME_PRESETS.map(function(p) {
+        var isOwned = (p.price === 0) || (ownedThemesList.indexOf(p.id) !== -1);
         var isSel = (apexThemeConfig.themeId === p.id && curBg === p.url);
         return `
-            <div onclick="selectApexThemePreset('${p.id}')" style="cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid ${isSel ? p.accent : 'rgba(255,255,255,0.08)'}; background:#151a2d; transition:0.2s; box-shadow:${isSel ? '0 0 18px ' + p.soft : 'none'};">
+            <div onclick="selectApexThemePreset('${p.id}')" style="cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid ${isSel ? p.accent : (isOwned ? 'rgba(16,185,129,0.38)' : 'rgba(255,255,255,0.08)')}; background:#151a2d; transition:0.2s; box-shadow:${isSel ? '0 0 18px ' + p.soft : 'none'};">
                 <div style="height:68px; background:url('${p.url}') center/cover; position:relative;">
+                    ${!isOwned ? `<div style="position:absolute; inset:0; background:rgba(6,9,20,0.48); backdrop-filter:blur(1.5px); display:flex; align-items:center; justify-content:center;"><span style="background:linear-gradient(90deg,#f59e0b,#d97706); color:#fff; font-size:0.64rem; font-weight:900; padding:3px 8px; border-radius:100px; box-shadow:0 4px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-lock" style="font-size:0.56rem;"></i> $${p.price}</span></div>` : ''}
                     ${isSel ? `<span style="position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%; background:${p.accent}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.6rem;"><i class="fa-solid fa-check"></i></span>` : ''}
                 </div>
-                <div style="padding:7px 6px; text-align:center; font-size:0.7rem; font-weight:700; color:${isSel ? '#fff' : '#cbd5e1'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${p.name}
+                <div style="padding:7px 6px; text-align:center;">
+                    <div style="font-size:0.7rem; font-weight:700; color:${isSel ? '#fff' : '#cbd5e1'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+                    <div style="font-size:0.62rem; font-weight:800; margin-top:2px; color:${isOwned ? '#10b981' : '#fbbf24'};">
+                        ${isOwned ? 'Đã sở hữu' : '$' + p.price}
+                    </div>
                 </div>
             </div>`;
     }).join('');
@@ -5648,10 +5663,15 @@ function openWallpaperPickerModal() {
                     <div style="font-size:0.65rem; font-weight:800; letter-spacing:1.8px; color:var(--theme-accent); text-transform:uppercase;">THEME SYSTEM</div>
                     <h3 style="margin:2px 0 0 0; font-size:1.15rem; font-weight:800; color:#fff;">Chọn chủ đề không gian học tập</h3>
                 </div>
-                <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); padding:5px 12px; border-radius:100px; font-size:0.76rem; font-weight:800; color:#fbbf24;">
+                        <i class="fa-solid fa-coins"></i> Quỹ: $${curUsd.toLocaleString()}
+                    </div>
+                    <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
 
-            <!-- 5 CHỦ ĐỀ CHUẨN CONCEPT -->
+            <!-- 5 CHỦ ĐỀ CHUẨN CONCEPT (ÁP GIÁ $1000 -> ĐÃ SỞ HỮU) -->
             <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin:14px 0 18px 0;">
                 ${cardsHtml}
             </div>
@@ -5706,6 +5726,28 @@ function openWallpaperPickerModal() {
 window.selectApexThemePreset = function(presetId) {
     var p = APEX_THEME_PRESETS.find(function(x) { return x.id === presetId; });
     if (!p) return;
+
+    var isOwned = (p.price === 0) || (ownedThemesList.indexOf(p.id) !== -1);
+    if (!isOwned) {
+        var currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+        if (currentUsd < p.price) {
+            alert("🔒 Chủ đề [" + p.name + "] có giá $" + p.price.toLocaleString() + " USD.\nQuỹ thưởng hiện tại của Bệ hạ là $" + currentUsd.toLocaleString() + " USD (Còn thiếu $" + (p.price - currentUsd).toLocaleString() + " USD).");
+            return;
+        }
+        if (!confirm("💎 Bệ hạ có muốn chi $" + p.price.toLocaleString() + " USD để mở khóa vĩnh viễn chủ đề [" + p.name + "] không?")) {
+            return;
+        }
+        currentUsd -= p.price;
+        localStorage.setItem('usdBalance', String(currentUsd));
+        if (typeof usdBalance !== 'undefined') window.usdBalance = currentUsd;
+        var usdEl = document.getElementById('usd-balance');
+        if (usdEl) usdEl.innerText = currentUsd;
+
+        ownedThemesList.push(p.id);
+        saveOwnedThemesList();
+        if (typeof syncToCloud === 'function') syncToCloud();
+    }
+
     apexThemeConfig.themeId = p.id;
     apexThemeConfig.autoTime = false;
     localStorage.setItem('saasCustomWallpaper', p.url);
@@ -7077,35 +7119,113 @@ function renderMasterTrophyAndArchive() {
 window.renderTrophies = renderMasterTrophyAndArchive;
 window.renderTrophyRoom = renderMasterTrophyAndArchive;
 
-// --- 9. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG + TẠM DỪNG 5 PHÚT + NÚT BÁO CÁO ---
+// --- 9. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG + ÂM THANH THỰC TẾ SỐNG ĐỘNG (KHÔNG CÒN TIẾNG Ù RADIO) ---
 var selectedPendingMinutes = 25;
 var ftPauseDeadline = null, wasPausedState = false;
-var activeAmbientType = null, ambientCtx = null, ambientSource = null, ambientGain = null, ambientVolume = 0.7;
+var activeAmbientType = null, ambientAudioEl = null, ambientCtx = null, ambientGain = null, ambientVolume = 0.7;
+var ambientChordTimer = null;
+
+// 5 Nguồn âm thanh thực tế cho đúng 5 nút: Rain, Cafe, Forest, Lo-fi, Library
+var APEX_REAL_SOUND_STREAMS = {
+    rain:    'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
+    cafe:    'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
+    forest:  'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg',
+    lofi:    'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+    library: 'https://actions.google.com/sounds/v1/ambiences/warm_evening_outdoors.ogg'
+};
+
+function stopFocusAmbientSound() {
+    if (ambientAudioEl) {
+        try { ambientAudioEl.pause(); ambientAudioEl.src = ''; } catch (e) {}
+        ambientAudioEl = null;
+    }
+    if (ambientChordTimer) {
+        clearInterval(ambientChordTimer);
+        ambientChordTimer = null;
+    }
+    if (ambientCtx) {
+        try { ambientCtx.close(); } catch (e) {}
+        ambientCtx = null;
+    }
+}
+
+// Bộ tổng hợp giai điệu Piano Lo-fi ấm áp dự phòng (Nếu rớt mạng hoặc trình duyệt chặn link nhạc)
+function playFallbackHarmonicPad(type) {
+    try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        ambientCtx = new AC();
+        ambientGain = ambientCtx.createGain();
+        ambientGain.gain.value = ambientVolume * 0.22;
+        ambientGain.connect(ambientCtx.destination);
+
+        var chords = [
+            [261.63, 329.63, 392.00, 493.88], // Cmaj7
+            [220.00, 261.63, 329.63, 392.00], // Am7
+            [174.61, 220.00, 261.63, 349.23], // Fmaj7
+            [196.00, 246.94, 293.66, 392.00]  // G7
+        ];
+        var idx = 0;
+        function triggerChord() {
+            if (!ambientCtx) return;
+            var now = ambientCtx.currentTime;
+            var notes = chords[idx % chords.length];
+            idx++;
+            notes.forEach(function(freq) {
+                var osc = ambientCtx.createOscillator();
+                var nGain = ambientCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+                nGain.gain.setValueAtTime(0.001, now);
+                nGain.gain.exponentialRampToValueAtTime(0.12, now + 0.9);
+                nGain.gain.exponentialRampToValueAtTime(0.001, now + 3.8);
+                osc.connect(nGain);
+                nGain.connect(ambientGain);
+                osc.start(now);
+                osc.stop(now + 3.9);
+            });
+        }
+        triggerChord();
+        ambientChordTimer = setInterval(triggerChord, 4000);
+    } catch (e) {}
+}
 
 window.selectFocusAmbient = function(type) {
     if (activeAmbientType === type) {
-        if (ambientSource) { try { ambientSource.stop(); } catch(e){} ambientSource = null; }
+        stopFocusAmbientSound();
         activeAmbientType = null;
     } else {
+        stopFocusAmbientSound();
         activeAmbientType = type;
-        if (ambientSource) { try { ambientSource.stop(); } catch(e){} }
-        try {
-            var AC = window.AudioContext || window.webkitAudioContext;
-            if (!ambientCtx) ambientCtx = new AC();
-            if (ambientCtx.state === 'suspended') ambientCtx.resume();
-            var buf = ambientCtx.createBuffer(1, 2 * ambientCtx.sampleRate, ambientCtx.sampleRate), out = buf.getChannelData(0), last = 0;
-            for (var i = 0; i < buf.length; i++) { var w = Math.random() * 2 - 1; out[i] = (last + 0.02 * w) / 1.02; last = out[i]; out[i] *= 3.2; }
-            ambientSource = ambientCtx.createBufferSource(); ambientSource.buffer = buf; ambientSource.loop = true;
-            var flt = ambientCtx.createBiquadFilter(); flt.type = (type==='cafe'||type==='forest') ? 'bandpass' : 'lowpass';
-            flt.frequency.value = type==='rain' ? 800 : (type==='cafe' ? 450 : (type==='forest' ? 1100 : 350));
-            ambientGain = ambientCtx.createGain(); ambientGain.gain.value = ambientVolume * 0.25;
-            ambientSource.connect(flt); flt.connect(ambientGain); ambientGain.connect(ambientCtx.destination); ambientSource.start(0);
-        } catch(e){}
+
+        var streamUrl = APEX_REAL_SOUND_STREAMS[type] || APEX_REAL_SOUND_STREAMS.rain;
+        ambientAudioEl = new Audio(streamUrl);
+        ambientAudioEl.loop = true;
+        ambientAudioEl.volume = Math.max(0.02, Math.min(1, ambientVolume));
+
+        var p = ambientAudioEl.play();
+        if (p !== undefined) {
+            p.catch(function() {
+                playFallbackHarmonicPad(type);
+            });
+        }
     }
-    document.querySelectorAll('.f-amb-card').forEach(function(el) { el.classList.toggle('active', el.getAttribute('data-amb') === activeAmbientType); });
+    document.querySelectorAll('.f-amb-card').forEach(function(el) {
+        el.classList.toggle('active', el.getAttribute('data-amb') === activeAmbientType);
+    });
 };
-window.changeFocusAmbientVolume = function(v) { ambientVolume = Number(v)/100; var l = document.getElementById('focus-vol-label'); if(l) l.innerText = v+'%'; if(ambientGain) ambientGain.gain.value = ambientVolume * 0.25; };
-window.toggleFocusFullscreen = function() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function(){}); else document.exitFullscreen().catch(function(){}); };
+
+window.changeFocusAmbientVolume = function(v) {
+    ambientVolume = Math.max(0, Math.min(1, Number(v) / 100));
+    var l = document.getElementById('focus-vol-label');
+    if (l) l.innerText = v + '%';
+    if (ambientAudioEl) ambientAudioEl.volume = ambientVolume;
+    if (ambientGain) ambientGain.gain.value = ambientVolume * 0.22;
+};
+
+window.toggleFocusFullscreen = function() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function(){});
+    else document.exitFullscreen().catch(function(){});
+};
 
 window.selectFocusModePill = function(mins) {
     selectedPendingMinutes = mins;
@@ -8004,7 +8124,7 @@ window.processAiBulkScheduleInput = function() {
     });
 
     localStorage.setItem('timetableData', JSON.stringify(timetableData));
-    if (typeof saveData === 'function') saveData();
+    if (typeof syncToCloud === 'function') syncToCloud();
     if (typeof renderTimetable === 'function') renderTimetable();
     renderBentoCommandCenter();
     document.getElementById('apex-ai-tt-modal').style.display = 'none';
