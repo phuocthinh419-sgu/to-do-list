@@ -7663,7 +7663,9 @@ function upgradeInboxToMessengerUI() {
             listContainer.appendChild(existingMessenger);
         }
 
-        // 4. Render Cột Trái (Danh sách hội thoại)
+        var isMobileView = window.innerWidth <= 768;
+
+        // 4. Render Danh sách hội thoại (Tự động chuyển thành Thanh ngang gọn trên Điện thoại)
         var leftListHtml = partnerOrder.map(function(pName) {
             var th = threads[pName];
             var isAct = (pName === activeChatPartnerName);
@@ -7671,6 +7673,16 @@ function upgradeInboxToMessengerUI() {
             var lastMsg = newestMsgObj ? (newestMsgObj.isMe ? 'Bạn: ' + newestMsgObj.text : newestMsgObj.text) : '';
             var lastTime = newestMsgObj && newestMsgObj.time ? newestMsgObj.time.split(' ')[0] : '';
             var initial = pName.charAt(0).toUpperCase();
+
+            if (isMobileView) {
+                return `
+                    <div onclick="selectInboxChatThread('${pName.replace(/'/g, "\\'")}')" style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:100px; cursor:pointer; flex-shrink:0; background:${isAct ? 'linear-gradient(90deg, #8b5cf6, #6366f1)' : 'rgba(255,255,255,0.06)'}; border:1px solid ${isAct ? '#c084fc' : 'rgba(255,255,255,0.1)'};">
+                        <div style="width:24px; height:24px; border-radius:50%; background:rgba(0,0,0,0.3); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem;">${initial}</div>
+                        <strong style="font-size:0.75rem; color:#fff; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</strong>
+                        <span style="background:rgba(0,0,0,0.35); color:#e9d5ff; font-size:0.62rem; font-weight:800; padding:1px 6px; border-radius:100px;">${th.messages.length}</span>
+                    </div>`;
+            }
+
             return `
                 <div onclick="selectInboxChatThread('${pName.replace(/'/g, "\\'")}')" style="display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; cursor:pointer; margin-bottom:6px; background:${isAct ? 'linear-gradient(90deg, rgba(168,85,247,0.28), rgba(99,102,241,0.16))' : 'rgba(255,255,255,0.03)'}; border:1px solid ${isAct ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.06)'};">
                     <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #a855f7, #6366f1); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; flex-shrink:0;">
@@ -7689,12 +7701,12 @@ function upgradeInboxToMessengerUI() {
                 </div>`;
         }).join('');
 
-        // 5. Render Cột Phải (Bong bóng chat 2 chiều: Đối phương bên trái, Bệ hạ bên phải)
+        // 5. Render Bong bóng chat 2 chiều
         var bubblesHtml = activeThread.messages.map(function(m) {
             if (m.isMe) {
                 return `
                     <div style="display:flex; flex-direction:column; align-items:flex-end; margin-bottom:10px;">
-                        <div style="max-width:80%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; padding:9px 14px; border-radius:14px 14px 4px 14px; font-size:0.82rem; line-height:1.45; box-shadow:0 4px 14px rgba(139,92,246,0.35); word-break:break-word;">
+                        <div style="max-width:85%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; padding:9px 13px; border-radius:14px 14px 4px 14px; font-size:0.8rem; line-height:1.45; box-shadow:0 4px 14px rgba(139,92,246,0.35); word-break:break-word;">
                             ${m.text}
                         </div>
                         <span style="font-size:0.6rem; color:#a855f7; margin-top:3px; padding-right:4px;">Bạn • ${m.time}</span>
@@ -7702,58 +7714,72 @@ function upgradeInboxToMessengerUI() {
             }
             return `
                 <div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:10px;">
-                    <div style="max-width:80%; background:linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.95)); border:1px solid rgba(168,85,247,0.25); color:#f1f5f9; padding:9px 14px; border-radius:14px 14px 14px 4px; font-size:0.82rem; line-height:1.45; box-shadow:0 4px 12px rgba(0,0,0,0.25); word-break:break-word;">
+                    <div style="max-width:85%; background:linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.95)); border:1px solid rgba(168,85,247,0.25); color:#f1f5f9; padding:9px 13px; border-radius:14px 14px 14px 4px; font-size:0.8rem; line-height:1.45; box-shadow:0 4px 12px rgba(0,0,0,0.25); word-break:break-word;">
                         ${m.text}
                     </div>
                     <span style="font-size:0.6rem; color:#64748b; margin-top:3px; padding-left:4px;">${m.time}</span>
                 </div>`;
         }).join('');
 
-        // Khung 2 cột đã gắn min-height:0 ở cả Grid và Flex để cuộn mượt 100% và luôn hiện thanh Input ở đáy
+        // Căn chỉnh lại padding của hộp Modal gốc trên điện thoại để không bị tràn viền
+        if (modalDialog && isMobileView) {
+            modalDialog.style.padding = '12px';
+            modalDialog.style.width = '96vw';
+            modalDialog.style.maxWidth = '96vw';
+            modalDialog.style.boxSizing = 'border-box';
+        }
+
+        var layoutGridStyle = isMobileView
+            ? "display:flex; flex-direction:column; height:62vh; max-height:430px; width:100%; box-sizing:border-box;"
+            : "display:grid; grid-template-columns:210px minmax(0, 1fr); grid-template-rows:380px; height:380px; width:100%; box-sizing:border-box;";
+
+        var sidebarStyle = isMobileView
+            ? "display:flex; align-items:center; gap:8px; overflow-x:auto; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(15,20,36,0.85); flex-shrink:0;"
+            : "border-right:1px solid rgba(255,255,255,0.08); padding:10px; overflow-y:auto; height:100%; min-height:0; background:rgba(15,20,36,0.65);";
+
         existingMessenger.innerHTML = `
-            <div style="display:grid; grid-template-columns:220px 1fr; grid-template-rows:380px; height:380px; background:rgba(10,14,26,0.9); border:1px solid rgba(255,255,255,0.12); border-radius:16px; overflow:hidden; margin-top:6px;">
-                <!-- Cột trái: Danh sách hội thoại có thanh cuộn độc lập -->
-                <div style="border-right:1px solid rgba(255,255,255,0.08); padding:10px; overflow-y:auto; height:100%; min-height:0; background:rgba(15,20,36,0.65);">
-                    <div style="font-size:0.68rem; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:8px; padding-left:4px;">Hội thoại (${partnerOrder.length})</div>
+            <div style="${layoutGridStyle} background:rgba(10,14,26,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:14px; overflow:hidden; margin-top:6px;">
+                <!-- Danh sách người gửi (Cột trái trên PC / Thanh ngang trên Mobile) -->
+                <div style="${sidebarStyle}">
+                    ${!isMobileView ? `<div style="font-size:0.68rem; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:8px; padding-left:4px;">Hội thoại (${partnerOrder.length})</div>` : ''}
                     ${leftListHtml}
                 </div>
 
-                <!-- Cột phải: Khung Chatbox cố định Header + Cuộn ở giữa + Cố định ô nhập ở đáy -->
-                <div style="display:flex; flex-direction:column; height:100%; min-height:0; overflow:hidden; background:rgba(13,18,32,0.6);">
-                    <div style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02);">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="width:9px; height:9px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></div>
-                            <div>
-                                <strong style="font-size:0.86rem; color:#fff; display:block; line-height:1.1;">${activeThread.name}</strong>
-                                <span style="font-size:0.65rem; color:#94a3b8;">Tổng ${activeThread.messages.length} tin nhắn</span>
+                <!-- Khung Chatbox chính (Rộng 100% trên Mobile, min-width:0 chống tràn tuyệt đối) -->
+                <div style="display:flex; flex-direction:column; flex:1; height:100%; min-height:0; min-width:0; overflow:hidden; background:rgba(13,18,32,0.6);">
+                    <div style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; gap:8px; padding:9px 12px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02);">
+                        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                            <div style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; flex-shrink:0;"></div>
+                            <div style="min-width:0;">
+                                <strong style="font-size:0.82rem; color:#fff; display:block; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${activeThread.name}</strong>
+                                <span style="font-size:0.62rem; color:#94a3b8;">${activeThread.messages.length} tin nhắn</span>
                             </div>
                         </div>
-                        <div style="display:flex; gap:6px;">
-                            <button class="apex-msg-proxy-btn" onclick="if(window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].replyBtnRef) window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].replyBtnRef.click();" style="background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.45); color:#e9d5ff; padding:5px 10px; border-radius:8px; font-size:0.7rem; font-weight:700; cursor:pointer;">
-                                <i class="fa-solid fa-reply"></i> Popup Gốc
+                        <div style="display:flex; gap:5px; flex-shrink:0;">
+                            <button class="apex-msg-proxy-btn" onclick="if(window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].replyBtnRef) window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].replyBtnRef.click();" style="background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.45); color:#e9d5ff; padding:4px 8px; border-radius:7px; font-size:0.68rem; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-reply"></i> ${isMobileView ? '' : 'Popup Gốc'}
                             </button>
-                            <button class="apex-msg-proxy-btn" onclick="if(window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].blockBtnRef) window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].blockBtnRef.click();" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:5px 10px; border-radius:8px; font-size:0.7rem; font-weight:700; cursor:pointer;">
-                                <i class="fa-solid fa-ban"></i> Chặn
+                            <button class="apex-msg-proxy-btn" onclick="if(window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].blockBtnRef) window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].blockBtnRef.click();" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:4px 8px; border-radius:7px; font-size:0.68rem; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-ban"></i> ${isMobileView ? '' : 'Chặn'}
                             </button>
                         </div>
                     </div>
 
-                    <!-- Vùng cuộn bong bóng chat (Đã khóa min-height:0 để cuộn mượt và tự cuộn xuống tin mới nhất) -->
-                    <div id="apex-messenger-bubbles-box" style="flex:1; min-height:0; padding:14px 16px; overflow-y:auto; scroll-behavior:smooth;">
+                    <!-- Vùng cuộn bong bóng chat -->
+                    <div id="apex-messenger-bubbles-box" style="flex:1; min-height:0; padding:12px; overflow-y:auto; overflow-x:hidden; scroll-behavior:smooth;">
                         ${bubblesHtml}
                     </div>
 
-                    <!-- Thanh gõ tin nhắn luôn nằm cố định ở đáy khung chat -->
-                    <div style="flex-shrink:0; padding:10px 12px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(15,20,36,0.95); display:flex; gap:8px; align-items:center;">
-                        <input type="text" id="apex-messenger-input" placeholder="Nhắn tin cho ${activeThread.name}... (Nhấn Enter để gửi)" onkeydown="if(event.key==='Enter') sendDirectMessengerReply()" style="flex:1; padding:9px 14px; border-radius:100px; border:1px solid rgba(168,85,247,0.35); background:rgba(255,255,255,0.06); color:#fff; font-size:0.8rem; outline:none;">
-                        <button class="apex-msg-proxy-btn" onclick="sendDirectMessengerReply()" style="background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 4px 12px rgba(168,85,247,0.45);">
-                            <i class="fa-solid fa-paper-plane" style="font-size:0.78rem;"></i>
+                    <!-- Thanh nhập tin nhắn ở đáy -->
+                    <div style="flex-shrink:0; padding:8px 10px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(15,20,36,0.95); display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="apex-messenger-input" placeholder="Nhắn tin..." onkeydown="if(event.key==='Enter') sendDirectMessengerReply()" style="flex:1; min-width:0; padding:8px 12px; border-radius:100px; border:1px solid rgba(168,85,247,0.35); background:rgba(255,255,255,0.06); color:#fff; font-size:0.78rem; outline:none;">
+                        <button class="apex-msg-proxy-btn" onclick="sendDirectMessengerReply()" style="background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 4px 12px rgba(168,85,247,0.45);">
+                            <i class="fa-solid fa-paper-plane" style="font-size:0.75rem;"></i>
                         </button>
                     </div>
                 </div>
             </div>`;
 
-        // Tự động cuộn xuống tin nhắn mới nhất ở đáy
         setTimeout(function() {
             var bBox = document.getElementById('apex-messenger-bubbles-box');
             if (bBox) bBox.scrollTop = bBox.scrollHeight;
