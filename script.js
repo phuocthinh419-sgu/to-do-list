@@ -407,6 +407,9 @@ function buildCloudData(nowTs) {
         joinDate: readLocalString('saasJoinDate'),
         isSealed: readLocalString('isSealed', 'false'),
         ownedThemes: readLocalJSON('apexOwnedThemesV1', ['twilight']),
+        goalDetailsStore: readLocalJSON('apexGoalDetailsStore', {}),
+        bentoTodos: readLocalJSON('saasBentoTodos', []),
+        themeConfigV5: readLocalJSON('apexThemeConfigV5', null),
 
         // Dynamic KPI achievement flags: saasKPIAchieved_<id>
         kpiAchieved: collectPrefixedLocalStorage('saasKPIAchieved_'),
@@ -510,6 +513,14 @@ function applyCloudDataToLocal(cloudData) {
     applyOptionalCloudValue(cloudData, 'timetable', 'saasTimetable');
     applyOptionalCloudValue(cloudData, 'joinDate', 'saasJoinDate');
     applyOptionalCloudValue(cloudData, 'isSealed');
+    applyOptionalCloudValue(cloudData, 'ownedThemes', 'apexOwnedThemesV1');
+    applyOptionalCloudValue(cloudData, 'goalDetailsStore', 'apexGoalDetailsStore');
+    applyOptionalCloudValue(cloudData, 'bentoTodos', 'saasBentoTodos');
+    applyOptionalCloudValue(cloudData, 'themeConfigV5', 'apexThemeConfigV5');
+
+    if (typeof ownedThemesList !== 'undefined') ownedThemesList = readLocalJSON('apexOwnedThemesV1', ['twilight']);
+    if (typeof goalDetailsStore !== 'undefined') goalDetailsStore = readLocalJSON('apexGoalDetailsStore', {});
+    if (typeof bentoTodoList !== 'undefined') bentoTodoList = readLocalJSON('saasBentoTodos', []);
     if (typeof ownedThemesList !== 'undefined') ownedThemesList = readLocalJSON('apexOwnedThemesV1', ['twilight']);
 
     // Dynamic KPI flags
@@ -5396,8 +5407,8 @@ var currentAnalyticsRange = 30;
 var currentGoalModalTab = 'overview';
 var activeGoalDetailId = null;
 
-function saveBentoTodos() { localStorage.setItem('saasBentoTodos', JSON.stringify(bentoTodoList)); }
-function saveGoalDetailsStore() { localStorage.setItem('apexGoalDetailsStore', JSON.stringify(goalDetailsStore)); }
+function saveBentoTodos() { localStorage.setItem('saasBentoTodos', JSON.stringify(bentoTodoList)); if (typeof syncToCloud === 'function') syncToCloud(); }
+function saveGoalDetailsStore() { localStorage.setItem('apexGoalDetailsStore', JSON.stringify(goalDetailsStore)); if (typeof syncToCloud === 'function') syncToCloud(); }
 
 function formatHrsToHM(hDec) {
     var mTotal = Math.round((hDec || 0) * 60);
@@ -6121,9 +6132,14 @@ window.openGoalDetailModal = function(goalId, defaultTab) {
                         ${allGoalsSelectorHtml}
                     </select>
                 </div>
-                <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.45);">
-                    ▶ Vào Phòng Focus
-                </button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button onclick="exportGoalAcademicDossier(${g.id})" title="Tải toàn bộ Lộ trình, Ghi chú & Báo cáo của môn này về máy (.md)" style="background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.45); color:#34d399; padding:7px 14px; border-radius:100px; font-size:0.74rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-file-arrow-down"></i> Xuất Hồ sơ (.md)
+                    </button>
+                    <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.45);">
+                        ▶ Vào Phòng Focus
+                    </button>
+                </div>
             </div>
 
             <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:16px; margin-bottom:16px;">
@@ -7351,7 +7367,8 @@ function ensureFocusTemplateDOM() {
                 <div>
                     <button class="ft-glass-btn" onclick="openWallpaperPickerModal()"><i class="fa-regular fa-image" style="color:#a855f7;"></i> Đổi ảnh nền</button>
                     <button class="ft-glass-btn" onclick="toggleTick()"><i class="fa-solid fa-music" style="color:#38bdf8;"></i> <span id="ft-tick-text">Âm tích tắc: TẮT</span></button>
-                    <button class="ft-glass-btn" onclick="toggleFocusFullscreen()" style="padding:8px 11px;"><i class="fa-solid fa-expand"></i></button>
+                    <button class="ft-glass-btn" onclick="toggleApexPipMiniTimer()" title="Bật đồng hồ nổi đè lên mọi cửa sổ khi chuyển sang Tab/App khác" style="border-color:rgba(56,189,248,0.45); color:#38bdf8;"><i class="fa-solid fa-clone"></i> Đồng hồ nổi</button>
+                    <button class="ft-glass-btn" onclick="toggleFocusFullscreen()" title="Toàn màn hình" style="padding:8px 11px;"><i class="fa-solid fa-expand"></i></button>
                 </div>
             </div>
             <div class="ft-mode-bar">
@@ -8409,3 +8426,216 @@ window.addEventListener('DOMContentLoaded', function() {
         renderBentoCommandCenter();
     }, 300);
 });
+
+// =====================================================================
+// 12. ĐỒNG HỒ NỔI ĐA NHIỆM (PICTURE-IN-PICTURE) & XUẤT HỒ SƠ HỌC THUẬT (.MD)
+// =====================================================================
+
+// --- A. XUẤT HỒ SƠ HỌC THUẬT CỦA MỤC TIÊU RA FILE MARKDOWN (.MD) ---
+window.exportGoalAcademicDossier = function(goalId) {
+    if (typeof goals === 'undefined' || !Array.isArray(goals)) return;
+    var g = goals.find(function(x) { return x.id == goalId; });
+    if (!g) return;
+
+    var extra = getGoalExtraData(g);
+    var targetH = Number(g.target || 1);
+    var leftH = Math.max(0, Number(g.current || 0));
+    var doneH = Math.max(0, targetH - leftH);
+    var pct = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+    var reps = Array.isArray(g.reports) ? g.reports : [];
+
+    var lines = [];
+    lines.push("# 📚 HỒ SƠ HỌC THUẬT: " + g.name.toUpperCase());
+    lines.push("> Trích xuất từ Hệ thống Quản lý Học thuật **Academic Apex**");
+    lines.push("> Ngày trích xuất: " + new Date().toLocaleString('vi-VN'));
+    lines.push("");
+    lines.push("## 1. TỔNG QUAN TIẾN ĐỘ");
+    lines.push("- **Quy mô mục tiêu:** " + targetH.toFixed(1) + " giờ");
+    lines.push("- **Thời gian đã tích lũy:** " + doneH.toFixed(2) + " giờ (" + pct + "%)");
+    lines.push("- **Thời gian còn lại:** " + leftH.toFixed(2) + " giờ");
+    lines.push("- **Hạn chót (Deadline):** " + (g.deadline || "Tự do"));
+    lines.push("- **Tổng số bản báo cáo:** " + reps.length + " phiên");
+    lines.push("");
+
+    lines.push("## 2. LỘ TRÌNH 5 CHẶNG CHIẾN LƯỢC");
+    extra.milestones.forEach(function(ms, idx) {
+        var stageDone = (idx < Math.floor((pct / 100) * 5)) || pct >= 100;
+        lines.push("- [" + (stageDone ? "x" : " ") + "] **" + ms.title + "**: " + ms.sub);
+    });
+    lines.push("");
+
+    lines.push("## 3. DANH SÁCH NHIỆM VỤ TRỌNG TÂM");
+    if (extra.tasks.length === 0) {
+        lines.push("_Chưa có nhiệm vụ con._");
+    } else {
+        extra.tasks.forEach(function(tk) {
+            lines.push("- [" + (tk.done ? "x" : " ") + "] " + tk.text + " _(" + tk.mins + " phút)_");
+        });
+    }
+    lines.push("");
+
+    lines.push("## 4. SỔ TAY GHI CHÚ MÔN HỌC");
+    lines.push("```text");
+    lines.push((extra.notes || "Chưa có ghi chú.").trim());
+    lines.push("```");
+    lines.push("");
+
+    lines.push("## 5. NHẬT KÝ BÁO CÁO CÁC PHIÊN HỌC CHI TIẾT (" + reps.length + " BẢN)");
+    if (reps.length === 0) {
+        lines.push("_Chưa có bản báo cáo nào được ghi nhận._");
+    } else {
+        reps.slice().reverse().forEach(function(r, idx) {
+            var starsStr = r.stars ? (" • " + "⭐".repeat(Number(r.stars))) : "";
+            lines.push("### Phiên #" + (reps.length - idx) + " (" + (r.date || "") + " | " + (r.type || "25p") + starsStr + ")");
+            lines.push((r.text || r.content || "").trim());
+            lines.push("");
+        });
+    }
+
+    var contentBlob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
+    var safeFileName = "HoSo_" + g.name.replace(/[^a-zA-Z0-9À-ỹ\s_-]/g, "").trim().replace(/\s+/g, "_") + ".md";
+    var dlLink = document.createElement("a");
+    dlLink.href = URL.createObjectURL(contentBlob);
+    dlLink.download = safeFileName;
+    dlLink.click();
+};
+
+// --- B. ĐỒNG HỒ NỔI ĐA NHIỆM (DOCUMENT PICTURE-IN-PICTURE / CANVAS PIP) ---
+var apexPipWindow = null;
+var apexPipVideoEl = null;
+var apexPipCanvas = null;
+var apexPipUpdateTimer = null;
+
+window.toggleApexPipMiniTimer = async function() {
+    try {
+        // Nếu đang bật cửa sổ nổi thì đóng lại
+        if (apexPipWindow && !apexPipWindow.closed) {
+            apexPipWindow.close();
+            apexPipWindow = null;
+            return;
+        }
+        if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+            return;
+        }
+
+        // Ưu tiên 1: Sử dụng chuẩn Document Picture-in-Picture hiện đại của Chromium (Cốc Cốc / Chrome / Edge)
+        if ('documentPictureInPicture' in window) {
+            apexPipWindow = await window.documentPictureInPicture.requestWindow({
+                width: 320,
+                height: 175
+            });
+
+            apexPipWindow.document.body.style.cssText = "margin:0; padding:14px 16px; background:linear-gradient(145deg, #0d1224 0%, #17153a 100%); color:#fff; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; display:flex; flex-direction:column; justify-content:space-between; height:100vh; box-sizing:border-box; overflow:hidden; user-select:none; border:1px solid rgba(168,85,247,0.35);";
+            apexPipWindow.document.body.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.62rem; font-weight:800; letter-spacing:1.5px; color:#c084fc; background:rgba(168,85,247,0.18); padding:2px 8px; border-radius:100px;">● ACADEMIC APEX</span>
+                    <span id="pip-goal-name" style="font-size:0.72rem; font-weight:700; color:#94a3b8; max-width:145px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Đang tập trung</span>
+                </div>
+                <div style="text-align:center; margin:4px 0;">
+                    <div id="pip-time-digits" style="font-size:2.85rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1; text-shadow:0 0 24px rgba(168,85,247,0.6);">25:00</div>
+                    <div id="pip-state-sub" style="font-size:0.7rem; color:#38bdf8; font-weight:700; margin-top:4px;">🍅 Phiên Pomodoro</div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:8px;">
+                    <button id="pip-btn-start" style="background:linear-gradient(90deg,#a855f7,#6366f1); color:#fff; border:none; padding:6px 18px; border-radius:100px; font-size:0.74rem; font-weight:800; cursor:pointer;">▶ Bắt đầu</button>
+                    <button id="pip-btn-pause" style="display:none; background:#2563eb; color:#fff; border:none; padding:6px 14px; border-radius:100px; font-size:0.72rem; font-weight:700; cursor:pointer;">⏸ Tạm dừng</button>
+                </div>
+            `;
+
+            apexPipWindow.document.getElementById('pip-btn-start').onclick = function() {
+                window.triggerFocusMainStart();
+            };
+            apexPipWindow.document.getElementById('pip-btn-pause').onclick = function() {
+                if (typeof togglePause === 'function') togglePause();
+            };
+
+            if (apexPipUpdateTimer) clearInterval(apexPipUpdateTimer);
+            apexPipUpdateTimer = setInterval(syncApexPipWindowUI, 500);
+            syncApexPipWindowUI();
+
+            apexPipWindow.addEventListener('pagehide', function() {
+                if (apexPipUpdateTimer) clearInterval(apexPipUpdateTimer);
+                apexPipWindow = null;
+            });
+            return;
+        }
+
+        // Ưu tiên 2 (Fallback cho trình duyệt không hỗ trợ Document PiP): Dùng Canvas Video Stream PiP
+        if (!apexPipCanvas) {
+            apexPipCanvas = document.createElement('canvas');
+            apexPipCanvas.width = 360;
+            apexPipCanvas.height = 180;
+            apexPipVideoEl = document.createElement('video');
+            apexPipVideoEl.muted = true;
+            apexPipVideoEl.playsInline = true;
+            apexPipVideoEl.style.cssText = "position:fixed; bottom:-500px; right:-500px; width:10px; height:10px; opacity:0; pointer-events:none;";
+            document.body.appendChild(apexPipVideoEl);
+        }
+        drawApexCanvasPipFrame();
+        if (!apexPipVideoEl.srcObject) {
+            apexPipVideoEl.srcObject = apexPipCanvas.captureStream(10);
+        }
+        await apexPipVideoEl.play();
+        await apexPipVideoEl.requestPictureInPicture();
+        if (apexPipUpdateTimer) clearInterval(apexPipUpdateTimer);
+        apexPipUpdateTimer = setInterval(drawApexCanvasPipFrame, 500);
+    } catch (err) {
+        alert("Trình duyệt cần bạn bấm trực tiếp vào nút Đồng hồ nổi khi đang ở chế độ cửa sổ thường (không phải Fullscreen) để tách cửa sổ nổi!");
+    }
+};
+
+function syncApexPipWindowUI() {
+    if (!apexPipWindow || apexPipWindow.closed) return;
+    var doc = apexPipWindow.document;
+    var rawTimer = document.getElementById('ft-time-display') ? document.getElementById('ft-time-display').innerText.trim() : "25:00";
+    var gName = document.getElementById('ft-goal-name-display') ? document.getElementById('ft-goal-name-display').innerText.trim() : "Mục tiêu";
+    var modeTxt = document.getElementById('ft-mode-label') ? document.getElementById('ft-mode-label').innerText.trim() : "Pomodoro";
+    var origPauseBtn = document.getElementById('btn-pause');
+    var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none');
+
+    var tEl = doc.getElementById('pip-time-digits');
+    var gEl = doc.getElementById('pip-goal-name');
+    var sEl = doc.getElementById('pip-state-sub');
+    var btnStart = doc.getElementById('pip-btn-start');
+    var btnPause = doc.getElementById('pip-btn-pause');
+
+    if (tEl) {
+        tEl.innerText = rawTimer;
+        tEl.style.color = rawTimer.startsWith('+') ? '#fbbf24' : '#ffffff';
+    }
+    if (gEl) gEl.innerText = gName;
+    if (sEl) sEl.innerText = modeTxt;
+    if (btnStart) btnStart.style.display = isRunning ? 'none' : 'inline-block';
+    if (btnPause) {
+        btnPause.style.display = isRunning ? 'inline-block' : 'none';
+        var paused = (typeof isPaused !== 'undefined' && isPaused);
+        btnPause.innerText = paused ? '▶ Tiếp tục' : '⏸ Tạm dừng';
+        btnPause.style.background = paused ? '#f59e0b' : '#2563eb';
+    }
+}
+
+function drawApexCanvasPipFrame() {
+    if (!apexPipCanvas) return;
+    var ctx = apexPipCanvas.getContext('2d');
+    var rawTimer = document.getElementById('ft-time-display') ? document.getElementById('ft-time-display').innerText.trim() : "25:00";
+    var gName = document.getElementById('ft-goal-name-display') ? document.getElementById('ft-goal-name-display').innerText.trim() : "Academic Apex";
+
+    var grad = ctx.createLinearGradient(0, 0, 360, 180);
+    grad.addColorStop(0, '#0d1224');
+    grad.addColorStop(1, '#1e1646');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 360, 180);
+
+    ctx.fillStyle = '#c084fc';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(gName.toUpperCase(), 180, 36);
+
+    ctx.fillStyle = rawTimer.startsWith('+') ? '#fbbf24' : '#ffffff';
+    ctx.font = '900 62px monospace';
+    ctx.fillText(rawTimer, 180, 112);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('ACADEMIC APEX • LIVE FOCUS', 180, 152);
+}
