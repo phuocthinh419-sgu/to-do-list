@@ -1710,50 +1710,100 @@ function renderGamification() {
 }
 
 function renderCountdowns() {
-    const strip = document.getElementById('countdown-strip'); 
+    const strip = document.getElementById('countdown-strip');
+    if (!strip) return;
     strip.innerHTML = '';
-    
-    if (countdowns.length === 0) { 
-        strip.style.display = 'none'; 
-        return; 
+
+    if (!Array.isArray(countdowns) || countdowns.length === 0) {
+        strip.style.display = 'none';
+        return;
     }
-    
-    strip.style.display = 'flex';
-    countdowns.forEach((cd, index) => {
-        let delay = (index + 1) * 0.1;
+
+    strip.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; margin-bottom: 14px; width: 100%;';
+
+    countdowns.forEach((cd) => {
+        let targetDateObj = new Date(cd.date);
+        let formattedDate = !isNaN(targetDateObj.getTime())
+            ? targetDateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            : 'Mục tiêu chiến lược';
+
         strip.innerHTML += `
-        <div class="countdown-card stagger-item" style="animation-delay: ${delay}s" id="cd-card-${cd.id}">
-            <button class="btn-delete-cd" onclick="deleteCountdown(${cd.id})"><i class="fa-solid fa-trash"></i></button>
-            <div class="countdown-title">${cd.name}</div>
-            <div class="time-blocks">
-                <div class="time-box"><span class="t-val" id="cd-d-${cd.id}">00</span><span class="t-lbl">Ngày</span></div>
-                <div class="time-box"><span class="t-val" id="cd-h-${cd.id}">00</span><span class="t-lbl">Giờ</span></div>
-                <div class="time-box"><span class="t-val" id="cd-m-${cd.id}">00</span><span class="t-lbl">Phút</span></div>
-                <div class="time-box"><span class="t-val" id="cd-s-${cd.id}">00</span><span class="t-lbl">Giây</span></div>
+        <div class="phoi-card" id="cd-card-${cd.id}" style="position:relative; overflow:hidden; padding:16px 20px !important; border:1px solid rgba(168,85,247,0.32) !important; background:linear-gradient(135deg, rgba(16,21,38,0.88) 0%, rgba(28,19,56,0.78) 100%) !important; display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+            <!-- Ánh sáng trang trí góc thẻ -->
+            <div style="position:absolute; top:-30px; left:-30px; width:110px; height:110px; background:radial-gradient(circle, rgba(168,85,247,0.28) 0%, transparent 70%); pointer-events:none;"></div>
+
+            <!-- Cụm thông tin Sự kiện bên trái -->
+            <div style="display:flex; align-items:center; gap:14px; z-index:2; min-width:180px; flex:1;">
+                <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #8b5cf6, #ec4899); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.25rem; box-shadow:0 6px 20px rgba(139,92,246,0.45); flex-shrink:0;">
+                    <i class="fa-solid fa-hourglass-half fa-spin-pulse" style="--fa-animation-duration: 3s;"></i>
+                </div>
+                <div style="min-width:0;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                        <span style="font-size:0.62rem; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:#c084fc; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.35); padding:2px 8px; border-radius:100px;">
+                            ● CỘT MỐC TRỌNG ĐIỂM
+                        </span>
+                        <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">
+                            <i class="fa-regular fa-calendar" style="margin-right:4px; color:#38bdf8;"></i>${formattedDate}
+                        </span>
+                    </div>
+                    <div style="font-size:1.35rem; font-weight:900; color:#fff; letter-spacing:0.5px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        ${cd.name}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cụm 4 Ô Đồng Hồ Số Học bên phải -->
+            <div style="display:flex; align-items:center; gap:8px; z-index:2; flex-wrap:wrap; justify-content:flex-end;">
+                <div style="min-width:68px; padding:8px 12px; border-radius:12px; background:rgba(10,14,26,0.75); border:1px solid rgba(255,255,255,0.1); text-align:center; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);">
+                    <span id="cd-d-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Ngày</span>
+                </div>
+                <span style="color:#64748b; font-weight:900; font-size:1.1rem;">:</span>
+                <div style="min-width:62px; padding:8px 10px; border-radius:12px; background:rgba(10,14,26,0.75); border:1px solid rgba(255,255,255,0.1); text-align:center; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);">
+                    <span id="cd-h-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Giờ</span>
+                </div>
+                <span style="color:#64748b; font-weight:900; font-size:1.1rem;">:</span>
+                <div style="min-width:62px; padding:8px 10px; border-radius:12px; background:rgba(10,14,26,0.75); border:1px solid rgba(255,255,255,0.1); text-align:center; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);">
+                    <span id="cd-m-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Phút</span>
+                </div>
+                <span style="color:#a855f7; font-weight:900; font-size:1.1rem;">:</span>
+                <div style="min-width:62px; padding:8px 10px; border-radius:12px; background:linear-gradient(160deg, rgba(139,92,246,0.28), rgba(56,189,248,0.18)); border:1px solid rgba(168,85,247,0.55); text-align:center; box-shadow:0 0 18px rgba(168,85,247,0.25);">
+                    <span id="cd-s-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#e9d5ff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span style="font-size:0.6rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:1px;">Giây</span>
+                </div>
+
+                <!-- Nút xóa sự kiện gọn nhẹ -->
+                <button onclick="deleteCountdown(${cd.id})" title="Xóa sự kiện đếm ngược" style="margin-left:4px; width:32px; height:32px; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#64748b; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.color='#f43f5e'; this.style.borderColor='rgba(244,63,94,0.4)'" onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,0.08)'">
+                    <i class="fa-solid fa-trash-can" style="font-size:0.75rem;"></i>
+                </button>
             </div>
         </div>`;
-    }); 
+    });
     updateCountdownTicks();
 }
 
 function updateCountdownTicks() {
-    const now = new Date().getTime();
+    if (!Array.isArray(countdowns) || countdowns.length === 0) return;
+    const now = Date.now();
     countdowns.forEach(cd => {
-        const target = new Date(cd.date).getTime(); 
+        const dEl = document.getElementById(`cd-d-${cd.id}`);
+        const hEl = document.getElementById(`cd-h-${cd.id}`);
+        const mEl = document.getElementById(`cd-m-${cd.id}`);
+        const sEl = document.getElementById(`cd-s-${cd.id}`);
+        if (!dEl || !hEl || !mEl || !sEl) return;
+
+        const target = new Date(cd.date).getTime();
         const distance = target - now;
-        const dEl = document.getElementById(`cd-d-${cd.id}`); 
-        if (!dEl) return;
-        
-        if (distance < 0) { 
-            dEl.innerText = "00"; 
-            document.getElementById(`cd-h-${cd.id}`).innerText = "00"; 
-            document.getElementById(`cd-m-${cd.id}`).innerText = "00"; 
-            document.getElementById(`cd-s-${cd.id}`).innerText = "00"; 
+
+        if (isNaN(target) || distance <= 0) {
+            dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; sEl.innerText = "00";
         } else {
             dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
-            document.getElementById(`cd-h-${cd.id}`).innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-            document.getElementById(`cd-m-${cd.id}`).innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-            document.getElementById(`cd-s-${cd.id}`).innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+            hEl.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+            mEl.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            sEl.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }
     });
 }
