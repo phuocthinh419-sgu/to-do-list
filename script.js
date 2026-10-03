@@ -1712,30 +1712,34 @@ function renderGamification() {
 function renderCountdowns() {
     const strip = document.getElementById('countdown-strip');
     if (!strip) return;
-    strip.innerHTML = '';
 
-    if (!Array.isArray(countdowns) || countdowns.length === 0) {
+    // Đảm bảo đọc dữ liệu mới nhất kể cả khi vừa đồng bộ từ Cloud
+    let list = (typeof countdowns !== 'undefined' && Array.isArray(countdowns))
+        ? countdowns
+        : (JSON.parse(localStorage.getItem('saasCountdownsPro')) || []);
+
+    if (list.length === 0) {
+        strip.innerHTML = '';
         strip.style.display = 'none';
         return;
     }
 
     strip.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; margin-bottom: 14px; width: 100%;';
 
-    countdowns.forEach((cd) => {
+    strip.innerHTML = list.map((cd) => {
         let targetDateObj = new Date(cd.date);
-        let formattedDate = !isNaN(targetDateObj.getTime())
+        let targetMs = targetDateObj.getTime();
+        let formattedDate = !isNaN(targetMs)
             ? targetDateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
             : 'Mục tiêu chiến lược';
 
-        strip.innerHTML += `
-        <div class="phoi-card" id="cd-card-${cd.id}" style="position:relative; overflow:hidden; padding:16px 20px !important; border:1px solid rgba(168,85,247,0.32) !important; background:linear-gradient(135deg, rgba(16,21,38,0.88) 0%, rgba(28,19,56,0.78) 100%) !important; display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
-            <!-- Ánh sáng trang trí góc thẻ -->
+        return `
+        <div class="phoi-card apex-live-cd-card" data-cd-id="${cd.id}" data-target-ms="${targetMs}" id="cd-card-${cd.id}" style="position:relative; overflow:hidden; padding:16px 20px !important; border:1px solid rgba(168,85,247,0.32) !important; background:linear-gradient(135deg, rgba(16,21,38,0.88) 0%, rgba(28,19,56,0.78) 100%) !important; display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
             <div style="position:absolute; top:-30px; left:-30px; width:110px; height:110px; background:radial-gradient(circle, rgba(168,85,247,0.28) 0%, transparent 70%); pointer-events:none;"></div>
 
-            <!-- Cụm thông tin Sự kiện bên trái -->
             <div style="display:flex; align-items:center; gap:14px; z-index:2; min-width:180px; flex:1;">
                 <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #8b5cf6, #ec4899); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.25rem; box-shadow:0 6px 20px rgba(139,92,246,0.45); flex-shrink:0;">
-                    <i class="fa-solid fa-hourglass-half fa-spin-pulse" style="--fa-animation-duration: 3s;"></i>
+                    <i class="fa-solid fa-hourglass-half"></i>
                 </div>
                 <div style="min-width:0;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
@@ -1752,52 +1756,52 @@ function renderCountdowns() {
                 </div>
             </div>
 
-            <!-- Cụm 4 Ô Đồng Hồ Số Học bên phải -->
             <div style="display:flex; align-items:center; gap:8px; z-index:2; flex-wrap:wrap; justify-content:flex-end;">
                 <div style="min-width:68px; padding:8px 12px; border-radius:12px; background:rgba(10,14,26,0.75); border:1px solid rgba(255,255,255,0.1); text-align:center; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);">
-                    <span id="cd-d-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span class="cd-val-d" id="cd-d-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
                     <span style="font-size:0.6rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Ngày</span>
                 </div>
                 <span style="color:#64748b; font-weight:900; font-size:1.1rem;">:</span>
                 <div style="min-width:62px; padding:8px 10px; border-radius:12px; background:rgba(10,14,26,0.75); border:1px solid rgba(255,255,255,0.1); text-align:center; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);">
-                    <span id="cd-h-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span class="cd-val-h" id="cd-h-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
                     <span style="font-size:0.6rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Giờ</span>
                 </div>
                 <span style="color:#64748b; font-weight:900; font-size:1.1rem;">:</span>
                 <div style="min-width:62px; padding:8px 10px; border-radius:12px; background:rgba(10,14,26,0.75); border:1px solid rgba(255,255,255,0.1); text-align:center; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);">
-                    <span id="cd-m-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span class="cd-val-m" id="cd-m-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
                     <span style="font-size:0.6rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Phút</span>
                 </div>
                 <span style="color:#a855f7; font-weight:900; font-size:1.1rem;">:</span>
                 <div style="min-width:62px; padding:8px 10px; border-radius:12px; background:linear-gradient(160deg, rgba(139,92,246,0.28), rgba(56,189,248,0.18)); border:1px solid rgba(168,85,247,0.55); text-align:center; box-shadow:0 0 18px rgba(168,85,247,0.25);">
-                    <span id="cd-s-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#e9d5ff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
+                    <span class="cd-val-s" id="cd-s-${cd.id}" style="display:block; font-size:1.35rem; font-weight:900; color:#e9d5ff; font-variant-numeric:tabular-nums; line-height:1.1;">00</span>
                     <span style="font-size:0.6rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:1px;">Giây</span>
                 </div>
 
-                <!-- Nút xóa sự kiện gọn nhẹ -->
                 <button onclick="deleteCountdown(${cd.id})" title="Xóa sự kiện đếm ngược" style="margin-left:4px; width:32px; height:32px; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#64748b; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.color='#f43f5e'; this.style.borderColor='rgba(244,63,94,0.4)'" onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,0.08)'">
                     <i class="fa-solid fa-trash-can" style="font-size:0.75rem;"></i>
                 </button>
             </div>
         </div>`;
-    });
+    }).join('');
+
     updateCountdownTicks();
+    ensureDedicatedCountdownEngine();
 }
 
 function updateCountdownTicks() {
-    if (!Array.isArray(countdowns) || countdowns.length === 0) return;
     const now = Date.now();
-    countdowns.forEach(cd => {
-        const dEl = document.getElementById(`cd-d-${cd.id}`);
-        const hEl = document.getElementById(`cd-h-${cd.id}`);
-        const mEl = document.getElementById(`cd-m-${cd.id}`);
-        const sEl = document.getElementById(`cd-s-${cd.id}`);
+    // Quét trực tiếp tất cả các thẻ Countdown đang hiện trên DOM (Bất chấp biến toàn cục có bị trễ hay không)
+    const cards = document.querySelectorAll('.apex-live-cd-card');
+    cards.forEach(card => {
+        const target = Number(card.getAttribute('data-target-ms')) || 0;
+        const distance = target - now;
+        const dEl = card.querySelector('.cd-val-d');
+        const hEl = card.querySelector('.cd-val-h');
+        const mEl = card.querySelector('.cd-val-m');
+        const sEl = card.querySelector('.cd-val-s');
         if (!dEl || !hEl || !mEl || !sEl) return;
 
-        const target = new Date(cd.date).getTime();
-        const distance = target - now;
-
-        if (isNaN(target) || distance <= 0) {
+        if (distance <= 0) {
             dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; sEl.innerText = "00";
         } else {
             dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
@@ -1807,6 +1811,15 @@ function updateCountdownTicks() {
         }
     });
 }
+
+// Bộ máy đếm giây độc lập 100%, tự khởi chạy ngay khi tải file và không phụ thuộc vào bất kỳ hàm nào khác
+function ensureDedicatedCountdownEngine() {
+    if (window._apexDedicatedCdTimer) return;
+    window._apexDedicatedCdTimer = setInterval(function() {
+        try { updateCountdownTicks(); } catch (e) {}
+    }, 1000);
+}
+ensureDedicatedCountdownEngine();
 
 function createNewCountdown() {
     const name = prompt("Tên sự kiện:"); if (!name) return;
