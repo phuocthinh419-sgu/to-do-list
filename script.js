@@ -4438,16 +4438,20 @@ function getTodayDispatchQuotaInfo() {
 
 function handleDispatchRestAction() {
     let qInfo = getTodayDispatchQuotaInfo();
+    let todayStr = getLocalTodayStr();
 
     if (qInfo.isQuotaMet) {
         isFreeRestMode = !isFreeRestMode;
         if (isFreeRestMode) {
-            localStorage.setItem('saasRestModeDate', getLocalTodayStr()); // Lưu cứng ngày đang Tạm nghỉ
+            localStorage.setItem('saasRestModeDate', todayStr);
+            localStorage.removeItem('saasManualOnlineDate');
             clearTimeout(idleDispatchTimer);
         } else {
-            localStorage.removeItem('saasRestModeDate'); // Hủy Tạm nghỉ -> Bật lại Trực tuyến
+            localStorage.setItem('saasRestModeDate', 'OFF');
+            localStorage.setItem('saasManualOnlineDate', todayStr); // Đánh dấu Bệ hạ chủ động bật lại hôm nay
             scheduleIdleDispatch(45000);
         }
+        if (typeof syncToCloud === 'function') syncToCloud();
         renderDispatchStatusWidget();
         return;
     }
@@ -8331,19 +8335,35 @@ function safeLockDispatchIfQuotaDone() {
     if (!hasRestoredDispatchPenalty) {
         hasRestoredDispatchPenalty = true;
         if (typeof dispatchRate !== 'undefined' && dispatchRate < 85) {
-            dispatchRate = 85; localStorage.setItem('dispatchRate', '85');
+            dispatchRate = 85; localStorage.setItem('saasDispatchRate', '85');
         }
         if (typeof consecutiveRejects !== 'undefined') consecutiveRejects = 0;
-        if (typeof rejectStreak !== 'undefined') rejectStreak = 0;
-        localStorage.setItem('consecutiveRejects', '0'); localStorage.setItem('rejectStreak', '0');
+        localStorage.setItem('saasConsecutiveRejects', '0');
     }
-    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 0.5 };
-    if ((qInfo.doneHrs || 0) >= Math.max(0.1, qInfo.requiredHrs || 0.5)) {
-        if (typeof isDispatchOnline !== 'undefined' && isDispatchOnline) {
-            isDispatchOnline = false; localStorage.setItem('isDispatchOnline', 'false');
+
+    var todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : new Date().toISOString().split('T')[0];
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { isQuotaMet: false };
+
+    // Nếu hôm nay ĐÃ ĐỦ KPI và Bệ hạ không chủ động bấm "Bật Trực tuyến", tự động khóa cứng ở chế độ Tạm nghỉ!
+    if (qInfo.isQuotaMet) {
+        var manualOnlineToday = (localStorage.getItem('saasManualOnlineDate') === todayStr);
+        if (!manualOnlineToday) {
+            if (typeof isFreeRestMode !== 'undefined' && !isFreeRestMode) {
+                isFreeRestMode = true;
+                localStorage.setItem('saasRestModeDate', todayStr);
+                if (typeof idleDispatchTimer !== 'undefined') clearTimeout(idleDispatchTimer);
+                if (typeof renderDispatchStatusWidget === 'function') renderDispatchStatusWidget();
+            }
         }
-        if (typeof dispatchTimer !== 'undefined' && dispatchTimer) { clearInterval(dispatchTimer); clearTimeout(dispatchTimer); }
-        if (typeof autoDispatchTimeout !== 'undefined' && autoDispatchTimeout) { clearTimeout(autoDispatchTimeout); }
+    } else {
+        // Nếu sang ngày mới chưa đủ KPI thì mở lại Trực tuyến bình thường
+        if (localStorage.getItem('saasRestModeDate') === todayStr) {
+            localStorage.removeItem('saasRestModeDate');
+        }
+        if (typeof isFreeRestMode !== 'undefined' && isFreeRestMode) {
+            isFreeRestMode = false;
+            if (typeof renderDispatchStatusWidget === 'function') renderDispatchStatusWidget();
+        }
     }
 }
 
