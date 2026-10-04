@@ -4448,7 +4448,7 @@ function handleDispatchRestAction() {
             clearTimeout(idleDispatchTimer);
         } else {
             localStorage.setItem('saasRestModeDate', 'OFF');
-            localStorage.setItem('saasManualOnlineDate', todayStr); // Đánh dấu Bệ hạ chủ động bật lại hôm nay
+            localStorage.setItem('saasManualOnlineDate', todayStr);
             scheduleIdleDispatch(45000);
         }
         if (typeof syncToCloud === 'function') syncToCloud();
@@ -4464,7 +4464,6 @@ function handleDispatchRestAction() {
         return;
     }
 
-    let todayStr = getLocalTodayStr();
     let freeUsedDate = localStorage.getItem('saasFreeSnoozeDate');
     let isFreeAvailable = (freeUsedDate !== todayStr);
 
