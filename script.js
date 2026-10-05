@@ -152,7 +152,7 @@ function getGlobalMonday(dateObj = new Date()) {
 
 let currentGlobalMonday = getGlobalMonday();
 let cycleStartDate = localStorage.getItem('saasCycleStart');
-if (!cycleStartDate || cycleStartDate !== currentGlobalMonday) {
+if (!cycleStartDate) {
     cycleStartDate = currentGlobalMonday;
     localStorage.setItem('saasCycleStart', cycleStartDate);
 }
@@ -1377,45 +1377,133 @@ function checkCycleAndStreak() {
     // =========================================================
     // 1. ĐỒNG BỘ CHU KỲ TUẦN (Chốt sổ vào 23:59 Chủ Nhật)
     // =========================================================
+    function checkCycleAndStreak() {
+    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) return;
+
+    let todayObj = new Date();
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    let todayStr = todayObj.toISOString().split('T')[0];
+
+    let yesterdayObj = new Date(todayObj);
+    yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+
+    // 1. ĐỒNG BỘ CHU KỲ TUẦN & THU PHÍ DUY TRÌ HÀNG TUẦN ($250)
     let currentMon = getGlobalMonday();
-    if (currentMon !== cycleStartDate && !isPendingTax) {
-        exportData(); 
+    let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
 
-        let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-        if (usd >= 250) {
-            localStorage.setItem("usdBalance", usd - 250);
-            alert("Đã thu $250 phí duy trì hệ thống cho tuần mới. TỰ ĐỘNG XUẤT FILE SAO LƯU!");
-            updateUsdDisplay();
-        } else {
-            alert("Tài khoản không đủ $250. Các tính năng nâng cao đã bị phong ấn!");
-            localStorage.setItem("isSealed", "true");
-        }
+    if ((currentMon !== cycleStartDate || lastTaxCheckedMon !== currentMon) && !isPendingTax) {
+        let curParts = currentMon.split('-');
+        let prevMonDate = new Date(curParts[0], curParts[1] - 1, curParts[2]);
+        prevMonDate.setDate(prevMonDate.getDate() - 7);
 
-        // 🛑 VÁ LỖI CỐT LÕI: TÍNH TỔNG GIỜ CỦA TUẦN CŨ (cycleStartDate) ĐỂ CHỐT SỔ, TUYỆT ĐỐI KHÔNG TÍNH TUẦN MỚI
         let oldCycleTotal = 0;
-        let parts = cycleStartDate.split('-'); 
-        for (let i = 0; i < 7; i++) { 
-            let d = new Date(parts[0], parts[1]-1, parts[2]); 
-            d.setDate(d.getDate() + i); 
-            let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-            oldCycleTotal += (dailyLogs[dStr] || 0); 
+        for (let i = 0; i < 7; i++) {
+            let d = new Date(prevMonDate);
+            d.setDate(d.getDate() + i);
+            let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            oldCycleTotal += Number(dailyLogs[dStr] || 0);
         }
 
-        let target = getWeeklyTarget();
-        
-        if (oldCycleTotal < target) {
-            if (!isPendingTax) impactStockMarket("PENALTY");
-            isPendingTax = true; 
-            localStorage.setItem('saasPendingTax', 'true'); 
-        } else {
-            alert(`TỔNG KẾT TUẦN: Hoàn thành ${oldCycleTotal.toFixed(1)}h (Chỉ tiêu: ${target}h). Bắt đầu tuần mới!`);
+        if (Object.keys(dailyLogs).length > 0) {
+            exportData();
+
+            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+            let feeMsg = "";
+            if (usd >= 250) {
+                usd -= 250;
+                localStorage.setItem("usdBalance", usd);
+                updateUsdDisplay();
+                feeMsg = "Hệ thống đã khấu trừ $250 USD phí duy trì tuần mới và tự động tải về bản sao lưu dữ liệu.";
+            } else {
+                localStorage.setItem("isSealed", "true");
+                feeMsg = "Số dư không đủ $250 USD phí duy trì hàng tuần. Một số tính năng nâng cao tạm thời bị khóa.";
+            }
+
+            let target = getWeeklyTarget();
+            if (oldCycleTotal < target) {
+                if (!isPendingTax) impactStockMarket("PENALTY");
+                isPendingTax = true;
+                localStorage.setItem('saasPendingTax', 'true');
+                alert(`${feeMsg}\n\nTỔNG KẾT TUẦN QUA: Bạn đạt ${oldCycleTotal.toFixed(1)}h / ${target}h (Chưa đạt định mức tuần).\nHệ thống yêu cầu hoàn thành phiên học bù 90 phút.`);
+            } else {
+                alert(`TỔNG KẾT TUẦN QUA: Bạn đã hoàn thành ${oldCycleTotal.toFixed(1)}h / ${target}h (Đạt chỉ tiêu tuần)!\n\n${feeMsg}`);
+            }
         }
-        
+
         cycleStartDate = currentMon;
         localStorage.setItem('saasCycleStart', cycleStartDate);
+        localStorage.setItem('saasTaxCheckedMonday', currentMon);
         localStorage.removeItem('saasAchieved10h');
         localStorage.removeItem('saasAchieved15h');
+        if (typeof syncToCloud === 'function') syncToCloud();
     }
+
+    // 2. KIỂM TRA ĐỊNH MỨC NGÀY
+    let checkedDate = localStorage.getItem('saasDebtCheckedDate');
+    if (checkedDate !== yesterdayStr) {
+        let lastCheckedObj = checkedDate ? new Date(checkedDate) : new Date(yesterdayStr);
+        let daysToCheck = Math.floor((new Date(yesterdayStr) - lastCheckedObj) / (1000 * 60 * 60 * 24));
+
+        if (daysToCheck <= 0 || isNaN(daysToCheck)) daysToCheck = 1;
+
+        for (let i = daysToCheck; i >= 1; i--) {
+            let d = new Date(todayObj);
+            d.setDate(d.getDate() - i);
+            let checkStr = d.toISOString().split('T')[0];
+
+            let targetHrs = (typeof getRequiredHoursForDate === 'function') ? getRequiredHoursForDate(d, checkStr) : ((lastRestDate === checkStr) ? 0.25 : 1.0);
+            let hrsDone = dailyLogs[checkStr] || 0;
+
+            let deficitHrs = targetHrs - hrsDone;
+            if (deficitHrs > 0.01) {
+                let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
+                if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
+                dailyDebtMinutes += penaltyMins;
+            }
+        }
+
+        localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+        localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
+    }
+
+    if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
+        let lastDateObj = new Date(lastActiveDate);
+        let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true');
+    }
+
+    // 3. HIỂN THỊ YÊU CẦU HỌC BÙ NẾU VI PHẠM ĐỊNH MỨC
+    if (isPendingTax) {
+        document.getElementById('shame-modal').style.display = 'flex';
+        let shameTitle = document.querySelector('.shame-content h2');
+        if (shameTitle) shameTitle.innerText = "YÊU CẦU HỌC BÙ ĐỊNH MỨC TUẦN";
+        let shameDesc = document.querySelector('.shame-content p');
+        if (shameDesc) shameDesc.innerText = "Bạn chưa đạt định mức tối thiểu 5 giờ trong tuần qua. Vui lòng hoàn thành phiên học bù 90 phút để mở khóa hệ thống.";
+        let btnAlt = document.querySelector('.btn-shame-alt');
+        if (btnAlt) btnAlt.style.display = 'none';
+        let btnShame = document.querySelector('.btn-shame');
+        if (btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-clock"></i> BẮT ĐẦU PHIÊN HỌC BÙ (90P)'; btnShame.onclick = startTaxSession; }
+        return;
+    }
+
+    if (dailyDebtMinutes > 0) {
+        document.getElementById('shame-modal').style.display = 'flex';
+        let shameTitle = document.querySelector('.shame-content h2');
+        if (shameTitle) shameTitle.innerText = "YÊU CẦU HOÀN THÀNH ĐỊNH MỨC NGÀY";
+        let shameDesc = document.querySelector('.shame-content p');
+        if (shameDesc) shameDesc.innerHTML = `Bạn chưa hoàn thành đủ định mức học tập hằng ngày. Thời lượng cần học bù là <strong>${dailyDebtMinutes} phút</strong>.<br>Vui lòng hoàn thành phiên học bù để tiếp tục.`;
+        let btnAlt = document.querySelector('.btn-shame-alt');
+        if (btnAlt) btnAlt.style.display = 'none';
+        let btnShame = document.querySelector('.btn-shame');
+        if (btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-play"></i> BẮT ĐẦU HỌC BÙ (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
+        return;
+    }
+
+    let streakEl = document.getElementById('streak-count');
+    if (streakEl) streakEl.innerText = currentStreak;
+}
 
     // =========================================================
     // 2. ĐẠO LUẬT NGÀY (1.0h/ngày) -> KHOAN HỒNG ĐẠI CHÚNG
@@ -3902,74 +3990,116 @@ function openLeaderboard() {
 
 async function fetchLeaderboard(orderByField) {
     const content = document.getElementById('leaderboard-content');
-    
-    // Cập nhật UI nút Tab
-    document.getElementById('tab-lb-hours').style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)';
-    document.getElementById('tab-lb-hours').style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)';
-    document.getElementById('tab-lb-streak').style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)';
-    document.getElementById('tab-lb-streak').style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)';
+    if (!content) return;
 
-    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px; color: var(--brand-focus);"></i><br>Đang sắp xếp thứ hạng...</div>';
-    
+    const btnHours = document.getElementById('tab-lb-hours');
+    const btnStreak = document.getElementById('tab-lb-streak');
+    if (btnHours) {
+        btnHours.style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+        btnHours.style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)';
+    }
+    if (btnStreak) {
+        btnStreak.style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)';
+        btnStreak.style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)';
+    }
+
+    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i><br>Đang tải danh sách toàn bộ thành viên...</div>';
+
     try {
-        const snapshot = await db.collection("academic_apex")
-            .orderBy(orderByField, "desc")
-            .limit(30)
-            .get();
-            
+        // Lấy TOÀN BỘ tài khoản trong collection (Không dùng .orderBy của Firestore để tránh việc Firestore tự ẩn các tài khoản chưa có trường weeklyHours)
+        const snapshot = await db.collection("academic_apex").get();
         if (snapshot.empty) {
-            content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">Chưa có dữ liệu trên bảng vàng.</div>';
+            content.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--text-muted);">Chưa có dữ liệu xếp hạng.</div>';
             return;
         }
 
-        let html = '';
-        let rank = 1;
-        
-        snapshot.forEach((doc) => {
-            let data = doc.data();
-            let name = data.displayName || "Ẩn danh";
-            let photo = data.photoURL || "https://via.placeholder.com/44";
-            
-            // Xử lý điểm số tùy theo Tab đang mở
-            let score = orderByField === 'weeklyHours' 
-                ? (data.weeklyHours || 0).toFixed(1) + 'h' 
-                : (data.streak || 0) + ' Ngày';
-            
-            // Tùy chỉnh màu sắc Top 1, 2, 3
-            let rankStyle = "color:var(--text-muted); font-size:1.1rem; font-weight:800; width:35px; text-align:center;";
-            let crownHtml = "";
-            
-            if(rank === 1) {
-                rankStyle = "color:#eab308; font-size:1.5rem; font-weight:900; width:35px; text-align:center; text-shadow:0 0 15px rgba(234,179,8,0.4);";
-                crownHtml = '<i class="fa-solid fa-crown" style="color: #eab308; position: absolute; top: -10px; left: -10px; font-size: 1.2rem; transform: rotate(-20deg);"></i>';
-            }
-            else if(rank === 2) rankStyle = "color:#94a3b8; font-size:1.3rem; font-weight:800; width:35px; text-align:center;";
-            else if(rank === 3) rankStyle = "color:#b45309; font-size:1.2rem; font-weight:800; width:35px; text-align:center;";
+        let members = [];
+        let parts = currentGlobalMonday.split('-');
 
-            let isMe = doc.id === USER_DOC_ID;
-            let bgStyle = isMe ? "background: linear-gradient(90deg, rgba(14,165,233,0.1) 0%, rgba(0,0,0,0) 100%); border: 1px solid var(--brand-focus);" : "background:var(--bg-hover); border:1px solid var(--border);";
+        snapshot.forEach((doc) => {
+            let data = doc.data() || {};
+            // Bỏ qua document mặc định rỗng nếu có
+            if (doc.id === "emperor_data_v1" && !data.displayName) return;
+
+            // Tính chính xác số giờ học trong tuần hiện tại từ dailyLogs của từng người
+            let calcWeekHrs = 0;
+            if (data.dailyLogs && typeof data.dailyLogs === 'object') {
+                for (let i = 0; i < 7; i++) {
+                    let d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    d.setDate(d.getDate() + i);
+                    let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
+                }
+            } else if (typeof data.weeklyHours === 'number') {
+                calcWeekHrs = data.weeklyHours;
+            }
+
+            // Nếu là tài khoản của chính mình đang mở, ưu tiên lấy số liệu mới nhất trên máy
+            if (doc.id === USER_DOC_ID) {
+                calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
+            }
+
+            let userStreak = Number(data.streak ?? 0);
+            if (doc.id === USER_DOC_ID && typeof currentStreak !== 'undefined') {
+                userStreak = Number(currentStreak);
+            }
+
+            members.push({
+                id: doc.id,
+                name: data.displayName || "Người tham gia ẩn danh",
+                photo: data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.displayName || "U") + "&background=6366f1&color=fff",
+                weeklyHours: calcWeekHrs,
+                streak: userStreak,
+                currentStatus: data.currentStatus || 'online'
+            });
+        });
+
+        // Sắp xếp từ cao xuống thấp ngay trên RAM
+        members.sort((a, b) => {
+            if (orderByField === 'weeklyHours') {
+                return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
+            }
+            return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
+        });
+
+        let html = '';
+        members.slice(0, 30).forEach((m, idx) => {
+            let rank = idx + 1;
+            let score = orderByField === 'weeklyHours' ? m.weeklyHours.toFixed(1) + 'h' : m.streak + ' Ngày';
+
+            let isFocusing = m.currentStatus === 'focusing';
+            let statusColor = isFocusing ? '#ef4444' : '#10b981';
+            let statusText = isFocusing ? 'Đang tập trung' : 'Trực tuyến';
+            let statusDot = `<div style="width:14px; height:14px; border-radius:50%; background:${statusColor}; position:absolute; bottom:0; right:0; border:2px solid var(--bg-panel); box-shadow: 0 0 5px ${statusColor};" title="${statusText}"></div>`;
+
+            let isMe = m.id === USER_DOC_ID;
+            let actionBtn = !isMe
+                ? `<button onclick="openComposeModal('${m.id}', '${m.name.replace(/'/g, "\\'")}')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--brand-focus); width:36px; height:36px; border-radius:8px; cursor:pointer;" title="Gửi thư"><i class="fa-solid fa-paper-plane"></i></button>`
+                : `<div style="width:36px;"></div>`;
+
+            let rankStyle = rank === 1 ? "color:#eab308; font-size:1.5rem; font-weight:900;" : (rank === 2 ? "color:#94a3b8; font-size:1.3rem;" : (rank === 3 ? "color:#b45309; font-size:1.2rem;" : "color:var(--text-muted); font-size:1.05rem;"));
 
             html += `
-            <div class="stagger-item" style="animation-delay: ${rank * 0.05}s; display:flex; align-items:center; padding:14px; border-radius:16px; ${bgStyle} position: relative;">
-                <div style="${rankStyle}">${rank}</div>
-                <div style="position: relative; margin:0 14px;">
-                    ${crownHtml}
-                    <img src="${photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover; border: 2px solid ${isMe ? 'var(--brand-focus)' : 'transparent'};">
+            <div class="stagger-item" style="display:flex; align-items:center; padding:12px; border-radius:16px; background:${isMe ? 'rgba(14,165,233,0.08)' : 'var(--bg-hover)'}; border:1px solid ${isMe ? 'var(--brand-focus)' : 'var(--border)'};">
+                <div style="width:35px; text-align:center; font-weight:800; ${rankStyle}">${rank}</div>
+                <div style="position:relative; margin:0 12px;">
+                    <img src="${m.photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover;">
+                    ${statusDot}
                 </div>
                 <div style="flex:1; overflow:hidden;">
                     <div style="font-weight:800; color:var(--text-main); font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        ${name} ${isMe ? '<span style="font-size:0.7rem; color:var(--brand-focus); background: rgba(14,165,233,0.1); padding: 2px 6px; border-radius: 4px; vertical-align: middle;">Tài khoản của bạn</span>' : ''}
+                        ${m.name} ${isMe ? '<span style="font-size:0.68rem; color:#38bdf8; margin-left:4px;">(Bạn)</span>' : ''}
                     </div>
+                    <div style="font-weight:900; color:var(--brand-trophy); font-size:1.1rem;">${score}</div>
                 </div>
-                <div style="font-weight:900; color:var(--brand-trophy); font-size:1.2rem; margin-left: 10px;">${score}</div>
+                ${actionBtn}
             </div>`;
-            rank++;
         });
-        
+
         content.innerHTML = html;
-    } catch (error) {
-        console.error("Lỗi tải BXH:", error);
-        content.innerHTML = '<div style="text-align:center; color:#ef4444; padding: 20px;">Lỗi kết nối Thiên Đình. Vui lòng kiểm tra lại mạng.</div>';
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = '<div style="text-align:center; color:#ef4444;">Lỗi kết nối máy chủ.</div>';
     }
 }
 
@@ -5974,8 +6104,12 @@ function attachRoadmapButtonToAllGoalCards() {
 
     var cards = grid.querySelectorAll('.goal-card');
     cards.forEach(function(card) {
-        var oldBtn = card.querySelector('.btn-goal-roadmap');
-        if (oldBtn) oldBtn.remove();
+        var oldToolbar = card.querySelector('.apex-goal-card-actions');
+        if (oldToolbar) oldToolbar.remove();
+
+        // Ẩn nút .btn-delete cũ bị lệch vị trí để gom chung vào thanh công cụ góc phải
+        var legacyDel = card.querySelector('.btn-delete');
+        if (legacyDel) legacyDel.style.display = 'none';
 
         var oc = card.getAttribute('onclick') || "";
         var match = oc.match(/openGoal\s*\(\s*(\d+)\s*\)/);
@@ -5989,20 +6123,39 @@ function attachRoadmapButtonToAllGoalCards() {
         }
         if (!gId) return;
 
-        // Đặt nút Lộ trình ở góc trên bên phải của thẻ để KHÔNG ép hẹp hộp thông số bên dưới
         card.style.position = 'relative';
-        var btn = document.createElement('button');
-        btn.className = 'btn-goal-roadmap';
-        btn.title = 'Xem Lộ trình 5 chặng, Nhiệm vụ & Ghi chú';
-        btn.style.cssText = "position:absolute; top:14px; right:14px; background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.42); color:#e9d5ff; padding:5px 10px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:0.2s; z-index:5; backdrop-filter:blur(8px);";
-        btn.innerHTML = '<i class="fa-solid fa-route" style="color:#c084fc;"></i> Lộ trình';
-        btn.onmouseover = function() { btn.style.background = '#7c3aed'; btn.style.color = '#fff'; };
-        btn.onmouseout = function() { btn.style.background = 'rgba(168,85,247,0.16)'; btn.style.color = '#e9d5ff'; };
-        btn.onclick = function(e) {
+        var actionWrap = document.createElement('div');
+        actionWrap.className = 'apex-goal-card-actions';
+        actionWrap.style.cssText = "position:absolute; top:12px; right:12px; display:inline-flex; align-items:center; gap:6px; z-index:6;";
+
+        // 1. Nút Xem Lộ trình
+        var btnRoad = document.createElement('button');
+        btnRoad.className = 'btn-goal-roadmap';
+        btnRoad.title = 'Xem Lộ trình 5 chặng, Nhiệm vụ & Ghi chú';
+        btnRoad.style.cssText = "background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.42); color:#e9d5ff; padding:5px 10px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:0.2s; backdrop-filter:blur(8px);";
+        btnRoad.innerHTML = '<i class="fa-solid fa-route" style="color:#c084fc;"></i> Lộ trình';
+        btnRoad.onmouseover = function() { btnRoad.style.background = '#7c3aed'; btnRoad.style.color = '#fff'; };
+        btnRoad.onmouseout = function() { btnRoad.style.background = 'rgba(168,85,247,0.16)'; btnRoad.style.color = '#e9d5ff'; };
+        btnRoad.onclick = function(e) {
             e.stopPropagation();
             openGoalDetailModal(gId, 'overview');
         };
-        card.appendChild(btn);
+
+        // 2. Nút Thùng rác (Xóa mục tiêu)
+        var btnTrash = document.createElement('button');
+        btnTrash.title = 'Xóa mục tiêu này';
+        btnTrash.style.cssText = "width:28px; height:28px; border-radius:8px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:#fda4af; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:0.72rem; transition:0.2s; backdrop-filter:blur(8px);";
+        btnTrash.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+        btnTrash.onmouseover = function() { btnTrash.style.background = '#e11d48'; btnTrash.style.color = '#fff'; };
+        btnTrash.onmouseout = function() { btnTrash.style.background = 'rgba(244,63,94,0.12)'; btnTrash.style.color = '#fda4af'; };
+        btnTrash.onclick = function(e) {
+            e.stopPropagation();
+            deleteGoal(e, gId);
+        };
+
+        actionWrap.appendChild(btnRoad);
+        actionWrap.appendChild(btnTrash);
+        card.appendChild(actionWrap);
     });
 }
 
