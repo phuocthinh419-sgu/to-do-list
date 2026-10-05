@@ -9314,15 +9314,14 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// 14. ĐỒNG HỒ CƠ HỌC TÍCH TẮC V2 (REAL MECHANICAL ESCAPEMENT SOUND
-//     + AUTO-SYNC VỚI NHỊP GIÂY TRÊN MÀN HÌNH)
+// 14. ÂM TÍCH TẮC KIM ĐỒNG HỒ CHUẨN XÁC (CRISP QUARTZ TICK & AUTO-HOOK)
 // =====================================================================
 var apexTickAudioCtx = null;
 var apexTickEnabled = false;
-var apexTickHighLow = false;
-var apexLastTickedSecondStr = "";
+var apexTickToggleBit = false;
+var apexLastSeenTimeText = "";
 
-function getApexTickContext() {
+function ensureApexTickCtx() {
     if (!apexTickAudioCtx) {
         var AC = window.AudioContext || window.webkitAudioContext;
         apexTickAudioCtx = new AC();
@@ -9333,68 +9332,43 @@ function getApexTickContext() {
     return apexTickAudioCtx;
 }
 
+// Hàm tạo tiếng "Tách - Tạch" siêu ngắn (8ms) chuẩn kim giây đồng hồ Quartz
 window.playTick = function() {
     try {
-        var ctx = getApexTickContext();
-        var now = ctx.currentTime;
-        apexTickHighLow = !apexTickHighLow;
+        var ctx = ensureApexTickCtx();
+        var t = ctx.currentTime;
+        apexTickToggleBit = !apexTickToggleBit;
 
-        // 1. TẠO XUNG GÕ CƠ HỌC (MECHANICAL CLICK IMPULSE) - Nghe rõ 100% trên mọi loa
-        var bufferSize = Math.floor(ctx.sampleRate * 0.025);
-        var noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        var output = noiseBuffer.getChannelData(0);
-        for (var i = 0; i < bufferSize; i++) {
-            // Hàm mũ tắt dần cực nhanh tạo tiếng "Tạch!" sắc gọn của bánh răng
-            output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.0035));
-        }
-
-        var whiteNoise = ctx.createBufferSource();
-        whiteNoise.buffer = noiseBuffer;
-
-        var filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        // Luân phiên 2 tần số "Tích" (cao) - "Tắc" (trầm)
-        filter.frequency.setValueAtTime(apexTickHighLow ? 2200 : 1650, now);
-        filter.Q.setValueAtTime(2.2, now);
-
-        var noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.65, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.024);
-
-        whiteNoise.connect(filter);
-        filter.connect(noiseGain);
-        noiseGain.connect(ctx.destination);
-        whiteNoise.start(now);
-
-        // 2. CỘNG HƯỞNG HỘP ĐỒNG HỒ (BODY RESONANCE THUMP)
+        // Nhịp "Tích" (3000Hz) và nhịp "Tắc" (2200Hz) cực ngắn 8ms -> Giòn, khô, không ngân
         var osc = ctx.createOscillator();
-        var oscGain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(apexTickHighLow ? 850 : 680, now);
-        osc.frequency.exponentialRampToValueAtTime(120, now + 0.025);
+        var filter = ctx.createBiquadFilter();
+        var gain = ctx.createGain();
 
-        oscGain.gain.setValueAtTime(0.35, now);
-        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.028);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(apexTickToggleBit ? 3000 : 2200, t);
+        osc.frequency.exponentialRampToValueAtTime(450, t + 0.009);
 
-        osc.connect(oscGain);
-        oscGain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.03);
-    } catch (e) {
-        console.error("Tick Audio Error:", e);
-    }
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(800, t);
+
+        // Độ lớn vừa phải, sắc nét và ngắt dứt khoát trong 0.009 giây
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.45, t + 0.001);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.010);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + 0.012);
+    } catch (e) {}
 };
 
 window.toggleTick = function() {
     apexTickEnabled = !apexTickEnabled;
-    // Đồng bộ với biến isTickOn gốc của hệ thống
-    try { isTickOn = apexTickEnabled; } catch (e) {}
 
-    var oldBtn = document.getElementById('btn-tick');
-    if (oldBtn) {
-        oldBtn.innerHTML = '<i class="fa-solid fa-clock"></i> Âm Tích Tắc: ' + (apexTickEnabled ? 'BẬT' : 'TẮT');
-    }
-
+    // Cập nhật nút trên thanh công cụ Focus Room
     var ftText = document.getElementById('ft-tick-text');
     if (ftText) {
         ftText.innerText = 'Âm tích tắc: ' + (apexTickEnabled ? 'BẬT' : 'TẮT');
@@ -9406,35 +9380,48 @@ window.toggleTick = function() {
         }
     }
 
-    // Khi vừa bấm BẬT: Mở khóa AudioContext ngay lập tức và gõ thử 2 nhịp "Tích - Tắc"
+    var oldBtn = document.getElementById('btn-tick');
+    if (oldBtn) {
+        oldBtn.innerHTML = '<i class="fa-solid fa-clock"></i> Âm Tích Tắc: ' + (apexTickEnabled ? 'BẬT' : 'TẮT');
+    }
+
     if (apexTickEnabled) {
-        getApexTickContext();
+        ensureApexTickCtx();
         window.playTick();
-        setTimeout(function() {
-            if (apexTickEnabled) window.playTick();
-        }, 500);
     }
 };
 
-// Bộ cảm biến độc lập: Tự động gõ "Tích - Tắc" mỗi khi đồng hồ trong Focus Room nhảy giây mới!
-if (!window._apexMechanicalTickWatcher) {
-    window._apexMechanicalTickWatcher = setInterval(function() {
+// Móc trực tiếp vào hàm updateDisplay(seconds) gốc của hệ thống:
+// Hễ đồng hồ đếm lùi nhảy sang giây mới là phát tiếng "Tách" ngay lập tức!
+var _origUpdateDisplayForTick = window.updateDisplay;
+window.updateDisplay = function(seconds) {
+    if (typeof _origUpdateDisplayForTick === 'function') {
+        _origUpdateDisplayForTick(seconds);
+    }
+    if (apexTickEnabled && seconds > 0) {
+        var curTxt = String(seconds);
+        if (curTxt !== apexLastSeenTimeText) {
+            apexLastSeenTimeText = curTxt;
+            window.playTick();
+        }
+    }
+};
+
+// Hỗ trợ gõ nhịp cả khi đang ở giai đoạn Cày lố (Overtime +00:01, +00:02...)
+if (!window._apexOvertimeTickTimer) {
+    window._apexOvertimeTickTimer = setInterval(function() {
         if (!apexTickEnabled) return;
         var focusRoom = document.getElementById('focus-room');
         if (!focusRoom || focusRoom.style.display === 'none') return;
 
-        var origPauseBtn = document.getElementById('btn-pause');
-        var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none');
-        var currentlyPaused = (typeof isPaused !== 'undefined' && isPaused);
-        if (!isRunning || currentlyPaused) return;
+        var ftDisp = document.getElementById('ft-time-display');
+        if (!ftDisp) return;
+        var txt = ftDisp.innerText.trim();
 
-        var timerEl = document.getElementById('ft-time-display') || document.getElementById('session-timer');
-        if (!timerEl) return;
-        var curStr = timerEl.innerText.trim();
-
-        if (curStr && curStr !== "00:00" && curStr !== apexLastTickedSecondStr) {
-            apexLastTickedSecondStr = curStr;
+        // Nếu đang ở chế độ Overtime (+mm:ss) thì cũng gõ nhịp mỗi giây
+        if (txt.startsWith('+') && txt !== apexLastSeenTimeText) {
+            apexLastSeenTimeText = txt;
             window.playTick();
         }
-    }, 200);
+    }, 250);
 }
