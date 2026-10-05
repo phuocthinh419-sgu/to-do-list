@@ -8817,94 +8817,114 @@ function drawApexCanvasPipFrame() {
 }
 
 // =====================================================================
-// 13. APEX MOTION ENGINE V1 (GPU-ACCELERATED LIVING UI & SPOTLIGHT)
+// 13. APEX HYPER-VISUAL ENGINE V2 (3D HOLOGRAPHIC TILT, LASER BORDERS,
+//     NUMBER SLOT-ROLL, SONAR SHOCKWAVE & CYBER CURSOR AURA)
 // =====================================================================
 function injectApexMotionEngine() {
-    if (document.getElementById('apex-motion-engine-css')) return;
+    var oldCss = document.getElementById('apex-motion-engine-css');
+    if (oldCss) oldCss.remove();
 
     var st = document.createElement('style');
     st.id = 'apex-motion-engine-css';
     st.innerHTML = `
-        /* 1. KEYFRAMES CHUYỂN ĐỘNG CỐT LÕI (GPU 60FPS) */
+        /* 1. KEYFRAMES ĐẠI THỊ GIÁC */
         @keyframes apexOrbitSpinCW {
             0%   { transform: translate(-50%, -50%) rotate(0deg); }
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         @keyframes apexOrbitSpinCCW {
-            0%   { transform: translate(-50%, -50%) rotate(360deg); }
-            100% { transform: translate(-50%, -50%) rotate(0deg); }
+            0%   { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+            50%  { transform: translate(-50%, -50%) rotate(180deg) scale(1.06); }
+            100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
         }
-        @keyframes apexCoreBreath {
+        @keyframes apexCoreHyperPulse {
             0%, 100% {
                 transform: translate(-50%, -50%) scale(1);
-                box-shadow: 0 0 24px rgba(168, 85, 247, 0.75), inset 0 0 10px rgba(255, 255, 255, 0.25);
+                box-shadow: 0 0 25px #a855f7, 0 0 55px rgba(99,102,241,0.6), inset 0 0 12px #fff;
             }
             50% {
-                transform: translate(-50%, -50%) scale(1.09);
-                box-shadow: 0 0 42px rgba(168, 85, 247, 1), 0 0 70px rgba(99, 102, 241, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.45);
+                transform: translate(-50%, -50%) scale(1.16);
+                box-shadow: 0 0 45px #ec4899, 0 0 90px #a855f7, 0 0 120px rgba(56,189,248,0.7), inset 0 0 20px #fff;
             }
         }
         @keyframes apexSatFloatTop {
-            0%, 100% { transform: translateX(-50%) translateY(0px); }
-            50%      { transform: translateX(-50%) translateY(-6px); }
+            0%, 100% { transform: translateX(-50%) translateY(0px) scale(1); }
+            50%      { transform: translateX(-50%) translateY(-9px) scale(1.06); }
         }
         @keyframes apexSatFloatSide {
-            0%, 100% { transform: translateY(0px); }
-            50%      { transform: translateY(-6px); }
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50%      { transform: translateY(-9px) scale(1.06); }
+        }
+        @keyframes apexTextLiquidFlow {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         @keyframes apexShimmerSweep {
-            0%   { transform: translateX(-120%) skewX(-20deg); }
-            100% { transform: translateX(220%) skewX(-20deg); }
+            0%   { transform: translateX(-120%) skewX(-25deg); }
+            100% { transform: translateX(250%) skewX(-25deg); }
         }
-        @keyframes apexFocusRingPulse {
-            0%, 100% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.28), inset 0 0 22px rgba(139, 92, 246, 0.12); }
-            50%      { box-shadow: 0 0 70px rgba(168, 85, 247, 0.58), inset 0 0 38px rgba(99, 102, 241, 0.26); }
+        @keyframes apexSonarShockwave {
+            0%   { transform: scale(0.95); opacity: 0.75; }
+            100% { transform: scale(1.38); opacity: 0; }
         }
-        @keyframes apexViewFadeUp {
-            0%   { opacity: 0; transform: translateY(12px) scale(0.992); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes apexEqBounce {
+            0%, 100% { height: 4px; }
+            50%      { height: 18px; }
         }
-        @keyframes apexLiveDotPing {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%      { opacity: 0.55; transform: scale(1.12); }
+        @keyframes apexCardCascadeIn {
+            0%   { opacity: 0; transform: perspective(900px) translateY(28px) rotateX(8deg) scale(0.96); filter: blur(6px); }
+            100% { opacity: 1; transform: perspective(900px) translateY(0) rotateX(0deg) scale(1); filter: blur(0px); }
+        }
+        @keyframes apexClickRipple {
+            0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.9; }
+            100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
         }
 
-        /* 2. KÍCH HOẠT QUỸ ĐẠO CHỮ A XOAY & LƠ LỬNG */
+        /* 2. CHỮ TIÊU ĐỀ CHẢY ÁNH KIM SỐNG ĐỘNG (LIQUID CHROME TEXT) */
+        .phoi-hero-left h1 {
+            background: linear-gradient(90deg, #ffffff 0%, #e9d5ff 25%, #38bdf8 50%, #f472b6 75%, #ffffff 100%) !important;
+            background-size: 250% auto !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            animation: apexTextLiquidFlow 6s linear infinite !important;
+            filter: drop-shadow(0 6px 24px rgba(168, 85, 247, 0.35));
+        }
+
+        /* 3. QUỸ ĐẠO CHỮ A NĂNG LƯỢNG CAO */
         .phoi-orbit-ring1 {
-            animation: apexOrbitSpinCW 26s linear infinite !important;
+            border: 1.5px dashed rgba(192, 132, 252, 0.8) !important;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.35), inset 0 0 25px rgba(168, 85, 247, 0.25) !important;
+            animation: apexOrbitSpinCW 14s linear infinite !important;
         }
         .phoi-orbit-ring2 {
-            border-style: dashed !important;
-            border-color: rgba(56, 189, 248, 0.22) !important;
-            animation: apexOrbitSpinCCW 42s linear infinite !important;
+            border: 1.5px dashed rgba(56, 189, 248, 0.45) !important;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.15) !important;
+            animation: apexOrbitSpinCCW 22s ease-in-out infinite !important;
         }
         .phoi-orbit-core {
-            animation: apexCoreBreath 3.4s ease-in-out infinite !important;
+            animation: apexCoreHyperPulse 2.6s ease-in-out infinite !important;
         }
-        .phoi-orbit-box .phoi-sat:nth-of-type(4) {
-            animation: apexSatFloatTop 3.6s ease-in-out infinite !important;
-        }
-        .phoi-orbit-box .phoi-sat:nth-of-type(5) {
-            animation: apexSatFloatSide 4.2s ease-in-out infinite 0.6s !important;
-        }
-        .phoi-orbit-box .phoi-sat:nth-of-type(6) {
-            animation: apexSatFloatSide 3.9s ease-in-out infinite 1.2s !important;
-        }
+        .phoi-orbit-box .phoi-sat:nth-of-type(4) { animation: apexSatFloatTop 2.8s ease-in-out infinite !important; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(5) { animation: apexSatFloatSide 3.2s ease-in-out infinite 0.4s !important; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(6) { animation: apexSatFloatSide 3.0s ease-in-out infinite 0.9s !important; }
 
-        /* 3. TƯƠNG TÁC THẺ KÍNH BENTO + ĐÈN RỌI CHUỘT (SPOTLIGHT) */
-        .phoi-card, #dashboard-grid .goal-card, .ft-card {
+        /* 4. THẺ KÍNH 3D HOLOGRAPHIC + PHẢN QUANG + VIỀN NEON BỪNG SÁNG */
+        .phoi-card, #dashboard-grid .goal-card, .ft-card, .phoi-mini-item {
             position: relative;
             overflow: hidden;
-            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                        border-color 0.28s ease,
-                        box-shadow 0.28s ease !important;
+            transform-style: preserve-3d;
+            will-change: transform, box-shadow;
+            transition: transform 0.16s ease-out, border-color 0.25s ease, box-shadow 0.25s ease !important;
         }
         .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover {
-            transform: translateY(-4px) !important;
-            border-color: rgba(168, 85, 247, 0.42) !important;
-            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.48), 0 0 24px rgba(168, 85, 247, 0.14) !important;
+            border-color: rgba(192, 132, 252, 0.78) !important;
+            box-shadow:
+                0 20px 45px rgba(0, 0, 0, 0.65),
+                0 0 28px rgba(168, 85, 247, 0.32),
+                inset 0 0 20px rgba(168, 85, 247, 0.12) !important;
         }
-        /* Lớp ánh sáng đi theo con trỏ chuột */
+        /* Luồng phản quang Hologram chạy theo góc nghiêng chuột */
         .phoi-card::after, #dashboard-grid .goal-card::after, .ft-card::after {
             content: "";
             position: absolute;
@@ -8912,75 +8932,238 @@ function injectApexMotionEngine() {
             border-radius: inherit;
             pointer-events: none;
             background: radial-gradient(
-                380px circle at var(--mouse-x, -500px) var(--mouse-y, -500px),
-                rgba(168, 85, 247, 0.13),
-                transparent 55%
+                420px circle at var(--mouse-x, -500px) var(--mouse-y, -500px),
+                rgba(192, 132, 252, 0.24),
+                rgba(56, 189, 248, 0.10) 40%,
+                transparent 68%
             );
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.25s ease;
             z-index: 1;
         }
         .phoi-card:hover::after, #dashboard-grid .goal-card:hover::after, .ft-card:hover::after {
             opacity: 1;
         }
 
-        /* 4. LUỒNG SÁNG CHẢY TRÊN THANH TIẾN ĐỘ (SHIMMER) */
+        /* 5. HIỆU ỨNG TRƯỢT CẢNH 3D BẬC THANG KHI ĐỔI TAB (CASCADE ENTRANCE) */
+        .apex-cascade-anim {
+            animation: apexCardCascadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards !important;
+        }
+
+        /* 6. THANH TIẾN ĐỘ NĂNG LƯỢNG LỎNG & CHẤM SÁNG ĐẦU THANH */
         #kpi-bar-fill, #ft-right-goal-bar, #ft-right-today-bar {
-            position: relative;
-            overflow: hidden;
+            position: relative !important;
+            overflow: hidden !important;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.65) !important;
         }
         #kpi-bar-fill::after, #ft-right-goal-bar::after, #ft-right-today-bar::after {
             content: "";
             position: absolute;
             top: 0; left: 0; bottom: 0;
-            width: 45%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
-            animation: apexShimmerSweep 2.8s infinite ease-in-out;
+            width: 55%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+            animation: apexShimmerSweep 2.1s infinite ease-in-out;
         }
 
-        /* 5. NHỊP THỞ PHÒNG FOCUS & NÚT BẤM NĂNG LƯỢNG */
+        /* 7. VÒNG SÓNG XUNG KÍCH (SONAR SHOCKWAVE) TRONG FOCUS ROOM */
         .ft-ring-box {
-            animation: apexFocusRingPulse 4s ease-in-out infinite !important;
+            position: relative;
+            box-shadow: 0 0 65px rgba(168, 85, 247, 0.48), inset 0 0 35px rgba(99, 102, 241, 0.28) !important;
         }
-        #ft-svg-progress {
-            transition: stroke-dashoffset 0.65s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease !important;
+        .ft-ring-box::before, .ft-ring-box::after {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(168, 85, 247, 0.55);
+            pointer-events: none;
+            animation: apexSonarShockwave 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
         }
-        .ft-start-btn, .f-amb-card, .ft-mode-pill, .ft-glass-btn {
-            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, background 0.25s ease !important;
+        .ft-ring-box::after {
+            border-color: rgba(56, 189, 248, 0.45);
+            animation-delay: 1.6s;
         }
-        .ft-start-btn:hover {
-            transform: translateY(-2px) scale(1.03) !important;
-            box-shadow: 0 12px 32px rgba(168, 85, 247, 0.72) !important;
-        }
-        .f-amb-card:hover, .ft-mode-pill:hover, .ft-glass-btn:hover {
-            transform: translateY(-2px) !important;
-        }
-        .f-amb-card.active {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.32) !important;
-        }
-        .phoi-pill-live {
-            animation: apexLiveDotPing 2.4s ease-in-out infinite;
+        .ft-time-big {
+            text-shadow: 0 0 28px rgba(192, 132, 252, 0.65), 0 4px 16px rgba(0,0,0,0.8) !important;
         }
 
-        /* 6. CHUYỂN CẢNH MƯỢT KHI ĐỔI TAB & MỞ MODAL */
-        #view-dashboard, #analytics-room, #trophy-room, #timetable-room {
-            animation: apexViewFadeUp 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+        /* 8. SÓNG NHẠC EQUALIZER TRÊN THẺ ÂM THANH ĐANG BẬT */
+        .f-amb-card.active {
+            background: linear-gradient(135deg, rgba(168,85,247,0.32), rgba(56,189,248,0.22)) !important;
+            border-color: #c084fc !important;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.45) !important;
+        }
+        .apex-eq-bars {
+            display: none;
+            align-items: flex-end;
+            gap: 2.5px;
+            height: 18px;
+            margin-left: auto;
+        }
+        .f-amb-card.active .apex-eq-bars {
+            display: inline-flex;
+        }
+        .apex-eq-bars span {
+            width: 3px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #38bdf8, #c084fc);
+            animation: apexEqBounce 0.7s ease-in-out infinite;
+        }
+        .apex-eq-bars span:nth-child(2) { animation-delay: 0.2s; animation-duration: 0.55s; }
+        .apex-eq-bars span:nth-child(3) { animation-delay: 0.4s; animation-duration: 0.8s; }
+        .apex-eq-bars span:nth-child(4) { animation-delay: 0.1s; animation-duration: 0.65s; }
+
+        /* 9. QUẦNG SÁNG ĐI THEO CON TRỎ CHUỘT & SÓNG CLICK */
+        #apex-cyber-cursor-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 340px; height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168,85,247,0.14) 0%, rgba(56,189,248,0.06) 40%, transparent 70%);
+            pointer-events: none;
+            transform: translate3d(-500px, -500px, 0);
+            z-index: 9997;
+            transition: transform 0.06s linear;
+            mix-blend-mode: screen;
+        }
+        .apex-click-wave {
+            position: fixed;
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            border: 2px solid #c084fc;
+            box-shadow: 0 0 18px #a855f7;
+            pointer-events: none;
+            z-index: 99999;
+            animation: apexClickRipple 0.55s ease-out forwards;
         }
     `;
     document.head.appendChild(st);
 
-    // Kích hoạt cảm biến tọa độ chuột cho hiệu ứng đèn rọi (Cursor Spotlight)
-    if (!window._apexSpotlightBound) {
-        window._apexSpotlightBound = true;
+    // Tạo Quầng sáng Cyber đi theo chuột
+    if (!document.getElementById('apex-cyber-cursor-glow') && window.innerWidth > 768) {
+        var glow = document.createElement('div');
+        glow.id = 'apex-cyber-cursor-glow';
+        document.body.appendChild(glow);
+    }
+
+    // Gắn cảm biến Nghiêng 3D (3D Perspective Tilt) + Spotlight + Click Shockwave
+    if (!window._apexHyperEventsBound) {
+        window._apexHyperEventsBound = true;
+        var activeTiltCard = null;
+
         document.addEventListener('mousemove', function(e) {
-            var card = e.target.closest('.phoi-card, .goal-card, .ft-card');
-            if (!card) return;
+            var glowEl = document.getElementById('apex-cyber-cursor-glow');
+            if (glowEl) {
+                glowEl.style.transform = 'translate3d(' + (e.clientX - 170) + 'px, ' + (e.clientY - 170) + 'px, 0)';
+            }
+
+            var card = e.target.closest('.phoi-card, #dashboard-grid .goal-card, .ft-card, .phoi-mini-item');
+            if (activeTiltCard && activeTiltCard !== card) {
+                activeTiltCard.style.transform = '';
+                activeTiltCard = null;
+            }
+            if (!card || window.innerWidth <= 768) return;
+
+            activeTiltCard = card;
             var rect = card.getBoundingClientRect();
-            card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
-            card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', x + 'px');
+            card.style.setProperty('--mouse-y', y + 'px');
+
+            // Tính góc nghiêng 3D mượt mà (Tối đa 5.5 độ để không bị chóng mặt)
+            var centerX = rect.width / 2;
+            var centerY = rect.height / 2;
+            var rotateX = ((centerY - y) / centerY) * 4.8;
+            var rotateY = ((x - centerX) / centerX) * 4.8;
+
+            card.style.transform = 'perspective(900px) translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) scale3d(1.012, 1.012, 1.012)';
+        }, { passive: true });
+
+        // Khi click chuột bất kỳ đâu -> Bung vòng sóng năng lượng
+        document.addEventListener('mousedown', function(e) {
+            var wave = document.createElement('div');
+            wave.className = 'apex-click-wave';
+            wave.style.left = e.clientX + 'px';
+            wave.style.top = e.clientY + 'px';
+            document.body.appendChild(wave);
+            setTimeout(function() { wave.remove(); }, 560);
         }, { passive: true });
     }
+
+    enhanceFocusAudioEqualizerBars();
+    triggerCascadeAndNumberRoll();
 }
 
+// Gắn 4 cột sóng nhạc Equalizer vào các nút âm thanh nền trong Focus Room
+function enhanceFocusAudioEqualizerBars() {
+    document.querySelectorAll('.f-amb-card').forEach(function(card) {
+        if (!card.querySelector('.apex-eq-bars')) {
+            var eq = document.createElement('div');
+            eq.className = 'apex-eq-bars';
+            eq.innerHTML = '<span></span><span></span><span></span><span></span>';
+            card.appendChild(eq);
+        }
+    });
+}
+
+// Hiệu ứng Cuộn Số Điện Tử (Slot-Machine Number Count-Up) & Trượt Thẻ Bậc Thang
+function triggerCascadeAndNumberRoll() {
+    var cards = document.querySelectorAll('#view-dashboard .phoi-card, #view-dashboard .goal-card, #view-dashboard .phoi-mini-item, #analytics-room > div > div, #trophy-room .phoi-card');
+    cards.forEach(function(c, idx) {
+        c.classList.remove('apex-cascade-anim');
+        void c.offsetWidth; // Reflow để kích hoạt lại animation
+        c.style.animationDelay = Math.min(idx * 0.045, 0.45) + 's';
+        c.classList.add('apex-cascade-anim');
+    });
+
+    // Cuộn số từ 0 lên giá trị thực cho các thẻ chỉ số lớn
+    var statTargets = document.querySelectorAll('.phoi-mini-item strong, #usd-balance, #ft-right-goal-pct');
+    statTargets.forEach(function(el) {
+        if (el.dataset.rolling === 'true') return;
+        var origText = el.innerText.trim();
+        // Chỉ cuộn những chuỗi bắt đầu bằng số (VD: "54 ngày", "98.5 giờ", "330", "100%")
+        var match = origText.match(/^(\d+(?:\.\d+)?)(.*)$/);
+        if (!match) return;
+
+        var endVal = parseFloat(match[1]);
+        var suffix = match[2] || '';
+        var isDecimal = match[1].includes('.');
+        if (isNaN(endVal) || endVal <= 0) return;
+
+        el.dataset.rolling = 'true';
+        var startTime = performance.now();
+        var duration = 950;
+
+        function stepRoll(now) {
+            var progress = Math.min(1, (now - startTime) / duration);
+            // EaseOutExpo
+            var eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+            var current = endVal * eased;
+            el.innerText = (isDecimal ? current.toFixed(1) : Math.round(current)) + suffix;
+            if (progress < 1) {
+                requestAnimationFrame(stepRoll);
+            } else {
+                el.innerText = origText;
+                el.dataset.rolling = 'false';
+            }
+        }
+        requestAnimationFrame(stepRoll);
+    });
+}
+
+// Tự động kích hoạt hiệu ứng bậc thang & cuộn số mỗi khi chuyển Tab
+var _origSwitchTabMotion = window.switchTab;
+window.switchTab = function(tabName) {
+    if (typeof _origSwitchTabMotion === 'function') _origSwitchTabMotion(tabName);
+    setTimeout(function() {
+        enhanceFocusAudioEqualizerBars();
+        triggerCascadeAndNumberRoll();
+    }, 60);
+};
+
 injectApexMotionEngine();
-window.addEventListener('DOMContentLoaded', injectApexMotionEngine);
+setTimeout(injectApexMotionEngine, 600);
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(injectApexMotionEngine, 450);
+});
