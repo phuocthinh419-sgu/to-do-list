@@ -9312,3 +9312,69 @@ setTimeout(injectApexMotionEngine, 350);
 window.addEventListener('DOMContentLoaded', function() {
     setTimeout(injectApexMotionEngine, 250);
 });
+
+// =====================================================================
+// 14. KHÔI PHỤC ÂM TÍCH TẮC KIM ĐỒNG HỒ CƠ HỌC (MECHANICAL CLOCK TICK)
+// =====================================================================
+let mechanicalTickPhase = false;
+
+window.playTick = function() {
+    try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        // Tạo 2 nhịp âm trầm - bổng luân phiên ("Tích - Tắc") chuẩn đồng hồ cơ học
+        mechanicalTickPhase = !mechanicalTickPhase;
+        const startFreq = mechanicalTickPhase ? 1200 : 950;
+
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.028);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(startFreq, now);
+        filter.Q.setValueAtTime(3.5, now);
+
+        // Tăng độ nảy rõ ràng, đanh gọn của kim giây (không bị rè)
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.035);
+    } catch (e) {}
+};
+
+window.toggleTick = function() {
+    isTickOn = !isTickOn;
+
+    // 1. Cập nhật nút ẩn cũ (nếu có)
+    const oldBtn = document.getElementById('btn-tick');
+    if (oldBtn) {
+        oldBtn.innerHTML = `<i class="fa-solid fa-clock"></i> Âm Tích Tắc: ${isTickOn ? 'BẬT' : 'TẮT'}`;
+    }
+
+    // 2. Cập nhật nút trên giao diện Focus Room mới (#ft-tick-text)
+    const ftText = document.getElementById('ft-tick-text');
+    if (ftText) {
+        ftText.innerText = `Âm tích tắc: ${isTickOn ? 'BẬT' : 'TẮT'}`;
+        const parentBtn = ftText.closest('button');
+        if (parentBtn) {
+            parentBtn.style.borderColor = isTickOn ? 'rgba(16, 185, 129, 0.65)' : 'rgba(255, 255, 255, 0.14)';
+            parentBtn.style.background = isTickOn ? 'rgba(16, 185, 129, 0.18)' : 'rgba(17, 22, 40, 0.72)';
+            parentBtn.style.color = isTickOn ? '#34d399' : '#f1f5f9';
+        }
+    }
+
+    // 3. Phát ngay 1 tiếng "Tạch!" xác nhận khi vừa bấm BẬT
+    if (isTickOn) {
+        playTick();
+    }
+};
