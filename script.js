@@ -9314,67 +9314,127 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// 14. KHÔI PHỤC ÂM TÍCH TẮC KIM ĐỒNG HỒ CƠ HỌC (MECHANICAL CLOCK TICK)
+// 14. ĐỒNG HỒ CƠ HỌC TÍCH TẮC V2 (REAL MECHANICAL ESCAPEMENT SOUND
+//     + AUTO-SYNC VỚI NHỊP GIÂY TRÊN MÀN HÌNH)
 // =====================================================================
-let mechanicalTickPhase = false;
+var apexTickAudioCtx = null;
+var apexTickEnabled = false;
+var apexTickHighLow = false;
+var apexLastTickedSecondStr = "";
+
+function getApexTickContext() {
+    if (!apexTickAudioCtx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        apexTickAudioCtx = new AC();
+    }
+    if (apexTickAudioCtx.state === 'suspended') {
+        apexTickAudioCtx.resume();
+    }
+    return apexTickAudioCtx;
+}
 
 window.playTick = function() {
     try {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const now = audioCtx.currentTime;
+        var ctx = getApexTickContext();
+        var now = ctx.currentTime;
+        apexTickHighLow = !apexTickHighLow;
 
-        // Tạo 2 nhịp âm trầm - bổng luân phiên ("Tích - Tắc") chuẩn đồng hồ cơ học
-        mechanicalTickPhase = !mechanicalTickPhase;
-        const startFreq = mechanicalTickPhase ? 1200 : 950;
+        // 1. TẠO XUNG GÕ CƠ HỌC (MECHANICAL CLICK IMPULSE) - Nghe rõ 100% trên mọi loa
+        var bufferSize = Math.floor(ctx.sampleRate * 0.025);
+        var noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        var output = noiseBuffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+            // Hàm mũ tắt dần cực nhanh tạo tiếng "Tạch!" sắc gọn của bánh răng
+            output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.0035));
+        }
 
-        const osc = audioCtx.createOscillator();
-        const filter = audioCtx.createBiquadFilter();
-        const gain = audioCtx.createGain();
+        var whiteNoise = ctx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(startFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(140, now + 0.028);
-
+        var filter = ctx.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(startFreq, now);
-        filter.Q.setValueAtTime(3.5, now);
+        // Luân phiên 2 tần số "Tích" (cao) - "Tắc" (trầm)
+        filter.frequency.setValueAtTime(apexTickHighLow ? 2200 : 1650, now);
+        filter.Q.setValueAtTime(2.2, now);
 
-        // Tăng độ nảy rõ ràng, đanh gọn của kim giây (không bị rè)
-        gain.gain.setValueAtTime(0.18, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+        var noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.65, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.024);
 
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
+        whiteNoise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        whiteNoise.start(now);
 
+        // 2. CỘNG HƯỞNG HỘP ĐỒNG HỒ (BODY RESONANCE THUMP)
+        var osc = ctx.createOscillator();
+        var oscGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(apexTickHighLow ? 850 : 680, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.025);
+
+        oscGain.gain.setValueAtTime(0.35, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.028);
+
+        osc.connect(oscGain);
+        oscGain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.035);
-    } catch (e) {}
+        osc.stop(now + 0.03);
+    } catch (e) {
+        console.error("Tick Audio Error:", e);
+    }
 };
 
 window.toggleTick = function() {
-    isTickOn = !isTickOn;
+    apexTickEnabled = !apexTickEnabled;
+    // Đồng bộ với biến isTickOn gốc của hệ thống
+    try { isTickOn = apexTickEnabled; } catch (e) {}
 
-    // 1. Cập nhật nút ẩn cũ (nếu có)
-    const oldBtn = document.getElementById('btn-tick');
+    var oldBtn = document.getElementById('btn-tick');
     if (oldBtn) {
-        oldBtn.innerHTML = `<i class="fa-solid fa-clock"></i> Âm Tích Tắc: ${isTickOn ? 'BẬT' : 'TẮT'}`;
+        oldBtn.innerHTML = '<i class="fa-solid fa-clock"></i> Âm Tích Tắc: ' + (apexTickEnabled ? 'BẬT' : 'TẮT');
     }
 
-    // 2. Cập nhật nút trên giao diện Focus Room mới (#ft-tick-text)
-    const ftText = document.getElementById('ft-tick-text');
+    var ftText = document.getElementById('ft-tick-text');
     if (ftText) {
-        ftText.innerText = `Âm tích tắc: ${isTickOn ? 'BẬT' : 'TẮT'}`;
-        const parentBtn = ftText.closest('button');
+        ftText.innerText = 'Âm tích tắc: ' + (apexTickEnabled ? 'BẬT' : 'TẮT');
+        var parentBtn = ftText.closest('button');
         if (parentBtn) {
-            parentBtn.style.borderColor = isTickOn ? 'rgba(16, 185, 129, 0.65)' : 'rgba(255, 255, 255, 0.14)';
-            parentBtn.style.background = isTickOn ? 'rgba(16, 185, 129, 0.18)' : 'rgba(17, 22, 40, 0.72)';
-            parentBtn.style.color = isTickOn ? '#34d399' : '#f1f5f9';
+            parentBtn.style.borderColor = apexTickEnabled ? 'rgba(16, 185, 129, 0.7)' : 'rgba(255, 255, 255, 0.14)';
+            parentBtn.style.background = apexTickEnabled ? 'rgba(16, 185, 129, 0.22)' : 'rgba(17, 22, 40, 0.72)';
+            parentBtn.style.color = apexTickEnabled ? '#34d399' : '#f1f5f9';
         }
     }
 
-    // 3. Phát ngay 1 tiếng "Tạch!" xác nhận khi vừa bấm BẬT
-    if (isTickOn) {
-        playTick();
+    // Khi vừa bấm BẬT: Mở khóa AudioContext ngay lập tức và gõ thử 2 nhịp "Tích - Tắc"
+    if (apexTickEnabled) {
+        getApexTickContext();
+        window.playTick();
+        setTimeout(function() {
+            if (apexTickEnabled) window.playTick();
+        }, 500);
     }
 };
+
+// Bộ cảm biến độc lập: Tự động gõ "Tích - Tắc" mỗi khi đồng hồ trong Focus Room nhảy giây mới!
+if (!window._apexMechanicalTickWatcher) {
+    window._apexMechanicalTickWatcher = setInterval(function() {
+        if (!apexTickEnabled) return;
+        var focusRoom = document.getElementById('focus-room');
+        if (!focusRoom || focusRoom.style.display === 'none') return;
+
+        var origPauseBtn = document.getElementById('btn-pause');
+        var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none');
+        var currentlyPaused = (typeof isPaused !== 'undefined' && isPaused);
+        if (!isRunning || currentlyPaused) return;
+
+        var timerEl = document.getElementById('ft-time-display') || document.getElementById('session-timer');
+        if (!timerEl) return;
+        var curStr = timerEl.innerText.trim();
+
+        if (curStr && curStr !== "00:00" && curStr !== apexLastTickedSecondStr) {
+            apexLastTickedSecondStr = curStr;
+            window.playTick();
+        }
+    }, 200);
+}
