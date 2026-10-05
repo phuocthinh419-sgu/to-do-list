@@ -8359,12 +8359,13 @@ window.processAiBulkScheduleInput = function() {
         });
     });
 
-    localStorage.setItem('timetableData', JSON.stringify(timetableData));
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    localStorage.setItem('saasLastUpdated', Date.now());
     if (typeof syncToCloud === 'function') syncToCloud();
     if (typeof renderTimetable === 'function') renderTimetable();
     renderBentoCommandCenter();
     document.getElementById('apex-ai-tt-modal').style.display = 'none';
-    alert("✅ Trợ lý AI đã bóc tách và thêm thành công " + addedCount + " ca vào Thời khóa biểu!");
+    alert("✅ Trợ lý AI đã phân tích và lưu thành công " + addedCount + " ca vào Thời khóa biểu!");
 };
 
 // Hàm AI Tự động quét khe trống trong tuần và xếp lịch học các Mục tiêu theo tiến độ
@@ -8383,15 +8384,15 @@ window.runAiAutoFillGoalSchedule = function() {
         return !String(item.name || '').startsWith('[AI]');
     });
 
-    // Sắp xếp mục tiêu theo độ ưu tiên (Môn còn nhiều giờ cần cày xếp trước)
+    // Sắp xếp mục tiêu theo độ ưu tiên (Môn còn nhiều giờ cần học xếp trước)
     var sortedGoals = activeGoals.slice().sort(function(a, b) {
         return Number(b.current || 0) - Number(a.current || 0);
     });
 
     var now = new Date();
-    var startStr = now.toISOString().split('T')[0];
+    var startStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     var endD = new Date(now); endD.setDate(endD.getDate() + 14);
-    var endStr = endD.toISOString().split('T')[0];
+    var endStr = endD.getFullYear() + '-' + String(endD.getMonth() + 1).padStart(2, '0') + '-' + String(endD.getDate()).padStart(2, '0');
 
     var shiftsOrder = [
         { key: 'toi', code: '20h00-21h00', label: 'Ca Tối (Giờ vàng)' },
@@ -8406,7 +8407,6 @@ window.runAiAutoFillGoalSchedule = function() {
     var daysOrder = [1, 2, 3, 4, 5, 6, 0];
     daysOrder.forEach(function(dowNum) {
         var dayItems = timetableData.filter(function(it) { return parseInt(it.dow, 10) === dowNum; });
-        // Nếu ngày hôm đó đã có từ 3 ca trở lên thì AI cho nghỉ ngơi, không nhồi thêm
         if (dayItems.length >= 3) return;
 
         for (var s = 0; s < shiftsOrder.length; s++) {
@@ -8417,24 +8417,27 @@ window.runAiAutoFillGoalSchedule = function() {
                 var leftHrs = Number(targetGoal.current || 0).toFixed(1);
                 timetableData.push({
                     id: Date.now() + Math.floor(Math.random() * 10000) + scheduledCount,
+                    type: 'online',
                     dow: dowNum,
                     shift: sh.key,
                     name: "[AI] 🎯 " + targetGoal.name,
                     code: sh.code,
                     room: "Còn " + leftHrs + "h",
+                    teacher: "",
                     startDate: startStr,
                     endDate: endStr,
                     pausedDates: []
                 });
                 scheduledCount++;
                 goalIdx++;
-                break; // Mỗi ngày AI chỉ chèn 1 ca mục tiêu trọng tâm vào khe trống tốt nhất để đảm bảo kỷ luật bền vững
+                break;
             }
         }
     });
 
-    localStorage.setItem('timetableData', JSON.stringify(timetableData));
-    if (typeof saveData === 'function') saveData();
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    localStorage.setItem('saasLastUpdated', Date.now());
+    if (typeof syncToCloud === 'function') syncToCloud();
     if (typeof renderTimetable === 'function') renderTimetable();
     renderBentoCommandCenter();
     alert("🤖 AI đã phân tích khe trống trong tuần và xếp tự động " + scheduledCount + " phiên học Mục tiêu vào Thời khóa biểu!");
@@ -8447,11 +8450,12 @@ window.clearAiGeneratedSchedules = function() {
         return !String(item.name || '').startsWith('[AI]');
     });
     var removed = beforeLen - timetableData.length;
-    localStorage.setItem('timetableData', JSON.stringify(timetableData));
-    if (typeof saveData === 'function') saveData();
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    localStorage.setItem('saasLastUpdated', Date.now());
+    if (typeof syncToCloud === 'function') syncToCloud();
     if (typeof renderTimetable === 'function') renderTimetable();
     renderBentoCommandCenter();
-    alert("🧹 Đã dọn sạch " + removed + " ca tự học do [AI] đề xuất (Giữ nguyên toàn bộ lịch cố định của Bệ hạ).");
+    alert("🧹 Đã dọn sạch " + removed + " ca tự học do [AI] đề xuất (Giữ nguyên toàn bộ lịch cố định của bạn).");
 };
 
 var origSwitchTabV4 = window.switchTab;
