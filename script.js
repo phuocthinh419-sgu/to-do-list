@@ -8825,7 +8825,7 @@ function drawApexCanvasPipFrame() {
 
 // =====================================================================
 // 13. APEX MOTION ENGINE V5 (FULL DASHBOARD + ANALYTICS + TROPHY
-//     LIVING SVGs, WAVE BARS, ROTATING DONUT & INSIGHT MICRO-MOTIONS)
+//     LIVING SVGs, WAVE BARS, ROTATING DONUT & LUXURY MEDAL FOIL)
 // =====================================================================
 function injectApexMotionEngine() {
     var oldCss = document.getElementById('apex-motion-engine-css');
@@ -9011,7 +9011,6 @@ function injectApexMotionEngine() {
         /* =========================================================
            3. CHUYỂN ĐỘNG TRANG PHÂN TÍCH TIẾN ĐỘ (ANALYTICS LIVING MOTION)
            ========================================================= */
-        /* 3.1. Cột biểu đồ mọc từ đáy theo sóng bậc thang + Dòng năng lượng dâng lên */
         @keyframes apexAnalyticsBarGrow {
             0%   { transform: scaleY(0.02); opacity: 0; }
             100% { transform: scaleY(1);    opacity: 1; }
@@ -9041,7 +9040,6 @@ function injectApexMotionEngine() {
             animation: apexPeakBadgeFloat 2.4s ease-in-out infinite !important;
         }
 
-        /* 3.2. Biểu đồ Tròn Donut (Xoay mở màn + Vành sáng năng lượng quét quanh chu vi) */
         @keyframes apexDonutEntrance {
             0%   { transform: rotate(-120deg) scale(0.82); opacity: 0; }
             100% { transform: rotate(0deg) scale(1); opacity: 1; }
@@ -9056,11 +9054,8 @@ function injectApexMotionEngine() {
                        apexDonutHaloPulse 4s ease-in-out infinite !important;
             transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .apex-donut-ring:hover {
-            transform: scale(1.05);
-        }
+        .apex-donut-ring:hover { transform: scale(1.05); }
 
-        /* 3.3. Chuyển động cho 3 Icon Insight (Bóng đèn phát sáng, Cán cân đung đưa, Mũi tên bay lên) */
         @keyframes apexBulbIdeaGlow {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(192, 132, 252, 0.3)); }
             50%      { transform: scale(1.16); filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.95)); color: #fde047; }
@@ -9074,18 +9069,15 @@ function injectApexMotionEngine() {
             0%, 100% { transform: translate(0, 0); }
             50%      { transform: translate(2.5px, -2.5px); filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)); }
         }
-        .fa-lightbulb { display: inline-block; animation: apexBulbIdeaGlow 2.4s ease-in-out infinite; }
+        .fa-lightbulb      { display: inline-block; animation: apexBulbIdeaGlow 2.4s ease-in-out infinite; }
         .fa-scale-balanced { display: inline-block; transform-origin: top center; animation: apexScaleTilt 3.2s ease-in-out infinite; }
         .fa-arrow-trend-up { display: inline-block; animation: apexTrendArrowUp 2s ease-in-out infinite; }
 
-        /* 3.4. Chấm màu chú thích Donut & các dòng mục tiêu trong Bảng dữ liệu */
         @keyframes apexDotPulse {
             0%, 100% { transform: scale(1); opacity: 0.85; }
             50%      { transform: scale(1.35); opacity: 1; }
         }
-        .apex-legend-dot {
-            animation: apexDotPulse 2.4s ease-in-out infinite;
-        }
+        .apex-legend-dot { animation: apexDotPulse 2.4s ease-in-out infinite; }
         .apex-analytics-stat-card {
             transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
         }
@@ -9096,7 +9088,7 @@ function injectApexMotionEngine() {
         }
 
         /* =========================================================
-           4. CHUYỂN ĐỘNG CHUNG TRÊN DASHBOARD, TROPHY & FOCUS ROOM
+           4. CHUYỂN ĐỘNG CHUNG TRÊN DASHBOARD & FOCUS ROOM
            ========================================================= */
         @keyframes apexWaveHand {
             0%, 60%, 100% { transform: rotate(0deg); }
@@ -9179,6 +9171,53 @@ function injectApexMotionEngine() {
         .apex-eq-bars span:nth-child(2) { animation-delay: 0.2s; animation-duration: 0.6s; }
         .apex-eq-bars span:nth-child(3) { animation-delay: 0.4s; animation-duration: 0.9s; }
         .apex-eq-bars span:nth-child(4) { animation-delay: 0.15s; animation-duration: 0.7s; }
+
+        /* =========================================================
+           5. CHUYỂN ĐỘNG PHÒNG THÀNH TỰU (LUXURY MEDAL FOIL & HOVER)
+           ========================================================= */
+        @keyframes apexMedalFoilSweep {
+            0%, 72%   { transform: translateX(-140%) rotate(25deg); opacity: 0; }
+            82%       { opacity: 0.75; }
+            92%, 100% { transform: translateX(180%) rotate(25deg); opacity: 0; }
+        }
+        @keyframes apexMasterTrophyFloat {
+            0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.35)); }
+            50%      { transform: translateY(-3px) scale(1.05); filter: drop-shadow(0 8px 22px rgba(168, 85, 247, 0.65)); }
+        }
+        @keyframes apexTrophyCardStagger {
+            0%   { opacity: 0; transform: translateY(14px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .apex-master-trophy-hex {
+            animation: apexMasterTrophyFloat 3.5s ease-in-out infinite !important;
+        }
+        .hex-icon {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), filter 0.32s ease !important;
+        }
+        .apex-unlocked-medal .hex-icon::after {
+            content: "";
+            position: absolute;
+            top: -40%; left: -40%;
+            width: 55%; height: 180%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+            pointer-events: none;
+            animation: apexMedalFoilSweep 6.5s ease-in-out infinite;
+            animation-delay: var(--foil-delay, 0s);
+        }
+        #trophy-room .phoi-card:hover .hex-icon {
+            transform: translateY(-3px) scale(1.1) rotate(-4deg) !important;
+            filter: drop-shadow(0 6px 16px rgba(168, 85, 247, 0.55));
+        }
+        #trophy-room .phoi-card:hover .hex-icon i {
+            transform: scale(1.15);
+            transition: transform 0.25s ease;
+        }
+        .apex-trophy-stagger-in {
+            animation: apexTrophyCardStagger 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        }
     `;
     document.head.appendChild(st);
 
@@ -9263,7 +9302,7 @@ function getRadarTargetSVGMarkup(isEmerald) {
     </div>`;
 }
 
-// 5. SVG Đồng Hồ Kim Xoay Liên Tục (Dành cho ô Tổng thời gian ở trang Phân tích)
+// 5. SVG Đồng Hồ Kim Xoay Liên Tục
 function getSpinningClockSVGMarkup() {
     return `
     <div class="apex-hero-svg-box apex-clock-box" title="Tổng thời gian học tập">
@@ -9317,7 +9356,6 @@ function upgradeAllLivingIconsAndWidgets() {
 function upgradeAnalyticsLivingAnimations() {
     var room = document.getElementById('analytics-room');
     if (room && room.style.display !== 'none') {
-        // 1. Nâng cấp 5 thẻ chỉ số ngang đầu trang Phân tích (Clock, Hourglass, Target, Crown, Flame)
         var iconHolders = room.querySelectorAll('div[style*="width:38px"][style*="height:38px"]');
         iconHolders.forEach(function(holder) {
             var parentCard = holder.parentElement;
@@ -9332,47 +9370,66 @@ function upgradeAnalyticsLivingAnimations() {
             else if (cls.includes('fa-fire'))       holder.outerHTML = getPlasmaFlameSVGMarkup();
         });
 
-        // 2. Gắn hiệu ứng sóng mọc từ đáy + luồng năng lượng cho các cột biểu đồ 7/30/90/365 ngày
         var barFills = room.querySelectorAll('div[style*="height:130px"] > div');
         barFills.forEach(function(bar, idx) {
             bar.classList.add('apex-analytics-bar-fill');
             bar.style.animationDelay = Math.min(idx * 0.022, 0.55) + 's';
         });
 
-        // 3. Huy hiệu đỉnh cột cao nhất (VD: 3.0h) bồng bềnh phát sáng
         var peakBadges = room.querySelectorAll('div[style*="background:#7c3aed"][style*="position:absolute"]');
         peakBadges.forEach(function(b) {
             b.classList.add('apex-peak-badge');
         });
 
-        // 4. Vòng tròn Donut (128x128) xoay mở màn + hào quang nhịp thở
         var donutEl = room.querySelector('div[style*="conic-gradient"]');
         if (donutEl) {
             donutEl.classList.add('apex-donut-ring');
         }
 
-        // 5. Các chấm tròn màu ở chú thích Donut nhấp nháy
         room.querySelectorAll('span[style*="width:8px"][style*="height:8px"][style*="border-radius:50%"]').forEach(function(dot, idx) {
             dot.classList.add('apex-legend-dot');
             dot.style.animationDelay = (idx * 0.25) + 's';
         });
 
-        // 6. Toàn bộ 26 thanh tiến độ trong "Bảng dữ liệu toàn bộ mục tiêu" bên dưới có dòng sáng Shimmer
         room.querySelectorAll('div[style*="height:6px"] > div').forEach(function(fill) {
             fill.classList.add('apex-shimmer-bar');
         });
 
-        // 7. Các thẻ Insight bên dưới nâng nhẹ khi rê chuột
         room.querySelectorAll('.phoi-row-3col > div').forEach(function(insCard) {
             insCard.classList.add('apex-analytics-stat-card');
         });
     }
 
-    // Gắn luôn dòng chảy ánh sáng cho thanh tổng kết trên trang Thành tựu & Lưu trữ (#trophy-room)
+    // Kích hoạt hiệu ứng Phòng Thành tựu & Lưu trữ (#trophy-room)
     var trophyRoom = document.getElementById('trophy-room');
     if (trophyRoom && trophyRoom.style.display !== 'none') {
+        // 1. Thanh tiến độ tổng 63% chảy sóng ánh sáng
         trophyRoom.querySelectorAll('div[style*="height:8px"] > div').forEach(function(fill) {
             fill.classList.add('apex-shimmer-bar');
+        });
+
+        // 2. Chiếc Cúp Lục Giác Tổng (19/30 Thành tựu) bồng bềnh phát sáng
+        var masterHex = trophyRoom.querySelector('.phoi-card:first-child .hex-icon');
+        if (masterHex) {
+            masterHex.classList.add('apex-master-trophy-hex');
+        }
+
+        // 3. Phân biệt thẻ ĐÃ ĐẠT (có ánh kim loại lệch nhịp) và hiệu ứng mở màn bậc thang
+        var allTrophyCards = trophyRoom.querySelectorAll('.phoi-card');
+        allTrophyCards.forEach(function(card, idx) {
+            if (idx > 0) {
+                card.classList.remove('apex-trophy-stagger-in');
+                void card.offsetWidth;
+                card.style.animationDelay = Math.min(idx * 0.025, 0.45) + 's';
+                card.classList.add('apex-trophy-stagger-in');
+            }
+            if (card.innerText.includes('Đã đạt') || card.innerText.includes('HOÀN THÀNH 100%')) {
+                card.classList.add('apex-unlocked-medal');
+                var hex = card.querySelector('.hex-icon');
+                if (hex) {
+                    hex.style.setProperty('--foil-delay', ((idx % 7) * 0.85).toFixed(2) + 's');
+                }
+            }
         });
     }
 }
@@ -9388,7 +9445,7 @@ function enhanceFocusAudioEqualizerBars() {
     });
 }
 
-// Tự động móc vào renderBentoCommandCenter, renderAnalytics và syncFocusRoomData
+// Tự động móc vào renderBentoCommandCenter, renderAnalytics, renderMasterTrophyAndArchive và syncFocusRoomData
 var _origRenderBentoV5 = window.renderBentoCommandCenter;
 window.renderBentoCommandCenter = function() {
     if (typeof _origRenderBentoV5 === 'function') _origRenderBentoV5();
