@@ -9478,3 +9478,145 @@ setTimeout(injectApexMotionEngine, 350);
 window.addEventListener('DOMContentLoaded', function() {
     setTimeout(injectApexMotionEngine, 250);
 });
+
+// =====================================================================
+// 14. BỘ ĐẾM NGƯỢC GIỜ GIỚI NGHIÊM THỜI GIAN THỰC (ALWAYS-ON CURFEW TIMER)
+// =====================================================================
+function initAndRunCurfewCountdown() {
+    // 1. Tìm ô input Giờ giới nghiêm trên Sidebar
+    var curfewInput = document.getElementById('curfew-time')
+                   || document.querySelector('input[type="time"]');
+    if (!curfewInput) return;
+
+    // Đồng bộ giá trị đã lưu từ localStorage nếu ô input đang trống
+    var savedCurfew = localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime');
+    if (savedCurfew && !curfewInput.value) {
+        curfewInput.value = savedCurfew;
+    }
+
+    // 2. Đảm bảo luôn có hộp hiển thị "Còn lại: ..." nằm ngay dưới ô input
+    var badge = document.getElementById('apex-curfew-live-badge');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'apex-curfew-live-badge';
+        badge.style.cssText = [
+            "margin-top: 7px",
+            "padding: 6px 10px",
+            "border-radius: 9px",
+            "font-size: 0.74rem",
+            "font-weight: 700",
+            "display: flex",
+            "align-items: center",
+            "justify-content: space-between",
+            "gap: 6px",
+            "background: rgba(15, 23, 42, 0.65)",
+            "border: 1px solid rgba(56, 189, 248, 0.25)",
+            "color: #bae6fd",
+            "transition: all 0.3s ease"
+        ].join(";");
+
+        // Chèn ngay bên dưới khối chứa input (hoặc ngay sau input)
+        var wrap = curfewInput.closest('.curfew-box, .sidebar-section, div') || curfewInput.parentElement;
+        if (wrap) {
+            wrap.appendChild(badge);
+        } else {
+            curfewInput.insertAdjacentElement('afterend', badge);
+        }
+
+        // Lắng nghe khi người dùng đổi giờ giới nghiêm -> Lưu và cập nhật tức thì
+        curfewInput.addEventListener('change', function() {
+            if (curfewInput.value) {
+                localStorage.setItem('saasCurfewTime', curfewInput.value);
+                localStorage.setItem('curfewTime', curfewInput.value);
+                localStorage.setItem('saasLastUpdated', Date.now());
+                if (typeof syncToCloud === 'function') syncToCloud();
+            }
+            updateCurfewBadgeTick();
+        });
+    }
+
+    // Ẩn các dòng đếm ngược cũ bị lỗi chập chờn (nếu có) để tránh trùng lặp
+    ['curfew-countdown', 'curfew-remaining', 'curfew-timer-text'].forEach(function(oldId) {
+        var oldEl = document.getElementById(oldId);
+        if (oldEl && oldEl !== badge) oldEl.style.display = 'none';
+    });
+
+    updateCurfewBadgeTick();
+}
+
+function updateCurfewBadgeTick() {
+    var curfewInput = document.getElementById('curfew-time')
+                   || document.querySelector('input[type="time"]');
+    var badge = document.getElementById('apex-curfew-live-badge');
+    if (!curfewInput || !badge) return;
+
+    var timeVal = (curfewInput.value || localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime') || "").trim();
+    if (!timeVal || !timeVal.includes(':')) {
+        badge.style.display = 'flex';
+        badge.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+        badge.style.color = '#94a3b8';
+        badge.innerHTML = '<span><i class="fa-regular fa-clock"></i> Trạng thái:</span> <strong>Chưa đặt giờ</strong>';
+        return;
+    }
+
+    var parts = timeVal.split(':');
+    var targetH = parseInt(parts[0], 10);
+    var targetM = parseInt(parts[1], 10);
+    if (isNaN(targetH) || isNaN(targetM)) return;
+
+    var now = new Date();
+    var targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), targetH, targetM, 0, 0);
+
+    var diffMs = targetDate.getTime() - now.getTime();
+
+    // Kiểm tra xem hiện tại có đang trong khung giờ giới nghiêm (từ giờ thiết lập đến 05:00 sáng hôm sau) hay không
+    var isPastCurfewTonight = (diffMs <= 0 && diffMs > -5 * 3600 * 1000);
+    var isEarlyMorningCurfew = false;
+
+    if (diffMs <= -5 * 3600 * 1000) {
+        // Nếu đã qua khung giới nghiêm hơn 5 tiếng (tức là sang ngày mới), tính tới giờ giới nghiêm tối nay
+        targetDate.setDate(targetDate.getDate() + 1);
+        diffMs = targetDate.getTime() - now.getTime();
+    } else if (now.getHours() < 5 && targetH >= 20) {
+        // Trường hợp cài giới nghiêm tối (VD 23:30) mà hiện tại là 00:30 sáng
+        isEarlyMorningCurfew = true;
+    }
+
+    badge.style.display = 'flex';
+
+    if (isPastCurfewTonight || isEarlyMorningCurfew) {
+        badge.style.background = 'rgba(225, 29, 72, 0.18)';
+        badge.style.borderColor = 'rgba(244, 63, 94, 0.55)';
+        badge.style.color = '#fda4af';
+        badge.innerHTML = '<span><i class="fa-solid fa-moon fa-beat-fade" style="color:#f43f5e;"></i> Đã tới giờ nghỉ</span> <strong>GIỚI NGHIÊM</strong>';
+        return;
+    }
+
+    var totalSec = Math.max(0, Math.floor(diffMs / 1000));
+    var hrs  = Math.floor(totalSec / 3600);
+    var mins = Math.floor((totalSec % 3600) / 60);
+    var secs = totalSec % 60;
+
+    var timeFormatted = (hrs > 0 ? (hrs + 'g ') : '') +
+                        String(mins).padStart(2, '0') + 'p ' +
+                        String(secs).padStart(2, '0') + 's';
+
+    // Đổi màu cảnh báo khi còn dưới 60 phút
+    if (totalSec <= 3600) {
+        badge.style.background = 'rgba(245, 158, 11, 0.16)';
+        badge.style.borderColor = 'rgba(251, 191, 36, 0.5)';
+        badge.style.color = '#fde68a';
+        badge.innerHTML = '<span><i class="fa-solid fa-hourglass-half fa-spin" style="color:#fbbf24; --fa-animation-duration:4s;"></i> Sắp tới giờ:</span> <strong style="color:#fef08a; font-variant-numeric:tabular-nums;">' + timeFormatted + '</strong>';
+    } else {
+        badge.style.background = 'rgba(15, 23, 42, 0.65)';
+        badge.style.borderColor = 'rgba(56, 189, 248, 0.28)';
+        badge.style.color = '#cbd5e1';
+        badge.innerHTML = '<span><i class="fa-regular fa-clock" style="color:#38bdf8;"></i> Còn lại:</span> <strong style="color:#38bdf8; font-variant-numeric:tabular-nums;">' + timeFormatted + '</strong>';
+    }
+}
+
+initAndRunCurfewCountdown();
+if (!window._apexCurfewInterval) {
+    window._apexCurfewInterval = setInterval(initAndRunCurfewCountdown, 1000);
+}
+window.addEventListener('DOMContentLoaded', initAndRunCurfewCountdown);
