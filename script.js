@@ -4470,6 +4470,8 @@ let isFreeRestMode = (localStorage.getItem('saasRestModeDate') === todayRestChec
 function saveDispatchState() {
     localStorage.setItem('saasDispatchRate', dispatchRate);
     localStorage.setItem('saasConsecutiveRejects', consecutiveRejects);
+    localStorage.setItem('saasLastUpdated', Date.now());
+    if (typeof syncToCloud === 'function') syncToCloud();
 }
 
 function normalizeText(str) {
@@ -4570,6 +4572,7 @@ function handleDispatchRestAction() {
     let qInfo = getTodayDispatchQuotaInfo();
     let todayStr = getLocalTodayStr();
 
+    // 1. Khi đã đủ định mức ngày: Bật/Tắt chế độ Tạm nghỉ
     if (qInfo.isQuotaMet) {
         isFreeRestMode = !isFreeRestMode;
         if (isFreeRestMode) {
@@ -4581,30 +4584,36 @@ function handleDispatchRestAction() {
             localStorage.setItem('saasManualOnlineDate', todayStr);
             scheduleIdleDispatch(45000);
         }
+        localStorage.setItem('saasLastUpdated', Date.now());
         if (typeof syncToCloud === 'function') syncToCloud();
         renderDispatchStatusWidget();
         return;
     }
 
+    // 2. Nếu đang trong thời gian Hoãn 15p -> Bấm vào sẽ HỦY HOÃN và lưu ngay lên Cloud
     if (Date.now() < dispatchSnoozeUntil) {
         dispatchSnoozeUntil = 0;
         localStorage.setItem('saasDispatchSnoozeUntil', '0');
+        localStorage.setItem('saasLastUpdated', Date.now());
+        if (typeof syncToCloud === 'function') syncToCloud();
         scheduleIdleDispatch(45000);
         renderDispatchStatusWidget();
         return;
     }
 
+    // 3. Nếu chưa Hoãn -> Kiểm tra lượt Hoãn 15p miễn phí trong ngày hoặc trừ $30
     let freeUsedDate = localStorage.getItem('saasFreeSnoozeDate');
     let isFreeAvailable = (freeUsedDate !== todayStr);
 
     if (isFreeAvailable) {
-        if (confirm(`Bạn chưa hoàn thành định mức hôm nay (${qInfo.doneHrs.toFixed(2)}h / ${qInfo.requiredHrs}h).\n\nKích hoạt 1 lượt HOÃN ĐIỀU PHỐI 15 PHÚT miễn phí trong ngày để xem thống kê hoặc sắp xếp lịch trình?`)) {
+        if (confirm(`Bạn chưa hoàn thành định mức hôm nay (${qInfo.doneHrs.toFixed(2)}h / ${qInfo.requiredHrs}h).\n\nKích hoạt 1 lượt HOÃN ĐIỀU PHỐI 15 PHÚT miễn phí trong ngày?`)) {
             localStorage.setItem('saasFreeSnoozeDate', todayStr);
             dispatchSnoozeUntil = Date.now() + 15 * 60 * 1000;
-            localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+            localStorage.setItem('saasDispatchSnoozeUntil', String(dispatchSnoozeUntil));
+            localStorage.setItem('saasLastUpdated', Date.now());
+            if (typeof syncToCloud === 'function') syncToCloud();
             clearTimeout(idleDispatchTimer);
             renderDispatchStatusWidget();
-            setTimeout(() => { renderDispatchStatusWidget(); scheduleIdleDispatch(15000); }, 15 * 60 * 1000 + 500);
         }
     } else {
         let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
@@ -4616,10 +4625,11 @@ function handleDispatchRestAction() {
             localStorage.setItem('usdBalance', usd - 30);
             if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
             dispatchSnoozeUntil = Date.now() + 15 * 60 * 1000;
-            localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+            localStorage.setItem('saasDispatchSnoozeUntil', String(dispatchSnoozeUntil));
+            localStorage.setItem('saasLastUpdated', Date.now());
+            if (typeof syncToCloud === 'function') syncToCloud();
             clearTimeout(idleDispatchTimer);
             renderDispatchStatusWidget();
-            setTimeout(() => { renderDispatchStatusWidget(); scheduleIdleDispatch(15000); }, 15 * 60 * 1000 + 500);
         }
     }
 }
@@ -8487,19 +8497,18 @@ window.renderDashboard = function() {
 };
 
 function safeLockDispatchIfQuotaDone() {
-    if (!hasRestoredDispatchPenalty) {
-        hasRestoredDispatchPenalty = true;
-        if (typeof dispatchRate !== 'undefined' && dispatchRate < 85) {
-            dispatchRate = 85; localStorage.setItem('saasDispatchRate', '85');
-        }
-        if (typeof consecutiveRejects !== 'undefined') consecutiveRejects = 0;
-        localStorage.setItem('saasConsecutiveRejects', '0');
-    }
-
     var todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : new Date().toISOString().split('T')[0];
     var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { isQuotaMet: false };
 
-    // Nếu hôm nay ĐÃ ĐỦ KPI và Bệ hạ không chủ động bấm "Bật Trực tuyến", tự động khóa cứng ở chế độ Tạm nghỉ!
+    // Đồng bộ lại biến từ localStorage phòng trường hợp Cloud vừa tải về
+    if (typeof dispatchSnoozeUntil !== 'undefined') {
+        dispatchSnoozeUntil = parseInt(localStorage.getItem('saasDispatchSnoozeUntil')) || 0;
+    }
+    if (typeof dispatchRate !== 'undefined') {
+        var savedRate = parseInt(localStorage.getItem('saasDispatchRate'));
+        if (!isNaN(savedRate)) dispatchRate = savedRate;
+    }
+
     if (qInfo.isQuotaMet) {
         var manualOnlineToday = (localStorage.getItem('saasManualOnlineDate') === todayStr);
         if (!manualOnlineToday) {
@@ -8511,7 +8520,6 @@ function safeLockDispatchIfQuotaDone() {
             }
         }
     } else {
-        // Nếu sang ngày mới chưa đủ KPI thì mở lại Trực tuyến bình thường
         if (localStorage.getItem('saasRestModeDate') === todayStr) {
             localStorage.removeItem('saasRestModeDate');
         }
