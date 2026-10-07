@@ -3567,7 +3567,7 @@ function renderRecommendations() {
     let topRecoms = recommendations.slice(0, 3);
     
     if(topRecoms.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay chuẩn bị cấp bách nào. Bệ hạ có thể tự do cày cuốc các môn học!</div>`;
+        container.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; border: 1px dashed var(--border); border-radius: 12px; background: rgba(0,0,0,0.02);">Hệ thống đã phân tích: Không có đề xuất ôn tập hay sự chuẩn bị gấp rút nào. Bạn có thể tự do cày cuốc các môn học!</div>`;
         return;
     }
 
@@ -5948,10 +5948,10 @@ window.selectApexThemePreset = function(presetId) {
     if (!isOwned) {
         var currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
         if (currentUsd < p.price) {
-            alert("🔒 Chủ đề [" + p.name + "] có giá $" + p.price.toLocaleString() + " USD.\nQuỹ thưởng hiện tại của Bệ hạ là $" + currentUsd.toLocaleString() + " USD (Còn thiếu $" + (p.price - currentUsd).toLocaleString() + " USD).");
+            alert("🔒 Chủ đề [" + p.name + "] có giá $" + p.price.toLocaleString() + " USD.\nQuỹ thưởng hiện tại của Bạn là $" + currentUsd.toLocaleString() + " USD (Còn thiếu $" + (p.price - currentUsd).toLocaleString() + " USD).");
             return;
         }
-        if (!confirm("💎 Bệ hạ có muốn chi $" + p.price.toLocaleString() + " USD để mở khóa vĩnh viễn chủ đề [" + p.name + "] không?")) {
+        if (!confirm("💎 Bạn có muốn chi $" + p.price.toLocaleString() + " USD để mở khóa vĩnh viễn chủ đề [" + p.name + "] không?")) {
             return;
         }
         currentUsd -= p.price;
@@ -7830,9 +7830,9 @@ if (!window._apexGlobalSendHooked) {
 window.copyMyInboxUid = function(uidText) {
     if (!uidText) return;
     navigator.clipboard.writeText(uidText).then(function() {
-        alert("✅ Đã sao chép Mã ID của Bệ hạ:\n" + uidText);
+        alert("✅ Đã sao chép Mã ID của Bạn:\n" + uidText);
     }).catch(function() {
-        prompt("Sao chép Mã ID của Bệ hạ:", uidText);
+        prompt("Sao chép Mã ID của Bạn:", uidText);
     });
 };
 
@@ -8290,7 +8290,7 @@ window.openAiSmartScheduleModal = function() {
 
 window.processAiBulkScheduleInput = function() {
     var raw = (document.getElementById('ai-bulk-schedule-input') ? document.getElementById('ai-bulk-schedule-input').value : '').trim();
-    if (!raw) { alert("Bệ hạ vui lòng nhập ít nhất 1 dòng lịch học!"); return; }
+    if (!raw) { alert("Bạn vui lòng nhập ít nhất 1 dòng lịch học!"); return; }
 
     var startDate = document.getElementById('ai-tt-start').value || new Date().toISOString().split('T')[0];
     var endDate = document.getElementById('ai-tt-end').value || startDate;
@@ -9217,6 +9217,52 @@ function injectApexMotionEngine() {
         }
         .apex-trophy-stagger-in {
             animation: apexTrophyCardStagger 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        }
+
+        /* =========================================================
+           6. TỐI ƯU HÓA RIÊNG CHO ĐIỆN THOẠI (MOBILE & TOUCH SAFE)
+           ========================================================= */
+        @media (max-width: 768px) {
+            /* Tắt triệt để lỗi "Kẹt Hover" trên màn hình cảm ứng */
+            .phoi-card:hover, #dashboard-grid .goal-card:hover, 
+            .ft-card:hover, .apex-analytics-stat-card:hover,
+            #trophy-room .phoi-card:hover .hex-icon {
+                transform: none !important;
+                border-color: inherit !important;
+                box-shadow: none !important;
+                filter: none !important;
+            }
+            #trophy-room .phoi-card:hover .hex-icon i { transform: none !important; }
+
+            /* Tắt các tia sáng quét (Aurora) gây rối mắt trên màn hình hẹp */
+            .phoi-card::before, #dashboard-grid .goal-card::before { 
+                display: none !important; 
+            }
+
+            /* Thu nhỏ tỷ lệ Quỹ đạo hạt nhân & Biểu đồ Donut để chống tràn viền */
+            .phoi-orbit-box { 
+                transform: scale(0.65) !important; 
+                transform-origin: center center !important; 
+                margin: 0 auto !important; 
+            }
+            .apex-donut-ring { 
+                transform: scale(0.9) !important; 
+            }
+            .apex-donut-ring:hover { 
+                transform: scale(0.9) !important; 
+            }
+            
+            /* Căn chỉnh lại bộ 4 Icon Vector (Cát chảy, Plasma...) cho đỡ chật */
+            .apex-hero-svg-box {
+                transform: scale(0.9);
+                margin-right: 6px !important;
+            }
+
+            /* Tiết kiệm Pin (Battery Saver): Tắt hào quang nhịp thở vòng tròn Focus */
+            .ft-ring-box { 
+                animation: none !important; 
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+            }
         }
     `;
     document.head.appendChild(st);
