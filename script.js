@@ -8826,6 +8826,7 @@ function drawApexCanvasPipFrame() {
 // =====================================================================
 // 13. APEX MOTION ENGINE V5 (FULL DASHBOARD + ANALYTICS + TROPHY
 //     LIVING SVGs, WAVE BARS, ROTATING DONUT & LUXURY MEDAL FOIL)
+//     + MOBILE RESPONSIVE CHART PROTECTION
 // =====================================================================
 function injectApexMotionEngine() {
     var oldCss = document.getElementById('apex-motion-engine-css');
@@ -9220,7 +9221,25 @@ function injectApexMotionEngine() {
         }
 
         /* =========================================================
-           6. TỐI ƯU HÓA RIÊNG CHO ĐIỆN THOẠI (MOBILE & TOUCH SAFE)
+           6. ÉP TỶ LỆ BIỂU ĐỒ 30 NGÀY CHO ĐIỆN THOẠI (RESPONSIVE CHART)
+           ========================================================= */
+        .apex-chart-row {
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scrollbar-width: none !important;
+            width: 100% !important;
+            padding-bottom: 4px !important;
+        }
+        .apex-chart-row::-webkit-scrollbar { display: none; }
+        
+        .apex-chart-col {
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        /* =========================================================
+           7. TỐI ƯU HÓA CHUNG CHO MÀN HÌNH ĐIỆN THOẠI (TOUCH SAFE)
            ========================================================= */
         @media (max-width: 768px) {
             /* Tắt triệt để lỗi "Kẹt Hover" trên màn hình cảm ứng */
@@ -9239,30 +9258,25 @@ function injectApexMotionEngine() {
                 display: none !important; 
             }
 
-            /* Thu nhỏ tỷ lệ Quỹ đạo hạt nhân & Biểu đồ Donut để chống tràn viền */
-            .phoi-orbit-box { 
-                transform: scale(0.65) !important; 
-                transform-origin: center center !important; 
-                margin: 0 auto !important; 
-            }
-            .apex-donut-ring { 
-                transform: scale(0.9) !important; 
-            }
-            .apex-donut-ring:hover { 
-                transform: scale(0.9) !important; 
-            }
+            /* Thu nhỏ tỷ lệ Quỹ đạo & Donut để chống tràn viền */
+            .phoi-orbit-box { transform: scale(0.65) !important; transform-origin: center center !important; margin: 0 auto !important; }
+            .apex-donut-ring { transform: scale(0.9) !important; }
+            .apex-donut-ring:hover { transform: scale(0.9) !important; }
             
-            /* Căn chỉnh lại bộ 4 Icon Vector (Cát chảy, Plasma...) cho đỡ chật */
-            .apex-hero-svg-box {
-                transform: scale(0.9);
-                margin-right: 6px !important;
+            /* Căn chỉnh bộ 4 Icon Vector */
+            .apex-hero-svg-box { transform: scale(0.9); margin-right: 6px !important; }
+
+            /* Ép 30 Cột Biểu đồ bóp nhỏ lại vừa khít màn hình, không bị rớt dòng */
+            .apex-chart-row { gap: 2px !important; }
+            .apex-chart-col { min-width: 8px !important; }
+            .apex-chart-col span, .apex-chart-col div:not([style*="height"]) {
+                font-size: 0.55rem !important;
+                letter-spacing: -0.5px !important;
+                opacity: 0.6;
             }
 
-            /* Tiết kiệm Pin (Battery Saver): Tắt hào quang nhịp thở vòng tròn Focus */
-            .ft-ring-box { 
-                animation: none !important; 
-                box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
-            }
+            /* Tiết kiệm Pin (Battery Saver) */
+            .ft-ring-box { animation: none !important; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important; }
         }
     `;
     document.head.appendChild(st);
@@ -9416,10 +9430,23 @@ function upgradeAnalyticsLivingAnimations() {
             else if (cls.includes('fa-fire'))       holder.outerHTML = getPlasmaFlameSVGMarkup();
         });
 
-        var barFills = room.querySelectorAll('div[style*="height:130px"] > div');
+        // Xử lý thông minh ép tỷ lệ Biểu đồ 30 ngày để không bị rớt dòng tràn viền
+        var barFills = room.querySelectorAll('div[style*="height:130px"] > div, div[style*="height: 130px"] > div');
         barFills.forEach(function(bar, idx) {
             bar.classList.add('apex-analytics-bar-fill');
             bar.style.animationDelay = Math.min(idx * 0.022, 0.55) + 's';
+            
+            var col = bar.parentElement; 
+            var wrapper = col.parentElement; 
+            var row = wrapper.parentElement; 
+
+            if (wrapper.style.display === 'flex' || wrapper.style.display.includes('flex')) {
+                wrapper.classList.add('apex-chart-row');
+                col.classList.add('apex-chart-col');
+            } else if (row && (row.style.display === 'flex' || row.style.display.includes('flex'))) {
+                row.classList.add('apex-chart-row');
+                wrapper.classList.add('apex-chart-col');
+            }
         });
 
         var peakBadges = room.querySelectorAll('div[style*="background:#7c3aed"][style*="position:absolute"]');
@@ -9449,18 +9476,15 @@ function upgradeAnalyticsLivingAnimations() {
     // Kích hoạt hiệu ứng Phòng Thành tựu & Lưu trữ (#trophy-room)
     var trophyRoom = document.getElementById('trophy-room');
     if (trophyRoom && trophyRoom.style.display !== 'none') {
-        // 1. Thanh tiến độ tổng 63% chảy sóng ánh sáng
         trophyRoom.querySelectorAll('div[style*="height:8px"] > div').forEach(function(fill) {
             fill.classList.add('apex-shimmer-bar');
         });
 
-        // 2. Chiếc Cúp Lục Giác Tổng (19/30 Thành tựu) bồng bềnh phát sáng
         var masterHex = trophyRoom.querySelector('.phoi-card:first-child .hex-icon');
         if (masterHex) {
             masterHex.classList.add('apex-master-trophy-hex');
         }
 
-        // 3. Phân biệt thẻ ĐÃ ĐẠT (có ánh kim loại lệch nhịp) và hiệu ứng mở màn bậc thang
         var allTrophyCards = trophyRoom.querySelectorAll('.phoi-card');
         allTrophyCards.forEach(function(card, idx) {
             if (idx > 0) {
