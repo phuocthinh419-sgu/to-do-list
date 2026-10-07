@@ -8824,9 +8824,7 @@ function drawApexCanvasPipFrame() {
 }
 
 // =====================================================================
-// 13. APEX MOTION ENGINE V5 (FULL DASHBOARD + ANALYTICS + TROPHY
-//     LIVING SVGs, WAVE BARS, ROTATING DONUT & LUXURY MEDAL FOIL)
-//     + MOBILE RESPONSIVE CHART PROTECTION
+// 13. APEX MOTION ENGINE V5 (FINAL LOCK: 7-DAY ANALYTICS ONLY)
 // =====================================================================
 function injectApexMotionEngine() {
     var oldCss = document.getElementById('apex-motion-engine-css');
@@ -8838,7 +8836,7 @@ function injectApexMotionEngine() {
     st.id = 'apex-motion-engine-css';
     st.innerHTML = `
         /* =========================================================
-           1. KEYFRAMES CHO BỘ ICON VECTOR ĐỘNG (FLAME, HOURGLASS, CLOCK, CROWN, TARGET)
+           1. KEYFRAMES CHO BỘ ICON VECTOR ĐỘNG
            ========================================================= */
         @keyframes plasmaOuterWave {
             0%, 100% { transform: scale(1, 1) rotate(-1deg); }
@@ -8884,12 +8882,8 @@ function injectApexMotionEngine() {
         }
 
         .apex-hero-svg-box {
-            position: relative;
-            width: 36px; height: 36px;
-            border-radius: 11px;
-            display: inline-flex;
-            align-items: center; justify-content: center;
-            flex-shrink: 0;
+            position: relative; width: 36px; height: 36px; border-radius: 11px;
+            display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .apex-flame-box {
             background: radial-gradient(circle at 50% 75%, rgba(249, 115, 22, 0.25), rgba(225, 29, 72, 0.08) 70%);
@@ -8928,354 +8922,129 @@ function injectApexMotionEngine() {
         .apex-plasma-svg .flame-core  { transform-origin: 50% 85%; animation: plasmaCorePulse 1.4s ease-in-out infinite; }
         .apex-plasma-svg .flame-spark1 { animation: plasmaSparkRise 1.9s ease-out infinite; }
         .apex-plasma-svg .flame-spark2 { animation: plasmaSparkRise 2.3s ease-out infinite 0.7s; }
-
-        .apex-hourglass-svg {
-            width: 21px; height: 21px;
-            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
-            animation: apexHourglassFlip 4.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-        }
+        .apex-hourglass-svg { width: 21px; height: 21px; filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6)); animation: apexHourglassFlip 4.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; }
         .apex-hourglass-svg .hg-stream { stroke-dasharray: 2 2; animation: apexSandStream 1.2s linear infinite; }
-
-        .apex-crown-svg {
-            width: 22px; height: 22px;
-            filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.65));
-            animation: apexCrownFloat 3s ease-in-out infinite;
-        }
+        .apex-crown-svg { width: 22px; height: 22px; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.65)); animation: apexCrownFloat 3s ease-in-out infinite; }
         .apex-crown-svg .crown-gem { transform-origin: center; animation: apexGemTwinkle 1.8s ease-in-out infinite; }
-
         .apex-target-svg { width: 22px; height: 22px; overflow: visible; filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.65)); }
         .apex-target-svg .target-ping { transform-origin: 12px 12px; animation: apexTargetRadar 2.4s ease-out infinite; }
-
         .apex-clock-svg { width: 22px; height: 22px; filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.65)); }
         .apex-clock-svg .clock-min-hand { transform-origin: 12px 12px; animation: apexClockHandSpin 6s linear infinite; }
         .apex-clock-svg .clock-hr-hand  { transform-origin: 12px 12px; animation: apexClockHandSpin 36s linear infinite; }
 
         /* =========================================================
-           2. QUỸ ĐẠO NGUYÊN TỬ CHỮ A (TRUE ELECTRON ORBIT)
+           2. QUỸ ĐẠO NGUYÊN TỬ CHỮ A
            ========================================================= */
-        @keyframes electronOrbit1 {
-            0%   { transform: rotate(0deg)   translateY(-76px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateY(-76px) rotate(-360deg); }
-        }
-        @keyframes electronOrbit2 {
-            0%   { transform: rotate(120deg) translateY(-76px) rotate(-120deg); }
-            100% { transform: rotate(480deg) translateY(-76px) rotate(-480deg); }
-        }
-        @keyframes electronOrbit3 {
-            0%   { transform: rotate(240deg) translateY(-76px) rotate(-240deg); }
-            100% { transform: rotate(600deg) translateY(-76px) rotate(-600deg); }
-        }
-        @keyframes ringTrackSpinCW {
-            0%   { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @keyframes ringTrackSpinCCW {
-            0%   { transform: translate(-50%, -50%) rotate(360deg); }
-            100% { transform: translate(-50%, -50%) rotate(0deg); }
-        }
+        @keyframes electronOrbit1 { 0% { transform: rotate(0deg) translateY(-76px) rotate(0deg); } 100% { transform: rotate(360deg) translateY(-76px) rotate(-360deg); } }
+        @keyframes electronOrbit2 { 0% { transform: rotate(120deg) translateY(-76px) rotate(-120deg); } 100% { transform: rotate(480deg) translateY(-76px) rotate(-480deg); } }
+        @keyframes electronOrbit3 { 0% { transform: rotate(240deg) translateY(-76px) rotate(-240deg); } 100% { transform: rotate(600deg) translateY(-76px) rotate(-600deg); } }
+        @keyframes ringTrackSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes ringTrackSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
         @keyframes nucleusBreath {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                box-shadow: 0 0 22px rgba(168, 85, 247, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.3);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.08);
-                box-shadow: 0 0 34px rgba(168, 85, 247, 0.95), 0 0 55px rgba(56, 189, 248, 0.35), inset 0 0 14px rgba(255, 255, 255, 0.45);
-            }
+            0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.3); }
+            50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 34px rgba(168, 85, 247, 0.95), 0 0 55px rgba(56, 189, 248, 0.35), inset 0 0 14px rgba(255, 255, 255, 0.45); }
         }
 
         .phoi-orbit-box { position: relative !important; width: 240px !important; height: 195px !important; }
-        .phoi-orbit-ring1 {
-            top: 52% !important; left: 50% !important; width: 104px !important; height: 104px !important;
-            border: 1px dashed rgba(168, 85, 247, 0.5) !important;
-            animation: ringTrackSpinCCW 32s linear infinite !important;
-        }
-        .phoi-orbit-ring2 {
-            top: 52% !important; left: 50% !important; width: 152px !important; height: 152px !important;
-            border: 1px dashed rgba(56, 189, 248, 0.32) !important;
-            box-shadow: 0 0 25px rgba(168, 85, 247, 0.08) inset !important;
-            animation: ringTrackSpinCW 24s linear infinite !important;
-        }
+        .phoi-orbit-ring1 { top: 52% !important; left: 50% !important; width: 104px !important; height: 104px !important; border: 1px dashed rgba(168, 85, 247, 0.5) !important; animation: ringTrackSpinCCW 32s linear infinite !important; }
+        .phoi-orbit-ring2 { top: 52% !important; left: 50% !important; width: 152px !important; height: 152px !important; border: 1px dashed rgba(56, 189, 248, 0.32) !important; box-shadow: 0 0 25px rgba(168, 85, 247, 0.08) inset !important; animation: ringTrackSpinCW 24s linear infinite !important; }
         .phoi-orbit-core { top: 52% !important; left: 50% !important; animation: nucleusBreath 3.6s ease-in-out infinite !important; }
-        .phoi-orbit-box .phoi-sat {
-            top: 52% !important; left: 50% !important; bottom: auto !important; right: auto !important;
-            width: 84px !important; height: 60px !important; margin-left: -42px !important; margin-top: -30px !important;
-            will-change: transform;
-        }
+        .phoi-orbit-box .phoi-sat { top: 52% !important; left: 50% !important; bottom: auto !important; right: auto !important; width: 84px !important; height: 60px !important; margin-left: -42px !important; margin-top: -30px !important; will-change: transform; }
         .phoi-orbit-box .phoi-sat:nth-of-type(4) { animation: electronOrbit1 22s linear infinite !important; }
         .phoi-orbit-box .phoi-sat:nth-of-type(5) { animation: electronOrbit2 22s linear infinite !important; }
         .phoi-orbit-box .phoi-sat:nth-of-type(6) { animation: electronOrbit3 22s linear infinite !important; }
-        .phoi-orbit-box:hover .phoi-sat,
-        .phoi-orbit-box:hover .phoi-orbit-ring1,
-        .phoi-orbit-box:hover .phoi-orbit-ring2 { animation-play-state: paused !important; }
+        .phoi-orbit-box:hover .phoi-sat, .phoi-orbit-box:hover .phoi-orbit-ring1, .phoi-orbit-box:hover .phoi-orbit-ring2 { animation-play-state: paused !important; }
 
         /* =========================================================
-           3. CHUYỂN ĐỘNG TRANG PHÂN TÍCH TIẾN ĐỘ (ANALYTICS LIVING MOTION)
+           3. CHUYỂN ĐỘNG TRANG PHÂN TÍCH TIẾN ĐỘ & DASHBOARD
            ========================================================= */
-        @keyframes apexAnalyticsBarGrow {
-            0%   { transform: scaleY(0.02); opacity: 0; }
-            100% { transform: scaleY(1);    opacity: 1; }
-        }
-        @keyframes apexBarEnergyRise {
-            0%   { transform: translateY(115%); }
-            100% { transform: translateY(-120%); }
-        }
-        @keyframes apexPeakBadgeFloat {
-            0%, 100% { transform: translateY(0px) scale(1); box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5); }
-            50%      { transform: translateY(-4px) scale(1.06); box-shadow: 0 6px 18px rgba(192, 132, 252, 0.85); }
-        }
-        .apex-7d-bar-fill, .apex-analytics-bar-fill {
-            position: relative;
-            overflow: hidden;
-            transform-origin: bottom center;
-            animation: apexAnalyticsBarGrow 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-        }
-        .apex-7d-bar-fill::after, .apex-analytics-bar-fill::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.42), transparent);
-            animation: apexBarEnergyRise 2.6s ease-in-out infinite;
-        }
-        .apex-peak-badge {
-            animation: apexPeakBadgeFloat 2.4s ease-in-out infinite !important;
-        }
+        @keyframes apexAnalyticsBarGrow { 0% { transform: scaleY(0.02); opacity: 0; } 100% { transform: scaleY(1); opacity: 1; } }
+        @keyframes apexBarEnergyRise { 0% { transform: translateY(115%); } 100% { transform: translateY(-120%); } }
+        @keyframes apexPeakBadgeFloat { 0%, 100% { transform: translateY(0px) scale(1); box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5); } 50% { transform: translateY(-4px) scale(1.06); box-shadow: 0 6px 18px rgba(192, 132, 252, 0.85); } }
+        
+        .apex-7d-bar-fill, .apex-analytics-bar-fill { position: relative; overflow: hidden; transform-origin: bottom center; animation: apexAnalyticsBarGrow 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+        .apex-7d-bar-fill::after, .apex-analytics-bar-fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.42), transparent); animation: apexBarEnergyRise 2.6s ease-in-out infinite; }
+        .apex-peak-badge { animation: apexPeakBadgeFloat 2.4s ease-in-out infinite !important; }
 
-        @keyframes apexDonutEntrance {
-            0%   { transform: rotate(-120deg) scale(0.82); opacity: 0; }
-            100% { transform: rotate(0deg) scale(1); opacity: 1; }
-        }
-        @keyframes apexDonutHaloPulse {
-            0%, 100% { box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
-            50%      { box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), 0 0 60px rgba(56, 189, 248, 0.26); }
-        }
-        .apex-donut-ring {
-            position: relative;
-            animation: apexDonutEntrance 0.85s cubic-bezier(0.22, 1, 0.36, 1) backwards,
-                       apexDonutHaloPulse 4s ease-in-out infinite !important;
-            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
+        @keyframes apexDonutEntrance { 0% { transform: rotate(-120deg) scale(0.82); opacity: 0; } 100% { transform: rotate(0deg) scale(1); opacity: 1; } }
+        @keyframes apexDonutHaloPulse { 0%, 100% { box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); } 50% { box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), 0 0 60px rgba(56, 189, 248, 0.26); } }
+        .apex-donut-ring { position: relative; animation: apexDonutEntrance 0.85s cubic-bezier(0.22, 1, 0.36, 1) backwards, apexDonutHaloPulse 4s ease-in-out infinite !important; transition: transform 0.35s ease; }
         .apex-donut-ring:hover { transform: scale(1.05); }
 
-        @keyframes apexBulbIdeaGlow {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(192, 132, 252, 0.3)); }
-            50%      { transform: scale(1.16); filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.95)); color: #fde047; }
-        }
-        @keyframes apexScaleTilt {
-            0%, 100% { transform: rotate(0deg); }
-            25%      { transform: rotate(-10deg); }
-            75%      { transform: rotate(10deg); }
-        }
-        @keyframes apexTrendArrowUp {
-            0%, 100% { transform: translate(0, 0); }
-            50%      { transform: translate(2.5px, -2.5px); filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)); }
-        }
-        .fa-lightbulb      { display: inline-block; animation: apexBulbIdeaGlow 2.4s ease-in-out infinite; }
+        @keyframes apexBulbIdeaGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(192, 132, 252, 0.3)); } 50% { transform: scale(1.16); filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.95)); color: #fde047; } }
+        @keyframes apexScaleTilt { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+        @keyframes apexTrendArrowUp { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(2.5px, -2.5px); filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)); } }
+        .fa-lightbulb { display: inline-block; animation: apexBulbIdeaGlow 2.4s ease-in-out infinite; }
         .fa-scale-balanced { display: inline-block; transform-origin: top center; animation: apexScaleTilt 3.2s ease-in-out infinite; }
         .fa-arrow-trend-up { display: inline-block; animation: apexTrendArrowUp 2s ease-in-out infinite; }
 
-        @keyframes apexDotPulse {
-            0%, 100% { transform: scale(1); opacity: 0.85; }
-            50%      { transform: scale(1.35); opacity: 1; }
-        }
+        @keyframes apexDotPulse { 0%, 100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.35); opacity: 1; } }
         .apex-legend-dot { animation: apexDotPulse 2.4s ease-in-out infinite; }
-        .apex-analytics-stat-card {
-            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
-        }
-        .apex-analytics-stat-card:hover {
-            transform: translateY(-3px) !important;
-            border-color: rgba(168, 85, 247, 0.45) !important;
-            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4), 0 0 18px rgba(168, 85, 247, 0.14) !important;
-        }
+        .apex-analytics-stat-card { transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important; }
+        .apex-analytics-stat-card:hover { transform: translateY(-3px) !important; border-color: rgba(168, 85, 247, 0.45) !important; box-shadow: 0 10px 26px rgba(0,0,0,0.4), 0 0 18px rgba(168, 85, 247, 0.14) !important; }
 
-        /* =========================================================
-           4. CHUYỂN ĐỘNG CHUNG TRÊN DASHBOARD & FOCUS ROOM
-           ========================================================= */
-        @keyframes apexWaveHand {
-            0%, 60%, 100% { transform: rotate(0deg); }
-            15% { transform: rotate(16deg); }
-            30% { transform: rotate(-10deg); }
-            45% { transform: rotate(14deg); }
-        }
+        @keyframes apexWaveHand { 0%, 60%, 100% { transform: rotate(0deg); } 15% { transform: rotate(16deg); } 30% { transform: rotate(-10deg); } 45% { transform: rotate(14deg); } }
         .apex-waving-hand { display: inline-block; transform-origin: 70% 70%; animation: apexWaveHand 3.2s ease-in-out infinite; }
-
-        @keyframes apexRingGlowBreath {
-            0%, 100% { filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.35)); }
-            50%      { filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.85)); }
-        }
+        
+        @keyframes apexRingGlowBreath { 0%, 100% { filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.35)); } 50% { filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.85)); } }
         #bento-command-center svg circle[stroke="#a855f7"] { animation: apexRingGlowBreath 3.5s ease-in-out infinite; }
 
-        @keyframes apexStockLineFlow {
-            0%   { stroke-dashoffset: 260; opacity: 0.75; }
-            50%  { stroke-dashoffset: 0;   opacity: 1; }
-            100% { stroke-dashoffset: -260; opacity: 0.75; }
-        }
-        #bento-command-center svg path[stroke="#10b981"] {
-            stroke-dasharray: 260;
-            filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.65));
-            animation: apexStockLineFlow 6s linear infinite;
-        }
+        @keyframes apexStockLineFlow { 0% { stroke-dashoffset: 260; opacity: 0.75; } 50% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: -260; opacity: 0.75; } }
+        #bento-command-center svg path[stroke="#10b981"] { stroke-dasharray: 260; filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.65)); animation: apexStockLineFlow 6s linear infinite; }
 
-        @keyframes softShimmer {
-            0%   { transform: translateX(-120%) skewX(-20deg); }
-            100% { transform: translateX(220%) skewX(-20deg); }
-        }
-        #kpi-bar-fill, #ft-right-goal-bar, #ft-right-today-bar, .apex-shimmer-bar {
-            position: relative !important;
-            overflow: hidden !important;
-        }
-        #kpi-bar-fill::after, #ft-right-goal-bar::after, #ft-right-today-bar::after, .apex-shimmer-bar::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
-            width: 45%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
-            animation: softShimmer 3s infinite ease-in-out;
-        }
+        @keyframes softShimmer { 0% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(220%) skewX(-20deg); } }
+        #kpi-bar-fill, #ft-right-goal-bar, #ft-right-today-bar, .apex-shimmer-bar { position: relative !important; overflow: hidden !important; }
+        #kpi-bar-fill::after, #ft-right-goal-bar::after, #ft-right-today-bar::after, .apex-shimmer-bar::after { content: ""; position: absolute; top: 0; left: 0; bottom: 0; width: 45%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent); animation: softShimmer 3s infinite ease-in-out; }
 
         @keyframes apexSlowRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes apexCoinFlip   { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } }
+        @keyframes apexCoinFlip { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } }
         @keyframes apexRadarSweep { 0%, 100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(12deg) scale(1.1); } }
-        .fa-crosshairs     { display: inline-block; animation: apexSlowRotate 10s linear infinite; }
+        .fa-crosshairs { display: inline-block; animation: apexSlowRotate 10s linear infinite; }
         .fa-satellite-dish { display: inline-block; animation: apexRadarSweep 2.6s ease-in-out infinite; }
-        .fa-coins          { display: inline-block; animation: apexCoinFlip 4.5s ease-in-out infinite; }
+        .fa-coins { display: inline-block; animation: apexCoinFlip 4.5s ease-in-out infinite; }
 
-        .phoi-card, #dashboard-grid .goal-card, .ft-card, .phoi-mini-item {
-            position: relative; overflow: hidden;
-            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease, box-shadow 0.3s ease !important;
-        }
-        .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover {
-            transform: translateY(-3px) !important;
-            border-color: rgba(168, 85, 247, 0.38) !important;
-            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42), 0 0 20px rgba(168, 85, 247, 0.10) !important;
-        }
-        .phoi-card::before, #dashboard-grid .goal-card::before {
-            content: ""; position: absolute; top: 0; left: -100%; width: 75%; height: 1.5px;
-            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), rgba(192, 132, 252, 0.9), transparent);
-            transition: left 0.65s cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none; z-index: 3;
-        }
+        .phoi-card, #dashboard-grid .goal-card, .ft-card, .phoi-mini-item { position: relative; overflow: hidden; transition: transform 0.28s ease, border-color 0.3s ease, box-shadow 0.3s ease !important; }
+        .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover { transform: translateY(-3px) !important; border-color: rgba(168, 85, 247, 0.38) !important; box-shadow: 0 14px 34px rgba(0,0,0,0.42), 0 0 20px rgba(168, 85, 247, 0.10) !important; }
+        .phoi-card::before, #dashboard-grid .goal-card::before { content: ""; position: absolute; top: 0; left: -100%; width: 75%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), rgba(192, 132, 252, 0.9), transparent); transition: left 0.65s ease; pointer-events: none; z-index: 3; }
         .phoi-card:hover::before, #dashboard-grid .goal-card:hover::before { left: 125%; }
 
-        @keyframes zenFocusBreath {
-            0%, 100% { box-shadow: 0 0 38px rgba(139, 92, 246, 0.25), inset 0 0 18px rgba(139, 92, 246, 0.10); }
-            50%      { box-shadow: 0 0 58px rgba(168, 85, 247, 0.45), inset 0 0 28px rgba(56, 189, 248, 0.18); }
-        }
+        @keyframes zenFocusBreath { 0%, 100% { box-shadow: 0 0 38px rgba(139, 92, 246, 0.25), inset 0 0 18px rgba(139, 92, 246, 0.10); } 50% { box-shadow: 0 0 58px rgba(168, 85, 247, 0.45), inset 0 0 28px rgba(56, 189, 248, 0.18); } }
         @keyframes eqBarDance { 0%, 100% { height: 4px; } 50% { height: 15px; } }
         .ft-ring-box { animation: zenFocusBreath 5s ease-in-out infinite !important; }
         .apex-eq-bars { display: none; align-items: flex-end; gap: 2.5px; height: 16px; margin-left: auto; }
         .f-amb-card.active .apex-eq-bars { display: inline-flex; }
-        .apex-eq-bars span {
-            width: 2.5px; border-radius: 3px;
-            background: linear-gradient(180deg, #38bdf8, #c084fc);
-            animation: eqBarDance 0.8s ease-in-out infinite;
-        }
+        .apex-eq-bars span { width: 2.5px; border-radius: 3px; background: linear-gradient(180deg, #38bdf8, #c084fc); animation: eqBarDance 0.8s ease-in-out infinite; }
         .apex-eq-bars span:nth-child(2) { animation-delay: 0.2s; animation-duration: 0.6s; }
         .apex-eq-bars span:nth-child(3) { animation-delay: 0.4s; animation-duration: 0.9s; }
         .apex-eq-bars span:nth-child(4) { animation-delay: 0.15s; animation-duration: 0.7s; }
 
         /* =========================================================
-           5. CHUYỂN ĐỘNG PHÒNG THÀNH TỰU (LUXURY MEDAL FOIL & HOVER)
+           4. CHUYỂN ĐỘNG PHÒNG THÀNH TỰU (LUXURY MEDAL FOIL)
            ========================================================= */
-        @keyframes apexMedalFoilSweep {
-            0%, 72%   { transform: translateX(-140%) rotate(25deg); opacity: 0; }
-            82%       { opacity: 0.75; }
-            92%, 100% { transform: translateX(180%) rotate(25deg); opacity: 0; }
-        }
-        @keyframes apexMasterTrophyFloat {
-            0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.35)); }
-            50%      { transform: translateY(-3px) scale(1.05); filter: drop-shadow(0 8px 22px rgba(168, 85, 247, 0.65)); }
-        }
-        @keyframes apexTrophyCardStagger {
-            0%   { opacity: 0; transform: translateY(14px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
+        @keyframes apexMedalFoilSweep { 0%, 72% { transform: translateX(-140%) rotate(25deg); opacity: 0; } 82% { opacity: 0.75; } 92%, 100% { transform: translateX(180%) rotate(25deg); opacity: 0; } }
+        @keyframes apexMasterTrophyFloat { 0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.35)); } 50% { transform: translateY(-3px) scale(1.05); filter: drop-shadow(0 8px 22px rgba(168, 85, 247, 0.65)); } }
+        @keyframes apexTrophyCardStagger { 0% { opacity: 0; transform: translateY(14px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .apex-master-trophy-hex {
-            animation: apexMasterTrophyFloat 3.5s ease-in-out infinite !important;
-        }
-        .hex-icon {
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), filter 0.32s ease !important;
-        }
-        .apex-unlocked-medal .hex-icon::after {
-            content: "";
-            position: absolute;
-            top: -40%; left: -40%;
-            width: 55%; height: 180%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-            pointer-events: none;
-            animation: apexMedalFoilSweep 6.5s ease-in-out infinite;
-            animation-delay: var(--foil-delay, 0s);
-        }
-        #trophy-room .phoi-card:hover .hex-icon {
-            transform: translateY(-3px) scale(1.1) rotate(-4deg) !important;
-            filter: drop-shadow(0 6px 16px rgba(168, 85, 247, 0.55));
-        }
-        #trophy-room .phoi-card:hover .hex-icon i {
-            transform: scale(1.15);
-            transition: transform 0.25s ease;
-        }
-        .apex-trophy-stagger-in {
-            animation: apexTrophyCardStagger 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-        }
+        .apex-master-trophy-hex { animation: apexMasterTrophyFloat 3.5s ease-in-out infinite !important; }
+        .hex-icon { position: relative; overflow: hidden; transition: transform 0.32s ease, filter 0.32s ease !important; }
+        .apex-unlocked-medal .hex-icon::after { content: ""; position: absolute; top: -40%; left: -40%; width: 55%; height: 180%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); pointer-events: none; animation: apexMedalFoilSweep 6.5s ease-in-out infinite; animation-delay: var(--foil-delay, 0s); }
+        #trophy-room .phoi-card:hover .hex-icon { transform: translateY(-3px) scale(1.1) rotate(-4deg) !important; filter: drop-shadow(0 6px 16px rgba(168, 85, 247, 0.55)); }
+        #trophy-room .phoi-card:hover .hex-icon i { transform: scale(1.15); transition: transform 0.25s ease; }
+        .apex-trophy-stagger-in { animation: apexTrophyCardStagger 0.42s ease backwards; }
 
         /* =========================================================
-           6. ÉP TỶ LỆ BIỂU ĐỒ 30 NGÀY CHO ĐIỆN THOẠI (RESPONSIVE CHART)
-           ========================================================= */
-        .apex-chart-row {
-            flex-wrap: nowrap !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            scrollbar-width: none !important;
-            width: 100% !important;
-            padding-bottom: 4px !important;
-        }
-        .apex-chart-row::-webkit-scrollbar { display: none; }
-        
-        .apex-chart-col {
-            flex: 1 !important;
-            min-width: 0 !important;
-        }
-
-        /* =========================================================
-           7. TỐI ƯU HÓA CHUNG CHO MÀN HÌNH ĐIỆN THOẠI (TOUCH SAFE)
+           5. TỐI ƯU HÓA MOBILE: CHỐNG TRÀN VIỀN & LỖI KẸT HOVER
            ========================================================= */
         @media (max-width: 768px) {
-            /* Tắt triệt để lỗi "Kẹt Hover" trên màn hình cảm ứng */
-            .phoi-card:hover, #dashboard-grid .goal-card:hover, 
-            .ft-card:hover, .apex-analytics-stat-card:hover,
-            #trophy-room .phoi-card:hover .hex-icon {
-                transform: none !important;
-                border-color: inherit !important;
-                box-shadow: none !important;
-                filter: none !important;
+            .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover, .apex-analytics-stat-card:hover, #trophy-room .phoi-card:hover .hex-icon {
+                transform: none !important; border-color: inherit !important; box-shadow: none !important; filter: none !important;
             }
             #trophy-room .phoi-card:hover .hex-icon i { transform: none !important; }
-
-            /* Tắt các tia sáng quét (Aurora) gây rối mắt trên màn hình hẹp */
-            .phoi-card::before, #dashboard-grid .goal-card::before { 
-                display: none !important; 
-            }
-
-            /* Thu nhỏ tỷ lệ Quỹ đạo & Donut để chống tràn viền */
+            .phoi-card::before, #dashboard-grid .goal-card::before { display: none !important; }
             .phoi-orbit-box { transform: scale(0.65) !important; transform-origin: center center !important; margin: 0 auto !important; }
             .apex-donut-ring { transform: scale(0.9) !important; }
             .apex-donut-ring:hover { transform: scale(0.9) !important; }
-            
-            /* Căn chỉnh bộ 4 Icon Vector */
             .apex-hero-svg-box { transform: scale(0.9); margin-right: 6px !important; }
-
-            /* Ép 30 Cột Biểu đồ bóp nhỏ lại vừa khít màn hình, không bị rớt dòng */
-            .apex-chart-row { gap: 2px !important; }
-            .apex-chart-col { min-width: 8px !important; }
-            .apex-chart-col span, .apex-chart-col div:not([style*="height"]) {
-                font-size: 0.55rem !important;
-                letter-spacing: -0.5px !important;
-                opacity: 0.6;
-            }
-
-            /* Tiết kiệm Pin (Battery Saver) */
             .ft-ring-box { animation: none !important; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important; }
         }
     `;
@@ -9286,34 +9055,21 @@ function injectApexMotionEngine() {
     enhanceFocusAudioEqualizerBars();
 }
 
-// 1. SVG Ngọn Lửa Plasma (Chuỗi kỷ luật)
 function getPlasmaFlameSVGMarkup() {
-    return `
+    return \`
     <div class="apex-hero-svg-box apex-flame-box" title="Chuỗi kỷ luật rực cháy">
         <svg class="apex-plasma-svg" viewBox="0 0 24 24" fill="none">
-            <defs>
-                <linearGradient id="apexFlameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#fbbf24"/>
-                    <stop offset="55%" stop-color="#f97316"/>
-                    <stop offset="100%" stop-color="#e11d48"/>
-                </linearGradient>
-                <linearGradient id="apexFlameMidGrad" x1="12" y1="6" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#fef08a"/>
-                    <stop offset="100%" stop-color="#f59e0b"/>
-                </linearGradient>
-            </defs>
-            <circle class="flame-spark1" cx="8.5" cy="5.5" r="1" fill="#fde047"/>
-            <circle class="flame-spark2" cx="15.5" cy="4.5" r="0.8" fill="#fb923c"/>
+            <defs><linearGradient id="apexFlameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="55%" stop-color="#f97316"/><stop offset="100%" stop-color="#e11d48"/></linearGradient><linearGradient id="apexFlameMidGrad" x1="12" y1="6" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs>
+            <circle class="flame-spark1" cx="8.5" cy="5.5" r="1" fill="#fde047"/><circle class="flame-spark2" cx="15.5" cy="4.5" r="0.8" fill="#fb923c"/>
             <path class="flame-outer" d="M12 2C12 2 6 7.2 6 13.2C6 17.5 8.7 21 12 21C15.3 21 18 17.5 18 13.2C18 10.6 16.7 8.3 15.6 7C15.4 8.7 14.3 9.8 13.5 10.2C14.3 7.5 13.5 4.3 12 2Z" fill="url(#apexFlameOuterGrad)"/>
             <path class="flame-mid" d="M12 7.5C12 7.5 8.5 10.8 8.5 14.5C8.5 17.2 10.1 19.5 12 19.5C13.9 19.5 15.5 17.2 15.5 14.5C15.5 11.8 12 7.5 12 7.5Z" fill="url(#apexFlameMidGrad)"/>
             <path class="flame-core" d="M12 12.2C12 12.2 10.2 14.2 10.2 16.2C10.2 17.6 11 18.7 12 18.7C13 18.7 13.8 17.6 13.8 16.2C13.8 14.2 12 12.2 12 12.2Z" fill="#ffffff"/>
         </svg>
-    </div>`;
+    </div>\`;
 }
 
-// 2. SVG Đồng Hồ Cát Xoay 360° & Cát Chảy
 function getCosmicHourglassSVGMarkup() {
-    return `
+    return \`
     <div class="apex-hero-svg-box apex-hourglass-box" title="Thời gian tích lũy">
         <svg class="apex-hourglass-svg" viewBox="0 0 24 24" fill="none">
             <path d="M5 3H19M5 21H19" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
@@ -9322,49 +9078,40 @@ function getCosmicHourglassSVGMarkup() {
             <line class="hg-stream" x1="12" y1="10.8" x2="12" y2="18.5" stroke="#fde047" stroke-width="1.6" stroke-linecap="round"/>
             <path d="M8.5 19.5C9.5 17.5 10.7 16.5 12 16.5C13.3 16.5 14.5 17.5 15.5 19.5H8.5Z" fill="#f59e0b"/>
         </svg>
-    </div>`;
+    </div>\`;
 }
 
-// 3. SVG Vương Miện Hoàng Kim Lấp Lánh
 function getRoyalCrownSVGMarkup() {
-    return `
+    return \`
     <div class="apex-hero-svg-box apex-crown-box" title="Học hàm hiện tại">
         <svg class="apex-crown-svg" viewBox="0 0 24 24" fill="none">
-            <defs>
-                <linearGradient id="apexCrownGrad" x1="12" y1="4" x2="12" y2="20" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#fef08a"/>
-                    <stop offset="50%" stop-color="#fbbf24"/>
-                    <stop offset="100%" stop-color="#d97706"/>
-                </linearGradient>
-            </defs>
+            <defs><linearGradient id="apexCrownGrad" x1="12" y1="4" x2="12" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs>
             <path d="M3.5 17.5L5.5 8.5L9.8 12.5L12 6.5L14.2 12.5L18.5 8.5L20.5 17.5H3.5Z" fill="url(#apexCrownGrad)" stroke="#fde047" stroke-width="1.2" stroke-linejoin="round"/>
             <rect x="3.5" y="19" width="17" height="2.2" rx="1.1" fill="#f59e0b"/>
             <circle class="crown-gem" cx="12" cy="4.2" r="1.5" fill="#ffffff"/>
             <circle class="crown-gem" cx="5" cy="6.5" r="1.2" fill="#38bdf8"/>
             <circle class="crown-gem" cx="19" cy="6.5" r="1.2" fill="#f472b6"/>
         </svg>
-    </div>`;
+    </div>\`;
 }
 
-// 4. SVG Tâm Bắn Radar Phát Sóng
 function getRadarTargetSVGMarkup(isEmerald) {
     var boxCls = isEmerald ? 'apex-emerald-target-box' : 'apex-target-box';
     var ringCol = isEmerald ? '#10b981' : '#a855f7';
     var midCol  = isEmerald ? '#34d399' : '#38bdf8';
-    return `
-    <div class="apex-hero-svg-box ${boxCls}" title="Hiệu suất & Thành tựu">
+    return \`
+    <div class="apex-hero-svg-box \${boxCls}" title="Hiệu suất & Thành tựu">
         <svg class="apex-target-svg" viewBox="0 0 24 24" fill="none">
-            <circle class="target-ping" cx="12" cy="12" r="8" stroke="${midCol}" stroke-width="1.4"/>
-            <circle cx="12" cy="12" r="8.5" stroke="${ringCol}" stroke-width="1.7"/>
-            <circle cx="12" cy="12" r="4.8" stroke="${midCol}" stroke-width="1.6"/>
+            <circle class="target-ping" cx="12" cy="12" r="8" stroke="\${midCol}" stroke-width="1.4"/>
+            <circle cx="12" cy="12" r="8.5" stroke="\${ringCol}" stroke-width="1.7"/>
+            <circle cx="12" cy="12" r="4.8" stroke="\${midCol}" stroke-width="1.6"/>
             <circle cx="12" cy="12" r="2" fill="#fbbf24"/>
         </svg>
-    </div>`;
+    </div>\`;
 }
 
-// 5. SVG Đồng Hồ Kim Xoay Liên Tục
 function getSpinningClockSVGMarkup() {
-    return `
+    return \`
     <div class="apex-hero-svg-box apex-clock-box" title="Tổng thời gian học tập">
         <svg class="apex-clock-svg" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.08)"/>
@@ -9372,10 +9119,9 @@ function getSpinningClockSVGMarkup() {
             <line class="clock-min-hand" x1="12" y1="12" x2="16" y2="12" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round"/>
             <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
         </svg>
-    </div>`;
+    </div>\`;
 }
 
-// Quét và nâng cấp toàn bộ Icon + Thanh tiến độ trên Dashboard & Focus Room
 function upgradeAllLivingIconsAndWidgets() {
     var miniItems = document.querySelectorAll('.phoi-mini-item');
     miniItems.forEach(function(item) {
@@ -9395,12 +9141,8 @@ function upgradeAllLivingIconsAndWidgets() {
 
     var bento = document.getElementById('bento-command-center');
     if (bento) {
-        bento.querySelectorAll('div[style*="linear-gradient(180deg, #38bdf8, #6366f1)"]').forEach(function(bar) {
-            bar.classList.add('apex-7d-bar-fill');
-        });
-        bento.querySelectorAll('div[style*="height:5px"] > div, div[style*="height:7px"] > div').forEach(function(fill) {
-            fill.classList.add('apex-shimmer-bar');
-        });
+        bento.querySelectorAll('div[style*="linear-gradient(180deg, #38bdf8, #6366f1)"]').forEach(function(bar) { bar.classList.add('apex-7d-bar-fill'); });
+        bento.querySelectorAll('div[style*="height:5px"] > div, div[style*="height:7px"] > div').forEach(function(fill) { fill.classList.add('apex-shimmer-bar'); });
     }
 
     var ftStreak = document.getElementById('ft-stat-streak');
@@ -9412,7 +9154,6 @@ function upgradeAllLivingIconsAndWidgets() {
     }
 }
 
-// Quét và nâng cấp TOÀN BỘ hạng mục trong Trang Phân tích tiến độ (#analytics-room) & Thành tựu (#trophy-room)
 function upgradeAnalyticsLivingAnimations() {
     var room = document.getElementById('analytics-room');
     if (room && room.style.display !== 'none') {
@@ -9430,60 +9171,47 @@ function upgradeAnalyticsLivingAnimations() {
             else if (cls.includes('fa-fire'))       holder.outerHTML = getPlasmaFlameSVGMarkup();
         });
 
-        // Xử lý thông minh ép tỷ lệ Biểu đồ 30 ngày để không bị rớt dòng tràn viền
         var barFills = room.querySelectorAll('div[style*="height:130px"] > div, div[style*="height: 130px"] > div');
         barFills.forEach(function(bar, idx) {
             bar.classList.add('apex-analytics-bar-fill');
             bar.style.animationDelay = Math.min(idx * 0.022, 0.55) + 's';
-            
-            var col = bar.parentElement; 
-            var wrapper = col.parentElement; 
-            var row = wrapper.parentElement; 
-
-            if (wrapper.style.display === 'flex' || wrapper.style.display.includes('flex')) {
-                wrapper.classList.add('apex-chart-row');
-                col.classList.add('apex-chart-col');
-            } else if (row && (row.style.display === 'flex' || row.style.display.includes('flex'))) {
-                row.classList.add('apex-chart-row');
-                wrapper.classList.add('apex-chart-col');
-            }
         });
 
         var peakBadges = room.querySelectorAll('div[style*="background:#7c3aed"][style*="position:absolute"]');
-        peakBadges.forEach(function(b) {
-            b.classList.add('apex-peak-badge');
-        });
+        peakBadges.forEach(function(b) { b.classList.add('apex-peak-badge'); });
 
         var donutEl = room.querySelector('div[style*="conic-gradient"]');
-        if (donutEl) {
-            donutEl.classList.add('apex-donut-ring');
-        }
+        if (donutEl) donutEl.classList.add('apex-donut-ring');
 
         room.querySelectorAll('span[style*="width:8px"][style*="height:8px"][style*="border-radius:50%"]').forEach(function(dot, idx) {
             dot.classList.add('apex-legend-dot');
             dot.style.animationDelay = (idx * 0.25) + 's';
         });
 
-        room.querySelectorAll('div[style*="height:6px"] > div').forEach(function(fill) {
-            fill.classList.add('apex-shimmer-bar');
-        });
+        room.querySelectorAll('div[style*="height:6px"] > div').forEach(function(fill) { fill.classList.add('apex-shimmer-bar'); });
+        room.querySelectorAll('.phoi-row-3col > div').forEach(function(insCard) { insCard.classList.add('apex-analytics-stat-card'); });
 
-        room.querySelectorAll('.phoi-row-3col > div').forEach(function(insCard) {
-            insCard.classList.add('apex-analytics-stat-card');
+        // TỰ ĐỘNG KHÓA VỀ 7 NGÀY & ẨN VĨNH VIỄN CÁC NÚT 30, 90, 365 NGÀY ĐỂ CHỐNG TRÀN MÀN HÌNH
+        var filterBtns = room.querySelectorAll('button, span, div.phoi-pill, div.ft-glass-btn');
+        filterBtns.forEach(function(btn) {
+            var txt = (btn.innerText || '').trim().toLowerCase();
+            if (txt === '30 ngày' || txt === '90 ngày' || txt === '1 năm' || txt === '365 ngày') {
+                btn.style.display = 'none';
+            }
+            if (txt === '7 ngày' && !window._apexHasForced7DaysAnalytics) {
+                window._apexHasForced7DaysAnalytics = true;
+                setTimeout(function() { 
+                    if (typeof btn.click === 'function') btn.click(); 
+                }, 150);
+            }
         });
     }
 
-    // Kích hoạt hiệu ứng Phòng Thành tựu & Lưu trữ (#trophy-room)
     var trophyRoom = document.getElementById('trophy-room');
     if (trophyRoom && trophyRoom.style.display !== 'none') {
-        trophyRoom.querySelectorAll('div[style*="height:8px"] > div').forEach(function(fill) {
-            fill.classList.add('apex-shimmer-bar');
-        });
-
+        trophyRoom.querySelectorAll('div[style*="height:8px"] > div').forEach(function(fill) { fill.classList.add('apex-shimmer-bar'); });
         var masterHex = trophyRoom.querySelector('.phoi-card:first-child .hex-icon');
-        if (masterHex) {
-            masterHex.classList.add('apex-master-trophy-hex');
-        }
+        if (masterHex) masterHex.classList.add('apex-master-trophy-hex');
 
         var allTrophyCards = trophyRoom.querySelectorAll('.phoi-card');
         allTrophyCards.forEach(function(card, idx) {
@@ -9496,9 +9224,7 @@ function upgradeAnalyticsLivingAnimations() {
             if (card.innerText.includes('Đã đạt') || card.innerText.includes('HOÀN THÀNH 100%')) {
                 card.classList.add('apex-unlocked-medal');
                 var hex = card.querySelector('.hex-icon');
-                if (hex) {
-                    hex.style.setProperty('--foil-delay', ((idx % 7) * 0.85).toFixed(2) + 's');
-                }
+                if (hex) hex.style.setProperty('--foil-delay', ((idx % 7) * 0.85).toFixed(2) + 's');
             }
         });
     }
@@ -9515,7 +9241,6 @@ function enhanceFocusAudioEqualizerBars() {
     });
 }
 
-// Tự động móc vào renderBentoCommandCenter, renderAnalytics, renderMasterTrophyAndArchive và syncFocusRoomData
 var _origRenderBentoV5 = window.renderBentoCommandCenter;
 window.renderBentoCommandCenter = function() {
     if (typeof _origRenderBentoV5 === 'function') _origRenderBentoV5();
