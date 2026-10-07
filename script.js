@@ -9056,7 +9056,7 @@ function injectApexMotionEngine() {
 }
 
 function getPlasmaFlameSVGMarkup() {
-    return \`
+    return `
     <div class="apex-hero-svg-box apex-flame-box" title="Chuỗi kỷ luật rực cháy">
         <svg class="apex-plasma-svg" viewBox="0 0 24 24" fill="none">
             <defs><linearGradient id="apexFlameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="55%" stop-color="#f97316"/><stop offset="100%" stop-color="#e11d48"/></linearGradient><linearGradient id="apexFlameMidGrad" x1="12" y1="6" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs>
@@ -9065,11 +9065,11 @@ function getPlasmaFlameSVGMarkup() {
             <path class="flame-mid" d="M12 7.5C12 7.5 8.5 10.8 8.5 14.5C8.5 17.2 10.1 19.5 12 19.5C13.9 19.5 15.5 17.2 15.5 14.5C15.5 11.8 12 7.5 12 7.5Z" fill="url(#apexFlameMidGrad)"/>
             <path class="flame-core" d="M12 12.2C12 12.2 10.2 14.2 10.2 16.2C10.2 17.6 11 18.7 12 18.7C13 18.7 13.8 17.6 13.8 16.2C13.8 14.2 12 12.2 12 12.2Z" fill="#ffffff"/>
         </svg>
-    </div>\`;
+    </div>`;
 }
 
 function getCosmicHourglassSVGMarkup() {
-    return \`
+    return `
     <div class="apex-hero-svg-box apex-hourglass-box" title="Thời gian tích lũy">
         <svg class="apex-hourglass-svg" viewBox="0 0 24 24" fill="none">
             <path d="M5 3H19M5 21H19" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
@@ -9078,11 +9078,11 @@ function getCosmicHourglassSVGMarkup() {
             <line class="hg-stream" x1="12" y1="10.8" x2="12" y2="18.5" stroke="#fde047" stroke-width="1.6" stroke-linecap="round"/>
             <path d="M8.5 19.5C9.5 17.5 10.7 16.5 12 16.5C13.3 16.5 14.5 17.5 15.5 19.5H8.5Z" fill="#f59e0b"/>
         </svg>
-    </div>\`;
+    </div>`;
 }
 
 function getRoyalCrownSVGMarkup() {
-    return \`
+    return `
     <div class="apex-hero-svg-box apex-crown-box" title="Học hàm hiện tại">
         <svg class="apex-crown-svg" viewBox="0 0 24 24" fill="none">
             <defs><linearGradient id="apexCrownGrad" x1="12" y1="4" x2="12" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs>
@@ -9092,26 +9092,26 @@ function getRoyalCrownSVGMarkup() {
             <circle class="crown-gem" cx="5" cy="6.5" r="1.2" fill="#38bdf8"/>
             <circle class="crown-gem" cx="19" cy="6.5" r="1.2" fill="#f472b6"/>
         </svg>
-    </div>\`;
+    </div>`;
 }
 
 function getRadarTargetSVGMarkup(isEmerald) {
     var boxCls = isEmerald ? 'apex-emerald-target-box' : 'apex-target-box';
     var ringCol = isEmerald ? '#10b981' : '#a855f7';
     var midCol  = isEmerald ? '#34d399' : '#38bdf8';
-    return \`
-    <div class="apex-hero-svg-box \${boxCls}" title="Hiệu suất & Thành tựu">
+    return `
+    <div class="apex-hero-svg-box ${boxCls}" title="Hiệu suất & Thành tựu">
         <svg class="apex-target-svg" viewBox="0 0 24 24" fill="none">
-            <circle class="target-ping" cx="12" cy="12" r="8" stroke="\${midCol}" stroke-width="1.4"/>
-            <circle cx="12" cy="12" r="8.5" stroke="\${ringCol}" stroke-width="1.7"/>
-            <circle cx="12" cy="12" r="4.8" stroke="\${midCol}" stroke-width="1.6"/>
+            <circle class="target-ping" cx="12" cy="12" r="8" stroke="${midCol}" stroke-width="1.4"/>
+            <circle cx="12" cy="12" r="8.5" stroke="${ringCol}" stroke-width="1.7"/>
+            <circle cx="12" cy="12" r="4.8" stroke="${midCol}" stroke-width="1.6"/>
             <circle cx="12" cy="12" r="2" fill="#fbbf24"/>
         </svg>
-    </div>\`;
+    </div>`;
 }
 
 function getSpinningClockSVGMarkup() {
-    return \`
+    return `
     <div class="apex-hero-svg-box apex-clock-box" title="Tổng thời gian học tập">
         <svg class="apex-clock-svg" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.08)"/>
@@ -9119,7 +9119,7 @@ function getSpinningClockSVGMarkup() {
             <line class="clock-min-hand" x1="12" y1="12" x2="16" y2="12" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round"/>
             <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
         </svg>
-    </div>\`;
+    </div>`;
 }
 
 function upgradeAllLivingIconsAndWidgets() {
