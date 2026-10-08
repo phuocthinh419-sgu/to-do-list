@@ -1375,20 +1375,8 @@ function checkCycleAndStreak() {
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
     // =========================================================
-    // 1. ĐỒNG BỘ CHU KỲ TUẦN (Chốt sổ vào 23:59 Chủ Nhật)
+    // 1. ĐỒNG BỘ CHU KỲ TUẦN & THU PHÍ DUY TRÌ ($250)
     // =========================================================
-    function checkCycleAndStreak() {
-    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) return;
-
-    let todayObj = new Date();
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    let todayStr = todayObj.toISOString().split('T')[0];
-
-    let yesterdayObj = new Date(todayObj);
-    yesterdayObj.setDate(yesterdayObj.getDate() - 1);
-    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
-
-    // 1. ĐỒNG BỘ CHU KỲ TUẦN & THU PHÍ DUY TRÌ HÀNG TUẦN ($250)
     let currentMon = getGlobalMonday();
     let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
 
@@ -1406,14 +1394,14 @@ function checkCycleAndStreak() {
         }
 
         if (Object.keys(dailyLogs).length > 0) {
-            exportData();
+            if (typeof exportData === 'function') exportData();
 
             let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
             let feeMsg = "";
             if (usd >= 250) {
                 usd -= 250;
                 localStorage.setItem("usdBalance", usd);
-                updateUsdDisplay();
+                if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
                 feeMsg = "Hệ thống đã khấu trừ $250 USD phí duy trì tuần mới và tự động tải về bản sao lưu dữ liệu.";
             } else {
                 localStorage.setItem("isSealed", "true");
@@ -1422,7 +1410,7 @@ function checkCycleAndStreak() {
 
             let target = getWeeklyTarget();
             if (oldCycleTotal < target) {
-                if (!isPendingTax) impactStockMarket("PENALTY");
+                if (!isPendingTax && typeof impactStockMarket === 'function') impactStockMarket("PENALTY");
                 isPendingTax = true;
                 localStorage.setItem('saasPendingTax', 'true');
                 alert(`${feeMsg}\n\nTỔNG KẾT TUẦN QUA: Bạn đạt ${oldCycleTotal.toFixed(1)}h / ${target}h (Chưa đạt định mức tuần).\nHệ thống yêu cầu hoàn thành phiên học bù 90 phút.`);
@@ -1439,65 +1427,99 @@ function checkCycleAndStreak() {
         if (typeof syncToCloud === 'function') syncToCloud();
     }
 
-    // 2. KIỂM TRA ĐỊNH MỨC NGÀY
+    // =========================================================
+    // 2. KIỂM TRA ĐỊNH MỨC NGÀY (LÃI KÉP)
+    // =========================================================
     let checkedDate = localStorage.getItem('saasDebtCheckedDate');
+    let prevDebt = dailyDebtMinutes; // Ghi nhớ mức nợ trước khi quét để so sánh
+
     if (checkedDate !== yesterdayStr) {
         let lastCheckedObj = checkedDate ? new Date(checkedDate) : new Date(yesterdayStr);
         let daysToCheck = Math.floor((new Date(yesterdayStr) - lastCheckedObj) / (1000 * 60 * 60 * 24));
-
-        if (daysToCheck <= 0 || isNaN(daysToCheck)) daysToCheck = 1;
+        
+        if (daysToCheck <= 0 || isNaN(daysToCheck)) daysToCheck = 1; 
 
         for (let i = daysToCheck; i >= 1; i--) {
             let d = new Date(todayObj);
             d.setDate(d.getDate() - i);
             let checkStr = d.toISOString().split('T')[0];
-
-            let targetHrs = (typeof getRequiredHoursForDate === 'function') ? getRequiredHoursForDate(d, checkStr) : ((lastRestDate === checkStr) ? 0.25 : 1.0);
+            
+            let targetHrs = (typeof getRequiredHoursForDate === 'function') ? getRequiredHoursForDate(d, checkStr) : ((lastRestDate === checkStr) ? 0.25 : 1.0); 
             let hrsDone = dailyLogs[checkStr] || 0;
-
+            
             let deficitHrs = targetHrs - hrsDone;
+            // Bỏ qua sai số dưới 0.01h (36 giây)
             if (deficitHrs > 0.01) {
                 let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
-                if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
-                dailyDebtMinutes += penaltyMins;
+                if (dailyDebtMinutes === 0 && typeof impactStockMarket === 'function') impactStockMarket("PENALTY");
+                dailyDebtMinutes += penaltyMins; 
             }
         }
-
+        
         localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
         localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
     }
 
-    if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
-        let lastDateObj = new Date(lastActiveDate);
-        let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
-        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true');
+    // =====================================================================
+    // 🚀 HỆ THỐNG KHIÊN BẢO VỆ CHUỖI & PHIẾU GIẢM ÁN (AUTO-TRIGGER)
+    // =====================================================================
+    if (dailyDebtMinutes > prevDebt) {
+        let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+        if (shields > 0) {
+            localStorage.setItem('saasFreezes', shields - 1);
+            dailyDebtMinutes = prevDebt; // Khôi phục lại mức nợ cũ (miễn án hôm qua)
+            if (dailyDebtMinutes === 0) localStorage.removeItem('saasDailyDebt');
+            else localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+
+            alert("🛡️ KHIÊN BẢO VỆ CHUỖI ĐÃ KÍCH HOẠT!\nHệ thống tự động tiêu hao 1 Khiên để miễn trừ án phạt vắng mặt hôm qua và bảo vệ Chuỗi kỷ luật của bạn!");
+            if (typeof renderAcademicShopContent === 'function') renderAcademicShopContent();
+            if (typeof syncToCloud === 'function') syncToCloud();
+        } else if (localStorage.getItem('saasDebtReducerVoucher') === 'true') {
+            localStorage.removeItem('saasDebtReducerVoucher');
+            dailyDebtMinutes = Math.max(15, Math.floor(dailyDebtMinutes / 2));
+            localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+            
+            alert(`⚖️ PHIẾU GIẢM ÁN 50% ĐÃ KÍCH HOẠT!\nThời gian phạt khổ sai đã được giảm một nửa, chỉ còn ${dailyDebtMinutes} phút.`);
+            if (typeof renderAcademicShopContent === 'function') renderAcademicShopContent();
+            if (typeof syncToCloud === 'function') syncToCloud();
+        }
     }
 
-    // 3. HIỂN THỊ YÊU CẦU HỌC BÙ NẾU VI PHẠM ĐỊNH MỨC
+    // =========================================================
+    // 3. ĐẾM VẮNG MẶT & HIỂN THỊ ÁN PHẠT NẾU VI PHẠM
+    // =========================================================
+    if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
+        let lastDateObj = new Date(lastActiveDate); 
+        let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true'); 
+    }
+
     if (isPendingTax) {
-        document.getElementById('shame-modal').style.display = 'flex';
-        let shameTitle = document.querySelector('.shame-content h2');
-        if (shameTitle) shameTitle.innerText = "YÊU CẦU HỌC BÙ ĐỊNH MỨC TUẦN";
-        let shameDesc = document.querySelector('.shame-content p');
-        if (shameDesc) shameDesc.innerText = "Bạn chưa đạt định mức tối thiểu 5 giờ trong tuần qua. Vui lòng hoàn thành phiên học bù 90 phút để mở khóa hệ thống.";
-        let btnAlt = document.querySelector('.btn-shame-alt');
-        if (btnAlt) btnAlt.style.display = 'none';
+        let sModal = document.getElementById('shame-modal');
+        if (sModal) sModal.style.display = 'flex';
+        let shameTitle = document.querySelector('.shame-content h2'); 
+        if (shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
+        let shameDesc = document.querySelector('.shame-content p'); 
+        if (shameDesc) shameDesc.innerText = "Bạn chưa đạt định mức tối thiểu 5 giờ trong tuần qua. Vui lòng hoàn thành phiên học bù 90 phút để mở khóa hệ thống."; 
+        let btnAlt = document.querySelector('.btn-shame-alt'); 
+        if (btnAlt) btnAlt.style.display = 'none'; 
         let btnShame = document.querySelector('.btn-shame');
-        if (btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-clock"></i> BẮT ĐẦU PHIÊN HỌC BÙ (90P)'; btnShame.onclick = startTaxSession; }
+        if (btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; btnShame.onclick = startTaxSession; }
         return;
     }
 
     if (dailyDebtMinutes > 0) {
-        document.getElementById('shame-modal').style.display = 'flex';
-        let shameTitle = document.querySelector('.shame-content h2');
-        if (shameTitle) shameTitle.innerText = "YÊU CẦU HOÀN THÀNH ĐỊNH MỨC NGÀY";
-        let shameDesc = document.querySelector('.shame-content p');
-        if (shameDesc) shameDesc.innerHTML = `Bạn chưa hoàn thành đủ định mức học tập hằng ngày. Thời lượng cần học bù là <strong>${dailyDebtMinutes} phút</strong>.<br>Vui lòng hoàn thành phiên học bù để tiếp tục.`;
-        let btnAlt = document.querySelector('.btn-shame-alt');
+        let sModal = document.getElementById('shame-modal');
+        if (sModal) sModal.style.display = 'flex'; 
+        let shameTitle = document.querySelector('.shame-content h2'); 
+        if (shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN NGÀY)";
+        let shameDesc = document.querySelector('.shame-content p'); 
+        if (shameDesc) shameDesc.innerHTML = `Bạn tu luyện chưa đủ tiêu chuẩn hàng ngày. Thời lượng nợ và phạt lãi kép là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
+        let btnAlt = document.querySelector('.btn-shame-alt'); 
         if (btnAlt) btnAlt.style.display = 'none';
         let btnShame = document.querySelector('.btn-shame');
-        if (btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-play"></i> BẮT ĐẦU HỌC BÙ (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
+        if (btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
         return;
     }
 
