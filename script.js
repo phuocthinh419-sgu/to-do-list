@@ -8859,7 +8859,7 @@ function injectApexMotionEngine() {
             box-shadow: 0 0 16px rgba(16, 185, 129, 0.22), inset 0 0 8px rgba(16, 185, 129, 0.12);
         }
 
-        .apex-plasma-svg { width: 22px; height: 22px; overflow: visible; filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.65)); }
+        .apex-plasma-svg { width: 28px !important; height: 28px !important; transform: scale(1.35); transform-origin: center; overflow: visible; filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.8)); margin-bottom: 2px; }
         .apex-plasma-svg .flame-outer { transform-origin: 50% 85%; animation: plasmaOuterWave 2.4s ease-in-out infinite; }
         .apex-plasma-svg .flame-mid   { transform-origin: 50% 85%; animation: plasmaMidWave 1.8s ease-in-out infinite; }
         .apex-plasma-svg .flame-core  { transform-origin: 50% 85%; animation: plasmaCorePulse 1.4s ease-in-out infinite; }
@@ -9358,3 +9358,57 @@ if (!window._apexCurfewInterval) {
     window._apexCurfewInterval = setInterval(initAndRunCurfewCountdown, 1000);
 }
 window.addEventListener('DOMContentLoaded', initAndRunCurfewCountdown);
+
+// =====================================================================
+// 15. HIỆU ỨNG KHUNG TRÒN XOAY VÔ CỰC (INFINITE RADAR SPIN)
+// =====================================================================
+(function injectInfiniteCircleAnimations() {
+    var st = document.createElement('style');
+    st.innerHTML = `
+        /* Động cơ xoay vô cực cơ bản */
+        @keyframes apexInfiniteSpin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 1. Vòng tròn % Tiến độ Mục tiêu (Dashboard) - Xoay chậm như Radar */
+        .progress-circle svg {
+            animation: apexInfiniteSpin 20s linear infinite !important;
+            transform-origin: center center;
+        }
+
+        /* 2. Biểu đồ Tròn Donut (Trang Phân tích) - Vừa đập nhịp thở vừa xoay liên tục */
+        @keyframes apexDonutHaloSpin {
+            0%   { transform: rotate(0deg) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
+            50%  { transform: rotate(180deg) scale(1.04); box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), 0 0 60px rgba(56, 189, 248, 0.26); }
+            100% { transform: rotate(360deg) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
+        }
+        .apex-donut-ring {
+            animation: apexDonutHaloSpin 15s linear infinite !important;
+            transform-origin: center center;
+        }
+
+        /* 3. Vòng tròn Focus Room - Bắt đầu từ -90 độ để thanh nối không bị lệch gốc */
+        @keyframes apexInfiniteSpinFocus {
+            0%   { transform: rotate(-90deg); }
+            100% { transform: rotate(270deg); }
+        }
+        .ft-ring-box > svg {
+            animation: apexInfiniteSpinFocus 20s linear infinite !important;
+            transform-origin: center center;
+        }
+
+        /* 4. Viền Avatar (Ảnh đại diện) - Ánh sáng luân chuyển chạy quanh viền */
+        @keyframes apexAvatarGlowSpin {
+            0%   { box-shadow: -6px -6px 12px rgba(168,85,247,0.5), 6px 6px 12px rgba(56,189,248,0.5); }
+            25%  { box-shadow: 6px -6px 12px rgba(168,85,247,0.5), -6px 6px 12px rgba(56,189,248,0.5); }
+            50%  { box-shadow: 6px 6px 12px rgba(168,85,247,0.5), -6px -6px 12px rgba(56,189,248,0.5); }
+            75%  { box-shadow: -6px 6px 12px rgba(168,85,247,0.5), 6px -6px 12px rgba(56,189,248,0.5); }
+            100% { box-shadow: -6px -6px 12px rgba(168,85,247,0.5), 6px 6px 12px rgba(56,189,248,0.5); }
+        }
+        #user-auth-badge img {
+            animation: apexAvatarGlowSpin 3s linear infinite !important;
+        }
+    `;
+    document.head.appendChild(st);
+})();
