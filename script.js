@@ -1360,7 +1360,6 @@ function importData(event) {
 }
 
 // =====================================================================
-// =====================================================================
 // ĐẠO LUẬT CHỐT SỔ (CHUẨN THƯƠNG MẠI 5H/TUẦN & 1H/NGÀY)
 // =====================================================================
 function checkCycleAndStreak() {
@@ -1515,79 +1514,6 @@ function checkCycleAndStreak() {
         if (btnAlt) btnAlt.style.display = 'none';
         let btnShame = document.querySelector('.btn-shame');
         if (btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
-        return;
-    }
-
-    let streakEl = document.getElementById('streak-count');
-    if (streakEl) streakEl.innerText = currentStreak;
-}
-
-    // =========================================================
-    // 2. ĐẠO LUẬT NGÀY (1.0h/ngày) -> KHOAN HỒNG ĐẠI CHÚNG
-    // =========================================================
-    let checkedDate = localStorage.getItem('saasDebtCheckedDate');
-    if (checkedDate !== yesterdayStr) {
-        let lastCheckedObj = checkedDate ? new Date(checkedDate) : new Date(yesterdayStr);
-        let daysToCheck = Math.floor((new Date(yesterdayStr) - lastCheckedObj) / (1000 * 60 * 60 * 24));
-        
-        if (daysToCheck <= 0 || isNaN(daysToCheck)) daysToCheck = 1; 
-
-        for (let i = daysToCheck; i >= 1; i--) {
-            let d = new Date(todayObj);
-            d.setDate(d.getDate() - i);
-            let checkStr = d.toISOString().split('T')[0];
-            
-            // Hạ chuẩn: Chỉ cần đạt 1.0h/ngày là thoát án
-            let targetHrs = (typeof getRequiredHoursForDate === 'function') ? getRequiredHoursForDate(d, checkStr) : ((lastRestDate === checkStr) ? 0.25 : 1.0); 
-            let hrsDone = dailyLogs[checkStr] || 0;
-            
-            let deficitHrs = targetHrs - hrsDone;
-            // 🛡️ VÁ LỖI THẬP PHÂN: Bỏ qua sai số dưới 0.01h (khoảng 36 giây)
-            if (deficitHrs > 0.01) {
-                let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5); // Nhân 1.5 lần lãi kép
-                if (dailyDebtMinutes === 0) impactStockMarket("PENALTY");
-                dailyDebtMinutes += penaltyMins; 
-            }
-        }
-        
-        localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
-        localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
-    }
-
-    // Đếm vắng mặt để set mốc Comeback
-    if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
-        let lastDateObj = new Date(lastActiveDate); 
-        let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
-        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true'); 
-    }
-
-    // =========================================================
-    // 3. HIỂN THỊ ÁN PHẠT ĐÚNG TỘI DANH
-    // =========================================================
-    if (isPendingTax) {
-        document.getElementById('shame-modal').style.display = 'flex';
-        let shameTitle = document.querySelector('.shame-content h2'); 
-        if(shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        let shameDesc = document.querySelector('.shame-content p'); 
-        if(shameDesc) shameDesc.innerText = "Bạn đã không đạt đủ tiêu chuẩn tự học: Tổng tuần < 5h. Bắt buộc nộp Thuế 90 phút!"; 
-        let btnAlt = document.querySelector('.btn-shame-alt'); 
-        if (btnAlt) btnAlt.style.display = 'none'; 
-        let btnShame = document.querySelector('.btn-shame');
-        if(btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; btnShame.onclick = startTaxSession; }
-        return;
-    }
-
-    if (dailyDebtMinutes > 0) {
-        document.getElementById('shame-modal').style.display = 'flex'; 
-        let shameTitle = document.querySelector('.shame-content h2'); 
-        if(shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN 1.0H)";
-        let shameDesc = document.querySelector('.shame-content p'); 
-        if(shameDesc) shameDesc.innerHTML = `Bạn tu luyện chưa đủ tiêu chuẩn 1.0h/ngày. Hình phạt Lãi kép dồn toa là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
-        let btnAlt = document.querySelector('.btn-shame-alt'); 
-        if (btnAlt) btnAlt.style.display = 'none';
-        let btnShame = document.querySelector('.btn-shame');
-        if(btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
         return;
     }
 
