@@ -1360,6 +1360,7 @@ function importData(event) {
 }
 
 // =====================================================================
+// =====================================================================
 // ĐẠO LUẬT CHỐT SỔ (CHUẨN THƯƠNG MẠI 5H/TUẦN & 1H/NGÀY)
 // =====================================================================
 function checkCycleAndStreak() {
@@ -1374,9 +1375,7 @@ function checkCycleAndStreak() {
     yesterdayObj.setDate(yesterdayObj.getDate() - 1);
     let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
 
-    // =========================================================
     // 1. ĐỒNG BỘ CHU KỲ TUẦN & THU PHÍ DUY TRÌ ($250)
-    // =========================================================
     let currentMon = getGlobalMonday();
     let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
 
@@ -1427,11 +1426,9 @@ function checkCycleAndStreak() {
         if (typeof syncToCloud === 'function') syncToCloud();
     }
 
-    // =========================================================
     // 2. KIỂM TRA ĐỊNH MỨC NGÀY (LÃI KÉP)
-    // =========================================================
     let checkedDate = localStorage.getItem('saasDebtCheckedDate');
-    let prevDebt = dailyDebtMinutes; // Ghi nhớ mức nợ trước khi quét để so sánh
+    let prevDebt = dailyDebtMinutes; 
 
     if (checkedDate !== yesterdayStr) {
         let lastCheckedObj = checkedDate ? new Date(checkedDate) : new Date(yesterdayStr);
@@ -1448,7 +1445,6 @@ function checkCycleAndStreak() {
             let hrsDone = dailyLogs[checkStr] || 0;
             
             let deficitHrs = targetHrs - hrsDone;
-            // Bỏ qua sai số dưới 0.01h (36 giây)
             if (deficitHrs > 0.01) {
                 let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
                 if (dailyDebtMinutes === 0 && typeof impactStockMarket === 'function') impactStockMarket("PENALTY");
@@ -1460,16 +1456,17 @@ function checkCycleAndStreak() {
         localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
     }
 
-    // =====================================================================
     // 🚀 HỆ THỐNG KHIÊN BẢO VỆ CHUỖI & PHIẾU GIẢM ÁN (AUTO-TRIGGER)
-    // =====================================================================
     if (dailyDebtMinutes > prevDebt) {
         let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
         if (shields > 0) {
             localStorage.setItem('saasFreezes', shields - 1);
-            dailyDebtMinutes = prevDebt; // Khôi phục lại mức nợ cũ (miễn án hôm qua)
-            if (dailyDebtMinutes === 0) localStorage.removeItem('saasDailyDebt');
-            else localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+            dailyDebtMinutes = prevDebt; 
+            if (dailyDebtMinutes === 0) {
+                localStorage.removeItem('saasDailyDebt');
+            } else {
+                localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
+            }
 
             alert("🛡️ KHIÊN BẢO VỆ CHUỖI ĐÃ KÍCH HOẠT!\nHệ thống tự động tiêu hao 1 Khiên để miễn trừ án phạt vắng mặt hôm qua và bảo vệ Chuỗi kỷ luật của bạn!");
             if (typeof renderAcademicShopContent === 'function') renderAcademicShopContent();
@@ -1485,9 +1482,7 @@ function checkCycleAndStreak() {
         }
     }
 
-    // =========================================================
-    // 3. ĐẾM VẮNG MẶT & HIỂN THỊ ÁN PHẠT NẾU VI PHẠM
-    // =========================================================
+    // 3. ĐẾM VẮNG MẶT & HIỂN THỊ ÁN PHẠT
     if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
         let lastDateObj = new Date(lastActiveDate); 
         let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
