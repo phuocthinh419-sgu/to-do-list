@@ -1886,12 +1886,12 @@ function deleteCountdown(id) {
 }
 
 function switchTab(tab) {
-    // KHÔNG ÉP MỞ FOCUS ROOM Ở ĐÂY. Nếu có án phạt, hệ thống im lặng từ chối chuyển tab để Shame Modal hiển thị.
     if (isPendingTax || dailyDebtMinutes > 0) { 
         console.log("Án thư đang bị phong tỏa. Chờ xử lý trên màn hình phạt.");
         return; 
     }
 
+    // Reset giao diện
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('view-dashboard').style.display = 'none'; 
     document.getElementById('analytics-room').style.display = 'none'; 
@@ -1901,47 +1901,45 @@ function switchTab(tab) {
     let ttRoom = document.getElementById('timetable-room');
     if(ttRoom) ttRoom.style.display = 'none';
     
+    let viewGoals = document.getElementById('view-goals');
+    if(viewGoals) viewGoals.style.display = 'none';
+    
     document.getElementById('sidebar').classList.remove('active'); 
     document.getElementById('mobile-overlay').classList.remove('active');
 
-    let navTt = document.getElementById('nav-timetable'); 
-    if(navTt) navTt.classList.remove('active');
-
+    // Chuyển hướng Tab
     if(tab === 'dashboard') {
         document.getElementById('nav-dash').classList.add('active'); 
         document.getElementById('view-dashboard').style.display = 'block';
         document.getElementById('main-title').innerText = "Tổng quan học tập"; 
         document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
-        document.getElementById('btn-create-goal').style.display = 'flex'; 
-        document.getElementById('btn-create-countdown').style.display = 'flex'; 
-        document.getElementById('btn-rest-day').style.display = 'flex';
         renderKPI(); renderDashboard(); renderGamification(); renderStockMarket(); renderRecommendations();
+    } else if(tab === 'goals') {
+        let navGoals = document.getElementById('nav-goals');
+        if(navGoals) navGoals.classList.add('active');
+        if(viewGoals) viewGoals.style.display = 'block';
+        document.getElementById('main-title').innerText = "Mục Tiêu & Cột Mốc"; 
+        document.getElementById('main-desc').innerText = "Chia nhỏ tham vọng. Lên lịch chinh phục.";
+        renderCountdownsDedicated();
+        renderGoalsDedicated();
     } else if(tab === 'analytics') {
         document.getElementById('nav-analytics').classList.add('active'); 
         document.getElementById('analytics-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; 
         document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
-        document.getElementById('btn-create-goal').style.display = 'none'; 
-        document.getElementById('btn-create-countdown').style.display = 'none'; 
-        document.getElementById('btn-rest-day').style.display = 'none';
         renderAnalytics();
     } else if(tab === 'trophy') {
         document.getElementById('nav-trophy').classList.add('active'); 
         document.getElementById('trophy-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Lịch Sử Học Tập"; 
         document.getElementById('main-desc').innerText = "Nơi lưu trữ các mục tiêu đã hoàn thành.";
-        document.getElementById('btn-create-goal').style.display = 'none'; 
-        document.getElementById('btn-create-countdown').style.display = 'none'; 
-        document.getElementById('btn-rest-day').style.display = 'none';
         renderTrophyRoom();
     } else if (tab === 'timetable') {
+        let navTt = document.getElementById('nav-timetable');
         if(navTt) navTt.classList.add('active');
-        document.getElementById('timetable-room').style.display = 'block';
+        if(ttRoom) ttRoom.style.display = 'block';
         document.getElementById('main-title').innerText = "Thời Khóa Biểu"; 
         document.getElementById('main-desc').innerText = "Sắp xếp chiến lược. Tối ưu thời gian.";
-        document.getElementById('btn-create-goal').style.display = 'none'; 
-        document.getElementById('btn-create-countdown').style.display = 'none'; 
-        document.getElementById('btn-rest-day').style.display = 'none';
         renderTimetable();
     }
 }
@@ -9360,55 +9358,281 @@ if (!window._apexCurfewInterval) {
 window.addEventListener('DOMContentLoaded', initAndRunCurfewCountdown);
 
 // =====================================================================
-// 15. HIỆU ỨNG KHUNG TRÒN XOAY VÔ CỰC (INFINITE RADAR SPIN)
+// 17. ĐẠI DI DỜI: MỤC TIÊU SANG PHÒNG RIÊNG & THU GỌN WIDGET DÀI NGOẰN
 // =====================================================================
-(function injectInfiniteCircleAnimations() {
-    var st = document.createElement('style');
-    st.innerHTML = `
-        /* Động cơ xoay vô cực cơ bản */
-        @keyframes apexInfiniteSpin {
-            0%   { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+(function applyCompactWidgetsAndDedicatedGoals() {
+
+    // 1. TẠO KHUNG LƯỚI "TOP WIDGETS" ĐỂ ÉP CÁC THANH DÀI THÀNH THẺ NHỎ GỌN
+    function getOrCreateTopWidgets() {
+        let dash = document.getElementById('view-dashboard');
+        if (!dash) return null;
+        let topContainer = document.getElementById('apex-top-widgets');
+        if (!topContainer) {
+            topContainer = document.createElement('div');
+            topContainer.id = 'apex-top-widgets';
+            topContainer.style.cssText = "display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; margin-bottom: 20px; align-items: stretch;";
+            dash.insertBefore(topContainer, dash.firstChild);
+        }
+        return topContainer;
+    }
+
+    // 2. THU GỌN THẺ THIẾT QUÂN LUẬT (KPI)
+    window.ensureMartialLawKpiCard = function() {
+        var topC = getOrCreateTopWidgets();
+        if (!topC) return;
+        var kpiCard = document.getElementById('restored-kpi-card');
+        if (!kpiCard) {
+            kpiCard = document.createElement('div');
+            kpiCard.id = 'restored-kpi-card'; 
+            kpiCard.className = 'phoi-card stagger-item';
+            kpiCard.style.cssText = "border: 1px solid rgba(20, 184, 166, 0.3); padding: 14px 18px !important; display: flex; flex-direction: column; justify-content: center; min-height: 125px; order: 1;";
+            topC.appendChild(kpiCard);
+        }
+        kpiCard.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Thiết Quân Luật</span>
+                <div id="kpi-status-slot"></div>
+            </div>
+            <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:8px;" id="kpi-bar-slot"></div>
+            <div id="kpi-msg-slot" style="line-height:1.4; flex:1; display:flex; align-items:flex-end;"></div>`;
+
+        var s = document.getElementById('kpi-status'), b = document.getElementById('kpi-bar-fill'), m = document.getElementById('kpi-message');
+        if (s) { s.style.cssText = "font-size:1.25rem !important; font-weight:900; color:#fff;"; document.getElementById('kpi-status-slot').appendChild(s); }
+        if (b) { b.style.cssText = "height:100%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"; document.getElementById('kpi-bar-slot').appendChild(b); }
+        if (m) { m.style.cssText = "font-size:0.7rem; color:#94a3b8; margin:0;"; document.getElementById('kpi-msg-slot').appendChild(m); }
+    };
+
+    // 3. THU GỌN THẺ ĐIỀU PHỐI AI (SMART DISPATCH)
+    window.renderDispatchStatusWidget = function() {
+        let topC = getOrCreateTopWidgets();
+        if (!topC) return;
+        let widget = document.getElementById('dispatch-status-widget');
+        if (!widget) {
+            widget = document.createElement('div');
+            widget.id = 'dispatch-status-widget';
+            widget.className = 'phoi-card stagger-item';
+            topC.appendChild(widget);
+        }
+        
+        let busyItem = typeof getCurrentBusySchedule === 'function' ? getCurrentBusySchedule() : null;
+        let isCurfew = typeof isCurfewActive === 'function' && isCurfewActive();
+        let qInfo = typeof getTodayDispatchQuotaInfo === 'function' ? getTodayDispatchQuotaInfo() : {doneHrs:0, requiredHrs:1};
+        let isSnoozed = typeof dispatchSnoozeUntil !== 'undefined' && Date.now() < dispatchSnoozeUntil;
+
+        let statusColor = "#10b981"; let statusText = `Trực tuyến (${qInfo.doneHrs.toFixed(2)}h / ${qInfo.requiredHrs}h)`;
+        if (isCurfew) { statusColor = "#64748b"; statusText = "Ngưng phát nhiệm vụ (Giới nghiêm)"; } 
+        else if (busyItem) { statusColor = "#0ea5e9"; statusText = `Đang bận: ${busyItem.name}`; } 
+        else if (typeof isFreeRestMode !== 'undefined' && isFreeRestMode && qInfo.isQuotaMet) { statusColor = "#64748b"; statusText = "Đang Tạm nghỉ (Đã đủ chỉ tiêu)"; } 
+        else if (isSnoozed) { let minsLeft = Math.ceil((dispatchSnoozeUntil - Date.now())/60000); statusColor = "#8b5cf6"; statusText = `Tạm hoãn điều phối (Còn ${minsLeft}p)`; } 
+        else if (typeof dispatchRate !== 'undefined' && dispatchRate < 50) { statusColor = "#ef4444"; statusText = "Chế tài (Nhiệm vụ bắt buộc)"; } 
+        else if (typeof dispatchRate !== 'undefined' && dispatchRate < 80) { statusColor = "#f59e0b"; statusText = "Cảnh báo (Tạm ngưng nhiệm vụ x2)"; }
+
+        let restBtnLabel = "", restBtnStyle = "background:var(--bg-hover); border:1px solid var(--border); color:var(--text-muted);";
+        if (qInfo.isQuotaMet) {
+            restBtnLabel = (typeof isFreeRestMode !== 'undefined' && isFreeRestMode) ? `<i class="fa-solid fa-play"></i> Bật Trực tuyến` : `<i class="fa-solid fa-mug-hot"></i> Tạm nghỉ`;
+            if (typeof isFreeRestMode !== 'undefined' && !isFreeRestMode) restBtnStyle = "background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#10b981;";
+        } else if (isSnoozed) {
+            restBtnLabel = `<i class="fa-solid fa-bolt"></i> Hủy hoãn`;
+            restBtnStyle = "background:rgba(139,92,246,0.12); border:1px solid #8b5cf6; color:#8b5cf6;";
+        } else {
+            let isFree = (localStorage.getItem('saasFreeSnoozeDate') !== (new Date().toISOString().split('T')[0]));
+            restBtnLabel = `<i class="fa-regular fa-clock"></i> Hoãn 15p (${isFree ? '0$' : '$30'})`;
         }
 
-        /* 1. Vòng tròn % Tiến độ Mục tiêu (Dashboard) - Xoay chậm như Radar */
-        .progress-circle svg {
-            animation: apexInfiniteSpin 20s linear infinite !important;
-            transform-origin: center center;
-        }
+        widget.style.cssText = `border:1px solid var(--border); border-left:4px solid ${statusColor}; padding:14px 18px !important; display:flex; flex-direction:column; justify-content:center; gap:10px; min-height:125px; order:2;`;
+        widget.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-satellite-dish" style="color:${statusColor}; margin-right:6px;"></i>Điều phối AI</span>
+                <span style="font-size:0.7rem; font-weight:700; color:var(--text-muted);">Hiệu suất: <strong style="color:${statusColor}; font-size:0.85rem;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong></span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-main); font-weight:600; line-height:1.4; flex:1;">${statusText}</div>
+            <div style="display:flex; gap:8px; margin-top:auto;">
+                <button onclick="handleDispatchRestAction()" style="${restBtnStyle} flex:1; padding:7px; border-radius:8px; font-weight:700; font-size:0.72rem; transition:0.2s; cursor:pointer;">${restBtnLabel}</button>
+                <button onclick="triggerDispatchPing(true)" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); flex:1; padding:7px; border-radius:8px; font-weight:700; font-size:0.72rem; transition:0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--brand-focus)'" onmouseout="this.style.borderColor='var(--border)'"><i class="fa-solid fa-bolt" style="color:var(--brand-warning);"></i> Nhận lệnh</button>
+            </div>
+        `;
+    };
 
-        /* 2. Biểu đồ Tròn Donut (Trang Phân tích) - Vừa đập nhịp thở vừa xoay liên tục */
-        @keyframes apexDonutHaloSpin {
-            0%   { transform: rotate(0deg) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
-            50%  { transform: rotate(180deg) scale(1.04); box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), 0 0 60px rgba(56, 189, 248, 0.26); }
-            100% { transform: rotate(360deg) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
+    // 4. THU GỌN THẺ ĐẾM NGƯỢC (COUNTDOWNS)
+    window.renderCountdowns = function() {
+        let topC = getOrCreateTopWidgets();
+        if (!topC) return;
+        
+        let strip = document.getElementById('countdown-strip');
+        if (!strip) {
+            strip = document.createElement('div');
+            strip.id = 'countdown-strip';
+            topC.appendChild(strip);
         }
-        .apex-donut-ring {
-            animation: apexDonutHaloSpin 15s linear infinite !important;
-            transform-origin: center center;
-        }
+        strip.style.cssText = 'display: contents;'; // Cho phép thẻ con hòa vào lưới Grid của cha
+        
+        let list = (typeof countdowns !== 'undefined' && Array.isArray(countdowns)) ? countdowns : (JSON.parse(localStorage.getItem('saasCountdownsPro')) || []);
+        if (list.length === 0) { strip.innerHTML = ''; return; }
 
-        /* 3. Vòng tròn Focus Room - Bắt đầu từ -90 độ để thanh nối không bị lệch gốc */
-        @keyframes apexInfiniteSpinFocus {
-            0%   { transform: rotate(-90deg); }
-            100% { transform: rotate(270deg); }
-        }
-        .ft-ring-box > svg {
-            animation: apexInfiniteSpinFocus 20s linear infinite !important;
-            transform-origin: center center;
-        }
+        strip.innerHTML = list.map((cd) => {
+            let targetMs = new Date(cd.date).getTime();
+            return `
+            <div class="phoi-card apex-live-cd-card stagger-item" data-cd-id="${cd.id}" data-target-ms="${targetMs}" style="padding:14px 18px !important; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(168,85,247,0.35) !important; min-height:125px; order:3;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                    <div style="min-width:0;">
+                        <div style="font-size:0.65rem; font-weight:800; color:#c084fc; text-transform:uppercase; margin-bottom:4px;"><i class="fa-solid fa-hourglass-half"></i> SỰ KIỆN LỚN</div>
+                        <div style="font-size:0.95rem; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cd.name}">${cd.name}</div>
+                    </div>
+                    <button onclick="deleteCountdown(${cd.id})" style="background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); color:#fda4af; border-radius:6px; padding:5px 8px; font-size:0.7rem; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div style="display:flex; justify-content:space-between; gap:6px;">
+                    <div style="flex:1; background:rgba(0,0,0,0.25); border-radius:8px; text-align:center; padding:7px 2px;"><span class="cd-val-d" style="display:block; font-size:1.15rem; font-weight:900; color:#fff; line-height:1;">00</span><span style="font-size:0.55rem; color:#94a3b8; text-transform:uppercase;">Ngày</span></div>
+                    <div style="flex:1; background:rgba(0,0,0,0.25); border-radius:8px; text-align:center; padding:7px 2px;"><span class="cd-val-h" style="display:block; font-size:1.15rem; font-weight:900; color:#fff; line-height:1;">00</span><span style="font-size:0.55rem; color:#94a3b8; text-transform:uppercase;">Giờ</span></div>
+                    <div style="flex:1; background:rgba(0,0,0,0.25); border-radius:8px; text-align:center; padding:7px 2px;"><span class="cd-val-m" style="display:block; font-size:1.15rem; font-weight:900; color:#fff; line-height:1;">00</span><span style="font-size:0.55rem; color:#94a3b8; text-transform:uppercase;">Phút</span></div>
+                    <div style="flex:1; background:linear-gradient(135deg, rgba(168,85,247,0.2), rgba(56,189,248,0.2)); border:1px solid rgba(168,85,247,0.3); border-radius:8px; text-align:center; padding:7px 2px;"><span class="cd-val-s" style="display:block; font-size:1.15rem; font-weight:900; color:#e9d5ff; line-height:1;">00</span><span style="font-size:0.55rem; color:#c084fc; text-transform:uppercase;">Giây</span></div>
+                </div>
+            </div>`;
+        }).join('');
+        if (typeof updateCountdownTicks === 'function') updateCountdownTicks();
+    };
 
-        /* 4. Viền Avatar (Ảnh đại diện) - Ánh sáng luân chuyển chạy quanh viền */
-        @keyframes apexAvatarGlowSpin {
-            0%   { box-shadow: -6px -6px 12px rgba(168,85,247,0.5), 6px 6px 12px rgba(56,189,248,0.5); }
-            25%  { box-shadow: 6px -6px 12px rgba(168,85,247,0.5), -6px 6px 12px rgba(56,189,248,0.5); }
-            50%  { box-shadow: 6px 6px 12px rgba(168,85,247,0.5), -6px -6px 12px rgba(56,189,248,0.5); }
-            75%  { box-shadow: -6px 6px 12px rgba(168,85,247,0.5), 6px -6px 12px rgba(56,189,248,0.5); }
-            100% { box-shadow: -6px -6px 12px rgba(168,85,247,0.5), 6px 6px 12px rgba(56,189,248,0.5); }
+    // 5. TẠO KHÔNG GIAN DÀNH RIÊNG CHO MỤC TIÊU & LỘ TRÌNH (BẤM VÀO SIDEBAR ĐỂ MỞ)
+    function ensureGoalsViewDOM() {
+        let viewGoals = document.getElementById('view-goals');
+        if (!viewGoals) {
+            viewGoals = document.createElement('div');
+            viewGoals.id = 'view-goals';
+            viewGoals.style.display = 'none';
+            viewGoals.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
+                    <div>
+                        <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0 0 4px 0;"><i class="fa-solid fa-bullseye" style="color: #f43f5e; margin-right: 8px;"></i> Quản Lý Mục Tiêu</h2>
+                        <div style="font-size: 0.9rem; color: #94a3b8;">Chia nhỏ tham vọng. Lên lịch chinh phục.</div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="createNewCountdown()" style="background: rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.3); color: #c084fc; padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-hourglass-start"></i> Đếm ngược mới</button>
+                        <button onclick="createNewGoal()" style="background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color: #34d399; padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-plus"></i> Mục tiêu mới</button>
+                    </div>
+                </div>
+                <div id="goals-grid-dedicated" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px;"></div>
+            `;
+            let dash = document.getElementById('view-dashboard');
+            if (dash) dash.parentNode.insertBefore(viewGoals, dash.nextSibling);
         }
-        #user-auth-badge img {
-            animation: apexAvatarGlowSpin 3s linear infinite !important;
+    }
+
+    // 6. RENDER LƯỚI MỤC TIÊU VÀO PHÒNG MỚI (TO ĐẸP HƠN)
+    window.renderGoalsDedicated = function() {
+        ensureGoalsViewDOM();
+        let activeGoals = typeof goals !== 'undefined' ? goals.filter(g => g.current > 0) : []; 
+        const board = document.getElementById('goals-grid-dedicated'); 
+        if(!board) return;
+        board.innerHTML = '';
+        
+        if (activeGoals.length === 0) { 
+            board.innerHTML = '<div class="stagger-item" style="grid-column: 1/-1; text-align: center; padding: 60px 20px; border: 2px dashed var(--border); border-radius: 24px; color: var(--text-muted); font-size: 1.05rem; font-weight: 500; background: rgba(0,0,0,0.2);">Chưa có mục tiêu. Hãy khởi tạo mục tiêu mới.</div>'; 
+            return; 
         }
-    `;
-    document.head.appendChild(st);
+        
+        let todayTime = new Date().getTime();
+        activeGoals.forEach((goal, index) => {
+            const percent = Math.max(0, Math.min(100, ((goal.target - goal.current) / goal.target) * 100)); 
+            const offset = 226.19 - (percent / 100) * 226.19; 
+            let delay = (index + 1) * 0.05;
+            
+            let hoursDone = goal.target - goal.current;
+            let createdTime = goal.createdAt ? new Date(goal.createdAt).getTime() : todayTime - 86400000;
+            let daysElapsed = Math.max(1, Math.ceil((todayTime - createdTime) / (1000 * 3600 * 24)));
+            let currentPace = hoursDone / daysElapsed; 
+            
+            let healthHtml = "", paceText = currentPace > 0 ? `${currentPace.toFixed(2)}h/ngày` : "0.0h/ng", reqPaceHtml = "", etaText = currentPace > 0 ? `~${Math.ceil(goal.current / currentPace)} ngày` : "Chưa rõ";
+
+            if (goal.deadline) {
+                let deadlineTime = new Date(goal.deadline).getTime();
+                let daysLeftToDeadline = Math.ceil((deadlineTime - todayTime) / (1000 * 3600 * 24));
+                let requiredPace = daysLeftToDeadline > 0 ? (goal.current / daysLeftToDeadline) : goal.current;
+                
+                reqPaceHtml = `<div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 4px;">Cần (Req)</div><div style="font-size: 0.85rem; color: var(--text-main); font-weight: 700;">${requiredPace.toFixed(2)}h/ng</div>`;
+
+                if (daysLeftToDeadline < 0) healthHtml = `<span style="background: rgba(239,68,68,0.1); color: #EF4444; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; border: 1px solid rgba(239,68,68,0.3);">QUÁ HẠN</span>`;
+                else if (currentPace >= requiredPace) healthHtml = `<span style="background: rgba(16,185,129,0.1); color: #10B981; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; border: 1px solid rgba(16,185,129,0.3);">TỐT</span>`;
+                else if (currentPace >= requiredPace * 0.7) healthHtml = `<span style="background: rgba(245,158,11,0.1); color: #F59E0B; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; border: 1px solid rgba(245,158,11,0.3);">RỦI RO</span>`;
+                else healthHtml = `<span style="background: rgba(239,68,68,0.1); color: #EF4444; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; border: 1px solid rgba(239,68,68,0.3);">CHẬM</span>`;
+            } else {
+                healthHtml = `<span style="background: rgba(14,165,233,0.1); color: #0EA5E9; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; border: 1px solid rgba(14,165,233,0.3);">TỰ DO</span>`;
+            }
+
+            board.innerHTML += `
+            <div class="phoi-card stagger-item" style="animation-delay: ${delay}s; padding: 18px !important; position: relative; cursor: pointer; border-color: rgba(255,255,255,0.08);" onclick="openGoal(${goal.id})" onmouseover="this.style.borderColor='rgba(168,85,247,0.5)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+                <div style="position:absolute; top:14px; right:14px; display:flex; gap:6px; z-index:10;">
+                    <button title="Lộ trình" onclick="event.stopPropagation(); openGoalDetailModal(${goal.id}, 'overview')" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); color:#e9d5ff; border-radius:6px; padding:5px 10px; font-size:0.7rem; cursor:pointer;"><i class="fa-solid fa-route"></i></button>
+                    <button title="Xóa" onclick="event.stopPropagation(); deleteGoal(event, ${goal.id})" style="background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); color:#fda4af; border-radius:6px; padding:5px 10px; font-size:0.7rem; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div style="display:flex; gap:16px; align-items:center; margin-bottom: 16px;">
+                    <div style="position:relative; width:64px; height:64px;">
+                        <svg viewBox="0 0 85 85" style="transform:rotate(-90deg); width:100%; height:100%;">
+                            <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"></circle>
+                            <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="#f43f5e" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.19" stroke-dashoffset="${offset}"></circle>
+                        </svg>
+                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:800; color:#fff;">${percent.toFixed(0)}%</div>
+                    </div>
+                    <div style="flex:1; min-width:0; padding-right:65px;">
+                        <h3 style="margin:0 0 6px 0; font-size:1.15rem; color:#fff; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${goal.name}</h3>
+                        ${healthHtml}
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; background:rgba(0,0,0,0.2); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);">
+                    <div><div style="font-size:0.6rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">Còn lại</div><div style="font-size:0.9rem; color:#fff; font-weight:800;">${goal.current.toFixed(1)}h</div></div>
+                    <div><div style="font-size:0.6rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">Tốc độ</div><div style="font-size:0.9rem; color:#fff; font-weight:800;">${paceText}</div>${reqPaceHtml}</div>
+                    <div><div style="font-size:0.6rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">Dự kiến</div><div style="font-size:0.8rem; color:#38bdf8; font-weight:800; margin-top:2px;">${etaText}</div></div>
+                </div>
+            </div>`;
+        });
+    };
+
+    // 7. GHI ĐÈ HÀM SWITCH TAB ĐỂ NHẬN DIỆN "MỤC TIÊU"
+    const origSwitchTabForGoals = window.switchTab;
+    window.switchTab = function(tab) {
+        if (typeof isPendingTax !== 'undefined' && (isPendingTax || dailyDebtMinutes > 0)) return;
+
+        // Gọi hàm gốc để đóng các cửa sổ khác
+        origSwitchTabForGoals(tab);
+        
+        let viewGoals = document.getElementById('view-goals');
+        if (viewGoals) viewGoals.style.display = 'none';
+        
+        if (tab === 'goals') {
+            document.getElementById('view-dashboard').style.display = 'none';
+            let navDash = document.getElementById('nav-dash'); if(navDash) navDash.classList.remove('active');
+            let navGoals = document.getElementById('nav-goals'); if(navGoals) navGoals.classList.add('active');
+            
+            ensureGoalsViewDOM();
+            document.getElementById('view-goals').style.display = 'block';
+            document.getElementById('main-title').innerText = "Mục Tiêu & Lộ Trình";
+            document.getElementById('main-desc').innerText = "Chia nhỏ tham vọng. Lên lịch chinh phục.";
+            
+            renderGoalsDedicated();
+        }
+    };
+
+    // 8. DỌN SẠCH CÁC THẺ MỤC TIÊU CŨ ẢNH HƯỞNG BẢNG ĐIỀU KHIỂN
+    const prevRenderDashboard = window.renderDashboard;
+    window.renderDashboard = function() {
+        // Dọn sạch lưới mục tiêu bị dư thừa ở dưới Dashboard cũ
+        let oldGrid = document.getElementById('dashboard-grid');
+        if (oldGrid) { oldGrid.innerHTML = ''; oldGrid.style.display = 'none'; }
+
+        // Render các thanh dài ngoằn thành các hộp vuông đặt ở trên cùng
+        ensureMartialLawKpiCard();
+        renderDispatchStatusWidget();
+        renderCountdowns();
+
+        // Render Bảng Dashboard V5 (Chứa tiến độ tổng quan)
+        if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter();
+
+        // Nếu đang đứng ở Tab Mục Tiêu thì tải lưới Mục tiêu
+        let viewGoals = document.getElementById('view-goals');
+        if (viewGoals && viewGoals.style.display !== 'none') {
+            renderGoalsDedicated();
+        }
+    };
+
+    // Kích hoạt dọn dẹp ngay lập tức
+    window.renderDashboard();
+
 })();
