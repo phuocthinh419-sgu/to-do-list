@@ -9500,7 +9500,6 @@ function renderGoalsDedicated() {
 
     let activeGoals = typeof goals !== 'undefined' ? goals.filter(g => g.current > 0) : []; 
     
-    // Header
     let html = `
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
             <div>
@@ -9560,6 +9559,18 @@ window.renderDashboard = function() {
         let el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
+    
+    // Xóa khối "Tiến độ các mục tiêu" dưới đáy Bảng điều khiển nếu còn sót lại
+    let bento = document.getElementById('bento-command-center');
+    if (bento) {
+        let titles = bento.querySelectorAll('.phoi-card-title');
+        titles.forEach(t => {
+            if (t.innerText.includes('Tiến độ các mục tiêu')) {
+                let card = t.closest('.phoi-card');
+                if (card) card.style.display = 'none';
+            }
+        });
+    }
 
     renderCompactTopWidgets();
     if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter();
@@ -9584,14 +9595,16 @@ window.switchTab = function(tabName) {
 
     // Mở View tương ứng
     if (tabName === 'dashboard') {
-        document.getElementById('nav-dash')?.classList.add('active'); 
+        let navDash = document.getElementById('nav-dash');
+        if (navDash) navDash.classList.add('active'); 
         document.getElementById('view-dashboard').style.display = 'block';
         document.getElementById('main-title').innerText = "Tổng quan học tập"; 
         document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
         renderDashboard();
     } 
     else if (tabName === 'goals') {
-        document.getElementById('nav-goals')?.classList.add('active');
+        let navGoals = document.getElementById('nav-goals');
+        if (navGoals) navGoals.classList.add('active');
         let vg = document.getElementById('view-goals');
         if(vg) vg.style.display = 'block';
         document.getElementById('main-title').innerText = "Mục Tiêu & Lộ Trình";
@@ -9599,21 +9612,24 @@ window.switchTab = function(tabName) {
         renderGoalsDedicated();
     }
     else if (tabName === 'analytics') {
-        document.getElementById('nav-analytics')?.classList.add('active'); 
+        let navAn = document.getElementById('nav-analytics');
+        if (navAn) navAn.classList.add('active'); 
         document.getElementById('analytics-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; 
         document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
         if (typeof renderAnalytics === 'function') renderAnalytics();
     } 
     else if (tabName === 'trophy') {
-        document.getElementById('nav-trophy')?.classList.add('active'); 
+        let navTr = document.getElementById('nav-trophy');
+        if (navTr) navTr.classList.add('active'); 
         document.getElementById('trophy-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Lịch Sử Học Tập"; 
         document.getElementById('main-desc').innerText = "Nơi lưu trữ các mục tiêu đã hoàn thành.";
         if (typeof renderTrophyRoom === 'function') renderTrophyRoom();
     } 
     else if (tabName === 'timetable') {
-        document.getElementById('nav-timetable')?.classList.add('active');
+        let navTt = document.getElementById('nav-timetable');
+        if(navTt) navTt.classList.add('active');
         let tt = document.getElementById('timetable-room');
         if(tt) tt.style.display = 'block';
         document.getElementById('main-title').innerText = "Thời Khóa Biểu"; 
@@ -9624,4 +9640,3 @@ window.switchTab = function(tabName) {
 
 // Cập nhật ngay lập tức
 renderDashboard();
-})();
