@@ -9473,7 +9473,7 @@ function renderCompactTopWidgets() {
 }
 
 // =====================================================================
-// BẢN NÂNG CẤP TRANG MỤC TIÊU - HIỆU ỨNG & ẢNH NỀN
+// BẢN NÂNG CẤP TRANG MỤC TIÊU - SỬA LỖI TRÀN CHỮ & CHỈNH LẠI TIMELINE
 // =====================================================================
 window.renderGoalsDedicated = function(filterType = 'all') {
     let viewGoals = document.getElementById('view-goals');
@@ -9485,7 +9485,6 @@ window.renderGoalsDedicated = function(filterType = 'all') {
     let totalGoals = allGoals.length;
     let activeGoalsCount = allGoals.filter(g => g.current > 0).length;
     let completedGoalsCount = allGoals.filter(g => g.current <= 0).length;
-    // Tạm tính mục tiêu 'Vượt tiến độ' (cần logic phức tạp hơn, tạm để demo)
     let aheadGoalsCount = allGoals.filter(g => {
         if (!g.deadline || g.current <= 0) return false;
         let todayTime = new Date().getTime();
@@ -9495,9 +9494,8 @@ window.renderGoalsDedicated = function(filterType = 'all') {
         let daysLeftToDeadline = Math.ceil((deadlineTime - todayTime) / (1000 * 3600 * 24));
         let currentPace = (g.target - g.current) / daysElapsed;
         let requiredPace = daysLeftToDeadline > 0 ? (g.current / daysLeftToDeadline) : g.current;
-        return currentPace > requiredPace * 1.2; // Giả sử vượt 20% tốc độ yêu cầu là 'Vượt tiến độ'
+        return currentPace > requiredPace * 1.2;
     }).length;
-    // Tạm tính mục tiêu 'Cần chú ý'
     let warningGoalsCount = allGoals.filter(g => {
         if (!g.deadline || g.current <= 0) return false;
         let todayTime = new Date().getTime();
@@ -9507,162 +9505,54 @@ window.renderGoalsDedicated = function(filterType = 'all') {
         let daysLeftToDeadline = Math.ceil((deadlineTime - todayTime) / (1000 * 3600 * 24));
         let currentPace = (g.target - g.current) / daysElapsed;
         let requiredPace = daysLeftToDeadline > 0 ? (g.current / daysLeftToDeadline) : g.current;
-        return currentPace < requiredPace * 0.7; // Dưới 70% tốc độ yêu cầu
+        return currentPace < requiredPace * 0.7;
     }).length;
 
-    // 2. Lọc mục tiêu theo tab được chọn
+    // 2. Lọc mục tiêu
     let displayGoals = allGoals;
     if (filterType === 'active') displayGoals = allGoals.filter(g => g.current > 0);
     else if (filterType === 'completed') displayGoals = allGoals.filter(g => g.current <= 0);
-    // Có thể thêm filter 'paused' nếu Bệ hạ muốn phát triển thêm tính năng tạm dừng mục tiêu
 
-    // 3. Xây dựng cấu trúc HTML
+    // 3. Xây dựng HTML
     let html = `
         <style>
-            /* CSS riêng cho trang Mục tiêu nâng cấp */
             .apex-goals-header-bg {
                 background: linear-gradient(180deg, rgba(16, 21, 38, 0.4) 0%, rgba(10, 14, 26, 0.9) 100%), url('https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-                border-radius: 20px;
-                padding: 30px;
-                margin-bottom: 24px;
-                border: 1px solid rgba(255,255,255,0.08);
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                border-radius: 20px; padding: 30px; margin-bottom: 24px;
+                border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             }
-            .apex-goals-stats-row {
-                display: flex;
-                gap: 30px;
-                margin-top: 24px;
-                padding-top: 24px;
-                border-top: 1px solid rgba(255,255,255,0.1);
-            }
-            .apex-goal-stat-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                border-right: 1px solid rgba(255,255,255,0.1);
-                padding-right: 30px;
-            }
+            .apex-goals-stats-row { display: flex; gap: 30px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); }
+            .apex-goal-stat-item { display: flex; flex-direction: column; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 30px; }
             .apex-goal-stat-item:last-child { border-right: none; padding-right: 0; }
             .apex-goal-stat-val { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
             .apex-goal-stat-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
             
-            .apex-goals-filter-bar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                flex-wrap: wrap;
-                gap: 12px;
-            }
-            .apex-filter-btn {
-                background: rgba(255,255,255,0.05);
-                border: 1px solid rgba(255,255,255,0.1);
-                color: #94a3b8;
-                padding: 8px 16px;
-                border-radius: 100px;
-                font-size: 0.8rem;
-                font-weight: 700;
-                cursor: pointer;
-                transition: 0.2s;
-            }
+            .apex-goals-filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+            .apex-filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 8px 16px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
             .apex-filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-            .apex-filter-btn.active {
-                background: linear-gradient(135deg, #7c3aed, #4f46e5);
-                border-color: #a855f7;
-                color: #fff;
-                box-shadow: 0 0 15px rgba(124,58,237,0.4);
-            }
+            .apex-filter-btn.active { background: linear-gradient(135deg, #7c3aed, #4f46e5); border-color: #a855f7; color: #fff; box-shadow: 0 0 15px rgba(124,58,237,0.4); }
 
             .apex-enhanced-goal-card {
-                position: relative;
-                border-radius: 16px;
-                overflow: hidden;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #101526;
+                position: relative; border-radius: 16px; overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.08); background: #101526;
                 transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-                cursor: pointer;
-                min-height: 180px;
-                display: flex;
-                flex-direction: column;
+                cursor: pointer; min-height: 180px; display: flex; flex-direction: column;
             }
-            .apex-enhanced-goal-card:hover {
-                transform: translateY(-4px);
-                border-color: rgba(168,85,247,0.4);
-                box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 20px rgba(168,85,247,0.15);
-            }
-            /* Lớp ảnh nền mờ đằng sau nội dung thẻ */
-            .apex-card-bg-layer {
-                position: absolute;
-                inset: 0;
-                background-size: cover;
-                background-position: center;
-                opacity: 0.4;
-                z-index: 0;
-                mix-blend-mode: luminosity; /* Làm ảnh chìm vào nền tối */
-                transition: opacity 0.3s, transform 3s ease-out;
-            }
-            .apex-enhanced-goal-card:hover .apex-card-bg-layer {
-                opacity: 0.6;
-                transform: scale(1.05);
-            }
-            /* Lớp gradient đè lên ảnh để dễ đọc chữ */
-            .apex-card-overlay {
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(90deg, rgba(16,21,38,1) 0%, rgba(16,21,38,0.85) 45%, rgba(16,21,38,0.3) 100%);
-                z-index: 1;
-            }
-            .apex-card-content {
-                position: relative;
-                z-index: 2;
-                padding: 16px;
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-                justify-content: space-between;
-            }
+            .apex-enhanced-goal-card:hover { transform: translateY(-4px); border-color: rgba(168,85,247,0.4); box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 20px rgba(168,85,247,0.15); }
+            .apex-card-bg-layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.4; z-index: 0; mix-blend-mode: luminosity; transition: opacity 0.3s, transform 3s ease-out; }
+            .apex-enhanced-goal-card:hover .apex-card-bg-layer { opacity: 0.6; transform: scale(1.05); }
+            .apex-card-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(16,21,38,1) 0%, rgba(16,21,38,0.85) 45%, rgba(16,21,38,0.3) 100%); z-index: 1; }
+            .apex-card-content { position: relative; z-index: 2; padding: 16px; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
             
-            /* Dải Timeline dọc theo mép dưới */
-            .apex-card-timeline {
-                margin-top: 16px;
-                position: relative;
-                padding-top: 10px;
-            }
-            .apex-timeline-track {
-                height: 4px;
-                background: rgba(255,255,255,0.1);
-                border-radius: 4px;
-                position: relative;
-            }
-            .apex-timeline-fill {
-                position: absolute;
-                top: 0; left: 0; bottom: 0;
-                background: linear-gradient(90deg, #38bdf8, #a855f7);
-                border-radius: 4px;
-                box-shadow: 0 0 10px rgba(168,85,247,0.5);
-            }
-            .apex-timeline-marker {
-                position: absolute;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: #101526;
-                border: 2px solid rgba(255,255,255,0.3);
-            }
+            /* TIMELINE FIX TRÀN LỀ */
+            .apex-card-timeline { margin-top: auto; position: relative; padding-top: 15px; padding-bottom: 5px; }
+            .apex-timeline-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; margin: 0 22px 0 12px; }
+            .apex-timeline-fill { position: absolute; top: 0; left: 0; bottom: 0; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 4px; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
+            .apex-timeline-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: #101526; border: 2px solid rgba(255,255,255,0.3); }
             .apex-timeline-marker.passed { border-color: #a855f7; background: #c084fc; }
-            .apex-timeline-label {
-                position: absolute;
-                top: 12px;
-                transform: translateX(-50%);
-                font-size: 0.6rem;
-                color: #94a3b8;
-                font-weight: 700;
-            }
+            .apex-timeline-label { position: absolute; top: 12px; transform: translateX(-50%); font-size: 0.62rem; color: #94a3b8; font-weight: 700; white-space: nowrap; }
         </style>
 
-        <!-- HEADER BANNER TRÁNG LỆ -->
         <div class="apex-goals-header-bg">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
                 <div>
@@ -9676,23 +9566,10 @@ window.renderGoalsDedicated = function(filterType = 'all') {
             </div>
             
             <div class="apex-goals-stats-row">
-                <div class="apex-goal-stat-item">
-                    <div class="apex-goal-stat-val" style="color: #fff;">${totalGoals}</div>
-                    <div class="apex-goal-stat-label">Tổng mục tiêu</div>
-                </div>
-                <div class="apex-goal-stat-item">
-                    <div class="apex-goal-stat-val" style="color: #34d399;">${activeGoalsCount}</div>
-                    <div class="apex-goal-stat-label">Đang thực hiện</div>
-                </div>
-                <div class="apex-goal-stat-item">
-                    <div class="apex-goal-stat-val" style="color: #38bdf8;">${aheadGoalsCount}</div>
-                    <div class="apex-goal-stat-label">Vượt tiến độ</div>
-                </div>
-                <div class="apex-goal-stat-item">
-                    <div class="apex-goal-stat-val" style="color: #fbbf24;">${warningGoalsCount}</div>
-                    <div class="apex-goal-stat-label">Cần chú ý</div>
-                </div>
-                
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fff;">${totalGoals}</div><div class="apex-goal-stat-label">Tổng mục tiêu</div></div>
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #34d399;">${activeGoalsCount}</div><div class="apex-goal-stat-label">Đang thực hiện</div></div>
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #38bdf8;">${aheadGoalsCount}</div><div class="apex-goal-stat-label">Vượt tiến độ</div></div>
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fbbf24;">${warningGoalsCount}</div><div class="apex-goal-stat-label">Cần chú ý</div></div>
                 <div style="margin-left: auto; align-self: center; max-width: 250px; font-style: italic; color: #cbd5e1; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 16px;">
                     "Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai."<br>
                     <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; font-style: normal; margin-top: 4px; display: block;">— ACADEMIC APEX</span>
@@ -9700,32 +9577,26 @@ window.renderGoalsDedicated = function(filterType = 'all') {
             </div>
         </div>
 
-        <!-- FILTER BAR -->
         <div class="apex-goals-filter-bar">
             <div style="display:flex; gap:8px; flex-wrap: wrap;">
                 <button class="apex-filter-btn ${filterType === 'all' ? 'active' : ''}" onclick="renderGoalsDedicated('all')">Tất cả (${totalGoals})</button>
                 <button class="apex-filter-btn ${filterType === 'active' ? 'active' : ''}" onclick="renderGoalsDedicated('active')">Đang thực hiện (${activeGoalsCount})</button>
                 <button class="apex-filter-btn ${filterType === 'completed' ? 'active' : ''}" onclick="renderGoalsDedicated('completed')">Hoàn thành (${completedGoalsCount})</button>
             </div>
-            <div style="display:flex; gap:8px;">
-                <!-- Có thể thêm ô Search phụ ở đây nếu muốn -->
-            </div>
         </div>
 
-        <!-- GRID MỤC TIÊU -->
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px;">
     `;
 
     if (displayGoals.length === 0) { 
         html += '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8; font-size: 1rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">Không tìm thấy mục tiêu nào trong mục này.</div>'; 
     } else {
-        // Mảng ảnh nền ngẫu nhiên (hoặc Bệ hạ có thể lưu riêng url cho từng mục tiêu trong object goal)
         const bgImages = [
-            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Núi
-            'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=800&q=80', // Kiến trúc Á Đông
-            'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80', // Bo mạch/Công nghệ
-            'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80', // Sách/Bàn học
-            'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80'  // Phòng làm việc
+            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+            'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=800&q=80',
+            'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+            'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80',
+            'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80'
         ];
 
         displayGoals.forEach((goal, index) => {
@@ -9735,10 +9606,7 @@ window.renderGoalsDedicated = function(filterType = 'all') {
             const pct = Math.min(100, Math.max(0, (hrsDone / targetH) * 100)); 
             const offset = 226.19 - (pct / 100) * 226.19; 
             
-            // Chọn ảnh nền dựa trên index (để demo)
             let bgUrl = bgImages[index % bgImages.length];
-            
-            // Tính toán 4 mốc (25%, 50%, 75%, 100%) cho Timeline
             let q1 = targetH * 0.25, q2 = targetH * 0.5, q3 = targetH * 0.75;
             
             html += `
@@ -9748,12 +9616,10 @@ window.renderGoalsDedicated = function(filterType = 'all') {
                 
                 <div class="apex-card-content">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div style="display:flex; gap:16px; align-items:center;">
-                            <!-- Tag STT -->
+                        <div style="display:flex; gap:16px; align-items:center; width: 100%;">
                             <div style="position:absolute; top:-1px; left:16px; background:linear-gradient(180deg, #6366f1, #4338ca); color:#fff; font-size:0.65rem; font-weight:800; padding:4px 8px 6px 8px; border-radius:0 0 6px 6px; box-shadow:0 4px 10px rgba(99,102,241,0.5);">#${index + 1}</div>
                             
-                            <!-- Vòng tròn % -->
-                            <div style="position:relative; width:54px; height:54px; margin-top:12px;">
+                            <div style="position:relative; width:54px; height:54px; margin-top:12px; flex-shrink:0;">
                                 <svg viewBox="0 0 85 85" style="transform:rotate(-90deg); width:100%; height:100%;">
                                     <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"></circle>
                                     <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="${pct >= 100 ? '#10b981' : '#f43f5e'}" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.19" stroke-dashoffset="${offset}"></circle>
@@ -9761,42 +9627,29 @@ window.renderGoalsDedicated = function(filterType = 'all') {
                                 <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#fff;">${pct.toFixed(0)}%</div>
                             </div>
                             
-                            <!-- Thông tin -->
-                            <div style="margin-top:12px;">
-                                <h3 style="margin:0 0 4px 0; font-size:1.15rem; color:#fff; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;" title="${goal.name}">${goal.name}</h3>
-                                <div style="font-size:0.75rem; color:#cbd5e1;">Đã cày: <strong style="color:#fff;">${hrsDone.toFixed(1)}h</strong> / ${targetH}h</div>
+                            <div style="margin-top:12px; min-width:0; padding-right:85px;">
+                                <h3 style="margin:0 0 4px 0; font-size:1.05rem; color:#fff; font-weight:800; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis; line-height:1.3;" title="${goal.name}">${goal.name}</h3>
+                                <div style="font-size:0.75rem; color:#cbd5e1;">Đã cày: <strong style="color:#fff;">${hrsDone.toFixed(1)}h</strong> / ${targetH.toFixed(1)}h</div>
                             </div>
                         </div>
                         
-                        <!-- Toolbar (Nổi bên phải) -->
-                        <div style="display:flex; gap:6px; z-index:10;">
+                        <div style="position:absolute; right:16px; top:16px; display:flex; gap:6px; z-index:10;">
                             <button title="Lộ trình" onclick="event.stopPropagation(); openGoalDetailModal(${goal.id}, 'overview')" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-route"></i></button>
                             <button title="Xóa" onclick="event.stopPropagation(); deleteGoal(event, ${goal.id})" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(244,63,94,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-trash-can"></i></button>
-                            <button title="Menu" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-ellipsis"></i></button>
+                            <button title="Tùy chọn" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-ellipsis"></i></button>
                         </div>
                     </div>
                     
-                    <!-- Dải Timeline dưới cùng thẻ -->
                     <div class="apex-card-timeline">
                         <div class="apex-timeline-track">
                             <div class="apex-timeline-fill" style="width: ${pct}%;"></div>
-                            
-                            <!-- Các mốc (Markers) -->
-                            <div class="apex-timeline-marker ${hrsDone >= 0 ? 'passed' : ''}" style="left: 0%;">
-                                <div class="apex-timeline-label">0h</div>
-                            </div>
-                            <div class="apex-timeline-marker ${hrsDone >= q1 ? 'passed' : ''}" style="left: 25%;">
-                                <div class="apex-timeline-label">${q1 >= 10 ? Math.round(q1) : q1.toFixed(1)}h</div>
-                            </div>
-                            <div class="apex-timeline-marker ${hrsDone >= q2 ? 'passed' : ''}" style="left: 50%;">
-                                <div class="apex-timeline-label">${q2 >= 10 ? Math.round(q2) : q2.toFixed(1)}h</div>
-                            </div>
-                            <div class="apex-timeline-marker ${hrsDone >= q3 ? 'passed' : ''}" style="left: 75%;">
-                                <div class="apex-timeline-label">${q3 >= 10 ? Math.round(q3) : q3.toFixed(1)}h</div>
-                            </div>
+                            <div class="apex-timeline-marker ${hrsDone >= 0 ? 'passed' : ''}" style="left: 0%;"><div class="apex-timeline-label">0h</div></div>
+                            <div class="apex-timeline-marker ${hrsDone >= q1 ? 'passed' : ''}" style="left: 25%;"><div class="apex-timeline-label">${q1 >= 10 ? Math.round(q1) : q1.toFixed(1)}h</div></div>
+                            <div class="apex-timeline-marker ${hrsDone >= q2 ? 'passed' : ''}" style="left: 50%;"><div class="apex-timeline-label">${q2 >= 10 ? Math.round(q2) : q2.toFixed(1)}h</div></div>
+                            <div class="apex-timeline-marker ${hrsDone >= q3 ? 'passed' : ''}" style="left: 75%;"><div class="apex-timeline-label">${q3 >= 10 ? Math.round(q3) : q3.toFixed(1)}h</div></div>
                             <div class="apex-timeline-marker ${hrsDone >= targetH ? 'passed' : ''}" style="left: 100%; border-radius:4px; width:12px; height:12px; background:${hrsDone >= targetH ? '#fbbf24' : '#101526'}; border-color:${hrsDone >= targetH ? '#f59e0b' : 'rgba(255,255,255,0.3)'};">
                                 ${hrsDone >= targetH ? '<i class="fa-solid fa-crown" style="position:absolute; top:-12px; left:-2px; color:#fbbf24; font-size:0.8rem;"></i>' : ''}
-                                <div class="apex-timeline-label">Hoàn thành</div>
+                                <div class="apex-timeline-label" style="transform: translateX(-80%);">Hoàn thành</div>
                             </div>
                         </div>
                     </div>
