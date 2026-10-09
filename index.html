@@ -45,7 +45,7 @@
         <div class="nav-menu">
             <a class="nav-item active" id="nav-dash" onclick="switchTab('dashboard')"><i class="fa-solid fa-house"></i> Bảng điều khiển</a>
             <a class="nav-item" id="nav-timetable" onclick="switchTab('timetable')"><i class="fa-regular fa-calendar-days"></i> Thời khóa biểu</a>
-            <a class="nav-item" onclick="switchTab('dashboard'); setTimeout(()=>document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'}),100);"><i class="fa-solid fa-bullseye"></i> Mục tiêu</a>
+            <a class="nav-item" id="nav-goals" onclick="switchTab('goals')"><i class="fa-solid fa-bullseye"></i> Mục tiêu & Lộ trình</a>
             <a class="nav-item" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-column"></i> Phân tích tiến độ</a>
             <a class="nav-item" id="nav-trophy" onclick="switchTab('trophy')"><i class="fa-solid fa-trophy"></i> Thành tựu & Lưu trữ</a>
             <a class="nav-item" onclick="openLeaderboard()"><i class="fa-solid fa-ranking-star" style="color:#fbbf24;"></i> Bảng xếp hạng</a>
@@ -121,12 +121,14 @@
                     <span id="unread-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:var(--brand-warning); color:#fff; border-radius:50%; font-size:0.62rem; padding:1px 5px; font-weight:800;">0</span>
                 </button>
                 <button class="btn-ghost-action" id="btn-rest-day" onclick="activateRestDay()"><i class="fa-solid fa-mug-hot"></i> Nghỉ bảo tồn</button>
-                <button class="btn-ghost-action" id="btn-create-countdown" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Sự kiện</button>
-                <button class="btn-primary" id="btn-create-goal" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Mục tiêu</button>
+                <button class="btn-ghost-action" id="btn-create-countdown" style="display:none;" onclick="createNewCountdown()"><i class="fa-regular fa-clock"></i> Sự kiện</button>
+                <button class="btn-primary" id="btn-create-goal" style="display:none;" onclick="createNewGoal()"><i class="fa-solid fa-plus"></i> Mục tiêu</button>
             </div>
         </header>
 
         <div id="view-dashboard" class="view-section">
+            <!-- Khu vực chứa 3 thẻ widget Compact (Sẽ do script inject vào đây qua id apex-compact-widgets) -->
+            
             <!-- Bố cục 4 tầng chuẩn Concept -->
             <div id="bento-command-center"></div>
 
@@ -147,16 +149,10 @@
                 <div id="heatmap-grid"></div>
                 <div id="stock-market-container"></div>
             </div>
-
-            <div class="countdown-strip" id="countdown-strip"></div>
-
-            <div style="padding: 4px 0 10px; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size: 0.82rem; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin:0;">
-                    <i class="fa-solid fa-layer-group" style="color: var(--brand-focus);"></i> Danh sách mục tiêu chi tiết
-                </h3>
-            </div>
-            <div class="dashboard-grid" id="dashboard-grid"></div>
         </div>
+
+        <!-- PHÒNG MỤC TIÊU ĐƯỢC TÁCH RIÊNG (GOALS ROOM) -->
+        <div id="view-goals" style="display: none;"></div>
 
         <div id="timetable-room" class="view-section" style="display: none;">
             <div class="timetable-header-controls">
