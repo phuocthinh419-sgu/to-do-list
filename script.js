@@ -9412,3 +9412,230 @@ window.addEventListener('DOMContentLoaded', initAndRunCurfewCountdown);
     `;
     document.head.appendChild(st);
 })();
+
+// =====================================================================
+// 17. ĐẠI DI DỜI MỤC TIÊU VÀ TỐI ƯU HÓA WIDGETS GỌN GÀNG
+// =====================================================================
+(function optimizeCommandCenterV6() {
+    // 1. TẠO KHÔNG GIAN CHO TAB MỤC TIÊU
+    let viewGoals = document.getElementById('view-goals');
+    if (!viewGoals) {
+        viewGoals = document.createElement('div');
+        viewGoals.id = 'view-goals';
+        viewGoals.style.display = 'none';
+        viewGoals.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0 0 4px 0;"><i class="fa-solid fa-bullseye" style="color: #f43f5e; margin-right: 8px;"></i> Quản Lý Mục Tiêu</h2>
+                    <div style="font-size: 0.9rem; color: #94a3b8;">Chia nhỏ tham vọng. Lên lịch chinh phục.</div>
+                </div>
+                <button onclick="createNewGoal()" style="background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color: #34d399; padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.2);"><i class="fa-solid fa-plus"></i> Mục tiêu mới</button>
+            </div>
+            <div id="dedicated-goals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
+        `;
+        let dash = document.getElementById('view-dashboard');
+        if (dash) dash.parentNode.insertBefore(viewGoals, dash.nextSibling);
+    }
+
+    // 2. CHẶN RENDER DASHBOARD GỐC (ẨN THẺ MỤC TIÊU KHỎI DASHBOARD)
+    const oldRenderDash = window.renderDashboard;
+    window.renderDashboard = function() {
+        if (typeof oldRenderDash === 'function') oldRenderDash();
+        
+        // Ẩn lưới mục tiêu cũ dư thừa
+        let oldGrid = document.getElementById('dashboard-grid');
+        if (oldGrid) oldGrid.style.display = 'none';
+
+        // Ẩn khối "Tiến độ các mục tiêu" ở dưới đáy Bento
+        let bento = document.getElementById('bento-command-center');
+        if (bento) {
+            let titles = bento.querySelectorAll('.phoi-card-title');
+            titles.forEach(t => {
+                if (t.innerText.includes('Tiến độ các mục tiêu')) {
+                    let card = t.closest('.phoi-card');
+                    if (card) card.style.display = 'none';
+                }
+            });
+        }
+
+        // Gọi render lưới mới nếu đang ở tab Mục tiêu
+        let vg = document.getElementById('view-goals');
+        if (vg && vg.style.display !== 'none') {
+            renderDedicatedGoals();
+        }
+
+        // Ép 3 Widget dài ngoằn thành 1 hàng ngang gọn gàng
+        optimizeTopWidgets();
+    };
+
+    // 3. TÁI THIẾT KẾ 3 WIDGET (THIẾT QUÂN LUẬT, ĐIỀU PHỐI, ĐẾM NGƯỢC)
+    function optimizeTopWidgets() {
+        let bento = document.getElementById('bento-command-center');
+        if (!bento) return;
+        
+        let topC = document.getElementById('apex-compact-widgets');
+        if (!topC) {
+            topC = document.createElement('div');
+            topC.id = 'apex-compact-widgets';
+            // Dàn đều 3 thẻ trên 1 hàng ngang, tự động rớt dòng nếu màn hình hẹp
+            topC.style.cssText = "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px;";
+            bento.insertBefore(topC, bento.firstChild);
+        }
+        topC.innerHTML = ''; 
+
+        // 3.1 Thiết Quân Luật (Compact)
+        if (typeof isPendingTax !== 'undefined') {
+            let kpiCard = document.createElement('div');
+            kpiCard.className = 'phoi-card stagger-item';
+            kpiCard.style.cssText = "padding: 14px !important; border: 1px solid rgba(20, 184, 166, 0.3) !important; min-height: 100px; display: flex; flex-direction: column; justify-content: center;";
+            kpiCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>KPI Tuần</span>
+                    <strong id="compact-kpi-val" style="font-size:1.1rem; color:#fff;">0/0h</strong>
+                </div>
+                <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:6px;">
+                    <div id="compact-kpi-bar" style="height:100%; width:0%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"></div>
+                </div>
+                <div id="compact-kpi-msg" style="font-size:0.68rem; color:#94a3b8; line-height:1.3;">Đang tải...</div>`;
+            topC.appendChild(kpiCard);
+            
+            // Đồng bộ dữ liệu
+            let s = document.getElementById('kpi-status');
+            if (s && document.getElementById('compact-kpi-val')) document.getElementById('compact-kpi-val').innerText = s.innerText;
+            let b = document.getElementById('kpi-bar-fill');
+            if (b && document.getElementById('compact-kpi-bar')) document.getElementById('compact-kpi-bar').style.width = b.style.width;
+            let m = document.getElementById('kpi-message');
+            if (m && document.getElementById('compact-kpi-msg')) document.getElementById('compact-kpi-msg').innerHTML = m.innerHTML;
+        }
+
+        // 3.2 Điều Phối AI (Compact)
+        if (typeof dispatchRate !== 'undefined') {
+            let qInfo = typeof getTodayDispatchQuotaInfo === 'function' ? getTodayDispatchQuotaInfo() : {doneHrs:0, requiredHrs:1};
+            let statusColor = "#10b981"; let statusText = `Sẵn sàng (${qInfo.doneHrs.toFixed(1)}h / ${qInfo.requiredHrs}h)`;
+            if (typeof isCurfewActive === 'function' && isCurfewActive()) { statusColor = "#64748b"; statusText = "Giới nghiêm"; }
+            
+            let dispatchCard = document.createElement('div');
+            dispatchCard.className = 'phoi-card stagger-item';
+            dispatchCard.style.cssText = `padding: 14px !important; border: 1px solid rgba(255,255,255,0.08) !important; border-left: 3px solid ${statusColor} !important; min-height: 100px; display: flex; flex-direction: column; justify-content: center;`;
+            dispatchCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-satellite-dish" style="color:${statusColor}; margin-right:6px;"></i>Điều Phối AI</span>
+                    <span style="font-size:0.7rem; color:var(--text-muted);">Hiệu suất: <strong style="color:${statusColor};">${dispatchRate}%</strong></span>
+                </div>
+                <div style="font-size:0.75rem; color:#cbd5e1; margin-bottom:8px;">${statusText}</div>
+                <div style="display:flex; gap:6px; margin-top:auto;">
+                    <button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; border-radius:6px; padding:4px 0; font-size:0.7rem; font-weight:700; cursor:pointer;">Tạm nghỉ</button>
+                    <button onclick="triggerDispatchPing(true)" style="flex:1; background:var(--brand-focus); border:none; color:#fff; border-radius:6px; padding:4px 0; font-size:0.7rem; font-weight:700; cursor:pointer;"><i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhận lệnh</button>
+                </div>`;
+            topC.appendChild(dispatchCard);
+        }
+
+        // 3.3 Đếm ngược (Chỉ lấy sự kiện gần nhất)
+        if (typeof countdowns !== 'undefined' && Array.isArray(countdowns) && countdowns.length > 0) {
+            let cd = countdowns[0];
+            let cdCard = document.createElement('div');
+            cdCard.className = 'phoi-card stagger-item apex-live-cd-card';
+            cdCard.setAttribute('data-target-ms', new Date(cd.date).getTime());
+            cdCard.style.cssText = "padding: 14px !important; border: 1px solid rgba(168,85,247,0.3) !important; background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(0,0,0,0)); min-height: 100px; display: flex; flex-direction: column; justify-content: center;";
+            cdCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                    <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="fa-solid fa-hourglass-half"></i> ${cd.name}</div>
+                </div>
+                <div style="display:flex; justify-content:space-between; gap:4px; margin-top:auto;">
+                    <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:6px; text-align:center; padding:4px 0;"><span class="cd-val-d" style="display:block; font-size:1.1rem; font-weight:900; color:#fff;">00</span><span style="font-size:0.5rem; color:#94a3b8; text-transform:uppercase;">Ngày</span></div>
+                    <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:6px; text-align:center; padding:4px 0;"><span class="cd-val-h" style="display:block; font-size:1.1rem; font-weight:900; color:#fff;">00</span><span style="font-size:0.5rem; color:#94a3b8; text-transform:uppercase;">Giờ</span></div>
+                    <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:6px; text-align:center; padding:4px 0;"><span class="cd-val-m" style="display:block; font-size:1.1rem; font-weight:900; color:#fff;">00</span><span style="font-size:0.5rem; color:#94a3b8; text-transform:uppercase;">Phút</span></div>
+                </div>`;
+            topC.appendChild(cdCard);
+            if (typeof updateCountdownTicks === 'function') updateCountdownTicks();
+        }
+        
+        // Ẩn vĩnh viễn các widget dài ngoằn cũ
+        let oldKpi = document.getElementById('restored-kpi-card');
+        if (oldKpi && oldKpi.parentElement !== topC) oldKpi.style.display = 'none';
+        let oldDisp = document.getElementById('dispatch-status-widget');
+        if (oldDisp && oldDisp.parentElement !== topC) oldDisp.style.display = 'none';
+        let oldCd = document.getElementById('countdown-strip');
+        if (oldCd) oldCd.style.display = 'none';
+    }
+
+    // 4. RENDER MỤC TIÊU VÀO TRANG RIÊNG CHUẨN XÁC
+    window.renderDedicatedGoals = function() {
+        let activeGoals = goals.filter(g => g.current > 0); 
+        const board = document.getElementById('dedicated-goals-grid'); 
+        if(!board) return;
+        board.innerHTML = '';
+        
+        if (activeGoals.length === 0) { 
+            board.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8; font-size: 1rem;">Chưa có mục tiêu.</div>'; 
+            return; 
+        }
+        
+        let todayTime = new Date().getTime();
+
+        activeGoals.forEach((goal) => {
+            const percent = Math.max(0, Math.min(100, ((goal.target - goal.current) / goal.target) * 100)); 
+            const offset = 226.19 - (percent / 100) * 226.19; 
+            
+            let hoursDone = goal.target - goal.current;
+            let createdTime = goal.createdAt ? new Date(goal.createdAt).getTime() : todayTime - 86400000;
+            let daysElapsed = Math.max(1, Math.ceil((todayTime - createdTime) / (1000 * 3600 * 24)));
+            let currentPace = hoursDone / daysElapsed; 
+            
+            let paceText = currentPace > 0 ? `${currentPace.toFixed(2)}h/ng` : "0.00h/ng";
+            let etaText = currentPace > 0 ? `~${Math.ceil(goal.current / currentPace)} ngày` : "Chưa rõ";
+
+            board.innerHTML += `
+            <div class="phoi-card" style="position:relative; cursor:pointer; padding: 18px; border-color: rgba(255,255,255,0.08);" onclick="openGoal(${goal.id})" onmouseover="this.style.borderColor='rgba(168,85,247,0.5)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+                <div style="position:absolute; top:12px; right:12px; display:flex; gap:6px; z-index:10;">
+                    <button title="Lộ trình" onclick="event.stopPropagation(); openGoalDetailModal(${goal.id}, 'overview')" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); color:#e9d5ff; border-radius:6px; padding:4px 8px; font-size:0.7rem; cursor:pointer;"><i class="fa-solid fa-route"></i></button>
+                    <button title="Xóa" onclick="event.stopPropagation(); deleteGoal(event, ${goal.id})" style="background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); color:#fda4af; border-radius:6px; padding:4px 8px; font-size:0.7rem; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div style="display:flex; gap:16px; align-items:center; margin-bottom: 16px;">
+                    <div style="position:relative; width:58px; height:58px;">
+                        <svg viewBox="0 0 85 85" style="transform:rotate(-90deg); width:100%; height:100%;">
+                            <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"></circle>
+                            <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="#f43f5e" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.19" stroke-dashoffset="${offset}"></circle>
+                        </svg>
+                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#fff;">${percent.toFixed(0)}%</div>
+                    </div>
+                    <div style="flex:1; min-width:0; padding-right:65px;">
+                        <h3 style="margin:0 0 4px 0; font-size:1.1rem; color:#fff; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${goal.name}</h3>
+                        <div style="font-size:0.75rem; color:#94a3b8;">Đã cày: ${hoursDone.toFixed(1)}h / ${goal.target}h</div>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);">
+                    <div><div style="font-size:0.6rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">Tốc độ</div><div style="font-size:0.85rem; color:#fff; font-weight:800;">${paceText}</div></div>
+                    <div><div style="font-size:0.6rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">Dự kiến</div><div style="font-size:0.85rem; color:#38bdf8; font-weight:800;">${etaText}</div></div>
+                </div>
+            </div>`;
+        });
+    };
+
+    // 5. ĐỊNH TUYẾN CHUYỂN TAB CHUẨN XÁC
+    const origSwitchTab = window.switchTab;
+    window.switchTab = function(tabName) {
+        if (typeof isPendingTax !== 'undefined' && (isPendingTax || dailyDebtMinutes > 0)) return origSwitchTab(tabName); 
+        
+        origSwitchTab(tabName);
+        
+        let vg = document.getElementById('view-goals');
+        if (vg) vg.style.display = 'none';
+        
+        if (tabName === 'goals') {
+            document.getElementById('view-dashboard').style.display = 'none';
+            let navDash = document.getElementById('nav-dash'); if(navDash) navDash.classList.remove('active');
+            let navGoals = document.getElementById('nav-goals'); if(navGoals) navGoals.classList.add('active');
+            
+            if (vg) vg.style.display = 'block';
+            document.getElementById('main-title').innerText = "Mục Tiêu & Lộ Trình";
+            document.getElementById('main-desc').innerText = "Chia nhỏ tham vọng. Lên lịch chinh phục.";
+            
+            renderDedicatedGoals();
+        }
+    };
+
+    // KÍCH HOẠT QUÉT & DỌN DẸP LẠI GIAO DIỆN
+    window.renderDashboard();
+
+})();
