@@ -9100,7 +9100,7 @@ function upgradeAllLivingIconsAndWidgets() {
 function upgradeAnalyticsLivingAnimations() {
     var room = document.getElementById('analytics-room');
     if (room && room.style.display !== 'none') {
-        var iconHolders = room.querySelectorAll('div[style*="width:38px"][style*="height:38px"]');
+        var iconHolders = room.querySelectorAll('div[style*="38px"]');
         iconHolders.forEach(function(holder) {
             var parentCard = holder.parentElement;
             if (parentCard) parentCard.classList.add('apex-analytics-stat-card');
