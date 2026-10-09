@@ -6000,28 +6000,7 @@ function openFullStockMarketDrawer() {
     modal.style.display = 'flex';
 }
 
-function ensureMartialLawKpiCard() {
-    var dash = document.getElementById('view-dashboard');
-    if (!dash || document.getElementById('restored-kpi-card')) return;
-    var kpiCard = document.createElement('div');
-    kpiCard.id = 'restored-kpi-card'; kpiCard.className = 'phoi-card';
-    kpiCard.style.cssText = "margin-bottom: 14px; border: 1px solid rgba(20, 184, 166, 0.3);";
-    kpiCard.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.8rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Thiết Quân Luật (KPI Tuần)</span>
-            <div id="kpi-status-slot"></div>
-        </div>
-        <div style="width:100%; height:8px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:8px;" id="kpi-bar-slot"></div>
-        <div id="kpi-msg-slot"></div>`;
-    var bento = document.getElementById('bento-command-center');
-    if (bento && bento.nextSibling) dash.insertBefore(kpiCard, bento.nextSibling);
-    else dash.insertBefore(kpiCard, dash.firstChild);
-
-    var s = document.getElementById('kpi-status'), b = document.getElementById('kpi-bar-fill'), m = document.getElementById('kpi-message');
-    if (s) { s.style.cssText = "font-size:1.4rem !important; font-weight:900; color:#fff;"; document.getElementById('kpi-status-slot').appendChild(s); }
-    if (b) { b.style.cssText = "height:100%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"; document.getElementById('kpi-bar-slot').appendChild(b); }
-    if (m) { m.style.cssText = "font-size:0.75rem; color:#94a3b8; margin:0;"; document.getElementById('kpi-msg-slot').appendChild(m); }
-}
+function ensureMartialLawKpiCard() {}
 
 // --- 4. MÀN HÌNH CHI TIẾT MỤC TIÊU (GOALS DETAIL VIEW - LỘ TRÌNH 5 CHẶNG & NHIỆM VỤ MÔN HỌC) ---
 function getGoalExtraData(goal) {
