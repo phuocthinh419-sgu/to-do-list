@@ -5478,8 +5478,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // =====================================================================
-// APEX UNIFIED UI ENGINE V5 (TỐI ƯU HÓA: 3-TIER DASHBOARD, GOAL DETAIL,
-// ROADMAP, ANALYTICS, FOCUS STUDIO & DEDICATED GOALS ROOM)
+// APEX UNIFIED UI ENGINE V4 (CONCEPT 2026: 3-TIER DASHBOARD, GOAL DETAIL
+// ROADMAP, 4-FILTER ANALYTICS + AI INSIGHTS, 1000H RANKS & FOCUS STUDIO)
 // =====================================================================
 var DEFAULT_WALLPAPER = "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85";
 var bentoTodoList = JSON.parse(localStorage.getItem('saasBentoTodos')) || [
@@ -5507,7 +5507,7 @@ function getTotalAccumulatedHours() {
     return 0;
 }
 
-// 1. HỆ THỐNG DANH HIỆU HỌC THUẬT (0H -> 1000+ GIỜ)
+// 1. HỆ THỐNG 10 BẬC HỌC HÀM / DANH HIỆU HỌC THUẬT TRUNG LẬP (0H -> 1000+ GIỜ)
 function getUserLevelAndRank(totalHrs) {
     var hrs = Number(totalHrs || 0);
     var lv = Math.max(1, Math.floor(hrs / 10) + 1);
@@ -5521,6 +5521,7 @@ function getUserLevelAndRank(totalHrs) {
     else if (lv >= 15) title = "Chuyên Gia";
     else if (lv >= 10) title = "Học Giả";
     else if (lv >= 5) title = "Học Viên Tiêu Biểu";
+
     var nextLvHrs = lv * 10;
     var pct = Math.min(100, Math.round(((hrs % 10) / 10) * 100));
     return { level: lv, rank: title, nextHrs: nextLvHrs, pct: pct };
@@ -5533,8 +5534,8 @@ function getAllAchievementsList() {
     var has100hGoal = allGoalsList.some(function(g) { return Number(g.target || 0) >= 100; });
     var usd = parseInt(localStorage.getItem('usdBalance')) || 0;
     var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+
     var totalReports = 0, morningReports = 0, nightReports = 0;
-    
     allGoalsList.forEach(function(g) {
         if (Array.isArray(g.reports)) {
             totalReports += g.reports.length;
@@ -5552,40 +5553,43 @@ function getAllAchievementsList() {
     var logDaysCount = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).filter(function(k) { return Number(dailyLogs[k]) > 0; }).length : 0;
 
     return [
-        { tier: 'rookie', name: "First Step", desc: "Hoàn thành phiên học đầu tiên", icon: "fa-flag", grad: "linear-gradient(135deg,#f43f5e,#e11d48)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
-        { tier: 'rookie', name: "Warm Up", desc: "Đạt tương đương 10 Pomodoro", icon: "fa-clock", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalPomodorosEst >= 10, tag: "10 Phiên" },
-        { tier: 'rookie', name: "Apprentice", desc: "Đạt 10 giờ học tập", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 Giờ" },
-        { tier: 'rookie', name: "Early Bird", desc: "10 phiên học buổi sáng", icon: "fa-sun", grad: "linear-gradient(135deg,#fbbf24,#d97706)", unlocked: morningReports >= 10 || logDaysCount >= 10, tag: "10 Ca Sáng" },
-        { tier: 'rookie', name: "Night Owl", desc: "10 phiên học buổi tối", icon: "fa-moon", grad: "linear-gradient(135deg,#818cf8,#4f46e5)", unlocked: nightReports >= 10 || totalReports >= 15, tag: "10 Ca Tối" },
-        { tier: 'rookie', name: "First Milestone", desc: "Hoàn thành 1 mục tiêu", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
-        { tier: 'pro', name: "Silver Streak", desc: "Duy trì chuỗi 14 ngày", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
-        { tier: 'pro', name: "Consistent Learner", desc: "Duy trì kỷ luật 30 ngày", icon: "fa-calendar-check", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
-        { tier: 'pro', name: "Active Tracker", desc: "Ghi nhận dữ liệu 20 ngày", icon: "fa-chart-simple", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: logDaysCount >= 20, tag: "20 Ngày" },
-        { tier: 'pro', name: "Goal Achiever", desc: "Hoàn thành 5 mục tiêu", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
-        { tier: 'pro', name: "Long-term Planner", desc: "Mục tiêu dài hạn >=100h", icon: "fa-route", grad: "linear-gradient(135deg,#06b6d4,#0284c7)", unlocked: has100hGoal, tag: "100h Goal" },
-        { tier: 'pro', name: "Resource Manager", desc: "Tích lũy $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1k USD" },
-        { tier: 'elite', name: "Scholar", desc: "50 giờ tập trung (Lv. 6)", icon: "fa-graduation-cap", grad: "linear-gradient(135deg,#a855f7,#7e22ce)", unlocked: totalAllTimeHrs >= 50, tag: "50 Giờ" },
-        { tier: 'elite', name: "Deep Worker", desc: "75 giờ chuyên sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#14b8a6,#0f766e)", unlocked: totalAllTimeHrs >= 75, tag: "75 Giờ" },
-        { tier: 'elite', name: "Documentarian", desc: "50 bản báo cáo kết quả", icon: "fa-file-lines", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
-        { tier: 'elite', name: "Project Master", desc: "Hoàn thành 10 mục tiêu", icon: "fa-check-double", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
-        { tier: 'elite', name: "Diamond Streak", desc: "Chuỗi 60 ngày liên tục", icon: "fa-gem", grad: "linear-gradient(135deg,#38bdf8,#1d4ed8)", unlocked: streak >= 60, tag: "60 Ngày" },
-        { tier: 'elite', name: "Senior Investor", desc: "Tích lũy $5,000 USD", icon: "fa-building-columns", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5k USD" },
-        { tier: 'legend', name: "Centurion", desc: "100 giờ tích lũy (Lv. 11)", icon: "fa-award", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 Giờ" },
-        { tier: 'legend', name: "Specialist", desc: "150 giờ tích lũy (Lv. 16)", icon: "fa-microscope", grad: "linear-gradient(135deg,#dc2626,#991b1b)", unlocked: totalAllTimeHrs >= 150, tag: "150 Giờ" },
-        { tier: 'legend', name: "Senior Author", desc: "100 bản báo cáo tổng kết", icon: "fa-pen-nib", grad: "linear-gradient(135deg,#d97706,#92400e)", unlocked: totalReports >= 100, tag: "100 Báo cáo" },
-        { tier: 'legend', name: "Time Architect", desc: "200 giờ tập trung (Lv. 21)", icon: "fa-hourglass-half", grad: "linear-gradient(135deg,#9333ea,#581c87)", unlocked: totalAllTimeHrs >= 200, tag: "200 Giờ" },
-        { tier: 'legend', name: "Researcher", desc: "250 giờ tích lũy (Lv. 26)", icon: "fa-landmark", grad: "linear-gradient(135deg,#2563eb,#1e3a8a)", unlocked: totalAllTimeHrs >= 250, tag: "250 Giờ" },
-        { tier: 'legend', name: "100-Day Discipline", desc: "Kỷ luật 100 ngày liên tiếp", icon: "fa-fire", grad: "linear-gradient(135deg,#ef4444,#b91c1c)", unlocked: streak >= 100, tag: "100 Ngày" },
-        { tier: 'mythic', name: "Senior Researcher", desc: "350 giờ tích lũy (Lv. 36)", icon: "fa-book-atlas", grad: "linear-gradient(135deg,#10b981,#065f46)", unlocked: totalAllTimeHrs >= 350, tag: "350 Giờ" },
-        { tier: 'mythic', name: "Senior Scholar", desc: "500 giờ học (Lv. 51)", icon: "fa-compass-drafting", grad: "linear-gradient(135deg,#ec4899,#831843)", unlocked: totalAllTimeHrs >= 500, tag: "500 Giờ" },
-        { tier: 'mythic', name: "Endowment Fund", desc: "Quỹ thưởng $15,000 USD", icon: "fa-chart-line", grad: "linear-gradient(135deg,#facc15,#854d0e)", unlocked: usd >= 15000, tag: "$15k USD" },
-        { tier: 'mythic', name: "Associate Fellow", desc: "700 giờ học (Lv. 71)", icon: "fa-user-graduate", grad: "linear-gradient(135deg,#0ea5e9,#0c4a6e)", unlocked: totalAllTimeHrs >= 700, tag: "700 Giờ" },
-        { tier: 'mythic', name: "Distinguished Fellow", desc: "900 giờ học (Lv. 90)", icon: "fa-star", grad: "linear-gradient(135deg,#a855f7,#4c1d95)", unlocked: totalAllTimeHrs >= 900, tag: "900 Giờ" },
-        { tier: 'mythic', name: "Academician 1000h", desc: "1.000 giờ nghiên cứu (Lv. 101)", icon: "fa-crown", grad: "linear-gradient(135deg,#fbbf24,#f43f5e,#7c3aed)", unlocked: totalAllTimeHrs >= 1000, tag: "1.000 Giờ" }
+        { tier: 'rookie', name: "First Step", desc: "Hoàn thành phiên học tập trung đầu tiên trên hệ thống", icon: "fa-flag", grad: "linear-gradient(135deg,#f43f5e,#e11d48)", unlocked: totalAllTimeHrs > 0, tag: "Khởi đầu" },
+        { tier: 'rookie', name: "Warm Up", desc: "Hoàn thành tích lũy tương đương 10 phiên Pomodoro", icon: "fa-clock", grad: "linear-gradient(135deg,#f97316,#ea580c)", unlocked: totalPomodorosEst >= 10, tag: "10 Phiên" },
+        { tier: 'rookie', name: "Apprentice", desc: "Đạt cột mốc 10 giờ học tập và nghiên cứu thực tế", icon: "fa-book-open", grad: "linear-gradient(135deg,#38bdf8,#0284c7)", unlocked: totalAllTimeHrs >= 10, tag: "10 Giờ" },
+        { tier: 'rookie', name: "Early Bird", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi sáng", icon: "fa-sun", grad: "linear-gradient(135deg,#fbbf24,#d97706)", unlocked: morningReports >= 10 || logDaysCount >= 10, tag: "10 Ca Sáng" },
+        { tier: 'rookie', name: "Night Owl", desc: "Thực hiện 10 phiên học tập vào khung giờ buổi tối", icon: "fa-moon", grad: "linear-gradient(135deg,#818cf8,#4f46e5)", unlocked: nightReports >= 10 || totalReports >= 15, tag: "10 Ca Tối" },
+        { tier: 'rookie', name: "First Milestone", desc: "Hoàn thành 100% tiến độ của 1 mục tiêu học tập", icon: "fa-medal", grad: "linear-gradient(135deg,#facc15,#ca8a04)", unlocked: completedGoals.length >= 1, tag: "1 Mục tiêu" },
+
+        { tier: 'pro', name: "Silver Streak", desc: "Duy trì thói quen học tập 14 ngày liên tiếp", icon: "fa-bolt", grad: "linear-gradient(135deg,#94a3b8,#475569)", unlocked: streak >= 14, tag: "14 Ngày" },
+        { tier: 'pro', name: "Consistent Learner", desc: "Duy trì kỷ luật học tập 30 ngày liên tiếp", icon: "fa-calendar-check", grad: "linear-gradient(135deg,#f59e0b,#d97706)", unlocked: streak >= 30, tag: "30 Ngày" },
+        { tier: 'pro', name: "Active Tracker", desc: "Ghi nhận dữ liệu học tập trên 20 ngày khác nhau", icon: "fa-chart-simple", grad: "linear-gradient(135deg,#10b981,#059669)", unlocked: logDaysCount >= 20, tag: "20 Ngày học" },
+        { tier: 'pro', name: "Goal Achiever", desc: "Hoàn thành trọn vẹn 5 mục tiêu trong kế hoạch", icon: "fa-bullseye", grad: "linear-gradient(135deg,#ec4899,#db2777)", unlocked: completedGoals.length >= 5, tag: "5 Mục tiêu" },
+        { tier: 'pro', name: "Long-term Planner", desc: "Thiết lập một mục tiêu dài hạn có quy mô từ 100 giờ", icon: "fa-route", grad: "linear-gradient(135deg,#06b6d4,#0284c7)", unlocked: has100hGoal, tag: "Mục tiêu 100h" },
+        { tier: 'pro', name: "Resource Manager", desc: "Tích lũy quỹ thưởng học tập đạt mốc $1,000 USD", icon: "fa-coins", grad: "linear-gradient(135deg,#fbbf24,#b45309)", unlocked: usd >= 1000, tag: "$1,000 USD" },
+
+        { tier: 'elite', name: "Scholar", desc: "Đạt cột mốc 50 giờ tập trung học tập (Lv. 6)", icon: "fa-graduation-cap", grad: "linear-gradient(135deg,#a855f7,#7e22ce)", unlocked: totalAllTimeHrs >= 50, tag: "50 Giờ" },
+        { tier: 'elite', name: "Deep Worker", desc: "Tích lũy 75 giờ làm việc và nghiên cứu chuyên sâu", icon: "fa-brain", grad: "linear-gradient(135deg,#14b8a6,#0f766e)", unlocked: totalAllTimeHrs >= 75, tag: "75 Giờ" },
+        { tier: 'elite', name: "Documentarian", desc: "Viết và lưu trữ thành công 50 bản báo cáo kết quả", icon: "fa-file-lines", grad: "linear-gradient(135deg,#8b5cf6,#6d28d9)", unlocked: totalReports >= 50, tag: "50 Báo cáo" },
+        { tier: 'elite', name: "Project Master", desc: "Hoàn thành xuất sắc 10 mục tiêu học thuật", icon: "fa-check-double", grad: "linear-gradient(135deg,#6366f1,#4338ca)", unlocked: completedGoals.length >= 10, tag: "10 Mục tiêu" },
+        { tier: 'elite', name: "Diamond Streak", desc: "Duy trì chuỗi học tập 60 ngày liên tục không gián đoạn", icon: "fa-gem", grad: "linear-gradient(135deg,#38bdf8,#1d4ed8)", unlocked: streak >= 60, tag: "60 Ngày" },
+        { tier: 'elite', name: "Senior Investor", desc: "Quỹ thưởng tích lũy từ hiệu suất học tập đạt $5,000 USD", icon: "fa-building-columns", grad: "linear-gradient(135deg,#06b6d4,#0e7490)", unlocked: usd >= 5000, tag: "$5,000 USD" },
+
+        { tier: 'legend', name: "Centurion", desc: "Đạt cột mốc 100 giờ học tập tích lũy (Lv. 11)", icon: "fa-award", grad: "linear-gradient(135deg,#f43f5e,#be123c)", unlocked: totalAllTimeHrs >= 100, tag: "100 Giờ" },
+        { tier: 'legend', name: "Specialist", desc: "Đạt cấp bậc Chuyên Gia với 150 giờ tích lũy (Lv. 16)", icon: "fa-microscope", grad: "linear-gradient(135deg,#dc2626,#991b1b)", unlocked: totalAllTimeHrs >= 150, tag: "150 Giờ" },
+        { tier: 'legend', name: "Senior Author", desc: "Hoàn thành 100 bản báo cáo tổng kết phiên học", icon: "fa-pen-nib", grad: "linear-gradient(135deg,#d97706,#92400e)", unlocked: totalReports >= 100, tag: "100 Báo cáo" },
+        { tier: 'legend', name: "Time Architect", desc: "Làm chủ quỹ thời gian với 200 giờ tập trung (Lv. 21)", icon: "fa-hourglass-half", grad: "linear-gradient(135deg,#9333ea,#581c87)", unlocked: totalAllTimeHrs >= 200, tag: "200 Giờ" },
+        { tier: 'legend', name: "Researcher", desc: "Đạt cấp Nghiên Cứu Viên với 250 giờ tích lũy (Lv. 26)", icon: "fa-landmark", grad: "linear-gradient(135deg,#2563eb,#1e3a8a)", unlocked: totalAllTimeHrs >= 250, tag: "250 Giờ" },
+        { tier: 'legend', name: "100-Day Discipline", desc: "Duy trì chuỗi kỷ luật học tập 100 ngày liên tiếp", icon: "fa-fire", grad: "linear-gradient(135deg,#ef4444,#b91c1c)", unlocked: streak >= 100, tag: "100 Ngày" },
+
+        { tier: 'mythic', name: "Senior Researcher", desc: "Nghiên Cứu Viên Chính: Đạt 350 giờ tích lũy (Lv. 36)", icon: "fa-book-atlas", grad: "linear-gradient(135deg,#10b981,#065f46)", unlocked: totalAllTimeHrs >= 350, tag: "350 Giờ" },
+        { tier: 'mythic', name: "Senior Scholar", desc: "Học Giả Cấp Cao: Vượt cột mốc 500 giờ học (Lv. 51)", icon: "fa-compass-drafting", grad: "linear-gradient(135deg,#ec4899,#831843)", unlocked: totalAllTimeHrs >= 500, tag: "500 Giờ" },
+        { tier: 'mythic', name: "Endowment Fund", desc: "Quỹ học bổng tích lũy trên hệ thống đạt $15,000 USD", icon: "fa-chart-line", grad: "linear-gradient(135deg,#facc15,#854d0e)", unlocked: usd >= 15000, tag: "$15,000 USD" },
+        { tier: 'mythic', name: "Associate Fellow", desc: "Phó Giáo Sư Danh Dự: Chinh phục 700 giờ học (Lv. 71)", icon: "fa-user-graduate", grad: "linear-gradient(135deg,#0ea5e9,#0c4a6e)", unlocked: totalAllTimeHrs >= 700, tag: "700 Giờ" },
+        { tier: 'mythic', name: "Distinguished Fellow", desc: "Giáo Sư Danh Dự: Chinh phục 900 giờ học (Lv. 90)", icon: "fa-star", grad: "linear-gradient(135deg,#a855f7,#4c1d95)", unlocked: totalAllTimeHrs >= 900, tag: "900 Giờ" },
+        { tier: 'mythic', name: "Academician 1000h", desc: "Viện Sĩ Học Thuật: Cột mốc 1.000 giờ nghiên cứu (Lv. 101)", icon: "fa-crown", grad: "linear-gradient(135deg,#fbbf24,#f43f5e,#7c3aed)", unlocked: totalAllTimeHrs >= 1000, tag: "1.000 Giờ" }
     ];
 }
 
-// 2. NHIỆM VỤ NHỎ (BENTO TODOS) VÀ XÓA MỤC TIÊU
 function toggleBentoTodo(id) {
     var item = bentoTodoList.find(function(t) { return t.id === id; });
     if (item) { item.done = !item.done; saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData(); }
@@ -5602,24 +5606,7 @@ function deleteBentoTodo(e, id) {
     saveBentoTodos(); renderBentoCommandCenter(); syncFocusRoomData();
 }
 
-window.deleteGoal = function(event, id) {
-    if (event) event.stopPropagation();
-    if (confirm('Xác nhận xóa mục tiêu này? Thao tác không thể hoàn tác.')) {
-        if (typeof goals !== 'undefined') {
-            goals = goals.filter(g => g.id !== id);
-            localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
-            if (typeof syncToCloud === 'function') syncToCloud();
-        }
-        let viewGoals = document.getElementById('view-goals');
-        if (viewGoals && viewGoals.style.display !== 'none') {
-            renderGoalsDedicated(window.currentGoalFilter || 'all');
-        } else {
-            renderDashboard();
-        }
-    }
-};
-
-// 3. THEME SYSTEM & MÔI TRƯỜNG
+// --- 2. HỆ THỐNG THEME SYSTEM, PARALLAX & AMBIENT CANVAS ---
 var APEX_THEME_PRESETS = [
     { id: 'twilight', price: 0,    name: "Apex Twilight",    url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=85", accent: "#a855f7", accent2: "#6366f1", soft: "rgba(168,85,247,0.18)", border: "rgba(168,85,247,0.38)" },
     { id: 'midnight', price: 1000, name: "Midnight Academy", url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1920&q=85", accent: "#38bdf8", accent2: "#2563eb", soft: "rgba(56,189,248,0.18)", border: "rgba(56,189,248,0.38)" },
@@ -5627,272 +5614,4049 @@ var APEX_THEME_PRESETS = [
     { id: 'forest',   price: 1000, name: "Forest Focus",     url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1920&q=85", accent: "#10b981", accent2: "#059669", soft: "rgba(16,185,129,0.18)", border: "rgba(16,185,129,0.38)" },
     { id: 'golden',   price: 1000, name: "Golden Hour",      url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85", accent: "#f59e0b", accent2: "#ec4899", soft: "rgba(245,158,11,0.18)", border: "rgba(245,158,11,0.38)" }
 ];
-var ownedThemesList = JSON.parse(localStorage.getItem('apexOwnedThemesV1')) || ['twilight'];
-function saveOwnedThemesList() { localStorage.setItem('apexOwnedThemesV1', JSON.stringify(ownedThemesList)); }
 
-var apexThemeConfig = JSON.parse(localStorage.getItem('apexThemeConfigV5')) || { themeId: 'twilight', overlayDim: 65, bgBlur: 0, bgBrightness: 100, parallax: true, ambient: true, autoTime: false };
-function saveApexThemeConfig() { localStorage.setItem('apexThemeConfigV5', JSON.stringify(apexThemeConfig)); }
+// Danh sách các Theme đã sở hữu (Mặc định sở hữu sẵn 'twilight')
+var ownedThemesList = JSON.parse(localStorage.getItem('apexOwnedThemesV1')) || ['twilight'];
+function saveOwnedThemesList() {
+    localStorage.setItem('apexOwnedThemesV1', JSON.stringify(ownedThemesList));
+}
+
+var apexThemeConfig = JSON.parse(localStorage.getItem('apexThemeConfigV5')) || {
+    themeId: 'twilight',
+    overlayDim: 65,
+    bgBlur: 0,
+    bgBrightness: 100,
+    parallax: true,
+    ambient: true,
+    autoTime: false
+};
+
+function saveApexThemeConfig() {
+    localStorage.setItem('apexThemeConfigV5', JSON.stringify(apexThemeConfig));
+}
 
 function ensureEnvironmentLayers() {
     if (!document.getElementById('apex-parallax-bg')) {
-        var bgLayer = document.createElement('div'); bgLayer.id = 'apex-parallax-bg'; bgLayer.style.cssText = "position:fixed; inset:-28px; z-index:-2; background-size:cover; background-position:center; transition:transform 0.15s ease-out, filter 0.3s ease; pointer-events:none;"; document.body.appendChild(bgLayer);
-        var ovLayer = document.createElement('div'); ovLayer.id = 'apex-overlay-bg'; ovLayer.style.cssText = "position:fixed; inset:0; z-index:-1; pointer-events:none; transition:background 0.3s ease, backdrop-filter 0.3s ease;"; document.body.appendChild(ovLayer);
-        var cvs = document.createElement('canvas'); cvs.id = 'apex-ambient-canvas'; cvs.style.cssText = "position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;"; document.body.appendChild(cvs);
+        var bgLayer = document.createElement('div');
+        bgLayer.id = 'apex-parallax-bg';
+        bgLayer.style.cssText = "position:fixed; inset:-28px; z-index:-2; background-size:cover; background-position:center; transition:transform 0.15s ease-out, filter 0.3s ease; pointer-events:none;";
+        document.body.appendChild(bgLayer);
+
+        var ovLayer = document.createElement('div');
+        ovLayer.id = 'apex-overlay-bg';
+        ovLayer.style.cssText = "position:fixed; inset:0; z-index:-1; pointer-events:none; transition:background 0.3s ease, backdrop-filter 0.3s ease;";
+        document.body.appendChild(ovLayer);
+
+        var cvs = document.createElement('canvas');
+        cvs.id = 'apex-ambient-canvas';
+        cvs.style.cssText = "position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;";
+        document.body.appendChild(cvs);
 
         window.addEventListener('mousemove', function(e) {
-            var layer = document.getElementById('apex-parallax-bg'); if (!layer) return;
-            if (!apexThemeConfig.parallax) { layer.style.transform = 'translate3d(0, 0, 0) scale(1)'; return; }
-            var dx = (window.innerWidth / 2 - e.clientX) / 45, dy = (window.innerHeight / 2 - e.clientY) / 45;
+            var layer = document.getElementById('apex-parallax-bg');
+            if (!layer) return;
+            if (!apexThemeConfig.parallax) {
+                layer.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                return;
+            }
+            var dx = (window.innerWidth / 2 - e.clientX) / 45;
+            var dy = (window.innerHeight / 2 - e.clientY) / 45;
             layer.style.transform = 'translate3d(' + dx.toFixed(1) + 'px, ' + dy.toFixed(1) + 'px, 0) scale(1.04)';
         });
+
         startAmbientParticlesEngine();
     }
 }
 
 var ambientAnimId = null;
 function startAmbientParticlesEngine() {
-    var cvs = document.getElementById('apex-ambient-canvas'); if (!cvs) return;
-    var ctx = cvs.getContext('2d'); var stars = [], shootingStar = null;
-    function resize() { cvs.width = window.innerWidth; cvs.height = window.innerHeight; }
-    resize(); window.addEventListener('resize', resize);
-    for (var i = 0; i < 42; i++) { stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, r: Math.random() * 1.7 + 0.5, alpha: Math.random(), dAlpha: (Math.random() * 0.015 + 0.004) * (Math.random() < 0.5 ? 1 : -1), vy: -(Math.random() * 0.18 + 0.04), warm: Math.random() > 0.72 }); }
+    var cvs = document.getElementById('apex-ambient-canvas');
+    if (!cvs) return;
+    var ctx = cvs.getContext('2d');
+    var stars = [], shootingStar = null;
+
+    function resize() {
+        cvs.width = window.innerWidth;
+        cvs.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (var i = 0; i < 42; i++) {
+        stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: Math.random() * 1.7 + 0.5,
+            alpha: Math.random(),
+            dAlpha: (Math.random() * 0.015 + 0.004) * (Math.random() < 0.5 ? 1 : -1),
+            vy: -(Math.random() * 0.18 + 0.04),
+            warm: Math.random() > 0.72
+        });
+    }
+
     function drawFrame() {
         ctx.clearRect(0, 0, cvs.width, cvs.height);
         if (apexThemeConfig.ambient) {
             for (var i = 0; i < stars.length; i++) {
-                var s = stars[i]; s.alpha += s.dAlpha; if (s.alpha > 0.95 || s.alpha < 0.15) s.dAlpha = -s.dAlpha; s.y += s.vy; if (s.y < 0) { s.y = cvs.height; s.x = Math.random() * cvs.width; }
-                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fillStyle = s.warm ? 'rgba(251, 191, 36, ' + s.alpha.toFixed(2) + ')' : 'rgba(255, 255, 255, ' + (s.alpha * 0.8).toFixed(2) + ')'; ctx.fill();
+                var s = stars[i];
+                s.alpha += s.dAlpha;
+                if (s.alpha > 0.95 || s.alpha < 0.15) s.dAlpha = -s.dAlpha;
+                s.y += s.vy;
+                if (s.y < 0) { s.y = cvs.height; s.x = Math.random() * cvs.width; }
+
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = s.warm ? 'rgba(251, 191, 36, ' + s.alpha.toFixed(2) + ')' : 'rgba(255, 255, 255, ' + (s.alpha * 0.8).toFixed(2) + ')';
+                ctx.fill();
             }
-            if (!shootingStar && Math.random() < 0.004) { shootingStar = { x: Math.random() * cvs.width * 0.8 + cvs.width * 0.2, y: Math.random() * cvs.height * 0.35, vx: -9, vy: 4.5, len: 75, life: 1 }; }
+
+            if (!shootingStar && Math.random() < 0.004) {
+                shootingStar = { x: Math.random() * cvs.width * 0.8 + cvs.width * 0.2, y: Math.random() * cvs.height * 0.35, vx: -9, vy: 4.5, len: 75, life: 1 };
+            }
             if (shootingStar) {
-                ctx.strokeStyle = 'rgba(255,255,255,' + shootingStar.life.toFixed(2) + ')'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(shootingStar.x, shootingStar.y); ctx.lineTo(shootingStar.x - shootingStar.vx * 5, shootingStar.y - shootingStar.vy * 5); ctx.stroke();
-                shootingStar.x += shootingStar.vx; shootingStar.y += shootingStar.vy; shootingStar.life -= 0.035; if (shootingStar.life <= 0) shootingStar = null;
+                ctx.strokeStyle = 'rgba(255,255,255,' + shootingStar.life.toFixed(2) + ')';
+                ctx.lineWidth = 1.6;
+                ctx.beginPath();
+                ctx.moveTo(shootingStar.x, shootingStar.y);
+                ctx.lineTo(shootingStar.x - shootingStar.vx * 5, shootingStar.y - shootingStar.vy * 5);
+                ctx.stroke();
+                shootingStar.x += shootingStar.vx;
+                shootingStar.y += shootingStar.vy;
+                shootingStar.life -= 0.035;
+                if (shootingStar.life <= 0) shootingStar = null;
             }
         }
         ambientAnimId = requestAnimationFrame(drawFrame);
     }
-    if (ambientAnimId) cancelAnimationFrame(ambientAnimId); drawFrame();
+    if (ambientAnimId) cancelAnimationFrame(ambientAnimId);
+    drawFrame();
 }
 
 function applyCustomWallpaper() {
     ensureEnvironmentLayers();
+
     if (apexThemeConfig.autoTime) {
-        var hr = new Date().getHours(); var autoId = (hr >= 6 && hr < 15) ? 'forest' : ((hr >= 15 && hr < 18) ? 'golden' : 'twilight');
+        var hr = new Date().getHours();
+        var autoId = (hr >= 6 && hr < 15) ? 'forest' : ((hr >= 15 && hr < 18) ? 'golden' : 'twilight');
+        // Chỉ tự động chuyển sang chủ đề đã sở hữu
         if (ownedThemesList.indexOf(autoId) === -1) autoId = 'twilight';
         var autoPreset = APEX_THEME_PRESETS.find(function(p) { return p.id === autoId; });
-        if (autoPreset && apexThemeConfig.themeId !== autoId) { apexThemeConfig.themeId = autoId; localStorage.setItem('saasCustomWallpaper', autoPreset.url); }
+        if (autoPreset && apexThemeConfig.themeId !== autoId) {
+            apexThemeConfig.themeId = autoId;
+            localStorage.setItem('saasCustomWallpaper', autoPreset.url);
+        }
     }
+
     var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
     var preset = APEX_THEME_PRESETS.find(function(p) { return p.id === apexThemeConfig.themeId; }) || APEX_THEME_PRESETS[0];
+
     var root = document.documentElement;
-    root.style.setProperty('--user-wallpaper', "url('" + bg + "')"); root.style.setProperty('--theme-accent', preset.accent); root.style.setProperty('--theme-accent-2', preset.accent2); root.style.setProperty('--theme-soft', preset.soft); root.style.setProperty('--theme-border', preset.border);
-    var dimDec = (Number(apexThemeConfig.overlayDim) / 100).toFixed(2); root.style.setProperty('--user-bg-dim', dimDec);
-    var bgLayer = document.getElementById('apex-parallax-bg'); var ovLayer = document.getElementById('apex-overlay-bg');
-    if (bgLayer) { bgLayer.style.backgroundImage = "url('" + bg + "')"; bgLayer.style.filter = 'brightness(' + (apexThemeConfig.bgBrightness || 100) + '%)'; if (!apexThemeConfig.parallax) bgLayer.style.transform = 'translate3d(0,0,0) scale(1)'; }
-    if (ovLayer) { var blurPx = Number(apexThemeConfig.bgBlur || 0); ovLayer.style.backdropFilter = blurPx > 0 ? ('blur(' + blurPx + 'px)') : 'none'; ovLayer.style.background = 'linear-gradient(180deg, rgba(8,11,22,' + (dimDec * 0.85).toFixed(2) + ') 0%, rgba(10,14,26,' + Math.min(0.96, Number(dimDec) + 0.1).toFixed(2) + ') 100%)'; }
+    root.style.setProperty('--user-wallpaper', "url('" + bg + "')");
+    root.style.setProperty('--theme-accent', preset.accent);
+    root.style.setProperty('--theme-accent-2', preset.accent2);
+    root.style.setProperty('--theme-soft', preset.soft);
+    root.style.setProperty('--theme-border', preset.border);
+
+    var dimDec = (Number(apexThemeConfig.overlayDim) / 100).toFixed(2);
+    root.style.setProperty('--user-bg-dim', dimDec);
+
+    var bgLayer = document.getElementById('apex-parallax-bg');
+    var ovLayer = document.getElementById('apex-overlay-bg');
+    if (bgLayer) {
+        bgLayer.style.backgroundImage = "url('" + bg + "')";
+        bgLayer.style.filter = 'brightness(' + (apexThemeConfig.bgBrightness || 100) + '%)';
+        if (!apexThemeConfig.parallax) bgLayer.style.transform = 'translate3d(0,0,0) scale(1)';
+    }
+    if (ovLayer) {
+        var blurPx = Number(apexThemeConfig.bgBlur || 0);
+        ovLayer.style.backdropFilter = blurPx > 0 ? ('blur(' + blurPx + 'px)') : 'none';
+        ovLayer.style.background = 'linear-gradient(180deg, rgba(8,11,22,' + (dimDec * 0.85).toFixed(2) + ') 0%, rgba(10,14,26,' + Math.min(0.96, Number(dimDec) + 0.1).toFixed(2) + ') 100%)';
+    }
 }
 
 function openWallpaperPickerModal() {
     var modal = document.getElementById('wallpaper-picker-modal');
-    if (!modal) { modal = document.createElement('div'); modal.id = 'wallpaper-picker-modal'; modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(12px); z-index:10005; align-items:center; justify-content:center; padding:18px; overflow-y:auto;"; document.body.appendChild(modal); }
-    var curBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER; var curUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'wallpaper-picker-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(12px); z-index:10005; align-items:center; justify-content:center; padding:18px; overflow-y:auto;";
+        document.body.appendChild(modal);
+    }
+    var curBg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
+    var curUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+
     var cardsHtml = APEX_THEME_PRESETS.map(function(p) {
-        var isOwned = (p.price === 0) || (ownedThemesList.indexOf(p.id) !== -1); var isSel = (apexThemeConfig.themeId === p.id && curBg === p.url);
-        return `<div onclick="selectApexThemePreset('${p.id}')" style="cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid ${isSel ? p.accent : (isOwned ? 'rgba(16,185,129,0.38)' : 'rgba(255,255,255,0.08)')}; background:#151a2d; transition:0.2s; box-shadow:${isSel ? '0 0 18px ' + p.soft : 'none'};"><div style="height:68px; background:url('${p.url}') center/cover; position:relative;">${!isOwned ? `<div style="position:absolute; inset:0; background:rgba(6,9,20,0.48); backdrop-filter:blur(1.5px); display:flex; align-items:center; justify-content:center;"><span style="background:linear-gradient(90deg,#f59e0b,#d97706); color:#fff; font-size:0.64rem; font-weight:900; padding:3px 8px; border-radius:100px;"><i class="fa-solid fa-lock"></i> $${p.price}</span></div>` : ''}${isSel ? `<span style="position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%; background:${p.accent}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.6rem;"><i class="fa-solid fa-check"></i></span>` : ''}</div><div style="padding:7px 6px; text-align:center;"><div style="font-size:0.7rem; font-weight:700; color:${isSel ? '#fff' : '#cbd5e1'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div><div style="font-size:0.62rem; font-weight:800; margin-top:2px; color:${isOwned ? '#10b981' : '#fbbf24'};">${isOwned ? 'Đã sở hữu' : '$' + p.price}</div></div></div>`;
+        var isOwned = (p.price === 0) || (ownedThemesList.indexOf(p.id) !== -1);
+        var isSel = (apexThemeConfig.themeId === p.id && curBg === p.url);
+        return `
+            <div onclick="selectApexThemePreset('${p.id}')" style="cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid ${isSel ? p.accent : (isOwned ? 'rgba(16,185,129,0.38)' : 'rgba(255,255,255,0.08)')}; background:#151a2d; transition:0.2s; box-shadow:${isSel ? '0 0 18px ' + p.soft : 'none'};">
+                <div style="height:68px; background:url('${p.url}') center/cover; position:relative;">
+                    ${!isOwned ? `<div style="position:absolute; inset:0; background:rgba(6,9,20,0.48); backdrop-filter:blur(1.5px); display:flex; align-items:center; justify-content:center;"><span style="background:linear-gradient(90deg,#f59e0b,#d97706); color:#fff; font-size:0.64rem; font-weight:900; padding:3px 8px; border-radius:100px; box-shadow:0 4px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-lock" style="font-size:0.56rem;"></i> $${p.price}</span></div>` : ''}
+                    ${isSel ? `<span style="position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%; background:${p.accent}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.6rem;"><i class="fa-solid fa-check"></i></span>` : ''}
+                </div>
+                <div style="padding:7px 6px; text-align:center;">
+                    <div style="font-size:0.7rem; font-weight:700; color:${isSel ? '#fff' : '#cbd5e1'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+                    <div style="font-size:0.62rem; font-weight:800; margin-top:2px; color:${isOwned ? '#10b981' : '#fbbf24'};">
+                        ${isOwned ? 'Đã sở hữu' : '$' + p.price}
+                    </div>
+                </div>
+            </div>`;
     }).join('');
+
     function renderToggleSwitch(key, label, icon) {
         var on = !!apexThemeConfig[key];
-        return `<div onclick="toggleApexThemeSwitch('${key}')" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); cursor:pointer;"><span style="font-size:0.76rem; color:#e2e8f0; font-weight:600; display:flex; align-items:center; gap:8px;"><i class="fa-solid ${icon}" style="color:var(--theme-accent); width:14px;"></i> ${label}</span><div style="width:38px; height:20px; border-radius:100px; background:${on ? 'var(--theme-accent)' : 'rgba(255,255,255,0.15)'}; position:relative; transition:0.25s;"><div style="width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:3px; left:${on ? '21px' : '3px'}; transition:0.25s;"></div></div></div>`;
+        return `
+            <div onclick="toggleApexThemeSwitch('${key}')" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); cursor:pointer;">
+                <span style="font-size:0.76rem; color:#e2e8f0; font-weight:600; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid ${icon}" style="color:var(--theme-accent); width:14px;"></i> ${label}
+                </span>
+                <div style="width:38px; height:20px; border-radius:100px; background:${on ? 'var(--theme-accent)' : 'rgba(255,255,255,0.15)'}; position:relative; transition:0.25s;">
+                    <div style="width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:3px; left:${on ? '21px' : '3px'}; transition:0.25s;"></div>
+                </div>
+            </div>`;
     }
-    modal.innerHTML = `<div style="background:linear-gradient(160deg, #13182b 0%, #0c101d 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:650px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.8);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><div><div style="font-size:0.65rem; font-weight:800; color:var(--theme-accent); text-transform:uppercase;">THEME SYSTEM</div><h3 style="margin:2px 0 0 0; font-size:1.15rem; font-weight:800;">Chọn chủ đề không gian</h3></div><div style="display:flex; align-items:center; gap:10px;"><div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); padding:5px 12px; border-radius:100px; font-size:0.76rem; font-weight:800; color:#fbbf24;"><i class="fa-solid fa-coins"></i> Quỹ: $${curUsd.toLocaleString()}</div><button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div></div><div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin:14px 0 18px 0;">${cardsHtml}</div><div style="display:grid; grid-template-columns:1.15fr 1fr; gap:16px; margin-bottom:16px;" class="phoi-row-2col"><div style="display:flex; flex-direction:column; gap:11px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); padding:12px 14px; border-radius:14px;"><div><div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;"><span>Độ tối overlay</span><strong id="lbl-theme-dim">${apexThemeConfig.overlayDim}%</strong></div><input type="range" min="20" max="92" value="${apexThemeConfig.overlayDim}" oninput="updateApexThemeSlider('overlayDim', this.value, 'lbl-theme-dim', '%')" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;"></div><div><div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;"><span>Độ mờ background</span><strong id="lbl-theme-blur">${apexThemeConfig.bgBlur * 5}%</strong></div><input type="range" min="0" max="16" value="${apexThemeConfig.bgBlur}" oninput="updateApexThemeSlider('bgBlur', this.value, 'lbl-theme-blur', '%', 5)" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;"></div><div><div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;"><span>Độ sáng</span><strong id="lbl-theme-bright">${apexThemeConfig.bgBrightness}%</strong></div><input type="range" min="50" max="130" value="${apexThemeConfig.bgBrightness}" oninput="updateApexThemeSlider('bgBrightness', this.value, 'lbl-theme-bright', '%')" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;"></div></div><div style="display:flex; flex-direction:column; justify-content:space-between; gap:8px;">${renderToggleSwitch('parallax', 'Hiệu ứng parallax', 'fa-arrows-up-down-left-right')}${renderToggleSwitch('ambient', 'Hiệu ứng môi trường', 'fa-wand-magic-sparkles')}${renderToggleSwitch('autoTime', 'Đổi theo thời gian', 'fa-clock')}</div></div><div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px; flex-wrap:wrap;"><input type="text" id="custom-bg-url-input" placeholder="Hoặc dán link ảnh nền tùy thích (https://...)" value="${curBg.startsWith('data:') ? '' : curBg}" style="flex:1; min-width:180px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.76rem; outline:none;"><button onclick="setWallpaperUrl(document.getElementById('custom-bg-url-input').value)" style="background:var(--theme-accent); color:#fff; border:none; padding:8px 14px; border-radius:10px; font-weight:700; cursor:pointer;">Áp dụng</button><label style="display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:10px; border:1px dashed var(--theme-border); background:var(--theme-soft); color:#fff; font-weight:700; font-size:0.76rem; cursor:pointer;"><i class="fa-solid fa-upload"></i> Tải ảnh từ máy<input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)"></label></div></div>`;
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(160deg, #13182b 0%, #0c101d 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:650px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <div>
+                    <div style="font-size:0.65rem; font-weight:800; letter-spacing:1.8px; color:var(--theme-accent); text-transform:uppercase;">THEME SYSTEM</div>
+                    <h3 style="margin:2px 0 0 0; font-size:1.15rem; font-weight:800; color:#fff;">Chọn chủ đề không gian học tập</h3>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); padding:5px 12px; border-radius:100px; font-size:0.76rem; font-weight:800; color:#fbbf24;">
+                        <i class="fa-solid fa-coins"></i> Quỹ: $${curUsd.toLocaleString()}
+                    </div>
+                    <button onclick="document.getElementById('wallpaper-picker-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <!-- 5 CHỦ ĐỀ CHUẨN CONCEPT (ÁP GIÁ $1000 -> ĐÃ SỞ HỮU) -->
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin:14px 0 18px 0;">
+                ${cardsHtml}
+            </div>
+
+            <!-- TÙY CHỈNH NÂNG CAO (3 THANH TRƯỢT + 3 CÔNG TẮC HIỆU ỨNG) -->
+            <div style="font-size:0.76rem; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Tùy chỉnh nâng cao</div>
+            <div style="display:grid; grid-template-columns:1.15fr 1fr; gap:16px; margin-bottom:16px;" class="phoi-row-2col">
+                <div style="display:flex; flex-direction:column; gap:11px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); padding:12px 14px; border-radius:14px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;">
+                            <span><i class="fa-solid fa-circle-half-stroke" style="color:var(--theme-accent); margin-right:5px;"></i>Độ tối overlay</span>
+                            <strong id="lbl-theme-dim">${apexThemeConfig.overlayDim}%</strong>
+                        </div>
+                        <input type="range" min="20" max="92" value="${apexThemeConfig.overlayDim}" oninput="updateApexThemeSlider('overlayDim', this.value, 'lbl-theme-dim', '%')" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;">
+                            <span><i class="fa-solid fa-droplet" style="color:var(--theme-accent); margin-right:5px;"></i>Độ mờ background</span>
+                            <strong id="lbl-theme-blur">${apexThemeConfig.bgBlur * 5}%</strong>
+                        </div>
+                        <input type="range" min="0" max="16" value="${apexThemeConfig.bgBlur}" oninput="updateApexThemeSlider('bgBlur', this.value, 'lbl-theme-blur', '%', 5)" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#cbd5e1; margin-bottom:4px;">
+                            <span><i class="fa-regular fa-sun" style="color:var(--theme-accent); margin-right:5px;"></i>Độ sáng</span>
+                            <strong id="lbl-theme-bright">${apexThemeConfig.bgBrightness}%</strong>
+                        </div>
+                        <input type="range" min="50" max="130" value="${apexThemeConfig.bgBrightness}" oninput="updateApexThemeSlider('bgBrightness', this.value, 'lbl-theme-bright', '%')" style="width:100%; accent-color:var(--theme-accent); cursor:pointer;">
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; justify-content:space-between; gap:8px;">
+                    ${renderToggleSwitch('parallax', 'Hiệu ứng parallax', 'fa-arrows-up-down-left-right')}
+                    ${renderToggleSwitch('ambient', 'Hiệu ứng môi trường', 'fa-wand-magic-sparkles')}
+                    ${renderToggleSwitch('autoTime', 'Thay đổi theo thời gian', 'fa-clock')}
+                </div>
+            </div>
+
+            <!-- TẢI ẢNH CÁ NHÂN HOẶC DÁN LINK -->
+            <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px; flex-wrap:wrap;">
+                <input type="text" id="custom-bg-url-input" placeholder="Hoặc dán link ảnh nền tùy thích (https://...)" value="${curBg.startsWith('data:') ? '' : curBg}" style="flex:1; min-width:180px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#fff; font-size:0.76rem; outline:none;">
+                <button onclick="setWallpaperUrl(document.getElementById('custom-bg-url-input').value)" style="background:var(--theme-accent); color:#fff; border:none; padding:8px 14px; border-radius:10px; font-weight:700; font-size:0.76rem; cursor:pointer;">Áp dụng Link</button>
+                <label style="display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:10px; border:1px dashed var(--theme-border); background:var(--theme-soft); color:#fff; font-weight:700; font-size:0.76rem; cursor:pointer;">
+                    <i class="fa-solid fa-upload"></i> Tải ảnh máy tính
+                    <input type="file" accept="image/*" style="display:none;" onchange="handleLocalWallpaperUpload(event)">
+                </label>
+            </div>
+        </div>`;
     modal.style.display = 'flex';
 }
 
 window.selectApexThemePreset = function(presetId) {
-    var p = APEX_THEME_PRESETS.find(function(x) { return x.id === presetId; }); if (!p) return;
+    var p = APEX_THEME_PRESETS.find(function(x) { return x.id === presetId; });
+    if (!p) return;
+
     var isOwned = (p.price === 0) || (ownedThemesList.indexOf(p.id) !== -1);
     if (!isOwned) {
         var currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
-        if (currentUsd < p.price) { alert("Không đủ số dư USD để mở khóa chủ đề này."); return; }
-        if (!confirm("Xác nhận chi $" + p.price.toLocaleString() + " USD để mở khóa chủ đề [" + p.name + "]?")) return;
-        currentUsd -= p.price; localStorage.setItem('usdBalance', String(currentUsd));
+        if (currentUsd < p.price) {
+            alert("🔒 Chủ đề [" + p.name + "] có giá $" + p.price.toLocaleString() + " USD.\nQuỹ thưởng hiện tại của Bạn là $" + currentUsd.toLocaleString() + " USD (Còn thiếu $" + (p.price - currentUsd).toLocaleString() + " USD).");
+            return;
+        }
+        if (!confirm("💎 Bạn có muốn chi $" + p.price.toLocaleString() + " USD để mở khóa vĩnh viễn chủ đề [" + p.name + "] không?")) {
+            return;
+        }
+        currentUsd -= p.price;
+        localStorage.setItem('usdBalance', String(currentUsd));
         if (typeof usdBalance !== 'undefined') window.usdBalance = currentUsd;
-        var usdEl = document.getElementById('usd-balance'); if (usdEl) usdEl.innerText = currentUsd;
-        ownedThemesList.push(p.id); saveOwnedThemesList(); if (typeof syncToCloud === 'function') syncToCloud();
+        var usdEl = document.getElementById('usd-balance');
+        if (usdEl) usdEl.innerText = currentUsd;
+
+        ownedThemesList.push(p.id);
+        saveOwnedThemesList();
+        if (typeof syncToCloud === 'function') syncToCloud();
     }
-    apexThemeConfig.themeId = p.id; apexThemeConfig.autoTime = false; localStorage.setItem('saasCustomWallpaper', p.url); saveApexThemeConfig(); applyCustomWallpaper(); openWallpaperPickerModal();
+
+    apexThemeConfig.themeId = p.id;
+    apexThemeConfig.autoTime = false;
+    localStorage.setItem('saasCustomWallpaper', p.url);
+    saveApexThemeConfig();
+    applyCustomWallpaper();
+    openWallpaperPickerModal();
 };
 
-window.updateApexThemeSlider = function(key, val, labelId, suffix, mult) { apexThemeConfig[key] = Number(val); saveApexThemeConfig(); var lbl = document.getElementById(labelId); if (lbl) lbl.innerText = Math.round(Number(val) * (mult || 1)) + (suffix || ''); applyCustomWallpaper(); };
-window.toggleApexThemeSwitch = function(key) { apexThemeConfig[key] = !apexThemeConfig[key]; saveApexThemeConfig(); applyCustomWallpaper(); openWallpaperPickerModal(); };
-window.setWallpaperUrl = function(url) { if (url && url.trim()) { localStorage.setItem('saasCustomWallpaper', url.trim()); applyCustomWallpaper(); openWallpaperPickerModal(); } };
+window.updateApexThemeSlider = function(key, val, labelId, suffix, mult) {
+    apexThemeConfig[key] = Number(val);
+    saveApexThemeConfig();
+    var lbl = document.getElementById(labelId);
+    if (lbl) lbl.innerText = Math.round(Number(val) * (mult || 1)) + (suffix || '');
+    applyCustomWallpaper();
+};
+
+window.toggleApexThemeSwitch = function(key) {
+    apexThemeConfig[key] = !apexThemeConfig[key];
+    saveApexThemeConfig();
+    applyCustomWallpaper();
+    openWallpaperPickerModal();
+};
+
+window.setWallpaperUrl = function(url) {
+    if (url && url.trim()) {
+        localStorage.setItem('saasCustomWallpaper', url.trim());
+        applyCustomWallpaper();
+        openWallpaperPickerModal();
+    }
+};
 window.handleLocalWallpaperUpload = function(e) {
-    var file = e.target.files[0]; if (!file) return; var reader = new FileReader();
-    reader.onload = function(ev) { var img = new Image(); img.onload = function() { var cvs = document.createElement('canvas'), s = Math.min(1, 1600 / img.width); cvs.width = img.width * s; cvs.height = img.height * s; cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height); try { localStorage.setItem('saasCustomWallpaper', cvs.toDataURL('image/jpeg', 0.82)); applyCustomWallpaper(); document.getElementById('wallpaper-picker-modal').style.display = 'none'; } catch (err) { alert("Dung lượng quá lớn."); } }; img.src = ev.target.result; }; reader.readAsDataURL(file);
-};
-window.changeColor = function(colorName) {
-    var valid = ['zen', 'neon-purple', 'neon-blue', 'sakura']; var chosen = valid.includes(colorName) ? colorName : 'neon-purple';
-    document.documentElement.setAttribute('data-color', chosen); document.body.setAttribute('data-color', chosen); localStorage.setItem('saasColorTheme', chosen);
-    document.querySelectorAll('.color-btn').forEach(function(btn) { btn.classList.toggle('active', btn.classList.contains(chosen)); });
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        var img = new Image();
+        img.onload = function() {
+            var cvs = document.createElement('canvas'), s = Math.min(1, 1600 / img.width);
+            cvs.width = img.width * s; cvs.height = img.height * s;
+            cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+            try {
+                localStorage.setItem('saasCustomWallpaper', cvs.toDataURL('image/jpeg', 0.82));
+                applyCustomWallpaper();
+                document.getElementById('wallpaper-picker-modal').style.display = 'none';
+            } catch (err) { alert("Ảnh quá nặng, vui lòng chọn ảnh nhẹ hơn!"); }
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
 };
 
-// 4. CHỨNG KHOÁN (MARKET)
+// --- 3. CHỨNG KHOÁN & THẺ KPI TUẦN ---
 function getUnifiedStockArray() {
     if (typeof stockMarket !== 'undefined' && stockMarket && !Array.isArray(stockMarket) && typeof stockMarket === 'object') {
-        return Object.keys(stockMarket).map(function(k) { var it = stockMarket[k] || {}; return { code: k, price: Number(it.price || 100), owned: Number(it.owned || 0), change: Number(it.lastChange || it.change || 1.8) }; });
+        return Object.keys(stockMarket).map(function(k) {
+            var it = stockMarket[k] || {};
+            return { code: k, price: Number(it.price || 100), owned: Number(it.owned || 0), change: Number(it.lastChange || it.change || 1.8) };
+        });
     }
-    return [{ code: "BAYM", price: 128.4, owned: 0, change: 2.4 }, { code: "IELT", price: 95.2, owned: 0, change: 1.6 }, { code: "TESL", price: 112.0, owned: 0, change: 0.9 }];
+    return [
+        { code: "BAYM", price: 128.4, owned: 0, change: 2.4 },
+        { code: "IELT", price: 95.2, owned: 0, change: 1.6 },
+        { code: "TESL", price: 112.0, owned: 0, change: 0.9 }
+    ];
 }
-function triggerStockTrade(code) { if (typeof openTradeModal === 'function') { openTradeModal(code); return; } if (typeof openTrade === 'function') { openTrade(code); return; } }
+function triggerStockTrade(code) {
+    if (typeof openTradeModal === 'function') { openTradeModal(code); return; }
+    if (typeof openTrade === 'function') { openTrade(code); return; }
+}
 function openFullStockMarketDrawer() {
     var modal = document.getElementById('full-market-exchange-modal');
-    if (!modal) { modal = document.createElement('div'); modal.id = 'full-market-exchange-modal'; modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:20px;"; document.body.appendChild(modal); }
+    if (!modal) {
+        modal = document.createElement('div'); modal.id = 'full-market-exchange-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.82); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:20px;";
+        document.body.appendChild(modal);
+    }
     var list = getUnifiedStockArray(), usd = parseInt(localStorage.getItem('usdBalance')) || 0;
-    modal.innerHTML = `<div style="background:#101424; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px; width:100%; max-width:660px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;"><div><h3 style="font-size:1.15rem; font-weight:800; color:#fff; margin:0;">Thị Trường Cổ Phiếu</h3><div style="font-size:0.76rem; color:#8b95b0;">Số dư: <strong style="color:#fbbf24;">$${usd.toLocaleString()} USD</strong></div></div><button onclick="document.getElementById('full-market-exchange-modal').style.display='none'" style="background:none; border:none; color:#8b95b0; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(185px, 1fr)); gap:12px;">${list.map(function(st) { var up = st.change >= 0; return `<div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; cursor:pointer;"><div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong style="color:#fff;">${st.code}</strong><span style="font-size:0.7rem; font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div><div style="font-size:1.3rem; font-weight:900; color:#fbbf24; margin-bottom:4px;">$${st.price.toFixed(1)}</div><div style="font-size:0.72rem; color:#8b95b0;">Đang giữ: <strong style="color:#fff;">${st.owned} cổ</strong></div></div>`; }).join('')}</div></div>`;
+    modal.innerHTML = `
+        <div style="background:#101424; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px; width:100%; max-width:660px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div><h3 style="font-size:1.15rem; font-weight:800; color:#fff; margin:0;">Thị Trường Cổ Phiếu</h3><div style="font-size:0.76rem; color:#8b95b0;">Số dư: <strong style="color:#fbbf24;">$${usd.toLocaleString()} USD</strong></div></div>
+                <button onclick="document.getElementById('full-market-exchange-modal').style.display='none'" style="background:none; border:none; color:#8b95b0; font-size:1.3rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(185px, 1fr)); gap:12px;">
+                ${list.map(function(st) {
+                    var up = st.change >= 0;
+                    return `<div onclick="document.getElementById('full-market-exchange-modal').style.display='none'; triggerStockTrade('${st.code}');" style="background:#161c30; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; cursor:pointer;"><div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong style="color:#fff;">${st.code}</strong><span style="font-size:0.7rem; font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div><div style="font-size:1.3rem; font-weight:900; color:#fbbf24; margin-bottom:4px;">$${st.price.toFixed(1)}</div><div style="font-size:0.72rem; color:#8b95b0;">Đang giữ: <strong style="color:#fff;">${st.owned} cổ</strong></div></div>`;
+                }).join('')}
+            </div>
+        </div>`;
     modal.style.display = 'flex';
 }
-window.ensureMartialLawKpiCard = function() { return; }; // Vô hiệu hóa hàm mọc thẻ rác
 
-// 5. GOAL DETAILS MODAL
+function ensureMartialLawKpiCard() {}
+
+// --- 4. MÀN HÌNH CHI TIẾT MỤC TIÊU (GOALS DETAIL VIEW - LỘ TRÌNH 5 CHẶNG & NHIỆM VỤ MÔN HỌC) ---
 function getGoalExtraData(goal) {
     var id = goal.id;
     if (!goalDetailsStore[id]) {
-        var targetH = Number(goal.target || 20); var stepH = Math.max(1, Math.round(targetH / 5));
-        goalDetailsStore[id] = { subtitle: "Lộ trình chinh phục " + targetH + " giờ", milestones: [{ title: "Chặng 1", sub: "Nền tảng (" + stepH + "h)" }, { title: "Chặng 2", sub: "Tăng tốc (" + (stepH * 2) + "h)" }, { title: "Chặng 3", sub: "Chuyên sâu (" + (stepH * 3) + "h)" }, { title: "Chặng 4", sub: "Thực chiến (" + (stepH * 4) + "h)" }, { title: "Chặng 5", sub: "Về đích (" + targetH + "h)" }], tasks: [{ id: 101, text: "Ôn tập kiến thức trọng tâm", mins: 30, done: true }, { id: 102, text: "Làm bài tập thực hành", mins: 45, done: false }], notes: "Ghi chú môn học..." };
+        var targetH = Number(goal.target || 20);
+        var stepH = Math.max(1, Math.round(targetH / 5));
+        goalDetailsStore[id] = {
+            subtitle: "Lộ trình chinh phục " + targetH + " giờ",
+            milestones: [
+                { title: "Chặng 1", sub: "Nền tảng (" + stepH + "h)" },
+                { title: "Chặng 2", sub: "Tăng tốc (" + (stepH * 2) + "h)" },
+                { title: "Chặng 3", sub: "Chuyên sâu (" + (stepH * 3) + "h)" },
+                { title: "Chặng 4", sub: "Thực chiến (" + (stepH * 4) + "h)" },
+                { title: "Chặng 5", sub: "Về đích (" + targetH + "h)" }
+            ],
+            tasks: [
+                { id: 101, text: "Ôn tập kiến thức trọng tâm chương hiện tại", mins: 30, done: true },
+                { id: 102, text: "Làm bài tập thực hành / Luyện đề chuyên sâu", mins: 45, done: false },
+                { id: 103, text: "Tổng hợp ghi chú & từ vựng quan trọng", mins: 25, done: false }
+            ],
+            notes: "Ghi chú trọng tâm cho mục tiêu " + goal.name + "..."
+        };
         saveGoalDetailsStore();
     }
     return goalDetailsStore[id];
 }
-window.changePinnedFocusGoal = function(newGoalId) { currentFocusedGoalId = Number(newGoalId); localStorage.setItem('apexFocusedGoalId', String(currentFocusedGoalId)); renderBentoCommandCenter(); };
+
+// Hàm tự động gắn nút "🗺️ Lộ trình" lên TẤT CẢ các thẻ .goal-card bên dưới Dashboard
+function attachRoadmapButtonToAllGoalCards() {
+    var grid = document.getElementById('dashboard-grid');
+    if (!grid || typeof goals === 'undefined' || !Array.isArray(goals)) return;
+
+    var cards = grid.querySelectorAll('.goal-card');
+    cards.forEach(function(card) {
+        var oldToolbar = card.querySelector('.apex-goal-card-actions');
+        if (oldToolbar) oldToolbar.remove();
+
+        // Ẩn nút .btn-delete cũ bị lệch vị trí để gom chung vào thanh công cụ góc phải
+        var legacyDel = card.querySelector('.btn-delete');
+        if (legacyDel) legacyDel.style.display = 'none';
+
+        var oc = card.getAttribute('onclick') || "";
+        var match = oc.match(/openGoal\s*\(\s*(\d+)\s*\)/);
+        var gId = match ? Number(match[1]) : null;
+        if (!gId) {
+            var titleEl = card.querySelector('h3');
+            if (titleEl) {
+                var found = goals.find(function(x) { return x.name === titleEl.innerText.trim(); });
+                if (found) gId = found.id;
+            }
+        }
+        if (!gId) return;
+
+        card.style.position = 'relative';
+        var actionWrap = document.createElement('div');
+        actionWrap.className = 'apex-goal-card-actions';
+        actionWrap.style.cssText = "position:absolute; top:12px; right:12px; display:inline-flex; align-items:center; gap:6px; z-index:6;";
+
+        // 1. Nút Xem Lộ trình
+        var btnRoad = document.createElement('button');
+        btnRoad.className = 'btn-goal-roadmap';
+        btnRoad.title = 'Xem Lộ trình 5 chặng, Nhiệm vụ & Ghi chú';
+        btnRoad.style.cssText = "background:rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.42); color:#e9d5ff; padding:5px 10px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:0.2s; backdrop-filter:blur(8px);";
+        btnRoad.innerHTML = '<i class="fa-solid fa-route" style="color:#c084fc;"></i> Lộ trình';
+        btnRoad.onmouseover = function() { btnRoad.style.background = '#7c3aed'; btnRoad.style.color = '#fff'; };
+        btnRoad.onmouseout = function() { btnRoad.style.background = 'rgba(168,85,247,0.16)'; btnRoad.style.color = '#e9d5ff'; };
+        btnRoad.onclick = function(e) {
+            e.stopPropagation();
+            openGoalDetailModal(gId, 'overview');
+        };
+
+        // 2. Nút Thùng rác (Xóa mục tiêu)
+        var btnTrash = document.createElement('button');
+        btnTrash.title = 'Xóa mục tiêu này';
+        btnTrash.style.cssText = "width:28px; height:28px; border-radius:8px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:#fda4af; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:0.72rem; transition:0.2s; backdrop-filter:blur(8px);";
+        btnTrash.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+        btnTrash.onmouseover = function() { btnTrash.style.background = '#e11d48'; btnTrash.style.color = '#fff'; };
+        btnTrash.onmouseout = function() { btnTrash.style.background = 'rgba(244,63,94,0.12)'; btnTrash.style.color = '#fda4af'; };
+        btnTrash.onclick = function(e) {
+            e.stopPropagation();
+            deleteGoal(e, gId);
+        };
+
+        actionWrap.appendChild(btnRoad);
+        actionWrap.appendChild(btnTrash);
+        card.appendChild(actionWrap);
+    });
+}
+
+// Hàm đổi mục tiêu đang ghim ở thẻ "Mục tiêu đang tập trung"
+window.changePinnedFocusGoal = function(newGoalId) {
+    currentFocusedGoalId = Number(newGoalId);
+    localStorage.setItem('apexFocusedGoalId', String(currentFocusedGoalId));
+    renderBentoCommandCenter();
+};
+
 window.openGoalDetailModal = function(goalId, defaultTab) {
-    if (typeof goals === 'undefined' || !Array.isArray(goals)) return; var g = goals.find(function(item) { return item.id == goalId; }) || goals[0]; if (!g) return;
-    activeGoalDetailId = g.id; currentFocusedGoalId = g.id; localStorage.setItem('apexFocusedGoalId', String(g.id)); if (defaultTab) currentGoalModalTab = defaultTab;
+    if (typeof goals === 'undefined' || !Array.isArray(goals)) return;
+    var g = goals.find(function(item) { return item.id == goalId; }) || goals[0];
+    if (!g) return;
+
+    activeGoalDetailId = g.id;
+    currentFocusedGoalId = g.id;
+    localStorage.setItem('apexFocusedGoalId', String(g.id));
+    if (defaultTab) currentGoalModalTab = defaultTab;
+
     var modal = document.getElementById('apex-goal-detail-modal');
-    if (!modal) { modal = document.createElement('div'); modal.id = 'apex-goal-detail-modal'; modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.84); backdrop-filter:blur(12px); z-index:10001; align-items:center; justify-content:center; padding:18px; overflow-y:auto;"; document.body.appendChild(modal); }
-    var allGoalsSelectorHtml = goals.map(function(item) { var isCompleted = Number(item.current || 0) <= 0; return `<option value="${item.id}" ${item.id === g.id ? 'selected' : ''} style="background:#14192d; color:#fff;">${isCompleted ? '✓ ' : '🎯 '}${item.name}</option>`; }).join('');
-    var extra = getGoalExtraData(g); var targetH = Number(g.target || 1); var leftH = Math.max(0, Number(g.current || 0)); var doneH = Math.max(0, targetH - leftH); var pct = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100)); var curStageIdx = Math.min(4, Math.floor((pct / 100) * 5));
-    var stepperHtml = extra.milestones.map(function(ms, idx) { var isDone = idx < curStageIdx || pct >= 100; var isCurrent = idx === curStageIdx && pct < 100; var circleBg = isDone ? '#10b981' : (isCurrent ? '#a855f7' : 'rgba(255,255,255,0.08)'); var borderCol = isDone ? '#10b981' : (isCurrent ? '#c084fc' : 'rgba(255,255,255,0.15)'); return `<div style="display:flex; flex-direction:column; align-items:center; position:relative; flex:1; z-index:2;"><div style="width:28px; height:28px; border-radius:50%; background:${circleBg}; border:2px solid ${borderCol}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:800; box-shadow:${isCurrent?'0 0 15px rgba(168,85,247,0.6)':'none'};">${isDone ? '<i class="fa-solid fa-check"></i>' : (idx + 1)}</div><strong style="font-size:0.74rem; color:${isCurrent?'#c084fc':'#fff'}; margin-top:6px;">${ms.title}</strong><span style="font-size:0.64rem; color:#94a3b8; text-align:center;">${isCurrent ? 'Hiện tại' : ms.sub}</span></div>`; }).join('');
-    var tasksHtml = extra.tasks.map(function(tk) { return `<div onclick="toggleGoalDetailTask(${g.id}, ${tk.id})" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); margin-bottom:7px; cursor:pointer;"><div style="display:flex; align-items:center; gap:10px; min-width:0;"><div style="width:17px; height:17px; border-radius:5px; border:1.5px solid ${tk.done?'#a855f7':'#64748b'}; background:${tk.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.65rem; flex-shrink:0;">${tk.done ? '<i class="fa-solid fa-check"></i>' : ''}</div><span style="font-size:0.82rem; color:${tk.done?'#64748b':'#f1f5f9'}; text-decoration:${tk.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tk.text}</span></div><div style="display:flex; align-items:center; gap:12px; flex-shrink:0;"><span style="font-size:0.74rem; color:#94a3b8;">${tk.mins} phút</span><button onclick="deleteGoalDetailTask(event, ${g.id}, ${tk.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div></div>`; }).join('');
-    var reportsList = Array.isArray(g.reports) ? g.reports : []; var reportsHtml = reportsList.length === 0 ? '<div style="padding:20px; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có báo cáo.</div>' : reportsList.slice(0, 12).map(function(r) { return `<div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border-left:3px solid #a855f7; margin-bottom:7px;"><div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:3px;"><span>${r.date || ''}</span><strong style="color:#10b981;">${r.duration || 25} phút</strong></div><div style="font-size:0.78rem; color:#e2e8f0;">${r.content || r.text || ''}</div></div>`; }).join('');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'apex-goal-detail-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.84); backdrop-filter:blur(12px); z-index:10001; align-items:center; justify-content:center; padding:18px; overflow-y:auto;";
+        document.body.appendChild(modal);
+    }
+
+    // Tạo danh sách Dropdown để chuyển nhanh giữa TẤT CẢ các mục tiêu ngay trong Modal
+    var allGoalsSelectorHtml = goals.map(function(item) {
+        var isCompleted = Number(item.current || 0) <= 0;
+        return `<option value="${item.id}" ${item.id === g.id ? 'selected' : ''} style="background:#14192d; color:#fff;">${isCompleted ? '✓ ' : '🎯 '}${item.name}</option>`;
+    }).join('');
+
+    var extra = getGoalExtraData(g);
+    var targetH = Number(g.target || 1);
+    var leftH = Math.max(0, Number(g.current || 0));
+    var doneH = Math.max(0, targetH - leftH);
+    var pct = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+    var curStageIdx = Math.min(4, Math.floor((pct / 100) * 5));
+
+    var stepperHtml = extra.milestones.map(function(ms, idx) {
+        var isDone = idx < curStageIdx || pct >= 100;
+        var isCurrent = idx === curStageIdx && pct < 100;
+        var circleBg = isDone ? '#10b981' : (isCurrent ? '#a855f7' : 'rgba(255,255,255,0.08)');
+        var borderCol = isDone ? '#10b981' : (isCurrent ? '#c084fc' : 'rgba(255,255,255,0.15)');
+        return `
+            <div style="display:flex; flex-direction:column; align-items:center; position:relative; flex:1; z-index:2;">
+                <div style="width:28px; height:28px; border-radius:50%; background:${circleBg}; border:2px solid ${borderCol}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:800; box-shadow:${isCurrent?'0 0 15px rgba(168,85,247,0.6)':'none'};">
+                    ${isDone ? '<i class="fa-solid fa-check"></i>' : (idx + 1)}
+                </div>
+                <strong style="font-size:0.74rem; color:${isCurrent?'#c084fc':'#fff'}; margin-top:6px;">${ms.title}</strong>
+                <span style="font-size:0.64rem; color:#94a3b8; text-align:center;">${isCurrent ? 'Hiện tại' : ms.sub}</span>
+            </div>`;
+    }).join('');
+
+    var tasksHtml = extra.tasks.map(function(tk) {
+        return `
+            <div onclick="toggleGoalDetailTask(${g.id}, ${tk.id})" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); margin-bottom:7px; cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                    <div style="width:17px; height:17px; border-radius:5px; border:1.5px solid ${tk.done?'#a855f7':'#64748b'}; background:${tk.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.65rem; flex-shrink:0;">
+                        ${tk.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </div>
+                    <span style="font-size:0.82rem; color:${tk.done?'#64748b':'#f1f5f9'}; text-decoration:${tk.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tk.text}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                    <span style="font-size:0.74rem; color:#94a3b8;">${tk.mins} phút</span>
+                    <span style="font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:6px; background:${tk.done?'rgba(16,185,129,0.18)':'rgba(255,255,255,0.06)'}; color:${tk.done?'#10b981':'#94a3b8'};">
+                        ${tk.done ? 'Hoàn thành' : 'Chưa làm'}
+                    </span>
+                    <button onclick="deleteGoalDetailTask(event, ${g.id}, ${tk.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>`;
+    }).join('');
+
+    var reportsList = Array.isArray(g.reports) ? g.reports : [];
+    var reportsHtml = reportsList.length === 0
+        ? '<div style="padding:20px; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có bản báo cáo nào cho mục tiêu này.</div>'
+        : reportsList.slice(0, 12).map(function(r) {
+            return `<div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border-left:3px solid #a855f7; margin-bottom:7px;"><div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:3px;"><span>${r.date || ''}</span><strong style="color:#10b981;">${r.duration || 25} phút</strong></div><div style="font-size:0.78rem; color:#e2e8f0;">${r.content || r.text || ''}</div></div>`;
+        }).join('');
+
     var tabBodyHtml = '';
     if (currentGoalModalTab === 'overview' || currentGoalModalTab === 'tasks') {
-        tabBodyHtml = `<div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px; margin-bottom:14px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;"><span style="font-size:0.8rem; font-weight:800; color:#fff;">Lộ trình 5 Chặng</span><span style="font-size:0.72rem; color:#a855f7; font-weight:700; cursor:pointer;" onclick="customizeGoalMilestones(${g.id})"><i class="fa-solid fa-pen"></i> Sửa</span></div><div style="display:flex; justify-content:space-between; position:relative; padding:4px 0;"><div style="position:absolute; top:18px; left:10%; right:10%; height:3px; background:rgba(255,255,255,0.08); z-index:1;"><div style="width:${pct}%; height:100%; background:linear-gradient(90deg, #10b981, #a855f7);"></div></div>${stepperHtml}</div></div><div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><span style="font-size:0.8rem; font-weight:800; color:#fff;">Nhiệm vụ (${extra.tasks.length})</span><button onclick="addGoalDetailTaskPrompt(${g.id})" style="background:none; border:none; color:#a855f7; font-size:0.76rem; font-weight:700; cursor:pointer;">+ Thêm</button></div><div style="max-height:210px; overflow-y:auto;">${tasksHtml}</div></div>`;
-    } else if (currentGoalModalTab === 'stats') { tabBodyHtml = `<div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;"><div style="font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:10px;">Lịch sử báo cáo</div><div style="max-height:260px; overflow-y:auto;">${reportsHtml}</div></div>`; }
-    else if (currentGoalModalTab === 'notes') { tabBodyHtml = `<div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;"><div style="font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:8px;">Ghi chú môn học</div><textarea id="goal-detail-note-area" style="width:100%; height:180px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; font-size:0.82rem; outline:none; resize:vertical;">${extra.notes || ''}</textarea><button onclick="saveGoalDetailNote(${g.id})" style="margin-top:10px; background:#7c3aed; color:#fff; border:none; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Lưu</button></div>`; }
+        tabBodyHtml = `
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px; margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="font-size:0.8rem; font-weight:800; color:#fff;">Lộ trình đề xuất (5 Chặng)</span>
+                    <span style="font-size:0.72rem; color:#a855f7; font-weight:700; cursor:pointer;" onclick="customizeGoalMilestones(${g.id})"><i class="fa-solid fa-pen"></i> Đổi tên 5 chặng</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; position:relative; padding:4px 0;">
+                    <div style="position:absolute; top:18px; left:10%; right:10%; height:3px; background:rgba(255,255,255,0.08); z-index:1;">
+                        <div style="width:${pct}%; height:100%; background:linear-gradient(90deg, #10b981, #a855f7);"></div>
+                    </div>
+                    ${stepperHtml}
+                </div>
+            </div>
 
-    modal.innerHTML = `<div style="background:linear-gradient(160deg, #14192d 0%, #0d1120 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:680px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.75);"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;"><div style="display:flex; align-items:center; gap:10px;"><button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; padding:6px 14px; border-radius:100px; font-size:0.76rem; cursor:pointer;">← Đóng</button><select onchange="openGoalDetailModal(Number(this.value), '${currentGoalModalTab}')" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); color:#fff; padding:6px 12px; border-radius:10px; font-size:0.78rem; outline:none; cursor:pointer;">${allGoalsSelectorHtml}</select></div><div style="display:flex; align-items:center; gap:8px;"><button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer;">▶ Phòng Focus</button></div></div><div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:16px; margin-bottom:16px;"><div style="width:62px; height:62px; border-radius:14px; background:linear-gradient(135deg, #f97316, #db2777); display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; flex-shrink:0;"><i class="fa-solid fa-layer-group"></i></div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between; align-items:baseline;"><div><h3 style="margin:0; font-size:1.25rem; font-weight:800; color:#fff;">${g.name}</h3><div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">${extra.subtitle}</div></div><strong style="font-size:1.4rem; font-weight:900; color:#fff;">${pct}%</strong></div><div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin:8px 0 6px 0;"><div style="width:${pct}%; height:100%; background:linear-gradient(90deg, #8b5cf6, #38bdf8); border-radius:100px;"></div></div><div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#94a3b8;"><span>Đã học: <strong style="color:#fff;">${doneH.toFixed(1)}h / ${targetH.toFixed(1)}h</strong></span><span>Còn lại: <strong style="color:#c084fc;">${leftH.toFixed(2)}h</strong></span></div></div></div><div style="display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:10px;"><button class="demo-tab-pill ${currentGoalModalTab==='overview'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'overview')">Tổng quan</button><button class="demo-tab-pill ${currentGoalModalTab==='tasks'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'tasks')">Nhiệm vụ (${extra.tasks.length})</button><button class="demo-tab-pill ${currentGoalModalTab==='stats'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'stats')">Thống kê</button><button class="demo-tab-pill ${currentGoalModalTab==='notes'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'notes')">Ghi chú</button></div>${tabBodyHtml}</div>`;
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:0.8rem; font-weight:800; color:#fff;">Nhiệm vụ chính (${extra.tasks.length})</span>
+                    <button onclick="addGoalDetailTaskPrompt(${g.id})" style="background:none; border:none; color:#a855f7; font-size:0.76rem; font-weight:700; cursor:pointer;">+ Thêm nhiệm vụ</button>
+                </div>
+                <div style="max-height:210px; overflow-y:auto;">${tasksHtml}</div>
+            </div>`;
+    } else if (currentGoalModalTab === 'stats') {
+        tabBodyHtml = `
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;">
+                <div style="font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:10px;">Lịch sử báo cáo môn học (${reportsList.length} bản)</div>
+                <div style="max-height:260px; overflow-y:auto;">${reportsHtml}</div>
+            </div>`;
+    } else if (currentGoalModalTab === 'notes') {
+        tabBodyHtml = `
+            <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px;">
+                <div style="font-size:0.8rem; font-weight:800; color:#fff; margin-bottom:8px;">Sổ tay ghi chú môn học</div>
+                <textarea id="goal-detail-note-area" style="width:100%; height:180px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; font-size:0.82rem; outline:none; resize:vertical;">${extra.notes || ''}</textarea>
+                <button onclick="saveGoalDetailNote(${g.id})" style="margin-top:10px; background:#7c3aed; color:#fff; border:none; padding:8px 18px; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer;">Lưu ghi chú</button>
+            </div>`;
+    }
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(160deg, #14192d 0%, #0d1120 100%); border:1px solid rgba(255,255,255,0.14); border-radius:22px; padding:22px 24px; width:100%; max-width:680px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.75);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; padding:6px 14px; border-radius:100px; font-size:0.76rem; font-weight:600; cursor:pointer;">
+                        ← Đóng
+                    </button>
+                    <!-- Menu chọn xem Lộ trình của BẤT KỲ mục tiêu nào -->
+                    <select onchange="openGoalDetailModal(Number(this.value), '${currentGoalModalTab}')" style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); color:#fff; padding:6px 12px; border-radius:10px; font-size:0.78rem; font-weight:700; outline:none; cursor:pointer;">
+                        ${allGoalsSelectorHtml}
+                    </select>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button onclick="exportGoalAcademicDossier(${g.id})" title="Tải toàn bộ Lộ trình, Ghi chú & Báo cáo của môn này về máy (.md)" style="background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.45); color:#34d399; padding:7px 14px; border-radius:100px; font-size:0.74rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-file-arrow-down"></i> Xuất Hồ sơ (.md)
+                    </button>
+                    <button onclick="document.getElementById('apex-goal-detail-modal').style.display='none'; openGoal(${g.id});" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:7px 16px; border-radius:100px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.45);">
+                        ▶ Vào Phòng Focus
+                    </button>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:16px; margin-bottom:16px;">
+                <div style="width:62px; height:62px; border-radius:14px; background:linear-gradient(135deg, #f97316, #db2777); display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; flex-shrink:0;">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <div>
+                            <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:#fff;">${g.name}</h3>
+                            <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">${extra.subtitle}</div>
+                        </div>
+                        <strong style="font-size:1.4rem; font-weight:900; color:#fff;">${pct}%</strong>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin:8px 0 6px 0;">
+                        <div style="width:${pct}%; height:100%; background:linear-gradient(90deg, #8b5cf6, #38bdf8); border-radius:100px;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.73rem; color:#94a3b8;">
+                        <span>Đã học: <strong style="color:#fff;">${doneH.toFixed(1)}h / ${targetH.toFixed(1).replace(/\.0$/,'')}h</strong></span>
+                        <span>Còn lại: <strong style="color:#c084fc;">${leftH.toFixed(2)}h</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:10px;">
+                <button class="demo-tab-pill ${currentGoalModalTab==='overview'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'overview')">Tổng quan</button>
+                <button class="demo-tab-pill ${currentGoalModalTab==='tasks'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'tasks')">Nhiệm vụ (${extra.tasks.length})</button>
+                <button class="demo-tab-pill ${currentGoalModalTab==='stats'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'stats')">Thống kê (${reportsList.length})</button>
+                <button class="demo-tab-pill ${currentGoalModalTab==='notes'?'active':''}" onclick="openGoalDetailModal(${g.id}, 'notes')">Ghi chú</button>
+            </div>
+
+            ${tabBodyHtml}
+        </div>`;
     modal.style.display = 'flex';
 };
 
-window.toggleGoalDetailTask = function(goalId, taskId) { var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return; var extra = getGoalExtraData(g); var tk = extra.tasks.find(function(t) { return t.id === taskId; }); if (tk) { tk.done = !tk.done; saveGoalDetailsStore(); openGoalDetailModal(goalId); } };
-window.addGoalDetailTaskPrompt = function(goalId) { var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return; var txt = prompt("Nhập tên nhiệm vụ cho " + g.name + ":"); if (!txt || !txt.trim()) return; var mins = parseInt(prompt("Thời lượng (phút):", "30")) || 30; var extra = getGoalExtraData(g); extra.tasks.push({ id: Date.now(), text: txt.trim(), mins: mins, done: false }); saveGoalDetailsStore(); openGoalDetailModal(goalId); };
-window.deleteGoalDetailTask = function(e, goalId, taskId) { e.stopPropagation(); var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return; var extra = getGoalExtraData(g); extra.tasks = extra.tasks.filter(function(t) { return t.id !== taskId; }); saveGoalDetailsStore(); openGoalDetailModal(goalId); };
-window.customizeGoalMilestones = function(goalId) { var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return; var extra = getGoalExtraData(g); var currentNames = extra.milestones.map(function(m) { return m.title; }).join(', '); var input = prompt("Nhập tên 5 cột mốc (cách nhau bằng phẩy):", currentNames); if (!input) return; var parts = input.split(',').map(function(s) { return s.trim(); }).filter(Boolean); for (var i = 0; i < 5; i++) { if (parts[i]) extra.milestones[i].title = parts[i]; } saveGoalDetailsStore(); openGoalDetailModal(goalId); };
-window.saveGoalDetailNote = function(goalId) { var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return; var extra = getGoalExtraData(g); var area = document.getElementById('goal-detail-note-area'); if (area) { extra.notes = area.value; saveGoalDetailsStore(); alert("Đã lưu ghi chú!"); } };
-
-// 6. KHÔNG GIAN MỤC TIÊU ĐỘC LẬP VÀ GIAO DIỆN HOÀNG GIA (DEDICATED GOALS ROOM)
-function ensureGoalsViewDOM() {
-    let viewGoals = document.getElementById('view-goals');
-    if (!viewGoals) {
-        viewGoals = document.createElement('div');
-        viewGoals.id = 'view-goals';
-        viewGoals.style.display = 'none';
-        let dash = document.getElementById('view-dashboard');
-        if (dash && dash.parentNode) dash.parentNode.insertBefore(viewGoals, dash.nextSibling);
+window.toggleGoalDetailTask = function(goalId, taskId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    var tk = extra.tasks.find(function(t) { return t.id === taskId; });
+    if (tk) { tk.done = !tk.done; saveGoalDetailsStore(); openGoalDetailModal(goalId); }
+};
+window.addGoalDetailTaskPrompt = function(goalId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var txt = prompt("Nhập tên nhiệm vụ cho mục tiêu " + g.name + ":");
+    if (!txt || !txt.trim()) return;
+    var mins = parseInt(prompt("Thời lượng dự kiến (phút):", "30")) || 30;
+    var extra = getGoalExtraData(g);
+    extra.tasks.push({ id: Date.now(), text: txt.trim(), mins: mins, done: false });
+    saveGoalDetailsStore(); openGoalDetailModal(goalId);
+};
+window.deleteGoalDetailTask = function(e, goalId, taskId) {
+    e.stopPropagation();
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    extra.tasks = extra.tasks.filter(function(t) { return t.id !== taskId; });
+    saveGoalDetailsStore(); openGoalDetailModal(goalId);
+};
+window.customizeGoalMilestones = function(goalId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    var currentNames = extra.milestones.map(function(m) { return m.title; }).join(', ');
+    var input = prompt("Nhập tên 5 cột mốc lộ trình (cách nhau bằng dấu phẩy):", currentNames);
+    if (!input) return;
+    var parts = input.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+    for (var i = 0; i < 5; i++) {
+        if (parts[i]) extra.milestones[i].title = parts[i];
     }
-    return viewGoals;
+    saveGoalDetailsStore(); openGoalDetailModal(goalId);
+};
+window.saveGoalDetailNote = function(goalId) {
+    var g = goals.find(function(x) { return x.id === goalId; }); if (!g) return;
+    var extra = getGoalExtraData(g);
+    var area = document.getElementById('goal-detail-note-area');
+    if (area) { extra.notes = area.value; saveGoalDetailsStore(); alert("Đã lưu ghi chú môn học!"); }
+};
+
+// --- 5. BỘ CSS HỢP NHẤT DUY NHẤT (OPEN-WORLD HERO + QUỸ ĐẠO CHỮ A + LỬA NHẤP NHÁY) ---
+function injectUnifiedApexCSS() {
+    applyCustomWallpaper();
+    var oldSt = document.getElementById('apex-unified-master-css');
+    if (oldSt) oldSt.remove();
+
+    var st = document.createElement('style');
+    st.id = 'apex-unified-master-css';
+    st.innerHTML = `
+        :root, [data-color="neon-purple"] {
+            --user-wallpaper: url('${DEFAULT_WALLPAPER}');
+            --user-bg-dim: 0.78;
+            --theme-accent: #a855f7;
+            --theme-accent-2: #6366f1;
+            --theme-soft: rgba(168, 85, 247, 0.18);
+            --theme-border: rgba(168, 85, 247, 0.35);
+        }
+        [data-color="zen"]       { --theme-accent: #10b981; --theme-accent-2: #0ea5e9; --theme-soft: rgba(16,185,129,0.18); --theme-border: rgba(16,185,129,0.35); }
+        [data-color="neon-blue"] { --theme-accent: #0ea5e9; --theme-accent-2: #3b82f6; --theme-soft: rgba(14,165,233,0.18); --theme-border: rgba(56,189,248,0.35); }
+        [data-color="sakura"]    { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
+
+        body {
+            background: transparent !important;
+        }
+        .bento-top-search, #global-goal-search,
+        #view-dashboard > .kpi-card, #view-dashboard > .recommendation-strip,
+        #view-dashboard > .gamification-strip, #view-dashboard > #imperial-quests,
+        #view-dashboard > #legacy-stock-strip, #view-dashboard > .stock-strip { display: none !important; }
+        @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
+
+       /* XÓA HỘP ĐEN & CỐ ĐỊNH TẠI ĐỈNH TRANG (KHÔNG CHẠY THEO KHI SCROLL) */
+        .header, header.header, .main-content > .header {
+            position: relative !important;
+            top: auto !important;
+            z-index: 10 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            padding: 12px 2px 6px 2px !important;
+            margin-bottom: 4px !important;
+        }
+        .top-quote-text {
+            color: rgba(226, 232, 240, 0.85) !important;
+            font-size: 0.84rem !important;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8) !important;
+        }
+
+        /* Sidebar SaaS */
+        .sidebar {
+            width: 224px !important; background: rgba(8, 10, 18, 0.85) !important;
+            backdrop-filter: blur(20px) !important; border-right: 1px solid rgba(255,255,255,0.08) !important;
+            padding: 14px 12px !important; display: flex !important; flex-direction: column !important;
+        }
+        .sidebar .nav-item {
+            padding: 9px 12px !important; margin-bottom: 3px !important; border-radius: 10px !important;
+            font-size: 0.8rem !important; font-weight: 600 !important; color: #94a3b8 !important;
+            border: 1px solid transparent !important; position: relative !important;
+        }
+        .sidebar .nav-item.active {
+            background: var(--theme-soft) !important; color: #fff !important;
+            font-weight: 700 !important; border: 1px solid var(--theme-border) !important; box-shadow: none !important;
+        }
+        .sidebar .nav-item.active::before {
+            content: ""; position: absolute; left: -1px; top: 22%; bottom: 22%;
+            width: 3.5px; background: var(--theme-accent); border-radius: 0 4px 4px 0;
+        }
+        .sidebar .nav-item.active i { color: var(--theme-accent) !important; }
+
+        /* Open-World Hero (Không hộp viền, giữ Quỹ đạo chữ A bên phải) */
+        .phoi-hero-banner {
+            position: relative;
+            padding: 4px 8px 14px 4px !important;
+            margin-bottom: 12px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 20px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+        }
+        .phoi-hero-left {
+            z-index: 2;
+            flex: 1;
+            max-width: calc(100% - 275px) !important;
+        }
+        .phoi-badge-row {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+        }
+        .phoi-pill-cmd {
+            background: rgba(15,23,42,0.65); border: 1px solid rgba(255,255,255,0.15);
+            color: #e2e8f0; padding: 4px 12px; border-radius: 100px; font-size: 0.65rem;
+            font-weight: 800; backdrop-filter: blur(10px);
+        }
+        .phoi-pill-live {
+            background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.45);
+            color: #34d399; padding: 4px 12px; border-radius: 100px; font-size: 0.65rem; font-weight: 800;
+        }
+        .phoi-hero-left h1 {
+            font-size: 2.0rem !important; font-weight: 900 !important; color: #fff;
+            margin: 0 0 4px 0; text-shadow: 0 4px 24px rgba(0,0,0,0.65);
+        }
+        .phoi-hero-left p {
+            font-size: 0.85rem !important; color: #e2e8f0; font-style: italic;
+            margin: 0 0 16px 0; text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+        }
+        .phoi-hero-mini-bar {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(135px, 1fr)) !important;
+            gap: 10px !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            backdrop-filter: none !important;
+            width: 100% !important;
+        }
+        .phoi-mini-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 13px !important;
+            background: rgba(14, 19, 36, 0.74) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 14px !important;
+            backdrop-filter: blur(16px) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .phoi-mini-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--theme-border) !important;
+        }
+        .phoi-mini-item strong { display: block; font-size: 0.86rem; color: #fff; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+        .phoi-mini-item span { font-size: 0.66rem; color: #94a3b8; white-space: nowrap; }
+
+        /* Quỹ đạo chữ A bên phải */
+        .phoi-orbit-box {
+            position: relative; width: 260px; height: 182px;
+            display: flex !important; align-items: center; justify-content: center;
+            z-index: 2; flex-shrink: 0;
+        }
+        .phoi-orbit-ring1 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 114px; height: 114px; border-radius: 50%; border: 1px dashed rgba(168,85,247,0.55); box-shadow: 0 0 20px rgba(168,85,247,0.15) inset; }
+        .phoi-orbit-ring2 { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 178px; height: 178px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12); }
+        .phoi-orbit-core { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle, #7c3aed 0%, #311068 100%); border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 900; color: #fff; box-shadow: 0 0 28px rgba(168,85,247,0.85); z-index: 3; }
+        .phoi-sat { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 4; text-align: center; min-width: 72px; text-shadow: 0 2px 8px rgba(0,0,0,0.85); }
+        .phoi-orbit-box .phoi-sat:nth-of-type(4) { top: 2px; left: 50%; transform: translateX(-50%); }
+        .phoi-orbit-box .phoi-sat:nth-of-type(5) { bottom: 4px; left: 8px; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(6) { bottom: 4px; right: 8px; }
+        .phoi-sat-circle { width: 32px; height: 32px; border-radius: 50%; background: rgba(13,18,34,0.92); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-bottom: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .phoi-sat strong { font-size: 0.68rem; color: #fff; line-height: 1.15; }
+        .phoi-sat span { font-size: 0.6rem; color: #cbd5e1; }
+
+        /* HIỆU ỨNG NGỌN LỬA ĐA TẦNG NHẤP NHÁY */
+        @keyframes apexFlameFlicker {
+            0%, 100% {
+                transform: scale(1) rotate(-2deg) translateY(0);
+                filter: drop-shadow(0 0 6px rgba(249,115,22,0.85)) drop-shadow(0 0 14px rgba(239,68,68,0.55));
+            }
+            25% {
+                transform: scale(1.12, 1.06) rotate(2deg) translateY(-1.5px);
+                filter: drop-shadow(0 0 10px rgba(251,191,36,0.95)) drop-shadow(0 0 20px rgba(249,115,22,0.75));
+            }
+            50% {
+                transform: scale(0.95, 1.14) rotate(-1deg) translateY(-2px);
+                filter: drop-shadow(0 0 12px rgba(245,158,11,0.9)) drop-shadow(0 0 22px rgba(225,29,72,0.7));
+            }
+            75% {
+                transform: scale(1.08, 0.97) rotate(3deg) translateY(-0.5px);
+                filter: drop-shadow(0 0 8px rgba(251,191,36,0.9)) drop-shadow(0 0 16px rgba(249,115,22,0.65));
+            }
+        }
+        @keyframes apexFlameOrbPulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(249,115,22,0.35), inset 0 0 8px rgba(251,191,36,0.25); }
+            50% { box-shadow: 0 0 22px rgba(249,115,22,0.65), inset 0 0 12px rgba(251,191,36,0.45); }
+        }
+        .apex-flame-orb {
+            width: 38px; height: 38px; border-radius: 12px;
+            background: radial-gradient(circle at 50% 70%, rgba(251,191,36,0.28), rgba(249,115,22,0.18) 60%, rgba(225,29,72,0.08) 100%);
+            border: 1.5px solid rgba(251,146,60,0.55);
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0; animation: apexFlameOrbPulse 2.2s infinite ease-in-out;
+        }
+        .apex-living-fire {
+            background: linear-gradient(180deg, #fef08a 0%, #fbbf24 30%, #f97316 68%, #e11d48 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            font-size: 1.22rem;
+            animation: apexFlameFlicker 1.35s infinite ease-in-out;
+            transform-origin: center bottom;
+        }
+
+        /* Bento 3-Column Grids */
+        .phoi-row-3col { display: grid; grid-template-columns: 1.12fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .phoi-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+        .phoi-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+        .phoi-card {
+            background: rgba(16, 21, 38, 0.8) !important; backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important; border-radius: 16px !important;
+            padding: 14px 16px !important; display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.35) !important;
+        }
+        .phoi-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .phoi-card-title { font-size: 0.74rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.6px; }
+        .phoi-link { font-size: 0.72rem; color: var(--theme-accent); font-weight: 600; cursor: pointer; }
+
+        /* SỬA TRIỆT ĐỂ LỖI TRÀN CHỮ & GÃY DÒNG TRONG THẺ MỤC TIÊU (.goal-card) */
+        #dashboard-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+            gap: 14px !important;
+        }
+        #dashboard-grid .goal-card {
+            position: relative !important;
+            background: rgba(16, 21, 38, 0.82) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+            padding: 16px 18px !important;
+            border-radius: 16px !important;
+            height: auto !important;
+            overflow: hidden !important;
+        }
+        #dashboard-grid .goal-card h3 {
+            font-size: 0.96rem !important;
+            font-weight: 800 !important;
+            margin: 4px 0 2px 0 !important;
+            padding-right: 82px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        /* Giữ các con số 2.4h/ngày, 88.0h/100h trên cùng 1 hàng, tuyệt đối không rớt chữ "ày" */
+        #dashboard-grid .goal-card strong,
+        #dashboard-grid .goal-card b,
+        #dashboard-grid .goal-card span {
+            word-break: keep-all !important;
+            overflow-wrap: normal !important;
+        }
+
+        /* Focus Room 3 Cột Đối Xứng */
+        #focus-room { background-image: var(--user-wallpaper) !important; background-size: cover !important; background-position: center !important; padding: 16px 28px !important; flex-direction: column !important; justify-content: space-between !important; }
+        #focus-overlay { background: radial-gradient(circle at 50% 42%, rgba(18,20,46,0.48) 0%, rgba(10,12,28,0.78) 65%, rgba(6,8,18,0.92) 100%) !important; backdrop-filter: blur(4px) !important; }
+        #focus-room .focus-nav, #focus-room .focus-studio-layout { display: none !important; }
+
+        .ft-wrapper { position: relative; z-index: 5; width: 100%; max-width: 1080px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+        .ft-topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; }
+        .ft-topbar > button:first-child { justify-self: start; width: fit-content; }
+        .ft-center-header { justify-self: center; text-align: center; }
+        .ft-topbar > div:last-child { justify-self: end; display: flex; align-items: center; gap: 8px; }
+        .ft-glass-btn { background: rgba(17,22,40,0.72); border: 1px solid rgba(255,255,255,0.14); color: #f1f5f9; padding: 8px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(12px); }
+        .ft-room-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+        .ft-goal-title { font-size: 1.7rem; font-weight: 800; color: #fff; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+        .ft-goal-sub { font-size: 0.8rem; color: #cbd5e1; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+        .ft-mode-bar { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
+        .ft-mode-pill { background: rgba(16,20,38,0.75); border: 1px solid rgba(255,255,255,0.12); border-radius: 100px; padding: 7px 22px; color: #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 10px; text-align: left; }
+        .ft-mode-pill strong { display: block; font-size: 0.78rem; color: #fff; }
+        .ft-mode-pill span { display: block; font-size: 0.65rem; color: #94a3b8; }
+        .ft-mode-pill.active { background: linear-gradient(135deg, rgba(139,92,246,0.55), rgba(99,102,241,0.45)); border-color: #c084fc; box-shadow: 0 0 22px rgba(139,92,246,0.45); }
+
+        .ft-main-grid { display: grid; grid-template-columns: 310px 320px 310px; justify-content: center; align-items: stretch; gap: 24px; width: 100%; margin: 4px auto; }
+        .ft-card { background: linear-gradient(160deg, rgba(19,24,44,0.78), rgba(12,16,32,0.86)); border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 16px 18px; backdrop-filter: blur(20px); min-height: 290px; display: flex; flex-direction: column; justify-content: space-between; }
+        .ft-card-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; font-weight: 800; color: #f1f5f9; text-transform: uppercase; margin-bottom: 12px; }
+        .ft-center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ft-ring-box { position: relative; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(30,27,75,0.45) 0%, rgba(15,20,38,0.75) 75%); box-shadow: 0 0 50px rgba(139,92,246,0.35); display: flex; align-items: center; justify-content: center; }
+        .ft-time-big { font-size: 3.6rem; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
+        .ft-time-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-top: 8px; }
+        .ft-start-btn { margin-top: 16px; background: linear-gradient(90deg, #a855f7, #6366f1); color: #fff; border: none; padding: 11px 42px; border-radius: 100px; font-size: 0.9rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 28px rgba(139,92,246,0.55); }
+
+        .ft-bottom-dock { background: linear-gradient(160deg, rgba(17,22,40,0.82), rgba(11,14,28,0.9)); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 12px 18px; width: 100%; max-width: 988px; margin: 0 auto; backdrop-filter: blur(20px); }
+        .ft-amb-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        .f-amb-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .f-amb-card.active { background: rgba(139,92,246,0.22); border-color: #a855f7; }
+        .f-amb-card strong { display: block; font-size: 0.75rem; color: #fff; }
+        .f-amb-card span { display: block; font-size: 0.63rem; color: #94a3b8; }
+
+        .hex-icon { width: 48px; height: 54px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; flex-shrink: 0; }
+        .demo-filter-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .demo-tab-pill { background: rgba(19,24,38,0.8); border: 1px solid rgba(255,255,255,0.08); color: #8b95b0; padding: 6px 14px; border-radius: 9px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+        .demo-tab-pill.active { background: linear-gradient(90deg, #7c3aed, #4f46e5); color: #fff; border-color: transparent; }
+
+        @media (max-width: 1080px) {
+            .phoi-stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .phoi-row-3col, .phoi-row-2col, .ft-main-grid { grid-template-columns: 1fr !important; max-width: 520px; margin: 0 auto 12px auto; }
+            .phoi-orbit-box { display: none !important; }
+            .phoi-hero-left { max-width: 100% !important; }
+            .phoi-hero-mini-bar { grid-template-columns: repeat(2, 1fr) !important; }
+            .ft-center-col { order: -1; margin: 8px 0; }
+        }
+        @media (max-width: 768px) {
+            .main-content { padding: 0 12px 28px 12px !important; overflow-x: hidden !important; }
+            .top-quote-text { display: none !important; }
+            #dashboard-grid { grid-template-columns: 1fr !important; }
+            #focus-room { padding: 12px 14px 28px 14px !important; overflow-y: auto !important; justify-content: flex-start !important; }
+            .ft-wrapper { height: auto !important; }
+            .ft-topbar { display: flex !important; flex-wrap: wrap !important; justify-content: space-between !important; gap: 8px !important; }
+            .ft-center-header { order: 3; width: 100%; }
+            .ft-mode-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; }
+            .ft-mode-pill { padding: 6px 8px; justify-content: center; }
+            .ft-amb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .ft-amb-grid .f-amb-card:last-child { grid-column: 1 / -1; }
+        }
+    `;
+    document.head.appendChild(st);
 }
 
-window.renderGoalsDedicated = function(filterType = 'all') {
-    window.currentGoalFilter = filterType;
-    let viewGoals = ensureGoalsViewDOM();
+// --- 6. RENDER DASHBOARD 3 TẦNG CHUẨN CONCEPT MỚI ---
+function renderBentoCommandCenter() {
+    try {
+        injectUnifiedApexCSS();
+        var dash = document.getElementById('view-dashboard'); if (!dash) return;
+        var container = document.getElementById('bento-command-center');
+        if (!container) { container = document.createElement('div'); container.id = 'bento-command-center'; dash.insertBefore(container, dash.firstChild); }
 
-    let allGoals = typeof goals !== 'undefined' ? goals : [];
-    let totalGoals = allGoals.length;
-    let activeG = allGoals.filter(g => g.current > 0).length;
-    let compG = allGoals.filter(g => g.current <= 0).length;
-    
-    let aheadCount = 0, warnCount = 0;
-    allGoals.forEach(g => {
-        if (!g.deadline || g.current <= 0) return;
-        let tT = new Date().getTime(), dT = new Date(g.deadline).getTime(), cT = g.createdAt ? new Date(g.createdAt).getTime() : tT - 86400000;
-        let dE = Math.max(1, Math.ceil((tT - cT) / 86400000)), dL = Math.ceil((dT - tT) / 86400000);
-        let cP = (g.target - g.current) / dE, rP = dL > 0 ? (g.current / dL) : g.current;
-        if (cP > rP * 1.2) aheadCount++;
-        if (cP < rP * 0.7) warnCount++;
-    });
+        var headerActions = document.querySelector('.header-actions');
+        if (headerActions && !document.getElementById('btn-open-wallpaper')) {
+            var wpBtn = document.createElement('button'); wpBtn.id = 'btn-open-wallpaper'; wpBtn.className = 'btn-ghost-action';
+            wpBtn.onclick = openWallpaperPickerModal; wpBtn.innerHTML = '<i class="fa-regular fa-image" style="color:#a855f7;"></i> Ảnh nền';
+            headerActions.insertBefore(wpBtn, headerActions.firstChild);
+        }
 
-    let displayGoals = filterType === 'active' ? allGoals.filter(g => g.current > 0) : (filterType === 'completed' ? allGoals.filter(g => g.current <= 0) : allGoals);
+        var now = new Date(), hr = now.getHours();
+        var greeting = hr < 12 ? "Chào buổi sáng" : (hr < 18 ? "Chào buổi chiều" : "Chào buổi tối");
+        var userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.displayName) ? currentUser.displayName : "Phước Thịnh";
+        var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 0.5 };
+        var todayDone = qInfo.doneHrs || 0, dailyGoal = Math.max(qInfo.requiredHrs || 0.5, 0.25);
+        var pctToday = Math.min(100, Math.round((todayDone / dailyGoal) * 100));
 
-    let html = `
-        <div class="apex-goals-header-bg">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
-                <div><h2 style="font-size: 2.2rem; font-weight: 900; color: #fff; margin: 0 0 8px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-bullseye" style="color: #f43f5e; margin-right: 12px;"></i>Quản Lý Mục Tiêu</h2><div style="font-size: 1rem; color: #cbd5e1;">Chia nhỏ lộ trình. Quản lý mục tiêu.</div></div>
-                <div style="display:flex; gap:10px;">
-                    <button onclick="createNewCountdown()" style="background: rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.5); color: #e9d5ff; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-hourglass-start"></i> Đếm ngược</button>
-                    <button onclick="createNewGoal()" style="background: rgba(56,189,248,0.2); border:1px solid rgba(56,189,248,0.5); color: #bae6fd; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-plus"></i> Mục tiêu mới</button>
+        var totalAllTimeHrs = getTotalAccumulatedHours();
+        var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+        var streak = typeof currentStreak !== 'undefined' ? currentStreak : 0;
+        var achList = getAllAchievementsList();
+        var unlockedAchCount = achList.filter(function(a) { return a.unlocked; }).length;
+
+        var ringRadius = 42, ringCircum = 2 * Math.PI * ringRadius;
+        var ringOffset = ringCircum - (pctToday / 100) * ringCircum;
+
+        var todoListHtml = bentoTodoList.slice(0, 3).map(function(t) {
+            return `
+                <div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; padding:5px 6px; border-radius:7px; cursor:pointer; background:rgba(255,255,255,0.02); margin-bottom:4px;">
+                    <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                        <div style="width:15px; height:15px; border-radius:4px; border:1.5px solid ${t.done?'#a855f7':'#64748b'}; background:${t.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.58rem; flex-shrink:0;">
+                            ${t.done?'<i class="fa-solid fa-check"></i>':''}
+                        </div>
+                        <span style="font-size:0.76rem; color:${t.done?'#94a3b8':'#f1f5f9'}; text-decoration:${t.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.text}</span>
+                    </div>
+                    <button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer; font-size:0.68rem;"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+        }).join('');
+
+        // Thẻ MỤC TIÊU ĐANG TẬP TRUNG (Có Dropdown tự do chọn bất kỳ mục tiêu nào để ghim)
+        var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g.current > 0; }) : [];
+        var focusGoal = activeGoals.find(function(g) { return g.id == currentFocusedGoalId; }) || activeGoals[0];
+        var focusGoalHtml = '';
+        if (focusGoal) {
+            var fgTarget = Number(focusGoal.target || 1), fgLeft = Math.max(0, Number(focusGoal.current || 0));
+            var fgDone = Math.max(0, fgTarget - fgLeft), fgPct = Math.min(100, Math.round((fgDone / Math.max(0.1, fgTarget)) * 100));
+            var fgExtra = getGoalExtraData(focusGoal);
+            var pinOptionsHtml = activeGoals.map(function(ag) {
+                return `<option value="${ag.id}" ${ag.id === focusGoal.id ? 'selected' : ''} style="background:#14192d; color:#fff;">📌 ${ag.name}</option>`;
+            }).join('');
+
+            focusGoalHtml = `
+                <div>
+                    <div class="phoi-card-head" style="gap:6px;">
+                        <select onchange="changePinnedFocusGoal(this.value)" title="Đổi mục tiêu đang ghim tập trung" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:#f1f5f9; padding:3px 8px; border-radius:7px; font-size:0.7rem; font-weight:800; outline:none; cursor:pointer; max-width:175px;">
+                            ${pinOptionsHtml}
+                        </select>
+                        <span class="phoi-link" onclick="openGoalDetailModal(${focusGoal.id}, 'overview')">🗺️ Lộ trình →</span>
+                    </div>
+                    <div onclick="openGoalDetailModal(${focusGoal.id}, 'overview')" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0 10px 0; cursor:pointer;">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                            <div style="width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, #ec4899, #8b5cf6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1rem; flex-shrink:0; box-shadow:0 4px 14px rgba(236,72,153,0.35);">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div style="font-size:0.98rem; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${focusGoal.name}</div>
+                                <div style="font-size:0.7rem; color:#94a3b8;">${fgExtra.subtitle}</div>
+                            </div>
+                        </div>
+                        <strong style="font-size:1.15rem; font-weight:900; color:#fff;">${fgPct}%</strong>
+                    </div>
+                    <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px;">
+                        <div style="width:${fgPct}%; height:100%; background:linear-gradient(90deg, #a855f7, #38bdf8); border-radius:100px;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:12px;">
+                        <span>${fgDone.toFixed(1)}h / ${fgTarget.toFixed(1).replace(/\.0$/,'')}h</span>
+                        <span>Còn ${fgLeft.toFixed(2)}h</span>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:8px;">
+                    <button onclick="openGoal(${focusGoal.id})" style="padding:9px; border-radius:10px; background:linear-gradient(90deg, #7c3aed, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.78rem; cursor:pointer; box-shadow:0 6px 18px rgba(124,58,237,0.4);">
+                        <i class="fa-solid fa-play" style="margin-right:5px;"></i> Tiếp tục học
+                    </button>
+                    <button onclick="openGoalDetailModal(${focusGoal.id}, 'overview')" style="padding:9px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#e2e8f0; font-weight:700; font-size:0.76rem; cursor:pointer;">
+                        <i class="fa-solid fa-route" style="color:#a855f7; margin-right:4px;"></i> Xem lộ trình
+                    </button>
+                </div>`;
+        } else {
+            focusGoalHtml = `<div style="padding:30px 0; text-align:center; color:#64748b; font-size:0.8rem;">Chưa có mục tiêu đang mở. Hãy tạo mục tiêu mới!</div>`;
+        }
+
+        // Thẻ LỊCH TRÌNH HÔM NAY (Phải Hàng 2)
+        var todayDow = now.getDay(), todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : now.toISOString().split('T')[0];
+        var todaySchedules = (typeof timetableData !== 'undefined' && Array.isArray(timetableData)) ? timetableData.filter(function(item) {
+            var sDate = new Date(item.startDate); sDate.setHours(0,0,0,0);
+            var eDate = new Date(item.endDate); eDate.setHours(23,59,59,999);
+            return !(item.pausedDates && item.pausedDates.includes(todayStr)) && parseInt(item.dow) === todayDow && now >= sDate && now <= eDate;
+        }) : [];
+        var pillCols = ['#8b5cf6', '#0ea5e9', '#f43f5e', '#10b981'];
+        var scheduleRowsHtml = todaySchedules.slice(0, 4).map(function(item, idx) {
+            var c = pillCols[idx % 4];
+            var shiftTime = item.code || (item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'chieu' ? 'Ca Chiều' : 'Ca Tối'));
+            return `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <div style="display:flex; align-items:center; gap:9px; overflow:hidden;">
+                        <span style="background:${c}25; border:1px solid ${c}60; color:#fff; padding:2px 8px; border-radius:6px; font-size:0.68rem; font-weight:800; flex-shrink:0;">${shiftTime}</span>
+                        <span style="font-size:0.78rem; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</span>
+                    </div>
+                    <span style="font-size:0.7rem; color:#94a3b8; flex-shrink:0;">${item.room || 'TKB'} ›</span>
+                </div>`;
+        }).join('') || '<div style="padding:26px 0; text-align:center; color:#64748b; font-size:0.78rem;">Hôm nay trống lịch cố định trên TKB.</div>';
+
+        // Hàng 3 - Cột 1: BIỂU ĐỒ THỜI GIAN HỌC (7 NGÀY)
+        var logsObj = (typeof dailyLogs !== 'undefined' && dailyLogs) ? dailyLogs : {};
+        var maxBar7 = 3.0;
+        for (var m = 6; m >= 0; m--) {
+            var dm = new Date(); dm.setDate(dm.getDate() - m);
+            var km = dm.getFullYear() + '-' + String(dm.getMonth() + 1).padStart(2, '0') + '-' + String(dm.getDate()).padStart(2, '0');
+            if (Number(logsObj[km] || 0) > maxBar7) maxBar7 = Number(logsObj[km]);
+        }
+        var dLabels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        var miniBars7Html = '';
+        for (var b = 6; b >= 0; b--) {
+            var db = new Date(); db.setDate(db.getDate() - b);
+            var kb = db.getFullYear() + '-' + String(db.getMonth() + 1).padStart(2, '0') + '-' + String(db.getDate()).padStart(2, '0');
+            var vb = Number(logsObj[kb] || 0);
+            var hp = Math.min(100, Math.max(8, Math.round((vb / maxBar7) * 100)));
+            miniBars7Html += `
+                <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;" title="${kb}: ${vb.toFixed(1)}h">
+                    <span style="font-size:0.62rem; color:#cbd5e1; font-weight:700;">${vb > 0 ? vb.toFixed(1)+'h' : ''}</span>
+                    <div style="height:88px; width:100%; max-width:20px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; align-items:flex-end; overflow:hidden;">
+                        <div style="width:100%; height:${hp}%; background:linear-gradient(180deg, #38bdf8, #6366f1); border-radius:6px;"></div>
+                    </div>
+                    <span style="font-size:0.65rem; color:#94a3b8; font-weight:700;">${dLabels[db.getDay()]}</span>
+                </div>`;
+        }
+
+        // Hàng 3 - Cột 2: TIẾN ĐỘ CÁC MỤC TIÊU (Hiển thị TẤT CẢ mục tiêu đang mở, bấm vào mở ngay Lộ trình)
+        var gIcons = [{ icon: 'fa-book-open', color: '#a855f7' }, { icon: 'fa-bullseye', color: '#f43f5e' }, { icon: 'fa-laptop-code', color: '#10b981' }, { icon: 'fa-graduation-cap', color: '#38bdf8' }, { icon: 'fa-bolt', color: '#f59e0b' }];
+        var currentGoalsHtml = `<div style="max-height:130px; overflow-y:auto; padding-right:4px;">` + (activeGoals.map(function(g, idx) {
+            var st = gIcons[idx % gIcons.length], pctG = Math.min(100, Math.round((Math.max(0, (g.target || 1) - g.current) / (g.target || 1)) * 100));
+            return `
+                <div onclick="openGoalDetailModal(${g.id}, 'overview')" title="Bấm để xem Lộ trình 5 chặng & Nhiệm vụ của ${g.name}" style="display:flex; align-items:center; gap:10px; padding:7px 4px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:28px; height:28px; border-radius:8px; background:${st.color}22; color:${st.color}; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;"><i class="fa-solid ${st.icon}"></i></div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.76rem; font-weight:700; margin-bottom:3px;">
+                            <span style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</span>
+                            <span style="color:#c084fc; font-size:0.7rem;">Lộ trình • ${pctG}%</span>
+                        </div>
+                        <div style="width:100%; height:5px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
+                            <div style="width:${pctG}%; height:100%; background:${st.color};"></div>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('') || '<div style="padding:18px 0; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có mục tiêu đang mở.</div>') + `</div>`;
+
+        // Hàng 3 - Cột 3: THỊ TRƯỜNG CỔ PHIẾU
+        var stockList = getUnifiedStockArray();
+        var stockRowsHtml = stockList.slice(0, 3).map(function(st) {
+            var up = st.change >= 0;
+            return `<div onclick="triggerStockTrade('${st.code}')" style="display:flex; justify-content:space-between; padding:5px 4px; font-size:0.77rem; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer;"><span style="font-weight:800; color:#e2e8f0;"><i class="fa-solid fa-coins" style="color:#fbbf24; margin-right:6px;"></i>${st.code}</span><span style="font-weight:700; color:#fff;">$${st.price.toFixed(1)}</span><span style="font-weight:700; color:${up?'#10b981':'#ef4444'};">${up?'+':''}${st.change.toFixed(1)}%</span></div>`;
+        }).join('');
+
+        container.innerHTML = `
+            <!-- TẦNG 1: HERO BANNER VỚI THANH 4 CHỈ SỐ CỐT LÕI -->
+            <div class="phoi-hero-banner">
+                <div class="phoi-hero-left">
+                    <div class="phoi-badge-row">
+                        <span class="phoi-pill-cmd"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> COMMAND CENTER</span>
+                        <span class="phoi-pill-live">● LIVE</span>
+                    </div>
+                    <h1>${greeting}, ${userName}! 👋</h1>
+                    <p>"Kỷ luật là cầu nối giữa mục tiêu và thành tựu."</p>
+                    <div class="phoi-hero-mini-bar">
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">🔥</span>
+                            <div><strong>${streak} ngày</strong><span>Chuỗi kỷ luật</span></div>
+                        </div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">⏱️</span>
+                            <div><strong>${totalAllTimeHrs.toFixed(1)} giờ</strong><span>Tổng thời gian</span></div>
+                        </div>
+                        <div class="phoi-mini-item">
+                            <span style="font-size:1.15rem;">👑</span>
+                            <div><strong style="color:#fbbf24;">Lv. ${lvInfo.level} • ${lvInfo.rank}</strong><span>Học hàm hiện tại</span></div>
+                        </div>
+                        <div class="phoi-mini-item" onclick="switchTab('trophy')" style="cursor:pointer;">
+                            <span style="font-size:1.15rem;">🎯</span>
+                            <div><strong>${unlockedAchCount} / ${achList.length} →</strong><span>Thành tựu</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="phoi-orbit-box">
+                    <div class="phoi-orbit-ring1"></div><div class="phoi-orbit-ring2"></div><div class="phoi-orbit-core">A</div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #f59e0b; color:#fbbf24;"><i class="fa-solid fa-crown"></i></div><strong>${streak} ngày</strong><span>Streak</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #a855f7; color:#c084fc;"><i class="fa-solid fa-hourglass-half"></i></div><strong>${totalAllTimeHrs.toFixed(1)}h</strong><span>Tổng giờ</span></div>
+                    <div class="phoi-sat"><div class="phoi-sat-circle" style="border:1.5px solid #10b981; color:#34d399;"><i class="fa-solid fa-award"></i></div><strong>Lv. ${lvInfo.level}</strong><span>${lvInfo.rank}</span></div>
                 </div>
             </div>
-            <div class="apex-goals-stats-row">
-                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fff;">${totalGoals}</div><div class="apex-goal-stat-label">Tổng mục tiêu</div></div>
-                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #34d399;">${activeG}</div><div class="apex-goal-stat-label">Đang thực hiện</div></div>
-                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #38bdf8;">${aheadCount}</div><div class="apex-goal-stat-label">Vượt tiến độ</div></div>
-                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fbbf24;">${warnCount}</div><div class="apex-goal-stat-label">Cần chú ý</div></div>
+
+            <!-- TẦNG 2: HÔM NAY (GỘP) | MỤC TIÊU ĐANG TẬP TRUNG | LỊCH TRÌNH HÔM NAY -->
+            <div class="phoi-row-3col">
+                <div class="phoi-card">
+                    <div class="phoi-card-head">
+                        <span class="phoi-card-title">Hôm nay</span>
+                        <span style="font-size:0.7rem; color:#fbbf24;">☀️ Định mức: ${dailyGoal}h</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px;">
+                        <div style="position:relative; width:96px; height:96px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <svg width="96" height="96" style="transform:rotate(-90deg);">
+                                <circle cx="48" cy="48" r="${ringRadius}" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
+                                <circle cx="48" cy="48" r="${ringRadius}" stroke="#a855f7" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="${ringCircum}" stroke-dashoffset="${ringOffset}"/>
+                            </svg>
+                            <div style="position:absolute; text-align:center;">
+                                <strong style="display:block; font-size:1.05rem; color:#fff; line-height:1;">${todayDone.toFixed(1)}h</strong>
+                                <span style="font-size:0.6rem; color:#94a3b8;">/ ${dailyGoal}h</span>
+                                <div style="font-size:0.62rem; color:#c084fc; font-weight:800;">${pctToday}%</div>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:6px;">Nhiệm vụ quan trọng (${bentoTodoList.filter(function(x){return x.done;}).length}/${bentoTodoList.length})</div>
+                            <div>${todoListHtml}</div>
+                            <button onclick="addBentoTodoPrompt()" style="margin-top:4px; width:100%; padding:5px; border-radius:7px; background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.12); color:#94a3b8; font-size:0.7rem; font-weight:600; cursor:pointer;">+ Thêm nhiệm vụ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phoi-card">
+                    ${focusGoalHtml}
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Lịch trình hôm nay</span>
+                            <span class="phoi-link" onclick="switchTab('timetable')">Xem tất cả →</span>
+                        </div>
+                        <div>${scheduleRowsHtml}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TẦNG 3: BIỂU ĐỒ 7 NGÀY | TIẾN ĐỘ CÁC MỤC TIÊU | THỊ TRƯỜNG CỔ PHIẾU -->
+            <div class="phoi-row-3col">
+                <div class="phoi-card">
+                    <div class="phoi-card-head">
+                        <span class="phoi-card-title">Biểu đồ thời gian học (7 ngày)</span>
+                        <span class="phoi-link" onclick="switchTab('analytics')">Chi tiết →</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:8px; padding-top:6px;">
+                        ${miniBars7Html}
+                    </div>
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Tiến độ các mục tiêu (${activeGoals.length})</span>
+                            <span class="phoi-link" onclick="document.getElementById('dashboard-grid')?.scrollIntoView({behavior:'smooth'})">Xem thẻ dưới →</span>
+                        </div>
+                        <div>${currentGoalsHtml}</div>
+                    </div>
+                </div>
+
+                <div class="phoi-card">
+                    <div>
+                        <div class="phoi-card-head">
+                            <span class="phoi-card-title">Thị trường cổ phiếu</span>
+                            <span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:6px; font-size:0.65rem; font-weight:800;">LIVE</span>
+                        </div>
+                        <svg viewBox="0 0 240 34" style="width:100%; height:28px; margin-bottom:4px;"><path d="M0,28 Q30,16 65,22 T130,10 T190,14 T240,4" fill="none" stroke="#10b981" stroke-width="2"/></svg>
+                        <div>${stockRowsHtml}</div>
+                    </div>
+                    <div onclick="openFullStockMarketDrawer()" style="margin-top:4px; text-align:center; font-size:0.72rem; color:#10b981; font-weight:700; cursor:pointer;">Xem toàn bộ thị trường →</div>
+                </div>
+            </div>`;
+        ensureMartialLawKpiCard();
+        attachRoadmapButtonToAllGoalCards();
+    } catch (e) {}
+}
+
+// --- 7. TRANG PHÂN TÍCH TIẾN ĐỘ (BỘ LỌC 7/30/90/365 NGÀY + DONUT + 3 THẺ INSIGHT) ---
+window.setAnalyticsRange = function(days) {
+    currentAnalyticsRange = days;
+    window.renderAnalytics();
+};
+
+window.renderAnalytics = function() {
+    injectUnifiedApexCSS();
+    var room = document.getElementById('analytics-room');
+    if (!room) return;
+
+    var logsObj = (typeof dailyLogs !== 'undefined' && dailyLogs) ? dailyLogs : {};
+    var allGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals : [];
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+
+    var rangeDays = currentAnalyticsRange || 30;
+    var rangeSumHrs = 0;
+    var prevWeekHrs = 0, currWeekHrs = 0;
+    var seriesData = [];
+
+    for (var i = rangeDays - 1; i >= 0; i--) {
+        var d = new Date(); d.setDate(d.getDate() - i);
+        var k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var v = Number(logsObj[k] || 0);
+        rangeSumHrs += v;
+        seriesData.push({ label: d.getDate() + '/' + (d.getMonth() + 1), val: v, dateStr: k });
+    }
+
+    for (var w = 13; w >= 0; w--) {
+        var dw = new Date(); dw.setDate(dw.getDate() - w);
+        var kw = dw.getFullYear() + '-' + String(dw.getMonth() + 1).padStart(2, '0') + '-' + String(dw.getDate()).padStart(2, '0');
+        var vw = Number(logsObj[kw] || 0);
+        if (w < 7) currWeekHrs += vw; else prevWeekHrs += vw;
+    }
+
+    // Gộp cột thông minh nếu xem 90 ngày hoặc 1 năm
+    var displayBars = seriesData;
+    if (rangeDays > 30) {
+        var step = Math.ceil(rangeDays / 24);
+        displayBars = [];
+        for (var j = 0; j < seriesData.length; j += step) {
+            var slice = seriesData.slice(j, j + step);
+            var sumSlice = slice.reduce(function(a, b) { return a + b.val; }, 0);
+            displayBars.push({ label: slice[0].label, val: sumSlice, dateStr: slice[0].dateStr });
+        }
+    }
+
+    var maxBarVal = Math.max(4.0, Math.ceil(Math.max.apply(null, displayBars.map(function(x) { return x.val; }))));
+    var peakVal = Math.max.apply(null, displayBars.map(function(x) { return x.val; }));
+    var avgPerDay = rangeSumHrs / rangeDays;
+    var avgLineBottomPct = Math.min(95, Math.max(5, Math.round((avgPerDay / maxBarVal) * 100)));
+
+    // Vẽ các cột biểu đồ chuẩn Concept (Có thanh mảnh, nhãn đỉnh tím ở cột cao nhất & hiện số giờ)
+    var barsHtml = displayBars.map(function(item, idx) {
+        var hPct = item.val > 0 ? Math.min(100, Math.max(6, Math.round((item.val / maxBarVal) * 100))) : 3;
+        var isPeak = (item.val === peakVal && peakVal > 0);
+        var showLabel = displayBars.length <= 10 || (idx % Math.ceil(displayBars.length / 10) === 0) || idx === displayBars.length - 1;
+        return `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:160px; flex:1; position:relative;" title="${item.dateStr}: ${item.val.toFixed(2)} giờ">
+                ${isPeak ? `<div style="position:absolute; bottom:calc(${hPct}% + 24px); background:#7c3aed; color:#fff; font-size:0.64rem; font-weight:800; padding:2px 6px; border-radius:5px; box-shadow:0 4px 10px rgba(124,58,237,0.5); white-space:nowrap; z-index:4;">${item.val.toFixed(1)}h</div>` : (item.val > 0 && displayBars.length <= 14 ? `<span style="font-size:0.6rem; color:#cbd5e1; margin-bottom:3px;">${item.val.toFixed(1)}h</span>` : '')}
+                <div style="width:100%; max-width:${displayBars.length <= 10 ? '22px' : '10px'}; height:130px; background:rgba(255,255,255,0.03); border-radius:6px; display:flex; align-items:flex-end; position:relative; z-index:2;">
+                    <div style="width:100%; height:${hPct}%; background:${isPeak ? 'linear-gradient(180deg, #c084fc, #7c3aed)' : 'linear-gradient(180deg, #8b5cf6, #4f46e5)'}; border-radius:6px; box-shadow:${isPeak ? '0 0 14px rgba(192,132,252,0.6)' : 'none'}; transition:height 0.3s;"></div>
+                </div>
+                <span style="font-size:0.6rem; color:#94a3b8; margin-top:6px; height:14px; white-space:nowrap;">${showLabel ? item.label : ''}</span>
+            </div>`;
+    }).join('');
+
+    // Xử lý dữ liệu toàn bộ Mục tiêu & Báo cáo
+    var palette = ['#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#64748b'];
+    var allReportsFlat = [];
+    var totalReportsCount = 0;
+
+    var sortedGoals = allGoals.map(function(g) {
+        var t = Number(g.target || 0), l = Math.max(0, Number(g.current || 0));
+        var spent = Math.max(0, t - l);
+        var reps = Array.isArray(g.reports) ? g.reports : [];
+        totalReportsCount += reps.length;
+        reps.forEach(function(r) {
+            allReportsFlat.push({
+                goalName: g.name,
+                date: r.date || "",
+                duration: r.duration || 25,
+                content: r.content || r.text || "Hoàn thành phiên học tập trung."
+            });
+        });
+        return {
+            id: g.id, name: g.name, target: t, left: l, spent: spent,
+            reportsCount: reps.length,
+            pctDone: t > 0 ? Math.min(100, Math.round((spent / t) * 100)) : 100
+        };
+    }).sort(function(a, b) { return b.spent - a.spent; });
+
+    // Donut Chart (5 mục tiêu lớn nhất + mục Khác)
+    var chartItems = sortedGoals.filter(function(g) { return g.spent > 0; }).slice(0, 5);
+    var top5Spent = chartItems.reduce(function(a, b) { return a + b.spent; }, 0);
+    var otherSpent = Math.max(0, totalAllTimeHrs - top5Spent);
+    if (otherSpent > 0.1) chartItems.push({ name: "Khác", spent: otherSpent });
+    if (chartItems.length === 0) chartItems.push({ name: "Chưa có dữ liệu", spent: 1 });
+
+    var denom = chartItems.reduce(function(a, b) { return a + b.spent; }, 0) || 1;
+    var conicParts = [], acc = 0;
+    var legendHtml = chartItems.map(function(g, idx) {
+        var col = palette[idx % palette.length];
+        var pct = Math.round((g.spent / denom) * 100);
+        var start = acc; acc = (idx === chartItems.length - 1) ? 100 : Math.min(100, acc + pct);
+        conicParts.push(col + " " + start + "% " + acc + "%");
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; padding:4px 0;">
+                <span style="display:flex; align-items:center; gap:8px; color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:155px;">
+                    <span style="width:8px; height:8px; border-radius:50%; background:${col}; flex-shrink:0;"></span>${g.name}
+                </span>
+                <strong style="color:#fff; font-size:0.75rem;">${g.spent.toFixed(1)}h <span style="color:#94a3b8; font-weight:600;">(${pct}%)</span></strong>
+            </div>`;
+    }).join('');
+
+    // 3 Thẻ Insight chuẩn Concept
+    var activeGoals = sortedGoals.filter(function(g) { return g.left > 0; });
+    var slowestGoal = activeGoals.slice().sort(function(a, b) { return a.pctDone - b.pctDone; })[0];
+    var slowText = slowestGoal
+        ? `<strong style="color:#fff;">${slowestGoal.name}</strong> đang ở mức tiến độ <strong style="color:#fbbf24;">${slowestGoal.pctDone}%</strong> (còn ${slowestGoal.left.toFixed(1)}h).`
+        : `Tất cả mục tiêu hiện tại đều đang bám sát lộ trình.`;
+    var weekGrowthPct = prevWeekHrs > 0 ? Math.round(((currWeekHrs - prevWeekHrs) / prevWeekHrs) * 100) : (currWeekHrs > 0 ? 100 : 0);
+
+    // Khôi phục đầy đủ Bảng Dữ Liệu Toàn Bộ Mục Tiêu & Nhật Ký Báo Cáo ở bên dưới
+    var completedCount = sortedGoals.filter(function(g) { return g.left <= 0; }).length;
+    var allGoalsTableHtml = sortedGoals.map(function(g, idx) {
+        var col = g.left <= 0 ? '#10b981' : palette[idx % 5];
+        return `
+            <div onclick="openGoalDetailModal(${g.id}, 'overview')" style="padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); margin-bottom:7px; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='rgba(168,85,247,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:0.78rem;">
+                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                        <span style="font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:5px; background:${g.left <= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(168,85,247,0.18)'}; color:${g.left <= 0 ? '#10b981' : '#c084fc'};">
+                            ${g.left <= 0 ? 'HOÀN THÀNH' : g.pctDone + '%'}
+                        </span>
+                        <strong style="color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</strong>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:0.73rem; font-weight:700; flex-shrink:0;">
+                        Đã học: <strong style="color:#fff;">${g.spent.toFixed(1)}h</strong> / ${g.target.toFixed(1).replace(/\.0$/,'')}h • <span style="color:#38bdf8;">${g.reportsCount} báo cáo</span>
+                    </span>
+                </div>
+                <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden;">
+                    <div style="width:${g.pctDone}%; height:100%; background:${col}; border-radius:100px;"></div>
+                </div>
+            </div>`;
+    }).join('');
+
+    var recentReportsHtml = allReportsFlat.length === 0
+        ? '<div style="padding:24px; text-align:center; color:#64748b; font-size:0.78rem;">Chưa có báo cáo phiên học nào.</div>'
+        : allReportsFlat.slice(0, 10).map(function(rep) {
+            return `
+                <div style="padding:9px 12px; border-radius:10px; background:rgba(255,255,255,0.025); border-left:3px solid #a855f7; margin-bottom:7px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; margin-bottom:3px;">
+                        <strong style="color:#c084fc;">${rep.goalName}</strong>
+                        <span style="color:#94a3b8;">${rep.date} • <strong style="color:#10b981;">${rep.duration} phút</strong></span>
+                    </div>
+                    <div style="font-size:0.76rem; color:#e2e8f0; line-height:1.4;">${rep.content}</div>
+                </div>`;
+        }).join('');
+
+    room.innerHTML = `
+        <!-- KHUNG KÍNH LỚN ĐỒNG NHẤT CHUẨN 100% ẢNH CONCEPT -->
+        <div style="background:rgba(13, 17, 32, 0.84); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:20px 22px; box-shadow:0 18px 45px rgba(0,0,0,0.45); margin-bottom:16px;">
+            
+            <!-- HEADER: ← Phân tích tiến độ & 4 Nút lọc thời gian -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:16px;">
+                <div onclick="switchTab('dashboard')" style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:1.05rem; font-weight:800; color:#fff;">
+                    <i class="fa-solid fa-arrow-left" style="font-size:0.85rem; color:#94a3b8;"></i> Phân tích tiến độ
+                </div>
+                <div style="display:flex; background:rgba(255,255,255,0.04); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.07); gap:4px;">
+                    <button class="demo-tab-pill ${rangeDays===7?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(7)">7 ngày</button>
+                    <button class="demo-tab-pill ${rangeDays===30?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(30)">30 ngày</button>
+                    <button class="demo-tab-pill ${rangeDays===90?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(90)">90 ngày</button>
+                    <button class="demo-tab-pill ${rangeDays===365?'active':''}" style="padding:5px 12px; font-size:0.72rem;" onclick="setAnalyticsRange(365)">1 năm</button>
+                </div>
+            </div>
+
+            <!-- HÀNG 1: 5 THẺ CHỈ SỐ NGANG CHUẨN CONCEPT -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:10px; margin-bottom:16px;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-regular fa-clock"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${totalAllTimeHrs.toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Tổng thời gian</span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${avgPerDay.toFixed(1)} giờ</strong><span style="font-size:0.68rem; color:#94a3b8;">Trung bình/ngày</span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.4); color:#10b981; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-bullseye"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 85}%</strong><span style="font-size:0.68rem; color:#94a3b8;">Hiệu suất <span style="color:#10b981;">Tốt</span></span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-crown"></i></div>
+                    <div><strong style="font-size:1.05rem; color:#fbbf24; display:block; line-height:1.15;">Lv. ${lvInfo.level} • ${lvInfo.rank}</strong><span style="font-size:0.68rem; color:#94a3b8;">${totalReportsCount} bản báo cáo</span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.4); color:#fb7185; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-fire"></i></div>
+                    <div><strong style="font-size:1.15rem; color:#fff; display:block; line-height:1.15;">${typeof currentStreak !== 'undefined' ? currentStreak : 0} ngày</strong><span style="font-size:0.68rem; color:#94a3b8;">Chuỗi kỷ luật</span></div>
+                </div>
+            </div>
+
+            <!-- HÀNG 2: BIỂU ĐỒ CỘT CÓ TRỤC SỐ + ĐƯỜNG TRUNG BÌNH & BIỂU ĐỒ DONUT -->
+            <div style="display:grid; grid-template-columns:1.35fr 1fr; gap:14px; margin-bottom:16px;" class="phoi-row-2col">
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <strong style="font-size:0.82rem; color:#fff;">Thời gian học theo ngày (${rangeDays} ngày: ${rangeSumHrs.toFixed(1)}h)</strong>
+                        <span style="font-size:0.72rem; color:#94a3b8;">Trung bình: <strong style="color:#c084fc;">${avgPerDay.toFixed(1)}h</strong></span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:stretch;">
+                        <!-- Trục tung (Y-Axis) chuẩn Concept -->
+                        <div style="display:flex; flex-direction:column; justify-content:space-between; font-size:0.62rem; color:#64748b; font-weight:700; padding:10px 0 20px 0; text-align:right; width:22px;">
+                            <span>${maxBarVal}h</span>
+                            <span>${Math.round(maxBarVal * 0.75)}h</span>
+                            <span>${Math.round(maxBarVal * 0.5)}h</span>
+                            <span>${Math.round(maxBarVal * 0.25)}h</span>
+                            <span>0h</span>
+                        </div>
+                        <!-- Vùng vẽ cột & Đường kẻ ngang đứt nét -->
+                        <div style="flex:1; position:relative; display:flex; align-items:flex-end; gap:4px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                            <!-- Đường trung bình đứt nét -->
+                            <div style="position:absolute; left:0; right:0; bottom:calc(${avgLineBottomPct}% + 18px); border-top:1px dashed rgba(192,132,252,0.45); z-index:1; pointer-events:none;"></div>
+                            ${barsHtml}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <strong style="font-size:0.82rem; color:#fff;">Phân bổ theo mục tiêu</strong>
+                        <span style="font-size:0.72rem; color:#10b981; font-weight:700;">${allGoals.length} mục tiêu</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin:auto 0;">
+                        <div style="width:128px; height:128px; border-radius:50%; background:conic-gradient(${conicParts.join(', ')}); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(0,0,0,0.4);">
+                            <div style="width:82px; height:82px; border-radius:50%; background:#111628; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                <strong style="font-size:0.98rem; color:#fff;">${totalAllTimeHrs.toFixed(1)}h</strong>
+                                <span style="font-size:0.62rem; color:#94a3b8;">Tổng</span>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:165px;">${legendHtml}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HÀNG 3: KHỐI INSIGHT CHUẨN CONCEPT -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:14px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="font-size:0.8rem; color:#fff;">Insight</strong>
+                    <span style="font-size:0.72rem; color:#64748b;">Phân tích dữ liệu tự động</span>
+                </div>
+                <div class="phoi-row-3col" style="margin-bottom:0;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:12px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(168,85,247,0.2); color:#c084fc; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-lightbulb"></i></div>
+                        <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">Bạn tập trung tốt nhất vào <strong style="color:#fff;">khung giờ 20:00 – 22:30</strong>.</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:12px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(56,189,248,0.2); color:#38bdf8; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">${slowText}</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:12px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">Tuần này đạt <strong style="color:#10b981;">${currWeekHrs.toFixed(1)} giờ</strong> (${weekGrowthPct >= 0 ? 'tăng +' : 'giảm '}${weekGrowthPct}% so với tuần trước).</div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- KHÔI PHỤC ĐẦY ĐỦ 2 BẢNG DỮ LIỆU CHI TIẾT (TOÀN BỘ MỤC TIÊU & NHẬT KÝ BÁO CÁO) -->
+        <div class="phoi-row-2col">
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-list-check" style="color:#10b981; margin-right:6px;"></i> Bảng dữ liệu toàn bộ mục tiêu (${allGoals.length} mục tiêu • ${completedCount} hoàn thành)</span>
+                </div>
+                <div style="max-height:310px; overflow-y:auto; padding-right:4px;">
+                    ${allGoalsTableHtml}
+                </div>
+            </div>
+
+            <div class="phoi-card">
+                <div class="phoi-card-head">
+                    <span class="phoi-card-title"><i class="fa-solid fa-file-signature" style="color:#f59e0b; margin-right:6px;"></i> Nhật ký báo cáo phiên học (${totalReportsCount} bản lưu)</span>
+                </div>
+                <div style="max-height:310px; overflow-y:auto; padding-right:4px;">
+                    ${recentReportsHtml}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// --- 8. TRANG THÀNH TỰU & LƯU TRỮ (30 THÀNH TỰU HỌC THUẬT TRUNG LẬP) ---
+var currentTrophyFilter = 'all';
+window.filterTrophyCategory = function(cat) {
+    currentTrophyFilter = cat;
+    renderMasterTrophyAndArchive();
+};
+
+function renderMasterTrophyAndArchive() {
+    injectUnifiedApexCSS();
+    var room = document.getElementById('trophy-room');
+    if (!room) return;
+
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+    var allGoalsList = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals : [];
+    var completedGoals = allGoalsList.filter(function(g) { return g.current <= 0; });
+    var allAchievements = getAllAchievementsList();
+
+    var unlockedCount = allAchievements.filter(function(a) { return a.unlocked; }).length;
+    var pctUnlock = Math.round((unlockedCount / allAchievements.length) * 100);
+    var filteredList = allAchievements.filter(function(a) { return currentTrophyFilter === 'all' || a.tier === currentTrophyFilter; });
+
+    var achievementsHtml = filteredList.map(function(a) {
+        return `
+            <div class="phoi-card" style="flex-direction:row; align-items:center; gap:14px; opacity:${a.unlocked ? '1' : '0.42'}; border-color:${a.unlocked ? 'rgba(168,85,247,0.38)' : 'rgba(255,255,255,0.06)'} !important;">
+                <div class="hex-icon" style="background:${a.unlocked ? a.grad : '#1e293b'};"><i class="fa-solid ${a.icon}"></i></div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <strong style="font-size:0.88rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${a.name}</strong>
+                        <span style="font-size:0.64rem; font-weight:700; padding:2px 7px; border-radius:6px; flex-shrink:0; background:${a.unlocked ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.06)'}; color:${a.unlocked ? '#10b981' : '#94a3b8'};">
+                            ${a.unlocked ? '✓ Đã đạt' : a.tag}
+                        </span>
+                    </div>
+                    <div style="font-size:0.73rem; color:#94a3b8; margin-top:3px;">${a.desc}</div>
+                </div>
+            </div>`;
+    }).join('');
+
+    var archiveCardsHtml = completedGoals.map(function(g) {
+        var cleanHrs = Number(g.target || 0).toFixed(1).replace(/\.0$/, '');
+        var repCount = (g.reports && g.reports.length) ? g.reports.length : 0;
+        return `
+            <div class="phoi-card" onclick="if(typeof viewTrophyDetail==='function') viewTrophyDetail(${g.id})" style="cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="hex-icon" style="width:42px; height:48px; font-size:1rem; background:linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-check-double"></i></div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+                        <div style="font-size:0.68rem; color:#10b981; font-weight:700; margin-top:2px;">HOÀN THÀNH 100%</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05); font-size:0.73rem; color:#8b95b0;">
+                    <span><i class="fa-regular fa-clock" style="color:#38bdf8; margin-right:4px;"></i>Quy mô: <strong style="color:#fff;">${cleanHrs} giờ</strong></span>
+                    <span><i class="fa-regular fa-file-lines" style="color:#a855f7; margin-right:4px;"></i>Báo cáo: <strong style="color:#fff;">${repCount} bản</strong></span>
+                </div>
+            </div>`;
+    }).join('');
+
+    room.innerHTML = `
+        <div class="phoi-card" style="margin-bottom:16px; border-color:rgba(168,85,247,0.35) !important;">
+            <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                <div class="hex-icon" style="width:56px; height:62px; background:linear-gradient(135deg, #f59e0b, #7c3aed); font-size:1.45rem;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div style="flex:1; min-width:220px;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <strong style="font-size:1.3rem; color:#fff;">${unlockedCount} / ${allAchievements.length} Thành tựu</strong>
+                            <span style="font-size:0.8rem; color:#fbbf24; margin-left:10px; font-weight:700;">★ Lv. ${lvInfo.level} • ${lvInfo.rank} (${totalAllTimeHrs.toFixed(1)}h / 1000h)</span>
+                        </div>
+                        <strong style="color:#60a5fa; font-size:0.9rem;">${pctUnlock}%</strong>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.08); border-radius:100px; margin-top:8px; overflow:hidden;">
+                        <div style="width:${pctUnlock}%; height:100%; background:linear-gradient(90deg, #3b82f6, #a855f7);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="demo-filter-tabs">
+            <button class="demo-tab-pill ${currentTrophyFilter==='all'?'active':''}" onclick="filterTrophyCategory('all')">Tất cả (${allAchievements.length})</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='rookie'?'active':''}" onclick="filterTrophyCategory('rookie')">Sơ cấp (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='pro'?'active':''}" onclick="filterTrophyCategory('pro')">Trung cấp (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='elite'?'active':''}" onclick="filterTrophyCategory('elite')">Nâng cao (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='legend'?'active':''}" onclick="filterTrophyCategory('legend')">Chuyên sâu (6)</button>
+            <button class="demo-tab-pill ${currentTrophyFilter==='mythic'?'active':''}" onclick="filterTrophyCategory('mythic')">Viện sĩ 1000h (6)</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:24px;">${achievementsHtml}</div>
+        <h3 style="font-size:0.86rem; font-weight:800; color:#e2e8f0; text-transform:uppercase; margin-bottom:12px;"><i class="fa-solid fa-box-archive" style="color:#10b981; margin-right:6px;"></i>Kho lưu trữ mục tiêu đã hoàn thành (${completedGoals.length})</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">${archiveCardsHtml}</div>
+    `;
+}
+window.renderTrophies = renderMasterTrophyAndArchive;
+window.renderTrophyRoom = renderMasterTrophyAndArchive;
+
+// --- 9. PHÒNG FOCUS 3 CỘT ĐỐI XỨNG + ÂM THANH THỰC TẾ SỐNG ĐỘNG (KHÔNG CÒN TIẾNG Ù RADIO) ---
+var selectedPendingMinutes = 25;
+var ftPauseDeadline = null, wasPausedState = false;
+var activeAmbientType = null, ambientAudioEl = null, ambientCtx = null, ambientGain = null, ambientVolume = 0.7;
+var ambientChordTimer = null;
+
+// 5 Nguồn âm thanh thực tế cho đúng 5 nút: Rain, Cafe, Forest, Lo-fi, Library
+var APEX_REAL_SOUND_STREAMS = {
+    rain:    'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
+    cafe:    'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
+    forest:  'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg',
+    lofi:    'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+    library: 'https://actions.google.com/sounds/v1/ambiences/warm_evening_outdoors.ogg'
+};
+
+function stopFocusAmbientSound() {
+    if (ambientAudioEl) {
+        try { ambientAudioEl.pause(); ambientAudioEl.src = ''; } catch (e) {}
+        ambientAudioEl = null;
+    }
+    if (ambientChordTimer) {
+        clearInterval(ambientChordTimer);
+        ambientChordTimer = null;
+    }
+    if (ambientCtx) {
+        try { ambientCtx.close(); } catch (e) {}
+        ambientCtx = null;
+    }
+}
+
+// Bộ tổng hợp giai điệu Piano Lo-fi ấm áp dự phòng (Nếu rớt mạng hoặc trình duyệt chặn link nhạc)
+function playFallbackHarmonicPad(type) {
+    try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        ambientCtx = new AC();
+        ambientGain = ambientCtx.createGain();
+        ambientGain.gain.value = ambientVolume * 0.22;
+        ambientGain.connect(ambientCtx.destination);
+
+        var chords = [
+            [261.63, 329.63, 392.00, 493.88], // Cmaj7
+            [220.00, 261.63, 329.63, 392.00], // Am7
+            [174.61, 220.00, 261.63, 349.23], // Fmaj7
+            [196.00, 246.94, 293.66, 392.00]  // G7
+        ];
+        var idx = 0;
+        function triggerChord() {
+            if (!ambientCtx) return;
+            var now = ambientCtx.currentTime;
+            var notes = chords[idx % chords.length];
+            idx++;
+            notes.forEach(function(freq) {
+                var osc = ambientCtx.createOscillator();
+                var nGain = ambientCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+                nGain.gain.setValueAtTime(0.001, now);
+                nGain.gain.exponentialRampToValueAtTime(0.12, now + 0.9);
+                nGain.gain.exponentialRampToValueAtTime(0.001, now + 3.8);
+                osc.connect(nGain);
+                nGain.connect(ambientGain);
+                osc.start(now);
+                osc.stop(now + 3.9);
+            });
+        }
+        triggerChord();
+        ambientChordTimer = setInterval(triggerChord, 4000);
+    } catch (e) {}
+}
+
+window.selectFocusAmbient = function(type) {
+    if (activeAmbientType === type) {
+        stopFocusAmbientSound();
+        activeAmbientType = null;
+    } else {
+        stopFocusAmbientSound();
+        activeAmbientType = type;
+
+        var streamUrl = APEX_REAL_SOUND_STREAMS[type] || APEX_REAL_SOUND_STREAMS.rain;
+        ambientAudioEl = new Audio(streamUrl);
+        ambientAudioEl.loop = true;
+        ambientAudioEl.volume = Math.max(0.02, Math.min(1, ambientVolume));
+
+        var p = ambientAudioEl.play();
+        if (p !== undefined) {
+            p.catch(function() {
+                playFallbackHarmonicPad(type);
+            });
+        }
+    }
+    document.querySelectorAll('.f-amb-card').forEach(function(el) {
+        el.classList.toggle('active', el.getAttribute('data-amb') === activeAmbientType);
+    });
+};
+
+window.changeFocusAmbientVolume = function(v) {
+    ambientVolume = Math.max(0, Math.min(1, Number(v) / 100));
+    var l = document.getElementById('focus-vol-label');
+    if (l) l.innerText = v + '%';
+    if (ambientAudioEl) ambientAudioEl.volume = ambientVolume;
+    if (ambientGain) ambientGain.gain.value = ambientVolume * 0.22;
+};
+
+window.toggleFocusFullscreen = function() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function(){});
+    else document.exitFullscreen().catch(function(){});
+};
+
+window.selectFocusModePill = function(mins) {
+    selectedPendingMinutes = mins;
+    document.querySelectorAll('.ft-mode-pill').forEach(function(b) { b.classList.remove('active'); });
+    var btn = document.getElementById('ft-mode-' + mins); if (btn) btn.classList.add('active');
+    var lbl = document.getElementById('ft-mode-label');
+    if (lbl) lbl.innerHTML = mins === 5 ? "🔥 Khởi động" : (mins === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
+    if (mins === 5 && typeof startIcebreaker === 'function') startIcebreaker();
+    else if (typeof startSession === 'function') startSession(mins);
+};
+window.triggerFocusMainStart = function() {
+    if (selectedPendingMinutes === 5 && typeof startIcebreaker === 'function') startIcebreaker();
+    else if (typeof startSession === 'function') startSession(selectedPendingMinutes || 25);
+};
+
+window.triggerFocusFinishAndReport = function() {
+    var origControls = document.querySelector('#widget-timer .timer-controls');
+    if (origControls) {
+        var btns = origControls.querySelectorAll('button');
+        for (var i = 0; i < btns.length; i++) {
+            var b = btns[i], id = b.id || "", txt = (b.innerText || "").toLowerCase();
+            if (id !== 'btn-5' && id !== 'btn-15' && id !== 'btn-25' && id !== 'btn-pause' && id !== 'btn-cancel' && id !== 'btn-tick') {
+                if (b.style.display !== 'none') { b.click(); return; }
+            }
+            if (txt.includes('báo cáo') || txt.includes('hoàn thành') || txt.includes('chốt') || txt.includes('lưu') || txt.includes('xong')) {
+                b.click(); return;
+            }
+        }
+    }
+    if (typeof finishSession === 'function') { finishSession(); return; }
+    if (typeof completeSession === 'function') { completeSession(); return; }
+    if (typeof openReportModal === 'function') { openReportModal(); return; }
+    if (typeof showReportModal === 'function') { showReportModal(); return; }
+    if (typeof stopOvertimeAndReport === 'function') { stopOvertimeAndReport(); return; }
+    if (typeof endSession === 'function') { endSession(); return; }
+
+    var cancelBtn = document.getElementById('btn-cancel');
+    var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "";
+    if (cancelBtn && (rawTimer.startsWith('+') || (cancelBtn.innerText || '').toLowerCase().includes('báo cáo'))) {
+        cancelBtn.click(); return;
+    }
+    if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+    var repModal = document.getElementById('report-modal');
+    if (repModal) { repModal.style.display = 'flex'; if (typeof updateWordCount === 'function') updateWordCount(); }
+};
+
+function ensureFocusTemplateDOM() {
+    var focusRoom = document.getElementById('focus-room');
+    if (!focusRoom || document.getElementById('ft-custom-wrapper')) return;
+    var w = document.createElement('div'); w.id = 'ft-custom-wrapper'; w.className = 'ft-wrapper';
+    w.innerHTML = `
+        <div>
+            <div class="ft-topbar">
+                <button class="ft-glass-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Quay lại mục tiêu</button>
+                <div class="ft-center-header">
+                    <div class="ft-room-tag">FOCUS ROOM</div>
+                    <div class="ft-goal-title" onclick="if(typeof currentGoalId!=='undefined') openGoalDetailModal(currentGoalId, 'overview')"><span id="ft-goal-name-display">Mục tiêu</span> <i class="fa-solid fa-chevron-right" style="font-size:0.85rem; color:#64748b;"></i></div>
+                    <div class="ft-goal-sub"><i class="fa-solid fa-bullseye" style="color:#f43f5e;"></i> <span id="ft-goal-sub-display">0.0h còn lại</span></div>
+                </div>
+                <div>
+                    <button class="ft-glass-btn" onclick="openWallpaperPickerModal()"><i class="fa-regular fa-image" style="color:#a855f7;"></i> Đổi ảnh nền</button>
+                    <button class="ft-glass-btn" onclick="toggleApexPipMiniTimer()" title="Bật đồng hồ nổi đè lên mọi cửa sổ khi chuyển sang Tab/App khác" style="border-color:rgba(56,189,248,0.45); color:#38bdf8;"><i class="fa-solid fa-clone"></i> Đồng hồ nổi</button>
+                    <button class="ft-glass-btn" onclick="toggleFocusFullscreen()" title="Toàn màn hình" style="padding:8px 11px;"><i class="fa-solid fa-expand"></i></button>
+                </div>
+            </div>
+            <div class="ft-mode-bar">
+                <button class="ft-mode-pill" id="ft-mode-5" onclick="selectFocusModePill(5)"><span>🔥</span><div><strong>Khởi động</strong><span>(5 phút)</span></div></button>
+                <button class="ft-mode-pill" id="ft-mode-15" onclick="selectFocusModePill(15)"><span>⚡</span><div><strong>Ngắn</strong><span>(15 phút)</span></div></button>
+                <button class="ft-mode-pill active" id="ft-mode-25" onclick="selectFocusModePill(25)"><span>🍅</span><div><strong>Pomodoro</strong><span>(25 phút)</span></div></button>
+            </div>
+        </div>
+        <div class="ft-main-grid">
+            <div class="ft-card">
+                <div>
+                    <div class="ft-card-header"><span>📌 VIỆC CẦN LÀM <span id="ft-todo-counter"></span></span><button onclick="addBentoTodoPrompt()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:24px; height:24px; border-radius:6px; cursor:pointer;">+</button></div>
+                    <div id="ft-todo-list-container" style="display:flex; flex-direction:column; gap:6px; max-height:190px; overflow-y:auto;"></div>
+                </div>
+                <button onclick="addBentoTodoPrompt()" style="width:100%; padding:9px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e2e8f0; font-weight:700; font-size:0.78rem; cursor:pointer;">+ Thêm nhiệm vụ</button>
+            </div>
+            <div class="ft-center-col">
+                <div class="ft-ring-box">
+                    <svg width="240" height="240" viewBox="0 0 260 260" style="position:absolute; transform:rotate(-90deg);">
+                        <circle cx="130" cy="130" r="114" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent"/>
+                        <circle id="ft-svg-progress" cx="130" cy="130" r="114" stroke="#a855f7" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="716.3" stroke-dashoffset="0"/>
+                    </svg>
+                    <div style="position:relative; z-index:3; text-align:center;">
+                        <div class="ft-time-big" id="ft-time-display">25:00</div>
+                        <div class="ft-time-label" id="ft-mode-label">🍎 Pomodoro</div>
+                    </div>
+                </div>
+                <button class="ft-start-btn" id="ft-btn-start-main" onclick="triggerFocusMainStart()"><i class="fa-solid fa-play"></i> Bắt đầu</button>
+                <div id="ft-running-controls" style="display:none; gap:10px; margin-top:14px; flex-wrap:wrap; justify-content:center;">
+                    <button id="ft-btn-pause-mirror" onclick="togglePause()" style="background:#2563eb; color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-pause"></i> Tạm dừng (5p)
+                    </button>
+                    <button id="ft-btn-report-now" onclick="triggerFocusFinishAndReport()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:800; font-size:0.8rem; cursor:pointer; display:none; align-items:center; gap:6px; box-shadow:0 6px 20px rgba(16,185,129,0.45);">
+                        <i class="fa-solid fa-file-signature"></i> Hoàn thành & Báo cáo
+                    </button>
+                    <button id="ft-btn-cancel-mirror" onclick="cancelSession()" style="background:#e11d48; color:#fff; border:none; padding:10px 20px; border-radius:100px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-xmark"></i> Hủy bỏ
+                    </button>
+                </div>
+                <div id="ft-pause-status-pill" style="margin-top:10px; padding:6px 16px; border-radius:100px; background:rgba(15,23,42,0.75); border:1px solid rgba(255,255,255,0.1); font-size:0.75rem; font-weight:600; color:#cbd5e1; display:inline-flex; align-items:center; gap:8px; backdrop-filter:blur(8px);">
+                    <i class="fa-solid fa-circle-info" style="color:#a855f7;"></i>
+                    <span id="ft-status-msg-mirror">Hệ thống tính giờ tuyệt đối.</span>
+                </div>
+            </div>
+            <div class="ft-card">
+                <div>
+                    <div class="ft-card-header"><span>🎯 TIẾN ĐỘ MỤC TIÊU</span><span onclick="if(typeof currentGoalId!=='undefined') openGoalDetailModal(currentGoalId, 'overview')" style="font-size:0.72rem; color:#a855f7; cursor:pointer; text-transform:none;">Chi tiết →</span></div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <div id="ft-right-goal-name" style="font-size:0.95rem; font-weight:800; color:#fff;">Mục tiêu</div>
+                        <div id="ft-right-goal-pct" style="font-size:1.45rem; font-weight:900; color:#fff;">0%</div>
+                    </div>
+                    <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px;"><div id="ft-right-goal-bar" style="width:0%; height:100%; background:#a855f7;"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; margin-bottom:16px;"><span id="ft-right-goal-done">0.0h</span><span id="ft-right-goal-left">Còn 0.0h</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:#cbd5e1; margin-bottom:6px;"><span>Hôm nay</span><span id="ft-right-today-text">0.0h</span></div>
+                    <div style="width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden;"><div id="ft-right-today-bar" style="width:0%; height:100%; background:#10b981;"></div></div>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">
+                    <div><div>🔥</div><strong id="ft-stat-streak" style="font-size:0.85rem; color:#fff;">0 ngày</strong><div style="font-size:0.64rem; color:#94a3b8;">Chuỗi</div></div>
+                    <div><div>📊</div><strong id="ft-stat-total" style="font-size:0.85rem; color:#fff;">0.0h</strong><div style="font-size:0.64rem; color:#94a3b8;">Tổng giờ</div></div>
+                    <div><div>🏆</div><strong id="ft-stat-level" style="font-size:0.85rem; color:#fff;">Lv. 1</strong><div id="ft-stat-rank" style="font-size:0.64rem; color:#94a3b8;">Học Giả</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="ft-bottom-dock">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; font-weight:800; color:#e2e8f0;"><i class="fa-solid fa-music" style="color:#a855f7; margin-right:6px;"></i> ÂM THANH NỀN</span>
+                <div style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-volume-high" style="color:#94a3b8; font-size:0.8rem;"></i><input type="range" min="0" max="100" value="70" oninput="changeFocusAmbientVolume(this.value)" style="width:110px; accent-color:#a855f7;"><span id="focus-vol-label" style="font-size:0.72rem; color:#cbd5e1;">70%</span></div>
+            </div>
+            <div class="ft-amb-grid">
+                <div class="f-amb-card" data-amb="rain" onclick="selectFocusAmbient('rain')"><i class="fa-solid fa-cloud-showers-heavy" style="color:#60a5fa;"></i><div><strong>Rain</strong><span>Mưa rơi</span></div></div>
+                <div class="f-amb-card" data-amb="cafe" onclick="selectFocusAmbient('cafe')"><i class="fa-solid fa-mug-saucer" style="color:#fbbf24;"></i><div><strong>Cafe</strong><span>Quán cà phê</span></div></div>
+                <div class="f-amb-card" data-amb="forest" onclick="selectFocusAmbient('forest')"><i class="fa-solid fa-tree" style="color:#34d399;"></i><div><strong>Forest</strong><span>Rừng cây</span></div></div>
+                <div class="f-amb-card" data-amb="lofi" onclick="selectFocusAmbient('lofi')"><i class="fa-solid fa-headphones" style="color:#c084fc;"></i><div><strong>Lo-fi</strong><span>Nhạc lo-fi</span></div></div>
+                <div class="f-amb-card" data-amb="library" onclick="selectFocusAmbient('library')"><i class="fa-solid fa-book-open" style="color:#f472b6;"></i><div><strong>Library</strong><span>Thư viện</span></div></div>
+            </div>
+        </div>`;
+    focusRoom.appendChild(w);
+}
+
+function syncFocusClockInstant() {
+    var focusRoom = document.getElementById('focus-room');
+    if (!focusRoom || focusRoom.style.display === 'none') {
+        ftPauseDeadline = null; wasPausedState = false; return;
+    }
+    ensureFocusTemplateDOM();
+
+    var rawEl = document.getElementById('session-timer');
+    var rawTimer = rawEl ? rawEl.innerText.trim() : "00:00";
+    var origPauseBtn = document.getElementById('btn-pause');
+    var origStatusMsg = document.getElementById('status-msg');
+    var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none') || (rawTimer !== "00:00");
+    var isOvertime = rawTimer.startsWith('+');
+    var currentlyPaused = (typeof isPaused !== 'undefined' && isPaused) || (origPauseBtn && origPauseBtn.innerText.toLowerCase().includes('tiếp tục'));
+
+    if (currentlyPaused && !wasPausedState) {
+        ftPauseDeadline = Date.now() + 5 * 60 * 1000; wasPausedState = true;
+    } else if (!currentlyPaused && wasPausedState) {
+        ftPauseDeadline = null; wasPausedState = false;
+    }
+
+    var ftDisp = document.getElementById('ft-time-display'), ftStart = document.getElementById('ft-btn-start-main');
+    var ftCtrls = document.getElementById('ft-running-controls'), ftRing = document.getElementById('ft-svg-progress');
+    var ftReportBtn = document.getElementById('ft-btn-report-now'), ftPauseMirror = document.getElementById('ft-btn-pause-mirror');
+    var ftStatusMirror = document.getElementById('ft-status-msg-mirror'), ftStatusPill = document.getElementById('ft-pause-status-pill');
+    var ftModeLabel = document.getElementById('ft-mode-label');
+
+    if (isRunning && rawTimer !== "00:00") {
+        if (ftDisp && ftDisp.innerText !== rawTimer) ftDisp.innerText = rawTimer;
+        if (ftStart) ftStart.style.display = 'none';
+        if (ftCtrls) ftCtrls.style.display = 'inline-flex';
+        if (ftReportBtn) ftReportBtn.style.display = isOvertime ? 'inline-flex' : 'none';
+
+        if (currentlyPaused) {
+            var remPauseSec = ftPauseDeadline ? Math.max(0, Math.ceil((ftPauseDeadline - Date.now()) / 1000)) : 300;
+            var pauseStr = String(Math.floor(remPauseSec / 60)).padStart(2, '0') + ":" + String(remPauseSec % 60).padStart(2, '0');
+            if (ftPauseMirror) {
+                ftPauseMirror.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                ftPauseMirror.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục (' + pauseStr + ')';
+            }
+            if (ftModeLabel) ftModeLabel.innerHTML = '<span style="color:#fbbf24;">⏸ Đang tạm dừng (' + pauseStr + ')</span>';
+            if (ftStatusMirror && ftStatusPill) {
+                ftStatusPill.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                ftStatusMirror.innerHTML = '<span style="color:#fbbf24;">⏳ Tự động hủy phiên sau: <strong>' + pauseStr + '</strong> (Giới hạn 5 phút)</span>';
+            }
+            if (ftRing) ftRing.style.stroke = '#f59e0b';
+            if (remPauseSec <= 0 && ftPauseDeadline) {
+                ftPauseDeadline = null; wasPausedState = false;
+                if (typeof cancelSession === 'function') cancelSession();
+            }
+        } else {
+            if (ftPauseMirror) {
+                ftPauseMirror.style.background = '#2563eb';
+                ftPauseMirror.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng (5p)';
+            }
+            if (ftStatusMirror && ftStatusPill) {
+                ftStatusPill.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                ftStatusMirror.innerText = origStatusMsg ? origStatusMsg.innerText : 'Thời gian đang trôi. Tuyệt đối không xao nhãng.';
+            }
+            if (ftModeLabel && ftModeLabel.innerHTML.includes('Đang tạm dừng')) {
+                ftModeLabel.innerHTML = selectedPendingMinutes === 5 ? "🔥 Khởi động" : (selectedPendingMinutes === 15 ? "⚡ Phiên ngắn" : "🍅 Pomodoro");
+            }
+            if (ftRing) {
+                if (isOvertime) { ftRing.style.stroke = '#10b981'; ftRing.style.strokeDashoffset = '0'; }
+                else if (rawTimer.includes(':')) {
+                    ftRing.style.stroke = '#a855f7';
+                    var p = rawTimer.split(':').map(Number), rSec = (p[0] * 60) + (p[1] || 0);
+                    var tSec = ((typeof currentDuration !== 'undefined' ? currentDuration : 25) * 60) || 1500;
+                    ftRing.style.strokeDashoffset = (716.3 * (1 - Math.min(1, Math.max(0, rSec / tSec)))).toFixed(1);
+                }
+            }
+        }
+    } else {
+        if (ftDisp) ftDisp.innerText = String(selectedPendingMinutes).padStart(2, '0') + ":00";
+        if (ftStart) ftStart.style.display = 'inline-flex';
+        if (ftCtrls) ftCtrls.style.display = 'none';
+        if (ftRing) { ftRing.style.stroke = '#a855f7'; ftRing.style.strokeDashoffset = "0"; }
+        if (ftStatusMirror && ftStatusPill) {
+            ftStatusPill.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            ftStatusMirror.innerText = origStatusMsg ? origStatusMsg.innerText : 'Sẵn sàng. Hệ thống tính giờ dựa trên mốc thời gian tuyệt đối.';
+        }
+    }
+}
+
+function syncFocusRoomData() {
+    var focusRoom = document.getElementById('focus-room');
+    if (!focusRoom || focusRoom.style.display === 'none') return;
+    ensureFocusTemplateDOM();
+
+    var todoBox = document.getElementById('ft-todo-list-container'), todoCountEl = document.getElementById('ft-todo-counter');
+    if (todoBox) {
+        var doneC = bentoTodoList.filter(function(t) { return t.done; }).length;
+        if (todoCountEl) todoCountEl.innerText = "(" + doneC + "/" + bentoTodoList.length + ")";
+        todoBox.innerHTML = bentoTodoList.map(function(t) {
+            return `<div onclick="toggleBentoTodo(${t.id})" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.04);"><div style="display:flex; align-items:center; gap:10px; overflow:hidden;"><div style="width:16px; height:16px; border-radius:4px; border:1.5px solid ${t.done?'#a855f7':'#64748b'}; background:${t.done?'#a855f7':'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.62rem; flex-shrink:0;">${t.done?'<i class="fa-solid fa-check"></i>':''}</div><span style="font-size:0.8rem; color:${t.done?'#64748b':'#f1f5f9'}; text-decoration:${t.done?'line-through':'none'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.text}</span></div><button onclick="deleteBentoTodo(event, ${t.id})" style="background:none; border:none; color:#475569; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div>`;
+        }).join('');
+    }
+
+    var activeGoal = null;
+    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+        if (typeof currentGoalId !== 'undefined' && currentGoalId !== null) {
+            activeGoal = goals.find(function(g) { return g.id === currentGoalId; });
+            if (activeGoal) { currentFocusedGoalId = activeGoal.id; localStorage.setItem('apexFocusedGoalId', String(activeGoal.id)); }
+        }
+        if (!activeGoal) {
+            var infoTxt = document.getElementById('focus-target-info') ? document.getElementById('focus-target-info').innerText : "";
+            activeGoal = goals.find(function(g) { return infoTxt.includes(g.name); }) || goals[0];
+        }
+    }
+
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { doneHrs: 0, requiredHrs: 0.5 };
+    var todayDone = qInfo.doneHrs || 0, todayReq = Math.max(qInfo.requiredHrs || 0.5, 0.25);
+    var todayPct = Math.min(100, Math.round((todayDone / todayReq) * 100));
+
+    if (activeGoal) {
+        var targetH = Number(activeGoal.target || 1), leftH = Math.max(0, Number(activeGoal.current || 0));
+        var doneH = Math.max(0, targetH - leftH), pctG = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+        var gNameTop = document.getElementById('ft-goal-name-display'), gSubTop = document.getElementById('ft-goal-sub-display');
+        var gNameRight = document.getElementById('ft-right-goal-name'), gPctRight = document.getElementById('ft-right-goal-pct');
+        var gBarRight = document.getElementById('ft-right-goal-bar'), gDoneRight = document.getElementById('ft-right-goal-done'), gLeftRight = document.getElementById('ft-right-goal-left');
+
+        if (gNameTop) gNameTop.innerText = activeGoal.name;
+        if (gSubTop) gSubTop.innerText = leftH.toFixed(2) + "h còn lại • Hôm nay đã " + todayDone.toFixed(1) + "h";
+        if (gNameRight) gNameRight.innerText = activeGoal.name;
+        if (gPctRight) gPctRight.innerText = pctG + "%";
+        if (gBarRight) gBarRight.style.width = pctG + "%";
+        if (gDoneRight) gDoneRight.innerText = doneH.toFixed(1) + "h / " + targetH.toFixed(1).replace(/\.0$/, '') + "h";
+        if (gLeftRight) gLeftRight.innerText = "Còn " + leftH.toFixed(2) + "h";
+    }
+
+    var todayTxtEl = document.getElementById('ft-right-today-text'), todayBarEl = document.getElementById('ft-right-today-bar');
+    if (todayTxtEl) todayTxtEl.innerText = todayDone.toFixed(1) + "h / " + todayReq.toFixed(1) + "h";
+    if (todayBarEl) todayBarEl.style.width = todayPct + "%";
+
+    var totalAllTimeHrs = getTotalAccumulatedHours();
+    var lvInfo = getUserLevelAndRank(totalAllTimeHrs);
+    var stStreak = document.getElementById('ft-stat-streak'), stTotal = document.getElementById('ft-stat-total'), stLv = document.getElementById('ft-stat-level'), stRank = document.getElementById('ft-stat-rank');
+    if (stStreak) stStreak.innerText = (typeof currentStreak !== 'undefined' ? currentStreak : 0) + " ngày";
+    if (stTotal) stTotal.innerText = totalAllTimeHrs.toFixed(1) + "h";
+    if (stLv) stLv.innerText = "Lv. " + lvInfo.level;
+    if (stRank) stRank.innerText = lvInfo.rank;
+}
+
+function attachTimerObserver() {
+    var target = document.getElementById('session-timer');
+    if (!target || target.dataset.observedV4 === 'true') return;
+    target.dataset.observedV4 = 'true';
+    new MutationObserver(syncFocusClockInstant).observe(target, { childList: true, characterData: true, subtree: true });
+}
+
+// --- 10. HỆ THỐNG NÂNG CẤP HỘP THƯ CÁ NHÂN THÀNH CHATBOX 2 CHIỀU (CÓ CUỘN & LƯU TIN GỬI ĐI) ---
+var activeChatPartnerName = null;
+var lastInboxRenderHash = "";
+var apexSentMessagesStore = JSON.parse(localStorage.getItem('apexSentMessagesV2')) || {};
+
+function saveApexSentMessages() {
+    localStorage.setItem('apexSentMessagesV2', JSON.stringify(apexSentMessagesStore));
+}
+
+function parseVnDateString(str) {
+    if (!str) return 0;
+    var m = String(str).match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) {
+        return new Date(Number(m[6]), Number(m[5]) - 1, Number(m[4]), Number(m[1]), Number(m[2]), Number(m[3] || 0)).getTime();
+    }
+    return 0;
+}
+
+function formatNowVnTime() {
+    var d = new Date();
+    var t = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+    var dt = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
+    return t + ' ' + dt;
+}
+
+function recordOutgoingMessage(partnerName, textContent) {
+    var pKey = (partnerName || activeChatPartnerName || "Người nhận").trim();
+    if (!textContent || !textContent.trim()) return;
+    if (!apexSentMessagesStore[pKey]) apexSentMessagesStore[pKey] = [];
+    var nowMs = Date.now();
+    // Chống lưu trùng nếu bấm liên tiếp trong 1.5 giây
+    var lastItem = apexSentMessagesStore[pKey][apexSentMessagesStore[pKey].length - 1];
+    if (lastItem && lastItem.text === textContent.trim() && (nowMs - (lastItem.ts || 0) < 1500)) return;
+
+    apexSentMessagesStore[pKey].push({
+        text: textContent.trim(),
+        time: formatNowVnTime(),
+        ts: nowMs,
+        isMe: true
+    });
+    saveApexSentMessages();
+    lastInboxRenderHash = "";
+    setTimeout(upgradeInboxToMessengerUI, 60);
+}
+
+// Tự động bắt mọi thao tác bấm nút "Gửi" trong popup Phản hồi / Soạn thư mới của hệ thống gốc
+if (!window._apexGlobalSendHooked) {
+    window._apexGlobalSendHooked = true;
+    document.addEventListener('click', function(ev) {
+        var btn = ev.target.closest('button');
+        if (!btn || btn.classList.contains('apex-msg-proxy-btn')) return;
+        var bTxt = (btn.innerText || '').trim().toLowerCase();
+        if (bTxt === 'gửi' || bTxt.includes('gửi thư') || bTxt.includes('gửi tin')) {
+            var modalBox = btn.closest('.modal-content') || btn.parentElement.parentElement;
+            if (modalBox) {
+                var ta = modalBox.querySelector('textarea') || modalBox.querySelector('input[type="text"]:not([readonly])');
+                if (ta && ta.value && ta.value.trim() && ta.id !== 'apex-messenger-input') {
+                    recordOutgoingMessage(activeChatPartnerName, ta.value.trim());
+                }
+            }
+        }
+    }, true);
+}
+
+window.copyMyInboxUid = function(uidText) {
+    if (!uidText) return;
+    navigator.clipboard.writeText(uidText).then(function() {
+        alert("✅ Đã sao chép Mã ID của Bạn:\n" + uidText);
+    }).catch(function() {
+        prompt("Sao chép Mã ID của Bạn:", uidText);
+    });
+};
+
+window.selectInboxChatThread = function(partnerName) {
+    activeChatPartnerName = partnerName;
+    lastInboxRenderHash = "";
+    upgradeInboxToMessengerUI();
+};
+
+window.sendDirectMessengerReply = function() {
+    var inputEl = document.getElementById('apex-messenger-input');
+    if (!inputEl) return;
+    var msgText = inputEl.value.trim();
+    if (!msgText) return;
+
+    var threads = window._apexInboxThreads || {};
+    var currentThread = threads[activeChatPartnerName];
+    if (!currentThread) return;
+
+    // 1. Lưu ngay tin nhắn của Bệ hạ vào khung chat (hiển thị bong bóng bên phải tức thì)
+    recordOutgoingMessage(activeChatPartnerName, msgText);
+    inputEl.value = '';
+
+    // 2. Kích hoạt nút Phản hồi gốc để gửi thật lên Firebase cho đối phương
+    if (currentThread.replyBtnRef) {
+        try { currentThread.replyBtnRef.click(); } catch (e) {}
+    } else if (currentThread.replyAction) {
+        try { eval(currentThread.replyAction); } catch (e) {}
+    }
+
+    setTimeout(function() {
+        // Trường hợp hệ thống mở modal nhập tin nhắn phản hồi
+        var allFields = Array.from(document.querySelectorAll('textarea, input[type="text"]')).filter(function(el) {
+            return el.id !== 'apex-messenger-input' && el.id !== 'custom-bg-url-input' && el.id !== 'ai-bulk-schedule-input' && el.getBoundingClientRect().width > 0;
+        });
+        var msgField = allFields.find(function(el) {
+            var ph = (el.placeholder || '').toLowerCase();
+            return el.tagName === 'TEXTAREA' || ph.includes('tin nhắn') || ph.includes('nội dung') || ph.includes('nhập');
+        });
+        if (msgField) {
+            msgField.value = msgText;
+            var modalWrap = msgField.closest('.modal') || msgField.parentElement.parentElement;
+            if (modalWrap) {
+                var sendBtn = Array.from(modalWrap.querySelectorAll('button')).find(function(b) {
+                    var t = (b.innerText || '').toLowerCase();
+                    return t.includes('gửi') || t.includes('send');
+                });
+                if (sendBtn) sendBtn.click();
+            }
+        }
+    }, 100);
+};
+
+function upgradeInboxToMessengerUI() {
+    try {
+        // 1. Nâng cấp dòng "Mã ID của bạn" kèm nút Copy nhanh
+        var allSpans = document.querySelectorAll('div, p, span');
+        for (var k = 0; k < allSpans.length; k++) {
+            var el = allSpans[k];
+            var txt = (el.innerText || '').trim();
+            if (el.children.length <= 1 && txt.indexOf('Mã ID của bạn:') === 0 && !el.dataset.uidUpgraded) {
+                var m = txt.match(/Mã ID của bạn:\s*([a-zA-Z0-9_-]+)/);
+                if (m && m[1]) {
+                    var myUid = m[1];
+                    el.dataset.uidUpgraded = 'true';
+                    el.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:10px; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.35); padding:8px 14px; border-radius:10px; margin:8px 0 12px 0; font-size:0.78rem; color:#e2e8f0;";
+                    el.innerHTML = '<span><i class="fa-solid fa-fingerprint" style="color:#a855f7; margin-right:6px;"></i>Mã ID của bạn: <strong style="color:#c084fc; font-family:monospace;">' + myUid + '</strong></span>' +
+                        '<button onclick="copyMyInboxUid(\'' + myUid + '\')" style="background:#7c3aed; border:none; color:#fff; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:700; cursor:pointer; flex-shrink:0;"><i class="fa-regular fa-copy"></i> Copy ID</button>';
+                }
+            }
+        }
+
+        // 2. Tìm tất cả các nút Phản hồi gốc trong hộp thư
+        var replyBtns = Array.from(document.querySelectorAll('button')).filter(function(b) {
+            var t = (b.innerText || b.textContent || '').trim();
+            return t.indexOf('Phản hồi') !== -1 && !b.classList.contains('apex-msg-proxy-btn');
+        });
+        if (replyBtns.length === 0) return;
+
+        var rawCards = [];
+        replyBtns.forEach(function(rBtn) {
+            var p = rBtn.parentElement;
+            while (p && p !== document.body) {
+                var pText = p.innerText || p.textContent || '';
+                if (pText.indexOf('Chặn') !== -1 && p.tagName === 'DIV') {
+                    var parentReplyCount = Array.from(p.parentElement ? p.parentElement.querySelectorAll('button') : []).filter(function(x) {
+                        return (x.innerText || x.textContent || '').indexOf('Phản hồi') !== -1 && !x.classList.contains('apex-msg-proxy-btn');
+                    }).length;
+                    if (parentReplyCount === 1 && p.parentElement && p.parentElement.tagName === 'DIV') {
+                        p = p.parentElement;
+                    }
+                    if (rawCards.indexOf(p) === -1) rawCards.push(p);
+                    break;
+                }
+                p = p.parentElement;
+            }
+        });
+
+        if (rawCards.length === 0) return;
+        var listContainer = rawCards[0].parentElement;
+        if (!listContainer) return;
+
+        var rect = listContainer.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return;
+
+        // Mở khóa chiều cao cho container cha để không cắt mất thanh nhập tin nhắn
+        listContainer.style.maxHeight = 'none';
+        listContainer.style.overflow = 'visible';
+
+        var modalDialog = listContainer.parentElement;
+        if (modalDialog && modalDialog !== document.body) {
+            modalDialog.style.maxWidth = '760px';
+            modalDialog.style.width = '95%';
+        }
+
+        // 3. Gom nhóm tin nhắn đến + Trộn cùng tin nhắn Bệ hạ đã gửi đi
+        var threads = {};
+        var partnerOrder = [];
+
+        rawCards.forEach(function(card) {
+            if (!card.dataset.cachedRawText) {
+                card.dataset.cachedRawText = (card.innerText || card.textContent || '').trim();
+            }
+            var rawText = card.dataset.cachedRawText;
+            var rBtn = Array.from(card.querySelectorAll('button')).find(function(b) { return (b.innerText || b.textContent || '').indexOf('Phản hồi') !== -1; });
+            var bBtn = Array.from(card.querySelectorAll('button')).find(function(b) { return (b.innerText || b.textContent || '').indexOf('Chặn') !== -1; });
+
+            card.style.display = 'none';
+
+            var lines = rawText.split('\n').map(function(s) { return s.trim(); }).filter(function(s) {
+                return s && s.indexOf('Phản hồi') === -1 && s.indexOf('Chặn') === -1;
+            });
+
+            var timeStr = "";
+            var timeMatch = rawText.match(/(\d{1,2}:\d{2}(?::\d{2})?\s+\d{1,2}\/\d{1,2}\/\d{4})/);
+            if (timeMatch) timeStr = timeMatch[1];
+
+            var senderName = (lines[0] || "Người gửi").replace(timeStr, '').trim();
+            var bodyLines = lines.slice(1).filter(function(l) { return l !== timeStr && l.indexOf(timeStr) === -1; });
+            var msgContent = bodyLines.join('\n').trim() || lines[lines.length - 1] || "Tin nhắn";
+
+            if (!threads[senderName]) {
+                threads[senderName] = {
+                    name: senderName,
+                    replyBtnRef: rBtn,
+                    blockBtnRef: bBtn,
+                    replyAction: rBtn ? rBtn.getAttribute('onclick') : '',
+                    blockAction: bBtn ? bBtn.getAttribute('onclick') : '',
+                    messages: []
+                };
+                partnerOrder.push(senderName);
+            }
+            threads[senderName].messages.push({
+                text: msgContent,
+                time: timeStr,
+                ts: parseVnDateString(timeStr),
+                isMe: false
+            });
+        });
+
+        // Hợp nhất tin nhắn của Bệ hạ đã gửi cho từng đối phương
+        Object.keys(threads).forEach(function(pName) {
+            var mySentList = apexSentMessagesStore[pName] || [];
+            mySentList.forEach(function(sentItem) {
+                threads[pName].messages.push({
+                    text: sentItem.text,
+                    time: sentItem.time,
+                    ts: sentItem.ts || parseVnDateString(sentItem.time),
+                    isMe: true
+                });
+            });
+            // Sắp xếp toàn bộ tin nhắn (cả đến & đi) theo đúng trình tự thời gian từ cũ -> mới
+            threads[pName].messages.sort(function(a, b) {
+                return (a.ts || 0) - (b.ts || 0);
+            });
+        });
+
+        window._apexInboxThreads = threads;
+        if (!activeChatPartnerName || !threads[activeChatPartnerName]) {
+            activeChatPartnerName = partnerOrder[0] || null;
+        }
+        if (!activeChatPartnerName) return;
+
+        var activeThread = threads[activeChatPartnerName];
+        var currentHash = rawCards.length + "_" + activeChatPartnerName + "_" + activeThread.messages.length;
+        var existingMessenger = document.getElementById('apex-messenger-split-view');
+        if (existingMessenger && currentHash === lastInboxRenderHash) return;
+        lastInboxRenderHash = currentHash;
+
+        if (!existingMessenger) {
+            existingMessenger = document.createElement('div');
+            existingMessenger.id = 'apex-messenger-split-view';
+            listContainer.appendChild(existingMessenger);
+        }
+
+        var isMobileView = window.innerWidth <= 768;
+
+        // 4. Render Danh sách hội thoại (Tự động chuyển thành Thanh ngang gọn trên Điện thoại)
+        var leftListHtml = partnerOrder.map(function(pName) {
+            var th = threads[pName];
+            var isAct = (pName === activeChatPartnerName);
+            var newestMsgObj = th.messages[th.messages.length - 1];
+            var lastMsg = newestMsgObj ? (newestMsgObj.isMe ? 'Bạn: ' + newestMsgObj.text : newestMsgObj.text) : '';
+            var lastTime = newestMsgObj && newestMsgObj.time ? newestMsgObj.time.split(' ')[0] : '';
+            var initial = pName.charAt(0).toUpperCase();
+
+            if (isMobileView) {
+                return `
+                    <div onclick="selectInboxChatThread('${pName.replace(/'/g, "\\'")}')" style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:100px; cursor:pointer; flex-shrink:0; background:${isAct ? 'linear-gradient(90deg, #8b5cf6, #6366f1)' : 'rgba(255,255,255,0.06)'}; border:1px solid ${isAct ? '#c084fc' : 'rgba(255,255,255,0.1)'};">
+                        <div style="width:24px; height:24px; border-radius:50%; background:rgba(0,0,0,0.3); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem;">${initial}</div>
+                        <strong style="font-size:0.75rem; color:#fff; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</strong>
+                        <span style="background:rgba(0,0,0,0.35); color:#e9d5ff; font-size:0.62rem; font-weight:800; padding:1px 6px; border-radius:100px;">${th.messages.length}</span>
+                    </div>`;
+            }
+
+            return `
+                <div onclick="selectInboxChatThread('${pName.replace(/'/g, "\\'")}')" style="display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; cursor:pointer; margin-bottom:6px; background:${isAct ? 'linear-gradient(90deg, rgba(168,85,247,0.28), rgba(99,102,241,0.16))' : 'rgba(255,255,255,0.03)'}; border:1px solid ${isAct ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.06)'};">
+                    <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #a855f7, #6366f1); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; flex-shrink:0;">
+                        ${initial}
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <strong style="font-size:0.8rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</strong>
+                            <span style="font-size:0.62rem; color:#94a3b8;">${lastTime}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                            <span style="font-size:0.72rem; color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lastMsg}</span>
+                            <span style="background:rgba(168,85,247,0.28); color:#e9d5ff; font-size:0.62rem; font-weight:800; padding:1px 6px; border-radius:100px; flex-shrink:0;">${th.messages.length}</span>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        // 5. Render Bong bóng chat 2 chiều
+        var bubblesHtml = activeThread.messages.map(function(m) {
+            if (m.isMe) {
+                return `
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; margin-bottom:10px;">
+                        <div style="max-width:85%; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; padding:9px 13px; border-radius:14px 14px 4px 14px; font-size:0.8rem; line-height:1.45; box-shadow:0 4px 14px rgba(139,92,246,0.35); word-break:break-word;">
+                            ${m.text}
+                        </div>
+                        <span style="font-size:0.6rem; color:#a855f7; margin-top:3px; padding-right:4px;">Bạn • ${m.time}</span>
+                    </div>`;
+            }
+            return `
+                <div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:10px;">
+                    <div style="max-width:85%; background:linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.95)); border:1px solid rgba(168,85,247,0.25); color:#f1f5f9; padding:9px 13px; border-radius:14px 14px 14px 4px; font-size:0.8rem; line-height:1.45; box-shadow:0 4px 12px rgba(0,0,0,0.25); word-break:break-word;">
+                        ${m.text}
+                    </div>
+                    <span style="font-size:0.6rem; color:#64748b; margin-top:3px; padding-left:4px;">${m.time}</span>
+                </div>`;
+        }).join('');
+
+        // Căn chỉnh lại padding của hộp Modal gốc trên điện thoại để không bị tràn viền
+        if (modalDialog && isMobileView) {
+            modalDialog.style.padding = '12px';
+            modalDialog.style.width = '96vw';
+            modalDialog.style.maxWidth = '96vw';
+            modalDialog.style.boxSizing = 'border-box';
+        }
+
+        var layoutGridStyle = isMobileView
+            ? "display:flex; flex-direction:column; height:62vh; max-height:430px; width:100%; box-sizing:border-box;"
+            : "display:grid; grid-template-columns:210px minmax(0, 1fr); grid-template-rows:380px; height:380px; width:100%; box-sizing:border-box;";
+
+        var sidebarStyle = isMobileView
+            ? "display:flex; align-items:center; gap:8px; overflow-x:auto; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(15,20,36,0.85); flex-shrink:0;"
+            : "border-right:1px solid rgba(255,255,255,0.08); padding:10px; overflow-y:auto; height:100%; min-height:0; background:rgba(15,20,36,0.65);";
+
+        existingMessenger.innerHTML = `
+            <div style="${layoutGridStyle} background:rgba(10,14,26,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:14px; overflow:hidden; margin-top:6px;">
+                <!-- Danh sách người gửi (Cột trái trên PC / Thanh ngang trên Mobile) -->
+                <div style="${sidebarStyle}">
+                    ${!isMobileView ? `<div style="font-size:0.68rem; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:8px; padding-left:4px;">Hội thoại (${partnerOrder.length})</div>` : ''}
+                    ${leftListHtml}
+                </div>
+
+                <!-- Khung Chatbox chính (Rộng 100% trên Mobile, min-width:0 chống tràn tuyệt đối) -->
+                <div style="display:flex; flex-direction:column; flex:1; height:100%; min-height:0; min-width:0; overflow:hidden; background:rgba(13,18,32,0.6);">
+                    <div style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; gap:8px; padding:9px 12px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02);">
+                        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                            <div style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; flex-shrink:0;"></div>
+                            <div style="min-width:0;">
+                                <strong style="font-size:0.82rem; color:#fff; display:block; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${activeThread.name}</strong>
+                                <span style="font-size:0.62rem; color:#94a3b8;">${activeThread.messages.length} tin nhắn</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:5px; flex-shrink:0;">
+                            <button class="apex-msg-proxy-btn" onclick="if(window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].replyBtnRef) window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].replyBtnRef.click();" style="background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.45); color:#e9d5ff; padding:4px 8px; border-radius:7px; font-size:0.68rem; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-reply"></i> ${isMobileView ? '' : 'Popup Gốc'}
+                            </button>
+                            <button class="apex-msg-proxy-btn" onclick="if(window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].blockBtnRef) window._apexInboxThreads['${activeThread.name.replace(/'/g, "\\'")}'].blockBtnRef.click();" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:4px 8px; border-radius:7px; font-size:0.68rem; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-ban"></i> ${isMobileView ? '' : 'Chặn'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Vùng cuộn bong bóng chat -->
+                    <div id="apex-messenger-bubbles-box" style="flex:1; min-height:0; padding:12px; overflow-y:auto; overflow-x:hidden; scroll-behavior:smooth;">
+                        ${bubblesHtml}
+                    </div>
+
+                    <!-- Thanh nhập tin nhắn ở đáy -->
+                    <div style="flex-shrink:0; padding:8px 10px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(15,20,36,0.95); display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="apex-messenger-input" placeholder="Nhắn tin..." onkeydown="if(event.key==='Enter') sendDirectMessengerReply()" style="flex:1; min-width:0; padding:8px 12px; border-radius:100px; border:1px solid rgba(168,85,247,0.35); background:rgba(255,255,255,0.06); color:#fff; font-size:0.78rem; outline:none;">
+                        <button class="apex-msg-proxy-btn" onclick="sendDirectMessengerReply()" style="background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 4px 12px rgba(168,85,247,0.45);">
+                            <i class="fa-solid fa-paper-plane" style="font-size:0.75rem;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+
+        setTimeout(function() {
+            var bBox = document.getElementById('apex-messenger-bubbles-box');
+            if (bBox) bBox.scrollTop = bBox.scrollHeight;
+        }, 30);
+    } catch (err) {}
+}
+
+function maintainCleanSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    var brandLogoBox = sidebar.querySelector('.brand > div:first-child');
+    if (brandLogoBox && !brandLogoBox.querySelector('.fa-layer-group')) {
+        brandLogoBox.style.cssText = "width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, #7c3aed, #4f46e5); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.95rem; flex-shrink:0;";
+        brandLogoBox.innerHTML = '<i class="fa-solid fa-layer-group" style="color:#fff !important;"></i>';
+    }
+
+    var footerDock = document.getElementById('sidebar-bottom-dock');
+    var paletteBox = sidebar.querySelector('.palette-container');
+    var themeBtn = document.querySelector('.theme-toggle');
+    if (paletteBox && themeBtn && themeBtn.parentElement !== paletteBox) {
+        paletteBox.appendChild(themeBtn);
+    }
+    if (footerDock) footerDock.remove();
+
+    var badge = document.getElementById('user-auth-badge');
+    if (badge) {
+        if (badge.innerHTML.includes('Rời án thư')) badge.innerHTML = badge.innerHTML.replace('Rời án thư', 'Đăng xuất');
+        if (sidebar.lastElementChild !== badge) {
+            badge.style.cssText = "margin: 8px 4px 0 4px; padding: 9px 10px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; flex-shrink: 0;";
+            sidebar.appendChild(badge);
+        }
+    }
+
+    var trophyRoom = document.getElementById('trophy-room');
+    if (trophyRoom && trophyRoom.style.display !== 'none' && trophyRoom.innerHTML.includes('BẢNG VÀNG DANH HIỆU')) {
+        renderMasterTrophyAndArchive();
+    }
+    var analyticsRoom = document.getElementById('analytics-room');
+    if (analyticsRoom && analyticsRoom.style.display !== 'none' && analyticsRoom.innerHTML.trim() === '') {
+        window.renderAnalytics();
+    }
+
+    // Tự động nâng cấp Hộp thư cá nhân sang giao diện Chatbox 2 cột khi mở
+    upgradeInboxToMessengerUI();
+}
+
+window.changeColor = function(colorName) {
+    var valid = ['zen', 'neon-purple', 'neon-blue', 'sakura'];
+    var chosen = valid.includes(colorName) ? colorName : 'neon-purple';
+    document.documentElement.setAttribute('data-color', chosen);
+    document.body.setAttribute('data-color', chosen);
+    localStorage.setItem('saasColorTheme', chosen);
+    document.querySelectorAll('.color-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.classList.contains(chosen));
+    });
+};
+
+// --- 11. TRỢ LÝ AI THỜI KHÓA BIỂU (NHẬP NHANH NLP & TỰ ĐỘNG LẤP LỊCH THEO TIẾN ĐỘ) ---
+function injectAiTimetableToolbar() {
+    var ttView = document.getElementById('view-timetable') || document.getElementById('timetable-room');
+    if (!ttView) {
+        var gridEl = document.querySelector('.timetable-grid') || document.getElementById('timetable-body');
+        if (gridEl) ttView = gridEl.parentElement;
+    }
+    if (!ttView || document.getElementById('apex-ai-tt-bar')) return;
+
+    var bar = document.createElement('div');
+    bar.id = 'apex-ai-tt-bar';
+    bar.className = 'phoi-card';
+    bar.style.cssText = "margin-bottom:14px; border:1px solid rgba(168,85,247,0.4) !important; background:linear-gradient(135deg, rgba(88,28,135,0.28), rgba(16,21,38,0.88)) !important; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:12px 18px !important;";
+    bar.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, #a855f7, #6366f1); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; box-shadow:0 4px 15px rgba(168,85,247,0.45); flex-shrink:0;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+                <div style="font-size:0.88rem; font-weight:800; color:#fff;">Trợ Lý AI Thời Khóa Biểu & Điều Phối Tiến Độ</div>
+                <div style="font-size:0.72rem; color:#cbd5e1;">Nhập lịch học/lịch dạy bằng văn bản tự nhiên hoặc để AI tự động lấp lịch cày mục tiêu vào khe trống.</div>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button onclick="openAiSmartScheduleModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#fff; padding:8px 14px; border-radius:10px; font-size:0.76rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhập lịch nhanh bằng chữ
+            </button>
+            <button onclick="runAiAutoFillGoalSchedule()" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:8px 15px; border-radius:10px; font-size:0.76rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(139,92,246,0.4);">
+                <i class="fa-solid fa-robot"></i> AI Tự xếp lịch Mục tiêu
+            </button>
+            <button onclick="clearAiGeneratedSchedules()" title="Xóa các ca tự học do AI tạo (Giữ nguyên lịch cố định)" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:8px 12px; border-radius:10px; font-size:0.74rem; font-weight:700; cursor:pointer;">
+                <i class="fa-solid fa-broom"></i> Dọn lịch [AI]
+            </button>
+        </div>
+    `;
+    ttView.insertBefore(bar, ttView.firstChild);
+}
+
+window.openAiSmartScheduleModal = function() {
+    var modal = document.getElementById('apex-ai-tt-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'apex-ai-tt-modal';
+        modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(12px); z-index:10006; align-items:center; justify-content:center; padding:18px;";
+        document.body.appendChild(modal);
+    }
+    var now = new Date();
+    var defaultStart = now.toISOString().split('T')[0];
+    var endD = new Date(now); endD.setMonth(endD.getMonth() + 3);
+    var defaultEnd = endD.toISOString().split('T')[0];
+
+    modal.innerHTML = `
+        <div style="background:linear-gradient(160deg, #14192d 0%, #0c101d 100%); border:1px solid rgba(255,255,255,0.14); border-radius:20px; padding:22px 24px; width:100%; max-width:600px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div>
+                    <span style="font-size:0.65rem; font-weight:800; color:#a855f7; letter-spacing:1.5px; text-transform:uppercase;">AI NLP SCHEDULE PARSER</span>
+                    <h3 style="margin:2px 0 0 0; font-size:1.12rem; font-weight:800;">Nhập Lịch Học / Lịch Dạy Hàng Loạt</h3>
+                </div>
+                <button onclick="document.getElementById('apex-ai-tt-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px; line-height:1.45;">
+                Gõ hoặc dán nhiều dòng (mỗi dòng 1 lịch). Hệ thống tự động nhận diện <strong>Thứ, Tiết/Giờ, Ca Sáng/Chiều/Tối, Tên môn và Phòng học</strong>:<br>
+                <span style="color:#c084fc;">• Ví dụ 1:</span> <code>T6 Tiết 7-9 Văn học Mỹ phòng B502</code><br>
+                <span style="color:#c084fc;">• Ví dụ 2:</span> <code>T2, T4, T6 18h30-20h Đi dạy trung tâm phòng Cơ sở 1</code><br>
+                <span style="color:#c084fc;">• Ví dụ 3:</span> <code>CN 8h-10h30 Họp nhóm NCKH phòng Online</code>
+            </div>
+            <textarea id="ai-bulk-schedule-input" placeholder="Dán danh sách lịch học vào đây (mỗi dòng 1 môn)..." style="width:100%; height:150px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px; color:#fff; font-size:0.82rem; outline:none; margin-bottom:12px; resize:vertical;"></textarea>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                <div>
+                    <label style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:4px;">Áp dụng từ ngày:</label>
+                    <input type="date" id="ai-tt-start" value="${defaultStart}" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem;">
+                </div>
+                <div>
+                    <label style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:4px;">Đến ngày (Kết thúc học kỳ):</label>
+                    <input type="date" id="ai-tt-end" value="${defaultEnd}" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem;">
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="document.getElementById('apex-ai-tt-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#cbd5e1; padding:9px 16px; border-radius:10px; font-weight:700; font-size:0.78rem; cursor:pointer;">Hủy</button>
+                <button onclick="processAiBulkScheduleInput()" style="background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; padding:9px 20px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; box-shadow:0 4px 15px rgba(168,85,247,0.45);">⚡ Phân tích & Lưu vào TKB</button>
+            </div>
+        </div>`;
+    modal.style.display = 'flex';
+};
+
+window.processAiBulkScheduleInput = function() {
+    var raw = (document.getElementById('ai-bulk-schedule-input') ? document.getElementById('ai-bulk-schedule-input').value : '').trim();
+    if (!raw) { alert("Bạn vui lòng nhập ít nhất 1 dòng lịch học!"); return; }
+
+    var startDate = document.getElementById('ai-tt-start').value || new Date().toISOString().split('T')[0];
+    var endDate = document.getElementById('ai-tt-end').value || startDate;
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) window.timetableData = [];
+
+    var lines = raw.split(/\n+/).map(function(l) { return l.trim(); }).filter(Boolean);
+    var addedCount = 0;
+
+    lines.forEach(function(line) {
+        // 1. Nhận diện các Thứ trong dòng (Hỗ trợ cả "T2, T4, T6" hoặc "Thứ 6" hoặc "CN")
+        var dows = [];
+        var dowMatches = line.match(/(?:thứ\s*|t)([2-7])|(?:chủ\s*nhật|cn)/gi);
+        if (dowMatches) {
+            dowMatches.forEach(function(m) {
+                var low = m.toLowerCase();
+                if (low.includes('cn') || low.includes('nhật')) dows.push(0);
+                else {
+                    var num = parseInt(low.replace(/\D/g, ''), 10);
+                    if (num >= 2 && num <= 7) dows.push(num - 1);
+                }
+            });
+        }
+        if (dows.length === 0) dows.push(new Date().getDay());
+
+        // 2. Nhận diện Tiết hoặc Khung giờ
+        var codeStr = "Ca học";
+        var shift = "sang";
+        var tietMatch = line.match(/tiết\s*(\d+\s*-\s*\d+|\d+)/i);
+        var timeMatch = line.match(/(\d{1,2}\s*[h:]\s*\d{0,2}\s*-\s*\d{1,2}\s*[h:]\s*\d{0,2}|\d{1,2}\s*[h:]\s*\d{0,2})/i);
+
+        if (tietMatch) {
+            codeStr = "Tiết: " + tietMatch[1].replace(/\s+/g, '');
+            var firstTiet = parseInt(tietMatch[1], 10);
+            shift = firstTiet >= 13 ? 'toi' : (firstTiet >= 7 ? 'chieu' : 'sang');
+        } else if (timeMatch) {
+            codeStr = timeMatch[1].replace(/\s+/g, '');
+            var firstHr = parseInt(codeStr, 10);
+            shift = firstHr >= 18 ? 'toi' : (firstHr >= 12 ? 'chieu' : 'sang');
+        } else if (/tối|đêm/i.test(line)) {
+            shift = 'toi'; codeStr = 'Ca Tối';
+        } else if (/chiều/i.test(line)) {
+            shift = 'chieu'; codeStr = 'Ca Chiều';
+        }
+
+        // 3. Nhận diện Phòng học
+        var roomStr = "TKB";
+        var roomMatch = line.match(/(?:phòng|p\.|tại|cơ sở)\s*([a-zA-Z0-9_.\-\s]+)$/i);
+        var cleanLine = line;
+        if (roomMatch) {
+            roomStr = roomMatch[1].trim();
+            cleanLine = cleanLine.replace(roomMatch[0], '');
+        }
+
+        // 4. Lọc ra Tên môn học / công việc
+        cleanLine = cleanLine
+            .replace(/(?:thứ\s*[2-7]|t[2-7]|chủ\s*nhật|cn)[,\s-]*/gi, ' ')
+            .replace(/tiết\s*(\d+\s*-\s*\d+|\d+)/gi, ' ')
+            .replace(/(\d{1,2}\s*[h:]\s*\d{0,2}\s*-\s*\d{1,2}\s*[h:]\s*\d{0,2}|\d{1,2}\s*[h:]\s*\d{0,2})/gi, ' ')
+            .replace(/\s+/g, ' ').trim();
+        var subjectName = cleanLine || "Lịch học tập";
+
+        dows.forEach(function(dNum) {
+            timetableData.push({
+                id: Date.now() + Math.floor(Math.random() * 10000) + addedCount,
+                dow: dNum,
+                shift: shift,
+                name: subjectName,
+                code: codeStr,
+                room: roomStr,
+                startDate: startDate,
+                endDate: endDate,
+                pausedDates: []
+            });
+            addedCount++;
+        });
+    });
+
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    localStorage.setItem('saasLastUpdated', Date.now());
+    if (typeof syncToCloud === 'function') syncToCloud();
+    if (typeof renderTimetable === 'function') renderTimetable();
+    renderBentoCommandCenter();
+    document.getElementById('apex-ai-tt-modal').style.display = 'none';
+    alert("✅ Trợ lý AI đã phân tích và lưu thành công " + addedCount + " ca vào Thời khóa biểu!");
+};
+
+// Hàm AI Tự động quét khe trống trong tuần và xếp lịch học các Mục tiêu theo tiến độ
+window.runAiAutoFillGoalSchedule = function() {
+    var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals))
+        ? goals.filter(function(g) { return Number(g.current || 0) > 0; })
+        : [];
+    if (activeGoals.length === 0) {
+        alert("Hiện tại không có mục tiêu nào đang mở để AI xếp lịch!");
+        return;
+    }
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) window.timetableData = [];
+
+    // Xóa các lịch [AI] cũ trước khi xếp lịch tuần mới để không bị chồng chéo
+    timetableData = timetableData.filter(function(item) {
+        return !String(item.name || '').startsWith('[AI]');
+    });
+
+    // Sắp xếp mục tiêu theo độ ưu tiên (Môn còn nhiều giờ cần học xếp trước)
+    var sortedGoals = activeGoals.slice().sort(function(a, b) {
+        return Number(b.current || 0) - Number(a.current || 0);
+    });
+
+    var now = new Date();
+    var startStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    var endD = new Date(now); endD.setDate(endD.getDate() + 14);
+    var endStr = endD.getFullYear() + '-' + String(endD.getMonth() + 1).padStart(2, '0') + '-' + String(endD.getDate()).padStart(2, '0');
+
+    var shiftsOrder = [
+        { key: 'toi', code: '20h00-21h00', label: 'Ca Tối (Giờ vàng)' },
+        { key: 'sang', code: '08h30-09h30', label: 'Ca Sáng' },
+        { key: 'chieu', code: '15h00-16h00', label: 'Ca Chiều' }
+    ];
+
+    var scheduledCount = 0;
+    var goalIdx = 0;
+
+    // Quét từ Thứ 2 (1) đến Chủ Nhật (0)
+    var daysOrder = [1, 2, 3, 4, 5, 6, 0];
+    daysOrder.forEach(function(dowNum) {
+        var dayItems = timetableData.filter(function(it) { return parseInt(it.dow, 10) === dowNum; });
+        if (dayItems.length >= 3) return;
+
+        for (var s = 0; s < shiftsOrder.length; s++) {
+            var sh = shiftsOrder[s];
+            var isBusy = dayItems.some(function(it) { return it.shift === sh.key; });
+            if (!isBusy) {
+                var targetGoal = sortedGoals[goalIdx % sortedGoals.length];
+                var leftHrs = Number(targetGoal.current || 0).toFixed(1);
+                timetableData.push({
+                    id: Date.now() + Math.floor(Math.random() * 10000) + scheduledCount,
+                    type: 'online',
+                    dow: dowNum,
+                    shift: sh.key,
+                    name: "[AI] 🎯 " + targetGoal.name,
+                    code: sh.code,
+                    room: "Còn " + leftHrs + "h",
+                    teacher: "",
+                    startDate: startStr,
+                    endDate: endStr,
+                    pausedDates: []
+                });
+                scheduledCount++;
+                goalIdx++;
+                break;
+            }
+        }
+    });
+
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    localStorage.setItem('saasLastUpdated', Date.now());
+    if (typeof syncToCloud === 'function') syncToCloud();
+    if (typeof renderTimetable === 'function') renderTimetable();
+    renderBentoCommandCenter();
+    alert("🤖 AI đã phân tích khe trống trong tuần và xếp tự động " + scheduledCount + " phiên học Mục tiêu vào Thời khóa biểu!");
+};
+
+window.clearAiGeneratedSchedules = function() {
+    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) return;
+    var beforeLen = timetableData.length;
+    timetableData = timetableData.filter(function(item) {
+        return !String(item.name || '').startsWith('[AI]');
+    });
+    var removed = beforeLen - timetableData.length;
+    localStorage.setItem('saasTimetable', JSON.stringify(timetableData));
+    localStorage.setItem('saasLastUpdated', Date.now());
+    if (typeof syncToCloud === 'function') syncToCloud();
+    if (typeof renderTimetable === 'function') renderTimetable();
+    renderBentoCommandCenter();
+    alert("🧹 Đã dọn sạch " + removed + " ca tự học do [AI] đề xuất (Giữ nguyên toàn bộ lịch cố định của bạn).");
+};
+
+var origSwitchTabV4 = window.switchTab;
+window.switchTab = function(tabName) {
+    if (typeof origSwitchTabV4 === 'function') origSwitchTabV4(tabName);
+    if (tabName === 'trophy') {
+        renderMasterTrophyAndArchive();
+        setTimeout(renderMasterTrophyAndArchive, 40);
+    } else if (tabName === 'analytics') {
+        window.renderAnalytics();
+        setTimeout(window.renderAnalytics, 40);
+    } else if (tabName === 'dashboard') {
+        renderBentoCommandCenter();
+    } else if (tabName === 'timetable') {
+        setTimeout(injectAiTimetableToolbar, 50);
+    } else if (tabName === 'goals') {
+        var firstG = (typeof goals !== 'undefined' && Array.isArray(goals)) ? (goals.find(function(g){return g.id===currentFocusedGoalId;}) || goals[0]) : null;
+        if (firstG) openGoalDetailModal(firstG.id, 'overview');
+    }
+};
+
+var lastKnownGoalCount = -1;
+var lastKnownLogKeys = -1;
+var hasRestoredDispatchPenalty = false;
+var prevRenderDashV4 = window.renderDashboard;
+
+window.renderDashboard = function() {
+    if (typeof prevRenderDashV4 === 'function') prevRenderDashV4();
+    renderBentoCommandCenter();
+};
+
+function safeLockDispatchIfQuotaDone() {
+    var todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : new Date().toISOString().split('T')[0];
+    var qInfo = (typeof getTodayDispatchQuotaInfo === 'function') ? getTodayDispatchQuotaInfo() : { isQuotaMet: false };
+
+    // Đồng bộ lại biến từ localStorage phòng trường hợp Cloud vừa tải về
+    if (typeof dispatchSnoozeUntil !== 'undefined') {
+        dispatchSnoozeUntil = parseInt(localStorage.getItem('saasDispatchSnoozeUntil')) || 0;
+    }
+    if (typeof dispatchRate !== 'undefined') {
+        var savedRate = parseInt(localStorage.getItem('saasDispatchRate'));
+        if (!isNaN(savedRate)) dispatchRate = savedRate;
+    }
+
+    if (qInfo.isQuotaMet) {
+        var manualOnlineToday = (localStorage.getItem('saasManualOnlineDate') === todayStr);
+        if (!manualOnlineToday) {
+            if (typeof isFreeRestMode !== 'undefined' && !isFreeRestMode) {
+                isFreeRestMode = true;
+                localStorage.setItem('saasRestModeDate', todayStr);
+                if (typeof idleDispatchTimer !== 'undefined') clearTimeout(idleDispatchTimer);
+                if (typeof renderDispatchStatusWidget === 'function') renderDispatchStatusWidget();
+            }
+        }
+    } else {
+        if (localStorage.getItem('saasRestModeDate') === todayStr) {
+            localStorage.removeItem('saasRestModeDate');
+        }
+        if (typeof isFreeRestMode !== 'undefined' && isFreeRestMode) {
+            isFreeRestMode = false;
+            if (typeof renderDispatchStatusWidget === 'function') renderDispatchStatusWidget();
+        }
+    }
+}
+
+setInterval(function() {
+    try {
+        var now = new Date();
+        var clockEl = document.getElementById('top-clock-label'), dateEl = document.getElementById('top-date-label');
+        if (clockEl) clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        if (dateEl) {
+            var dNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+            dateEl.innerHTML = '<i class="fa-regular fa-calendar" style="color:#8b5cf6;"></i> ' + dNames[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
+        }
+
+        attachTimerObserver();
+        syncFocusClockInstant();
+        syncFocusRoomData();
+        maintainCleanSidebar();
+        safeLockDispatchIfQuotaDone();
+
+        var currentGoalsLen = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.length : 0;
+        var currentLogsLen = (typeof dailyLogs !== 'undefined' && dailyLogs) ? Object.keys(dailyLogs).length : 0;
+        var dashGrid = document.getElementById('dashboard-grid');
+        var kpiStatusEl = document.getElementById('kpi-status');
+
+        var activeGoalsCount = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return g && g.current > 0; }).length : 0;
+        var isGridEmptyButHasGoals = dashGrid && activeGoalsCount > 0 && dashGrid.children.length === 0;
+        var isDataJustLoaded = (currentGoalsLen !== lastKnownGoalCount) || (currentLogsLen !== lastKnownLogKeys);
+
+        if (isGridEmptyButHasGoals || isDataJustLoaded) {
+            lastKnownGoalCount = currentGoalsLen;
+            lastKnownLogKeys = currentLogsLen;
+            safeLockDispatchIfQuotaDone();
+            if (typeof prevRenderDashV4 === 'function') prevRenderDashV4();
+            if (typeof updateKPI === 'function') updateKPI();
+            if (typeof renderGoals === 'function') renderGoals();
+            if (typeof renderCountdowns === 'function') renderCountdowns();
+            renderBentoCommandCenter();
+        }
+
+        if (kpiStatusEl && currentLogsLen > 0) {
+            var weekSum = 0, dayOfWeek = now.getDay() || 7;
+            for (var i = 0; i < dayOfWeek; i++) {
+                var d = new Date(now); d.setDate(now.getDate() - i);
+                var dKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                if (dailyLogs[dKey]) weekSum += Number(dailyLogs[dKey] || 0);
+            }
+
+            // Tự động nâng mốc KPI tuần theo nấc 5 giờ: Đạt 5.0h -> nhảy lên 10.0h, đạt 10.0h -> nhảy lên 15.0h...
+            var autoTierTarget = Math.max(5.0, (Math.floor(weekSum / 5.0) + 1) * 5.0);
+            if (typeof weeklyKpiTarget !== 'undefined' && Number(weeklyKpiTarget) !== autoTierTarget) {
+                weeklyKpiTarget = autoTierTarget;
+                localStorage.setItem('weeklyKpiTarget', String(autoTierTarget));
+                if (typeof updateKPI === 'function') updateKPI();
+            }
+
+            var expectedText = weekSum.toFixed(1) + ' / ' + autoTierTarget.toFixed(1) + 'h';
+            if (kpiStatusEl.innerText.trim() !== expectedText) {
+                kpiStatusEl.innerText = expectedText;
+                var barFill = document.getElementById('kpi-bar-fill');
+                if (barFill) {
+                    barFill.style.width = Math.min(100, Math.round((weekSum / autoTierTarget) * 100)) + '%';
+                }
+                var kpiMsgEl = document.getElementById('kpi-message');
+                if (kpiMsgEl && weekSum >= 5.0) {
+                    var tierNum = Math.floor(weekSum / 5.0);
+                    kpiMsgEl.innerHTML = '🔥 <span style="color:#10b981; font-weight:700;">Đã chinh phục Mốc ' + (tierNum * 5) + 'h!</span> Hệ thống tự động mở khóa mục tiêu <strong>' + autoTierTarget.toFixed(1) + 'h</strong> (Còn ' + Math.max(0, autoTierTarget - weekSum).toFixed(1) + 'h).';
+                }
+            }
+        }
+    } catch (err) {}
+}, 500);
+
+window.addEventListener('DOMContentLoaded', function() {
+    injectUnifiedApexCSS();
+    attachTimerObserver();
+    maintainCleanSidebar();
+    setTimeout(function() {
+        safeLockDispatchIfQuotaDone();
+        if (typeof prevRenderDashV4 === 'function') prevRenderDashV4();
+        renderBentoCommandCenter();
+    }, 300);
+});
+
+// =====================================================================
+// 12. ĐỒNG HỒ NỔI ĐA NHIỆM (PICTURE-IN-PICTURE) & XUẤT HỒ SƠ HỌC THUẬT (.MD)
+// =====================================================================
+
+// --- A. XUẤT HỒ SƠ HỌC THUẬT CỦA MỤC TIÊU RA FILE MARKDOWN (.MD) ---
+window.exportGoalAcademicDossier = function(goalId) {
+    if (typeof goals === 'undefined' || !Array.isArray(goals)) return;
+    var g = goals.find(function(x) { return x.id == goalId; });
+    if (!g) return;
+
+    var extra = getGoalExtraData(g);
+    var targetH = Number(g.target || 1);
+    var leftH = Math.max(0, Number(g.current || 0));
+    var doneH = Math.max(0, targetH - leftH);
+    var pct = Math.min(100, Math.round((doneH / Math.max(0.1, targetH)) * 100));
+    var reps = Array.isArray(g.reports) ? g.reports : [];
+
+    var lines = [];
+    lines.push("# 📚 HỒ SƠ HỌC THUẬT: " + g.name.toUpperCase());
+    lines.push("> Trích xuất từ Hệ thống Quản lý Học thuật **Academic Apex**");
+    lines.push("> Ngày trích xuất: " + new Date().toLocaleString('vi-VN'));
+    lines.push("");
+    lines.push("## 1. TỔNG QUAN TIẾN ĐỘ");
+    lines.push("- **Quy mô mục tiêu:** " + targetH.toFixed(1) + " giờ");
+    lines.push("- **Thời gian đã tích lũy:** " + doneH.toFixed(2) + " giờ (" + pct + "%)");
+    lines.push("- **Thời gian còn lại:** " + leftH.toFixed(2) + " giờ");
+    lines.push("- **Hạn chót (Deadline):** " + (g.deadline || "Tự do"));
+    lines.push("- **Tổng số bản báo cáo:** " + reps.length + " phiên");
+    lines.push("");
+
+    lines.push("## 2. LỘ TRÌNH 5 CHẶNG CHIẾN LƯỢC");
+    extra.milestones.forEach(function(ms, idx) {
+        var stageDone = (idx < Math.floor((pct / 100) * 5)) || pct >= 100;
+        lines.push("- [" + (stageDone ? "x" : " ") + "] **" + ms.title + "**: " + ms.sub);
+    });
+    lines.push("");
+
+    lines.push("## 3. DANH SÁCH NHIỆM VỤ TRỌNG TÂM");
+    if (extra.tasks.length === 0) {
+        lines.push("_Chưa có nhiệm vụ con._");
+    } else {
+        extra.tasks.forEach(function(tk) {
+            lines.push("- [" + (tk.done ? "x" : " ") + "] " + tk.text + " _(" + tk.mins + " phút)_");
+        });
+    }
+    lines.push("");
+
+    lines.push("## 4. SỔ TAY GHI CHÚ MÔN HỌC");
+    lines.push("```text");
+    lines.push((extra.notes || "Chưa có ghi chú.").trim());
+    lines.push("```");
+    lines.push("");
+
+    lines.push("## 5. NHẬT KÝ BÁO CÁO CÁC PHIÊN HỌC CHI TIẾT (" + reps.length + " BẢN)");
+    if (reps.length === 0) {
+        lines.push("_Chưa có bản báo cáo nào được ghi nhận._");
+    } else {
+        reps.slice().reverse().forEach(function(r, idx) {
+            var starsStr = r.stars ? (" • " + "⭐".repeat(Number(r.stars))) : "";
+            lines.push("### Phiên #" + (reps.length - idx) + " (" + (r.date || "") + " | " + (r.type || "25p") + starsStr + ")");
+            lines.push((r.text || r.content || "").trim());
+            lines.push("");
+        });
+    }
+
+    var contentBlob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
+    var safeFileName = "HoSo_" + g.name.replace(/[^a-zA-Z0-9À-ỹ\s_-]/g, "").trim().replace(/\s+/g, "_") + ".md";
+    var dlLink = document.createElement("a");
+    dlLink.href = URL.createObjectURL(contentBlob);
+    dlLink.download = safeFileName;
+    dlLink.click();
+};
+
+// --- B. ĐỒNG HỒ NỔI ĐA NHIỆM (DOCUMENT PICTURE-IN-PICTURE / CANVAS PIP) ---
+var apexPipWindow = null;
+var apexPipVideoEl = null;
+var apexPipCanvas = null;
+var apexPipUpdateTimer = null;
+
+window.toggleApexPipMiniTimer = async function() {
+    try {
+        // Nếu đang bật cửa sổ nổi thì đóng lại
+        if (apexPipWindow && !apexPipWindow.closed) {
+            apexPipWindow.close();
+            apexPipWindow = null;
+            return;
+        }
+        if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+            return;
+        }
+
+        // Ưu tiên 1: Sử dụng chuẩn Document Picture-in-Picture hiện đại của Chromium (Cốc Cốc / Chrome / Edge)
+        if ('documentPictureInPicture' in window) {
+            apexPipWindow = await window.documentPictureInPicture.requestWindow({
+                width: 320,
+                height: 175
+            });
+
+            apexPipWindow.document.body.style.cssText = "margin:0; padding:14px 16px; background:linear-gradient(145deg, #0d1224 0%, #17153a 100%); color:#fff; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; display:flex; flex-direction:column; justify-content:space-between; height:100vh; box-sizing:border-box; overflow:hidden; user-select:none; border:1px solid rgba(168,85,247,0.35);";
+            apexPipWindow.document.body.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.62rem; font-weight:800; letter-spacing:1.5px; color:#c084fc; background:rgba(168,85,247,0.18); padding:2px 8px; border-radius:100px;">● ACADEMIC APEX</span>
+                    <span id="pip-goal-name" style="font-size:0.72rem; font-weight:700; color:#94a3b8; max-width:145px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Đang tập trung</span>
+                </div>
+                <div style="text-align:center; margin:4px 0;">
+                    <div id="pip-time-digits" style="font-size:2.85rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1; text-shadow:0 0 24px rgba(168,85,247,0.6);">25:00</div>
+                    <div id="pip-state-sub" style="font-size:0.7rem; color:#38bdf8; font-weight:700; margin-top:4px;">🍅 Phiên Pomodoro</div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:8px;">
+                    <button id="pip-btn-start" style="background:linear-gradient(90deg,#a855f7,#6366f1); color:#fff; border:none; padding:6px 18px; border-radius:100px; font-size:0.74rem; font-weight:800; cursor:pointer;">▶ Bắt đầu</button>
+                    <button id="pip-btn-pause" style="display:none; background:#2563eb; color:#fff; border:none; padding:6px 14px; border-radius:100px; font-size:0.72rem; font-weight:700; cursor:pointer;">⏸ Tạm dừng</button>
+                </div>
+            `;
+
+            apexPipWindow.document.getElementById('pip-btn-start').onclick = function() {
+                window.triggerFocusMainStart();
+            };
+            apexPipWindow.document.getElementById('pip-btn-pause').onclick = function() {
+                if (typeof togglePause === 'function') togglePause();
+            };
+
+            if (apexPipUpdateTimer) clearInterval(apexPipUpdateTimer);
+            apexPipUpdateTimer = setInterval(syncApexPipWindowUI, 500);
+            syncApexPipWindowUI();
+
+            apexPipWindow.addEventListener('pagehide', function() {
+                if (apexPipUpdateTimer) clearInterval(apexPipUpdateTimer);
+                apexPipWindow = null;
+            });
+            return;
+        }
+
+        // Ưu tiên 2 (Fallback cho trình duyệt không hỗ trợ Document PiP): Dùng Canvas Video Stream PiP
+        if (!apexPipCanvas) {
+            apexPipCanvas = document.createElement('canvas');
+            apexPipCanvas.width = 360;
+            apexPipCanvas.height = 180;
+            apexPipVideoEl = document.createElement('video');
+            apexPipVideoEl.muted = true;
+            apexPipVideoEl.playsInline = true;
+            apexPipVideoEl.style.cssText = "position:fixed; bottom:-500px; right:-500px; width:10px; height:10px; opacity:0; pointer-events:none;";
+            document.body.appendChild(apexPipVideoEl);
+        }
+        drawApexCanvasPipFrame();
+        if (!apexPipVideoEl.srcObject) {
+            apexPipVideoEl.srcObject = apexPipCanvas.captureStream(10);
+        }
+        await apexPipVideoEl.play();
+        await apexPipVideoEl.requestPictureInPicture();
+        if (apexPipUpdateTimer) clearInterval(apexPipUpdateTimer);
+        apexPipUpdateTimer = setInterval(drawApexCanvasPipFrame, 500);
+    } catch (err) {
+        alert("Trình duyệt cần bạn bấm trực tiếp vào nút Đồng hồ nổi khi đang ở chế độ cửa sổ thường (không phải Fullscreen) để tách cửa sổ nổi!");
+    }
+};
+
+function syncApexPipWindowUI() {
+    if (!apexPipWindow || apexPipWindow.closed) return;
+    var doc = apexPipWindow.document;
+    var rawTimer = document.getElementById('ft-time-display') ? document.getElementById('ft-time-display').innerText.trim() : "25:00";
+    var gName = document.getElementById('ft-goal-name-display') ? document.getElementById('ft-goal-name-display').innerText.trim() : "Mục tiêu";
+    var modeTxt = document.getElementById('ft-mode-label') ? document.getElementById('ft-mode-label').innerText.trim() : "Pomodoro";
+    var origPauseBtn = document.getElementById('btn-pause');
+    var isRunning = (origPauseBtn && origPauseBtn.style.display !== 'none');
+
+    var tEl = doc.getElementById('pip-time-digits');
+    var gEl = doc.getElementById('pip-goal-name');
+    var sEl = doc.getElementById('pip-state-sub');
+    var btnStart = doc.getElementById('pip-btn-start');
+    var btnPause = doc.getElementById('pip-btn-pause');
+
+    if (tEl) {
+        tEl.innerText = rawTimer;
+        tEl.style.color = rawTimer.startsWith('+') ? '#fbbf24' : '#ffffff';
+    }
+    if (gEl) gEl.innerText = gName;
+    if (sEl) sEl.innerText = modeTxt;
+    if (btnStart) btnStart.style.display = isRunning ? 'none' : 'inline-block';
+    if (btnPause) {
+        btnPause.style.display = isRunning ? 'inline-block' : 'none';
+        var paused = (typeof isPaused !== 'undefined' && isPaused);
+        btnPause.innerText = paused ? '▶ Tiếp tục' : '⏸ Tạm dừng';
+        btnPause.style.background = paused ? '#f59e0b' : '#2563eb';
+    }
+}
+
+function drawApexCanvasPipFrame() {
+    if (!apexPipCanvas) return;
+    var ctx = apexPipCanvas.getContext('2d');
+    var rawTimer = document.getElementById('ft-time-display') ? document.getElementById('ft-time-display').innerText.trim() : "25:00";
+    var gName = document.getElementById('ft-goal-name-display') ? document.getElementById('ft-goal-name-display').innerText.trim() : "Academic Apex";
+
+    var grad = ctx.createLinearGradient(0, 0, 360, 180);
+    grad.addColorStop(0, '#0d1224');
+    grad.addColorStop(1, '#1e1646');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 360, 180);
+
+    ctx.fillStyle = '#c084fc';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(gName.toUpperCase(), 180, 36);
+
+    ctx.fillStyle = rawTimer.startsWith('+') ? '#fbbf24' : '#ffffff';
+    ctx.font = '900 62px monospace';
+    ctx.fillText(rawTimer, 180, 112);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('ACADEMIC APEX • LIVE FOCUS', 180, 152);
+}
+
+// =====================================================================
+// 13. APEX MOTION ENGINE V5 (FINAL LOCK: 7-DAY ANALYTICS ONLY)
+// =====================================================================
+function injectApexMotionEngine() {
+    var oldCss = document.getElementById('apex-motion-engine-css');
+    if (oldCss) oldCss.remove();
+    var oldGlow = document.getElementById('apex-cyber-cursor-glow');
+    if (oldGlow) oldGlow.remove();
+
+    var st = document.createElement('style');
+    st.id = 'apex-motion-engine-css';
+    st.innerHTML = `
+        /* =========================================================
+           1. KEYFRAMES CHO BỘ ICON VECTOR ĐỘNG
+           ========================================================= */
+        @keyframes plasmaOuterWave {
+            0%, 100% { transform: scale(1, 1) rotate(-1deg); }
+            33%      { transform: scale(0.95, 1.07) rotate(1.5deg); }
+            66%      { transform: scale(1.04, 0.96) rotate(-1.5deg); }
+        }
+        @keyframes plasmaMidWave {
+            0%, 100% { transform: scale(1, 1) translateY(0px); }
+            50%      { transform: scale(1.06, 1.1) translateY(-1px); }
+        }
+        @keyframes plasmaCorePulse {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50%      { opacity: 1; transform: scale(1.12); }
+        }
+        @keyframes plasmaSparkRise {
+            0%   { transform: translateY(0) scale(1); opacity: 0.9; }
+            100% { transform: translateY(-10px) scale(0.2); opacity: 0; }
+        }
+        @keyframes apexHourglassFlip {
+            0%, 68%   { transform: rotate(0deg); }
+            84%       { transform: rotate(180deg); }
+            100%      { transform: rotate(360deg); }
+        }
+        @keyframes apexSandStream {
+            0%, 70%   { stroke-dashoffset: 0; opacity: 1; }
+            75%, 100% { stroke-dashoffset: -12; opacity: 0; }
+        }
+        @keyframes apexCrownFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50%      { transform: translateY(-2.5px) rotate(2deg); }
+        }
+        @keyframes apexGemTwinkle {
+            0%, 100% { opacity: 0.35; transform: scale(0.8); }
+            50%      { opacity: 1; transform: scale(1.25); }
+        }
+        @keyframes apexTargetRadar {
+            0%   { transform: scale(0.5); opacity: 0.9; }
+            100% { transform: scale(1.45); opacity: 0; }
+        }
+        @keyframes apexClockHandSpin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .apex-hero-svg-box {
+            position: relative; width: 36px; height: 36px; border-radius: 11px;
+            display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .apex-flame-box {
+            background: radial-gradient(circle at 50% 75%, rgba(249, 115, 22, 0.25), rgba(225, 29, 72, 0.08) 70%);
+            border: 1px solid rgba(251, 146, 60, 0.38);
+            box-shadow: 0 0 16px rgba(249, 115, 22, 0.22), inset 0 0 8px rgba(251, 191, 36, 0.15);
+        }
+        .apex-hourglass-box {
+            background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.22), rgba(99, 102, 241, 0.08) 70%);
+            border: 1px solid rgba(56, 189, 248, 0.38);
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.2), inset 0 0 8px rgba(56, 189, 248, 0.12);
+        }
+        .apex-crown-box {
+            background: radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.08) 70%);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.2), inset 0 0 8px rgba(251, 191, 36, 0.12);
+        }
+        .apex-target-box {
+            background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.24), rgba(236, 72, 153, 0.08) 70%);
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.22), inset 0 0 8px rgba(192, 132, 252, 0.12);
+        }
+        .apex-clock-box {
+            background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.24), rgba(14, 165, 233, 0.08) 70%);
+            border: 1px solid rgba(56, 189, 248, 0.42);
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.22), inset 0 0 8px rgba(56, 189, 248, 0.12);
+        }
+        .apex-emerald-target-box {
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.24), rgba(5, 150, 105, 0.08) 70%);
+            border: 1px solid rgba(16, 185, 129, 0.42);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.22), inset 0 0 8px rgba(16, 185, 129, 0.12);
+        }
+
+        .apex-plasma-svg { width: 28px !important; height: 28px !important; transform: scale(1.35); transform-origin: center; overflow: visible; filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.8)); margin-bottom: 2px; }
+        .apex-plasma-svg .flame-outer { transform-origin: 50% 85%; animation: plasmaOuterWave 2.4s ease-in-out infinite; }
+        .apex-plasma-svg .flame-mid   { transform-origin: 50% 85%; animation: plasmaMidWave 1.8s ease-in-out infinite; }
+        .apex-plasma-svg .flame-core  { transform-origin: 50% 85%; animation: plasmaCorePulse 1.4s ease-in-out infinite; }
+        .apex-plasma-svg .flame-spark1 { animation: plasmaSparkRise 1.9s ease-out infinite; }
+        .apex-plasma-svg .flame-spark2 { animation: plasmaSparkRise 2.3s ease-out infinite 0.7s; }
+        .apex-hourglass-svg { width: 21px; height: 21px; filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6)); animation: apexHourglassFlip 4.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; }
+        .apex-hourglass-svg .hg-stream { stroke-dasharray: 2 2; animation: apexSandStream 1.2s linear infinite; }
+        .apex-crown-svg { width: 22px; height: 22px; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.65)); animation: apexCrownFloat 3s ease-in-out infinite; }
+        .apex-crown-svg .crown-gem { transform-origin: center; animation: apexGemTwinkle 1.8s ease-in-out infinite; }
+        .apex-target-svg { width: 22px; height: 22px; overflow: visible; filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.65)); }
+        .apex-target-svg .target-ping { transform-origin: 12px 12px; animation: apexTargetRadar 2.4s ease-out infinite; }
+        .apex-clock-svg { width: 22px; height: 22px; filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.65)); }
+        .apex-clock-svg .clock-min-hand { transform-origin: 12px 12px; animation: apexClockHandSpin 6s linear infinite; }
+        .apex-clock-svg .clock-hr-hand  { transform-origin: 12px 12px; animation: apexClockHandSpin 36s linear infinite; }
+
+        /* =========================================================
+           2. QUỸ ĐẠO NGUYÊN TỬ CHỮ A
+           ========================================================= */
+        @keyframes electronOrbit1 { 0% { transform: rotate(0deg) translateY(-76px) rotate(0deg); } 100% { transform: rotate(360deg) translateY(-76px) rotate(-360deg); } }
+        @keyframes electronOrbit2 { 0% { transform: rotate(120deg) translateY(-76px) rotate(-120deg); } 100% { transform: rotate(480deg) translateY(-76px) rotate(-480deg); } }
+        @keyframes electronOrbit3 { 0% { transform: rotate(240deg) translateY(-76px) rotate(-240deg); } 100% { transform: rotate(600deg) translateY(-76px) rotate(-600deg); } }
+        @keyframes ringTrackSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes ringTrackSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
+        @keyframes nucleusBreath {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.3); }
+            50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 34px rgba(168, 85, 247, 0.95), 0 0 55px rgba(56, 189, 248, 0.35), inset 0 0 14px rgba(255, 255, 255, 0.45); }
+        }
+
+        .phoi-orbit-box { position: relative !important; width: 240px !important; height: 195px !important; }
+        .phoi-orbit-ring1 { top: 52% !important; left: 50% !important; width: 104px !important; height: 104px !important; border: 1px dashed rgba(168, 85, 247, 0.5) !important; animation: ringTrackSpinCCW 32s linear infinite !important; }
+        .phoi-orbit-ring2 { top: 52% !important; left: 50% !important; width: 152px !important; height: 152px !important; border: 1px dashed rgba(56, 189, 248, 0.32) !important; box-shadow: 0 0 25px rgba(168, 85, 247, 0.08) inset !important; animation: ringTrackSpinCW 24s linear infinite !important; }
+        .phoi-orbit-core { top: 52% !important; left: 50% !important; animation: nucleusBreath 3.6s ease-in-out infinite !important; }
+        .phoi-orbit-box .phoi-sat { top: 52% !important; left: 50% !important; bottom: auto !important; right: auto !important; width: 84px !important; height: 60px !important; margin-left: -42px !important; margin-top: -30px !important; will-change: transform; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(4) { animation: electronOrbit1 22s linear infinite !important; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(5) { animation: electronOrbit2 22s linear infinite !important; }
+        .phoi-orbit-box .phoi-sat:nth-of-type(6) { animation: electronOrbit3 22s linear infinite !important; }
+        .phoi-orbit-box:hover .phoi-sat, .phoi-orbit-box:hover .phoi-orbit-ring1, .phoi-orbit-box:hover .phoi-orbit-ring2 { animation-play-state: paused !important; }
+
+        /* =========================================================
+           3. CHUYỂN ĐỘNG TRANG PHÂN TÍCH TIẾN ĐỘ & DASHBOARD
+           ========================================================= */
+        @keyframes apexAnalyticsBarGrow { 0% { transform: scaleY(0.02); opacity: 0; } 100% { transform: scaleY(1); opacity: 1; } }
+        @keyframes apexBarEnergyRise { 0% { transform: translateY(115%); } 100% { transform: translateY(-120%); } }
+        @keyframes apexPeakBadgeFloat { 0%, 100% { transform: translateY(0px) scale(1); box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5); } 50% { transform: translateY(-4px) scale(1.06); box-shadow: 0 6px 18px rgba(192, 132, 252, 0.85); } }
+        
+        .apex-7d-bar-fill, .apex-analytics-bar-fill { position: relative; overflow: hidden; transform-origin: bottom center; animation: apexAnalyticsBarGrow 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+        .apex-7d-bar-fill::after, .apex-analytics-bar-fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.42), transparent); animation: apexBarEnergyRise 2.6s ease-in-out infinite; }
+        .apex-peak-badge { animation: apexPeakBadgeFloat 2.4s ease-in-out infinite !important; }
+
+        @keyframes apexDonutEntrance { 0% { transform: rotate(-120deg) scale(0.82); opacity: 0; } 100% { transform: rotate(0deg) scale(1); opacity: 1; } }
+        @keyframes apexDonutHaloPulse { 0%, 100% { box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); } 50% { box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), 0 0 60px rgba(56, 189, 248, 0.26); } }
+        .apex-donut-ring { position: relative; animation: apexDonutEntrance 0.85s cubic-bezier(0.22, 1, 0.36, 1) backwards, apexDonutHaloPulse 4s ease-in-out infinite !important; transition: transform 0.35s ease; }
+        .apex-donut-ring:hover { transform: scale(1.05); }
+
+        @keyframes apexBulbIdeaGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(192, 132, 252, 0.3)); } 50% { transform: scale(1.16); filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.95)); color: #fde047; } }
+        @keyframes apexScaleTilt { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+        @keyframes apexTrendArrowUp { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(2.5px, -2.5px); filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)); } }
+        .fa-lightbulb { display: inline-block; animation: apexBulbIdeaGlow 2.4s ease-in-out infinite; }
+        .fa-scale-balanced { display: inline-block; transform-origin: top center; animation: apexScaleTilt 3.2s ease-in-out infinite; }
+        .fa-arrow-trend-up { display: inline-block; animation: apexTrendArrowUp 2s ease-in-out infinite; }
+
+        @keyframes apexDotPulse { 0%, 100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.35); opacity: 1; } }
+        .apex-legend-dot { animation: apexDotPulse 2.4s ease-in-out infinite; }
+        .apex-analytics-stat-card { transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important; }
+        .apex-analytics-stat-card:hover { transform: translateY(-3px) !important; border-color: rgba(168, 85, 247, 0.45) !important; box-shadow: 0 10px 26px rgba(0,0,0,0.4), 0 0 18px rgba(168, 85, 247, 0.14) !important; }
+
+        @keyframes apexWaveHand { 0%, 60%, 100% { transform: rotate(0deg); } 15% { transform: rotate(16deg); } 30% { transform: rotate(-10deg); } 45% { transform: rotate(14deg); } }
+        .apex-waving-hand { display: inline-block; transform-origin: 70% 70%; animation: apexWaveHand 3.2s ease-in-out infinite; }
+        
+        @keyframes apexRingGlowBreath { 0%, 100% { filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.35)); } 50% { filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.85)); } }
+        #bento-command-center svg circle[stroke="#a855f7"] { animation: apexRingGlowBreath 3.5s ease-in-out infinite; }
+
+        @keyframes apexStockLineFlow { 0% { stroke-dashoffset: 260; opacity: 0.75; } 50% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: -260; opacity: 0.75; } }
+        #bento-command-center svg path[stroke="#10b981"] { stroke-dasharray: 260; filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.65)); animation: apexStockLineFlow 6s linear infinite; }
+
+        @keyframes softShimmer { 0% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(220%) skewX(-20deg); } }
+        #kpi-bar-fill, #ft-right-goal-bar, #ft-right-today-bar, .apex-shimmer-bar { position: relative !important; overflow: hidden !important; }
+        #kpi-bar-fill::after, #ft-right-goal-bar::after, #ft-right-today-bar::after, .apex-shimmer-bar::after { content: ""; position: absolute; top: 0; left: 0; bottom: 0; width: 45%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent); animation: softShimmer 3s infinite ease-in-out; }
+
+        @keyframes apexSlowRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes apexCoinFlip { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } }
+        @keyframes apexRadarSweep { 0%, 100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(12deg) scale(1.1); } }
+        .fa-crosshairs { display: inline-block; animation: apexSlowRotate 10s linear infinite; }
+        .fa-satellite-dish { display: inline-block; animation: apexRadarSweep 2.6s ease-in-out infinite; }
+        .fa-coins { display: inline-block; animation: apexCoinFlip 4.5s ease-in-out infinite; }
+
+        .phoi-card, #dashboard-grid .goal-card, .ft-card, .phoi-mini-item { position: relative; overflow: hidden; transition: transform 0.28s ease, border-color 0.3s ease, box-shadow 0.3s ease !important; }
+        .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover { transform: translateY(-3px) !important; border-color: rgba(168, 85, 247, 0.38) !important; box-shadow: 0 14px 34px rgba(0,0,0,0.42), 0 0 20px rgba(168, 85, 247, 0.10) !important; }
+        .phoi-card::before, #dashboard-grid .goal-card::before { content: ""; position: absolute; top: 0; left: -100%; width: 75%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), rgba(192, 132, 252, 0.9), transparent); transition: left 0.65s ease; pointer-events: none; z-index: 3; }
+        .phoi-card:hover::before, #dashboard-grid .goal-card:hover::before { left: 125%; }
+
+        @keyframes zenFocusBreath { 0%, 100% { box-shadow: 0 0 38px rgba(139, 92, 246, 0.25), inset 0 0 18px rgba(139, 92, 246, 0.10); } 50% { box-shadow: 0 0 58px rgba(168, 85, 247, 0.45), inset 0 0 28px rgba(56, 189, 248, 0.18); } }
+        @keyframes eqBarDance { 0%, 100% { height: 4px; } 50% { height: 15px; } }
+        .ft-ring-box { animation: zenFocusBreath 5s ease-in-out infinite !important; }
+        .apex-eq-bars { display: none; align-items: flex-end; gap: 2.5px; height: 16px; margin-left: auto; }
+        .f-amb-card.active .apex-eq-bars { display: inline-flex; }
+        .apex-eq-bars span { width: 2.5px; border-radius: 3px; background: linear-gradient(180deg, #38bdf8, #c084fc); animation: eqBarDance 0.8s ease-in-out infinite; }
+        .apex-eq-bars span:nth-child(2) { animation-delay: 0.2s; animation-duration: 0.6s; }
+        .apex-eq-bars span:nth-child(3) { animation-delay: 0.4s; animation-duration: 0.9s; }
+        .apex-eq-bars span:nth-child(4) { animation-delay: 0.15s; animation-duration: 0.7s; }
+
+        /* =========================================================
+           4. CHUYỂN ĐỘNG PHÒNG THÀNH TỰU (LUXURY MEDAL FOIL)
+           ========================================================= */
+        @keyframes apexMedalFoilSweep { 0%, 72% { transform: translateX(-140%) rotate(25deg); opacity: 0; } 82% { opacity: 0.75; } 92%, 100% { transform: translateX(180%) rotate(25deg); opacity: 0; } }
+        @keyframes apexMasterTrophyFloat { 0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.35)); } 50% { transform: translateY(-3px) scale(1.05); filter: drop-shadow(0 8px 22px rgba(168, 85, 247, 0.65)); } }
+        @keyframes apexTrophyCardStagger { 0% { opacity: 0; transform: translateY(14px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .apex-master-trophy-hex { animation: apexMasterTrophyFloat 3.5s ease-in-out infinite !important; }
+        .hex-icon { position: relative; overflow: hidden; transition: transform 0.32s ease, filter 0.32s ease !important; }
+        .apex-unlocked-medal .hex-icon::after { content: ""; position: absolute; top: -40%; left: -40%; width: 55%; height: 180%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); pointer-events: none; animation: apexMedalFoilSweep 6.5s ease-in-out infinite; animation-delay: var(--foil-delay, 0s); }
+        #trophy-room .phoi-card:hover .hex-icon { transform: translateY(-3px) scale(1.1) rotate(-4deg) !important; filter: drop-shadow(0 6px 16px rgba(168, 85, 247, 0.55)); }
+        #trophy-room .phoi-card:hover .hex-icon i { transform: scale(1.15); transition: transform 0.25s ease; }
+        .apex-trophy-stagger-in { animation: apexTrophyCardStagger 0.42s ease backwards; }
+
+        /* =========================================================
+           5. TỐI ƯU HÓA MOBILE: CHỐNG TRÀN VIỀN & LỖI KẸT HOVER
+           ========================================================= */
+        @media (max-width: 768px) {
+            .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover, .apex-analytics-stat-card:hover, #trophy-room .phoi-card:hover .hex-icon {
+                transform: none !important; border-color: inherit !important; box-shadow: none !important; filter: none !important;
+            }
+            #trophy-room .phoi-card:hover .hex-icon i { transform: none !important; }
+            .phoi-card::before, #dashboard-grid .goal-card::before { display: none !important; }
+            .phoi-orbit-box { transform: scale(0.65) !important; transform-origin: center center !important; margin: 0 auto !important; }
+            .apex-donut-ring { transform: scale(0.9) !important; }
+            .apex-donut-ring:hover { transform: scale(0.9) !important; }
+            .apex-hero-svg-box { transform: scale(0.9); margin-right: 6px !important; }
+            .ft-ring-box { animation: none !important; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important; }
+        }
+    `;
+    document.head.appendChild(st);
+
+    upgradeAllLivingIconsAndWidgets();
+    upgradeAnalyticsLivingAnimations();
+    enhanceFocusAudioEqualizerBars();
+}
+
+function getPlasmaFlameSVGMarkup() {
+    return `
+    <div class="apex-hero-svg-box apex-flame-box" title="Chuỗi kỷ luật rực cháy">
+        <svg class="apex-plasma-svg" viewBox="0 0 24 24" fill="none">
+            <defs><linearGradient id="apexFlameOuterGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="55%" stop-color="#f97316"/><stop offset="100%" stop-color="#e11d48"/></linearGradient><linearGradient id="apexFlameMidGrad" x1="12" y1="6" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs>
+            <circle class="flame-spark1" cx="8.5" cy="5.5" r="1" fill="#fde047"/><circle class="flame-spark2" cx="15.5" cy="4.5" r="0.8" fill="#fb923c"/>
+            <path class="flame-outer" d="M12 2C12 2 6 7.2 6 13.2C6 17.5 8.7 21 12 21C15.3 21 18 17.5 18 13.2C18 10.6 16.7 8.3 15.6 7C15.4 8.7 14.3 9.8 13.5 10.2C14.3 7.5 13.5 4.3 12 2Z" fill="url(#apexFlameOuterGrad)"/>
+            <path class="flame-mid" d="M12 7.5C12 7.5 8.5 10.8 8.5 14.5C8.5 17.2 10.1 19.5 12 19.5C13.9 19.5 15.5 17.2 15.5 14.5C15.5 11.8 12 7.5 12 7.5Z" fill="url(#apexFlameMidGrad)"/>
+            <path class="flame-core" d="M12 12.2C12 12.2 10.2 14.2 10.2 16.2C10.2 17.6 11 18.7 12 18.7C13 18.7 13.8 17.6 13.8 16.2C13.8 14.2 12 12.2 12 12.2Z" fill="#ffffff"/>
+        </svg>
+    </div>`;
+}
+
+function getCosmicHourglassSVGMarkup() {
+    return `
+    <div class="apex-hero-svg-box apex-hourglass-box" title="Thời gian tích lũy">
+        <svg class="apex-hourglass-svg" viewBox="0 0 24 24" fill="none">
+            <path d="M5 3H19M5 21H19" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M7 3V6.5C7 9.2 9.5 11.2 12 12C9.5 12.8 7 14.8 7 17.5V21H17V17.5C17 14.8 14.5 12.8 12 12C14.5 11.2 17 9.2 17 6.5V3H7Z" stroke="#e0f2fe" stroke-width="1.6" fill="rgba(56,189,248,0.10)"/>
+            <path d="M8.8 6.5H15.2C14.7 8.5 13.4 9.8 12 10.4C10.6 9.8 9.3 8.5 8.8 6.5Z" fill="#fbbf24"/>
+            <line class="hg-stream" x1="12" y1="10.8" x2="12" y2="18.5" stroke="#fde047" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M8.5 19.5C9.5 17.5 10.7 16.5 12 16.5C13.3 16.5 14.5 17.5 15.5 19.5H8.5Z" fill="#f59e0b"/>
+        </svg>
+    </div>`;
+}
+
+function getRoyalCrownSVGMarkup() {
+    return `
+    <div class="apex-hero-svg-box apex-crown-box" title="Học hàm hiện tại">
+        <svg class="apex-crown-svg" viewBox="0 0 24 24" fill="none">
+            <defs><linearGradient id="apexCrownGrad" x1="12" y1="4" x2="12" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs>
+            <path d="M3.5 17.5L5.5 8.5L9.8 12.5L12 6.5L14.2 12.5L18.5 8.5L20.5 17.5H3.5Z" fill="url(#apexCrownGrad)" stroke="#fde047" stroke-width="1.2" stroke-linejoin="round"/>
+            <rect x="3.5" y="19" width="17" height="2.2" rx="1.1" fill="#f59e0b"/>
+            <circle class="crown-gem" cx="12" cy="4.2" r="1.5" fill="#ffffff"/>
+            <circle class="crown-gem" cx="5" cy="6.5" r="1.2" fill="#38bdf8"/>
+            <circle class="crown-gem" cx="19" cy="6.5" r="1.2" fill="#f472b6"/>
+        </svg>
+    </div>`;
+}
+
+function getRadarTargetSVGMarkup(isEmerald) {
+    var boxCls = isEmerald ? 'apex-emerald-target-box' : 'apex-target-box';
+    var ringCol = isEmerald ? '#10b981' : '#a855f7';
+    var midCol  = isEmerald ? '#34d399' : '#38bdf8';
+    return `
+    <div class="apex-hero-svg-box ${boxCls}" title="Hiệu suất & Thành tựu">
+        <svg class="apex-target-svg" viewBox="0 0 24 24" fill="none">
+            <circle class="target-ping" cx="12" cy="12" r="8" stroke="${midCol}" stroke-width="1.4"/>
+            <circle cx="12" cy="12" r="8.5" stroke="${ringCol}" stroke-width="1.7"/>
+            <circle cx="12" cy="12" r="4.8" stroke="${midCol}" stroke-width="1.6"/>
+            <circle cx="12" cy="12" r="2" fill="#fbbf24"/>
+        </svg>
+    </div>`;
+}
+
+function getSpinningClockSVGMarkup() {
+    return `
+    <div class="apex-hero-svg-box apex-clock-box" title="Tổng thời gian học tập">
+        <svg class="apex-clock-svg" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.08)"/>
+            <line class="clock-hr-hand" x1="12" y1="12" x2="12" y2="7.5" stroke="#e0f2fe" stroke-width="2" stroke-linecap="round"/>
+            <line class="clock-min-hand" x1="12" y1="12" x2="16" y2="12" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
+        </svg>
+    </div>`;
+}
+
+function upgradeAllLivingIconsAndWidgets() {
+    var miniItems = document.querySelectorAll('.phoi-mini-item');
+    miniItems.forEach(function(item) {
+        var firstSpan = item.querySelector('span:first-child');
+        if (!firstSpan || item.querySelector('.apex-hero-svg-box')) return;
+        var txt = firstSpan.innerText || '';
+        if (txt.includes('🔥')) firstSpan.outerHTML = getPlasmaFlameSVGMarkup();
+        else if (txt.includes('⏱')) firstSpan.outerHTML = getCosmicHourglassSVGMarkup();
+        else if (txt.includes('👑')) firstSpan.outerHTML = getRoyalCrownSVGMarkup();
+        else if (txt.includes('🎯')) firstSpan.outerHTML = getRadarTargetSVGMarkup(false);
+    });
+
+    var heroH1 = document.querySelector('.phoi-hero-left h1');
+    if (heroH1 && heroH1.innerHTML.includes('👋') && !heroH1.querySelector('.apex-waving-hand')) {
+        heroH1.innerHTML = heroH1.innerHTML.replace('👋', '<span class="apex-waving-hand">👋</span>');
+    }
+
+    var bento = document.getElementById('bento-command-center');
+    if (bento) {
+        bento.querySelectorAll('div[style*="linear-gradient(180deg, #38bdf8, #6366f1)"]').forEach(function(bar) { bar.classList.add('apex-7d-bar-fill'); });
+        bento.querySelectorAll('div[style*="height:5px"] > div, div[style*="height:7px"] > div').forEach(function(fill) { fill.classList.add('apex-shimmer-bar'); });
+    }
+
+    var ftStreak = document.getElementById('ft-stat-streak');
+    if (ftStreak && ftStreak.parentElement) {
+        var iconDiv = ftStreak.parentElement.querySelector('div:first-child');
+        if (iconDiv && iconDiv.innerText.includes('🔥') && !iconDiv.querySelector('.apex-hero-svg-box')) {
+            iconDiv.innerHTML = getPlasmaFlameSVGMarkup();
+        }
+    }
+}
+
+function upgradeAnalyticsLivingAnimations() {
+    var room = document.getElementById('analytics-room');
+    if (room && room.style.display !== 'none') {
+        var iconHolders = room.querySelectorAll('div[style*="38px"]');
+        iconHolders.forEach(function(holder) {
+            var parentCard = holder.parentElement;
+            if (parentCard) parentCard.classList.add('apex-analytics-stat-card');
+            var iconEl = holder.querySelector('i');
+            if (!iconEl) return;
+            var cls = iconEl.className || '';
+            if (cls.includes('fa-clock'))           holder.outerHTML = getSpinningClockSVGMarkup();
+            else if (cls.includes('fa-hourglass'))  holder.outerHTML = getCosmicHourglassSVGMarkup();
+            else if (cls.includes('fa-bullseye'))   holder.outerHTML = getRadarTargetSVGMarkup(true);
+            else if (cls.includes('fa-crown'))      holder.outerHTML = getRoyalCrownSVGMarkup();
+            else if (cls.includes('fa-fire'))       holder.outerHTML = getPlasmaFlameSVGMarkup();
+        });
+
+        var barFills = room.querySelectorAll('div[style*="height:130px"] > div, div[style*="height: 130px"] > div');
+        barFills.forEach(function(bar, idx) {
+            bar.classList.add('apex-analytics-bar-fill');
+            bar.style.animationDelay = Math.min(idx * 0.022, 0.55) + 's';
+        });
+
+        var peakBadges = room.querySelectorAll('div[style*="background:#7c3aed"][style*="position:absolute"]');
+        peakBadges.forEach(function(b) { b.classList.add('apex-peak-badge'); });
+
+        var donutEl = room.querySelector('div[style*="conic-gradient"]');
+        if (donutEl) donutEl.classList.add('apex-donut-ring');
+
+        room.querySelectorAll('span[style*="width:8px"][style*="height:8px"][style*="border-radius:50%"]').forEach(function(dot, idx) {
+            dot.classList.add('apex-legend-dot');
+            dot.style.animationDelay = (idx * 0.25) + 's';
+        });
+
+        room.querySelectorAll('div[style*="height:6px"] > div').forEach(function(fill) { fill.classList.add('apex-shimmer-bar'); });
+        room.querySelectorAll('.phoi-row-3col > div').forEach(function(insCard) { insCard.classList.add('apex-analytics-stat-card'); });
+
+        // TỰ ĐỘNG KHÓA VỀ 7 NGÀY & ẨN VĨNH VIỄN CÁC NÚT 30, 90, 365 NGÀY ĐỂ CHỐNG TRÀN MÀN HÌNH
+        var filterBtns = room.querySelectorAll('button, span, div.phoi-pill, div.ft-glass-btn');
+        filterBtns.forEach(function(btn) {
+            var txt = (btn.innerText || '').trim().toLowerCase();
+            if (txt === '30 ngày' || txt === '90 ngày' || txt === '1 năm' || txt === '365 ngày') {
+                btn.style.display = 'none';
+            }
+            if (txt === '7 ngày' && !window._apexHasForced7DaysAnalytics) {
+                window._apexHasForced7DaysAnalytics = true;
+                setTimeout(function() { 
+                    if (typeof btn.click === 'function') btn.click(); 
+                }, 150);
+            }
+        });
+    }
+
+    var trophyRoom = document.getElementById('trophy-room');
+    if (trophyRoom && trophyRoom.style.display !== 'none') {
+        trophyRoom.querySelectorAll('div[style*="height:8px"] > div').forEach(function(fill) { fill.classList.add('apex-shimmer-bar'); });
+        var masterHex = trophyRoom.querySelector('.phoi-card:first-child .hex-icon');
+        if (masterHex) masterHex.classList.add('apex-master-trophy-hex');
+
+        var allTrophyCards = trophyRoom.querySelectorAll('.phoi-card');
+        allTrophyCards.forEach(function(card, idx) {
+            if (idx > 0) {
+                card.classList.remove('apex-trophy-stagger-in');
+                void card.offsetWidth;
+                card.style.animationDelay = Math.min(idx * 0.025, 0.45) + 's';
+                card.classList.add('apex-trophy-stagger-in');
+            }
+            if (card.innerText.includes('Đã đạt') || card.innerText.includes('HOÀN THÀNH 100%')) {
+                card.classList.add('apex-unlocked-medal');
+                var hex = card.querySelector('.hex-icon');
+                if (hex) hex.style.setProperty('--foil-delay', ((idx % 7) * 0.85).toFixed(2) + 's');
+            }
+        });
+    }
+}
+
+function enhanceFocusAudioEqualizerBars() {
+    document.querySelectorAll('.f-amb-card').forEach(function(card) {
+        if (!card.querySelector('.apex-eq-bars')) {
+            var eq = document.createElement('div');
+            eq.className = 'apex-eq-bars';
+            eq.innerHTML = '<span></span><span></span><span></span><span></span>';
+            card.appendChild(eq);
+        }
+    });
+}
+
+var _origRenderBentoV5 = window.renderBentoCommandCenter;
+window.renderBentoCommandCenter = function() {
+    if (typeof _origRenderBentoV5 === 'function') _origRenderBentoV5();
+    upgradeAllLivingIconsAndWidgets();
+};
+
+var _origRenderAnalyticsV5 = window.renderAnalytics;
+window.renderAnalytics = function() {
+    if (typeof _origRenderAnalyticsV5 === 'function') _origRenderAnalyticsV5();
+    upgradeAnalyticsLivingAnimations();
+};
+
+var _origRenderTrophyV5 = window.renderMasterTrophyAndArchive;
+window.renderMasterTrophyAndArchive = function() {
+    if (typeof _origRenderTrophyV5 === 'function') _origRenderTrophyV5();
+    upgradeAnalyticsLivingAnimations();
+};
+window.renderTrophies = window.renderMasterTrophyAndArchive;
+window.renderTrophyRoom = window.renderMasterTrophyAndArchive;
+
+var _origSyncFocusV5 = window.syncFocusRoomData;
+window.syncFocusRoomData = function() {
+    if (typeof _origSyncFocusV5 === 'function') _origSyncFocusV5();
+    upgradeAllLivingIconsAndWidgets();
+    enhanceFocusAudioEqualizerBars();
+};
+
+injectApexMotionEngine();
+setTimeout(injectApexMotionEngine, 350);
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(injectApexMotionEngine, 250);
+});
+
+// =====================================================================
+// 14. BỘ ĐẾM NGƯỢC GIỜ GIỚI NGHIÊM THỜI GIAN THỰC (ALWAYS-ON CURFEW TIMER)
+// =====================================================================
+function initAndRunCurfewCountdown() {
+    // 1. Tìm ô input Giờ giới nghiêm trên Sidebar
+    var curfewInput = document.getElementById('curfew-time')
+                   || document.querySelector('input[type="time"]');
+    if (!curfewInput) return;
+
+    // Đồng bộ giá trị đã lưu từ localStorage nếu ô input đang trống
+    var savedCurfew = localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime');
+    if (savedCurfew && !curfewInput.value) {
+        curfewInput.value = savedCurfew;
+    }
+
+    // 2. Đảm bảo luôn có hộp hiển thị "Còn lại: ..." nằm ngay dưới ô input
+    var badge = document.getElementById('apex-curfew-live-badge');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'apex-curfew-live-badge';
+        badge.style.cssText = [
+            "margin-top: 7px",
+            "padding: 6px 10px",
+            "border-radius: 9px",
+            "font-size: 0.74rem",
+            "font-weight: 700",
+            "display: flex",
+            "align-items: center",
+            "justify-content: space-between",
+            "gap: 6px",
+            "background: rgba(15, 23, 42, 0.65)",
+            "border: 1px solid rgba(56, 189, 248, 0.25)",
+            "color: #bae6fd",
+            "transition: all 0.3s ease"
+        ].join(";");
+
+        // Chèn ngay bên dưới khối chứa input (hoặc ngay sau input)
+        var wrap = curfewInput.closest('.curfew-box, .sidebar-section, div') || curfewInput.parentElement;
+        if (wrap) {
+            wrap.appendChild(badge);
+        } else {
+            curfewInput.insertAdjacentElement('afterend', badge);
+        }
+
+        // Lắng nghe khi người dùng đổi giờ giới nghiêm -> Lưu và cập nhật tức thì
+        curfewInput.addEventListener('change', function() {
+            if (curfewInput.value) {
+                localStorage.setItem('saasCurfewTime', curfewInput.value);
+                localStorage.setItem('curfewTime', curfewInput.value);
+                localStorage.setItem('saasLastUpdated', Date.now());
+                if (typeof syncToCloud === 'function') syncToCloud();
+            }
+            updateCurfewBadgeTick();
+        });
+    }
+
+    // Ẩn các dòng đếm ngược cũ bị lỗi chập chờn (nếu có) để tránh trùng lặp
+    ['curfew-countdown', 'curfew-remaining', 'curfew-timer-text'].forEach(function(oldId) {
+        var oldEl = document.getElementById(oldId);
+        if (oldEl && oldEl !== badge) oldEl.style.display = 'none';
+    });
+
+    updateCurfewBadgeTick();
+}
+
+function updateCurfewBadgeTick() {
+    var curfewInput = document.getElementById('curfew-time')
+                   || document.querySelector('input[type="time"]');
+    var badge = document.getElementById('apex-curfew-live-badge');
+    if (!curfewInput || !badge) return;
+
+    var timeVal = (curfewInput.value || localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime') || "").trim();
+    if (!timeVal || !timeVal.includes(':')) {
+        badge.style.display = 'flex';
+        badge.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+        badge.style.color = '#94a3b8';
+        badge.innerHTML = '<span><i class="fa-regular fa-clock"></i> Trạng thái:</span> <strong>Chưa đặt giờ</strong>';
+        return;
+    }
+
+    var parts = timeVal.split(':');
+    var targetH = parseInt(parts[0], 10);
+    var targetM = parseInt(parts[1], 10);
+    if (isNaN(targetH) || isNaN(targetM)) return;
+
+    var now = new Date();
+    var targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), targetH, targetM, 0, 0);
+
+    var diffMs = targetDate.getTime() - now.getTime();
+
+    // Kiểm tra xem hiện tại có đang trong khung giờ giới nghiêm (từ giờ thiết lập đến 05:00 sáng hôm sau) hay không
+    var isPastCurfewTonight = (diffMs <= 0 && diffMs > -5 * 3600 * 1000);
+    var isEarlyMorningCurfew = false;
+
+    if (diffMs <= -5 * 3600 * 1000) {
+        // Nếu đã qua khung giới nghiêm hơn 5 tiếng (tức là sang ngày mới), tính tới giờ giới nghiêm tối nay
+        targetDate.setDate(targetDate.getDate() + 1);
+        diffMs = targetDate.getTime() - now.getTime();
+    } else if (now.getHours() < 5 && targetH >= 20) {
+        // Trường hợp cài giới nghiêm tối (VD 23:30) mà hiện tại là 00:30 sáng
+        isEarlyMorningCurfew = true;
+    }
+
+    badge.style.display = 'flex';
+
+    if (isPastCurfewTonight || isEarlyMorningCurfew) {
+        badge.style.background = 'rgba(225, 29, 72, 0.18)';
+        badge.style.borderColor = 'rgba(244, 63, 94, 0.55)';
+        badge.style.color = '#fda4af';
+        badge.innerHTML = '<span><i class="fa-solid fa-moon fa-beat-fade" style="color:#f43f5e;"></i> Đã tới giờ nghỉ</span> <strong>GIỚI NGHIÊM</strong>';
+        return;
+    }
+
+    var totalSec = Math.max(0, Math.floor(diffMs / 1000));
+    var hrs  = Math.floor(totalSec / 3600);
+    var mins = Math.floor((totalSec % 3600) / 60);
+    var secs = totalSec % 60;
+
+    var timeFormatted = (hrs > 0 ? (hrs + 'g ') : '') +
+                        String(mins).padStart(2, '0') + 'p ' +
+                        String(secs).padStart(2, '0') + 's';
+
+    // Đổi màu cảnh báo khi còn dưới 60 phút
+    if (totalSec <= 3600) {
+        badge.style.background = 'rgba(245, 158, 11, 0.16)';
+        badge.style.borderColor = 'rgba(251, 191, 36, 0.5)';
+        badge.style.color = '#fde68a';
+        badge.innerHTML = '<span><i class="fa-solid fa-hourglass-half fa-spin" style="color:#fbbf24; --fa-animation-duration:4s;"></i> Sắp tới giờ:</span> <strong style="color:#fef08a; font-variant-numeric:tabular-nums;">' + timeFormatted + '</strong>';
+    } else {
+        badge.style.background = 'rgba(15, 23, 42, 0.65)';
+        badge.style.borderColor = 'rgba(56, 189, 248, 0.28)';
+        badge.style.color = '#cbd5e1';
+        badge.innerHTML = '<span><i class="fa-regular fa-clock" style="color:#38bdf8;"></i> Còn lại:</span> <strong style="color:#38bdf8; font-variant-numeric:tabular-nums;">' + timeFormatted + '</strong>';
+    }
+}
+
+initAndRunCurfewCountdown();
+if (!window._apexCurfewInterval) {
+    window._apexCurfewInterval = setInterval(initAndRunCurfewCountdown, 1000);
+}
+window.addEventListener('DOMContentLoaded', initAndRunCurfewCountdown);
+
+// =====================================================================
+// 15. HIỆU ỨNG KHUNG TRÒN XOAY VÔ CỰC (INFINITE RADAR SPIN)
+// =====================================================================
+(function injectInfiniteCircleAnimations() {
+    var st = document.createElement('style');
+    st.innerHTML = `
+        /* Động cơ xoay vô cực cơ bản */
+        @keyframes apexInfiniteSpin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 1. Vòng tròn % Tiến độ Mục tiêu (Dashboard) - Xoay chậm như Radar */
+        .progress-circle svg {
+            animation: apexInfiniteSpin 20s linear infinite !important;
+            transform-origin: center center;
+        }
+
+        /* 2. Biểu đồ Tròn Donut (Trang Phân tích) - Vừa đập nhịp thở vừa xoay liên tục */
+        @keyframes apexDonutHaloSpin {
+            0%   { transform: rotate(0deg) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
+            50%  { transform: rotate(180deg) scale(1.04); box-shadow: 0 0 36px rgba(168, 85, 247, 0.55), 0 0 60px rgba(56, 189, 248, 0.26); }
+            100% { transform: rotate(360deg) scale(1); box-shadow: 0 0 22px rgba(168, 85, 247, 0.28), 0 0 40px rgba(56, 189, 248, 0.12); }
+        }
+        .apex-donut-ring {
+            animation: apexDonutHaloSpin 15s linear infinite !important;
+            transform-origin: center center;
+        }
+
+        /* 3. Vòng tròn Focus Room - Bắt đầu từ -90 độ để thanh nối không bị lệch gốc */
+        @keyframes apexInfiniteSpinFocus {
+            0%   { transform: rotate(-90deg); }
+            100% { transform: rotate(270deg); }
+        }
+        .ft-ring-box > svg {
+            animation: apexInfiniteSpinFocus 20s linear infinite !important;
+            transform-origin: center center;
+        }
+
+        /* 4. Viền Avatar (Ảnh đại diện) - Ánh sáng luân chuyển chạy quanh viền */
+        @keyframes apexAvatarGlowSpin {
+            0%   { box-shadow: -6px -6px 12px rgba(168,85,247,0.5), 6px 6px 12px rgba(56,189,248,0.5); }
+            25%  { box-shadow: 6px -6px 12px rgba(168,85,247,0.5), -6px 6px 12px rgba(56,189,248,0.5); }
+            50%  { box-shadow: 6px 6px 12px rgba(168,85,247,0.5), -6px -6px 12px rgba(56,189,248,0.5); }
+            75%  { box-shadow: -6px 6px 12px rgba(168,85,247,0.5), 6px -6px 12px rgba(56,189,248,0.5); }
+            100% { box-shadow: -6px -6px 12px rgba(168,85,247,0.5), 6px 6px 12px rgba(56,189,248,0.5); }
+        }
+        #user-auth-badge img {
+            animation: apexAvatarGlowSpin 3s linear infinite !important;
+        }
+    `;
+    document.head.appendChild(st);
+})();
+
+// =====================================================================
+// 17. ĐẠI DI DỜI: BỘ 3 WIDGET COMPACT & TRANG MỤC TIÊU RIÊNG BIỆT
+// =====================================================================
+
+// [A] VẼ 3 THẺ COMPACT TRÊN ĐỈNH BẢNG ĐIỀU KHIỂN
+function renderCompactTopWidgets() {
+    let dash = document.getElementById('view-dashboard');
+    if (!dash) return;
+    
+    // Tạo vùng chứa 3 thẻ nằm ngang
+    let topContainer = document.getElementById('apex-top-widgets');
+    if (!topContainer) {
+        topContainer = document.createElement('div');
+        topContainer.id = 'apex-top-widgets';
+        topContainer.style.cssText = "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px;";
+        
+        let bento = document.getElementById('bento-command-center');
+        if (bento) dash.insertBefore(topContainer, bento);
+        else dash.insertBefore(topContainer, dash.firstChild);
+    }
+    topContainer.innerHTML = ''; // Xóa cũ vẽ mới
+
+    // 1. THẺ THIẾT QUÂN LUẬT
+    let weekSum = getTotalCycleHours();
+    let kpiTarget = getWeeklyTarget();
+    let kpiPct = Math.min(100, Math.round((weekSum / kpiTarget) * 100));
+    let kpiHtml = `
+        <div class="phoi-card" style="padding:16px !important; border:1px solid rgba(20,184,166,0.3) !important; min-height:115px; display:flex; flex-direction:column; justify-content:center;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Thiết Quân Luật</span>
+                <strong style="font-size:1.15rem; color:#fff;">${weekSum.toFixed(1)} / ${kpiTarget}h</strong>
+            </div>
+            <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:10px;">
+                <div style="height:100%; width:${kpiPct}%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"></div>
+            </div>
+            <div style="font-size:0.7rem; color:#94a3b8;">${weekSum >= kpiTarget ? '<span style="color:#10b981;">Đã đạt định mức an toàn.</span>' : `Cần duy trì <b>${((kpiTarget-weekSum)/Math.max(1, 7 - new Date().getDay())).toFixed(1)}h/ngày</b> để về đích.`}</div>
+        </div>`;
+
+    // 2. THẺ ĐIỀU PHỐI AI
+    let qInfo = typeof getTodayDispatchQuotaInfo === 'function' ? getTodayDispatchQuotaInfo() : {doneHrs:0, requiredHrs:1};
+    let statusColor = "#10b981"; let statusText = `Sẵn sàng (${qInfo.doneHrs.toFixed(1)}h / ${qInfo.requiredHrs}h)`;
+    if (typeof isCurfewActive === 'function' && isCurfewActive()) { statusColor = "#64748b"; statusText = "Ngưng phát (Giới nghiêm)"; }
+    else if (typeof dispatchRate !== 'undefined' && dispatchRate < 50) { statusColor = "#ef4444"; statusText = "Bị phạt (Ép buộc)"; }
+    
+    let dispatchHtml = `
+        <div class="phoi-card" style="padding:16px !important; border:1px solid rgba(255,255,255,0.08) !important; border-left:3px solid ${statusColor} !important; min-height:115px; display:flex; flex-direction:column; justify-content:center;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-satellite-dish" style="color:${statusColor}; margin-right:6px;"></i>Điều Phối AI</span>
+                <span style="font-size:0.7rem; color:var(--text-muted);">Hiệu suất: <strong style="color:${statusColor}; font-size:0.85rem;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong></span>
+            </div>
+            <div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:10px;">${statusText}</div>
+            <div style="display:flex; gap:8px;">
+                <button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer; transition:0.2s;">Nghỉ ngơi</button>
+                <button onclick="triggerDispatchPing(true)" style="flex:1; background:var(--brand-focus); border:none; color:#fff; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhận lệnh</button>
+            </div>
+        </div>`;
+
+    // 3. THẺ ĐẾM NGƯỢC
+    let cdHtml = "";
+    let list = (typeof countdowns !== 'undefined' && Array.isArray(countdowns)) ? countdowns : (JSON.parse(localStorage.getItem('saasCountdownsPro')) || []);
+    if (list.length > 0) {
+        let cd = list[0];
+        cdHtml = `
+        <div class="phoi-card apex-live-cd-card" data-target-ms="${new Date(cd.date).getTime()}" style="padding:16px !important; border:1px solid rgba(168,85,247,0.3) !important; background:linear-gradient(135deg, rgba(168,85,247,0.1), transparent); min-height:115px; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:0.75rem; font-weight:800; color:#c084fc; margin-bottom:6px;"><i class="fa-solid fa-hourglass-half"></i> SỰ KIỆN LỚN</div>
+            <div style="font-size:1rem; font-weight:800; color:#fff; margin-bottom:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cd.name}</div>
+            <div style="display:flex; justify-content:space-between; gap:6px;">
+                <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-d" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">NGÀY</span></div>
+                <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-h" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">GIỜ</span></div>
+                <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-m" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">PHÚT</span></div>
+            </div>
+        </div>`;
+    } else {
+        cdHtml = `<div class="phoi-card" style="padding:16px !important; border:1px dashed rgba(255,255,255,0.1) !important; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:0.8rem; cursor:pointer;" onclick="switchTab('goals')">+ Thêm sự kiện đếm ngược</div>`;
+    }
+
+    topContainer.innerHTML = kpiHtml + dispatchHtml + cdHtml;
+    if (typeof updateCountdownTicks === 'function') updateCountdownTicks();
+}
+
+// =====================================================================
+// BẢN NÂNG CẤP TRANG MỤC TIÊU - HUY HIỆU VƯƠNG MIỆN HOÀNG GIA
+// =====================================================================
+window.renderGoalsDedicated = function(filterType = 'all') {
+    let viewGoals = document.getElementById('view-goals');
+    if (!viewGoals) return;
+
+    let allGoals = typeof goals !== 'undefined' ? goals : [];
+    
+    // 1. Tính toán các chỉ số cho thanh Hero Banner
+    let totalGoals = allGoals.length;
+    let activeGoalsCount = allGoals.filter(g => g.current > 0).length;
+    let completedGoalsCount = allGoals.filter(g => g.current <= 0).length;
+    let aheadGoalsCount = allGoals.filter(g => {
+        if (!g.deadline || g.current <= 0) return false;
+        let todayTime = new Date().getTime();
+        let deadlineTime = new Date(g.deadline).getTime();
+        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : todayTime - 86400000;
+        let daysElapsed = Math.max(1, Math.ceil((todayTime - createdTime) / (1000 * 3600 * 24)));
+        let daysLeftToDeadline = Math.ceil((deadlineTime - todayTime) / (1000 * 3600 * 24));
+        let currentPace = (g.target - g.current) / daysElapsed;
+        let requiredPace = daysLeftToDeadline > 0 ? (g.current / daysLeftToDeadline) : g.current;
+        return currentPace > requiredPace * 1.2;
+    }).length;
+    let warningGoalsCount = allGoals.filter(g => {
+        if (!g.deadline || g.current <= 0) return false;
+        let todayTime = new Date().getTime();
+        let deadlineTime = new Date(g.deadline).getTime();
+        let createdTime = g.createdAt ? new Date(g.createdAt).getTime() : todayTime - 86400000;
+        let daysElapsed = Math.max(1, Math.ceil((todayTime - createdTime) / (1000 * 3600 * 24)));
+        let daysLeftToDeadline = Math.ceil((deadlineTime - todayTime) / (1000 * 3600 * 24));
+        let currentPace = (g.target - g.current) / daysElapsed;
+        let requiredPace = daysLeftToDeadline > 0 ? (g.current / daysLeftToDeadline) : g.current;
+        return currentPace < requiredPace * 0.7;
+    }).length;
+
+    // 2. Lọc mục tiêu
+    let displayGoals = allGoals;
+    if (filterType === 'active') displayGoals = allGoals.filter(g => g.current > 0);
+    else if (filterType === 'completed') displayGoals = allGoals.filter(g => g.current <= 0);
+
+    // 3. Xây dựng HTML
+    let html = `
+        <style>
+            .apex-goals-header-bg {
+                background: linear-gradient(180deg, rgba(16, 21, 38, 0.4) 0%, rgba(10, 14, 26, 0.9) 100%), url('https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+                border-radius: 20px; padding: 30px; margin-bottom: 24px;
+                border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }
+            .apex-goals-stats-row { display: flex; gap: 30px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); }
+            .apex-goal-stat-item { display: flex; flex-direction: column; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 30px; }
+            .apex-goal-stat-item:last-child { border-right: none; padding-right: 0; }
+            .apex-goal-stat-val { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+            .apex-goal-stat-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+            
+            .apex-goals-filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+            .apex-filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 8px 16px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+            .apex-filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+            .apex-filter-btn.active { background: linear-gradient(135deg, #7c3aed, #4f46e5); border-color: #a855f7; color: #fff; box-shadow: 0 0 15px rgba(124,58,237,0.4); }
+
+            .apex-enhanced-goal-card {
+                position: relative; border-radius: 16px; overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.08); background: #101526;
+                transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+                cursor: pointer; min-height: 180px; display: flex; flex-direction: column;
+            }
+            .apex-enhanced-goal-card:hover { transform: translateY(-4px); border-color: rgba(168,85,247,0.4); box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 20px rgba(168,85,247,0.15); }
+            .apex-card-bg-layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.4; z-index: 0; mix-blend-mode: luminosity; transition: opacity 0.3s, transform 3s ease-out; }
+            .apex-enhanced-goal-card:hover .apex-card-bg-layer { opacity: 0.6; transform: scale(1.05); }
+            .apex-card-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(16,21,38,1) 0%, rgba(16,21,38,0.85) 45%, rgba(16,21,38,0.3) 100%); z-index: 1; }
+            .apex-card-content { position: relative; z-index: 2; padding: 16px; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+            
+            /* TIMELINE FIX TRÀN LỀ & HUY HIỆU VƯƠNG MIỆN */
+            .apex-card-timeline { margin-top: auto; position: relative; padding-top: 15px; padding-bottom: 5px; }
+            .apex-timeline-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; margin: 0 22px 0 12px; }
+            .apex-timeline-fill { position: absolute; top: 0; left: 0; bottom: 0; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 4px; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
+            .apex-timeline-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: #101526; border: 2px solid rgba(255,255,255,0.3); }
+            .apex-timeline-marker.passed { border-color: #a855f7; background: #c084fc; }
+            .apex-timeline-label { position: absolute; top: 12px; transform: translateX(-50%); font-size: 0.62rem; color: #94a3b8; font-weight: 700; white-space: nowrap; }
+        </style>
+
+        <div class="apex-goals-header-bg">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h2 style="font-size: 2.2rem; font-weight: 900; color: #fff; margin: 0 0 8px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-bullseye" style="color: #f43f5e; margin-right: 12px;"></i>Quản Lý Mục Tiêu</h2>
+                    <div style="font-size: 1rem; color: #cbd5e1; text-shadow: 0 1px 5px rgba(0,0,0,0.5);">Chia nhỏ tham vọng. Lên lịch chinh phục.</div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="createNewCountdown()" style="background: rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.5); color: #e9d5ff; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px);"><i class="fa-solid fa-hourglass-start"></i> Đếm ngược</button>
+                    <button onclick="createNewGoal()" style="background: rgba(56,189,248,0.2); border:1px solid rgba(56,189,248,0.5); color: #bae6fd; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px);"><i class="fa-solid fa-plus"></i> Mục tiêu mới</button>
+                </div>
+            </div>
+            
+            <div class="apex-goals-stats-row">
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fff;">${totalGoals}</div><div class="apex-goal-stat-label">Tổng mục tiêu</div></div>
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #34d399;">${activeGoalsCount}</div><div class="apex-goal-stat-label">Đang thực hiện</div></div>
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #38bdf8;">${aheadGoalsCount}</div><div class="apex-goal-stat-label">Vượt tiến độ</div></div>
+                <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fbbf24;">${warningGoalsCount}</div><div class="apex-goal-stat-label">Cần chú ý</div></div>
+                <div style="margin-left: auto; align-self: center; max-width: 250px; font-style: italic; color: #cbd5e1; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 16px;">
+                    "Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai."<br>
+                    <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; font-style: normal; margin-top: 4px; display: block;">— ACADEMIC APEX</span>
+                </div>
+            </div>
+        </div>
+
         <div class="apex-goals-filter-bar">
             <div style="display:flex; gap:8px; flex-wrap: wrap;">
                 <button class="apex-filter-btn ${filterType === 'all' ? 'active' : ''}" onclick="renderGoalsDedicated('all')">Tất cả (${totalGoals})</button>
-                <button class="apex-filter-btn ${filterType === 'active' ? 'active' : ''}" onclick="renderGoalsDedicated('active')">Đang thực hiện (${activeG})</button>
-                <button class="apex-filter-btn ${filterType === 'completed' ? 'active' : ''}" onclick="renderGoalsDedicated('completed')">Hoàn thành (${compG})</button>
+                <button class="apex-filter-btn ${filterType === 'active' ? 'active' : ''}" onclick="renderGoalsDedicated('active')">Đang thực hiện (${activeGoalsCount})</button>
+                <button class="apex-filter-btn ${filterType === 'completed' ? 'active' : ''}" onclick="renderGoalsDedicated('completed')">Hoàn thành (${completedGoalsCount})</button>
             </div>
         </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px;">
     `;
 
     if (displayGoals.length === 0) { 
-        html += '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8; font-size: 1rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">Không tìm thấy mục tiêu nào.</div>'; 
+        html += '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8; font-size: 1rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">Không tìm thấy mục tiêu nào trong mục này.</div>'; 
     } else {
-        const bgImgs = [
-            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=800&q=80',
-            'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80', 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80',
+        const bgImages = [
+            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+            'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=800&q=80',
+            'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+            'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80',
             'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80'
         ];
-        displayGoals.forEach((goal, i) => {
-            let targetH = Number(goal.target || 1), currentH = Number(goal.current || 0);
-            let hrsDone = Math.max(0, targetH - currentH);
-            let pct = Math.min(100, Math.max(0, (hrsDone / targetH) * 100)); 
-            let offset = 226.19 - (pct / 100) * 226.19; 
-            let bgUrl = bgImgs[i % bgImgs.length];
+
+        displayGoals.forEach((goal, index) => {
+            const targetH = Number(goal.target || 1);
+            const currentH = Number(goal.current || 0);
+            const hrsDone = Math.max(0, targetH - currentH);
+            const pct = Math.min(100, Math.max(0, (hrsDone / targetH) * 100)); 
+            const offset = 226.19 - (pct / 100) * 226.19; 
+            
+            let bgUrl = bgImages[index % bgImages.length];
             let q1 = targetH * 0.25, q2 = targetH * 0.5, q3 = targetH * 0.75;
             
-            // Xử lý chống tràn viền & Huy hiệu vương miện
-            let finalMarker = hrsDone >= targetH 
-                ? `<div style="position: absolute; left: 100%; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 12px rgba(251, 191, 36, 0.8); border: 2px solid #fff; z-index: 5;"><i class="fa-solid fa-crown" style="color: #78350f; font-size: 0.65rem; margin-top:-1px;"></i><div class="apex-timeline-label" style="transform: translateX(-70%); top: 18px; color: #fbbf24; font-weight: 900;">Hoàn thành</div></div>` 
-                : `<div class="apex-timeline-marker" style="left: 100%;"><div class="apex-timeline-label" style="transform: translateX(-70%);">Hoàn thành</div></div>`;
+            // Xây dựng Huy hiệu Điểm Cuối (Final Marker)
+            let finalMarker = '';
+            if (hrsDone >= targetH) {
+                // Đạt 100%: Thay bằng Huy hiệu mạ vàng có vương miện bên trong
+                finalMarker = `
+                <div style="position: absolute; left: 100%; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 12px rgba(251, 191, 36, 0.8); border: 2px solid #fff; z-index: 5;">
+                    <i class="fa-solid fa-crown" style="color: #78350f; font-size: 0.65rem; margin-top: -1px;"></i>
+                    <div class="apex-timeline-label" style="transform: translateX(-70%); top: 18px; color: #fbbf24; font-weight: 900;">Hoàn thành</div>
+                </div>`;
+            } else {
+                // Chưa đạt 100%: Chấm tròn bình thường
+                finalMarker = `
+                <div class="apex-timeline-marker" style="left: 100%;">
+                    <div class="apex-timeline-label" style="transform: translateX(-70%);">Hoàn thành</div>
+                </div>`;
+            }
             
             html += `
-            <div class="apex-enhanced-goal-card stagger-item" style="animation-delay: ${i * 0.05}s;" onclick="openGoal(${goal.id})">
+            <div class="apex-enhanced-goal-card stagger-item" style="animation-delay: ${index * 0.05}s;" onclick="openGoal(${goal.id})">
                 <div class="apex-card-bg-layer" style="background-image: url('${bgUrl}');"></div>
                 <div class="apex-card-overlay"></div>
+                
                 <div class="apex-card-content">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div style="display:flex; gap:16px; align-items:center; width: 100%;">
-                            <div style="position:absolute; top:-1px; left:16px; background:linear-gradient(180deg, #6366f1, #4338ca); color:#fff; font-size:0.65rem; font-weight:800; padding:4px 8px 6px 8px; border-radius:0 0 6px 6px;">#${i + 1}</div>
+                            <div style="position:absolute; top:-1px; left:16px; background:linear-gradient(180deg, #6366f1, #4338ca); color:#fff; font-size:0.65rem; font-weight:800; padding:4px 8px 6px 8px; border-radius:0 0 6px 6px; box-shadow:0 4px 10px rgba(99,102,241,0.5);">#${index + 1}</div>
+                            
                             <div style="position:relative; width:54px; height:54px; margin-top:12px; flex-shrink:0;">
-                                <svg viewBox="0 0 85 85" style="transform:rotate(-90deg); width:100%; height:100%;"><circle cx="42.5" cy="42.5" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"></circle><circle cx="42.5" cy="42.5" r="36" fill="none" stroke="${pct >= 100 ? '#10b981' : '#f43f5e'}" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.19" stroke-dashoffset="${offset}"></circle></svg>
+                                <svg viewBox="0 0 85 85" style="transform:rotate(-90deg); width:100%; height:100%;">
+                                    <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"></circle>
+                                    <circle cx="42.5" cy="42.5" r="36" fill="none" stroke="${pct >= 100 ? '#10b981' : '#f43f5e'}" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.19" stroke-dashoffset="${offset}"></circle>
+                                </svg>
                                 <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; color:#fff;">${pct.toFixed(0)}%</div>
                             </div>
+                            
                             <div style="margin-top:12px; min-width:0; padding-right:85px;">
                                 <h3 style="margin:0 0 4px 0; font-size:1.05rem; color:#fff; font-weight:800; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis; line-height:1.3;" title="${goal.name}">${goal.name}</h3>
                                 <div style="font-size:0.75rem; color:#cbd5e1;">Đã cày: <strong style="color:#fff;">${hrsDone.toFixed(1)}h</strong> / ${targetH.toFixed(1)}h</div>
                             </div>
                         </div>
+                        
                         <div style="position:absolute; right:16px; top:16px; display:flex; gap:6px; z-index:10;">
-                            <button title="Lộ trình" onclick="event.stopPropagation(); openGoalDetailModal(${goal.id}, 'overview')" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer;"><i class="fa-solid fa-route"></i></button>
-                            <button title="Xóa" onclick="event.stopPropagation(); deleteGoal(event, ${goal.id})" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                            <button title="Lộ trình" onclick="event.stopPropagation(); openGoalDetailModal(${goal.id}, 'overview')" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-route"></i></button>
+                            <button title="Xóa" onclick="event.stopPropagation(); deleteGoal(event, ${goal.id})" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(244,63,94,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-trash-can"></i></button>
+                            <button title="Tùy chọn" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:0.75rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-ellipsis"></i></button>
                         </div>
                     </div>
+                    
                     <div class="apex-card-timeline">
                         <div class="apex-timeline-track">
                             <div class="apex-timeline-fill" style="width: ${pct}%;"></div>
@@ -5909,815 +9673,168 @@ window.renderGoalsDedicated = function(filterType = 'all') {
     }
     html += `</div>`;
     viewGoals.innerHTML = html;
-};
-
-// 7. COMPACT WIDGETS
-function renderCompactTopWidgets() {
-    let dash = document.getElementById('view-dashboard'); if (!dash) return;
-    let topContainer = document.getElementById('apex-top-widgets');
-    if (!topContainer) {
-        topContainer = document.createElement('div'); topContainer.id = 'apex-top-widgets'; topContainer.style.cssText = "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px;";
-        let bento = document.getElementById('bento-command-center');
-        if (bento) dash.insertBefore(topContainer, bento); else dash.insertBefore(topContainer, dash.firstChild);
-    }
-    topContainer.innerHTML = ''; 
-
-    let weekSum = typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0, kpiTarget = typeof getWeeklyTarget === 'function' ? getWeeklyTarget() : 5;
-    let kpiPct = Math.min(100, Math.round((weekSum / Math.max(1, kpiTarget)) * 100));
-    let kpiHtml = `<div class="phoi-card" style="padding:16px !important; border:1px solid rgba(20,184,166,0.3) !important; min-height:115px; display:flex; flex-direction:column; justify-content:center;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Thiết Quân Luật</span><strong style="font-size:1.15rem; color:#fff;">${weekSum.toFixed(1)} / ${kpiTarget}h</strong></div><div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:10px;"><div style="height:100%; width:${kpiPct}%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"></div></div><div style="font-size:0.7rem; color:#94a3b8;">${weekSum >= kpiTarget ? '<span style="color:#10b981;">Đạt an toàn.</span>' : `Cần duy trì <b>${((kpiTarget-weekSum)/Math.max(1, 7 - new Date().getDay())).toFixed(1)}h/ngày</b>.`}</div></div>`;
-    
-    let dispatchHtml = `<div class="phoi-card" style="padding:16px !important; border:1px solid rgba(255,255,255,0.08) !important; border-left:3px solid #10b981 !important; min-height:115px; display:flex; flex-direction:column; justify-content:center;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-satellite-dish" style="color:#10b981; margin-right:6px;"></i>Điều Phối AI</span><span style="font-size:0.7rem; color:var(--text-muted);">Hiệu suất: <strong style="color:#10b981; font-size:0.85rem;">100%</strong></span></div><div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:10px;">Sẵn sàng điều phối</div><div style="display:flex; gap:8px;"><button style="flex:1; background:var(--brand-focus); border:none; color:#fff; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer;"><i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhận lệnh</button></div></div>`;
-
-    let cdList = (typeof countdowns !== 'undefined' && Array.isArray(countdowns)) ? countdowns : (JSON.parse(localStorage.getItem('saasCountdownsPro')) || []);
-    let cdHtml = cdList.length > 0 ? `<div class="phoi-card apex-live-cd-card" data-target-ms="${new Date(cdList[0].date).getTime()}" style="padding:16px !important; border:1px solid rgba(168,85,247,0.3) !important; background:linear-gradient(135deg, rgba(168,85,247,0.1), transparent); min-height:115px; display:flex; flex-direction:column; justify-content:center;"><div style="font-size:0.75rem; font-weight:800; color:#c084fc; margin-bottom:6px;"><i class="fa-solid fa-hourglass-half"></i> SỰ KIỆN LỚN</div><div style="font-size:1rem; font-weight:800; color:#fff; margin-bottom:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cdList[0].name}</div><div style="display:flex; justify-content:space-between; gap:6px;"><div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-d" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">NGÀY</span></div><div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-h" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">GIỜ</span></div><div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-m" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">PHÚT</span></div></div></div>` : `<div class="phoi-card" style="padding:16px !important; border:1px dashed rgba(255,255,255,0.1) !important; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:0.8rem; cursor:pointer;" onclick="switchTab('goals')">+ Thêm sự kiện đếm ngược</div>`;
-
-    topContainer.innerHTML = kpiHtml + dispatchHtml + cdHtml;
-    if (typeof updateCountdownTicks === 'function') updateCountdownTicks();
 }
 
-// 8. RENDER BẢNG ĐIỀU KHIỂN CHÍNH
+// [C] ĐÈ LÊN HÀM RENDER DASHBOARD (Xóa rác cũ & Gọi 3 thẻ Compact)
 window.renderDashboard = function() {
-    let dash = document.getElementById('view-dashboard'); if (!dash) return;
-    ['dashboard-grid', 'countdown-strip', 'dispatch-status-widget', 'restored-kpi-card'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    let dash = document.getElementById('view-dashboard');
+    if (!dash) return;
+    
+    // Ẩn tất cả các tàn dư cũ rườm rà
+    ['dashboard-grid', 'countdown-strip', 'dispatch-status-widget', 'restored-kpi-card'].forEach(id => {
+        let el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    
+    // Xóa khối "Tiến độ các mục tiêu" dưới đáy Bảng điều khiển nếu còn sót lại
     let bento = document.getElementById('bento-command-center');
-    if (bento) { bento.querySelectorAll('.phoi-card-title').forEach(t => { if (t.innerText.includes('Tiến độ các mục tiêu')) { let card = t.closest('.phoi-card'); if (card) card.style.display = 'none'; } }); }
+    if (bento) {
+        let titles = bento.querySelectorAll('.phoi-card-title');
+        titles.forEach(t => {
+            if (t.innerText.includes('Tiến độ các mục tiêu')) {
+                let card = t.closest('.phoi-card');
+                if (card) card.style.display = 'none';
+            }
+        });
+    }
+
     renderCompactTopWidgets();
     if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter();
 };
 
-// 9. CHUYỂN TAB VÀ ĐIỀU HƯỚNG CÁC PHÒNG
+// [D] HỆ THỐNG ĐỊNH TUYẾN TAB HOÀN CHỈNH
 window.switchTab = function(tabName) {
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    ['view-dashboard', 'view-goals', 'analytics-room', 'trophy-room', 'trophy-detail', 'timetable-room'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; });
-    let sb = document.getElementById('sidebar'); if(sb) sb.classList.remove('active');
-    let mo = document.getElementById('mobile-overlay'); if(mo) mo.classList.remove('active');
+    if (typeof isPendingTax !== 'undefined' && (isPendingTax || dailyDebtMinutes > 0)) {
+        console.log("Hệ thống phong tỏa, cần nộp phạt.");
+        return;
+    }
 
+    // Tắt tất cả các view hiện tại
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    ['view-dashboard', 'view-goals', 'analytics-room', 'trophy-room', 'trophy-detail', 'timetable-room'].forEach(id => {
+        let el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    
+    document.getElementById('sidebar').classList.remove('active'); 
+    document.getElementById('mobile-overlay').classList.remove('active');
+
+    // Mở View tương ứng
     if (tabName === 'dashboard') {
-        let navDash = document.getElementById('nav-dash'); if (navDash) navDash.classList.add('active'); 
-        let dashView = document.getElementById('view-dashboard'); if(dashView) dashView.style.display = 'block';
-        let titleEl = document.getElementById('main-title'); if(titleEl) titleEl.innerText = "Tổng quan học tập"; 
-        let descEl = document.getElementById('main-desc'); if(descEl) descEl.innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
+        let navDash = document.getElementById('nav-dash');
+        if (navDash) navDash.classList.add('active'); 
+        document.getElementById('view-dashboard').style.display = 'block';
+        document.getElementById('main-title').innerText = "Tổng quan học tập"; 
+        document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
         renderDashboard();
     } 
     else if (tabName === 'goals') {
-        let navGoals = document.getElementById('nav-goals'); if (navGoals) navGoals.classList.add('active');
-        let vg = ensureGoalsViewDOM(); vg.style.display = 'block';
-        let titleEl = document.getElementById('main-title'); if(titleEl) titleEl.innerText = "Mục Tiêu & Lộ Trình";
-        let descEl = document.getElementById('main-desc'); if(descEl) descEl.innerText = "Không gian quản lý mục tiêu chuyên biệt.";
-        renderGoalsDedicated(window.currentGoalFilter || 'all');
+        let navGoals = document.getElementById('nav-goals');
+        if (navGoals) navGoals.classList.add('active');
+        let vg = document.getElementById('view-goals');
+        if(vg) vg.style.display = 'block';
+        document.getElementById('main-title').innerText = "Mục Tiêu & Lộ Trình";
+        document.getElementById('main-desc').innerText = "Không gian quản lý mục tiêu chuyên biệt.";
+        renderGoalsDedicated();
     }
     else if (tabName === 'analytics') {
-        let navAn = document.getElementById('nav-analytics'); if (navAn) navAn.classList.add('active'); 
-        let anView = document.getElementById('analytics-room'); if(anView) anView.style.display = 'block';
-        let titleEl = document.getElementById('main-title'); if(titleEl) titleEl.innerText = "Phân tích Kỷ luật"; 
+        let navAn = document.getElementById('nav-analytics');
+        if (navAn) navAn.classList.add('active'); 
+        document.getElementById('analytics-room').style.display = 'block';
+        document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; 
+        document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
         if (typeof renderAnalytics === 'function') renderAnalytics();
     } 
     else if (tabName === 'trophy') {
-        let navTr = document.getElementById('nav-trophy'); if (navTr) navTr.classList.add('active'); 
-        let trView = document.getElementById('trophy-room'); if(trView) trView.style.display = 'block';
-        let titleEl = document.getElementById('main-title'); if(titleEl) titleEl.innerText = "Lịch Sử Học Tập"; 
-        if (typeof renderMasterTrophyAndArchive === 'function') renderMasterTrophyAndArchive();
+        let navTr = document.getElementById('nav-trophy');
+        if (navTr) navTr.classList.add('active'); 
+        document.getElementById('trophy-room').style.display = 'block';
+        document.getElementById('main-title').innerText = "Lịch Sử Học Tập"; 
+        document.getElementById('main-desc').innerText = "Nơi lưu trữ các mục tiêu đã hoàn thành.";
+        if (typeof renderTrophyRoom === 'function') renderTrophyRoom();
     } 
     else if (tabName === 'timetable') {
-        let navTt = document.getElementById('nav-timetable'); if (navTt) navTt.classList.add('active');
-        let ttView = document.getElementById('timetable-room'); if(ttView) ttView.style.display = 'block';
-        let titleEl = document.getElementById('main-title'); if(titleEl) titleEl.innerText = "Thời Khóa Biểu"; 
+        let navTt = document.getElementById('nav-timetable');
+        if(navTt) navTt.classList.add('active');
+        let tt = document.getElementById('timetable-room');
+        if(tt) tt.style.display = 'block';
+        document.getElementById('main-title').innerText = "Thời Khóa Biểu"; 
+        document.getElementById('main-desc').innerText = "Sắp xếp chiến lược. Tối ưu thời gian.";
         if (typeof renderTimetable === 'function') renderTimetable();
-        setTimeout(injectAiTimetableToolbar, 50);
     }
 };
 
-// 10. MỞ KHÓA LỖI FOCUS ROOM (GẮN QUAY LẠI, HỦY VÀ BẮT ĐẦU)
-window.backToDashboard = function() {
-    let fr = document.getElementById('focus-room'); if (fr) fr.style.display = 'none';
-    let mc = document.querySelector('.main-content'); if (mc) mc.style.display = 'block';
-    let sb = document.getElementById('sidebar'); if (sb) sb.style.display = 'flex';
-    if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
-    if (typeof switchTab === 'function') switchTab('goals');
-};
-window.cancelSession = function() { if (confirm("Xác nhận hủy phiên học? Tiến trình phiên sẽ không được lưu.")) window.backToDashboard(); };
+// Cập nhật ngay lập tức
+renderDashboard();
 
-const oldStartSession = window.startSession;
-if (typeof oldStartSession === 'function') {
-    window.startSession = function(mins) {
-        try { oldStartSession(mins); } catch (e) {
-            console.warn("Kích hoạt chế độ đếm ngược dự phòng.");
-            if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
-            let secs = mins * 60; let totalSecs = secs;
-            window.timerInterval = setInterval(() => {
-                secs--;
-                if (secs < 0) {
-                    clearInterval(window.timerInterval); window.backToDashboard();
-                    if (typeof openReportModal === 'function') openReportModal(mins);
-                    return;
-                }
-                let m = Math.floor(secs / 60).toString().padStart(2, '0'); let s = (secs % 60).toString().padStart(2, '0');
-                let timerEl = document.getElementById('session-timer'); if (timerEl) timerEl.innerText = `${m}:${s}`;
-                let ring = document.getElementById('focus-ring-circle');
-                if (ring) { let pct = ((totalSecs - secs) / totalSecs) * 100; ring.style.strokeDashoffset = (pct / 100) * 816.8; }
-            }, 1000);
+// =====================================================================
+// MỞ KHÓA VÀ VÁ LỖI PHÒNG TẬP TRUNG (FOCUS ROOM) BỊ ĐƠ
+// =====================================================================
+(function fixFocusRoomParalysis() {
+    // 1. Mở khóa nút Quay Lại (Thoát hiểm an toàn về Tab Mục Tiêu)
+    window.backToDashboard = function() {
+        let fr = document.getElementById('focus-room');
+        if (fr) fr.style.display = 'none';
+        
+        let mc = document.querySelector('.main-content');
+        if (mc) mc.style.display = 'block';
+        
+        let sb = document.getElementById('sidebar');
+        if (sb) sb.style.display = 'flex';
+        
+        // Dập tắt đồng hồ ngầm để tránh lỗi
+        if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+        
+        // Điều hướng chính xác về Tab Mục tiêu mới
+        if (typeof switchTab === 'function') switchTab('goals');
+    };
+
+    // 2. Mở khóa nút Hủy Bỏ (Kết thúc sớm)
+    window.cancelSession = function() {
+        if (confirm("Bệ hạ có chắc chắn muốn hủy bỏ phiên tu luyện này không?")) {
+            window.backToDashboard();
         }
     };
-}
 
-// 11. ĐỒNG NHẤT CSS VÀ HIỆU ỨNG TĨNH
-function injectUnifiedApexCSS() {
-    applyCustomWallpaper();
-    var oldSt = document.getElementById('apex-unified-master-css'); if (oldSt) oldSt.remove();
-    var st = document.createElement('style'); st.id = 'apex-unified-master-css';
-    st.innerHTML = `
-        :root, [data-color="neon-purple"] { --user-wallpaper: url('${DEFAULT_WALLPAPER}'); --user-bg-dim: 0.78; --theme-accent: #a855f7; --theme-accent-2: #6366f1; --theme-soft: rgba(168, 85, 247, 0.18); --theme-border: rgba(168, 85, 247, 0.35); }
-        [data-color="zen"]       { --theme-accent: #10b981; --theme-accent-2: #0ea5e9; --theme-soft: rgba(16,185,129,0.18); --theme-border: rgba(16,185,129,0.35); }
-        [data-color="neon-blue"] { --theme-accent: #0ea5e9; --theme-accent-2: #3b82f6; --theme-soft: rgba(14,165,233,0.18); --theme-border: rgba(56,189,248,0.35); }
-        [data-color="sakura"]    { --theme-accent: #f43f5e; --theme-accent-2: #f59e0b; --theme-soft: rgba(244,63,94,0.18);  --theme-border: rgba(244,63,94,0.35); }
-        body { background: transparent !important; }
-        .bento-top-search, #global-goal-search, #view-dashboard > .kpi-card, #view-dashboard > .recommendation-strip, #view-dashboard > .gamification-strip, #view-dashboard > #imperial-quests, #view-dashboard > #legacy-stock-strip, #view-dashboard > .stock-strip { display: none !important; }
-        @media (min-width: 1025px) { .mobile-toggle { display: none !important; } }
-        /* Kiến trúc Giao diện Mục tiêu Chuyên Biệt */
-        .apex-goals-header-bg { background: linear-gradient(180deg, rgba(16, 21, 38, 0.4) 0%, rgba(10, 14, 26, 0.9) 100%), url('https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; border-radius: 20px; padding: 30px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .apex-goals-stats-row { display: flex; gap: 30px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .apex-goal-stat-item { display: flex; flex-direction: column; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 30px; }
-        .apex-goal-stat-item:last-child { border-right: none; padding-right: 0; }
-        .apex-goal-stat-val { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; color:#fff; }
-        .apex-goal-stat-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; }
-        .apex-goals-filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-        .apex-filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 8px 16px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .apex-filter-btn.active { background: linear-gradient(135deg, #7c3aed, #4f46e5); border-color: #a855f7; color: #fff; box-shadow: 0 0 15px rgba(124,58,237,0.4); }
-        .apex-enhanced-goal-card { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #101526; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; cursor: pointer; min-height: 180px; display: flex; flex-direction: column; }
-        .apex-enhanced-goal-card:hover { transform: translateY(-4px); border-color: rgba(168,85,247,0.4); box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 20px rgba(168,85,247,0.15); }
-        .apex-card-bg-layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.4; z-index: 0; mix-blend-mode: luminosity; transition: opacity 0.3s; }
-        .apex-enhanced-goal-card:hover .apex-card-bg-layer { opacity: 0.6; }
-        .apex-card-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(16,21,38,1) 0%, rgba(16,21,38,0.85) 45%, rgba(16,21,38,0.3) 100%); z-index: 1; }
-        .apex-card-content { position: relative; z-index: 2; padding: 16px; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
-        .apex-card-timeline { margin-top: auto; position: relative; padding-top: 15px; padding-bottom: 5px; }
-        .apex-timeline-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; margin: 0 24px 0 12px; }
-        .apex-timeline-fill { position: absolute; top: 0; left: 0; bottom: 0; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 4px; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
-        .apex-timeline-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: #101526; border: 2px solid rgba(255,255,255,0.3); }
-        .apex-timeline-marker.passed { border-color: #a855f7; background: #c084fc; }
-        .apex-timeline-label { position: absolute; top: 12px; transform: translateX(-50%); font-size: 0.62rem; color: #94a3b8; font-weight: 700; white-space: nowrap; }
-        /* Animation Base */
-        @keyframes apexFlameFlicker { 0%, 100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 6px rgba(249,115,22,0.85)); } 50% { transform: scale(0.95, 1.14) rotate(-1deg); filter: drop-shadow(0 0 12px rgba(245,158,11,0.9)); } }
-        .apex-living-fire { background: linear-gradient(180deg, #fef08a 0%, #fbbf24 30%, #f97316 68%, #e11d48 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; font-size: 1.22rem; animation: apexFlameFlicker 1.35s infinite ease-in-out; transform-origin: center bottom; }
-        #bento-command-center > .phoi-row-3col:last-of-type > .phoi-card:nth-child(2) { display: none !important; }
-        #bento-command-center > .phoi-row-3col:last-of-type { grid-template-columns: 1.35fr 1fr !important; }
-        #restored-kpi-card, #view-dashboard > #restored-kpi-card { display: none !important; }
-        .phoi-hero-banner { position: relative; padding: 4px 8px 14px 4px !important; margin-bottom: 12px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; border: none !important; background: transparent !important; box-shadow: none !important; }
-        .phoi-hero-left { z-index: 2; flex: 1; max-width: calc(100% - 275px) !important; }
-        .phoi-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-        .phoi-hero-mini-bar { display: grid !important; grid-template-columns: repeat(4, minmax(135px, 1fr)) !important; gap: 10px !important; }
-        .phoi-mini-item { display: flex; align-items: center; gap: 10px; padding: 10px 13px !important; background: rgba(14, 19, 36, 0.74) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 14px !important; backdrop-filter: blur(16px) !important; }
-        @media (max-width: 768px) {
-            .phoi-card:hover, .apex-enhanced-goal-card:hover, .ft-card:hover { transform: none !important; border-color: inherit !important; box-shadow: none !important; }
-            .phoi-orbit-box { display: none !important; }
-            .phoi-hero-mini-bar { grid-template-columns: repeat(2, 1fr) !important; }
-            .apex-goals-header-bg { padding: 15px; }
-            #dedicated-goals-grid { grid-template-columns: 1fr; }
-        }
-    `;
-    document.head.appendChild(st);
-}
-
-// 12. BỘ ĐẾM NGƯỢC GIỜ GIỚI NGHIÊM
-function initAndRunCurfewCountdown() {
-    var curfewInput = document.getElementById('curfew-time') || document.querySelector('input[type="time"]');
-    if (!curfewInput) return;
-    var savedCurfew = localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime');
-    if (savedCurfew && !curfewInput.value) { curfewInput.value = savedCurfew; }
-    var badge = document.getElementById('apex-curfew-live-badge');
-    if (!badge) {
-        badge = document.createElement('div'); badge.id = 'apex-curfew-live-badge';
-        badge.style.cssText = "margin-top: 7px; padding: 6px 10px; border-radius: 9px; font-size: 0.74rem; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 6px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(56, 189, 248, 0.25); color: #bae6fd; transition: all 0.3s ease;";
-        var wrap = curfewInput.closest('.curfew-box, .sidebar-section, div') || curfewInput.parentElement;
-        if (wrap) wrap.appendChild(badge); else curfewInput.insertAdjacentElement('afterend', badge);
-        curfewInput.addEventListener('change', function() {
-            if (curfewInput.value) { localStorage.setItem('saasCurfewTime', curfewInput.value); localStorage.setItem('curfewTime', curfewInput.value); }
-            updateCurfewBadgeTick();
-        });
-    }
-    ['curfew-countdown', 'curfew-remaining', 'curfew-timer-text'].forEach(function(oldId) { var oldEl = document.getElementById(oldId); if (oldEl && oldEl !== badge) oldEl.style.display = 'none'; });
-    updateCurfewBadgeTick();
-}
-
-function updateCurfewBadgeTick() {
-    var curfewInput = document.getElementById('curfew-time') || document.querySelector('input[type="time"]');
-    var badge = document.getElementById('apex-curfew-live-badge');
-    if (!curfewInput || !badge) return;
-    var timeVal = (curfewInput.value || localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime') || "").trim();
-    if (!timeVal || !timeVal.includes(':')) { badge.style.display = 'flex'; badge.innerHTML = '<span>Trạng thái:</span> <strong>Chưa đặt giờ</strong>'; return; }
-    var parts = timeVal.split(':'); var targetH = parseInt(parts[0], 10); var targetM = parseInt(parts[1], 10);
-    var now = new Date(); var targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), targetH, targetM, 0, 0);
-    var diffMs = targetDate.getTime() - now.getTime();
-    var isPastCurfewTonight = (diffMs <= 0 && diffMs > -5 * 3600 * 1000); var isEarlyMorningCurfew = false;
-    if (diffMs <= -5 * 3600 * 1000) { targetDate.setDate(targetDate.getDate() + 1); diffMs = targetDate.getTime() - now.getTime(); } else if (now.getHours() < 5 && targetH >= 20) { isEarlyMorningCurfew = true; }
-    badge.style.display = 'flex';
-    if (isPastCurfewTonight || isEarlyMorningCurfew) { badge.style.background = 'rgba(225, 29, 72, 0.18)'; badge.style.color = '#fda4af'; badge.innerHTML = '<span>Đã tới giờ nghỉ</span> <strong>GIỚI NGHIÊM</strong>'; return; }
-    var totalSec = Math.max(0, Math.floor(diffMs / 1000)); var hrs = Math.floor(totalSec / 3600); var mins = Math.floor((totalSec % 3600) / 60); var secs = totalSec % 60;
-    var timeFormatted = (hrs > 0 ? (hrs + 'g ') : '') + String(mins).padStart(2, '0') + 'p ' + String(secs).padStart(2, '0') + 's';
-    if (totalSec <= 3600) { badge.style.background = 'rgba(245, 158, 11, 0.16)'; badge.style.color = '#fde68a'; badge.innerHTML = '<span>Sắp tới giờ:</span> <strong>' + timeFormatted + '</strong>'; }
-    else { badge.style.background = 'rgba(15, 23, 42, 0.65)'; badge.style.color = '#cbd5e1'; badge.innerHTML = '<span>Còn lại:</span> <strong>' + timeFormatted + '</strong>'; }
-}
-
-// 13. TRỢ LÝ AI (HỖ TRỢ THỜI KHÓA BIỂU)
-function injectAiTimetableToolbar() {
-    var ttView = document.getElementById('view-timetable') || document.getElementById('timetable-room');
-    if (!ttView) { var gridEl = document.querySelector('.timetable-grid') || document.getElementById('timetable-body'); if (gridEl) ttView = gridEl.parentElement; }
-    if (!ttView || document.getElementById('apex-ai-tt-bar')) return;
-    var bar = document.createElement('div'); bar.id = 'apex-ai-tt-bar'; bar.className = 'phoi-card';
-    bar.style.cssText = "margin-bottom:14px; border:1px solid rgba(168,85,247,0.4) !important; background:linear-gradient(135deg, rgba(88,28,135,0.28), rgba(16,21,38,0.88)) !important; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:12px 18px !important;";
-    bar.innerHTML = `<div style="display:flex; align-items:center; gap:12px;"><div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, #a855f7, #6366f1); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; flex-shrink:0;"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><div style="font-size:0.88rem; font-weight:800; color:#fff;">Trợ Lý AI Thời Khóa Biểu</div><div style="font-size:0.72rem; color:#cbd5e1;">Lắp lịch tự động theo tiến độ.</div></div></div><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button onclick="openAiSmartScheduleModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#fff; padding:8px 14px; border-radius:10px; font-size:0.76rem; font-weight:700; cursor:pointer;">Nhập lịch nhanh</button><button onclick="runAiAutoFillGoalSchedule()" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:8px 15px; border-radius:10px; font-size:0.76rem; font-weight:800; cursor:pointer;">AI Tự xếp lịch</button><button onclick="clearAiGeneratedSchedules()" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:8px 12px; border-radius:10px; font-size:0.74rem; font-weight:700; cursor:pointer;">Dọn lịch [AI]</button></div>`;
-    ttView.insertBefore(bar, ttView.firstChild);
-}
-
-window.openAiSmartScheduleModal = function() {
-    var modal = document.getElementById('apex-ai-tt-modal');
-    if (!modal) { modal = document.createElement('div'); modal.id = 'apex-ai-tt-modal'; modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(5,7,15,0.85); backdrop-filter:blur(12px); z-index:10006; align-items:center; justify-content:center; padding:18px;"; document.body.appendChild(modal); }
-    var now = new Date(); var defaultStart = now.toISOString().split('T')[0]; var endD = new Date(now); endD.setMonth(endD.getMonth() + 3); var defaultEnd = endD.toISOString().split('T')[0];
-    modal.innerHTML = `<div style="background:linear-gradient(160deg, #14192d 0%, #0c101d 100%); border:1px solid rgba(255,255,255,0.14); border-radius:20px; padding:22px 24px; width:100%; max-width:600px; color:#fff; box-shadow:0 25px 70px rgba(0,0,0,0.8);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div><span style="font-size:0.65rem; font-weight:800; color:#a855f7;">AI SCHEDULE PARSER</span><h3 style="margin:2px 0 0 0; font-size:1.12rem;">Nhập Lịch Học / Dạy Hàng Loạt</h3></div><button onclick="document.getElementById('apex-ai-tt-modal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button></div><textarea id="ai-bulk-schedule-input" placeholder="Dán danh sách lịch học vào đây (mỗi dòng 1 môn)..." style="width:100%; height:150px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px; color:#fff; font-size:0.82rem; outline:none; margin-bottom:12px; resize:vertical;"></textarea><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;"><div><label style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:4px;">Từ ngày:</label><input type="date" id="ai-tt-start" value="${defaultStart}" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem;"></div><div><label style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:4px;">Đến ngày:</label><input type="date" id="ai-tt-end" value="${defaultEnd}" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem;"></div></div><div style="display:flex; justify-content:flex-end; gap:10px;"><button onclick="document.getElementById('apex-ai-tt-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:none; color:#cbd5e1; padding:9px 16px; border-radius:10px; cursor:pointer;">Hủy</button><button onclick="processAiBulkScheduleInput()" style="background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; padding:9px 20px; border-radius:10px; font-weight:800; cursor:pointer;">Lưu vào TKB</button></div></div>`;
-    modal.style.display = 'flex';
-};
-
-window.processAiBulkScheduleInput = function() {
-    var raw = (document.getElementById('ai-bulk-schedule-input') ? document.getElementById('ai-bulk-schedule-input').value : '').trim();
-    if (!raw) { alert("Vui lòng nhập ít nhất 1 dòng lịch học!"); return; }
-    var startDate = document.getElementById('ai-tt-start').value || new Date().toISOString().split('T')[0], endDate = document.getElementById('ai-tt-end').value || startDate;
-    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) window.timetableData = [];
-    var lines = raw.split(/\n+/).map(function(l) { return l.trim(); }).filter(Boolean), addedCount = 0;
-    lines.forEach(function(line) {
-        var dows = []; var dowMatches = line.match(/(?:thứ\s*|t)([2-7])|(?:chủ\s*nhật|cn)/gi);
-        if (dowMatches) { dowMatches.forEach(function(m) { var low = m.toLowerCase(); if (low.includes('cn') || low.includes('nhật')) dows.push(0); else { var num = parseInt(low.replace(/\D/g, ''), 10); if (num >= 2 && num <= 7) dows.push(num - 1); } }); }
-        if (dows.length === 0) dows.push(new Date().getDay());
-        var codeStr = "Ca học", shift = "sang", tietMatch = line.match(/tiết\s*(\d+\s*-\s*\d+|\d+)/i), timeMatch = line.match(/(\d{1,2}\s*[h:]\s*\d{0,2}\s*-\s*\d{1,2}\s*[h:]\s*\d{0,2}|\d{1,2}\s*[h:]\s*\d{0,2})/i);
-        if (tietMatch) { codeStr = "Tiết: " + tietMatch[1].replace(/\s+/g, ''); var firstTiet = parseInt(tietMatch[1], 10); shift = firstTiet >= 13 ? 'toi' : (firstTiet >= 7 ? 'chieu' : 'sang'); } 
-        else if (timeMatch) { codeStr = timeMatch[1].replace(/\s+/g, ''); var firstHr = parseInt(codeStr, 10); shift = firstHr >= 18 ? 'toi' : (firstHr >= 12 ? 'chieu' : 'sang'); } 
-        else if (/tối|đêm/i.test(line)) { shift = 'toi'; codeStr = 'Ca Tối'; } else if (/chiều/i.test(line)) { shift = 'chieu'; codeStr = 'Ca Chiều'; }
-        var roomStr = "TKB", roomMatch = line.match(/(?:phòng|p\.|tại|cơ sở)\s*([a-zA-Z0-9_.\-\s]+)$/i), cleanLine = line;
-        if (roomMatch) { roomStr = roomMatch[1].trim(); cleanLine = cleanLine.replace(roomMatch[0], ''); }
-        cleanLine = cleanLine.replace(/(?:thứ\s*[2-7]|t[2-7]|chủ\s*nhật|cn)[,\s-]*/gi, ' ').replace(/tiết\s*(\d+\s*-\s*\d+|\d+)/gi, ' ').replace(/(\d{1,2}\s*[h:]\s*\d{0,2}\s*-\s*\d{1,2}\s*[h:]\s*\d{0,2}|\d{1,2}\s*[h:]\s*\d{0,2})/gi, ' ').replace(/\s+/g, ' ').trim();
-        var subjectName = cleanLine || "Lịch học tập";
-        dows.forEach(function(dNum) { timetableData.push({ id: Date.now() + Math.floor(Math.random() * 10000) + addedCount, dow: dNum, shift: shift, name: subjectName, code: codeStr, room: roomStr, startDate: startDate, endDate: endDate, pausedDates: [] }); addedCount++; });
-    });
-    localStorage.setItem('saasTimetable', JSON.stringify(timetableData)); localStorage.setItem('saasLastUpdated', Date.now()); if (typeof syncToCloud === 'function') syncToCloud(); if (typeof renderTimetable === 'function') renderTimetable(); if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter(); document.getElementById('apex-ai-tt-modal').style.display = 'none'; alert("Lưu thành công " + addedCount + " ca.");
-};
-
-window.runAiAutoFillGoalSchedule = function() {
-    var activeGoals = (typeof goals !== 'undefined' && Array.isArray(goals)) ? goals.filter(function(g) { return Number(g.current || 0) > 0; }) : [];
-    if (activeGoals.length === 0) { alert("Không có mục tiêu nào đang mở để xếp lịch."); return; }
-    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) window.timetableData = [];
-    timetableData = timetableData.filter(function(item) { return !String(item.name || '').startsWith('[AI]'); });
-    var sortedGoals = activeGoals.slice().sort(function(a, b) { return Number(b.current || 0) - Number(a.current || 0); });
-    var now = new Date(), startStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'), endD = new Date(now); endD.setDate(endD.getDate() + 14); var endStr = endD.getFullYear() + '-' + String(endD.getMonth() + 1).padStart(2, '0') + '-' + String(endD.getDate()).padStart(2, '0');
-    var shiftsOrder = [{ key: 'toi', code: '20h00-21h00', label: 'Ca Tối (Giờ vàng)' }, { key: 'sang', code: '08h30-09h30', label: 'Ca Sáng' }, { key: 'chieu', code: '15h00-16h00', label: 'Ca Chiều' }];
-    var scheduledCount = 0, goalIdx = 0, daysOrder = [1, 2, 3, 4, 5, 6, 0];
-    daysOrder.forEach(function(dowNum) {
-        var dayItems = timetableData.filter(function(it) { return parseInt(it.dow, 10) === dowNum; });
-        if (dayItems.length >= 3) return;
-        for (var s = 0; s < shiftsOrder.length; s++) {
-            var sh = shiftsOrder[s]; var isBusy = dayItems.some(function(it) { return it.shift === sh.key; });
-            if (!isBusy) {
-                var targetGoal = sortedGoals[goalIdx % sortedGoals.length], leftHrs = Number(targetGoal.current || 0).toFixed(1);
-                timetableData.push({ id: Date.now() + Math.floor(Math.random() * 10000) + scheduledCount, type: 'online', dow: dowNum, shift: sh.key, name: "[AI] 🎯 " + targetGoal.name, code: sh.code, room: "Còn " + leftHrs + "h", teacher: "", startDate: startStr, endDate: endStr, pausedDates: [] });
-                scheduledCount++; goalIdx++; break;
+    // 3. Bọc thép động cơ Đồng hồ (Chặn đứng mọi lỗi giao diện làm chết đồng hồ)
+    const oldStartSession = window.startSession;
+    if (typeof oldStartSession === 'function') {
+        window.startSession = function(mins) {
+            try {
+                // Thử chạy động cơ nguyên bản
+                oldStartSession(mins);
+            } catch (e) {
+                console.warn("Lỗi giao diện cũ, kích hoạt đồng hồ khẩn cấp!");
+                // Nếu động cơ cũ sập, tự động kích hoạt Động cơ Dự phòng
+                if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+                
+                let secs = mins * 60;
+                let totalSecs = secs;
+                
+                window.timerInterval = setInterval(() => {
+                    secs--;
+                    if (secs < 0) {
+                        clearInterval(window.timerInterval);
+                        window.backToDashboard();
+                        // Kích hoạt hàm báo cáo nếu có
+                        if (typeof openReportModal === 'function') openReportModal(mins);
+                        return;
+                    }
+                    
+                    // Cập nhật số
+                    let m = Math.floor(secs / 60).toString().padStart(2, '0');
+                    let s = (secs % 60).toString().padStart(2, '0');
+                    let timerEl = document.getElementById('session-timer');
+                    if (timerEl) timerEl.innerText = `${m}:${s}`;
+                    
+                    // Cập nhật vòng sáng (Stroke Dashoffset của SVG bán kính 130 là 816.8)
+                    let ring = document.getElementById('focus-ring-circle');
+                    if (ring) {
+                        let pct = ((totalSecs - secs) / totalSecs) * 100;
+                        ring.style.strokeDashoffset = (pct / 100) * 816.8;
+                    }
+                }, 1000);
             }
-        }
-    });
-    localStorage.setItem('saasTimetable', JSON.stringify(timetableData)); localStorage.setItem('saasLastUpdated', Date.now()); if (typeof syncToCloud === 'function') syncToCloud(); if (typeof renderTimetable === 'function') renderTimetable(); if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter(); alert("AI đã xếp tự động " + scheduledCount + " phiên học Mục tiêu vào Thời khóa biểu.");
-};
-
-window.clearAiGeneratedSchedules = function() {
-    if (typeof timetableData === 'undefined' || !Array.isArray(timetableData)) return; var beforeLen = timetableData.length;
-    timetableData = timetableData.filter(function(item) { return !String(item.name || '').startsWith('[AI]'); });
-    var removed = beforeLen - timetableData.length;
-    localStorage.setItem('saasTimetable', JSON.stringify(timetableData)); localStorage.setItem('saasLastUpdated', Date.now()); if (typeof syncToCloud === 'function') syncToCloud(); if (typeof renderTimetable === 'function') renderTimetable(); if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter(); alert("Đã dọn sạch " + removed + " ca tự học do AI đề xuất.");
-};
-
-// 14. KHỞI TẠO LẮNG NGHE ĐỂ DUY TRÌ HỆ THỐNG
-setInterval(function() {
-    if (typeof initAndRunCurfewCountdown === 'function') initAndRunCurfewCountdown();
-}, 1000);
-
-window.addEventListener('DOMContentLoaded', function() {
-    injectUnifiedApexCSS();
-    if (typeof initAndRunCurfewCountdown === 'function') initAndRunCurfewCountdown();
-    if (typeof renderDashboard === 'function') renderDashboard();
-});
-
-// =====================================================================
-// MODULE BỔ SUNG CÁC HÀM CỐT LÕI BỊ THIẾU (ANALYTICS, LEADERBOARD, FOCUS)
-// =====================================================================
-
-// --- 1. BỔ SUNG HÀM PHÂN TÍCH NHỊP ĐỘ CHO TRANG ANALYTICS ---
-window.setAnalyticsRange = function(days) {
-    currentAnalyticsRange = days;
-    if (typeof renderAnalytics === 'function') renderAnalytics();
-};
-
-window.renderDailyBreakdown = function(targetDate) {
-    let content = document.getElementById('daily-breakdown-content'); 
-    if (!content) return;
-    
-    let dayStats = []; 
-    let totalDayHours = 0;
-    
-    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
-        goals.forEach(g => {
-            if(g.reports) {
-                let goalHrs = 0; 
-                let sessionsCount = 0;
-                g.reports.forEach(r => { 
-                    if(r.date.startsWith(targetDate)) { 
-                        sessionsCount++; 
-                        let mins = parseInt(r.type.replace('p','')); 
-                        goalHrs += (mins / 60); 
-                    } 
-                });
-                if(goalHrs > 0) { 
-                    totalDayHours += goalHrs; 
-                    dayStats.push({ name: g.name, hrs: goalHrs, sessions: sessionsCount }); 
-                }
-            }
-        });
+        };
     }
-    
-    dayStats.sort((a,b) => b.hrs - a.hrs);
-    
-    if(dayStats.length === 0) { 
-        content.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Không có hoạt động nào trong ngày này.</p>'; 
-        return; 
-    }
-    
-    let html = '';
-    dayStats.forEach(stat => {
-        let pct = (stat.hrs / totalDayHours) * 100;
-        html += `<div class="stat-row" style="margin-bottom: 20px;">
-                    <div class="stat-label">
-                        <span style="font-weight:700; color:var(--text-main);">${stat.name}</span> 
-                        <span style="font-size:0.85rem;"><strong style="color:var(--brand-focus);">${stat.hrs.toFixed(1)}h</strong> (${stat.sessions} phiên)</span>
-                    </div>
-                    <div class="stat-bar" style="height:14px; border-radius:14px;">
-                        <div class="stat-fill" style="width: ${pct}%; background:var(--brand-dash); border-radius:14px;"></div>
-                    </div>
-                 </div>`;
-    });
-    html += `<div style="text-align:right; font-size:0.95rem; font-weight:700; color:var(--text-muted); margin-top:20px; border-top:1px dashed var(--border); padding-top:16px;">
-                Tổng cộng: <strong style="color:var(--text-main); font-size:1.25rem;">${totalDayHours.toFixed(1)}h</strong>
-             </div>`;
-    content.innerHTML = html;
-};
-
-// --- 2. BỔ SUNG HÀM KIỂM KÊ THÀNH TỰU ---
-window.viewTrophyDetail = function(id) {
-    document.getElementById('trophy-room').style.display = 'none'; 
-    document.getElementById('trophy-detail').style.display = 'block';
-    
-    let g = goals.find(x => x.id === id); 
-    if (!g) return;
-    let reports = g.reports || [];
-    
-    document.getElementById('td-title').innerText = g.name; 
-    document.getElementById('td-meta').innerText = `Hoàn thành mốc ${g.target}h - Lưu trữ ${reports.length} báo cáo.`;
-    
-    let tl = document.getElementById('td-timeline'); 
-    tl.innerHTML = '';
-    
-    if (reports.length === 0) { 
-        tl.innerHTML = '<p class="stagger-item" style="animation-delay:0.4s; color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; 
-    } else { 
-        [...reports].reverse().forEach((rep, index) => { 
-            let delay = (index * 0.1) + 0.4; 
-            tl.innerHTML += `<div class="timeline-item stagger-item" style="animation-delay:${delay}s">
-                <div class="tl-meta">
-                    <span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span>
-                    <span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span>
-                </div>
-                <div class="tl-content">${rep.text}</div>
-            </div>`; 
-        }); 
-    }
-};
-
-// --- 3. BỔ SUNG KHỐI LOGIC MẠNG XÃ HỘI (BẢNG XẾP HẠNG & NHẮN TIN) ---
-window.openLeaderboard = function() {
-    let modal = document.getElementById('leaderboard-modal');
-    if (!modal) {
-        let html = `
-        <div id="leaderboard-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-            <div style="background:var(--bg-panel); width:90%; max-width:500px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; overflow-y:auto; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-                <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-xmark"></i></button>
-                <h2 style="margin-top:0; text-align:center; color:var(--brand-trophy); font-size: 1.5rem; text-transform: uppercase;"><i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng</h2>
-                <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; margin-top: 20px;">
-                    <button id="tab-lb-hours" onclick="fetchLeaderboard('weeklyHours')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Giờ Học</button>
-                    <button id="tab-lb-streak" onclick="fetchLeaderboard('streak')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Chuỗi</button>
-                </div>
-                <div id="leaderboard-content" style="display:flex; flex-direction:column; gap:12px;"></div>
-            </div>
-        </div>`;
-        document.body.insertAdjacentHTML('beforeend', html);
-        modal = document.getElementById('leaderboard-modal');
-    }
-    modal.style.display = 'flex';
-    if (typeof syncToCloud === 'function') syncToCloud();
-    fetchLeaderboard('weeklyHours');
-};
-
-window.fetchLeaderboard = async function(orderByField) {
-    const content = document.getElementById('leaderboard-content');
-    if (!content) return;
-    const btnHours = document.getElementById('tab-lb-hours');
-    const btnStreak = document.getElementById('tab-lb-streak');
-    if (btnHours) { btnHours.style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)'; btnHours.style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)'; }
-    if (btnStreak) { btnStreak.style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)'; btnStreak.style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)'; }
-
-    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i><br>Đang tải dữ liệu...</div>';
-    
-    try {
-        const snapshot = await db.collection("academic_apex").get();
-        if (snapshot.empty) return content.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--text-muted);">Chưa có dữ liệu xếp hạng.</div>';
-
-        let members = [];
-        let parts = currentGlobalMonday.split('-');
-
-        snapshot.forEach((doc) => {
-            let data = doc.data() || {};
-            if (doc.id === "emperor_data_v1" && !data.displayName) return;
-
-            let calcWeekHrs = 0;
-            if (data.dailyLogs && typeof data.dailyLogs === 'object') {
-                for (let i = 0; i < 7; i++) {
-                    let d = new Date(parts[0], parts[1] - 1, parts[2]); d.setDate(d.getDate() + i);
-                    let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                    calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
-                }
-            } else if (typeof data.weeklyHours === 'number') calcWeekHrs = data.weeklyHours;
-
-            if (doc.id === USER_DOC_ID) calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
-
-            let userStreak = Number(data.streak ?? 0);
-            if (doc.id === USER_DOC_ID && typeof currentStreak !== 'undefined') userStreak = Number(currentStreak);
-
-            members.push({
-                id: doc.id,
-                name: data.displayName || "Ẩn danh",
-                photo: data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.displayName || "U") + "&background=6366f1&color=fff",
-                weeklyHours: calcWeekHrs,
-                streak: userStreak,
-                currentStatus: data.currentStatus || 'online'
-            });
-        });
-
-        members.sort((a, b) => {
-            if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
-            return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
-        });
-
-        let html = ''; let rank = 1;
-        members.slice(0, 30).forEach((m) => {
-            let score = orderByField === 'weeklyHours' ? m.weeklyHours.toFixed(1) + 'h' : m.streak + ' Ngày';
-            let isFocusing = m.currentStatus === 'focusing';
-            let statusColor = isFocusing ? '#ef4444' : '#10b981';
-            let statusText = isFocusing ? 'Đang tập trung' : 'Trực tuyến';
-            let statusDot = `<div style="width:14px; height:14px; border-radius:50%; background:${statusColor}; position:absolute; bottom:0; right:0; border:2px solid var(--bg-panel); box-shadow: 0 0 5px ${statusColor};" title="${statusText}"></div>`;
-            let isMe = m.id === USER_DOC_ID;
-            let actionBtn = !isMe ? `<button onclick="openComposeModal('${m.id}', '${m.name.replace(/'/g, "\\'")}')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--brand-focus); width:36px; height:36px; border-radius:8px; cursor:pointer;" title="Gửi thư"><i class="fa-solid fa-paper-plane"></i></button>` : `<div style="width:36px;"></div>`;
-            let rankStyle = rank === 1 ? "color:#eab308; font-size:1.5rem; font-weight:900;" : (rank === 2 ? "color:#94a3b8; font-size:1.3rem;" : (rank === 3 ? "color:#b45309; font-size:1.2rem;" : "color:var(--text-muted); font-size:1.05rem;"));
-
-            html += `
-            <div class="stagger-item" style="display:flex; align-items:center; padding:12px; border-radius:16px; background:${isMe ? 'rgba(14,165,233,0.05)' : 'var(--bg-hover)'}; border:1px solid ${isMe ? 'var(--brand-focus)' : 'var(--border)'};">
-                <div style="width:35px; text-align:center; font-weight:800; ${rankStyle}">${rank}</div>
-                <div style="position:relative; margin:0 12px;">
-                    <img src="${m.photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover;">
-                    ${statusDot}
-                </div>
-                <div style="flex:1; overflow:hidden;">
-                    <div style="font-weight:800; color:var(--text-main); font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.name} ${isMe ? '<span style="font-size:0.68rem; color:#38bdf8; margin-left:4px;">(Bạn)</span>' : ''}</div>
-                    <div style="font-weight:900; color:var(--brand-trophy); font-size:1.1rem;">${score}</div>
-                </div>
-                ${actionBtn}
-            </div>`;
-            rank++;
-        });
-        content.innerHTML = html;
-    } catch (e) {
-        console.error(e);
-        content.innerHTML = '<div style="text-align:center; color:#ef4444;">Lỗi kết nối máy chủ.</div>';
-    }
-};
-
-window.openComposeModal = function(receiverId = '', receiverName = '') {
-    if (typeof isSessionActive !== 'undefined' && isSessionActive) return alert("Tính năng bị khóa: Đang trong phiên tập trung.");
-    let existingModal = document.getElementById('compose-modal');
-    if (existingModal) existingModal.remove();
-
-    let isNewMessage = receiverId === '';
-    let headerHtml = isNewMessage 
-        ? `<h3 style="margin-top:0; color:var(--text-main);">Soạn tin nhắn mới</h3><input type="text" id="comp-recv-id" placeholder="Dán Mã ID của người nhận vào đây..." style="width:100%; padding:12px; border-radius:12px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); margin-bottom:16px; outline:none;">`
-        : `<h3 style="margin-top:0; color:var(--text-main);">Gửi tin đến <span style="color:var(--brand-focus);">${receiverName}</span></h3><input type="hidden" id="comp-recv-id" value="${receiverId}">`;
-
-    let html = `
-    <div id="compose-modal" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-        <div style="background:var(--bg-panel); width:90%; max-width:450px; border-radius:20px; padding:24px; border:1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-            ${headerHtml}
-            <textarea id="comp-content" rows="4" placeholder="Nhập nội dung tin nhắn..." style="width:100%; padding:12px; border-radius:12px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); margin-bottom:16px; resize:none; outline:none;"></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button onclick="document.getElementById('compose-modal').style.display='none'" class="btn-ghost" style="padding:10px 20px; cursor:pointer;">Hủy bỏ</button>
-                <button id="comp-btn-send" onclick="sendMessage()" class="btn-submit active" style="padding:10px 20px; cursor:pointer;"><i class="fa-solid fa-paper-plane"></i> Gửi đi</button>
-            </div>
-        </div>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', html);
-};
-
-window.sendMessage = async function() {
-    let receiverId = document.getElementById('comp-recv-id').value.trim();
-    let content = document.getElementById('comp-content').value.trim();
-    if (!receiverId) return alert("Vui lòng cung cấp Mã ID người nhận.");
-    if (!content) return alert("Nội dung tin nhắn không được để trống.");
-    if (receiverId === USER_DOC_ID) return alert("Không thể tự gửi tin nhắn cho chính mình.");
-    
-    let btn = document.getElementById('comp-btn-send');
-    btn.innerText = 'Đang kiểm tra...'; btn.disabled = true;
-    try {
-        let receiverDoc = await db.collection("academic_apex").doc(receiverId).get();
-        if (!receiverDoc.exists) {
-            alert("Mã ID không tồn tại trên hệ thống.");
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; btn.disabled = false;
-            return;
-        }
-        btn.innerText = 'Đang gửi...';
-        await db.collection("messages").add({
-            senderId: USER_DOC_ID, senderName: currentUser.displayName || "Ẩn danh", receiverId: receiverId, content: content, timestamp: Date.now(), isRead: false
-        });
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> Thành công';
-        btn.style.background = '#10b981'; btn.style.borderColor = '#10b981';
-        setTimeout(() => { document.getElementById('compose-modal').style.display = 'none'; }, 800);
-    } catch (err) {
-        console.error(err);
-        alert("Lỗi hệ thống: Không thể gửi tin nhắn.");
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; btn.disabled = false;
-    }
-};
-
-// --- 4. BỔ SUNG HÀM ĐỒNG HỒ NỔI TRÊN FOCUS ROOM ---
-window.toggleApexPipMiniTimer = async function() {
-    try {
-        if (typeof apexPipWindow !== 'undefined' && apexPipWindow && !apexPipWindow.closed) { apexPipWindow.close(); apexPipWindow = null; return; }
-        if (document.pictureInPictureElement) { await document.exitPictureInPicture(); return; }
-        if ('documentPictureInPicture' in window) {
-            window.apexPipWindow = await window.documentPictureInPicture.requestWindow({ width: 320, height: 175 });
-            window.apexPipWindow.document.body.style.cssText = "margin:0; padding:14px 16px; background:linear-gradient(145deg, #0d1224 0%, #17153a 100%); color:#fff; font-family:sans-serif; display:flex; flex-direction:column; justify-content:space-between; height:100vh; box-sizing:border-box; overflow:hidden; user-select:none; border:1px solid rgba(168,85,247,0.35);";
-            window.apexPipWindow.document.body.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:0.62rem; font-weight:800; letter-spacing:1.5px; color:#c084fc; background:rgba(168,85,247,0.18); padding:2px 8px; border-radius:100px;">● ACADEMIC APEX</span>
-                    <span id="pip-goal-name" style="font-size:0.72rem; font-weight:700; color:#94a3b8;">Đang tập trung</span>
-                </div>
-                <div style="text-align:center; margin:4px 0;">
-                    <div id="pip-time-digits" style="font-size:2.85rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1; text-shadow:0 0 24px rgba(168,85,247,0.6);">25:00</div>
-                    <div id="pip-state-sub" style="font-size:0.7rem; color:#38bdf8; font-weight:700; margin-top:4px;">🍅 Phiên Pomodoro</div>
-                </div>
-                <div style="display:flex; justify-content:center; gap:8px;">
-                    <button id="pip-btn-start" style="background:linear-gradient(90deg,#a855f7,#6366f1); color:#fff; border:none; padding:6px 18px; border-radius:100px; font-size:0.74rem; font-weight:800; cursor:pointer;">▶ Bắt đầu</button>
-                    <button id="pip-btn-pause" style="display:none; background:#2563eb; color:#fff; border:none; padding:6px 14px; border-radius:100px; font-size:0.72rem; font-weight:700; cursor:pointer;">⏸ Tạm dừng</button>
-                </div>
-            `;
-            window.apexPipWindow.document.getElementById('pip-btn-start').onclick = function() { if (typeof triggerFocusMainStart === 'function') triggerFocusMainStart(); };
-            window.apexPipWindow.document.getElementById('pip-btn-pause').onclick = function() { if (typeof togglePause === 'function') togglePause(); };
-            if (typeof apexPipUpdateTimer !== 'undefined') clearInterval(apexPipUpdateTimer);
-            window.apexPipUpdateTimer = setInterval(function() {
-                if (!window.apexPipWindow || window.apexPipWindow.closed) return;
-                var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "25:00";
-                var doc = window.apexPipWindow.document;
-                var tEl = doc.getElementById('pip-time-digits');
-                if (tEl) { tEl.innerText = rawTimer; tEl.style.color = rawTimer.startsWith('+') ? '#fbbf24' : '#ffffff'; }
-            }, 500);
-        } else {
-            alert("Trình duyệt không hỗ trợ chế độ này.");
-        }
-    } catch (err) { alert("Vui lòng thao tác khi không ở chế độ toàn màn hình."); }
-};
-
-// =====================================================================
-// MODULE BỘ VÁ LỖI CỐT LÕI (CORE FUNCTIONS PATCH)
-// Bổ sung các hàm bị thiếu cho Analytics, Goals, Countdowns và UI
-// =====================================================================
-
-// 1. Khôi phục logic phân tích dữ liệu ngày (Trang Analytics)
-window.renderDailyBreakdown = function(targetDate) {
-    let content = document.getElementById('daily-breakdown-content'); 
-    if (!content) return;
-    
-    let dayStats = []; 
-    let totalDayHours = 0;
-    
-    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
-        goals.forEach(g => {
-            if(g.reports) {
-                let goalHrs = 0; 
-                let sessionsCount = 0;
-                g.reports.forEach(r => { 
-                    if(r.date.startsWith(targetDate)) { 
-                        sessionsCount++; 
-                        let mins = parseInt(r.type.replace('p','')); 
-                        goalHrs += (mins / 60); 
-                    } 
-                });
-                if(goalHrs > 0) { 
-                    totalDayHours += goalHrs; 
-                    dayStats.push({ name: g.name, hrs: goalHrs, sessions: sessionsCount }); 
-                }
-            }
-        });
-    }
-    
-    dayStats.sort((a,b) => b.hrs - a.hrs);
-    
-    if(dayStats.length === 0) { 
-        content.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Không có hoạt động nào được ghi nhận trong ngày này.</p>'; 
-        return; 
-    }
-    
-    let html = '';
-    dayStats.forEach(stat => {
-        let pct = (stat.hrs / totalDayHours) * 100;
-        html += `<div class="stat-row" style="margin-bottom: 20px;">
-                    <div class="stat-label">
-                        <span style="font-weight:700; color:var(--text-main);">${stat.name}</span> 
-                        <span style="font-size:0.85rem;"><strong style="color:var(--brand-focus);">${stat.hrs.toFixed(1)}h</strong> (${stat.sessions} phiên)</span>
-                    </div>
-                    <div class="stat-bar" style="height:14px; border-radius:14px;">
-                        <div class="stat-fill" style="width: ${pct}%; background:var(--brand-dash); border-radius:14px;"></div>
-                    </div>
-                 </div>`;
-    });
-    html += `<div style="text-align:right; font-size:0.95rem; font-weight:700; color:var(--text-muted); margin-top:20px; border-top:1px dashed var(--border); padding-top:16px;">
-                Tổng cộng: <strong style="color:var(--text-main); font-size:1.25rem;">${totalDayHours.toFixed(1)}h</strong>
-             </div>`;
-    content.innerHTML = html;
-};
-
-// 2. Khôi phục tính năng xem chi tiết thành tựu
-window.viewTrophyDetail = function(id) {
-    let tr = document.getElementById('trophy-room'); if (tr) tr.style.display = 'none'; 
-    let td = document.getElementById('trophy-detail'); if (td) td.style.display = 'block';
-    
-    let g = goals.find(x => x.id === id); 
-    if (!g) return;
-    let reports = g.reports || [];
-    
-    let tdTitle = document.getElementById('td-title'); if (tdTitle) tdTitle.innerText = g.name; 
-    let tdMeta = document.getElementById('td-meta'); if (tdMeta) tdMeta.innerText = `Hoàn thành mốc ${g.target}h - Lưu trữ ${reports.length} báo cáo.`;
-    
-    let tl = document.getElementById('td-timeline'); 
-    if (!tl) return;
-    tl.innerHTML = '';
-    
-    if (reports.length === 0) { 
-        tl.innerHTML = '<p class="stagger-item" style="animation-delay:0.4s; color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; 
-    } else { 
-        [...reports].reverse().forEach((rep, index) => { 
-            let delay = (index * 0.1) + 0.4; 
-            tl.innerHTML += `<div class="timeline-item stagger-item" style="animation-delay:${delay}s">
-                <div class="tl-meta">
-                    <span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span>
-                    <span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span>
-                </div>
-                <div class="tl-content">${rep.text}</div>
-            </div>`; 
-        }); 
-    }
-};
-
-// 3. Khôi phục các thao tác Quản lý Mục tiêu (Tạo, Xóa, Mở Focus Room)
-window.deleteGoal = function(e, id) {
-    if (e) e.stopPropagation();
-    if (confirm("Xác nhận xóa mục tiêu? Thao tác không thể hoàn tác.")) {
-        if (typeof goals !== 'undefined') {
-            goals = goals.filter(g => g.id !== id);
-            localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
-            if (typeof syncToCloud === 'function') syncToCloud();
-        }
-        if (document.getElementById('view-goals') && document.getElementById('view-goals').style.display !== 'none') {
-            if (typeof renderGoalsDedicated === 'function') renderGoalsDedicated(window.currentGoalFilter || 'all');
-        } else {
-            if (typeof renderDashboard === 'function') renderDashboard();
-        }
-    }
-};
-
-window.openGoal = function(id) {
-    if (typeof isPendingTax !== 'undefined' && (isPendingTax || typeof dailyDebtMinutes !== 'undefined' && dailyDebtMinutes > 0)) { 
-        alert("Phải dọn sạch nợ trước khi tiếp tục mục tiêu khác!"); return; 
-    }
-    window.activeGoalId = id;
-    let goal = goals.find(g => g.id === id);
-    if (!goal) return;
-    
-    let sb = document.getElementById('sidebar'); if (sb) sb.classList.remove('active');
-    let mo = document.getElementById('mobile-overlay'); if (mo) mo.classList.remove('active');
-    let fr = document.getElementById('focus-room'); if (fr) fr.style.display = 'flex';
-    
-    let fti = document.getElementById('focus-target-info'); 
-    if (fti) fti.innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
-    
-    let fb = document.getElementById('focus-badge'); 
-    if (fb) { fb.innerText = "Khu Vực Tập Trung"; fb.style = ""; }
-    
-    if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') audioCtx.resume();
-    if (typeof resetSystem === 'function') resetSystem();
-};
-
-window.createNewGoal = function() {
-    let name = prompt("Nhập tên mục tiêu mới:"); 
-    if (!name) return;
-    let target = parseFloat(prompt("Định mức thời gian (Số giờ - VD: 20):")); 
-    if (isNaN(target) || target <= 0) return alert("Số giờ không hợp lệ.");
-    
-    let deadlineInput = prompt("Hạn chót (YYYY-MM-DD) - Để trống nếu không có:");
-    let deadline = null;
-    if (deadlineInput && deadlineInput.trim() !== "") {
-        let parsed = new Date(deadlineInput.trim());
-        if (!isNaN(parsed.getTime())) deadline = parsed.toISOString().split('T')[0];
-    }
-    
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    
-    goals.push({ 
-        id: Date.now(), 
-        name: name, 
-        target: target, 
-        current: target, 
-        reports: [], 
-        deadline: deadline, 
-        createdAt: todayObj.toISOString().split('T')[0] 
-    });
-    
-    localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
-    if (typeof syncToCloud === 'function') syncToCloud();
-    
-    if (document.getElementById('view-goals') && document.getElementById('view-goals').style.display !== 'none') {
-        if (typeof renderGoalsDedicated === 'function') renderGoalsDedicated(window.currentGoalFilter || 'all');
-    } else {
-        if (typeof renderDashboard === 'function') renderDashboard();
-    }
-};
-
-// 4. Khôi phục đồng hồ và các sự kiện đếm ngược
-window.createNewCountdown = function() {
-    let name = prompt("Nhập tên sự kiện đếm ngược:"); 
-    if (!name) return;
-    let dateInput = prompt("Nhập ngày diễn ra sự kiện (YYYY-MM-DD):"); 
-    if (!dateInput) return;
-    let timeInput = prompt("Nhập giờ (HH:MM) - Bấm OK để mặc định 00:00:");
-    if (!timeInput || timeInput.trim() === "") timeInput = "00:00";
-    
-    let parsedDate = new Date(`${dateInput.trim()}T${timeInput.trim()}:00`);
-    if (isNaN(parsedDate.getTime())) { alert("Định dạng thời gian không hợp lệ."); return; }
-    
-    let cdList = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [];
-    cdList.push({ id: Date.now(), name: name.toUpperCase(), date: parsedDate.toISOString() });
-    localStorage.setItem('saasCountdownsPro', JSON.stringify(cdList));
-    
-    if (typeof countdowns !== 'undefined') window.countdowns = cdList;
-    if (typeof syncToCloud === 'function') syncToCloud();
-    if (typeof renderDashboard === 'function') renderDashboard();
-};
-
-window.updateCountdownTicks = function() {
-    let now = Date.now();
-    let cards = document.querySelectorAll('.apex-live-cd-card');
-    cards.forEach(card => {
-        let target = Number(card.getAttribute('data-target-ms')) || 0;
-        let distance = target - now;
-        
-        let dEl = card.querySelector('.cd-val-d');
-        let hEl = card.querySelector('.cd-val-h');
-        let mEl = card.querySelector('.cd-val-m');
-        let sEl = card.querySelector('.cd-val-s');
-        
-        if (!dEl || !hEl || !mEl) return;
-        
-        if (distance <= 0) {
-            dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; 
-            if(sEl) sEl.innerText = "00";
-        } else {
-            dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
-            hEl.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-            mEl.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-            if(sEl) sEl.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
-        }
-    });
-};
-
-// 5. Cung cấp Fallback an toàn cho các module chưa tải để chống sập UI
-if (typeof window.handleDispatchRestAction === 'undefined') {
-    window.handleDispatchRestAction = function() { alert("Tính năng Điều phối đang được bảo trì hoặc thiết lập."); };
-}
-if (typeof window.triggerDispatchPing === 'undefined') {
-    window.triggerDispatchPing = function() { alert("Trạm phát nhiệm vụ chưa sẵn sàng."); };
-}
-if (typeof window.updateUsdDisplay === 'undefined') {
-    window.updateUsdDisplay = function() {
-        let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
-        let el = document.getElementById('usd-balance');
-        if (el) el.innerText = usd;
-    };
-}
+})();
