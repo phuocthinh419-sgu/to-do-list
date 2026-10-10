@@ -9766,3 +9766,75 @@ window.switchTab = function(tabName) {
 
 // Cập nhật ngay lập tức
 renderDashboard();
+
+// =====================================================================
+// MỞ KHÓA VÀ VÁ LỖI PHÒNG TẬP TRUNG (FOCUS ROOM) BỊ ĐƠ
+// =====================================================================
+(function fixFocusRoomParalysis() {
+    // 1. Mở khóa nút Quay Lại (Thoát hiểm an toàn về Tab Mục Tiêu)
+    window.backToDashboard = function() {
+        let fr = document.getElementById('focus-room');
+        if (fr) fr.style.display = 'none';
+        
+        let mc = document.querySelector('.main-content');
+        if (mc) mc.style.display = 'block';
+        
+        let sb = document.getElementById('sidebar');
+        if (sb) sb.style.display = 'flex';
+        
+        // Dập tắt đồng hồ ngầm để tránh lỗi
+        if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+        
+        // Điều hướng chính xác về Tab Mục tiêu mới
+        if (typeof switchTab === 'function') switchTab('goals');
+    };
+
+    // 2. Mở khóa nút Hủy Bỏ (Kết thúc sớm)
+    window.cancelSession = function() {
+        if (confirm("Bệ hạ có chắc chắn muốn hủy bỏ phiên tu luyện này không?")) {
+            window.backToDashboard();
+        }
+    };
+
+    // 3. Bọc thép động cơ Đồng hồ (Chặn đứng mọi lỗi giao diện làm chết đồng hồ)
+    const oldStartSession = window.startSession;
+    if (typeof oldStartSession === 'function') {
+        window.startSession = function(mins) {
+            try {
+                // Thử chạy động cơ nguyên bản
+                oldStartSession(mins);
+            } catch (e) {
+                console.warn("Lỗi giao diện cũ, kích hoạt đồng hồ khẩn cấp!");
+                // Nếu động cơ cũ sập, tự động kích hoạt Động cơ Dự phòng
+                if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+                
+                let secs = mins * 60;
+                let totalSecs = secs;
+                
+                window.timerInterval = setInterval(() => {
+                    secs--;
+                    if (secs < 0) {
+                        clearInterval(window.timerInterval);
+                        window.backToDashboard();
+                        // Kích hoạt hàm báo cáo nếu có
+                        if (typeof openReportModal === 'function') openReportModal(mins);
+                        return;
+                    }
+                    
+                    // Cập nhật số
+                    let m = Math.floor(secs / 60).toString().padStart(2, '0');
+                    let s = (secs % 60).toString().padStart(2, '0');
+                    let timerEl = document.getElementById('session-timer');
+                    if (timerEl) timerEl.innerText = `${m}:${s}`;
+                    
+                    // Cập nhật vòng sáng (Stroke Dashoffset của SVG bán kính 130 là 816.8)
+                    let ring = document.getElementById('focus-ring-circle');
+                    if (ring) {
+                        let pct = ((totalSecs - secs) / totalSecs) * 100;
+                        ring.style.strokeDashoffset = (pct / 100) * 816.8;
+                    }
+                }, 1000);
+            }
+        };
+    }
+})();
