@@ -8100,41 +8100,50 @@ window.changeColor = function(colorName) {
 
 // --- 11. TRỢ LÝ AI THỜI KHÓA BIỂU (NHẬP NHANH NLP & TỰ ĐỘNG LẤP LỊCH THEO TIẾN ĐỘ) ---
 function injectAiTimetableToolbar() {
-    var ttView = document.getElementById('view-timetable') || document.getElementById('timetable-room');
-    if (!ttView) {
-        var gridEl = document.querySelector('.timetable-grid') || document.getElementById('timetable-body');
-        if (gridEl) ttView = gridEl.parentElement;
-    }
-    if (!ttView || document.getElementById('apex-ai-tt-bar')) return;
+    // Tìm chính xác khu vực Lưới thời khóa biểu
+    var gridEl = document.getElementById('timetable-grid') || document.querySelector('.timetable-grid');
+    if (!gridEl) return;
+    
+    // Nếu thanh AI đã tồn tại thì không tạo thêm
+    if (document.getElementById('apex-ai-tt-bar')) return;
 
     var bar = document.createElement('div');
     bar.id = 'apex-ai-tt-bar';
     bar.className = 'phoi-card';
-    bar.style.cssText = "margin-bottom:14px; border:1px solid rgba(168,85,247,0.4) !important; background:linear-gradient(135deg, rgba(88,28,135,0.28), rgba(16,21,38,0.88)) !important; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:12px 18px !important;";
+    bar.style.cssText = "margin-bottom:14px; border:1px solid rgba(168,85,247,0.4) !important; background:linear-gradient(135deg, rgba(88,28,135,0.28), rgba(16,21,38,0.88)) !important; display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:12px 18px !important; width: 100%; box-sizing: border-box;";
     bar.innerHTML = `
         <div style="display:flex; align-items:center; gap:12px;">
             <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, #a855f7, #6366f1); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; box-shadow:0 4px 15px rgba(168,85,247,0.45); flex-shrink:0;">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
             </div>
             <div>
-                <div style="font-size:0.88rem; font-weight:800; color:#fff;">Trợ Lý AI Thời Khóa Biểu & Điều Phối Tiến Độ</div>
-                <div style="font-size:0.72rem; color:#cbd5e1;">Nhập lịch học/lịch dạy bằng văn bản tự nhiên hoặc để AI tự động lấp lịch cày mục tiêu vào khe trống.</div>
+                <div style="font-size:0.88rem; font-weight:800; color:#fff;">Trợ Lý AI Thời Khóa Biểu</div>
+                <div style="font-size:0.72rem; color:#cbd5e1;">Nhập lịch học bằng chữ hoặc để AI tự xếp lịch.</div>
             </div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button onclick="openAiSmartScheduleModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#fff; padding:8px 14px; border-radius:10px; font-size:0.76rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhập lịch nhanh bằng chữ
+            <button onclick="openAiSmartScheduleModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#fff; padding:8px 14px; border-radius:10px; font-size:0.76rem; font-weight:700; cursor:pointer;">
+                <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhập lịch nhanh
             </button>
-            <button onclick="runAiAutoFillGoalSchedule()" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:8px 15px; border-radius:10px; font-size:0.76rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(139,92,246,0.4);">
-                <i class="fa-solid fa-robot"></i> AI Tự xếp lịch Mục tiêu
+            <button onclick="runAiAutoFillGoalSchedule()" style="background:linear-gradient(90deg, #8b5cf6, #6366f1); border:none; color:#fff; padding:8px 15px; border-radius:10px; font-size:0.76rem; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(139,92,246,0.4);">
+                <i class="fa-solid fa-robot"></i> AI Tự xếp lịch
             </button>
-            <button onclick="clearAiGeneratedSchedules()" title="Xóa các ca tự học do AI tạo (Giữ nguyên lịch cố định)" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:8px 12px; border-radius:10px; font-size:0.74rem; font-weight:700; cursor:pointer;">
+            <button onclick="clearAiGeneratedSchedules()" title="Xóa các ca tự học do AI tạo" style="background:rgba(244,63,94,0.15); border:1px solid rgba(244,63,94,0.35); color:#fda4af; padding:8px 12px; border-radius:10px; font-size:0.74rem; font-weight:700; cursor:pointer;">
                 <i class="fa-solid fa-broom"></i> Dọn lịch [AI]
             </button>
         </div>
     `;
-    ttView.insertBefore(bar, ttView.firstChild);
+    
+    // Ép buộc chèn ngay phía trên lưới thời khóa biểu để tuyệt đối không bị che khuất
+    gridEl.parentNode.insertBefore(bar, gridEl);
 }
+
+// Tự động neo thanh AI vào hàm renderTimetable để đảm bảo luôn xuất hiện
+var origRenderTimetableForAi = window.renderTimetable;
+window.renderTimetable = function() {
+    if (typeof origRenderTimetableForAi === 'function') origRenderTimetableForAi();
+    setTimeout(injectAiTimetableToolbar, 50);
+};
 
 window.openAiSmartScheduleModal = function() {
     var modal = document.getElementById('apex-ai-tt-modal');
