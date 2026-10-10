@@ -9473,7 +9473,7 @@ function renderCompactTopWidgets() {
 }
 
 // =====================================================================
-// BẢN NÂNG CẤP TRANG MỤC TIÊU - SỬA LỖI TRÀN CHỮ & CHỈNH LẠI TIMELINE
+// BẢN NÂNG CẤP TRANG MỤC TIÊU - HUY HIỆU VƯƠNG MIỆN HOÀNG GIA
 // =====================================================================
 window.renderGoalsDedicated = function(filterType = 'all') {
     let viewGoals = document.getElementById('view-goals');
@@ -9544,7 +9544,7 @@ window.renderGoalsDedicated = function(filterType = 'all') {
             .apex-card-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(16,21,38,1) 0%, rgba(16,21,38,0.85) 45%, rgba(16,21,38,0.3) 100%); z-index: 1; }
             .apex-card-content { position: relative; z-index: 2; padding: 16px; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
             
-            /* TIMELINE FIX TRÀN LỀ */
+            /* TIMELINE FIX TRÀN LỀ & HUY HIỆU VƯƠNG MIỆN */
             .apex-card-timeline { margin-top: auto; position: relative; padding-top: 15px; padding-bottom: 5px; }
             .apex-timeline-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; margin: 0 22px 0 12px; }
             .apex-timeline-fill { position: absolute; top: 0; left: 0; bottom: 0; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 4px; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
@@ -9609,6 +9609,23 @@ window.renderGoalsDedicated = function(filterType = 'all') {
             let bgUrl = bgImages[index % bgImages.length];
             let q1 = targetH * 0.25, q2 = targetH * 0.5, q3 = targetH * 0.75;
             
+            // Xây dựng Huy hiệu Điểm Cuối (Final Marker)
+            let finalMarker = '';
+            if (hrsDone >= targetH) {
+                // Đạt 100%: Thay bằng Huy hiệu mạ vàng có vương miện bên trong
+                finalMarker = `
+                <div style="position: absolute; left: 100%; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 12px rgba(251, 191, 36, 0.8); border: 2px solid #fff; z-index: 5;">
+                    <i class="fa-solid fa-crown" style="color: #78350f; font-size: 0.65rem; margin-top: -1px;"></i>
+                    <div class="apex-timeline-label" style="transform: translateX(-70%); top: 18px; color: #fbbf24; font-weight: 900;">Hoàn thành</div>
+                </div>`;
+            } else {
+                // Chưa đạt 100%: Chấm tròn bình thường
+                finalMarker = `
+                <div class="apex-timeline-marker" style="left: 100%;">
+                    <div class="apex-timeline-label" style="transform: translateX(-70%);">Hoàn thành</div>
+                </div>`;
+            }
+            
             html += `
             <div class="apex-enhanced-goal-card stagger-item" style="animation-delay: ${index * 0.05}s;" onclick="openGoal(${goal.id})">
                 <div class="apex-card-bg-layer" style="background-image: url('${bgUrl}');"></div>
@@ -9647,10 +9664,7 @@ window.renderGoalsDedicated = function(filterType = 'all') {
                             <div class="apex-timeline-marker ${hrsDone >= q1 ? 'passed' : ''}" style="left: 25%;"><div class="apex-timeline-label">${q1 >= 10 ? Math.round(q1) : q1.toFixed(1)}h</div></div>
                             <div class="apex-timeline-marker ${hrsDone >= q2 ? 'passed' : ''}" style="left: 50%;"><div class="apex-timeline-label">${q2 >= 10 ? Math.round(q2) : q2.toFixed(1)}h</div></div>
                             <div class="apex-timeline-marker ${hrsDone >= q3 ? 'passed' : ''}" style="left: 75%;"><div class="apex-timeline-label">${q3 >= 10 ? Math.round(q3) : q3.toFixed(1)}h</div></div>
-                            <div class="apex-timeline-marker ${hrsDone >= targetH ? 'passed' : ''}" style="left: 100%; border-radius:4px; width:12px; height:12px; background:${hrsDone >= targetH ? '#fbbf24' : '#101526'}; border-color:${hrsDone >= targetH ? '#f59e0b' : 'rgba(255,255,255,0.3)'};">
-                                ${hrsDone >= targetH ? '<i class="fa-solid fa-crown" style="position:absolute; top:-12px; left:-2px; color:#fbbf24; font-size:0.8rem;"></i>' : ''}
-                                <div class="apex-timeline-label" style="transform: translateX(-80%);">Hoàn thành</div>
-                            </div>
+                            ${finalMarker}
                         </div>
                     </div>
                 </div>
