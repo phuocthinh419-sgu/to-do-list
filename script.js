@@ -6493,3 +6493,231 @@ window.toggleApexPipMiniTimer = async function() {
         }
     } catch (err) { alert("Vui lòng thao tác khi không ở chế độ toàn màn hình."); }
 };
+
+// =====================================================================
+// MODULE BỘ VÁ LỖI CỐT LÕI (CORE FUNCTIONS PATCH)
+// Bổ sung các hàm bị thiếu cho Analytics, Goals, Countdowns và UI
+// =====================================================================
+
+// 1. Khôi phục logic phân tích dữ liệu ngày (Trang Analytics)
+window.renderDailyBreakdown = function(targetDate) {
+    let content = document.getElementById('daily-breakdown-content'); 
+    if (!content) return;
+    
+    let dayStats = []; 
+    let totalDayHours = 0;
+    
+    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+        goals.forEach(g => {
+            if(g.reports) {
+                let goalHrs = 0; 
+                let sessionsCount = 0;
+                g.reports.forEach(r => { 
+                    if(r.date.startsWith(targetDate)) { 
+                        sessionsCount++; 
+                        let mins = parseInt(r.type.replace('p','')); 
+                        goalHrs += (mins / 60); 
+                    } 
+                });
+                if(goalHrs > 0) { 
+                    totalDayHours += goalHrs; 
+                    dayStats.push({ name: g.name, hrs: goalHrs, sessions: sessionsCount }); 
+                }
+            }
+        });
+    }
+    
+    dayStats.sort((a,b) => b.hrs - a.hrs);
+    
+    if(dayStats.length === 0) { 
+        content.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Không có hoạt động nào được ghi nhận trong ngày này.</p>'; 
+        return; 
+    }
+    
+    let html = '';
+    dayStats.forEach(stat => {
+        let pct = (stat.hrs / totalDayHours) * 100;
+        html += `<div class="stat-row" style="margin-bottom: 20px;">
+                    <div class="stat-label">
+                        <span style="font-weight:700; color:var(--text-main);">${stat.name}</span> 
+                        <span style="font-size:0.85rem;"><strong style="color:var(--brand-focus);">${stat.hrs.toFixed(1)}h</strong> (${stat.sessions} phiên)</span>
+                    </div>
+                    <div class="stat-bar" style="height:14px; border-radius:14px;">
+                        <div class="stat-fill" style="width: ${pct}%; background:var(--brand-dash); border-radius:14px;"></div>
+                    </div>
+                 </div>`;
+    });
+    html += `<div style="text-align:right; font-size:0.95rem; font-weight:700; color:var(--text-muted); margin-top:20px; border-top:1px dashed var(--border); padding-top:16px;">
+                Tổng cộng: <strong style="color:var(--text-main); font-size:1.25rem;">${totalDayHours.toFixed(1)}h</strong>
+             </div>`;
+    content.innerHTML = html;
+};
+
+// 2. Khôi phục tính năng xem chi tiết thành tựu
+window.viewTrophyDetail = function(id) {
+    let tr = document.getElementById('trophy-room'); if (tr) tr.style.display = 'none'; 
+    let td = document.getElementById('trophy-detail'); if (td) td.style.display = 'block';
+    
+    let g = goals.find(x => x.id === id); 
+    if (!g) return;
+    let reports = g.reports || [];
+    
+    let tdTitle = document.getElementById('td-title'); if (tdTitle) tdTitle.innerText = g.name; 
+    let tdMeta = document.getElementById('td-meta'); if (tdMeta) tdMeta.innerText = `Hoàn thành mốc ${g.target}h - Lưu trữ ${reports.length} báo cáo.`;
+    
+    let tl = document.getElementById('td-timeline'); 
+    if (!tl) return;
+    tl.innerHTML = '';
+    
+    if (reports.length === 0) { 
+        tl.innerHTML = '<p class="stagger-item" style="animation-delay:0.4s; color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; 
+    } else { 
+        [...reports].reverse().forEach((rep, index) => { 
+            let delay = (index * 0.1) + 0.4; 
+            tl.innerHTML += `<div class="timeline-item stagger-item" style="animation-delay:${delay}s">
+                <div class="tl-meta">
+                    <span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span>
+                    <span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span>
+                </div>
+                <div class="tl-content">${rep.text}</div>
+            </div>`; 
+        }); 
+    }
+};
+
+// 3. Khôi phục các thao tác Quản lý Mục tiêu (Tạo, Xóa, Mở Focus Room)
+window.deleteGoal = function(e, id) {
+    if (e) e.stopPropagation();
+    if (confirm("Xác nhận xóa mục tiêu? Thao tác không thể hoàn tác.")) {
+        if (typeof goals !== 'undefined') {
+            goals = goals.filter(g => g.id !== id);
+            localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
+            if (typeof syncToCloud === 'function') syncToCloud();
+        }
+        if (document.getElementById('view-goals') && document.getElementById('view-goals').style.display !== 'none') {
+            if (typeof renderGoalsDedicated === 'function') renderGoalsDedicated(window.currentGoalFilter || 'all');
+        } else {
+            if (typeof renderDashboard === 'function') renderDashboard();
+        }
+    }
+};
+
+window.openGoal = function(id) {
+    if (typeof isPendingTax !== 'undefined' && (isPendingTax || typeof dailyDebtMinutes !== 'undefined' && dailyDebtMinutes > 0)) { 
+        alert("Phải dọn sạch nợ trước khi tiếp tục mục tiêu khác!"); return; 
+    }
+    window.activeGoalId = id;
+    let goal = goals.find(g => g.id === id);
+    if (!goal) return;
+    
+    let sb = document.getElementById('sidebar'); if (sb) sb.classList.remove('active');
+    let mo = document.getElementById('mobile-overlay'); if (mo) mo.classList.remove('active');
+    let fr = document.getElementById('focus-room'); if (fr) fr.style.display = 'flex';
+    
+    let fti = document.getElementById('focus-target-info'); 
+    if (fti) fti.innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+    
+    let fb = document.getElementById('focus-badge'); 
+    if (fb) { fb.innerText = "Khu Vực Tập Trung"; fb.style = ""; }
+    
+    if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') audioCtx.resume();
+    if (typeof resetSystem === 'function') resetSystem();
+};
+
+window.createNewGoal = function() {
+    let name = prompt("Nhập tên mục tiêu mới:"); 
+    if (!name) return;
+    let target = parseFloat(prompt("Định mức thời gian (Số giờ - VD: 20):")); 
+    if (isNaN(target) || target <= 0) return alert("Số giờ không hợp lệ.");
+    
+    let deadlineInput = prompt("Hạn chót (YYYY-MM-DD) - Để trống nếu không có:");
+    let deadline = null;
+    if (deadlineInput && deadlineInput.trim() !== "") {
+        let parsed = new Date(deadlineInput.trim());
+        if (!isNaN(parsed.getTime())) deadline = parsed.toISOString().split('T')[0];
+    }
+    
+    let todayObj = new Date(); 
+    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
+    
+    goals.push({ 
+        id: Date.now(), 
+        name: name, 
+        target: target, 
+        current: target, 
+        reports: [], 
+        deadline: deadline, 
+        createdAt: todayObj.toISOString().split('T')[0] 
+    });
+    
+    localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
+    if (typeof syncToCloud === 'function') syncToCloud();
+    
+    if (document.getElementById('view-goals') && document.getElementById('view-goals').style.display !== 'none') {
+        if (typeof renderGoalsDedicated === 'function') renderGoalsDedicated(window.currentGoalFilter || 'all');
+    } else {
+        if (typeof renderDashboard === 'function') renderDashboard();
+    }
+};
+
+// 4. Khôi phục đồng hồ và các sự kiện đếm ngược
+window.createNewCountdown = function() {
+    let name = prompt("Nhập tên sự kiện đếm ngược:"); 
+    if (!name) return;
+    let dateInput = prompt("Nhập ngày diễn ra sự kiện (YYYY-MM-DD):"); 
+    if (!dateInput) return;
+    let timeInput = prompt("Nhập giờ (HH:MM) - Bấm OK để mặc định 00:00:");
+    if (!timeInput || timeInput.trim() === "") timeInput = "00:00";
+    
+    let parsedDate = new Date(`${dateInput.trim()}T${timeInput.trim()}:00`);
+    if (isNaN(parsedDate.getTime())) { alert("Định dạng thời gian không hợp lệ."); return; }
+    
+    let cdList = JSON.parse(localStorage.getItem('saasCountdownsPro')) || [];
+    cdList.push({ id: Date.now(), name: name.toUpperCase(), date: parsedDate.toISOString() });
+    localStorage.setItem('saasCountdownsPro', JSON.stringify(cdList));
+    
+    if (typeof countdowns !== 'undefined') window.countdowns = cdList;
+    if (typeof syncToCloud === 'function') syncToCloud();
+    if (typeof renderDashboard === 'function') renderDashboard();
+};
+
+window.updateCountdownTicks = function() {
+    let now = Date.now();
+    let cards = document.querySelectorAll('.apex-live-cd-card');
+    cards.forEach(card => {
+        let target = Number(card.getAttribute('data-target-ms')) || 0;
+        let distance = target - now;
+        
+        let dEl = card.querySelector('.cd-val-d');
+        let hEl = card.querySelector('.cd-val-h');
+        let mEl = card.querySelector('.cd-val-m');
+        let sEl = card.querySelector('.cd-val-s');
+        
+        if (!dEl || !hEl || !mEl) return;
+        
+        if (distance <= 0) {
+            dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; 
+            if(sEl) sEl.innerText = "00";
+        } else {
+            dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+            hEl.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+            mEl.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            if(sEl) sEl.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+        }
+    });
+};
+
+// 5. Cung cấp Fallback an toàn cho các module chưa tải để chống sập UI
+if (typeof window.handleDispatchRestAction === 'undefined') {
+    window.handleDispatchRestAction = function() { alert("Tính năng Điều phối đang được bảo trì hoặc thiết lập."); };
+}
+if (typeof window.triggerDispatchPing === 'undefined') {
+    window.triggerDispatchPing = function() { alert("Trạm phát nhiệm vụ chưa sẵn sàng."); };
+}
+if (typeof window.updateUsdDisplay === 'undefined') {
+    window.updateUsdDisplay = function() {
+        let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
+        let el = document.getElementById('usd-balance');
+        if (el) el.innerText = usd;
+    };
+}
