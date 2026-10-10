@@ -6200,3 +6200,296 @@ window.addEventListener('DOMContentLoaded', function() {
     if (typeof initAndRunCurfewCountdown === 'function') initAndRunCurfewCountdown();
     if (typeof renderDashboard === 'function') renderDashboard();
 });
+
+// =====================================================================
+// MODULE BỔ SUNG CÁC HÀM CỐT LÕI BỊ THIẾU (ANALYTICS, LEADERBOARD, FOCUS)
+// =====================================================================
+
+// --- 1. BỔ SUNG HÀM PHÂN TÍCH NHỊP ĐỘ CHO TRANG ANALYTICS ---
+window.setAnalyticsRange = function(days) {
+    currentAnalyticsRange = days;
+    if (typeof renderAnalytics === 'function') renderAnalytics();
+};
+
+window.renderDailyBreakdown = function(targetDate) {
+    let content = document.getElementById('daily-breakdown-content'); 
+    if (!content) return;
+    
+    let dayStats = []; 
+    let totalDayHours = 0;
+    
+    if (typeof goals !== 'undefined' && Array.isArray(goals)) {
+        goals.forEach(g => {
+            if(g.reports) {
+                let goalHrs = 0; 
+                let sessionsCount = 0;
+                g.reports.forEach(r => { 
+                    if(r.date.startsWith(targetDate)) { 
+                        sessionsCount++; 
+                        let mins = parseInt(r.type.replace('p','')); 
+                        goalHrs += (mins / 60); 
+                    } 
+                });
+                if(goalHrs > 0) { 
+                    totalDayHours += goalHrs; 
+                    dayStats.push({ name: g.name, hrs: goalHrs, sessions: sessionsCount }); 
+                }
+            }
+        });
+    }
+    
+    dayStats.sort((a,b) => b.hrs - a.hrs);
+    
+    if(dayStats.length === 0) { 
+        content.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Không có hoạt động nào trong ngày này.</p>'; 
+        return; 
+    }
+    
+    let html = '';
+    dayStats.forEach(stat => {
+        let pct = (stat.hrs / totalDayHours) * 100;
+        html += `<div class="stat-row" style="margin-bottom: 20px;">
+                    <div class="stat-label">
+                        <span style="font-weight:700; color:var(--text-main);">${stat.name}</span> 
+                        <span style="font-size:0.85rem;"><strong style="color:var(--brand-focus);">${stat.hrs.toFixed(1)}h</strong> (${stat.sessions} phiên)</span>
+                    </div>
+                    <div class="stat-bar" style="height:14px; border-radius:14px;">
+                        <div class="stat-fill" style="width: ${pct}%; background:var(--brand-dash); border-radius:14px;"></div>
+                    </div>
+                 </div>`;
+    });
+    html += `<div style="text-align:right; font-size:0.95rem; font-weight:700; color:var(--text-muted); margin-top:20px; border-top:1px dashed var(--border); padding-top:16px;">
+                Tổng cộng: <strong style="color:var(--text-main); font-size:1.25rem;">${totalDayHours.toFixed(1)}h</strong>
+             </div>`;
+    content.innerHTML = html;
+};
+
+// --- 2. BỔ SUNG HÀM KIỂM KÊ THÀNH TỰU ---
+window.viewTrophyDetail = function(id) {
+    document.getElementById('trophy-room').style.display = 'none'; 
+    document.getElementById('trophy-detail').style.display = 'block';
+    
+    let g = goals.find(x => x.id === id); 
+    if (!g) return;
+    let reports = g.reports || [];
+    
+    document.getElementById('td-title').innerText = g.name; 
+    document.getElementById('td-meta').innerText = `Hoàn thành mốc ${g.target}h - Lưu trữ ${reports.length} báo cáo.`;
+    
+    let tl = document.getElementById('td-timeline'); 
+    tl.innerHTML = '';
+    
+    if (reports.length === 0) { 
+        tl.innerHTML = '<p class="stagger-item" style="animation-delay:0.4s; color: var(--text-muted); font-style: italic;">Không có dữ liệu báo cáo.</p>'; 
+    } else { 
+        [...reports].reverse().forEach((rep, index) => { 
+            let delay = (index * 0.1) + 0.4; 
+            tl.innerHTML += `<div class="timeline-item stagger-item" style="animation-delay:${delay}s">
+                <div class="tl-meta">
+                    <span><i class="fa-solid fa-calendar-day"></i> ${rep.date}</span>
+                    <span style="color: var(--brand-trophy);"><i class="fa-solid fa-bolt"></i> Phiên ${rep.type}</span>
+                </div>
+                <div class="tl-content">${rep.text}</div>
+            </div>`; 
+        }); 
+    }
+};
+
+// --- 3. BỔ SUNG KHỐI LOGIC MẠNG XÃ HỘI (BẢNG XẾP HẠNG & NHẮN TIN) ---
+window.openLeaderboard = function() {
+    let modal = document.getElementById('leaderboard-modal');
+    if (!modal) {
+        let html = `
+        <div id="leaderboard-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+            <div style="background:var(--bg-panel); width:90%; max-width:500px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; overflow-y:auto; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-xmark"></i></button>
+                <h2 style="margin-top:0; text-align:center; color:var(--brand-trophy); font-size: 1.5rem; text-transform: uppercase;"><i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng</h2>
+                <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; margin-top: 20px;">
+                    <button id="tab-lb-hours" onclick="fetchLeaderboard('weeklyHours')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Giờ Học</button>
+                    <button id="tab-lb-streak" onclick="fetchLeaderboard('streak')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Chuỗi</button>
+                </div>
+                <div id="leaderboard-content" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        modal = document.getElementById('leaderboard-modal');
+    }
+    modal.style.display = 'flex';
+    if (typeof syncToCloud === 'function') syncToCloud();
+    fetchLeaderboard('weeklyHours');
+};
+
+window.fetchLeaderboard = async function(orderByField) {
+    const content = document.getElementById('leaderboard-content');
+    if (!content) return;
+    const btnHours = document.getElementById('tab-lb-hours');
+    const btnStreak = document.getElementById('tab-lb-streak');
+    if (btnHours) { btnHours.style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)'; btnHours.style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)'; }
+    if (btnStreak) { btnStreak.style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)'; btnStreak.style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)'; }
+
+    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i><br>Đang tải dữ liệu...</div>';
+    
+    try {
+        const snapshot = await db.collection("academic_apex").get();
+        if (snapshot.empty) return content.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--text-muted);">Chưa có dữ liệu xếp hạng.</div>';
+
+        let members = [];
+        let parts = currentGlobalMonday.split('-');
+
+        snapshot.forEach((doc) => {
+            let data = doc.data() || {};
+            if (doc.id === "emperor_data_v1" && !data.displayName) return;
+
+            let calcWeekHrs = 0;
+            if (data.dailyLogs && typeof data.dailyLogs === 'object') {
+                for (let i = 0; i < 7; i++) {
+                    let d = new Date(parts[0], parts[1] - 1, parts[2]); d.setDate(d.getDate() + i);
+                    let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
+                }
+            } else if (typeof data.weeklyHours === 'number') calcWeekHrs = data.weeklyHours;
+
+            if (doc.id === USER_DOC_ID) calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
+
+            let userStreak = Number(data.streak ?? 0);
+            if (doc.id === USER_DOC_ID && typeof currentStreak !== 'undefined') userStreak = Number(currentStreak);
+
+            members.push({
+                id: doc.id,
+                name: data.displayName || "Ẩn danh",
+                photo: data.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.displayName || "U") + "&background=6366f1&color=fff",
+                weeklyHours: calcWeekHrs,
+                streak: userStreak,
+                currentStatus: data.currentStatus || 'online'
+            });
+        });
+
+        members.sort((a, b) => {
+            if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
+            return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
+        });
+
+        let html = ''; let rank = 1;
+        members.slice(0, 30).forEach((m) => {
+            let score = orderByField === 'weeklyHours' ? m.weeklyHours.toFixed(1) + 'h' : m.streak + ' Ngày';
+            let isFocusing = m.currentStatus === 'focusing';
+            let statusColor = isFocusing ? '#ef4444' : '#10b981';
+            let statusText = isFocusing ? 'Đang tập trung' : 'Trực tuyến';
+            let statusDot = `<div style="width:14px; height:14px; border-radius:50%; background:${statusColor}; position:absolute; bottom:0; right:0; border:2px solid var(--bg-panel); box-shadow: 0 0 5px ${statusColor};" title="${statusText}"></div>`;
+            let isMe = m.id === USER_DOC_ID;
+            let actionBtn = !isMe ? `<button onclick="openComposeModal('${m.id}', '${m.name.replace(/'/g, "\\'")}')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--brand-focus); width:36px; height:36px; border-radius:8px; cursor:pointer;" title="Gửi thư"><i class="fa-solid fa-paper-plane"></i></button>` : `<div style="width:36px;"></div>`;
+            let rankStyle = rank === 1 ? "color:#eab308; font-size:1.5rem; font-weight:900;" : (rank === 2 ? "color:#94a3b8; font-size:1.3rem;" : (rank === 3 ? "color:#b45309; font-size:1.2rem;" : "color:var(--text-muted); font-size:1.05rem;"));
+
+            html += `
+            <div class="stagger-item" style="display:flex; align-items:center; padding:12px; border-radius:16px; background:${isMe ? 'rgba(14,165,233,0.05)' : 'var(--bg-hover)'}; border:1px solid ${isMe ? 'var(--brand-focus)' : 'var(--border)'};">
+                <div style="width:35px; text-align:center; font-weight:800; ${rankStyle}">${rank}</div>
+                <div style="position:relative; margin:0 12px;">
+                    <img src="${m.photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover;">
+                    ${statusDot}
+                </div>
+                <div style="flex:1; overflow:hidden;">
+                    <div style="font-weight:800; color:var(--text-main); font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.name} ${isMe ? '<span style="font-size:0.68rem; color:#38bdf8; margin-left:4px;">(Bạn)</span>' : ''}</div>
+                    <div style="font-weight:900; color:var(--brand-trophy); font-size:1.1rem;">${score}</div>
+                </div>
+                ${actionBtn}
+            </div>`;
+            rank++;
+        });
+        content.innerHTML = html;
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = '<div style="text-align:center; color:#ef4444;">Lỗi kết nối máy chủ.</div>';
+    }
+};
+
+window.openComposeModal = function(receiverId = '', receiverName = '') {
+    if (typeof isSessionActive !== 'undefined' && isSessionActive) return alert("Tính năng bị khóa: Đang trong phiên tập trung.");
+    let existingModal = document.getElementById('compose-modal');
+    if (existingModal) existingModal.remove();
+
+    let isNewMessage = receiverId === '';
+    let headerHtml = isNewMessage 
+        ? `<h3 style="margin-top:0; color:var(--text-main);">Soạn tin nhắn mới</h3><input type="text" id="comp-recv-id" placeholder="Dán Mã ID của người nhận vào đây..." style="width:100%; padding:12px; border-radius:12px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); margin-bottom:16px; outline:none;">`
+        : `<h3 style="margin-top:0; color:var(--text-main);">Gửi tin đến <span style="color:var(--brand-focus);">${receiverName}</span></h3><input type="hidden" id="comp-recv-id" value="${receiverId}">`;
+
+    let html = `
+    <div id="compose-modal" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+        <div style="background:var(--bg-panel); width:90%; max-width:450px; border-radius:20px; padding:24px; border:1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            ${headerHtml}
+            <textarea id="comp-content" rows="4" placeholder="Nhập nội dung tin nhắn..." style="width:100%; padding:12px; border-radius:12px; background:var(--bg-hover); border:1px solid var(--border); color:var(--text-main); margin-bottom:16px; resize:none; outline:none;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button onclick="document.getElementById('compose-modal').style.display='none'" class="btn-ghost" style="padding:10px 20px; cursor:pointer;">Hủy bỏ</button>
+                <button id="comp-btn-send" onclick="sendMessage()" class="btn-submit active" style="padding:10px 20px; cursor:pointer;"><i class="fa-solid fa-paper-plane"></i> Gửi đi</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+};
+
+window.sendMessage = async function() {
+    let receiverId = document.getElementById('comp-recv-id').value.trim();
+    let content = document.getElementById('comp-content').value.trim();
+    if (!receiverId) return alert("Vui lòng cung cấp Mã ID người nhận.");
+    if (!content) return alert("Nội dung tin nhắn không được để trống.");
+    if (receiverId === USER_DOC_ID) return alert("Không thể tự gửi tin nhắn cho chính mình.");
+    
+    let btn = document.getElementById('comp-btn-send');
+    btn.innerText = 'Đang kiểm tra...'; btn.disabled = true;
+    try {
+        let receiverDoc = await db.collection("academic_apex").doc(receiverId).get();
+        if (!receiverDoc.exists) {
+            alert("Mã ID không tồn tại trên hệ thống.");
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; btn.disabled = false;
+            return;
+        }
+        btn.innerText = 'Đang gửi...';
+        await db.collection("messages").add({
+            senderId: USER_DOC_ID, senderName: currentUser.displayName || "Ẩn danh", receiverId: receiverId, content: content, timestamp: Date.now(), isRead: false
+        });
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Thành công';
+        btn.style.background = '#10b981'; btn.style.borderColor = '#10b981';
+        setTimeout(() => { document.getElementById('compose-modal').style.display = 'none'; }, 800);
+    } catch (err) {
+        console.error(err);
+        alert("Lỗi hệ thống: Không thể gửi tin nhắn.");
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đi'; btn.disabled = false;
+    }
+};
+
+// --- 4. BỔ SUNG HÀM ĐỒNG HỒ NỔI TRÊN FOCUS ROOM ---
+window.toggleApexPipMiniTimer = async function() {
+    try {
+        if (typeof apexPipWindow !== 'undefined' && apexPipWindow && !apexPipWindow.closed) { apexPipWindow.close(); apexPipWindow = null; return; }
+        if (document.pictureInPictureElement) { await document.exitPictureInPicture(); return; }
+        if ('documentPictureInPicture' in window) {
+            window.apexPipWindow = await window.documentPictureInPicture.requestWindow({ width: 320, height: 175 });
+            window.apexPipWindow.document.body.style.cssText = "margin:0; padding:14px 16px; background:linear-gradient(145deg, #0d1224 0%, #17153a 100%); color:#fff; font-family:sans-serif; display:flex; flex-direction:column; justify-content:space-between; height:100vh; box-sizing:border-box; overflow:hidden; user-select:none; border:1px solid rgba(168,85,247,0.35);";
+            window.apexPipWindow.document.body.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.62rem; font-weight:800; letter-spacing:1.5px; color:#c084fc; background:rgba(168,85,247,0.18); padding:2px 8px; border-radius:100px;">● ACADEMIC APEX</span>
+                    <span id="pip-goal-name" style="font-size:0.72rem; font-weight:700; color:#94a3b8;">Đang tập trung</span>
+                </div>
+                <div style="text-align:center; margin:4px 0;">
+                    <div id="pip-time-digits" style="font-size:2.85rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; line-height:1; text-shadow:0 0 24px rgba(168,85,247,0.6);">25:00</div>
+                    <div id="pip-state-sub" style="font-size:0.7rem; color:#38bdf8; font-weight:700; margin-top:4px;">🍅 Phiên Pomodoro</div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:8px;">
+                    <button id="pip-btn-start" style="background:linear-gradient(90deg,#a855f7,#6366f1); color:#fff; border:none; padding:6px 18px; border-radius:100px; font-size:0.74rem; font-weight:800; cursor:pointer;">▶ Bắt đầu</button>
+                    <button id="pip-btn-pause" style="display:none; background:#2563eb; color:#fff; border:none; padding:6px 14px; border-radius:100px; font-size:0.72rem; font-weight:700; cursor:pointer;">⏸ Tạm dừng</button>
+                </div>
+            `;
+            window.apexPipWindow.document.getElementById('pip-btn-start').onclick = function() { if (typeof triggerFocusMainStart === 'function') triggerFocusMainStart(); };
+            window.apexPipWindow.document.getElementById('pip-btn-pause').onclick = function() { if (typeof togglePause === 'function') togglePause(); };
+            if (typeof apexPipUpdateTimer !== 'undefined') clearInterval(apexPipUpdateTimer);
+            window.apexPipUpdateTimer = setInterval(function() {
+                if (!window.apexPipWindow || window.apexPipWindow.closed) return;
+                var rawTimer = document.getElementById('session-timer') ? document.getElementById('session-timer').innerText.trim() : "25:00";
+                var doc = window.apexPipWindow.document;
+                var tEl = doc.getElementById('pip-time-digits');
+                if (tEl) { tEl.innerText = rawTimer; tEl.style.color = rawTimer.startsWith('+') ? '#fbbf24' : '#ffffff'; }
+            }, 500);
+        } else {
+            alert("Trình duyệt không hỗ trợ chế độ này.");
+        }
+    } catch (err) { alert("Vui lòng thao tác khi không ở chế độ toàn màn hình."); }
+};
