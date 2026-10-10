@@ -2563,15 +2563,35 @@ function viewTrophyDetail(id) {
 }
 
 function deleteGoal(e, id) { 
-    e.stopPropagation(); 
-    if (confirm("Xóa mục tiêu?")) { 
+    if (e) e.stopPropagation(); 
+    if (confirm("Bệ hạ có chắc chắn muốn xóa mục tiêu này? (Thao tác không thể hoàn tác)")) { 
+        // 1. Cập nhật dữ liệu lõi
         goals = goals.filter(g => g.id !== id); 
-        saveAll(); 
-        if(document.getElementById('view-dashboard').style.display !== 'none') {
-            renderDashboard(); 
-            renderGamification();
+        if (typeof saveAll === 'function') {
+            saveAll();
         } else {
-            renderTrophyRoom(); 
+            localStorage.setItem('saasGoalsPro', JSON.stringify(goals));
+            if (typeof syncToCloud === 'function') syncToCloud();
+        }
+        
+        // 2. Tự động đóng Modal chi tiết mục tiêu nếu đang mở
+        let detailModal = document.getElementById('apex-goal-detail-modal');
+        if (detailModal && detailModal.style.display !== 'none') {
+            detailModal.style.display = 'none';
+        }
+
+        // 3. Tự động làm mới đúng Tab đang đứng
+        let viewDash = document.getElementById('view-dashboard');
+        let viewGoals = document.getElementById('view-goals');
+        let viewTrophy = document.getElementById('trophy-room');
+
+        if (viewDash && viewDash.style.display !== 'none') {
+            if (typeof renderDashboard === 'function') renderDashboard(); 
+            if (typeof renderGamification === 'function') renderGamification();
+        } else if (viewGoals && viewGoals.style.display !== 'none') {
+            if (typeof renderGoalsDedicated === 'function') renderGoalsDedicated(window.currentGoalFilter || 'all');
+        } else if (viewTrophy && viewTrophy.style.display !== 'none') {
+            if (typeof renderTrophyRoom === 'function') renderTrophyRoom(); 
         }
     } 
 }
@@ -9773,6 +9793,22 @@ renderDashboard();
 (function fixFocusRoomParalysis() {
     // 1. Mở khóa nút Quay Lại (Thoát hiểm an toàn về Tab Mục Tiêu)
     window.backToDashboard = function() {
+        // KHÔI PHỤC CẢNH BÁO BẢO VỆ TIẾN ĐỘ
+        if ((typeof isSessionActive !== 'undefined' && isSessionActive) || 
+            (typeof isHardcoreTax !== 'undefined' && isHardcoreTax) || 
+            (typeof isDebtSession !== 'undefined' && isDebtSession)) {
+            if (!confirm("Phiên đang chạy. Rời đi sẽ hủy toàn bộ tiến độ của phiên này?")) return;
+        }
+
+        // Dọn dẹp hệ thống
+        if (typeof isSessionActive !== 'undefined' && (isSessionActive || isGracePeriod || isBreakActive || isHardcoreTax || isDebtSession)) { 
+            clearInterval(timerInterval); 
+            clearInterval(pauseInterval); 
+            clearInterval(graceInterval); 
+            penaltyMinutes = 0; 
+            if (typeof resetSystem === 'function') resetSystem(); 
+        }
+
         let fr = document.getElementById('focus-room');
         if (fr) fr.style.display = 'none';
         
@@ -9782,23 +9818,48 @@ renderDashboard();
         let sb = document.getElementById('sidebar');
         if (sb) sb.style.display = 'flex';
         
-        // Dập tắt đồng hồ ngầm để tránh lỗi
         if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
         
-        // Điều hướng chính xác về Tab Mục tiêu mới
+        // Điều hướng chính xác về Tab Mục tiêu
         if (typeof switchTab === 'function') switchTab('goals');
     };
 
     // 2. Mở khóa nút Hủy Bỏ (Kết thúc sớm)
     window.cancelSession = function() {
-        if (confirm("Bệ hạ có chắc chắn muốn hủy bỏ phiên tu luyện này không?")) {
-            window.backToDashboard();
+        // Nếu đang chạy nhiệm vụ điều phối
+        if (typeof activeDispatchQuest !== 'undefined' && activeDispatchQuest) {
+            if (confirm("CẢNH BÁO HỦY NHIỆM VỤ ĐIỀU PHỐI:\nViệc hủy nhiệm vụ sau khi đã nhận sẽ bị trừ $50 phí hủy chuyến, giảm 30% Hiệu suất nhận lệnh và giảm 1% giá cổ phiếu. Bạn chắc chắn muốn hủy?")) {
+                let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+                localStorage.setItem('usdBalance', Math.max(0, currentUsd - 50));
+                if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
+
+                dispatchRate = Math.max(0, dispatchRate - 30);
+                consecutiveRejects++;
+                if (typeof saveDispatchState === 'function') saveDispatchState();
+                activeDispatchQuest = null;
+
+                if (typeof impactStockMarket === 'function') impactStockMarket("CANCEL");
+                clearInterval(timerInterval);
+                clearInterval(pauseInterval);
+                if (typeof resetSystem === 'function') resetSystem();
+                window.backToDashboard();
+            }
+        } else {
+            // KHÔI PHỤC CẢNH BÁO PHẠT CỔ PHIẾU
+            if (confirm("Hủy bỏ đồng nghĩa công sức phiên vừa rồi không được tính? (Hình phạt: Cổ phiếu rớt 1% toàn thị trường)")) {
+                if (typeof impactStockMarket === 'function') impactStockMarket("CANCEL");
+                clearInterval(timerInterval);
+                clearInterval(pauseInterval);
+                if (typeof resetSystem === 'function') resetSystem();
+                window.backToDashboard();
+            }
         }
     };
 
     // 3. Bọc thép động cơ Đồng hồ (Chặn đứng mọi lỗi giao diện làm chết đồng hồ)
     const oldStartSession = window.startSession;
-    if (typeof oldStartSession === 'function') {
+    if (typeof oldStartSession === 'function' && !window._apexStartSessionHooked) {
+        window._apexStartSessionHooked = true;
         window.startSession = function(mins) {
             try {
                 // Thử chạy động cơ nguyên bản
@@ -9827,7 +9888,7 @@ renderDashboard();
                     let timerEl = document.getElementById('session-timer');
                     if (timerEl) timerEl.innerText = `${m}:${s}`;
                     
-                    // Cập nhật vòng sáng (Stroke Dashoffset của SVG bán kính 130 là 816.8)
+                    // Cập nhật vòng sáng
                     let ring = document.getElementById('focus-ring-circle');
                     if (ring) {
                         let pct = ((totalSecs - secs) / totalSecs) * 100;
