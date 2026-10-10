@@ -1885,7 +1885,7 @@ function deleteCountdown(id) {
     } 
 }
 
-function switchTab(tab) {
+window.switchTab = function(tab) {
     // KHÔNG ÉP MỞ FOCUS ROOM Ở ĐÂY. Nếu có án phạt, hệ thống im lặng từ chối chuyển tab để Shame Modal hiển thị.
     if (isPendingTax || dailyDebtMinutes > 0) { 
         console.log("Án thư đang bị phong tỏa. Chờ xử lý trên màn hình phạt.");
@@ -1943,60 +1943,13 @@ function switchTab(tab) {
         document.getElementById('btn-create-countdown').style.display = 'none'; 
         document.getElementById('btn-rest-day').style.display = 'none';
         renderTimetable();
+        
+        // GỌI TRỢ LÝ AI Ở ĐÂY SAU KHI TAB MỞ
+        if (typeof injectAiTimetableToolbar === 'function') {
+            setTimeout(injectAiTimetableToolbar, 50);
+        }
     }
 }
-
-window.renderDailyBreakdown = function(targetDate) {
-    let content = document.getElementById('daily-breakdown-content'); 
-    if (!content) return;
-    
-    let dayStats = []; 
-    let totalDayHours = 0;
-    
-    goals.forEach(g => {
-        if(g.reports) {
-            let goalHrs = 0; 
-            let sessionsCount = 0;
-            g.reports.forEach(r => { 
-                if(r.date.startsWith(targetDate)) { 
-                    sessionsCount++; 
-                    let mins = parseInt(r.type.replace('p','')); 
-                    goalHrs += (mins / 60); 
-                } 
-            });
-            if(goalHrs > 0) { 
-                totalDayHours += goalHrs; 
-                dayStats.push({ name: g.name, hrs: goalHrs, sessions: sessionsCount }); 
-            }
-        }
-    });
-    
-    dayStats.sort((a,b) => b.hrs - a.hrs);
-    
-    if(dayStats.length === 0) { 
-        content.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px 0;">Không có hoạt động nào trong ngày này.</p>'; 
-        return; 
-    }
-    
-    let html = '';
-    dayStats.forEach(stat => {
-        let pct = (stat.hrs / totalDayHours) * 100;
-        html += `<div class="stat-row" style="margin-bottom: 20px;">
-                    <div class="stat-label">
-                        <span style="font-weight:700; color:var(--text-main);">${stat.name}</span> 
-                        <span style="font-size:0.85rem;"><strong style="color:var(--brand-focus);">${stat.hrs.toFixed(1)}h</strong> (${stat.sessions} phiên)</span>
-                    </div>
-                    <div class="stat-bar" style="height:14px; border-radius:14px;">
-                        <div class="stat-fill" style="width: ${pct}%; background:var(--brand-dash); border-radius:14px;"></div>
-                    </div>
-                 </div>`;
-    });
-    html += `<div style="text-align:right; font-size:0.95rem; font-weight:700; color:var(--text-muted); margin-top:20px; border-top:1px dashed var(--border); padding-top:16px;">
-                Tổng cộng: <strong style="color:var(--text-main); font-size:1.25rem;">${totalDayHours.toFixed(1)}h</strong>
-             </div>`;
-    content.innerHTML = html;
-};
-
 // =====================================================================
 // 1. CẬP NHẬT RENDER DASHBOARD (BỔ SUNG GOAL HEALTH, REQUIRED PACE, PROJECTION)
 // =====================================================================
