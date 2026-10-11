@@ -9682,6 +9682,9 @@ window.renderDashboard = function() {
 
     renderCompactTopWidgets();
     if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter();
+    
+    // Khôi phục bộ đếm tự động điều phối sau 45 giây
+    if (typeof scheduleIdleDispatch === 'function') scheduleIdleDispatch(45000);
 };
 
 // [D] HỆ THỐNG ĐỊNH TUYẾN TAB HOÀN CHỈNH
