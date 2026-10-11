@@ -9396,20 +9396,72 @@ function renderCompactTopWidgets() {
     }
     topContainer.innerHTML = ''; // Xóa cũ vẽ mới
 
-    // 1. THẺ THIẾT QUÂN LUẬT
+    // 1. THẺ THIẾT QUÂN LUẬT (NÂNG CẤP ĐẦY ĐỦ 3 MỐC & THÔNG SỐ CHIẾN LƯỢC)
     let weekSum = getTotalCycleHours();
-    let kpiTarget = getWeeklyTarget();
-    let kpiPct = Math.min(100, Math.round((weekSum / kpiTarget) * 100));
+    let baseTarget = getWeeklyTarget(); // Định mức an toàn gốc (5h)
+    
+    let stageTarget = baseTarget;
+    let stageName = "MÀN 1: AN TOÀN";
+    let stageBonus = "Thưởng x1";
+    let barGradient = "linear-gradient(90deg, #14b8a6, #3b82f6)";
+    let accentCol = "#14b8a6";
+
+    if (weekSum >= 10) {
+        stageTarget = 15;
+        stageName = "🔥 MÀN 3: HUYỀN THOẠI";
+        stageBonus = "Thưởng x3 + Vương Miện";
+        barGradient = "linear-gradient(90deg, #f43f5e, #fbbf24)";
+        accentCol = "#f43f5e";
+    } else if (weekSum >= baseTarget) {
+        stageTarget = 10;
+        stageName = "⚡ MÀN 2: TINH ANH";
+        stageBonus = "Thưởng x2 + Khiên";
+        barGradient = "linear-gradient(90deg, #f59e0b, #ec4899)";
+        accentCol = "#f59e0b";
+    }
+
+    let kpiPct = Math.min(100, Math.round((weekSum / stageTarget) * 100));
+    
+    let nowObj = new Date();
+    let currentDow = nowObj.getDay() === 0 ? 7 : nowObj.getDay(); 
+    let daysRemaining = Math.max(1, 7 - currentDow + 1);
+    let dailyAvg = weekSum / currentDow;
+    let shieldsCount = parseInt(localStorage.getItem('saasFreezes')) || 0;
+
+    let statusDetailHtml = "";
+    if (weekSum < baseTarget) {
+        let needPerDay = (baseTarget - weekSum) / daysRemaining;
+        statusDetailHtml = `<span style="color:#fda4af;"><i class="fa-solid fa-triangle-exclamation"></i> Cách mốc an toàn <b>${(baseTarget - weekSum).toFixed(1)}h</b> (Cần <b>${needPerDay.toFixed(1)}h/ngày</b>)</span>`;
+    } else if (weekSum < 10) {
+        statusDetailHtml = `<span style="color:#10b981;"><i class="fa-solid fa-shield-halved"></i> Đã an toàn!</span> <span style="color:#cbd5e1;">Còn <b>${(10 - weekSum).toFixed(1)}h</b> lên Tinh Anh (x2$)</span>`;
+    } else if (weekSum < 15) {
+        statusDetailHtml = `<span style="color:#fbbf24;"><i class="fa-solid fa-bolt"></i> Đang x2 thưởng!</span> <span style="color:#cbd5e1;">Còn <b>${(15 - weekSum).toFixed(1)}h</b> lấy Vương Miện</span>`;
+    } else {
+        statusDetailHtml = `<span style="color:#fde047; font-weight:800;"><i class="fa-solid fa-crown"></i> BÁ CHỦ TUẦN! Đang kích hoạt x3 toàn bộ thu nhập!</span>`;
+    }
+
     let kpiHtml = `
-        <div class="phoi-card" style="padding:16px !important; border:1px solid rgba(20,184,166,0.3) !important; min-height:115px; display:flex; flex-direction:column; justify-content:center;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:#14b8a6; margin-right:6px;"></i>Thiết Quân Luật</span>
-                <strong style="font-size:1.15rem; color:#fff;">${weekSum.toFixed(1)} / ${kpiTarget}h</strong>
+        <div class="phoi-card" style="padding:14px 16px !important; border:1px solid ${accentCol}55 !important; min-height:115px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-crosshairs" style="color:${accentCol}; margin-right:5px;"></i>Thiết Quân Luật</span>
+                        <span style="font-size:0.62rem; font-weight:800; padding:2px 7px; border-radius:100px; background:${accentCol}22; color:${accentCol}; border:1px solid ${accentCol}55;">${stageName}</span>
+                    </div>
+                    <strong style="font-size:1.1rem; color:#fff;">${weekSum.toFixed(1)} <span style="font-size:0.8rem; color:#94a3b8; font-weight:600;">/ ${stageTarget}h</span></strong>
+                </div>
+                <div style="position:relative; width:100%; height:7px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:8px;">
+                    <div class="apex-shimmer-bar" style="height:100%; width:${kpiPct}%; background:${barGradient}; border-radius:100px; transition:width 0.4s ease;"></div>
+                </div>
             </div>
-            <div style="width:100%; height:6px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; margin-bottom:10px;">
-                <div style="height:100%; width:${kpiPct}%; background:linear-gradient(90deg,#14b8a6,#3b82f6); border-radius:100px;"></div>
+            <div style="font-size:0.71rem; line-height:1.35; margin-bottom:8px;">
+                ${statusDetailHtml}
             </div>
-            <div style="font-size:0.7rem; color:#94a3b8;">${weekSum >= kpiTarget ? '<span style="color:#10b981;">Đã đạt định mức an toàn.</span>' : `Cần duy trì <b>${((kpiTarget-weekSum)/Math.max(1, 7 - new Date().getDay())).toFixed(1)}h/ngày</b> để về đích.`}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding-top:7px; border-top:1px solid rgba(255,255,255,0.06); font-size:0.66rem; color:#94a3b8; font-weight:600;">
+                <span><i class="fa-solid fa-gauge-high" style="color:#38bdf8; margin-right:3px;"></i>TB: <b style="color:#e2e8f0;">${dailyAvg.toFixed(1)}h/ngày</b></span>
+                <span><i class="fa-solid fa-shield-halved" style="color:#10b981; margin-right:3px;"></i>Khiên: <b style="color:#e2e8f0;">${shieldsCount}/2</b></span>
+                <span><i class="fa-solid fa-gift" style="color:#fbbf24; margin-right:3px;"></i><b style="color:#fbbf24;">${stageBonus}</b></span>
+            </div>
         </div>`;
 
     // 2. THẺ ĐIỀU PHỐI AI
