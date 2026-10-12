@@ -18,7 +18,7 @@
         }
     </script>
 
-    <!-- STYLE CHO TRANG ĐĂNG NHẬP DESIGN 2 & TẦNG GIỚI THIỆU TỔNG QUAN -->
+    <!-- STYLE CHO TRANG ĐĂNG NHẬP DESIGN 2 & TẦNG GIỚI THIỆU FULL-SCREEN CÓ ANIMATION -->
     <style>
         #login-overlay {
             position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important;
@@ -30,10 +30,13 @@
             display: block !important;
             padding: 0 !important; box-sizing: border-box !important;
             color: #f8fafc; overflow-y: auto !important; overflow-x: hidden !important;
-            scroll-behavior: smooth; font-family: 'Inter', system-ui, sans-serif;
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+            font-family: 'Inter', system-ui, sans-serif;
         }
         .ax-hero-viewport {
-            min-height: 100vh; width: 100%;
+            min-height: 100vh; height: 100vh; width: 100%;
+            scroll-snap-align: start;
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 28px 54px; box-sizing: border-box;
         }
@@ -64,20 +67,37 @@
             width: 34px; height: 34px; border-radius: 50%;
             background: rgba(15, 23, 42, 0.62); border: 1px solid rgba(255, 255, 255, 0.14);
             display: flex; align-items: center; justify-content: center;
-            color: #cbd5e1; font-size: 0.85rem; position: relative;
+            color: #cbd5e1; font-size: 0.85rem; position: relative; transition: 0.2s;
         }
+        .ax-icon-circle:hover { border-color: #a855f7; color: #fff; transform: scale(1.06); }
+
         .ax-login-main {
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; max-width: 1360px; margin: auto; gap: 48px; position: relative; z-index: 5;
-            padding: 16px 0;
+            padding: 12px 0;
         }
-        .ax-hero-left { flex: 1.15; max-width: 650px; position: relative; text-align: left; padding-top: 18px; }
+        .ax-hero-left {
+            flex: 1.15; max-width: 650px; position: relative; text-align: left; padding-top: 18px;
+            animation: axHeroFadeLeft 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes axHeroFadeLeft {
+            from { opacity: 0; transform: translateX(-24px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
         
-        /* Đẩy vòm ánh sao lên cao để không đè vào chữ "nỗ lực" */
         .ax-orbit-svg {
             position: absolute; top: -48px; left: 45px; width: 470px; height: 140px;
             pointer-events: none; opacity: 0.92; z-index: 1;
         }
+        .ax-star-sparkle {
+            transform-origin: 440px 39px;
+            animation: axStarPulse 3s ease-in-out infinite;
+        }
+        @keyframes axStarPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
+            50% { transform: scale(1.22) rotate(12deg); opacity: 1; }
+        }
+
         .ax-hero-heading {
             position: relative; z-index: 2;
             font-size: 3.4rem; font-weight: 800; line-height: 1.2;
@@ -94,7 +114,7 @@
             margin: 0 0 24px 0; text-shadow: 0 2px 12px rgba(0,0,0,0.85);
         }
         .ax-feature-pills {
-            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px;
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px;
         }
         .ax-f-pill {
             display: flex; align-items: center; gap: 10px;
@@ -103,86 +123,100 @@
             border: 1px solid rgba(255, 255, 255, 0.16);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            transition: all 0.25s ease;
         }
-        .ax-f-pill i { font-size: 1.05rem; color: #e2e8f0; }
+        .ax-f-pill:hover {
+            transform: translateY(-3px);
+            border-color: rgba(192, 132, 252, 0.5);
+            background: rgba(30, 27, 75, 0.65);
+        }
+        .ax-f-pill i { font-size: 1.05rem; color: #c084fc; }
         .ax-f-pill span { font-size: 0.74rem; font-weight: 600; color: #f1f5f9; line-height: 1.25; text-align: left; }
         
-        /* Cụm Đạo Cụ Bàn Học 3D (Sách xếp chồng + Ống cắm bút + Khối pha lê) */
+        /* CỤM ĐẠO CỤ BÀN HỌC 3D ĐÃ CĂN THẲNG HÀNG & CÂN ĐỐI TUYỆT ĐỐI */
         .ax-desk-props {
-            display: inline-flex; align-items: flex-end; gap: 16px;
-            padding: 14px 20px 12px 16px; border-radius: 18px;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.32) 0%, rgba(9, 13, 26, 0.68) 100%);
-            border-bottom: 2px solid rgba(251, 191, 36, 0.28);
-            box-shadow: 0 18px 40px rgba(0,0,0,0.55);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: inline-flex; align-items: flex-end; gap: 18px;
+            padding: 16px 22px 14px 18px; border-radius: 18px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.48) 0%, rgba(9, 13, 26, 0.82) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 2px solid rgba(251, 191, 36, 0.35);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
+        /* 3 cuốn sách xếp chồng thẳng tắp 100% không bị lệch */
         .ax-book-stack {
-            display: flex; flex-direction: column; gap: 0; width: 195px;
-            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));
+            display: flex; flex-direction: column; gap: 3px; width: 205px;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.65));
         }
         .ax-book-item {
-            position: relative;
-            padding: 7px 14px 7px 16px;
-            background: linear-gradient(90deg, #162032 0%, #1e293b 88%, #e2e8f0 88%, #cbd5e1 100%);
-            border-top: 1px solid rgba(255,255,255,0.16);
+            position: relative; width: 100%; box-sizing: border-box;
+            padding: 8px 16px 8px 14px;
+            border-radius: 5px 4px 4px 5px;
+            background: linear-gradient(90deg, #162032 0%, #1e293b 89%, #e2e8f0 89%, #cbd5e1 100%);
+            border-top: 1px solid rgba(255,255,255,0.15);
             border-bottom: 2px solid #090d16;
-            font-size: 0.65rem; color: #e2e8f0; font-weight: 700; text-align: left;
+            font-size: 0.66rem; color: #f1f5f9; font-weight: 700; text-align: left;
             letter-spacing: 0.3px;
+            transition: transform 0.25s ease;
         }
-        .ax-book-item:nth-child(1) {
-            border-radius: 5px 4px 2px 5px;
-            border-left: 5px solid #6366f1;
-            transform: translateX(4px);
-        }
+        .ax-book-item:hover { transform: translateX(3px); }
+        .ax-book-item:nth-child(1) { border-left: 5px solid #6366f1; }
         .ax-book-item:nth-child(2) {
-            border-radius: 5px 4px 2px 5px;
             border-left: 5px solid #a855f7;
-            background: linear-gradient(90deg, #1b1a36 0%, #262447 88%, #e2e8f0 88%, #cbd5e1 100%);
+            background: linear-gradient(90deg, #1b1a36 0%, #262447 89%, #e2e8f0 89%, #cbd5e1 100%);
         }
-        .ax-book-item:nth-child(3) {
-            border-radius: 5px 4px 3px 5px;
-            border-left: 5px solid #38bdf8;
-            transform: translateX(2px);
-        }
+        .ax-book-item:nth-child(3) { border-left: 5px solid #38bdf8; }
 
         /* Ống cắm bút có bút nhô lên */
         .ax-pen-holder-wrap {
             display: flex; flex-direction: column; align-items: center; position: relative;
         }
         .ax-pens-svg {
-            margin-bottom: -8px; z-index: 1;
+            margin-bottom: -7px; z-index: 1;
             filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
+            transition: transform 0.3s ease;
         }
+        .ax-pen-holder-wrap:hover .ax-pens-svg { transform: translateY(-3px); }
         .ax-pen-cup {
-            width: 56px; height: 68px; border-radius: 4px 4px 12px 12px;
-            background: linear-gradient(90deg, #cbd5e1 0%, #f1f5f9 35%, #94a3b8 80%, #64748b 100%);
-            border-top: 2px solid #f8fafc;
+            width: 54px; height: 64px; border-radius: 4px 4px 12px 12px;
+            background: linear-gradient(90deg, #cbd5e1 0%, #f8fafc 35%, #94a3b8 80%, #64748b 100%);
+            border-top: 2px solid #ffffff;
             display: flex; align-items: center; justify-content: center;
             color: #4338ca; font-size: 1.05rem; position: relative; z-index: 2;
             box-shadow: 0 10px 22px rgba(0,0,0,0.7), inset 0 -6px 12px rgba(15,23,42,0.25);
         }
 
-        /* Khối Pha Lê BETTER YOU TOMORROW */
+        /* Khối Pha Lê BETTER YOU TOMORROW có tia sáng quét qua */
         .ax-crystal-wrap {
             display: flex; flex-direction: column; align-items: center;
         }
         .ax-crystal-plaque {
-            width: 112px; height: 96px; border-radius: 8px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 55%, rgba(251,191,36,0.12) 100%);
+            width: 114px; height: 86px; border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 55%, rgba(251,191,36,0.14) 100%);
             border: 1.5px solid rgba(254, 240, 138, 0.65);
             box-shadow: 0 0 25px rgba(251, 146, 60, 0.35), inset 0 0 14px rgba(255,255,255,0.28);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             display: flex; flex-direction: column; justify-content: center;
             padding: 10px 12px; box-sizing: border-box; text-align: left;
-            font-size: 0.64rem; font-weight: 800; letter-spacing: 0.9px; color: #fef9c3; line-height: 1.38;
-            position: relative;
+            font-size: 0.63rem; font-weight: 800; letter-spacing: 0.9px; color: #fef9c3; line-height: 1.38;
+            position: relative; overflow: hidden;
+        }
+        .ax-crystal-plaque::before {
+            content: ""; position: absolute; top: 0; left: -120%; width: 65%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+            transform: skewX(-25deg);
+            animation: axCrystalSweep 4.5s infinite;
+        }
+        @keyframes axCrystalSweep {
+            0%, 60% { left: -120%; }
+            100% { left: 160%; }
         }
         .ax-crystal-plaque::after {
             content: ""; position: absolute; inset: 4px; border-radius: 5px;
             border: 1px solid rgba(255,255,255,0.18); pointer-events: none;
         }
         .ax-crystal-base {
-            width: 122px; height: 7px; border-radius: 3px;
+            width: 124px; height: 6px; border-radius: 3px;
             background: linear-gradient(90deg, #78350f, #fbbf24, #fef08a, #fbbf24, #78350f);
             box-shadow: 0 4px 14px rgba(251, 191, 36, 0.55);
             margin-top: -1px;
@@ -197,6 +231,11 @@
             box-shadow: 0 25px 75px rgba(0, 0, 0, 0.85), 0 0 45px rgba(168, 85, 247, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             text-align: center; position: relative; overflow: hidden;
+            animation: axCardFadeRight 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+        }
+        @keyframes axCardFadeRight {
+            from { opacity: 0; transform: translateX(24px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         .ax-card-watermark {
             position: absolute; top: -18px; right: -24px; font-size: 8rem;
@@ -249,10 +288,10 @@
         .ax-card-footer a { color: #d8b4fe; font-weight: 800; text-decoration: underline; cursor: pointer; }
         
         .ax-bottom-hint {
-            width: 100%; max-width: 1400px; margin: 0 auto;
+            width: fit-content; margin: 0;
             display: flex; align-items: center; gap: 10px;
             font-size: 0.78rem; color: #cbd5e1; position: relative; z-index: 5;
-            cursor: pointer; text-decoration: none; width: fit-content; margin-left: 0;
+            cursor: pointer; text-decoration: none;
             transition: 0.2s;
         }
         .ax-bottom-hint:hover { color: #ffffff; transform: translateY(2px); }
@@ -268,91 +307,147 @@
             50% { transform: translateY(4px); }
         }
 
-        /* TẦNG GIỚI THIỆU TỔNG QUAN NỀN TẢNG (KHI CUỘN XUỐNG) */
+        /* ============================================================================
+           TẦNG 2: THÔNG TIN GIỚI THIỆU FULL-SCREEN 100VH (KHÔNG LỘ VIỀN TRÊN & CÓ ANIMATION)
+           ============================================================================ */
         .ax-about-section {
             width: 100%;
-            background: linear-gradient(180deg, rgba(8, 11, 22, 0.85) 0%, rgba(7, 10, 20, 0.98) 25%, #070a14 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 72px 54px 64px 54px; box-sizing: border-box;
-            position: relative; z-index: 5;
+            min-height: 100vh;
+            scroll-snap-align: start;
+            background: 
+                radial-gradient(circle at 50% 15%, rgba(139, 92, 246, 0.14) 0%, transparent 55%),
+                linear-gradient(180deg, #070a15 0%, #090d1c 50%, #060811 100%);
+            border-top: 1px solid rgba(168, 85, 247, 0.25);
+            padding: 48px 54px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative; z-index: 6;
         }
         .ax-about-inner {
-            max-width: 1280px; margin: 0 auto;
+            max-width: 1280px; width: 100%; margin: 0 auto;
         }
         .ax-about-header {
-            text-align: center; max-width: 720px; margin: 0 auto 48px auto;
+            text-align: center; max-width: 860px; margin: 0 auto 44px auto;
         }
         .ax-about-tag {
-            display: inline-block; padding: 5px 14px; border-radius: 100px;
-            background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35);
-            color: #d8b4fe; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
-            text-transform: uppercase; margin-bottom: 12px;
+            display: inline-block; padding: 6px 16px; border-radius: 100px;
+            background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.38);
+            color: #d8b4fe; font-size: 0.72rem; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; margin-bottom: 14px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
         }
         .ax-about-title {
-            font-size: 2rem; font-weight: 800; color: #ffffff; margin: 0 0 12px 0;
+            font-size: 2.15rem; font-weight: 800; color: #ffffff; margin: 0 0 14px 0;
+            letter-spacing: -0.3px; line-height: 1.25;
         }
         .ax-about-lead {
-            font-size: 0.92rem; color: #94a3b8; line-height: 1.6; margin: 0;
+            font-size: 0.94rem; color: #94a3b8; line-height: 1.65; margin: 0 auto; max-width: 720px;
         }
         .ax-about-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 48px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 44px;
         }
         .ax-about-card {
-            background: rgba(15, 23, 42, 0.7);
+            background: linear-gradient(160deg, rgba(18, 25, 46, 0.85) 0%, rgba(11, 16, 32, 0.92) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px; padding: 24px 20px;
-            transition: all 0.25s ease;
+            border-radius: 20px; padding: 26px 22px;
+            position: relative; overflow: hidden;
+            transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ax-about-card::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #a855f7, #38bdf8, transparent);
+            opacity: 0; transition: opacity 0.3s ease;
         }
         .ax-about-card:hover {
-            border-color: rgba(168, 85, 247, 0.45);
-            transform: translateY(-4px);
-            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+            border-color: rgba(168, 85, 247, 0.5);
+            transform: translateY(-7px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.16);
         }
+        .ax-about-card:hover::before { opacity: 1; }
         .ax-about-icon {
-            width: 42px; height: 42px; border-radius: 12px;
-            background: rgba(168, 85, 247, 0.16); border: 1px solid rgba(168, 85, 247, 0.32);
+            width: 46px; height: 46px; border-radius: 13px;
+            background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35);
             color: #c084fc; display: flex; align-items: center; justify-content: center;
-            font-size: 1.15rem; margin-bottom: 16px;
+            font-size: 1.2rem; margin-bottom: 18px;
+            transition: all 0.3s ease;
+        }
+        .ax-about-card:hover .ax-about-icon {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #ffffff;
+            transform: scale(1.08) rotate(-4deg);
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.5);
         }
         .ax-about-card h4 {
-            margin: 0 0 8px 0; font-size: 0.98rem; font-weight: 800; color: #f8fafc;
+            margin: 0 0 10px 0; font-size: 1rem; font-weight: 800; color: #f8fafc;
         }
         .ax-about-card p {
-            margin: 0; font-size: 0.8rem; color: #94a3b8; line-height: 1.55;
+            margin: 0; font-size: 0.82rem; color: #94a3b8; line-height: 1.6;
         }
         .ax-workflow-bar {
-            background: linear-gradient(90deg, rgba(30, 27, 75, 0.5), rgba(15, 23, 42, 0.8));
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px; padding: 24px 32px;
+            background: linear-gradient(90deg, rgba(30, 27, 75, 0.55) 0%, rgba(15, 23, 42, 0.88) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.28);
+            border-radius: 20px; padding: 24px 32px;
             display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
         }
         .ax-wf-steps {
-            display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+            display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
         }
         .ax-wf-item {
             display: flex; align-items: center; gap: 12px;
         }
         .ax-wf-num {
-            width: 28px; height: 28px; border-radius: 50%;
-            background: #a855f7; color: #fff; font-weight: 800; font-size: 0.78rem;
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #fff; font-weight: 800; font-size: 0.8rem;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.5);
         }
-        .ax-wf-text strong { display: block; font-size: 0.84rem; color: #fff; }
-        .ax-wf-text span { font-size: 0.74rem; color: #94a3b8; }
+        .ax-wf-text strong { display: block; font-size: 0.86rem; color: #fff; margin-bottom: 2px; }
+        .ax-wf-text span { font-size: 0.75rem; color: #94a3b8; }
+
+        .ax-btn-back-top {
+            padding: 12px 22px; border-radius: 13px;
+            background: linear-gradient(90deg, #a855f7, #6366f1);
+            border: none; color: #fff; font-weight: 800; font-size: 0.84rem;
+            cursor: pointer; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
+            transition: all 0.25s ease;
+        }
+        .ax-btn-back-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 26px rgba(168, 85, 247, 0.65);
+        }
+
+        /* HIỆU ỨNG ANIMATION KHI CUỘN XUỐNG (SCROLL REVEAL) */
+        .ax-reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ax-reveal.ax-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .ax-delay-1 { transition-delay: 0.10s; }
+        .ax-delay-2 { transition-delay: 0.20s; }
+        .ax-delay-3 { transition-delay: 0.30s; }
+        .ax-delay-4 { transition-delay: 0.40s; }
+        .ax-delay-5 { transition-delay: 0.50s; }
 
         /* Khóa ẩn vĩnh viễn hộp vòng tròn đỏ "CÒN LẠI" bị lặp ở Sidebar */
         #curfew-countdown-container { display: none !important; }
 
         @media (max-width: 960px) {
-            .ax-hero-viewport { padding: 20px !important; }
+            #login-overlay { scroll-snap-type: none; }
+            .ax-hero-viewport { height: auto; padding: 20px !important; }
             .ax-login-main { flex-direction: column; text-align: center; gap: 24px; }
             .ax-hero-left { text-align: center; }
             .ax-hero-heading { font-size: 2.3rem; }
             .ax-feature-pills { justify-content: center; margin-bottom: 14px; }
             .ax-desk-props, .ax-clock-pill { display: none; }
-            .ax-about-section { padding: 40px 20px; }
+            .ax-about-section { height: auto; padding: 48px 20px; }
             .ax-about-grid { grid-template-columns: 1fr; }
+            .ax-about-title { font-size: 1.55rem; }
         }
     </style>
 </head>
@@ -388,11 +483,13 @@
             <div class="ax-login-main">
                 <!-- Left Hero -->
                 <div class="ax-hero-left">
-                    <!-- Đường vòng cung ánh sao đã được nâng cao để không cắt vào chữ "nỗ lực" -->
+                    <!-- Đường vòng cung ánh sao không cắt vào chữ "nỗ lực" -->
                     <svg class="ax-orbit-svg" viewBox="0 0 480 145" fill="none">
                         <path d="M12 118 C 135 -12, 395 -18, 442 42 C 458 65, 430 100, 375 118" stroke="url(#orbGrad)" stroke-width="1.5" fill="none"/>
-                        <circle cx="440" cy="39" r="3.5" fill="#ffffff" filter="drop-shadow(0 0 8px #e879f9)"/>
-                        <path d="M440 27 L442 37 L452 39 L442 41 L440 51 L438 41 L428 39 L438 37 Z" fill="#f5d0fe"/>
+                        <g class="ax-star-sparkle">
+                            <circle cx="440" cy="39" r="3.5" fill="#ffffff" filter="drop-shadow(0 0 8px #e879f9)"/>
+                            <path d="M440 27 L442 37 L452 39 L442 41 L440 51 L438 41 L428 39 L438 37 Z" fill="#f5d0fe"/>
+                        </g>
                         <defs>
                             <linearGradient id="orbGrad" x1="0" y1="0" x2="460" y2="0" gradientUnits="userSpaceOnUse">
                                 <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
@@ -427,7 +524,7 @@
                         </div>
                     </div>
 
-                    <!-- Cụm Đạo Cụ Bàn Học 3D Đã Căn Chỉnh Đồng Bộ -->
+                    <!-- Cụm Đạo Cụ Bàn Học 3D Đã Căn Chỉnh Thẳng Hàng Tuyệt Đối -->
                     <div class="ax-desk-props">
                         <div class="ax-book-stack">
                             <div class="ax-book-item">Discipline · Focus · Mastery</div>
@@ -436,11 +533,11 @@
                         </div>
 
                         <div class="ax-pen-holder-wrap" title="Academic Apex">
-                            <svg class="ax-pens-svg" width="48" height="32" viewBox="0 0 48 32" fill="none">
-                                <rect x="8" y="4" width="5" height="28" rx="2" transform="rotate(-12 8 4)" fill="#334155" stroke="#94a3b8" stroke-width="0.8"/>
-                                <rect x="17" y="1" width="5" height="30" rx="2" transform="rotate(-3 17 1)" fill="#475569" stroke="#cbd5e1" stroke-width="0.8"/>
-                                <rect x="26" y="3" width="5.5" height="28" rx="2" transform="rotate(6 26 3)" fill="#1e293b" stroke="#a855f7" stroke-width="0.9"/>
-                                <rect x="35" y="6" width="5" height="26" rx="2" transform="rotate(14 35 6)" fill="#0f172a" stroke="#fbbf24" stroke-width="0.8"/>
+                            <svg class="ax-pens-svg" width="48" height="30" viewBox="0 0 48 30" fill="none">
+                                <rect x="8" y="4" width="5" height="26" rx="2" transform="rotate(-10 8 4)" fill="#334155" stroke="#94a3b8" stroke-width="0.8"/>
+                                <rect x="17" y="1" width="5" height="28" rx="2" transform="rotate(-2 17 1)" fill="#475569" stroke="#cbd5e1" stroke-width="0.8"/>
+                                <rect x="26" y="3" width="5.5" height="26" rx="2" transform="rotate(5 26 3)" fill="#1e293b" stroke="#a855f7" stroke-width="0.9"/>
+                                <rect x="35" y="6" width="5" height="24" rx="2" transform="rotate(12 35 6)" fill="#0f172a" stroke="#fbbf24" stroke-width="0.8"/>
                             </svg>
                             <div class="ax-pen-cup">
                                 <i class="fa-solid fa-layer-group"></i>
@@ -511,47 +608,47 @@
             </div>
         </div>
 
-        <!-- TẦNG 2: THÔNG TIN GIỚI THIỆU SƠ LƯỢC VỀ WEB (NGÔN TỪ TRUNG LẬP, CHUYÊN NGHIỆP) -->
+        <!-- TẦNG 2: THÔNG TIN GIỚI THIỆU FULL-SCREEN 100VH (CÓ ANIMATION TRƯỢT LÊN) -->
         <section class="ax-about-section" id="ax-about-anchor">
             <div class="ax-about-inner">
-                <div class="ax-about-header">
+                <div class="ax-about-header ax-reveal">
                     <span class="ax-about-tag">Tổng quan hệ thống</span>
-                    <h2 class="ax-about-title">Giải pháp Quản trị Thời gian & Hiệu suất Cá nhân</h2>
+                    <h2 class="ax-about-title">Giải pháp Quản trị Thời gian &amp; Hiệu suất Cá nhân</h2>
                     <p class="ax-about-lead">
                         Academic Apex là nền tảng hỗ trợ lập kế hoạch, theo dõi thời gian tập trung và phân tích dữ liệu học tập — làm việc trực quan, giúp người dùng duy trì thói quen kỷ luật mỗi ngày.
                     </p>
                 </div>
 
                 <div class="ax-about-grid">
-                    <div class="ax-about-card">
+                    <div class="ax-about-card ax-reveal ax-delay-1">
                         <div class="ax-about-icon"><i class="fa-solid fa-bullseye"></i></div>
-                        <h4>Quản lý Mục tiêu & Lịch trình</h4>
+                        <h4>Quản lý Mục tiêu &amp; Lịch trình</h4>
                         <p>Thiết lập mục tiêu ngắn hạn, dài hạn và sắp xếp thời khóa biểu theo tuần một cách khoa học, rõ ràng.</p>
                     </div>
-                    <div class="ax-about-card">
+                    <div class="ax-about-card ax-reveal ax-delay-2">
                         <div class="ax-about-icon"><i class="fa-regular fa-clock"></i></div>
                         <h4>Không gian Tập trung (Pomodoro)</h4>
                         <p>Đồng hồ bấm giờ chuyên sâu kết hợp âm thanh nền (Mưa rơi, Quán Cafe, Lofi) và danh sách việc cần làm giúp tối ưu sự tập trung.</p>
                     </div>
-                    <div class="ax-about-card">
+                    <div class="ax-about-card ax-reveal ax-delay-3">
                         <div class="ax-about-icon"><i class="fa-solid fa-chart-line"></i></div>
-                        <h4>Thống kê & Phân tích Dữ liệu</h4>
+                        <h4>Thống kê &amp; Phân tích Dữ liệu</h4>
                         <p>Tự động tổng hợp số giờ làm việc, biểu đồ tiến độ 7 ngày, mật độ hoạt động và nhật ký hoàn thành sau mỗi phiên.</p>
                     </div>
-                    <div class="ax-about-card">
+                    <div class="ax-about-card ax-reveal ax-delay-4">
                         <div class="ax-about-icon"><i class="fa-solid fa-medal"></i></div>
-                        <h4>Duy trì Động lực & Cộng đồng</h4>
+                        <h4>Duy trì Động lực &amp; Cộng đồng</h4>
                         <p>Hệ thống chuỗi ngày liên tiếp (Streak), bảng xếp hạng cộng đồng và phần thưởng tích lũy giúp duy trì nhịp độ ổn định.</p>
                     </div>
                 </div>
 
-                <div class="ax-workflow-bar">
+                <div class="ax-workflow-bar ax-reveal ax-delay-5">
                     <div class="ax-wf-steps">
                         <div class="ax-wf-item">
                             <div class="ax-wf-num">1</div>
                             <div class="ax-wf-text">
                                 <strong>Thiết lập kế hoạch</strong>
-                                <span>Tạo mục tiêu & lịch trình cá nhân</span>
+                                <span>Tạo mục tiêu &amp; lịch trình cá nhân</span>
                             </div>
                         </div>
                         <div class="ax-wf-item">
@@ -564,13 +661,13 @@
                         <div class="ax-wf-item">
                             <div class="ax-wf-num">3</div>
                             <div class="ax-wf-text">
-                                <strong>Đánh giá & Tối ưu</strong>
-                                <span>Theo dõi báo cáo thống kê & đồng bộ đám mây</span>
+                                <strong>Đánh giá &amp; Tối ưu</strong>
+                                <span>Theo dõi báo cáo thống kê &amp; đồng bộ đám mây</span>
                             </div>
                         </div>
                     </div>
 
-                    <button type="button" onclick="document.getElementById('ax-top-anchor').scrollIntoView({behavior:'smooth'})" style="padding:10px 20px; border-radius:12px; background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.82rem; cursor:pointer; box-shadow:0 4px 16px rgba(168,85,247,0.4);">
+                    <button type="button" class="ax-btn-back-top" onclick="document.getElementById('ax-top-anchor').scrollIntoView({behavior:'smooth'})">
                         Bắt đầu sử dụng ngay ↑
                     </button>
                 </div>
@@ -928,7 +1025,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="script.js"></script>
 
-    <!-- SCRIPT ĐỒNG HỒ TRANG LOGIN & HỘP THOẠI ĐĂNG NHẬP EMAIL -->
+    <!-- SCRIPT ĐỒNG HỒ TRANG LOGIN, KÍCH HOẠT ANIMATION KHI CUỘN & ĐĂNG NHẬP EMAIL -->
     <script>
         (function() {
             function tickLoginClock() {
@@ -940,6 +1037,23 @@
             }
             tickLoginClock();
             setInterval(tickLoginClock, 10000);
+
+            // Kích hoạt hiệu ứng Animation trượt lên khi người dùng cuộn xuống Tầng Giới Thiệu
+            var revealEls = document.querySelectorAll('.ax-reveal');
+            if ('IntersectionObserver' in window && revealEls.length > 0) {
+                var obs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('ax-visible');
+                        } else {
+                            entry.target.classList.remove('ax-visible');
+                        }
+                    });
+                }, { threshold: 0.15 });
+                revealEls.forEach(function(el) { obs.observe(el); });
+            } else {
+                revealEls.forEach(function(el) { el.classList.add('ax-visible'); });
+            }
 
             if (typeof window.openEmailAuthModal !== 'function') {
                 window.openEmailAuthModal = function(mode) {
