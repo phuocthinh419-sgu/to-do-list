@@ -644,38 +644,8 @@ function isCurfewActive() {
 }
 
 function updateCurfewCountdown() {
-    const container = document.getElementById('curfew-countdown-container');
-    if (!curfewTimeStr) { container.style.display = 'none'; return; }
-    
-    container.style.display = 'flex'; 
-    let now = new Date(); 
-    let [cHour, cMin] = curfewTimeStr.split(':').map(Number);
-    
-    if (isCurfewActive()) { 
-        document.getElementById('curfew-timer-text').innerText = "ĐÃ KHÓA"; 
-        document.getElementById('curfew-progress').style.strokeDashoffset = 113.1; 
-        return; 
-    }
-    
-    let curfewDate = new Date(); 
-    curfewDate.setHours(cHour, cMin, 0, 0); 
-    let distance = curfewDate - now;
-    
-    if (distance < 0) { 
-        curfewDate.setDate(curfewDate.getDate() + 1); 
-        distance = curfewDate - now; 
-    }
-    
-    let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); 
-    let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); 
-    let s = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    document.getElementById('curfew-timer-text').innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    
-    let totalSecs = Math.floor(distance / 1000); 
-    let maxSecs = 12 * 3600; 
-    let pct = Math.max(0, Math.min(1, totalSecs / maxSecs));
-    document.getElementById('curfew-progress').style.strokeDashoffset = 113.1 - (pct * 113.1);
+    const oldContainer = document.getElementById('curfew-countdown-container');
+    if (oldContainer) oldContainer.style.display = 'none';
 }
 
 // =====================================================================
@@ -4964,6 +4934,7 @@ function declineDispatchQuest() {
     dispatchRate = Math.max(0, dispatchRate - 15);
     saveDispatchState();
     renderDispatchStatusWidget();
+    if (typeof renderCompactTopWidgets === 'function') renderCompactTopWidgets();
 
     if (consecutiveRejects >= 3) {
         setTimeout(() => {
@@ -5323,10 +5294,15 @@ function injectShopButtonToSidebar() {
 
     let walletBox = usdEl.closest('div');
     if (walletBox && walletBox.parentElement) {
+        // Làm gọn đẹp lại ô Quỹ thưởng
+        walletBox.style.cssText = "width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 12px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;";
+
         let btn = document.createElement('button');
         btn.id = 'btn-open-academic-shop';
         btn.onclick = openAcademicShop;
-        btn.style.cssText = "width: calc(100% - 32px); margin: 8px 16px 16px 16px; padding: 10px 14px; border-radius: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(234,88,12,0.15)); border: 1px solid rgba(245,158,11,0.4); color: var(--brand-trophy); font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;";
+        btn.style.cssText = "width: 100%; box-sizing: border-box; margin: 0 0 14px 0; padding: 10px 14px; border-radius: 12px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(234, 88, 12, 0.08)); border: 1px solid rgba(245, 158, 11, 0.38); color: #fbbf24; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);";
+        btn.onmouseover = function() { this.style.background = "linear-gradient(135deg, rgba(245, 158, 11, 0.26), rgba(234, 88, 12, 0.18))"; this.style.transform = "translateY(-1px)"; };
+        btn.onmouseout = function() { this.style.background = "linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(234, 88, 12, 0.08))"; this.style.transform = "translateY(0)"; };
         btn.innerHTML = `<i class="fa-solid fa-store"></i> Cửa Hàng Vật Phẩm`;
         walletBox.parentElement.insertBefore(btn, walletBox.nextSibling);
     }
@@ -5766,7 +5742,6 @@ function applyCustomWallpaper() {
     if (apexThemeConfig.autoTime) {
         var hr = new Date().getHours();
         var autoId = (hr >= 6 && hr < 15) ? 'forest' : ((hr >= 15 && hr < 18) ? 'golden' : 'twilight');
-        // Chỉ tự động chuyển sang chủ đề đã sở hữu
         if (ownedThemesList.indexOf(autoId) === -1) autoId = 'twilight';
         var autoPreset = APEX_THEME_PRESETS.find(function(p) { return p.id === autoId; });
         if (autoPreset && apexThemeConfig.themeId !== autoId) {
@@ -5778,12 +5753,24 @@ function applyCustomWallpaper() {
     var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
     var preset = APEX_THEME_PRESETS.find(function(p) { return p.id === apexThemeConfig.themeId; }) || APEX_THEME_PRESETS[0];
 
+    // ƯU TIÊN BẢNG MÀU 4 NÚT TRÒN TRÊN SIDEBAR (ĐỂ 4 NÚT MÀU PHÁT HUY TÁC DỤNG)
+    var accentPalettes = {
+        'zen':         { accent: '#10b981', accent2: '#059669', soft: 'rgba(16,185,129,0.18)', border: 'rgba(16,185,129,0.42)' },
+        'neon-purple': { accent: '#a855f7', accent2: '#6366f1', soft: 'rgba(168,85,247,0.18)', border: 'rgba(168,85,247,0.42)' },
+        'neon-blue':   { accent: '#38bdf8', accent2: '#2563eb', soft: 'rgba(56,189,248,0.18)', border: 'rgba(56,189,248,0.42)' },
+        'sakura':      { accent: '#f43f5e', accent2: '#e11d48', soft: 'rgba(244,63,94,0.18)',  border: 'rgba(244,63,94,0.42)' }
+    };
+    var savedAccentKey = localStorage.getItem('plannerColor') || localStorage.getItem('saasColorTheme');
+    var activePal = accentPalettes[savedAccentKey] || preset;
+
     var root = document.documentElement;
     root.style.setProperty('--user-wallpaper', "url('" + bg + "')");
-    root.style.setProperty('--theme-accent', preset.accent);
-    root.style.setProperty('--theme-accent-2', preset.accent2);
-    root.style.setProperty('--theme-soft', preset.soft);
-    root.style.setProperty('--theme-border', preset.border);
+    root.style.setProperty('--theme-accent', activePal.accent);
+    root.style.setProperty('--theme-accent-2', activePal.accent2);
+    root.style.setProperty('--theme-soft', activePal.soft);
+    root.style.setProperty('--theme-border', activePal.border);
+    root.style.setProperty('--brand-focus', activePal.accent);
+    root.style.setProperty('--brand-dash', activePal.accent2);
 
     var dimDec = (Number(apexThemeConfig.overlayDim) / 100).toFixed(2);
     root.style.setProperty('--user-bg-dim', dimDec);
@@ -8147,10 +8134,12 @@ window.changeColor = function(colorName) {
     var chosen = valid.includes(colorName) ? colorName : 'neon-purple';
     document.documentElement.setAttribute('data-color', chosen);
     document.body.setAttribute('data-color', chosen);
+    localStorage.setItem('plannerColor', chosen);
     localStorage.setItem('saasColorTheme', chosen);
     document.querySelectorAll('.color-btn').forEach(function(btn) {
         btn.classList.toggle('active', btn.classList.contains(chosen));
     });
+    if (typeof applyCustomWallpaper === 'function') applyCustomWallpaper();
 };
 
 // --- 11. TRỢ LÝ AI THỜI KHÓA BIỂU (NHẬP NHANH NLP & TỰ ĐỘNG LẤP LỊCH THEO TIẾN ĐỘ) ---
@@ -9237,27 +9226,31 @@ window.addEventListener('DOMContentLoaded', function() {
 // 14. BỘ ĐẾM NGƯỢC GIỜ GIỚI NGHIÊM THỜI GIAN THỰC (ALWAYS-ON CURFEW TIMER)
 // =====================================================================
 function initAndRunCurfewCountdown() {
-    // 1. Tìm ô input Giờ giới nghiêm trên Sidebar
-    var curfewInput = document.getElementById('curfew-time')
-                   || document.querySelector('input[type="time"]');
+    // 1. Ẩn triệt để hộp vòng tròn đỏ "CÒN LẠI" cũ gây trùng lặp
+    var oldCurfewContainer = document.getElementById('curfew-countdown-container');
+    if (oldCurfewContainer) oldCurfewContainer.style.display = 'none';
+
+    var curfewInput = document.getElementById('curfew-time') || document.querySelector('input[type="time"]');
     if (!curfewInput) return;
 
-    // Đồng bộ giá trị đã lưu từ localStorage nếu ô input đang trống
-    var savedCurfew = localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime');
+    var savedCurfew = localStorage.getItem('saasCurfewTime') || localStorage.getItem('curfewTime') || localStorage.getItem('saasCurfew');
     if (savedCurfew && !curfewInput.value) {
         curfewInput.value = savedCurfew;
     }
 
-    // 2. Đảm bảo luôn có hộp hiển thị "Còn lại: ..." nằm ngay dưới ô input
+    // Làm gọn đẹp ô chọn giờ giới nghiêm
+    curfewInput.style.cssText = "width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); color: #f8fafc; font-weight: 800; font-size: 0.85rem; outline: none; cursor: pointer;";
+
+    // 2. Tạo thanh trạng thái đếm ngược duy nhất, gắn liền bên dưới ô giờ
     var badge = document.getElementById('apex-curfew-live-badge');
     if (!badge) {
         badge = document.createElement('div');
         badge.id = 'apex-curfew-live-badge';
         badge.style.cssText = [
-            "margin-top: 7px",
-            "padding: 6px 10px",
-            "border-radius: 9px",
-            "font-size: 0.74rem",
+            "margin-top: 6px",
+            "padding: 7px 11px",
+            "border-radius: 10px",
+            "font-size: 0.73rem",
             "font-weight: 700",
             "display: flex",
             "align-items: center",
@@ -9269,19 +9262,13 @@ function initAndRunCurfewCountdown() {
             "transition: all 0.3s ease"
         ].join(";");
 
-        // Chèn ngay bên dưới khối chứa input (hoặc ngay sau input)
-        var wrap = curfewInput.closest('.curfew-box, .sidebar-section, div') || curfewInput.parentElement;
-        if (wrap) {
-            wrap.appendChild(badge);
-        } else {
-            curfewInput.insertAdjacentElement('afterend', badge);
-        }
+        curfewInput.insertAdjacentElement('afterend', badge);
 
-        // Lắng nghe khi người dùng đổi giờ giới nghiêm -> Lưu và cập nhật tức thì
         curfewInput.addEventListener('change', function() {
             if (curfewInput.value) {
                 localStorage.setItem('saasCurfewTime', curfewInput.value);
                 localStorage.setItem('curfewTime', curfewInput.value);
+                localStorage.setItem('saasCurfew', curfewInput.value);
                 localStorage.setItem('saasLastUpdated', Date.now());
                 if (typeof syncToCloud === 'function') syncToCloud();
             }
@@ -9289,8 +9276,32 @@ function initAndRunCurfewCountdown() {
         });
     }
 
-    // Ẩn các dòng đếm ngược cũ bị lỗi chập chờn (nếu có) để tránh trùng lặp
-    ['curfew-countdown', 'curfew-remaining', 'curfew-timer-text'].forEach(function(oldId) {
+    // 3. Căn chỉnh lại khay 4 nút màu Accent & ẩn nút Mặt trăng (vì đã dùng Theme vũ trụ tối)
+    var paletteBox = document.querySelector('.palette-container');
+    if (paletteBox && !paletteBox.dataset.styledClean) {
+        paletteBox.dataset.styledClean = 'true';
+        paletteBox.style.cssText = "display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin: 10px 0; border-radius: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06);";
+        
+        // Thêm nhãn nhỏ "Tông màu" bên trái 4 nút tròn
+        var lbl = document.createElement('span');
+        lbl.style.cssText = "font-size: 0.7rem; font-weight: 700; color: #94a3b8; margin-right: auto;";
+        lbl.innerHTML = '<i class="fa-solid fa-palette" style="color:var(--theme-accent); margin-right:5px;"></i>Tông màu';
+        paletteBox.insertBefore(lbl, paletteBox.firstChild);
+
+        // Chỉnh kích thước 4 chấm màu gọn đẹp và có khoảng cách đều
+        paletteBox.querySelectorAll('.color-btn').forEach(function(b) {
+            b.style.width = '18px';
+            b.style.height = '18px';
+            b.style.marginLeft = '6px';
+            b.title = "Đổi tông màu nhấn chủ đạo (Accent Color)";
+        });
+
+        // Ẩn nút Mặt trăng (Dark/Light cũ) vì giao diện đang chạy nền Vũ trụ cố định
+        var moonBtn = paletteBox.querySelector('.theme-toggle') || document.querySelector('.theme-toggle');
+        if (moonBtn) moonBtn.style.display = 'none';
+    }
+
+    ['curfew-countdown', 'curfew-remaining', 'curfew-timer-text', 'curfew-countdown-container'].forEach(function(oldId) {
         var oldEl = document.getElementById(oldId);
         if (oldEl && oldEl !== badge) oldEl.style.display = 'none';
     });
