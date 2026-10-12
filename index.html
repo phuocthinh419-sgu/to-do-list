@@ -6,7 +6,7 @@
     <title>Academic Apex | Command Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -17,15 +17,335 @@
             .then(() => console.log('Service Worker Ready'));
         }
     </script>
+
+    <!-- STYLE CHO TRANG ĐĂNG NHẬP DESIGN 2 (GLASSMORPHISM SUNSET DESK) -->
+    <style>
+        #login-overlay {
+            position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important;
+            z-index: 99999 !important;
+            background: 
+                radial-gradient(circle at 48% 64%, rgba(251, 146, 60, 0.32) 0%, rgba(168, 85, 247, 0.18) 38%, transparent 68%),
+                linear-gradient(90deg, rgba(7, 9, 20, 0.88) 0%, rgba(14, 18, 36, 0.45) 50%, rgba(11, 13, 28, 0.82) 100%),
+                url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=2000&q=85') center/cover no-repeat !important;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 28px 54px !important; box-sizing: border-box !important;
+            color: #f8fafc; overflow: hidden; font-family: 'Inter', system-ui, sans-serif;
+        }
+        .ax-login-topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; max-width: 1400px; margin: 0 auto; position: relative; z-index: 5;
+        }
+        .ax-brand-wrap { display: flex; align-items: center; gap: 12px; }
+        .ax-brand-logo {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 1.3rem;
+            box-shadow: 0 0 22px rgba(168, 85, 247, 0.6);
+        }
+        .ax-brand-title { font-size: 1.18rem; font-weight: 900; letter-spacing: 0.8px; color: #fff; line-height: 1.1; }
+        .ax-brand-sub { font-size: 0.56rem; font-weight: 700; letter-spacing: 2.3px; color: #cbd5e1; margin-top: 3px; }
+        
+        .ax-top-right { display: flex; align-items: center; gap: 12px; }
+        .ax-clock-pill {
+            padding: 7px 16px; border-radius: 100px;
+            background: rgba(15, 23, 42, 0.62); border: 1px solid rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            font-size: 0.76rem; font-weight: 600; color: #e2e8f0;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .ax-icon-circle {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(15, 23, 42, 0.62); border: 1px solid rgba(255, 255, 255, 0.14);
+            display: flex; align-items: center; justify-content: center;
+            color: #cbd5e1; font-size: 0.85rem; position: relative;
+        }
+        .ax-login-main {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; max-width: 1360px; margin: auto; gap: 48px; position: relative; z-index: 5;
+        }
+        .ax-hero-left { flex: 1.15; max-width: 650px; position: relative; text-align: left; }
+        .ax-orbit-svg {
+            position: absolute; top: -42px; left: 30px; width: 440px; height: 155px;
+            pointer-events: none; opacity: 0.9;
+        }
+        .ax-hero-heading {
+            font-size: 3.4rem; font-weight: 800; line-height: 1.18;
+            font-style: italic; margin: 0 0 14px 0; color: #ffffff;
+            text-shadow: 0 6px 28px rgba(0, 0, 0, 0.7);
+        }
+        .ax-hero-heading .grad-text {
+            background: linear-gradient(90deg, #c084fc 0%, #e879f9 55%, #f472b6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 24px rgba(217, 70, 239, 0.5));
+        }
+        .ax-hero-desc {
+            font-size: 0.98rem; color: #e2e8f0; font-weight: 500;
+            margin: 0 0 26px 0; text-shadow: 0 2px 12px rgba(0,0,0,0.85);
+        }
+        .ax-feature-pills {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px;
+        }
+        .ax-f-pill {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px; border-radius: 14px;
+            background: rgba(15, 23, 42, 0.58);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+        .ax-f-pill i { font-size: 1.05rem; color: #e2e8f0; }
+        .ax-f-pill span { font-size: 0.74rem; font-weight: 600; color: #f1f5f9; line-height: 1.25; text-align: left; }
+        
+        .ax-desk-props {
+            display: flex; align-items: flex-end; gap: 16px; margin-top: 8px; opacity: 0.96;
+        }
+        .ax-book-stack { display: flex; flex-direction: column; gap: 5px; width: 180px; }
+        .ax-book-item {
+            padding: 7px 14px; border-radius: 4px 8px 8px 4px;
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            border-left: 4px solid #6366f1; border-top: 1px solid rgba(255,255,255,0.14);
+            font-size: 0.65rem; color: #cbd5e1; font-weight: 600; text-align: left;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.65);
+        }
+        .ax-pen-cup {
+            width: 58px; height: 78px; border-radius: 6px 6px 12px 12px;
+            background: linear-gradient(135deg, #cbd5e1, #64748b);
+            display: flex; align-items: center; justify-content: center;
+            color: #312e81; font-size: 1.1rem; position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        .ax-crystal-plaque {
+            width: 115px; height: 110px; border-radius: 10px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
+            border: 1.5px solid rgba(251, 191, 36, 0.6);
+            box-shadow: 0 0 28px rgba(251, 146, 60, 0.38), inset 0 0 15px rgba(255,255,255,0.22);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 12px; box-sizing: border-box; text-align: left;
+            font-size: 0.66rem; font-weight: 800; letter-spacing: 0.8px; color: #fef3c7; line-height: 1.38;
+        }
+
+        .ax-glass-card {
+            width: 100%; max-width: 425px; border-radius: 26px;
+            padding: 40px 36px 32px 36px; box-sizing: border-box;
+            background: linear-gradient(155deg, rgba(58, 52, 98, 0.65) 0%, rgba(24, 26, 52, 0.82) 58%, rgba(46, 30, 88, 0.76) 100%);
+            border: 1.5px solid rgba(192, 132, 252, 0.55);
+            box-shadow: 0 25px 75px rgba(0, 0, 0, 0.85), 0 0 45px rgba(168, 85, 247, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .ax-card-watermark {
+            position: absolute; top: -18px; right: -24px; font-size: 8rem;
+            color: rgba(168, 85, 247, 0.14); transform: rotate(-12deg); pointer-events: none;
+        }
+        .ax-card-logo {
+            width: 54px; height: 54px; margin: 0 auto 10px auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.25rem; color: #a855f7;
+            filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.7));
+        }
+        .ax-card-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0; letter-spacing: 0.6px; }
+        .ax-card-sub { font-size: 0.82rem; color: #cbd5e1; margin: 6px 0 26px 0; font-weight: 500; }
+        .ax-btn-google {
+            width: 100%; padding: 13px 20px; border-radius: 14px;
+            background: #ffffff; border: none; color: #0f172a;
+            font-size: 0.88rem; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.22);
+            transition: all 0.22s ease;
+        }
+        .ax-btn-google:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(255, 255, 255, 0.35); }
+        .ax-divider { margin: 15px 0; font-size: 0.75rem; color: #cbd5e1; font-weight: 500; }
+        .ax-btn-email {
+            width: 100%; padding: 13px 20px; border-radius: 14px;
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            color: #f8fafc; font-size: 0.86rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.22s ease;
+        }
+        .ax-btn-email:hover { background: rgba(168, 85, 247, 0.25); border-color: #c084fc; transform: translateY(-2px); }
+        
+        /* Chặn script cũ tự chèn thêm nút Email thứ 2 vào trong card */
+        .ax-glass-card [id^="btn-apex-email-auth"] { display: none !important; }
+
+        .ax-trust-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            margin-top: 28px; padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .ax-trust-item {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 0 6px; border-right: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .ax-trust-item:last-child { border-right: none; }
+        .ax-trust-item i { font-size: 1.05rem; color: #c084fc; }
+        .ax-trust-item span { font-size: 0.68rem; color: #cbd5e1; line-height: 1.3; font-weight: 500; }
+        .ax-card-footer { margin-top: 24px; font-size: 0.76rem; color: #cbd5e1; }
+        .ax-card-footer a { color: #d8b4fe; font-weight: 800; text-decoration: underline; cursor: pointer; }
+        .ax-bottom-hint {
+            width: 100%; max-width: 1400px; margin: 0 auto;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.76rem; color: #cbd5e1; position: relative; z-index: 5;
+        }
+        .ax-scroll-pill {
+            width: 20px; height: 30px; border-radius: 100px;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; color: #fff;
+        }
+
+        /* Khóa ẩn vĩnh viễn hộp vòng tròn đỏ "CÒN LẠI" bị lặp ở Sidebar */
+        #curfew-countdown-container { display: none !important; }
+
+        @media (max-width: 960px) {
+            #login-overlay { padding: 20px !important; overflow-y: auto !important; }
+            .ax-login-main { flex-direction: column; text-align: center; gap: 24px; }
+            .ax-hero-left { text-align: center; }
+            .ax-hero-heading { font-size: 2.3rem; }
+            .ax-feature-pills { justify-content: center; margin-bottom: 10px; }
+            .ax-desk-props, .ax-clock-pill { display: none; }
+        }
+    </style>
 </head>
 <body>
-    <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-        <div style="font-size: 3.8rem; color: var(--brand-focus);"><i class="fa-solid fa-layer-group"></i></div>
-        <h1 style="color: var(--text-main); font-weight: 800; font-size: 2rem; letter-spacing: -1px; margin: 0;">ACADEMIC APEX</h1>
-        <p style="color: var(--text-muted); font-weight: 500; font-size: 0.9rem; margin-bottom: 12px;">Hệ thống quản lý tiến độ và tối ưu hiệu suất học tập</p>
-        <button onclick="loginWithGoogle()" style="background: #fff; color: #000; padding: 11px 22px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.92rem; box-shadow: 0 4px 15px rgba(255,255,255,0.15); transition: 0.2s;">
-            <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Đăng nhập bằng Google
-        </button>
+    <!-- MÀN HÌNH ĐĂNG NHẬP DESIGN 2 (TRỰC TIẾP TRONG #login-overlay) -->
+    <div id="login-overlay">
+        <!-- Top Header -->
+        <div class="ax-login-topbar">
+            <div class="ax-brand-wrap">
+                <div class="ax-brand-logo"><i class="fa-solid fa-layer-group"></i></div>
+                <div style="text-align:left;">
+                    <div class="ax-brand-title">ACADEMIC APEX</div>
+                    <div class="ax-brand-sub">LEARN · PLAN · ACHIEVE</div>
+                </div>
+            </div>
+            <div class="ax-top-right">
+                <div class="ax-clock-pill">
+                    <i class="fa-regular fa-calendar" style="color:#c084fc;"></i>
+                    <span id="ax-login-live-clock">Thứ 2, 12/10/2026</span>
+                </div>
+                <div class="ax-icon-circle">
+                    <i class="fa-regular fa-bell"></i>
+                    <span style="position:absolute; top:6px; right:7px; width:6px; height:6px; border-radius:50%; background:#f43f5e;"></span>
+                </div>
+                <div class="ax-icon-circle">
+                    <i class="fa-solid fa-sun"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Content -->
+        <div class="ax-login-main">
+            <!-- Left Hero -->
+            <div class="ax-hero-left">
+                <svg class="ax-orbit-svg" viewBox="0 0 450 150" fill="none">
+                    <path d="M10 120 C 140 10, 390 -10, 425 55 C 440 85, 395 120, 340 135" stroke="url(#orbGrad)" stroke-width="1.5" fill="none"/>
+                    <circle cx="422" cy="50" r="4" fill="#ffffff" filter="drop-shadow(0 0 8px #e879f9)"/>
+                    <path d="M422 38 L424 48 L434 50 L424 52 L422 62 L420 52 L410 50 L420 48 Z" fill="#f5d0fe"/>
+                    <defs>
+                        <linearGradient id="orbGrad" x1="0" y1="0" x2="450" y2="0" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+                            <stop offset="65%" stop-color="rgba(216,180,254,0.75)"/>
+                            <stop offset="100%" stop-color="rgba(244,114,182,0.18)"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <h1 class="ax-hero-heading">
+                    Lượng hóa nỗ lực,<br>
+                    định hình <span class="grad-text">tương lai.</span>
+                </h1>
+                <p class="ax-hero-desc">Cùng Academic Apex kiến tạo hành trình học tập hiệu quả hơn mỗi ngày.</p>
+
+                <div class="ax-feature-pills">
+                    <div class="ax-f-pill">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <span>Theo dõi<br>tiến độ</span>
+                    </div>
+                    <div class="ax-f-pill">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>Quản lý<br>mục tiêu</span>
+                    </div>
+                    <div class="ax-f-pill">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Tạo động lực<br>mỗi ngày</span>
+                    </div>
+                    <div class="ax-f-pill">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Học tập<br>hiệu quả hơn</span>
+                    </div>
+                </div>
+
+                <div class="ax-desk-props">
+                    <div class="ax-book-stack">
+                        <div class="ax-book-item">English for Tomorrow</div>
+                        <div class="ax-book-item" style="border-left-color:#a855f7;">Learn · Plan · Achieve</div>
+                        <div class="ax-book-item" style="border-left-color:#38bdf8;">Academic Apex</div>
+                    </div>
+                    <div class="ax-pen-cup" title="Academic Apex">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div class="ax-crystal-plaque">
+                        BETTER<br>YOU<br>TOMORROW
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Frosted Glass Login Card -->
+            <div class="ax-glass-card">
+                <i class="fa-solid fa-layer-group ax-card-watermark"></i>
+                <div class="ax-card-logo"><i class="fa-solid fa-layer-group"></i></div>
+                <h2 class="ax-card-title">ACADEMIC APEX</h2>
+                <div class="ax-card-sub">Đăng nhập để tiếp tục hành trình</div>
+
+                <button type="button" class="ax-btn-google" data-has-email-sibling="true" onclick="loginWithGoogle()">
+                    <span style="width:16px;"></span>
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        Đăng nhập bằng Google
+                    </span>
+                    <i class="fa-solid fa-arrow-right" style="color:#64748b; font-size:0.85rem;"></i>
+                </button>
+
+                <div class="ax-divider">hoặc</div>
+
+                <button type="button" class="ax-btn-email" onclick="openEmailAuthModal('login')">
+                    <span style="width:16px;"></span>
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-envelope" style="color:#c084fc; font-size:1rem;"></i>
+                        Đăng nhập bằng Email
+                    </span>
+                    <i class="fa-solid fa-arrow-right" style="color:#cbd5e1; font-size:0.85rem;"></i>
+                </button>
+
+                <div class="ax-trust-grid">
+                    <div class="ax-trust-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Bảo mật<br>tuyệt đối</span>
+                    </div>
+                    <div class="ax-trust-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Dữ liệu<br>riêng tư</span>
+                    </div>
+                    <div class="ax-trust-item">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Trải nghiệm<br>mượt mà</span>
+                    </div>
+                </div>
+
+                <div class="ax-card-footer">
+                    Bạn chưa có tài khoản? <a onclick="openEmailAuthModal('register')">Đăng ký ngay →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Hint -->
+        <div class="ax-bottom-hint">
+            <span class="ax-scroll-pill">↓</span>
+            <span>Cuộn xuống để khám phá</span>
+        </div>
     </div>
 
     <canvas id="confetti-canvas"></canvas>
@@ -65,7 +385,7 @@
                     <span style="font-size:0.7rem; color:var(--text-muted); font-weight:600;"><i class="fa-regular fa-moon"></i> Giờ giới nghiêm</span>
                 </div>
                 <input type="time" id="curfew-time" onchange="saveCurfew()" title="Giờ giới nghiêm" class="curfew-input">
-                <div id="curfew-countdown-container" style="display: none; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;">
+                <div id="curfew-countdown-container" style="display: none !important; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;">
                     <div class="mini-progress-circle">
                         <svg viewBox="0 0 44 44"><circle class="mini-bg" cx="22" cy="22" r="18"></circle><circle id="curfew-progress" class="mini-bar" cx="22" cy="22" r="18"></circle></svg>
                     </div>
@@ -76,11 +396,12 @@
                 </div>
             </div>
 
-            <div class="palette-container">
-                <button class="color-btn zen active" onclick="changeColor('zen')" style="background: #1e293b; border: 1px solid #475569;" title="Mặc định"></button>
-                <button class="color-btn neon-purple" onclick="changeColor('neon-purple')" style="background: linear-gradient(135deg, #a855f7, #2e1065);" title="Tím Indigo"></button>
-                <button class="color-btn neon-blue" onclick="changeColor('neon-blue')" style="background: linear-gradient(135deg, #0ea5e9, #082f49);" title="Xanh Đại Dương"></button>
-                <button class="color-btn sakura" onclick="changeColor('sakura')" style="background: linear-gradient(135deg, #e11d48, #881337);" title="Đỏ Ruby"></button>
+            <div class="palette-container" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; margin:8px; border-radius:10px; background:rgba(15,23,42,0.55); border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:0.7rem; font-weight:700; color:#94a3b8; margin-right:auto; display:flex; align-items:center; gap:5px;"><i class="fa-solid fa-palette" style="color:var(--theme-accent, #a855f7);"></i> Tông màu</span>
+                <button class="color-btn zen active" onclick="changeColor('zen')" style="background: linear-gradient(135deg, #10b981, #059669); width:18px; height:18px;" title="Ngọc Lục Bảo"></button>
+                <button class="color-btn neon-purple" onclick="changeColor('neon-purple')" style="background: linear-gradient(135deg, #a855f7, #6366f1); width:18px; height:18px;" title="Tím Tinh Vân"></button>
+                <button class="color-btn neon-blue" onclick="changeColor('neon-blue')" style="background: linear-gradient(135deg, #38bdf8, #2563eb); width:18px; height:18px;" title="Xanh Đại Dương"></button>
+                <button class="color-btn sakura" onclick="changeColor('sakura')" style="background: linear-gradient(135deg, #f43f5e, #e11d48); width:18px; height:18px;" title="Đỏ Ruby"></button>
             </div>
 
             <a class="nav-item" onclick="exportData()"><i class="fa-solid fa-cloud-arrow-down"></i> Sao lưu dữ liệu</a>
@@ -88,7 +409,7 @@
             <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
         </div>
 
-        <div class="sidebar-footer" id="sidebar-bottom-dock">
+        <div class="sidebar-footer" id="sidebar-bottom-dock" style="display:none;">
             <span style="font-weight: 600; font-size:0.74rem; color:var(--text-muted);">Chế độ hiển thị</span>
             <button class="theme-toggle" onclick="toggleTheme()" title="Chuyển đổi Sáng/Tối">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
@@ -376,5 +697,50 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="script.js"></script>
+
+    <!-- SCRIPT BẢO ĐẢM ĐỒNG HỒ TRANG LOGIN & HỘP THOẠI ĐĂNG NHẬP EMAIL LUÔN HOẠT ĐỘNG -->
+    <script>
+        (function() {
+            function tickLoginClock() {
+                var el = document.getElementById('ax-login-live-clock');
+                if (!el) return;
+                var now = new Date();
+                var days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+                el.innerText = days[now.getDay()] + ', ' + now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear() + '  ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            }
+            tickLoginClock();
+            setInterval(tickLoginClock, 10000);
+
+            if (typeof window.openEmailAuthModal !== 'function') {
+                window.openEmailAuthModal = function(mode) {
+                    var isReg = (mode === 'register');
+                    var modal = document.getElementById('apex-email-auth-modal');
+                    if (!modal) {
+                        modal = document.createElement('div');
+                        modal.id = 'apex-email-auth-modal';
+                        modal.style.cssText = "display:flex; position:fixed; inset:0; background:rgba(4,6,14,0.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); z-index:100005; align-items:center; justify-content:center; padding:16px;";
+                        document.body.appendChild(modal);
+                    }
+                    modal.innerHTML = '<div style="width:100%; max-width:395px; background:linear-gradient(155deg, rgba(35,32,68,0.96), rgba(15,23,42,0.98)); border:1.5px solid rgba(192,132,252,0.55); border-radius:22px; padding:26px; box-shadow:0 25px 70px rgba(0,0,0,0.9); color:#f8fafc; position:relative;">' +
+                        '<button onclick="document.getElementById(\'apex-email-auth-modal\').style.display=\'none\'" style="position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#94a3b8; width:30px; height:30px; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>' +
+                        '<div style="text-align:center; margin-bottom:18px;">' +
+                            '<div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #a855f7, #6366f1); display:inline-flex; align-items:center; justify-content:center; font-size:1.35rem; color:#fff; margin-bottom:10px; box-shadow:0 0 20px rgba(168,85,247,0.45);"><i class="fa-solid ' + (isReg ? 'fa-user-plus' : 'fa-envelope-open-text') + '"></i></div>' +
+                            '<h3 style="margin:0; font-size:1.18rem; font-weight:800;">' + (isReg ? 'Đăng Ký Tài Khoản Mới' : 'Đăng Nhập Bằng Email') + '</h3>' +
+                            '<p style="margin:4px 0 0 0; font-size:0.74rem; color:#cbd5e1;">Nếu bạn chưa có tài khoản, hệ thống sẽ tự động tạo mới</p>' +
+                        '</div>' +
+                        '<div style="display:flex; flex-direction:column; gap:12px;">' +
+                            '<div><label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Tên hiển thị (Nếu là người mới)</label><input id="apex-auth-name" type="text" placeholder="VD: Nguyễn Phước Thịnh" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); color:#fff; font-size:0.85rem; outline:none;"></div>' +
+                            '<div><label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Địa chỉ Email / iCloud (*)</label><input id="apex-auth-email" type="email" placeholder="example@gmail.com / @icloud.com" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); color:#fff; font-size:0.85rem; outline:none;"></div>' +
+                            '<div><label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Mật khẩu (Từ 6 ký tự) (*)</label><input id="apex-auth-pass" type="password" placeholder="••••••" onkeydown="if(event.key===\'Enter\') handleSmartEmailAuth()" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); color:#fff; font-size:0.85rem; outline:none;"></div>' +
+                            '<div id="apex-auth-err" style="font-size:0.74rem; color:#fda4af; display:none; line-height:1.4;"></div>' +
+                            '<button id="apex-auth-submit-btn" onclick="handleSmartEmailAuth()" style="width:100%; margin-top:4px; padding:12px; border-radius:12px; background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 18px rgba(168,85,247,0.45);">Tiếp Tục →</button>' +
+                            '<div style="text-align:center;"><a href="javascript:void(0)" onclick="resetEmailPassword()" style="font-size:0.72rem; color:#cbd5e1; text-decoration:underline;">Quên mật khẩu? Gửi link khôi phục về hộp thư</a></div>' +
+                        '</div>' +
+                    '</div>';
+                    modal.style.display = 'flex';
+                };
+            }
+        })();
+    </script>
 </body>
 </html>
