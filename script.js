@@ -1832,7 +1832,7 @@ function renderCountdowns() {
 
 function updateCountdownTicks() {
     const now = Date.now();
-    // Quét trực tiếp tất cả các thẻ Countdown đang hiện trên DOM (Bất chấp biến toàn cục có bị trễ hay không)
+    // Quét trực tiếp tất cả các thẻ Countdown đang hiện trên DOM
     const cards = document.querySelectorAll('.apex-live-cd-card');
     cards.forEach(card => {
         const target = Number(card.getAttribute('data-target-ms')) || 0;
@@ -1841,15 +1841,18 @@ function updateCountdownTicks() {
         const hEl = card.querySelector('.cd-val-h');
         const mEl = card.querySelector('.cd-val-m');
         const sEl = card.querySelector('.cd-val-s');
-        if (!dEl || !hEl || !mEl || !sEl) return;
+        
+        // Chỉ cần có Ngày, Giờ, Phút là chạy (Không bắt buộc phải có ô Giây)
+        if (!dEl || !hEl || !mEl) return;
 
         if (distance <= 0) {
-            dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; sEl.innerText = "00";
+            dEl.innerText = "00"; hEl.innerText = "00"; mEl.innerText = "00"; 
+            if (sEl) sEl.innerText = "00";
         } else {
             dEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
             hEl.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
             mEl.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-            sEl.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+            if (sEl) sEl.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }
     });
 }
@@ -4503,6 +4506,7 @@ function handleDispatchRestAction() {
         localStorage.setItem('saasLastUpdated', Date.now());
         if (typeof syncToCloud === 'function') syncToCloud();
         renderDispatchStatusWidget();
+        if (typeof renderCompactTopWidgets === 'function') renderCompactTopWidgets();
         return;
     }
 
@@ -4514,6 +4518,7 @@ function handleDispatchRestAction() {
         if (typeof syncToCloud === 'function') syncToCloud();
         scheduleIdleDispatch(45000);
         renderDispatchStatusWidget();
+        if (typeof renderCompactTopWidgets === 'function') renderCompactTopWidgets();
         return;
     }
 
@@ -4530,6 +4535,7 @@ function handleDispatchRestAction() {
             if (typeof syncToCloud === 'function') syncToCloud();
             clearTimeout(idleDispatchTimer);
             renderDispatchStatusWidget();
+            if (typeof renderCompactTopWidgets === 'function') renderCompactTopWidgets();
         }
     } else {
         let usd = parseInt(localStorage.getItem('usdBalance')) || 0;
@@ -4546,6 +4552,7 @@ function handleDispatchRestAction() {
             if (typeof syncToCloud === 'function') syncToCloud();
             clearTimeout(idleDispatchTimer);
             renderDispatchStatusWidget();
+            if (typeof renderCompactTopWidgets === 'function') renderCompactTopWidgets();
         }
     }
 }
@@ -9464,24 +9471,74 @@ function renderCompactTopWidgets() {
             </div>
         </div>`;
 
-    // 2. THẺ ĐIỀU PHỐI AI
-    let qInfo = typeof getTodayDispatchQuotaInfo === 'function' ? getTodayDispatchQuotaInfo() : {doneHrs:0, requiredHrs:1};
-    let statusColor = "#10b981"; let statusText = `Sẵn sàng (${qInfo.doneHrs.toFixed(1)}h / ${qInfo.requiredHrs}h)`;
-    if (typeof isCurfewActive === 'function' && isCurfewActive()) { statusColor = "#64748b"; statusText = "Ngưng phát (Giới nghiêm)"; }
-    else if (typeof dispatchRate !== 'undefined' && dispatchRate < 50) { statusColor = "#ef4444"; statusText = "Bị phạt (Ép buộc)"; }
+    // 2. THẺ ĐIỀU PHỐI AI (ĐÃ BỔ SUNG ĐỒNG HỒ ĐẾM NGƯỢC 15P LIVE)
+    let qInfo = typeof getTodayDispatchQuotaInfo === 'function' ? getTodayDispatchQuotaInfo() : {doneHrs:0, requiredHrs:1, isQuotaMet:false};
+    let isSnoozed = typeof dispatchSnoozeUntil !== 'undefined' && Date.now() < dispatchSnoozeUntil;
+    let isRestingFree = typeof isFreeRestMode !== 'undefined' && isFreeRestMode && qInfo.isQuotaMet;
+    let busyItem = typeof getCurrentBusySchedule === 'function' ? getCurrentBusySchedule() : null;
+
+    let statusColor = "#10b981"; 
+    let statusText = `Sẵn sàng (${qInfo.doneHrs.toFixed(1)}h / ${qInfo.requiredHrs}h)`;
+    let restBtnHtml = "";
+
+    if (typeof isCurfewActive === 'function' && isCurfewActive()) { 
+        statusColor = "#64748b"; 
+        statusText = "🌙 Ngưng phát (Giờ giới nghiêm)"; 
+    } else if (busyItem) {
+        statusColor = "#0ea5e9";
+        statusText = `📅 Đang bận lịch: ${busyItem.name}`;
+    } else if (isRestingFree) {
+        statusColor = "#64748b";
+        statusText = "☕ Đang Tạm nghỉ (Đã đủ định mức)";
+    } else if (isSnoozed) {
+        let remSecs = Math.max(0, Math.ceil((dispatchSnoozeUntil - Date.now()) / 1000));
+        let mStr = String(Math.floor(remSecs / 60)).padStart(2, '0');
+        let sStr = String(remSecs % 60).padStart(2, '0');
+        statusColor = "#a855f7";
+        statusText = `<i class="fa-solid fa-hourglass-half fa-spin" style="color:#c084fc; margin-right:4px;"></i>Đang hoãn: <strong id="compact-snooze-timer" style="color:#e9d5ff; font-variant-numeric:tabular-nums;">${mStr}:${sStr}</strong>`;
+    } else if (typeof dispatchRate !== 'undefined' && dispatchRate < 50) { 
+        statusColor = "#ef4444"; 
+        statusText = "⚠️ Bị phạt (Nhiệm vụ bắt buộc)"; 
+    }
+
+    if (qInfo.isQuotaMet) {
+        restBtnHtml = isRestingFree 
+            ? `<button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(16,185,129,0.18); border:1px solid #10b981; color:#34d399; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:800; cursor:pointer;"><i class="fa-solid fa-play"></i> Bật lại</button>`
+            : `<button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer;"><i class="fa-solid fa-mug-hot"></i> Tạm nghỉ (0$)</button>`;
+    } else if (isSnoozed) {
+        restBtnHtml = `<button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(168,85,247,0.2); border:1px solid #a855f7; color:#e9d5ff; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:800; cursor:pointer;"><i class="fa-solid fa-rotate-left"></i> Hủy hoãn</button>`;
+    } else {
+        let isFree = (localStorage.getItem('saasFreeSnoozeDate') !== (typeof getLocalTodayStr === 'function' ? getLocalTodayStr() : ''));
+        restBtnHtml = `<button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer;">Hoãn 15p (${isFree ? '0$' : '$30'})</button>`;
+    }
     
     let dispatchHtml = `
-        <div class="phoi-card" style="padding:16px !important; border:1px solid rgba(255,255,255,0.08) !important; border-left:3px solid ${statusColor} !important; min-height:115px; display:flex; flex-direction:column; justify-content:center;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="phoi-card" style="padding:14px 16px !important; border:1px solid rgba(255,255,255,0.08) !important; border-left:3px solid ${statusColor} !important; min-height:115px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.75rem; font-weight:800; color:#fff; text-transform:uppercase;"><i class="fa-solid fa-satellite-dish" style="color:${statusColor}; margin-right:6px;"></i>Điều Phối AI</span>
                 <span style="font-size:0.7rem; color:var(--text-muted);">Hiệu suất: <strong style="color:${statusColor}; font-size:0.85rem;">${typeof dispatchRate !== 'undefined' ? dispatchRate : 100}%</strong></span>
             </div>
-            <div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:10px;">${statusText}</div>
+            <div style="font-size:0.78rem; color:#cbd5e1; margin:8px 0;">${statusText}</div>
             <div style="display:flex; gap:8px;">
-                <button onclick="handleDispatchRestAction()" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer; transition:0.2s;">Nghỉ ngơi</button>
+                ${restBtnHtml}
                 <button onclick="triggerDispatchPing(true)" style="flex:1; background:var(--brand-focus); border:none; color:#fff; border-radius:8px; padding:6px 0; font-size:0.7rem; font-weight:700; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Nhận lệnh</button>
             </div>
         </div>`;
+
+    // Kích hoạt bộ đếm giây mượt mà cho đồng hồ Hoãn 15p
+    if (!window._apexCompactSnoozeTicker) {
+        window._apexCompactSnoozeTicker = setInterval(function() {
+            let timerEl = document.getElementById('compact-snooze-timer');
+            if (!timerEl) return;
+            let rem = Math.max(0, Math.ceil((dispatchSnoozeUntil - Date.now()) / 1000));
+            if (rem <= 0) {
+                renderCompactTopWidgets();
+                if (typeof scheduleIdleDispatch === 'function') scheduleIdleDispatch(45000);
+            } else {
+                timerEl.innerText = String(Math.floor(rem / 60)).padStart(2, '0') + ':' + String(rem % 60).padStart(2, '0');
+            }
+        }, 1000);
+    }
 
     // 3. THẺ ĐẾM NGƯỢC
     let cdHtml = "";
