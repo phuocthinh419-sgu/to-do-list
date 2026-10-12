@@ -1362,23 +1362,44 @@ function importData(event) {
 // =====================================================================
 // ĐẠO LUẬT CHỐT SỔ (CHUẨN THƯƠNG MẠI 5H/TUẦN & 1H/NGÀY)
 // =====================================================================
+// =====================================================================
+// ĐẠO LUẬT CHỐT SỔ (CHUẨN MÚI GIỜ ĐỊA PHƯƠNG TUYỆT ĐỐI - CHỐNG TRỪ KHIÊN OAN)
+// =====================================================================
 function checkCycleAndStreak() {
-    // 🛡️ LÁ CHẮN TÂN BINH & ĐỒNG BỘ
-    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) return; 
+    // Hoàn trả 1 lần duy nhất chiếc Khiên bị trừ oan ngày 12/10/2026
+    if (!localStorage.getItem('apex_refund_shield_1210')) {
+        let curShields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+        localStorage.setItem('saasFreezes', Math.min(2, curShields + 1));
+        localStorage.setItem('apex_refund_shield_1210', 'true');
+    }
 
-    let todayObj = new Date(); 
-    todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
-    let todayStr = todayObj.toISOString().split('T')[0];
-    
-    let yesterdayObj = new Date(todayObj); 
+    if (goals.length === 0 && Object.keys(dailyLogs).length === 0) return;
+
+    // Hàm xuất chuỗi YYYY-MM-DD thuần giờ địa phương (Tuyệt đối không dùng toISOString)
+    function toLocalYMD(dObj) {
+        return dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+    }
+
+    let nowLocal = new Date();
+    let todayObj = new Date(nowLocal.getFullYear(), nowLocal.getMonth(), nowLocal.getDate());
+    let todayStr = toLocalYMD(todayObj);
+
+    let yesterdayObj = new Date(todayObj);
     yesterdayObj.setDate(yesterdayObj.getDate() - 1);
-    let yesterdayStr = yesterdayObj.toISOString().split('T')[0];
+    let yesterdayStr = toLocalYMD(yesterdayObj);
 
-    // 1. ĐỒNG BỘ CHU KỲ TUẦN & THU PHÍ DUY TRÌ ($250)
-    let currentMon = getGlobalMonday();
+    // Luôn tính lại Thứ 2 của tuần hiện tại theo thời gian thực (Không dùng biến tĩnh)
+    let currentMon = getGlobalMonday(todayObj);
+    currentGlobalMonday = currentMon;
     let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
 
-    if ((currentMon !== cycleStartDate || lastTaxCheckedMon !== currentMon) && !isPendingTax) {
+    // 1. ĐỒNG BỘ CHU KỲ TUẦN & THU PHÍ DUY TRÌ ($250) NGAY LẦN MỞ ĐẦU TIÊN TRONG TUẦN
+    if (lastTaxCheckedMon !== currentMon && !isPendingTax) {
+        // Đóng dấu ngay lập tức để tránh chạy lặp hoặc bị trễ
+        localStorage.setItem('saasTaxCheckedMonday', currentMon);
+        localStorage.setItem('saasCycleStart', currentMon);
+        cycleStartDate = currentMon;
+
         let curParts = currentMon.split('-');
         let prevMonDate = new Date(curParts[0], curParts[1] - 1, curParts[2]);
         prevMonDate.setDate(prevMonDate.getDate() - 7);
@@ -1387,11 +1408,11 @@ function checkCycleAndStreak() {
         for (let i = 0; i < 7; i++) {
             let d = new Date(prevMonDate);
             d.setDate(d.getDate() + i);
-            let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            let dStr = toLocalYMD(d);
             oldCycleTotal += Number(dailyLogs[dStr] || 0);
         }
 
-        if (Object.keys(dailyLogs).length > 0) {
+        if (Object.keys(dailyLogs).length > 0 && lastTaxCheckedMon !== "") {
             if (typeof exportData === 'function') exportData();
 
             let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
@@ -1417,40 +1438,42 @@ function checkCycleAndStreak() {
             }
         }
 
-        cycleStartDate = currentMon;
-        localStorage.setItem('saasCycleStart', cycleStartDate);
-        localStorage.setItem('saasTaxCheckedMonday', currentMon);
         localStorage.removeItem('saasAchieved10h');
         localStorage.removeItem('saasAchieved15h');
         if (typeof syncToCloud === 'function') syncToCloud();
     }
 
-    // 2. KIỂM TRA ĐỊNH MỨC NGÀY (LÃI KÉP)
+    // 2. KIỂM TRA ĐỊNH MỨC NGÀY (LÃI KÉP - CHUẨN LOCAL TIME)
     let checkedDate = localStorage.getItem('saasDebtCheckedDate');
-    let prevDebt = dailyDebtMinutes; 
+    let prevDebt = dailyDebtMinutes;
 
     if (checkedDate !== yesterdayStr) {
-        let lastCheckedObj = checkedDate ? new Date(checkedDate) : new Date(yesterdayStr);
-        let daysToCheck = Math.floor((new Date(yesterdayStr) - lastCheckedObj) / (1000 * 60 * 60 * 24));
-        
-        if (daysToCheck <= 0 || isNaN(daysToCheck)) daysToCheck = 1; 
+        let daysToCheck = 1;
+        if (checkedDate) {
+            let cp = checkedDate.split('-').map(Number);
+            let lastCheckedObj = new Date(cp[0], cp[1] - 1, cp[2]);
+            let diff = Math.round((yesterdayObj - lastCheckedObj) / (1000 * 60 * 60 * 24));
+            daysToCheck = (diff > 0 && diff <= 14) ? diff : 1;
+        }
 
         for (let i = daysToCheck; i >= 1; i--) {
             let d = new Date(todayObj);
             d.setDate(d.getDate() - i);
-            let checkStr = d.toISOString().split('T')[0];
-            
-            let targetHrs = (typeof getRequiredHoursForDate === 'function') ? getRequiredHoursForDate(d, checkStr) : ((lastRestDate === checkStr) ? 0.25 : 1.0); 
-            let hrsDone = dailyLogs[checkStr] || 0;
-            
+            let checkStr = toLocalYMD(d);
+
+            let targetHrs = (typeof getRequiredHoursForDate === 'function')
+                ? getRequiredHoursForDate(d, checkStr)
+                : ((lastRestDate === checkStr) ? 0.25 : 1.0);
+            let hrsDone = Number(dailyLogs[checkStr] || 0);
+
             let deficitHrs = targetHrs - hrsDone;
             if (deficitHrs > 0.01) {
                 let penaltyMins = Math.ceil(deficitHrs * 60 * 1.5);
                 if (dailyDebtMinutes === 0 && typeof impactStockMarket === 'function') impactStockMarket("PENALTY");
-                dailyDebtMinutes += penaltyMins; 
+                dailyDebtMinutes += penaltyMins;
             }
         }
-        
+
         localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
         localStorage.setItem('saasDebtCheckedDate', yesterdayStr);
     }
@@ -1460,7 +1483,7 @@ function checkCycleAndStreak() {
         let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
         if (shields > 0) {
             localStorage.setItem('saasFreezes', shields - 1);
-            dailyDebtMinutes = prevDebt; 
+            dailyDebtMinutes = prevDebt;
             if (dailyDebtMinutes === 0) {
                 localStorage.removeItem('saasDailyDebt');
             } else {
@@ -1474,7 +1497,7 @@ function checkCycleAndStreak() {
             localStorage.removeItem('saasDebtReducerVoucher');
             dailyDebtMinutes = Math.max(15, Math.floor(dailyDebtMinutes / 2));
             localStorage.setItem('saasDailyDebt', dailyDebtMinutes);
-            
+
             alert(`⚖️ PHIẾU GIẢM ÁN 50% ĐÃ KÍCH HOẠT!\nThời gian phạt khổ sai đã được giảm một nửa, chỉ còn ${dailyDebtMinutes} phút.`);
             if (typeof renderAcademicShopContent === 'function') renderAcademicShopContent();
             if (typeof syncToCloud === 'function') syncToCloud();
@@ -1483,21 +1506,21 @@ function checkCycleAndStreak() {
 
     // 3. ĐẾM VẮNG MẶT & HIỂN THỊ ÁN PHẠT
     if (lastActiveDate !== "" && lastActiveDate !== todayStr) {
-        let lastDateObj = new Date(lastActiveDate); 
-        let diffTime = Math.abs(new Date(todayStr) - lastDateObj);
-        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true'); 
+        let lp = lastActiveDate.split('-').map(Number);
+        let lastDateObj = new Date(lp[0], lp[1] - 1, lp[2]);
+        let diffDays = Math.round(Math.abs(todayObj - lastDateObj) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 7) localStorage.setItem('ach_comeback', 'true');
     }
 
     if (isPendingTax) {
         let sModal = document.getElementById('shame-modal');
         if (sModal) sModal.style.display = 'flex';
-        let shameTitle = document.querySelector('.shame-content h2'); 
+        let shameTitle = document.querySelector('.shame-content h2');
         if (shameTitle) shameTitle.innerText = "THIẾT QUÂN LUẬT (NỘP THUẾ)";
-        let shameDesc = document.querySelector('.shame-content p'); 
-        if (shameDesc) shameDesc.innerText = "Bạn chưa đạt định mức tối thiểu 5 giờ trong tuần qua. Vui lòng hoàn thành phiên học bù 90 phút để mở khóa hệ thống."; 
-        let btnAlt = document.querySelector('.btn-shame-alt'); 
-        if (btnAlt) btnAlt.style.display = 'none'; 
+        let shameDesc = document.querySelector('.shame-content p');
+        if (shameDesc) shameDesc.innerText = "Bạn chưa đạt định mức tối thiểu 5 giờ trong tuần qua. Vui lòng hoàn thành phiên học bù 90 phút để mở khóa hệ thống.";
+        let btnAlt = document.querySelector('.btn-shame-alt');
+        if (btnAlt) btnAlt.style.display = 'none';
         let btnShame = document.querySelector('.btn-shame');
         if (btnShame) { btnShame.innerHTML = '<i class="fa-solid fa-fire-flame-curved"></i> NỘP THUẾ (90P)'; btnShame.onclick = startTaxSession; }
         return;
@@ -1505,12 +1528,12 @@ function checkCycleAndStreak() {
 
     if (dailyDebtMinutes > 0) {
         let sModal = document.getElementById('shame-modal');
-        if (sModal) sModal.style.display = 'flex'; 
-        let shameTitle = document.querySelector('.shame-content h2'); 
+        if (sModal) sModal.style.display = 'flex';
+        let shameTitle = document.querySelector('.shame-content h2');
         if (shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN NGÀY)";
-        let shameDesc = document.querySelector('.shame-content p'); 
+        let shameDesc = document.querySelector('.shame-content p');
         if (shameDesc) shameDesc.innerHTML = `Bạn tu luyện chưa đủ tiêu chuẩn hàng ngày. Thời lượng nợ và phạt lãi kép là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
-        let btnAlt = document.querySelector('.btn-shame-alt'); 
+        let btnAlt = document.querySelector('.btn-shame-alt');
         if (btnAlt) btnAlt.style.display = 'none';
         let btnShame = document.querySelector('.btn-shame');
         if (btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
@@ -4427,8 +4450,24 @@ function getCurrentBusySchedule() {
 }
 
 // HÀM TÍNH ĐỊNH MỨC ĐỘNG CHO BẤT KỲ NGÀY NÀO (DÙNG CHUNG CHO CẢ ĐIỀU PHỐI & PHẠT LÃI KÉP)
+// HÀM TÍNH ĐỊNH MỨC ĐỘNG CHO BẤT KỲ NGÀY NÀO (ĐÃ BỔ SUNG KIỂM TRA ĐẶC QUYỀN 5H TUẦN)
 function getRequiredHoursForDate(dateObj, dateStr) {
     if (typeof lastRestDate !== 'undefined' && lastRestDate === dateStr) return 0.25;
+
+    // KIỂM TRA ĐẶC QUYỀN 5H: Nếu tổng giờ của tuần chứa ngày dateObj đã >= mục tiêu tuần (5h), định mức ngày đó chỉ là 0.25h!
+    if (typeof dailyLogs !== 'undefined' && typeof getGlobalMonday === 'function') {
+        let monStr = getGlobalMonday(dateObj);
+        let parts = monStr.split('-');
+        let weekTotal = 0;
+        for (let i = 0; i < 7; i++) {
+            let wd = new Date(parts[0], parts[1] - 1, parts[2]);
+            wd.setDate(wd.getDate() + i);
+            let wStr = wd.getFullYear() + '-' + String(wd.getMonth() + 1).padStart(2, '0') + '-' + String(wd.getDate()).padStart(2, '0');
+            weekTotal += Number(dailyLogs[wStr] || 0);
+        }
+        let targetW = (typeof getWeeklyTarget === 'function') ? getWeeklyTarget() : 5.0;
+        if (weekTotal >= targetW) return 0.25;
+    }
 
     let dow = dateObj.getDay();
     let busyShiftsCount = 0;
