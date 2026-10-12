@@ -257,7 +257,7 @@ let USER_DOC_ID = "emperor_data_v1";
 let isSyncing = false;
 
 // =====================================================================
-// HỆ THỐNG ĐĂNG NHẬP KÉP: GOOGLE + EMAIL (TƯƠNG THÍCH MỌI TRÌNH DUYỆT & iOS)
+// HỆ THỐNG ĐĂNG NHẬP & GIAO DIỆN LANDING DESIGN 2 (GLASSMORPHISM SUNSET)
 // =====================================================================
 function loginWithGoogle() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -265,7 +265,7 @@ function loginWithGoogle() {
 
     if (isInAppBrowser) {
         if (confirm("💡 Trình duyệt trong Zalo/Messenger hạn chế cửa sổ Google.\n\n• Bấm [OK] để Đăng nhập bằng Email ngay tại đây.\n• Hoặc bấm [Hủy] rồi chọn dấu [...] góc trên -> 'Mở bằng trình duyệt' để dùng Google.")) {
-            openEmailAuthModal();
+            openEmailAuthModal('login');
         }
         return;
     }
@@ -280,91 +280,384 @@ function loginWithGoogle() {
     });
 }
 
-// Tự động chèn nút "Đăng nhập bằng Email" ngay dưới mọi nút Google Login
-function injectEmailLoginButtons() {
-    const googleBtns = document.querySelectorAll('[onclick*="loginWithGoogle"]');
-    googleBtns.forEach((gBtn, idx) => {
-        if (gBtn.dataset.hasEmailSibling === 'true') return;
-        gBtn.dataset.hasEmailSibling = 'true';
+function injectLoginDesign2() {
+    // 1. Nhúng CSS chuẩn Design 2
+    if (!document.getElementById('apex-login-design2-css')) {
+        const st = document.createElement('style');
+        st.id = 'apex-login-design2-css';
+        st.innerHTML = `
+            #login-screen {
+                position: fixed !important; inset: 0 !important; z-index: 99999 !important;
+                background: 
+                    linear-gradient(90deg, rgba(8, 10, 22, 0.82) 0%, rgba(12, 15, 32, 0.55) 48%, rgba(15, 18, 38, 0.72) 100%),
+                    url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=2000&q=85') center/cover no-repeat !important;
+                display: flex; flex-direction: column; justify-content: space-between;
+                padding: 28px 52px !important; box-sizing: border-box !important;
+                color: #f8fafc; overflow-y: auto;
+            }
+            /* Background dự phòng góc bàn học hoàng hôn cực sát ảnh mẫu */
+            #login-screen.sunset-desk-bg {
+                background: 
+                    radial-gradient(circle at 46% 62%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
+                    linear-gradient(95deg, rgba(7, 9, 19, 0.88) 0%, rgba(14, 18, 36, 0.52) 50%, rgba(12, 14, 30, 0.78) 100%),
+                    url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=2000&q=85') center/cover no-repeat !important;
+            }
+            .ax-login-topbar {
+                display: flex; justify-content: space-between; align-items: center;
+                width: 100%; max-width: 1360px; margin: 0 auto; z-index: 2;
+            }
+            .ax-brand-wrap { display: flex; align-items: center; gap: 12px; }
+            .ax-brand-logo {
+                width: 42px; height: 42px; border-radius: 12px;
+                background: linear-gradient(135deg, #a855f7, #6366f1);
+                display: flex; align-items: center; justify-content: center;
+                color: #fff; font-size: 1.3rem;
+                box-shadow: 0 0 22px rgba(168, 85, 247, 0.55);
+            }
+            .ax-brand-title { font-size: 1.15rem; font-weight: 900; letter-spacing: 0.8px; color: #fff; line-height: 1.1; }
+            .ax-brand-sub { font-size: 0.58rem; font-weight: 700; letter-spacing: 2.2px; color: #cbd5e1; margin-top: 3px; }
+            
+            .ax-top-right { display: flex; align-items: center; gap: 14px; }
+            .ax-clock-pill {
+                padding: 7px 16px; border-radius: 100px;
+                background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                font-size: 0.76rem; font-weight: 600; color: #e2e8f0;
+                display: flex; align-items: center; gap: 8px;
+            }
+            .ax-icon-circle {
+                width: 34px; height: 34px; border-radius: 50%;
+                background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.14);
+                display: flex; align-items: center; justify-content: center;
+                color: #cbd5e1; font-size: 0.85rem; position: relative;
+            }
 
-        const emailBtn = document.createElement('button');
-        emailBtn.className = gBtn.className;
-        emailBtn.id = 'btn-apex-email-auth-' + idx;
-        emailBtn.type = 'button';
-        emailBtn.onclick = openEmailAuthModal;
-        emailBtn.style.cssText = "width: 100%; box-sizing: border-box; margin-top: 8px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); color: #f8fafc; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;";
-        emailBtn.onmouseover = function() {
-            this.style.background = "rgba(168, 85, 247, 0.22)";
-            this.style.borderColor = "#a855f7";
-        };
-        emailBtn.onmouseout = function() {
-            this.style.background = "rgba(255, 255, 255, 0.06)";
-            this.style.borderColor = "rgba(255, 255, 255, 0.16)";
-        };
-        emailBtn.innerHTML = `<i class="fa-solid fa-envelope" style="color:#c084fc;"></i> Đăng nhập bằng Email`;
+            /* Main 2 Columns */
+            .ax-login-main {
+                display: flex; align-items: center; justify-content: space-between;
+                width: 100%; max-width: 1320px; margin: auto; gap: 48px; z-index: 2;
+                padding: 20px 0;
+            }
+            .ax-hero-left { flex: 1.15; max-width: 640px; position: relative; text-align: left; }
+            .ax-orbit-svg {
+                position: absolute; top: -38px; left: 20px; width: 430px; height: 150px;
+                pointer-events: none; opacity: 0.85;
+            }
+            .ax-hero-heading {
+                font-size: 3.35rem; font-weight: 800; line-height: 1.16;
+                font-style: italic; margin: 0 0 16px 0; color: #ffffff;
+                text-shadow: 0 6px 28px rgba(0, 0, 0, 0.65);
+            }
+            .ax-hero-heading .grad-text {
+                background: linear-gradient(90deg, #c084fc 0%, #e879f9 50%, #f472b6 100%);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                filter: drop-shadow(0 0 22px rgba(217, 70, 239, 0.45));
+            }
+            .ax-hero-desc {
+                font-size: 0.98rem; color: #cbd5e1; font-weight: 500;
+                margin: 0 0 28px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            }
+            .ax-feature-pills {
+                display: flex; flex-wrap: wrap; gap: 10px;
+            }
+            .ax-f-pill {
+                display: flex; align-items: center; gap: 10px;
+                padding: 10px 15px; border-radius: 14px;
+                background: rgba(15, 23, 42, 0.58);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            }
+            .ax-f-pill i { font-size: 1.05rem; color: #e2e8f0; }
+            .ax-f-pill span { font-size: 0.74rem; font-weight: 600; color: #f1f5f9; line-height: 1.25; text-align: left; }
 
-        gBtn.insertAdjacentElement('afterend', emailBtn);
-    });
+            /* Right Glass Card */
+            .ax-glass-card {
+                width: 100%; max-width: 420px; border-radius: 26px;
+                padding: 38px 34px 30px 34px; box-sizing: border-box;
+                background: linear-gradient(155deg, rgba(42, 39, 78, 0.62) 0%, rgba(20, 22, 45, 0.78) 60%, rgba(38, 26, 74, 0.72) 100%);
+                border: 1.5px solid rgba(192, 132, 252, 0.45);
+                box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75), 0 0 40px rgba(168, 85, 247, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+                text-align: center; position: relative; overflow: hidden;
+            }
+            .ax-card-watermark {
+                position: absolute; top: -15px; right: -25px; font-size: 7.5rem;
+                color: rgba(168, 85, 247, 0.12); transform: rotate(-12deg); pointer-events: none;
+            }
+            .ax-card-logo {
+                width: 54px; height: 54px; margin: 0 auto 12px auto;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 2.2rem; color: #a855f7;
+                filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.65));
+            }
+            .ax-card-title { font-size: 1.38rem; font-weight: 900; color: #fff; margin: 0; letter-spacing: 0.6px; }
+            .ax-card-sub { font-size: 0.82rem; color: #cbd5e1; margin: 6px 0 26px 0; font-weight: 500; }
+
+            .ax-btn-google {
+                width: 100%; padding: 13px 20px; border-radius: 14px;
+                background: #ffffff; border: none; color: #0f172a;
+                font-size: 0.88rem; font-weight: 800; cursor: pointer;
+                display: flex; align-items: center; justify-content: space-between;
+                box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+                transition: all 0.22s ease;
+            }
+            .ax-btn-google:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(255, 255, 255, 0.32); }
+
+            .ax-divider {
+                margin: 16px 0; font-size: 0.75rem; color: #94a3b8; font-weight: 600;
+            }
+
+            .ax-btn-email {
+                width: 100%; padding: 13px 20px; border-radius: 14px;
+                background: rgba(15, 23, 42, 0.45);
+                border: 1px solid rgba(255, 255, 255, 0.22);
+                color: #f8fafc; font-size: 0.86rem; font-weight: 700; cursor: pointer;
+                display: flex; align-items: center; justify-content: space-between;
+                transition: all 0.22s ease;
+            }
+            .ax-btn-email:hover {
+                background: rgba(168, 85, 247, 0.22);
+                border-color: #c084fc;
+                transform: translateY(-2px);
+            }
+
+            .ax-trust-grid {
+                display: grid; grid-template-columns: repeat(3, 1fr);
+                margin-top: 28px; padding-top: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .ax-trust-item {
+                display: flex; flex-direction: column; align-items: center; gap: 6px;
+                padding: 0 6px; border-right: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .ax-trust-item:last-child { border-right: none; }
+            .ax-trust-item i { font-size: 1.05rem; color: #c084fc; }
+            .ax-trust-item span { font-size: 0.68rem; color: #cbd5e1; line-height: 1.3; font-weight: 500; }
+
+            .ax-card-footer {
+                margin-top: 24px; font-size: 0.76rem; color: #cbd5e1;
+            }
+            .ax-card-footer a {
+                color: #d8b4fe; font-weight: 800; text-decoration: underline; cursor: pointer;
+            }
+
+            .ax-bottom-hint {
+                width: 100%; max-width: 1360px; margin: 0 auto;
+                display: flex; align-items: center; gap: 10px;
+                font-size: 0.76rem; color: #94a3b8; z-index: 2;
+            }
+            .ax-scroll-pill {
+                width: 20px; height: 30px; border-radius: 100px;
+                border: 1.5px solid rgba(255,255,255,0.35);
+                display: inline-flex; align-items: center; justify-content: center;
+                font-size: 0.65rem; color: #cbd5e1;
+            }
+
+            @media (max-width: 960px) {
+                #login-screen { padding: 20px !important; }
+                .ax-login-main { flex-direction: column; text-align: center; gap: 28px; }
+                .ax-hero-left { text-align: center; }
+                .ax-hero-heading { font-size: 2.3rem; }
+                .ax-feature-pills { justify-content: center; }
+                .ax-clock-pill { display: none; }
+            }
+        `;
+        document.head.appendChild(st);
+    }
+
+    // 2. Nâng cấp cấu trúc HTML của #login-screen
+    const loginScreen = document.getElementById('login-screen');
+    if (!loginScreen || loginScreen.dataset.upgradedD2 === 'true') return;
+    loginScreen.dataset.upgradedD2 = 'true';
+    loginScreen.classList.add('sunset-desk-bg');
+
+    loginScreen.innerHTML = `
+        <!-- Top Header -->
+        <div class="ax-login-topbar">
+            <div class="ax-brand-wrap">
+                <div class="ax-brand-logo"><i class="fa-solid fa-layer-group"></i></div>
+                <div style="text-align:left;">
+                    <div class="ax-brand-title">ACADEMIC APEX</div>
+                    <div class="ax-brand-sub">LEARN · PLAN · ACHIEVE</div>
+                </div>
+            </div>
+            <div class="ax-top-right">
+                <div class="ax-clock-pill">
+                    <i class="fa-regular fa-calendar" style="color:#c084fc;"></i>
+                    <span id="ax-login-live-clock">Thứ 2, 12/10/2026 17:00</span>
+                </div>
+                <div class="ax-icon-circle">
+                    <i class="fa-regular fa-bell"></i>
+                    <span style="position:absolute; top:6px; right:7px; width:6px; height:6px; border-radius:50%; background:#f43f5e;"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Content -->
+        <div class="ax-login-main">
+            <!-- Left Hero -->
+            <div class="ax-hero-left">
+                <svg class="ax-orbit-svg" viewBox="0 0 450 150" fill="none">
+                    <path d="M10 120 C 140 10, 390 -10, 425 55 C 440 85, 395 120, 340 135" stroke="url(#orbGrad)" stroke-width="1.4" fill="none"/>
+                    <circle cx="422" cy="50" r="4" fill="#ffffff" filter="drop-shadow(0 0 8px #e879f9)"/>
+                    <path d="M422 40 L424 48 L432 50 L424 52 L422 60 L420 52 L412 50 L420 48 Z" fill="#f5d0fe"/>
+                    <defs>
+                        <linearGradient id="orbGrad" x1="0" y1="0" x2="450" y2="0" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+                            <stop offset="65%" stop-color="rgba(216,180,254,0.65)"/>
+                            <stop offset="100%" stop-color="rgba(244,114,182,0.15)"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <h1 class="ax-hero-heading">
+                    Lượng hóa nỗ lực,<br>
+                    định hình <span class="grad-text">tương lai.</span>
+                </h1>
+                <p class="ax-hero-desc">Cùng Academic Apex kiến tạo hành trình học tập hiệu quả hơn mỗi ngày.</p>
+
+                <div class="ax-feature-pills">
+                    <div class="ax-f-pill">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <span>Theo dõi<br>tiến độ</span>
+                    </div>
+                    <div class="ax-f-pill">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>Quản lý<br>mục tiêu</span>
+                    </div>
+                    <div class="ax-f-pill">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Tạo động lực<br>mỗi ngày</span>
+                    </div>
+                    <div class="ax-f-pill">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Học tập<br>hiệu quả hơn</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Frosted Glass Login Card -->
+            <div class="ax-glass-card">
+                <i class="fa-solid fa-layer-group ax-card-watermark"></i>
+                <div class="ax-card-logo"><i class="fa-solid fa-layer-group"></i></div>
+                <h2 class="ax-card-title">ACADEMIC APEX</h2>
+                <div class="ax-card-sub">Đăng nhập để tiếp tục hành trình</div>
+
+                <button type="button" class="ax-btn-google" onclick="loginWithGoogle()">
+                    <span style="width:18px;"></span>
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        Đăng nhập bằng Google
+                    </span>
+                    <i class="fa-solid fa-arrow-right" style="color:#64748b; font-size:0.85rem;"></i>
+                </button>
+
+                <div class="ax-divider">hoặc</div>
+
+                <button type="button" class="ax-btn-email" onclick="openEmailAuthModal('login')">
+                    <span style="width:18px;"></span>
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-envelope" style="color:#c084fc; font-size:1rem;"></i>
+                        Đăng nhập bằng Email
+                    </span>
+                    <i class="fa-solid fa-arrow-right" style="color:#cbd5e1; font-size:0.85rem;"></i>
+                </button>
+
+                <div class="ax-trust-grid">
+                    <div class="ax-trust-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Bảo mật<br>tuyệt đối</span>
+                    </div>
+                    <div class="ax-trust-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Dữ liệu<br>riêng tư</span>
+                    </div>
+                    <div class="ax-trust-item">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Trải nghiệm<br>mượt mà</span>
+                    </div>
+                </div>
+
+                <div class="ax-card-footer">
+                    Bạn chưa có tài khoản? <a onclick="openEmailAuthModal('register')">Đăng ký ngay →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Hint -->
+        <div class="ax-bottom-hint">
+            <span class="ax-scroll-pill">↓</span>
+            <span>Khởi đầu kỷ luật ngay hôm nay</span>
+        </div>
+    `;
+
+    // Cập nhật đồng hồ góc trên bên phải
+    function updateLoginClock() {
+        const el = document.getElementById('ax-login-live-clock');
+        if (!el) return;
+        const now = new Date();
+        const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+        const dStr = `${days[now.getDay()]}, ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}  ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        el.innerText = dStr;
+    }
+    updateLoginClock();
+    setInterval(updateLoginClock, 15000);
 }
 
-// Ẩn nút Đăng nhập Email khi người dùng đã đăng nhập thành công
-firebase.auth().onAuthStateChanged(user => {
-    document.querySelectorAll('[id^="btn-apex-email-auth-"]').forEach(btn => {
-        btn.style.display = user ? 'none' : 'flex';
-    });
-});
-
-setTimeout(injectEmailLoginButtons, 300);
-setInterval(injectEmailLoginButtons, 1500);
+setTimeout(injectLoginDesign2, 50);
+document.addEventListener('DOMContentLoaded', injectLoginDesign2);
 
 // Hộp thoại Đăng nhập / Đăng ký tự động bằng Email
-function openEmailAuthModal() {
+function openEmailAuthModal(mode = 'login') {
     let modal = document.getElementById('apex-email-auth-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'apex-email-auth-modal';
-        modal.style.cssText = "display:flex; position:fixed; inset:0; background:rgba(4,6,14,0.86); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:20005; align-items:center; justify-content:center; padding:16px;";
+        modal.style.cssText = "display:flex; position:fixed; inset:0; background:rgba(4,6,14,0.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); z-index:100005; align-items:center; justify-content:center; padding:16px;";
         document.body.appendChild(modal);
     }
 
+    const isReg = mode === 'register';
+
     modal.innerHTML = `
-        <div style="width:100%; max-width:390px; background:#0f172a; border:1px solid rgba(168,85,247,0.45); border-radius:20px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.85); color:#f8fafc; position:relative;">
+        <div style="width:100%; max-width:395px; background:linear-gradient(155deg, rgba(35,32,68,0.95), rgba(15,23,42,0.98)); border:1.5px solid rgba(192,132,252,0.5); border-radius:22px; padding:26px; box-shadow:0 25px 70px rgba(0,0,0,0.9); color:#f8fafc; position:relative;">
             <button onclick="document.getElementById('apex-email-auth-modal').style.display='none'" style="position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#94a3b8; width:30px; height:30px; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             
             <div style="text-align:center; margin-bottom:18px;">
-                <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #6366f1, #a855f7); display:inline-flex; align-items:center; justify-content:center; font-size:1.35rem; color:#fff; margin-bottom:10px; box-shadow:0 0 20px rgba(168,85,247,0.4);">
-                    <i class="fa-solid fa-envelope-open-text"></i>
+                <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #a855f7, #6366f1); display:inline-flex; align-items:center; justify-content:center; font-size:1.35rem; color:#fff; margin-bottom:10px; box-shadow:0 0 20px rgba(168,85,247,0.45);">
+                    <i class="fa-solid ${isReg ? 'fa-user-plus' : 'fa-envelope-open-text'}"></i>
                 </div>
-                <h3 style="margin:0; font-size:1.15rem; font-weight:800;">Đăng Nhập Bằng Email</h3>
-                <p style="margin:4px 0 0 0; font-size:0.74rem; color:#94a3b8;">Nếu chưa có tài khoản, hệ thống sẽ tự động khởi tạo cho bạn</p>
+                <h3 style="margin:0; font-size:1.18rem; font-weight:800;">${isReg ? 'Đăng Ký Tài Khoản Mới' : 'Đăng Nhập Bằng Email'}</h3>
+                <p style="margin:4px 0 0 0; font-size:0.74rem; color:#cbd5e1;">${isReg ? 'Khởi tạo hồ sơ học thuật chỉ trong 5 giây' : 'Nếu bạn chưa có tài khoản, hệ thống sẽ tự động tạo mới'}</p>
             </div>
 
             <div style="display:flex; flex-direction:column; gap:12px;">
                 <div>
-                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Tên hiển thị (Nếu đăng ký lần đầu)</label>
-                    <input id="apex-auth-name" type="text" placeholder="VD: Nguyễn Phước Thịnh" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.14); color:#fff; font-size:0.85rem; outline:none;">
+                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Tên hiển thị ${isReg ? '(*)' : '(Nếu là người mới)'}</label>
+                    <input id="apex-auth-name" type="text" placeholder="VD: Nguyễn Phước Thịnh" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); color:#fff; font-size:0.85rem; outline:none;">
                 </div>
                 <div>
-                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Địa chỉ Email (*)</label>
-                    <input id="apex-auth-email" type="email" placeholder="example@gmail.com / @icloud.com" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.14); color:#fff; font-size:0.85rem; outline:none;">
+                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Địa chỉ Email / iCloud (*)</label>
+                    <input id="apex-auth-email" type="email" placeholder="example@gmail.com / @icloud.com" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); color:#fff; font-size:0.85rem; outline:none;">
                 </div>
                 <div>
                     <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Mật khẩu (Từ 6 ký tự) (*)</label>
-                    <input id="apex-auth-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter') handleSmartEmailAuth()" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.14); color:#fff; font-size:0.85rem; outline:none;">
+                    <input id="apex-auth-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter') handleSmartEmailAuth()" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); color:#fff; font-size:0.85rem; outline:none;">
                 </div>
                 <div id="apex-auth-err" style="font-size:0.74rem; color:#fda4af; display:none; line-height:1.4;"></div>
 
-                <button id="apex-auth-submit-btn" onclick="handleSmartEmailAuth()" style="width:100%; margin-top:4px; padding:12px; border-radius:12px; background:linear-gradient(90deg, #6366f1, #a855f7); border:none; color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 18px rgba(168,85,247,0.4);">
-                    Tiếp Tục
+                <button id="apex-auth-submit-btn" onclick="handleSmartEmailAuth()" style="width:100%; margin-top:4px; padding:12px; border-radius:12px; background:linear-gradient(90deg, #a855f7, #6366f1); border:none; color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 18px rgba(168,85,247,0.45);">
+                    ${isReg ? 'Tạo Tài Khoản & Vào Ngay →' : 'Tiếp Tục →'}
                 </button>
                 <div style="text-align:center;">
-                    <a href="javascript:void(0)" onclick="resetEmailPassword()" style="font-size:0.72rem; color:#94a3b8; text-decoration:underline;">Quên mật khẩu? Gửi link khôi phục</a>
+                    <a href="javascript:void(0)" onclick="resetEmailPassword()" style="font-size:0.72rem; color:#cbd5e1; text-decoration:underline;">Quên mật khẩu? Gửi link khôi phục về hộp thư</a>
                 </div>
             </div>
         </div>
     `;
     modal.style.display = 'flex';
-    setTimeout(() => document.getElementById('apex-auth-email')?.focus(), 100);
+    setTimeout(() => document.getElementById(isReg ? 'apex-auth-name' : 'apex-auth-email')?.focus(), 100);
 }
 
 async function handleSmartEmailAuth() {
@@ -393,7 +686,7 @@ async function handleSmartEmailAuth() {
                 const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
                 const dispName = nameInput || email.split('@')[0];
                 if (cred.user) {
-                    const photoUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(dispName) + "&background=6366f1&color=fff";
+                    const photoUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(dispName) + "&background=8b5cf6&color=fff";
                     await cred.user.updateProfile({ displayName: dispName, photoURL: photoUrl });
                     await db.collection("academic_apex").doc(cred.user.uid).set({
                         displayName: dispName,
@@ -420,20 +713,31 @@ async function handleSmartEmailAuth() {
             errEl.innerText = "❌ Lỗi: " + signInErr.message;
         }
     } finally {
-        btn.innerText = "Tiếp Tục";
+        btn.innerText = "Tiếp Tục →";
         btn.disabled = false;
     }
 }
 
 function resetEmailPassword() {
-    const email = (document.getElementById('apex-auth-email')?.value || '').trim();
+    let email = (document.getElementById('apex-auth-email')?.value || '').trim();
     if (!email) {
-        alert("Vui lòng nhập địa chỉ Email của bạn vào ô Địa chỉ Email trước, sau đó bấm Quên mật khẩu!");
+        email = (prompt("Nhập địa chỉ Email bạn đã dùng để đăng ký tài khoản:") || '').trim();
+    }
+    if (!email || !email.includes('@')) {
+        alert("⚠️ Vui lòng nhập một địa chỉ Email hợp lệ!");
         return;
     }
     firebase.auth().sendPasswordResetEmail(email)
-        .then(() => alert("✅ Đã gửi đường dẫn đặt lại mật khẩu vào hộp thư: " + email))
-        .catch(e => alert("Lỗi: " + e.message));
+        .then(() => {
+            alert("✅ Đã gửi đường dẫn đặt lại mật khẩu tới: " + email + "\n\n💡 Lưu ý: Hãy kiểm tra Hộp thư đến (Inbox). Nếu sau 1 phút chưa thấy, vui lòng kiểm tra mục Thư rác (Spam) nhé!");
+        })
+        .catch(e => {
+            if (e.code === 'auth/user-not-found') {
+                alert("❌ Email này chưa từng được đăng ký trên hệ thống!");
+            } else {
+                alert("❌ Lỗi gửi thư khôi phục: " + e.message);
+            }
+        });
 }
 
 // =====================================================================
