@@ -5753,24 +5753,115 @@ function applyCustomWallpaper() {
     var bg = localStorage.getItem('saasCustomWallpaper') || DEFAULT_WALLPAPER;
     var preset = APEX_THEME_PRESETS.find(function(p) { return p.id === apexThemeConfig.themeId; }) || APEX_THEME_PRESETS[0];
 
-    // ƯU TIÊN BẢNG MÀU 4 NÚT TRÒN TRÊN SIDEBAR (ĐỂ 4 NÚT MÀU PHÁT HUY TÁC DỤNG)
+    // BẢNG 4 TÔNG MÀU CHỦ ĐẠO TOÀN DIỆN (NGỌC LỤC BẢO - TÍM TINH VÂN - XANH BĂNG GIÁ - ĐỎ HUYẾT NGUYỆT)
     var accentPalettes = {
-        'zen':         { accent: '#10b981', accent2: '#059669', soft: 'rgba(16,185,129,0.18)', border: 'rgba(16,185,129,0.42)' },
-        'neon-purple': { accent: '#a855f7', accent2: '#6366f1', soft: 'rgba(168,85,247,0.18)', border: 'rgba(168,85,247,0.42)' },
-        'neon-blue':   { accent: '#38bdf8', accent2: '#2563eb', soft: 'rgba(56,189,248,0.18)', border: 'rgba(56,189,248,0.42)' },
-        'sakura':      { accent: '#f43f5e', accent2: '#e11d48', soft: 'rgba(244,63,94,0.18)',  border: 'rgba(244,63,94,0.42)' }
+        'zen': {
+            accent: '#10b981', accent2: '#0ea5e9', light: '#6ee7b7',
+            soft: 'rgba(16, 185, 129, 0.18)', border: 'rgba(16, 185, 129, 0.48)', glow: 'rgba(16, 185, 129, 0.45)'
+        },
+        'neon-purple': {
+            accent: '#a855f7', accent2: '#6366f1', light: '#e9d5ff',
+            soft: 'rgba(168, 85, 247, 0.18)', border: 'rgba(168, 85, 247, 0.48)', glow: 'rgba(168, 85, 247, 0.45)'
+        },
+        'neon-blue': {
+            accent: '#38bdf8', accent2: '#2563eb', light: '#bae6fd',
+            soft: 'rgba(56, 189, 248, 0.18)', border: 'rgba(56, 189, 248, 0.48)', glow: 'rgba(56, 189, 248, 0.45)'
+        },
+        'sakura': {
+            accent: '#f43f5e', accent2: '#f59e0b', light: '#fecdd3',
+            soft: 'rgba(244, 63, 94, 0.18)', border: 'rgba(244, 63, 94, 0.48)', glow: 'rgba(244, 63, 94, 0.45)'
+        }
     };
-    var savedAccentKey = localStorage.getItem('plannerColor') || localStorage.getItem('saasColorTheme');
-    var activePal = accentPalettes[savedAccentKey] || preset;
+    var savedAccentKey = localStorage.getItem('plannerColor') || localStorage.getItem('saasColorTheme') || 'neon-purple';
+    var activePal = accentPalettes[savedAccentKey] || accentPalettes['neon-purple'];
 
     var root = document.documentElement;
     root.style.setProperty('--user-wallpaper', "url('" + bg + "')");
     root.style.setProperty('--theme-accent', activePal.accent);
     root.style.setProperty('--theme-accent-2', activePal.accent2);
+    root.style.setProperty('--theme-light', activePal.light);
     root.style.setProperty('--theme-soft', activePal.soft);
     root.style.setProperty('--theme-border', activePal.border);
+    root.style.setProperty('--theme-glow', activePal.glow);
     root.style.setProperty('--brand-focus', activePal.accent);
     root.style.setProperty('--brand-dash', activePal.accent2);
+
+    // BƠM TRỰC TIẾP LỚP CSS ĐỘNG ĐỂ ĐỔI MÀU NÚT, VIỀN CARD, CỘT BIỂU ĐỒ, THANH NĂNG LƯỢNG & VIỀN TRÒN
+    var dynStyle = document.getElementById('apex-dynamic-accent-engine');
+    if (!dynStyle) {
+        dynStyle = document.createElement('style');
+        dynStyle.id = 'apex-dynamic-accent-engine';
+        document.head.appendChild(dynStyle);
+    }
+    dynStyle.innerHTML = `
+        /* 1. Viền của tất cả các Card & Hiệu ứng ánh sáng lướt qua */
+        .phoi-card, #dashboard-grid .goal-card, .ft-card, .phoi-mini-item, .apex-enhanced-goal-card {
+            border-color: ${activePal.border} !important;
+        }
+        .phoi-card:hover, #dashboard-grid .goal-card:hover, .ft-card:hover, .apex-analytics-stat-card:hover, .apex-enhanced-goal-card:hover {
+            border-color: ${activePal.accent} !important;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.45), 0 0 22px ${activePal.soft} !important;
+        }
+        .phoi-card::before, #dashboard-grid .goal-card::before {
+            background: linear-gradient(90deg, transparent, ${activePal.accent}, ${activePal.accent2}, transparent) !important;
+        }
+
+        /* 2. Đổi màu toàn bộ Nút bấm chính (Nhận lệnh, Tiếp tục học, Bắt đầu Focus, Tab đang chọn) */
+        .ft-start-btn, .demo-tab-pill.active, .apex-filter-btn.active, .ft-mode-pill.active,
+        button[onclick*="openGoal("], button[onclick*="triggerDispatchPing"], button[onclick*="runAiAutoFillGoalSchedule"],
+        button[onclick*="processAiBulkScheduleInput"], button[onclick*="sendDirectMessengerReply"] {
+            background: linear-gradient(90deg, ${activePal.accent}, ${activePal.accent2}) !important;
+            border-color: ${activePal.light} !important;
+            box-shadow: 0 4px 16px ${activePal.glow} !important;
+            color: #fff !important;
+        }
+
+        /* 3. Đổi màu các Cột biểu đồ (Biểu đồ 7 ngày ở Dashboard & Biểu đồ trang Phân tích) */
+        .apex-7d-bar-fill, .apex-analytics-bar-fill,
+        #bento-command-center div[style*="linear-gradient(180deg, #38bdf8, #6366f1)"] {
+            background: linear-gradient(180deg, ${activePal.accent}, ${activePal.accent2}) !important;
+            box-shadow: 0 0 12px ${activePal.soft} !important;
+        }
+        .apex-peak-badge {
+            background: ${activePal.accent} !important;
+            box-shadow: 0 4px 12px ${activePal.glow} !important;
+        }
+
+        /* 4. Đổi màu các Thanh năng lượng (Progress Bars & Timeline) */
+        .apex-shimmer-bar, .apex-timeline-fill, #ft-right-goal-bar,
+        #bento-command-center div[style*="linear-gradient(90deg, #a855f7, #38bdf8)"] {
+            background: linear-gradient(90deg, ${activePal.accent}, ${activePal.accent2}) !important;
+            box-shadow: 0 0 10px ${activePal.soft} !important;
+        }
+        .apex-timeline-marker.passed {
+            border-color: ${activePal.accent} !important;
+            background: ${activePal.light} !important;
+        }
+
+        /* 5. Đổi màu các Viền tròn (Vòng tròn Hôm nay, Vòng tròn Focus Room, Vòng tròn Mục tiêu, Quỹ đạo chữ A & Viền Avatar) */
+        #bento-command-center svg circle[stroke="#a855f7"],
+        #ft-svg-progress,
+        .progress-circle .progress-bar,
+        .apex-enhanced-goal-card svg circle[stroke="#f43f5e"] {
+            stroke: ${activePal.accent} !important;
+            filter: drop-shadow(0 0 8px ${activePal.glow}) !important;
+        }
+        .phoi-orbit-core {
+            background: radial-gradient(circle, ${activePal.accent} 0%, ${activePal.accent2} 100%) !important;
+            border-color: ${activePal.light} !important;
+            box-shadow: 0 0 28px ${activePal.glow} !important;
+        }
+        .phoi-orbit-ring1 {
+            border-color: ${activePal.border} !important;
+        }
+        #user-auth-badge img {
+            border-color: ${activePal.accent} !important;
+            box-shadow: 0 0 14px ${activePal.glow} !important;
+        }
+        .phoi-link, .fa-wand-magic-sparkles {
+            color: ${activePal.accent} !important;
+        }
+    `;
 
     var dimDec = (Number(apexThemeConfig.overlayDim) / 100).toFixed(2);
     root.style.setProperty('--user-bg-dim', dimDec);
@@ -8136,10 +8227,17 @@ window.changeColor = function(colorName) {
     document.body.setAttribute('data-color', chosen);
     localStorage.setItem('plannerColor', chosen);
     localStorage.setItem('saasColorTheme', chosen);
+    
     document.querySelectorAll('.color-btn').forEach(function(btn) {
-        btn.classList.toggle('active', btn.classList.contains(chosen));
+        var isAct = btn.classList.contains(chosen);
+        btn.classList.toggle('active', isAct);
+        btn.style.border = isAct ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.2)';
+        btn.style.transform = isAct ? 'scale(1.18)' : 'scale(1)';
+        btn.style.boxShadow = isAct ? '0 0 10px var(--theme-accent)' : 'none';
     });
+    
     if (typeof applyCustomWallpaper === 'function') applyCustomWallpaper();
+    if (typeof syncToCloud === 'function') syncToCloud();
 };
 
 // --- 11. TRỢ LÝ AI THỜI KHÓA BIỂU (NHẬP NHANH NLP & TỰ ĐỘNG LẤP LỊCH THEO TIẾN ĐỘ) ---
@@ -9276,27 +9374,36 @@ function initAndRunCurfewCountdown() {
         });
     }
 
-    // 3. Căn chỉnh lại khay 4 nút màu Accent & ẩn nút Mặt trăng (vì đã dùng Theme vũ trụ tối)
+    // 3. Căn chỉnh lại khay 4 nút màu Accent (Khóa cứng 1 hàng ngang, không rớt dòng)
     var paletteBox = document.querySelector('.palette-container');
-    if (paletteBox && !paletteBox.dataset.styledClean) {
-        paletteBox.dataset.styledClean = 'true';
-        paletteBox.style.cssText = "display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin: 10px 0; border-radius: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06);";
+    if (paletteBox && !paletteBox.dataset.styledCleanV2) {
+        paletteBox.dataset.styledCleanV2 = 'true';
         
-        // Thêm nhãn nhỏ "Tông màu" bên trái 4 nút tròn
+        // Xóa nhãn cũ nếu có để làm lại gọn hơn
+        var oldLbl = paletteBox.querySelector('span');
+        if (oldLbl) oldLbl.remove();
+
+        paletteBox.style.cssText = "display: flex !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: space-between !important; padding: 8px 10px !important; margin: 10px 0 !important; border-radius: 10px !important; background: rgba(15, 23, 42, 0.65) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; gap: 6px !important; width: 100% !important; box-sizing: border-box !important;";
+        
         var lbl = document.createElement('span');
-        lbl.style.cssText = "font-size: 0.7rem; font-weight: 700; color: #94a3b8; margin-right: auto;";
-        lbl.innerHTML = '<i class="fa-solid fa-palette" style="color:var(--theme-accent); margin-right:5px;"></i>Tông màu';
+        lbl.style.cssText = "font-size: 0.7rem; font-weight: 700; color: #94a3b8; white-space: nowrap; margin-right: auto; display: flex; align-items: center; gap: 5px;";
+        lbl.innerHTML = '<i class="fa-solid fa-palette" style="color:var(--theme-accent);"></i>Tông màu';
         paletteBox.insertBefore(lbl, paletteBox.firstChild);
 
-        // Chỉnh kích thước 4 chấm màu gọn đẹp và có khoảng cách đều
+        // Gom 4 nút màu vào 1 cụm bên phải và tô lại màu chuẩn rõ nét
+        var bgColors = {
+            'zen': 'linear-gradient(135deg, #10b981, #059669)',
+            'neon-purple': 'linear-gradient(135deg, #a855f7, #6366f1)',
+            'neon-blue': 'linear-gradient(135deg, #38bdf8, #2563eb)',
+            'sakura': 'linear-gradient(135deg, #f43f5e, #e11d48)'
+        };
+
         paletteBox.querySelectorAll('.color-btn').forEach(function(b) {
-            b.style.width = '18px';
-            b.style.height = '18px';
-            b.style.marginLeft = '6px';
-            b.title = "Đổi tông màu nhấn chủ đạo (Accent Color)";
+            var cKey = b.classList.contains('zen') ? 'zen' : (b.classList.contains('neon-purple') ? 'neon-purple' : (b.classList.contains('neon-blue') ? 'neon-blue' : 'sakura'));
+            b.style.cssText = "width: 18px !important; height: 18px !important; min-width: 18px !important; border-radius: 50% !important; margin: 0 !important; padding: 0 !important; flex-shrink: 0 !important; cursor: pointer !important; background: " + bgColors[cKey] + " !important;";
+            b.title = "Đổi tông màu nhấn chủ đạo";
         });
 
-        // Ẩn nút Mặt trăng (Dark/Light cũ) vì giao diện đang chạy nền Vũ trụ cố định
         var moonBtn = paletteBox.querySelector('.theme-toggle') || document.querySelector('.theme-toggle');
         if (moonBtn) moonBtn.style.display = 'none';
     }
