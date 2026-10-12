@@ -3,36 +3,67 @@
    Bản nguyên khối chống sập (Full Architecture)
    ========================================================================== */
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
+// HỆ THỐNG ÂM THANH TƯƠNG THÍCH MỌI HỆ ĐIỀU HÀNH (BỌC THÉP CHO iOS / SAFARI)
+let _realAudioCtx = null;
+
+function getSafeAudioCtx() {
+    try {
+        if (!_realAudioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) _realAudioCtx = new AC();
+        }
+        if (_realAudioCtx && _realAudioCtx.state === 'suspended') {
+            _realAudioCtx.resume().catch(() => {});
+        }
+    } catch (e) {}
+    return _realAudioCtx;
+}
+
+// Tạo đối tượng audioCtx bọc lót an toàn để các hàm phía dưới gọi audioCtx.resume() không bao giờ bị lỗi trên iPhone
+const audioCtx = {
+    get state() {
+        return _realAudioCtx ? _realAudioCtx.state : 'suspended';
+    },
+    resume: function() {
+        const ctx = getSafeAudioCtx();
+        return ctx ? ctx.resume().catch(() => {}) : Promise.resolve();
+    }
+};
+
 function playAlertSound() {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.connect(gainNode); 
-    gainNode.connect(audioCtx.destination);
-    osc.type = 'sine'; 
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 1.5);
-    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
-    osc.start(audioCtx.currentTime); 
-    osc.stop(audioCtx.currentTime + 1.5);
+    try {
+        const ctx = getSafeAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.connect(gainNode); 
+        gainNode.connect(ctx.destination);
+        osc.type = 'sine'; 
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 1.5);
+        gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5);
+        osc.start(ctx.currentTime); 
+        osc.stop(ctx.currentTime + 1.5);
+    } catch (e) {}
 }
 
 function playTick() {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); 
-    gain.connect(audioCtx.destination);
-    osc.type = 'square'; 
-    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.02, audioCtx.currentTime); 
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-    osc.start(audioCtx.currentTime); 
-    osc.stop(audioCtx.currentTime + 0.05);
+    try {
+        const ctx = getSafeAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); 
+        gain.connect(ctx.destination);
+        osc.type = 'square'; 
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.02, ctx.currentTime); 
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+        osc.start(ctx.currentTime); 
+        osc.stop(ctx.currentTime + 0.05);
+    } catch (e) {}
 }
 
 function fireConfetti() {
@@ -226,7 +257,27 @@ let USER_DOC_ID = "emperor_data_v1";
 let isSyncing = false;
 
 function loginWithGoogle() {
-    firebase.auth().signInWithPopup(provider).catch(error => alert("Lỗi trình ngọc ấn: " + error.message));
+    // 1. Kiểm tra nếu khách mở kiểu "mì ăn liền" ngay trong khung chat Zalo, Messenger, Facebook
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isInAppBrowser = /FBAN|FBAV|Messenger|Zalo|Instagram|TikTok/i.test(ua);
+    
+    if (isInAppBrowser) {
+        alert("💡 Để đăng nhập Google an toàn, bạn vui lòng bấm vào dấu [...] ở góc trên bên phải màn hình và chọn 'Mở bằng trình duyệt' (Safari / Chrome) nhé!");
+        return;
+    }
+
+    // 2. Tự động nhận diện iPhone/iPad hoặc Safari để không bị kẹt Popup
+    firebase.auth().signInWithPopup(provider).catch(error => {
+        if (error.code === 'auth/popup-blocked' || 
+            error.code === 'auth/popup-closed-by-user' || 
+            error.code === 'auth/operation-not-supported-in-this-environment' ||
+            error.code === 'auth/unauthorized-domain') {
+            // Tự động chuyển sang chế độ chuyển trang (Redirect) mượt mà cho iOS
+            firebase.auth().signInWithRedirect(provider);
+        } else {
+            alert("Lỗi trình ngọc ấn: " + error.message);
+        }
+    });
 }
 
 // =====================================================================
@@ -4640,7 +4691,7 @@ window.openLeaderboard = function() {
                         </div>
                     </div>
                     <div class="arena-quote-right">
-                        “Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai.”<br>
+                        “Lượng hóa nỗ lực,<br>định hình tương lai.”<br>
                         <span style="font-size:0.62rem; color:#94a3b8; font-style:normal; font-weight:800;">— ACADEMIC APEX</span>
                     </div>
                     <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
@@ -10342,7 +10393,7 @@ window.renderGoalsDedicated = function(filterType = 'all') {
                 <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #38bdf8;">${aheadGoalsCount}</div><div class="apex-goal-stat-label">Vượt tiến độ</div></div>
                 <div class="apex-goal-stat-item"><div class="apex-goal-stat-val" style="color: #fbbf24;">${warningGoalsCount}</div><div class="apex-goal-stat-label">Cần chú ý</div></div>
                 <div style="margin-left: auto; align-self: center; max-width: 250px; font-style: italic; color: #cbd5e1; font-size: 0.85rem; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 16px;">
-                    "Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai."<br>
+                    "Lượng hóa nỗ lực,<br>định hình tương lai."<br>
                     <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; font-style: normal; margin-top: 4px; display: block;">— ACADEMIC APEX</span>
                 </div>
             </div>
