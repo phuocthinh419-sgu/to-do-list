@@ -4290,87 +4290,493 @@ async function sendMessage() {
     }
 }
 
-// --- 6. BẢNG XẾP HẠNG (CẬP NHẬT TRẠNG THÁI ONLINE/OFFLINE) ---
-function openLeaderboard() {
+// --- 6. ĐẤU TRƯỜNG KỶ LUẬT (BẢNG XẾP HẠNG CỘNG ĐỒNG 3D PODIUM) ---
+function injectArenaLeaderboardCSS() {
+    if (document.getElementById('apex-arena-lb-css')) return;
+    const st = document.createElement('style');
+    st.id = 'apex-arena-lb-css';
+    st.innerHTML = `
+        #leaderboard-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(4, 6, 14, 0.84); z-index: 10002;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); padding: 16px;
+        }
+        .arena-modal-box {
+            width: 100%; max-width: 920px; border-radius: 22px;
+            background: #0b0f1d;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(139, 92, 246, 0.18);
+            overflow: hidden; position: relative; color: #f8fafc;
+            display: flex; flex-direction: column; max-height: 92vh;
+        }
+        .arena-hero-section {
+            position: relative;
+            padding: 22px 28px 0 28px;
+            background: 
+                radial-gradient(circle at 50% 65%, rgba(245, 158, 11, 0.22) 0%, rgba(139, 92, 246, 0.18) 38%, rgba(11, 15, 29, 0.96) 78%),
+                url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+        .arena-top-bar {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 16px; position: relative; z-index: 3; margin-bottom: 14px;
+        }
+        .arena-title-group { display: flex; align-items: center; gap: 14px; }
+        .arena-emblem {
+            width: 54px; height: 54px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.28) 0%, rgba(120, 53, 15, 0.4) 100%);
+            border: 1.5px solid rgba(251, 191, 36, 0.65);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.55rem; color: #fbbf24;
+            box-shadow: 0 0 22px rgba(245, 158, 11, 0.4);
+        }
+        .arena-main-title {
+            margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 1.2px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #ffffff 0%, #e9d5ff 55%, #c084fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
+        }
+        .arena-sub-title { font-size: 0.82rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+        .arena-quote-right {
+            margin-left: auto; text-align: right; max-width: 260px;
+            font-size: 0.74rem; color: #cbd5e1; font-style: italic; line-height: 1.4;
+        }
+        .arena-close-btn {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #cbd5e1; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .arena-close-btn:hover { background: rgba(244, 63, 94, 0.25); color: #fff; border-color: #f43f5e; }
+
+        /* Tabs */
+        .arena-tabs-wrap {
+            display: inline-flex; background: rgba(10, 14, 26, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
+            padding: 3px; gap: 4px; position: relative; z-index: 3;
+        }
+        .arena-tab-btn {
+            padding: 7px 18px; border-radius: 9px; border: none;
+            background: transparent; color: #94a3b8; font-size: 0.78rem;
+            font-weight: 800; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 7px; transition: 0.25s;
+        }
+        .arena-tab-btn.active {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            color: #fff; box-shadow: 0 0 18px rgba(139, 92, 246, 0.55);
+        }
+
+        /* Side Banners */
+        .arena-side-flag {
+            position: absolute; bottom: 18px; width: 68px; height: 130px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(30, 27, 75, 0.75));
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 8px; text-align: center; z-index: 1; opacity: 0.75; pointer-events: none;
+        }
+        .arena-side-flag.left { left: 24px; transform: rotate(-4deg); }
+        .arena-side-flag.right { right: 24px; transform: rotate(4deg); }
+
+        /* 3D Podium */
+        .arena-podium-stage {
+            display: flex; justify-content: center; align-items: flex-end;
+            gap: 18px; margin-top: 12px; position: relative; z-index: 3;
+            padding-top: 26px;
+        }
+        .arena-podium-col {
+            display: flex; flex-direction: column; align-items: center;
+            width: 195px; position: relative;
+        }
+        .arena-avatar-wrap {
+            position: relative; margin-bottom: -16px; z-index: 4;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .arena-crown-icon {
+            font-size: 1.45rem; margin-bottom: -6px; z-index: 5;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8));
+        }
+        .arena-avatar-img {
+            width: 68px; height: 68px; border-radius: 50%; object-fit: cover;
+            background: #1e293b;
+        }
+        .arena-podium-col.rank-1 .arena-avatar-img {
+            width: 82px; height: 82px;
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 28px rgba(251, 191, 36, 0.75);
+        }
+        .arena-podium-col.rank-2 .arena-avatar-img {
+            border: 2.5px solid #cbd5e1;
+            box-shadow: 0 0 20px rgba(148, 163, 184, 0.55);
+        }
+        .arena-podium-col.rank-3 .arena-avatar-img {
+            border: 2.5px solid #f97316;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.55);
+        }
+        .arena-pedestal {
+            width: 100%; border-radius: 14px 14px 0 0;
+            padding: 24px 10px 12px 10px; text-align: center;
+            position: relative; box-sizing: border-box;
+            backdrop-filter: blur(12px);
+        }
+        .arena-podium-col.rank-1 .arena-pedestal {
+            min-height: 148px;
+            background: linear-gradient(180deg, rgba(45, 32, 12, 0.92) 0%, rgba(17, 14, 24, 0.98) 100%);
+            border: 1.5px solid rgba(251, 191, 36, 0.65);
+            border-bottom: none;
+            box-shadow: 0 -8px 30px rgba(245, 158, 11, 0.25), inset 0 2px 15px rgba(251, 191, 36, 0.2);
+        }
+        .arena-podium-col.rank-2 .arena-pedestal {
+            min-height: 122px;
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(13, 18, 32, 0.98) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            border-bottom: none;
+        }
+        .arena-podium-col.rank-3 .arena-pedestal {
+            min-height: 114px;
+            background: linear-gradient(180deg, rgba(55, 28, 18, 0.9) 0%, rgba(15, 15, 28, 0.98) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.45);
+            border-bottom: none;
+        }
+        .arena-rank-num { font-size: 1.55rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .rank-1 .arena-rank-num { color: #fbbf24; font-size: 1.85rem; text-shadow: 0 0 14px rgba(251,191,36,0.6); }
+        .rank-2 .arena-rank-num { color: #e2e8f0; }
+        .rank-3 .arena-rank-num { color: #fb923c; }
+        .arena-podium-name {
+            font-size: 0.8rem; font-weight: 800; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+        }
+        .arena-podium-score { font-size: 1.15rem; font-weight: 900; margin-bottom: 6px; }
+        .rank-1 .arena-podium-score { color: #fde047; font-size: 1.3rem; }
+        .rank-2 .arena-podium-score { color: #f1f5f9; }
+        .rank-3 .arena-podium-score { color: #fed7aa; }
+        .arena-streak-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 10px; border-radius: 100px; font-size: 0.66rem; font-weight: 700;
+            background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); color: #cbd5e1;
+        }
+
+        /* Table List (Rank 4+) */
+        .arena-list-section {
+            padding: 12px 24px; flex: 1; overflow-y: auto;
+            background: rgba(9, 13, 24, 0.95);
+        }
+        .arena-table-head, .arena-table-row {
+            display: grid;
+            grid-template-columns: 42px 1.8fr 0.9fr 1fr 65px 115px;
+            align-items: center; gap: 10px; padding: 8px 14px;
+        }
+        .arena-table-head {
+            font-size: 0.68rem; font-weight: 700; color: #64748b;
+            text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 6px;
+        }
+        .arena-table-row {
+            background: rgba(19, 25, 44, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px; margin-bottom: 6px; transition: 0.2s;
+        }
+        .arena-table-row:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+            background: rgba(26, 34, 58, 0.85);
+        }
+        .arena-challenge-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #e2e8f0; padding: 6px 12px; border-radius: 8px;
+            font-size: 0.72rem; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            transition: 0.2s;
+        }
+        .arena-challenge-btn:hover {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-color: #c084fc; color: #fff;
+        }
+
+        /* Bottom User Bar */
+        .arena-my-Sticky-bar {
+            margin: 0 24px 18px 24px; padding: 12px 20px;
+            border-radius: 16px;
+            background: linear-gradient(90deg, rgba(46, 26, 92, 0.75) 0%, rgba(17, 24, 46, 0.9) 55%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1.5px solid rgba(168, 85, 247, 0.55);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 14px;
+        }
+        @media (max-width: 768px) {
+            .arena-quote-right, .arena-side-flag { display: none !important; }
+            .arena-podium-stage { gap: 8px; }
+            .arena-podium-col { width: 32%; }
+            .arena-table-head { display: none; }
+            .arena-table-row { grid-template-columns: 28px 1fr auto auto; }
+            .arena-col-hide-sm { display: none; }
+        }
+    `;
+    document.head.appendChild(st);
+}
+
+window.openLeaderboard = function() {
+    injectArenaLeaderboardCSS();
     let modal = document.getElementById('leaderboard-modal');
     if (!modal) {
-        let html = `
-        <div id="leaderboard-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-            <div style="background:var(--bg-panel); width:90%; max-width:500px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; overflow-y:auto; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-                <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-xmark"></i></button>
-                <h2 style="margin-top:0; text-align:center; color:var(--brand-trophy); font-size: 1.5rem; text-transform: uppercase;"><i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng</h2>
-                
-                <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; margin-top: 20px;">
-                    <button id="tab-lb-hours" onclick="fetchLeaderboard('weeklyHours')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Giờ Học</button>
-                    <button id="tab-lb-streak" onclick="fetchLeaderboard('streak')" style="flex:1; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Top Chuỗi</button>
-                </div>
-                <div id="leaderboard-content" style="display:flex; flex-direction:column; gap:12px;"></div>
-            </div>
-        </div>`;
-        document.body.insertAdjacentHTML('beforeend', html);
-        modal = document.getElementById('leaderboard-modal');
+        modal = document.createElement('div');
+        modal.id = 'leaderboard-modal';
+        document.body.appendChild(modal);
     }
+
+    modal.innerHTML = `
+        <div class="arena-modal-box">
+            <div class="arena-hero-section">
+                <div class="arena-side-flag left">
+                    <div style="font-size:1.3rem; font-weight:900; color:#94a3b8;">A</div>
+                    <div style="font-size:0.5rem; letter-spacing:1px; color:#64748b; margin-top:4px;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                </div>
+                <div class="arena-side-flag right">
+                    <div style="font-size:1.3rem; font-weight:900; color:#94a3b8;">A</div>
+                    <div style="font-size:0.5rem; letter-spacing:1px; color:#64748b; margin-top:4px;">ACADEMIC<br>APEX</div>
+                </div>
+
+                <div class="arena-top-bar">
+                    <div class="arena-title-group">
+                        <div class="arena-emblem"><i class="fa-solid fa-trophy"></i></div>
+                        <div>
+                            <h2 class="arena-main-title">ĐẤU TRƯỜNG KỶ LUẬT</h2>
+                            <div class="arena-sub-title">Bảng xếp hạng cộng đồng</div>
+                        </div>
+                    </div>
+                    <div class="arena-quote-right">
+                        “Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai.”<br>
+                        <span style="font-size:0.62rem; color:#64748b; font-style:normal; font-weight:800;">— ACADEMIC APEX</span>
+                    </div>
+                    <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="arena-tabs-wrap">
+                    <button id="tab-lb-hours" class="arena-tab-btn active" onclick="fetchLeaderboard('weeklyHours')">
+                        <i class="fa-regular fa-clock"></i> Top Giờ Học
+                    </button>
+                    <button id="tab-lb-streak" class="arena-tab-btn" onclick="fetchLeaderboard('streak')">
+                        <i class="fa-solid fa-fire"></i> Top Chuỗi
+                    </button>
+                </div>
+
+                <div id="arena-podium-container" class="arena-podium-stage"></div>
+            </div>
+
+            <div id="leaderboard-content" class="arena-list-section"></div>
+            <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
+        </div>
+    `;
+
     modal.style.display = 'flex';
-    // Ép đồng bộ dữ liệu mới nhất lên Cloud trước khi xem
     if (typeof syncToCloud === 'function') syncToCloud();
     fetchLeaderboard('weeklyHours');
-}
+};
 
-async function fetchLeaderboard(orderByField) {
-    const content = document.getElementById('leaderboard-content');
-    document.getElementById('tab-lb-hours').style.background = orderByField === 'weeklyHours' ? 'var(--brand-focus)' : 'var(--bg-hover)';
-    document.getElementById('tab-lb-hours').style.color = orderByField === 'weeklyHours' ? '#fff' : 'var(--text-main)';
-    document.getElementById('tab-lb-streak').style.background = orderByField === 'streak' ? 'var(--brand-focus)' : 'var(--bg-hover)';
-    document.getElementById('tab-lb-streak').style.color = orderByField === 'streak' ? '#fff' : 'var(--text-main)';
+window.fetchLeaderboard = async function(orderByField) {
+    const podiumBox = document.getElementById('arena-podium-container');
+    const listBox = document.getElementById('leaderboard-content');
+    const myBarBox = document.getElementById('arena-my-rank-bar');
+    if (!listBox) return;
 
-    content.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i><br>Đang tải dữ liệu...</div>';
-    
+    const btnHours = document.getElementById('tab-lb-hours');
+    const btnStreak = document.getElementById('tab-lb-streak');
+    if (btnHours) btnHours.classList.toggle('active', orderByField === 'weeklyHours');
+    if (btnStreak) btnStreak.classList.toggle('active', orderByField === 'streak');
+
+    listBox.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 30px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.6rem; color:#a855f7; margin-bottom:8px;"></i><br>Đang triệu tập bảng phong thần...</div>';
+
     try {
-        // Lấy Top 30 người dùng
-        const snapshot = await db.collection("academic_apex").orderBy(orderByField, "desc").limit(30).get();
-        if (snapshot.empty) return content.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--text-muted);">Chưa có dữ liệu xếp hạng.</div>';
+        const snapshot = await db.collection("academic_apex").get();
+        let members = [];
+        let parts = currentGlobalMonday.split('-');
 
-        let html = ''; let rank = 1;
         snapshot.forEach((doc) => {
-            let data = doc.data();
-            let name = data.displayName || "Ẩn danh";
-            let photo = data.photoURL || "https://via.placeholder.com/44";
-            let score = orderByField === 'weeklyHours' ? (data.weeklyHours || 0).toFixed(1) + 'h' : (data.streak || 0) + ' Ngày';
-            
-            // Hiển thị trạng thái
-            let isFocusing = data.currentStatus === 'focusing';
-            let statusColor = isFocusing ? '#ef4444' : '#10b981';
-            let statusText = isFocusing ? 'Đang tập trung' : 'Trực tuyến';
-            let statusDot = `<div style="width:14px; height:14px; border-radius:50%; background:${statusColor}; position:absolute; bottom:0; right:0; border:2px solid var(--bg-panel); box-shadow: 0 0 5px ${statusColor};" title="${statusText}"></div>`;
+            let data = doc.data() || {};
+            if (doc.id === "emperor_data_v1" && !data.displayName) return;
 
-            let isMe = doc.id === USER_DOC_ID;
-            let actionBtn = !isMe 
-                ? `<button onclick="openComposeModal('${doc.id}', '${name}')" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--brand-focus); width:36px; height:36px; border-radius:8px; cursor:pointer;" title="Gửi thư"><i class="fa-solid fa-paper-plane"></i></button>` 
-                : `<div style="width:36px;"></div>`;
+            let calcWeekHrs = 0;
+            if (data.dailyLogs && typeof data.dailyLogs === 'object') {
+                for (let i = 0; i < 7; i++) {
+                    let d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    d.setDate(d.getDate() + i);
+                    let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
+                }
+            } else if (typeof data.weeklyHours === 'number') {
+                calcWeekHrs = data.weeklyHours;
+            }
 
-            let rankStyle = rank === 1 ? "color:#eab308; font-size:1.5rem; font-weight:900;" : (rank === 2 ? "color:#94a3b8; font-size:1.3rem;" : "color:#b45309; font-size:1.2rem;");
-            
-            html += `
-            <div class="stagger-item" style="display:flex; align-items:center; padding:12px; border-radius:16px; background:${isMe ? 'rgba(14,165,233,0.05)' : 'var(--bg-hover)'}; border:1px solid ${isMe ? 'var(--brand-focus)' : 'var(--border)'};">
-                <div style="width:35px; text-align:center; font-weight:800; ${rankStyle}">${rank}</div>
-                <div style="position:relative; margin:0 12px;">
-                    <img src="${photo}" style="width:44px; height:44px; border-radius:50%; object-fit: cover;">
-                    ${statusDot}
-                </div>
-                <div style="flex:1; overflow:hidden;">
-                    <div style="font-weight:800; color:var(--text-main); font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
-                    <div style="font-weight:900; color:var(--brand-trophy); font-size:1.1rem;">${score}</div>
-                </div>
-                ${actionBtn}
-            </div>`;
-            rank++;
+            if (doc.id === USER_DOC_ID && typeof getTotalCycleHours === 'function') {
+                calcWeekHrs = getTotalCycleHours();
+            }
+
+            let userStreak = Number(data.streak ?? 0);
+            if (doc.id === USER_DOC_ID && typeof currentStreak !== 'undefined') {
+                userStreak = Number(currentStreak);
+            }
+
+            members.push({
+                id: doc.id,
+                name: data.displayName || "Học giả ẩn danh",
+                photo: data.photoURL || ("https://ui-avatars.com/api/?name=" + encodeURIComponent(data.displayName || "U") + "&background=3b82f6&color=fff"),
+                weeklyHours: calcWeekHrs,
+                streak: userStreak,
+                currentStatus: data.currentStatus || 'online'
+            });
         });
-        content.innerHTML = html;
+
+        members.sort((a, b) => {
+            if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
+            return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
+        });
+
+        // 1. VẼ BỤC VINH QUANG TOP 3 (Thứ tự hiển thị: Hạng 2 bên trái - Hạng 1 chính giữa - Hạng 3 bên phải)
+        const top1 = members[0] || null;
+        const top2 = members[1] || null;
+        const top3 = members[2] || null;
+        const podiumOrder = [
+            { item: top2, rank: 2, crownColor: '#cbd5e1' },
+            { item: top1, rank: 1, crownColor: '#fbbf24' },
+            { item: top3, rank: 3, crownColor: '#fb923c' }
+        ];
+
+        if (podiumBox) {
+            podiumBox.innerHTML = podiumOrder.map(p => {
+                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div>`;
+                const m = p.item;
+                const mainMetric = orderByField === 'weeklyHours' ? `${m.weeklyHours.toFixed(1)}h` : `${m.streak} ngày`;
+                const subMetric = orderByField === 'weeklyHours' ? `🔥 ${m.streak} ngày` : `⏱️ ${m.weeklyHours.toFixed(1)}h`;
+                const isFocusing = m.currentStatus === 'focusing';
+                const dotCol = isFocusing ? '#ef4444' : '#10b981';
+
+                return `
+                    <div class="arena-podium-col rank-${p.rank}">
+                        <div class="arena-avatar-wrap">
+                            <i class="fa-solid fa-crown arena-crown-icon" style="color:${p.crownColor};"></i>
+                            <div style="position:relative;">
+                                <img src="${m.photo}" class="arena-avatar-img">
+                                <span style="position:absolute; bottom:4px; right:4px; width:13px; height:13px; border-radius:50%; background:${dotCol}; border:2px solid #0b0f1d;"></span>
+                            </div>
+                        </div>
+                        <div class="arena-pedestal">
+                            <div class="arena-rank-num">⟨ ${p.rank} ⟩</div>
+                            <div class="arena-podium-name" title="${m.name}">${m.name}</div>
+                            <div class="arena-podium-score">${mainMetric}</div>
+                            <div class="arena-streak-pill">${subMetric}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 2. VẼ DANH SÁCH TỪ HẠNG 4 TRỞ ĐI
+        const restMembers = members.slice(3, 30);
+        if (restMembers.length === 0) {
+            listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Tất cả cao thủ hiện tại đều đã đứng trên Đài Vinh Quang Top 3!</div>`;
+        } else {
+            let tableHtml = `
+                <div class="arena-table-head">
+                    <div>#</div>
+                    <div>Người dùng</div>
+                    <div>Giờ học</div>
+                    <div>Chuỗi ngày</div>
+                    <div class="arena-col-hide-sm" style="text-align:center;">Xu hướng</div>
+                    <div style="text-align:right;">Thao tác</div>
+                </div>
+            `;
+            restMembers.forEach((m, idx) => {
+                const rank = idx + 4;
+                const isMe = m.id === USER_DOC_ID;
+                const isFocusing = m.currentStatus === 'focusing';
+                const dotCol = isFocusing ? '#ef4444' : '#10b981';
+                const trendHtml = idx % 3 === 1 ? `<span style="color:#10b981; font-size:0.72rem; font-weight:800;">▲ 1</span>` : (idx % 3 === 2 ? `<span style="color:#ef4444; font-size:0.72rem; font-weight:800;">▼ 1</span>` : `<span style="color:#64748b;">—</span>`);
+                const safeName = m.name.replace(/'/g, "\\'");
+
+                tableHtml += `
+                    <div class="arena-table-row">
+                        <div style="font-weight:800; color:#94a3b8; font-size:0.85rem;">${rank}</div>
+                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                            <div style="position:relative; flex-shrink:0;">
+                                <img src="${m.photo}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                <span style="position:absolute; bottom:0; right:0; width:10px; height:10px; border-radius:50%; background:${dotCol}; border:2px solid #0b0f1d;"></span>
+                            </div>
+                            <span style="font-weight:700; color:#f1f5f9; font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${m.name} ${isMe ? '<b style="color:#c084fc; font-size:0.7rem;">(Bạn)</b>' : ''}
+                            </span>
+                        </div>
+                        <div style="font-weight:800; color:#fff; font-size:0.85rem;">${m.weeklyHours.toFixed(1)}h</div>
+                        <div style="font-weight:700; color:#cbd5e1; font-size:0.8rem;"><i class="fa-solid fa-fire" style="color:#f97316; margin-right:4px;"></i>${m.streak} ngày</div>
+                        <div class="arena-col-hide-sm" style="text-align:center;">${trendHtml}</div>
+                        <div style="text-align:right;">
+                            ${!isMe ? `<button class="arena-challenge-btn" onclick="openComposeModal('${m.id}', '${safeName}')"><i class="fa-solid fa-paper-plane"></i> Thách đấu</button>` : `<span style="font-size:0.72rem; color:#64748b;">Chính chủ</span>`}
+                        </div>
+                    </div>
+                `;
+            });
+            listBox.innerHTML = tableHtml;
+        }
+
+        // 3. VẼ THANH "HẠNG CỦA BẠN" DƯỚI ĐÁY
+        if (myBarBox) {
+            const myIndex = members.findIndex(x => x.id === USER_DOC_ID);
+            const me = myIndex !== -1 ? members[myIndex] : {
+                name: currentUser?.displayName || "Phước Thịnh",
+                photo: currentUser?.photoURL || "https://via.placeholder.com/44",
+                weeklyHours: typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0,
+                streak: typeof currentStreak !== 'undefined' ? currentStreak : 0
+            };
+            const myRankNum = myIndex !== -1 ? (myIndex + 1) : 1;
+
+            myBarBox.innerHTML = `
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1rem;">
+                        <i class="fa-solid fa-ranking-star"></i>
+                    </div>
+                    <div style="position:relative;">
+                        <img src="${me.photo}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">
+                        <span style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; background:#10b981; border:2px solid #0b0f1d;"></span>
+                    </div>
+                    <div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px;">HẠNG CỦA BẠN</div>
+                        <div style="display:flex; align-items:baseline; gap:8px;">
+                            <span style="font-size:1.35rem; font-weight:900; color:#fbbf24;">${myRankNum}</span>
+                            <strong style="font-size:0.95rem; color:#fff;">${me.name}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-regular fa-clock" style="color:#94a3b8; font-size:1rem;"></i>
+                        <div>
+                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.weeklyHours.toFixed(1)}h</strong>
+                            <span style="font-size:0.68rem; color:#94a3b8;">Tổng giờ học</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-fire" style="color:#f97316; font-size:1.1rem;"></i>
+                        <div>
+                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.streak} ngày</strong>
+                            <span style="font-size:0.68rem; color:#94a3b8;">Chuỗi hiện tại</span>
+                        </div>
+                    </div>
+                    <div style="font-size:0.78rem; color:#a855f7; font-style:italic; font-weight:600;">
+                        <i class="fa-solid fa-arrow-trend-up" style="margin-right:4px;"></i> Tiếp tục duy trì phong độ!
+                    </div>
+                </div>
+            `;
+        }
     } catch (e) {
         console.error(e);
-        content.innerHTML = '<div style="text-align:center; color:#ef4444;">Lỗi kết nối máy chủ.</div>';
+        listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
     }
-}
+};
 
 // =====================================================================
 // 1. HỆ THỐNG ĐIỀU PHỐI NHIỆM VỤ THÔNG MINH (ĐỒNG BỘ TKB & ĐỊNH MỨC ĐỘNG)
