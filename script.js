@@ -256,28 +256,184 @@ let currentUser = null;
 let USER_DOC_ID = "emperor_data_v1"; 
 let isSyncing = false;
 
+// =====================================================================
+// HỆ THỐNG ĐĂNG NHẬP KÉP: GOOGLE + EMAIL (TƯƠNG THÍCH MỌI TRÌNH DUYỆT & iOS)
+// =====================================================================
 function loginWithGoogle() {
-    // 1. Kiểm tra nếu khách mở kiểu "mì ăn liền" ngay trong khung chat Zalo, Messenger, Facebook
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     const isInAppBrowser = /FBAN|FBAV|Messenger|Zalo|Instagram|TikTok/i.test(ua);
-    
+
     if (isInAppBrowser) {
-        alert("💡 Để đăng nhập Google an toàn, bạn vui lòng bấm vào dấu [...] ở góc trên bên phải màn hình và chọn 'Mở bằng trình duyệt' (Safari / Chrome) nhé!");
+        if (confirm("💡 Trình duyệt trong Zalo/Messenger hạn chế cửa sổ Google.\n\n• Bấm [OK] để Đăng nhập bằng Email ngay tại đây.\n• Hoặc bấm [Hủy] rồi chọn dấu [...] góc trên -> 'Mở bằng trình duyệt' để dùng Google.")) {
+            openEmailAuthModal();
+        }
         return;
     }
 
-    // 2. Tự động nhận diện iPhone/iPad hoặc Safari để không bị kẹt Popup
     firebase.auth().signInWithPopup(provider).catch(error => {
         if (error.code === 'auth/popup-blocked' || 
-            error.code === 'auth/popup-closed-by-user' || 
-            error.code === 'auth/operation-not-supported-in-this-environment' ||
-            error.code === 'auth/unauthorized-domain') {
-            // Tự động chuyển sang chế độ chuyển trang (Redirect) mượt mà cho iOS
+            error.code === 'auth/operation-not-supported-in-this-environment') {
             firebase.auth().signInWithRedirect(provider);
         } else {
             alert("Lỗi trình ngọc ấn: " + error.message);
         }
     });
+}
+
+// Tự động chèn nút "Đăng nhập bằng Email" ngay dưới mọi nút Google Login
+function injectEmailLoginButtons() {
+    const googleBtns = document.querySelectorAll('[onclick*="loginWithGoogle"]');
+    googleBtns.forEach((gBtn, idx) => {
+        if (gBtn.dataset.hasEmailSibling === 'true') return;
+        gBtn.dataset.hasEmailSibling = 'true';
+
+        const emailBtn = document.createElement('button');
+        emailBtn.className = gBtn.className;
+        emailBtn.id = 'btn-apex-email-auth-' + idx;
+        emailBtn.type = 'button';
+        emailBtn.onclick = openEmailAuthModal;
+        emailBtn.style.cssText = "width: 100%; box-sizing: border-box; margin-top: 8px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); color: #f8fafc; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;";
+        emailBtn.onmouseover = function() {
+            this.style.background = "rgba(168, 85, 247, 0.22)";
+            this.style.borderColor = "#a855f7";
+        };
+        emailBtn.onmouseout = function() {
+            this.style.background = "rgba(255, 255, 255, 0.06)";
+            this.style.borderColor = "rgba(255, 255, 255, 0.16)";
+        };
+        emailBtn.innerHTML = `<i class="fa-solid fa-envelope" style="color:#c084fc;"></i> Đăng nhập bằng Email`;
+
+        gBtn.insertAdjacentElement('afterend', emailBtn);
+    });
+}
+
+// Ẩn nút Đăng nhập Email khi người dùng đã đăng nhập thành công
+firebase.auth().onAuthStateChanged(user => {
+    document.querySelectorAll('[id^="btn-apex-email-auth-"]').forEach(btn => {
+        btn.style.display = user ? 'none' : 'flex';
+    });
+});
+
+setTimeout(injectEmailLoginButtons, 300);
+setInterval(injectEmailLoginButtons, 1500);
+
+// Hộp thoại Đăng nhập / Đăng ký tự động bằng Email
+function openEmailAuthModal() {
+    let modal = document.getElementById('apex-email-auth-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'apex-email-auth-modal';
+        modal.style.cssText = "display:flex; position:fixed; inset:0; background:rgba(4,6,14,0.86); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:20005; align-items:center; justify-content:center; padding:16px;";
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="width:100%; max-width:390px; background:#0f172a; border:1px solid rgba(168,85,247,0.45); border-radius:20px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.85); color:#f8fafc; position:relative;">
+            <button onclick="document.getElementById('apex-email-auth-modal').style.display='none'" style="position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#94a3b8; width:30px; height:30px; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div style="text-align:center; margin-bottom:18px;">
+                <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #6366f1, #a855f7); display:inline-flex; align-items:center; justify-content:center; font-size:1.35rem; color:#fff; margin-bottom:10px; box-shadow:0 0 20px rgba(168,85,247,0.4);">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                </div>
+                <h3 style="margin:0; font-size:1.15rem; font-weight:800;">Đăng Nhập Bằng Email</h3>
+                <p style="margin:4px 0 0 0; font-size:0.74rem; color:#94a3b8;">Nếu chưa có tài khoản, hệ thống sẽ tự động khởi tạo cho bạn</p>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Tên hiển thị (Nếu đăng ký lần đầu)</label>
+                    <input id="apex-auth-name" type="text" placeholder="VD: Nguyễn Phước Thịnh" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.14); color:#fff; font-size:0.85rem; outline:none;">
+                </div>
+                <div>
+                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Địa chỉ Email (*)</label>
+                    <input id="apex-auth-email" type="email" placeholder="example@gmail.com / @icloud.com" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.14); color:#fff; font-size:0.85rem; outline:none;">
+                </div>
+                <div>
+                    <label style="font-size:0.72rem; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Mật khẩu (Từ 6 ký tự) (*)</label>
+                    <input id="apex-auth-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter') handleSmartEmailAuth()" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.14); color:#fff; font-size:0.85rem; outline:none;">
+                </div>
+                <div id="apex-auth-err" style="font-size:0.74rem; color:#fda4af; display:none; line-height:1.4;"></div>
+
+                <button id="apex-auth-submit-btn" onclick="handleSmartEmailAuth()" style="width:100%; margin-top:4px; padding:12px; border-radius:12px; background:linear-gradient(90deg, #6366f1, #a855f7); border:none; color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 18px rgba(168,85,247,0.4);">
+                    Tiếp Tục
+                </button>
+                <div style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="resetEmailPassword()" style="font-size:0.72rem; color:#94a3b8; text-decoration:underline;">Quên mật khẩu? Gửi link khôi phục</a>
+                </div>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+    setTimeout(() => document.getElementById('apex-auth-email')?.focus(), 100);
+}
+
+async function handleSmartEmailAuth() {
+    const nameInput = (document.getElementById('apex-auth-name')?.value || '').trim();
+    const email = (document.getElementById('apex-auth-email')?.value || '').trim();
+    const pass = (document.getElementById('apex-auth-pass')?.value || '').trim();
+    const errEl = document.getElementById('apex-auth-err');
+    const btn = document.getElementById('apex-auth-submit-btn');
+
+    if (!email || !email.includes('@') || pass.length < 6) {
+        errEl.style.display = 'block';
+        errEl.innerText = "⚠️ Vui lòng nhập đúng định dạng Email và mật khẩu tối thiểu 6 ký tự.";
+        return;
+    }
+
+    errEl.style.display = 'none';
+    btn.innerText = "Đang xác thực...";
+    btn.disabled = true;
+
+    try {
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
+        document.getElementById('apex-email-auth-modal').style.display = 'none';
+    } catch (signInErr) {
+        if (signInErr.code === 'auth/user-not-found' || signInErr.code === 'auth/invalid-credential' || signInErr.code === 'auth/invalid-login-credentials') {
+            try {
+                const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+                const dispName = nameInput || email.split('@')[0];
+                if (cred.user) {
+                    const photoUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(dispName) + "&background=6366f1&color=fff";
+                    await cred.user.updateProfile({ displayName: dispName, photoURL: photoUrl });
+                    await db.collection("academic_apex").doc(cred.user.uid).set({
+                        displayName: dispName,
+                        photoURL: photoUrl,
+                        lastUpdated: Date.now()
+                    }, { merge: true });
+                }
+                document.getElementById('apex-email-auth-modal').style.display = 'none';
+                location.reload();
+                return;
+            } catch (signUpErr) {
+                errEl.style.display = 'block';
+                if (signUpErr.code === 'auth/email-already-in-use') {
+                    errEl.innerText = "❌ Mật khẩu không chính xác! Vui lòng kiểm tra lại hoặc bấm Quên mật khẩu.";
+                } else {
+                    errEl.innerText = "❌ Lỗi: " + signUpErr.message;
+                }
+            }
+        } else if (signInErr.code === 'auth/wrong-password') {
+            errEl.style.display = 'block';
+            errEl.innerText = "❌ Sai mật khẩu! Vui lòng kiểm tra lại.";
+        } else {
+            errEl.style.display = 'block';
+            errEl.innerText = "❌ Lỗi: " + signInErr.message;
+        }
+    } finally {
+        btn.innerText = "Tiếp Tục";
+        btn.disabled = false;
+    }
+}
+
+function resetEmailPassword() {
+    const email = (document.getElementById('apex-auth-email')?.value || '').trim();
+    if (!email) {
+        alert("Vui lòng nhập địa chỉ Email của bạn vào ô Địa chỉ Email trước, sau đó bấm Quên mật khẩu!");
+        return;
+    }
+    firebase.auth().sendPasswordResetEmail(email)
+        .then(() => alert("✅ Đã gửi đường dẫn đặt lại mật khẩu vào hộp thư: " + email))
+        .catch(e => alert("Lỗi: " + e.message));
 }
 
 // =====================================================================
