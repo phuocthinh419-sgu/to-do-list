@@ -9540,7 +9540,7 @@ function renderCompactTopWidgets() {
         }, 1000);
     }
 
-   // 3. THẺ ĐẾM NGƯỢC (ĐÃ KHÔI PHỤC Ô GIÂY NHẢY LIÊN TỤC + NÚT XÓA NHANH)
+  // 3. THẺ ĐẾM NGƯỢC (ĐÃ KHÔI PHỤC Ô GIÂY NHẢY LIÊN TỤC + NÚT XÓA NHANH)
     let cdHtml = "";
     let list = (typeof countdowns !== 'undefined' && Array.isArray(countdowns)) ? countdowns : (JSON.parse(localStorage.getItem('saasCountdownsPro')) || []);
     if (list.length > 0) {
@@ -9565,6 +9565,7 @@ function renderCompactTopWidgets() {
 
     topContainer.innerHTML = kpiHtml + dispatchHtml + cdHtml;
     if (typeof updateCountdownTicks === 'function') updateCountdownTicks();
+}
 
 // =====================================================================
 // BẢN NÂNG CẤP TRANG MỤC TIÊU - HUY HIỆU VƯƠNG MIỆN HOÀNG GIA
