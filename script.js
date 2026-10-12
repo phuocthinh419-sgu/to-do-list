@@ -9540,19 +9540,23 @@ function renderCompactTopWidgets() {
         }, 1000);
     }
 
-    // 3. THẺ ĐẾM NGƯỢC
+   // 3. THẺ ĐẾM NGƯỢC (ĐÃ KHÔI PHỤC Ô GIÂY NHẢY LIÊN TỤC + NÚT XÓA NHANH)
     let cdHtml = "";
     let list = (typeof countdowns !== 'undefined' && Array.isArray(countdowns)) ? countdowns : (JSON.parse(localStorage.getItem('saasCountdownsPro')) || []);
     if (list.length > 0) {
         let cd = list[0];
         cdHtml = `
-        <div class="phoi-card apex-live-cd-card" data-target-ms="${new Date(cd.date).getTime()}" style="padding:16px !important; border:1px solid rgba(168,85,247,0.3) !important; background:linear-gradient(135deg, rgba(168,85,247,0.1), transparent); min-height:115px; display:flex; flex-direction:column; justify-content:center;">
-            <div style="font-size:0.75rem; font-weight:800; color:#c084fc; margin-bottom:6px;"><i class="fa-solid fa-hourglass-half"></i> SỰ KIỆN LỚN</div>
-            <div style="font-size:1rem; font-weight:800; color:#fff; margin-bottom:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cd.name}</div>
+        <div class="phoi-card apex-live-cd-card" data-target-ms="${new Date(cd.date).getTime()}" style="padding:14px 16px !important; border:1px solid rgba(168,85,247,0.3) !important; background:linear-gradient(135deg, rgba(168,85,247,0.1), transparent); min-height:115px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <div style="font-size:0.75rem; font-weight:800; color:#c084fc;"><i class="fa-solid fa-hourglass-half"></i> SỰ KIỆN LỚN</div>
+                <button onclick="deleteCountdown(${cd.id}); renderCompactTopWidgets();" title="Xóa sự kiện này" style="background:none; border:none; color:#64748b; cursor:pointer; font-size:0.72rem; padding:0;" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#64748b'"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+            <div style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cd.name}</div>
             <div style="display:flex; justify-content:space-between; gap:6px;">
-                <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-d" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">NGÀY</span></div>
-                <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-h" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">GIỜ</span></div>
-                <div style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-m" style="font-size:1.15rem; font-weight:900; color:#fff;">00</span><span style="display:block; font-size:0.55rem; color:#94a3b8;">PHÚT</span></div>
+                <div style="flex:1; background:rgba(0,0,0,0.35); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-d" style="font-size:1.1rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums;">00</span><span style="display:block; font-size:0.52rem; color:#94a3b8; font-weight:700;">NGÀY</span></div>
+                <div style="flex:1; background:rgba(0,0,0,0.35); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-h" style="font-size:1.1rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums;">00</span><span style="display:block; font-size:0.52rem; color:#94a3b8; font-weight:700;">GIỜ</span></div>
+                <div style="flex:1; background:rgba(0,0,0,0.35); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-m" style="font-size:1.1rem; font-weight:900; color:#fff; font-variant-numeric:tabular-nums;">00</span><span style="display:block; font-size:0.52rem; color:#94a3b8; font-weight:700;">PHÚT</span></div>
+                <div style="flex:1; background:rgba(168,85,247,0.22); border:1px solid rgba(168,85,247,0.45); border-radius:8px; text-align:center; padding:4px 0;"><span class="cd-val-s" style="font-size:1.1rem; font-weight:900; color:#e9d5ff; font-variant-numeric:tabular-nums;">00</span><span style="display:block; font-size:0.52rem; color:#c084fc; font-weight:800;">GIÂY</span></div>
             </div>
         </div>`;
     } else {
@@ -9561,7 +9565,6 @@ function renderCompactTopWidgets() {
 
     topContainer.innerHTML = kpiHtml + dispatchHtml + cdHtml;
     if (typeof updateCountdownTicks === 'function') updateCountdownTicks();
-}
 
 // =====================================================================
 // BẢN NÂNG CẤP TRANG MỤC TIÊU - HUY HIỆU VƯƠNG MIỆN HOÀNG GIA
