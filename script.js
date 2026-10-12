@@ -3105,7 +3105,7 @@ async function submitReport() {
         if(!goal) goal = goals[0]; 
         if(!goal.reports) goal.reports = [];
         
-        let reportLabel = isPunishment ? `Phạt ${activeSessionMinutes}p` : `${activeSessionMinutes}p`;
+       let reportLabel = isPunishment ? `Phạt ${activeSessionMinutes}p` : `${activeSessionMinutes}p`;
         goal.reports.push({ 
             date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), 
             type: reportLabel, 
@@ -3115,6 +3115,14 @@ async function submitReport() {
         
         let hoursEarned = activeSessionMinutes / 60; 
         goal.current = Math.max(0, goal.current - hoursEarned);
+
+        // ⚡ KÍCH HOẠT THẺ XP BOOST x1.5 (CỘNG +50% GIỜ VÀO QUỸ LEVEL XP)
+        let xpBoostUntil = parseInt(localStorage.getItem('saasXpBoostUntil')) || 0;
+        if (!isPunishment && Date.now() < xpBoostUntil) {
+            let bonusXpHrs = hoursEarned * 0.5;
+            let currentBonus = parseFloat(localStorage.getItem('saasBonusXpHours')) || 0;
+            localStorage.setItem('saasBonusXpHours', (currentBonus + bonusXpHrs).toFixed(3));
+        }
         
         if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; 
         dailyLogs[dateStr] += hoursEarned; 
@@ -5528,7 +5536,8 @@ function getTotalAccumulatedHours() {
 
 // 1. HỆ THỐNG 10 BẬC HỌC HÀM / DANH HIỆU HỌC THUẬT TRUNG LẬP (0H -> 1000+ GIỜ)
 function getUserLevelAndRank(totalHrs) {
-    var hrs = Number(totalHrs || 0);
+    var bonusXpHrs = parseFloat(localStorage.getItem('saasBonusXpHours')) || 0;
+    var hrs = Number(totalHrs || 0) + bonusXpHrs; // Cộng thêm giờ thưởng từ Thẻ XP Boost x1.5
     var lv = Math.max(1, Math.floor(hrs / 10) + 1);
     var title = "Người Học Sơ Cấp";
     if (lv >= 101) title = "Viện Sĩ Học Thuật";
