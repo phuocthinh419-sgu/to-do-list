@@ -4856,12 +4856,30 @@ function injectArenaLeaderboardCSS() {
     const st = document.createElement('style');
     st.id = 'apex-arena-lb-css';
     st.innerHTML = `
+        /* ANIMATIONS CHO ĐẤU TRƯỜNG */
+        @keyframes arenaPopIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes arenaPodiumUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes arenaFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes arenaRowIn {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
         #leaderboard-modal {
             display: none; position: fixed; inset: 0;
             background: rgba(4, 6, 14, 0.86); z-index: 10002;
             align-items: center; justify-content: center;
             backdrop-filter: blur(12px); padding: 14px;
-            font-family: 'Inter', system-ui, sans-serif; /* ĐỒNG BỘ FONT TOÀN BẢNG */
+            font-family: 'Inter', system-ui, sans-serif;
         }
         .arena-modal-box {
             width: 100%; max-width: 940px; border-radius: 22px;
@@ -4870,248 +4888,99 @@ function injectArenaLeaderboardCSS() {
             box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22);
             overflow: hidden; position: relative; color: #f8fafc;
             display: flex; flex-direction: column; max-height: 94vh;
+            animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         .arena-hero-section {
-            position: relative;
-            padding: 24px 28px 0 28px;
-            background: 
-                radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%),
-                url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-            border-bottom: 1px solid rgba(251, 191, 36, 0.22);
-            overflow: hidden;
+            position: relative; padding: 24px 28px 0 28px;
+            background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%),
+                        url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden;
         }
-        .arena-top-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            gap: 16px; position: relative; z-index: 4; margin-bottom: 14px;
-        }
+        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap {
-            width: 64px; height: 64px; position: relative;
-            display: flex; align-items: center; justify-content: center;
-            filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55));
-            flex-shrink: 0;
+            width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center;
+            filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0;
         }
         
-        /* SỬA LỖI FONT TIẾNG VIỆT CHO TIÊU ĐỀ CHÍNH (Sử dụng Inter 900) */
         .arena-main-title {
             margin: 0; padding-top: 4px; line-height: 1.35 !important;
-            font-family: 'Inter', system-ui, sans-serif;
-            font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, #fef08a 0%, #ffffff 35%, #e9d5ff 75%, #c084fc 100%);
+            font-family: 'Inter', system-ui, sans-serif; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px;
+            text-transform: uppercase; background: linear-gradient(90deg, #fef08a 0%, #ffffff 35%, #e9d5ff 75%, #c084fc 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85));
-            overflow: visible !important;
+            filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); overflow: visible !important;
         }
         .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; margin-top: 1px; }
-        .arena-quote-right {
-            margin-left: auto; text-align: right; max-width: 270px;
-            font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45;
-        }
+        .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
         .arena-close-btn {
-            width: 36px; height: 36px; border-radius: 10px;
-            background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16);
-            color: #cbd5e1; font-size: 1.05rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
         .arena-close-btn:hover { background: rgba(244, 63, 94, 0.28); color: #fff; border-color: #f43f5e; }
 
-        /* Tabs */
-        .arena-tabs-wrap {
-            display: inline-flex; background: rgba(8, 12, 24, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px;
-            padding: 3px; gap: 4px; position: relative; z-index: 4;
-        }
-        .arena-tab-btn {
-            padding: 8px 18px; border-radius: 9px; border: none;
-            background: transparent; color: #94a3b8; font-size: 0.78rem;
-            font-weight: 800; cursor: pointer; display: inline-flex;
-            align-items: center; gap: 7px; transition: 0.25s;
-        }
-        .arena-tab-btn.active {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65);
-            border: 1px solid rgba(192, 132, 252, 0.5);
-        }
+        .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 3px; gap: 4px; position: relative; z-index: 4; }
+        .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: 0.25s; }
+        .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
-        /* Cờ hiệu Hoàng gia 2 bên có thanh treo */
         .arena-side-flag {
-            position: absolute; bottom: 12px; width: 76px; height: 155px;
-            background: linear-gradient(180deg, #111827 0%, #1e1b4b 70%, #0f172a 100%);
-            border: 1px solid rgba(251, 191, 36, 0.35);
-            clip-path: polygon(0 0, 100% 0, 100% 86%, 50% 100%, 0 86%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 10px 6px; text-align: center; z-index: 2; opacity: 0.88; pointer-events: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: absolute; bottom: 12px; width: 76px; height: 155px; background: linear-gradient(180deg, #111827 0%, #1e1b4b 70%, #0f172a 100%);
+            border: 1px solid rgba(251, 191, 36, 0.35); clip-path: polygon(0 0, 100% 0, 100% 86%, 50% 100%, 0 86%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; text-align: center; z-index: 2; opacity: 0.88; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        .arena-side-flag::before {
-            content: ""; position: absolute; top: 0; left: -8px; right: -8px; height: 4px;
-            background: linear-gradient(90deg, #78350f, #fbbf24, #78350f);
-        }
+        .arena-side-flag::before { content: ""; position: absolute; top: 0; left: -8px; right: -8px; height: 4px; background: linear-gradient(90deg, #78350f, #fbbf24, #78350f); }
         .arena-side-flag.left { left: 22px; transform: rotate(-3deg); }
         .arena-side-flag.right { right: 22px; transform: rotate(3deg); }
 
-        /* 3D Stone Podiums */
-        .arena-podium-stage {
-            display: flex; justify-content: center; align-items: flex-end;
-            gap: 20px; margin-top: 6px; position: relative; z-index: 3;
-            padding-top: 22px;
-        }
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 6px; position: relative; z-index: 3; padding-top: 22px; }
         .arena-podium-col {
-            display: flex; flex-direction: column; align-items: center;
-            width: 210px; position: relative;
+            display: flex; flex-direction: column; align-items: center; width: 210px; position: relative;
+            animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
-        .arena-podium-col.rank-1 { width: 235px; z-index: 4; }
-        .arena-avatar-wrap {
-            position: relative; margin-bottom: -18px; z-index: 5;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .arena-crown-svg {
-            margin-bottom: -7px; z-index: 6;
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9));
-        }
-        .arena-avatar-img {
-            width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
-            background: #1e293b;
-        }
-        .arena-podium-col.rank-1 .arena-avatar-img {
-            width: 88px; height: 88px;
-            border: 3px solid #fde047;
-            box-shadow: 0 0 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff;
-        }
-        .arena-podium-col.rank-2 .arena-avatar-img {
-            border: 2.5px solid #e2e8f0;
-            box-shadow: 0 0 24px rgba(148, 163, 184, 0.7);
-        }
-        .arena-podium-col.rank-3 .arena-avatar-img {
-            border: 2.5px solid #fb923c;
-            box-shadow: 0 0 24px rgba(249, 115, 22, 0.65);
-        }
+        .arena-podium-col.rank-2 { animation-delay: 0.15s; }
+        .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
+        .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        /* Bục đá 3D vát cạnh kim loại */
-        .arena-pedestal {
-            width: 100%; border-radius: 12px 12px 0 0;
-            padding: 24px 12px 14px 12px; text-align: center;
-            position: relative; box-sizing: border-box;
-            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7);
-        }
-        .arena-pedestal::before {
-            content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px;
-            background: linear-gradient(90deg, transparent, #ffffff, transparent);
-        }
-        .arena-podium-col.rank-1 .arena-pedestal {
-            min-height: 162px;
-            background: 
-                radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%),
-                linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%);
-            border: 1.5px solid rgba(251, 191, 36, 0.75);
-            border-bottom: 3px solid #fbbf24;
-            box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15);
-        }
-        .arena-podium-col.rank-2 .arena-pedestal {
-            min-height: 132px;
-            background: 
-                radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%),
-                linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%);
-            border: 1.5px solid rgba(148, 163, 184, 0.5);
-            border-bottom: 2px solid #94a3b8;
-        }
-        .arena-podium-col.rank-3 .arena-pedestal {
-            min-height: 124px;
-            background: 
-                radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%),
-                linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%);
-            border: 1.5px solid rgba(249, 115, 22, 0.5);
-            border-bottom: 2px solid #f97316;
-        }
+        .arena-avatar-wrap { position: relative; margin-bottom: -18px; z-index: 5; display: flex; flex-direction: column; align-items: center; }
+        .arena-crown-svg { margin-bottom: -7px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)); animation: arenaFloat 3.5s ease-in-out infinite; }
+        .arena-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #1e293b; }
+        .arena-podium-col.rank-1 .arena-avatar-img { width: 88px; height: 88px; border: 3px solid #fde047; box-shadow: 0 0 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff; }
+        .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 0 24px rgba(148, 163, 184, 0.7); }
+        .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 0 24px rgba(249, 115, 22, 0.65); }
 
-        .arena-laurel-rank {
-            display: inline-flex; align-items: center; justify-content: center;
-            gap: 4px; margin-bottom: 2px;
-        }
-        
-        /* ĐỒNG BỘ FONT HẠNG CHO SỐ 1, 2, 3 TRÊN BỤC ĐÁ */
-        .arena-rank-num {
-            font-family: 'Inter', system-ui, sans-serif;
-            font-size: 1.7rem; font-weight: 900; line-height: 1;
-        }
+        .arena-pedestal { width: 100%; border-radius: 12px 12px 0 0; padding: 24px 12px 14px 12px; text-align: center; position: relative; box-sizing: border-box; box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); }
+        .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
+        .arena-podium-col.rank-1 .arena-pedestal { min-height: 162px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); }
+        .arena-podium-col.rank-2 .arena-pedestal { min-height: 132px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
+        .arena-podium-col.rank-3 .arena-pedestal { min-height: 124px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
+
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
+        .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
         .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
-        .arena-podium-name {
-            font-size: 0.84rem; font-weight: 800; color: #ffffff;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;
-        }
-        .arena-podium-score {
-            font-size: 1.2rem; font-weight: 900; margin-bottom: 6px;
-            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-        }
+        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+        .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.38rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
-
-        .arena-streak-pill {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700;
-            background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0;
-        }
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; }
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* Danh sách Hạng 4+ */
-        .arena-list-section {
-            padding: 12px 24px; flex: 1; overflow-y: auto;
-            background: rgba(9, 13, 24, 0.96);
-        }
-        .arena-table-head, .arena-table-row {
-            display: grid;
-            grid-template-columns: 42px 1.8fr 1fr 1fr 65px 115px;
-            align-items: center; gap: 10px; padding: 9px 14px;
-        }
-        .arena-table-head {
-            font-size: 0.7rem; font-weight: 700; color: #94a3b8;
-            border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px;
-        }
-        .arena-table-row {
-            background: rgba(18, 24, 42, 0.72);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px; margin-bottom: 6px; transition: 0.2s;
-        }
-        .arena-table-row:hover {
-            border-color: rgba(168, 85, 247, 0.42);
-            background: rgba(26, 34, 58, 0.9);
-        }
-        .arena-challenge-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #e2e8f0; padding: 6px 12px; border-radius: 8px;
-            font-size: 0.72rem; font-weight: 700; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            transition: 0.2s;
-        }
-        .arena-challenge-btn:hover {
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            border-color: #c084fc; color: #fff;
-        }
+        .arena-list-section { padding: 12px 24px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
+        .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 42px 1.8fr 1fr 1fr 65px 115px; align-items: center; gap: 10px; padding: 9px 14px; }
+        .arena-table-head { font-size: 0.7rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px; }
+        .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; margin-bottom: 6px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
+        .arena-table-row:nth-child(2) { animation-delay: 0.1s; }
+        .arena-table-row:nth-child(3) { animation-delay: 0.2s; }
+        .arena-table-row:nth-child(4) { animation-delay: 0.3s; }
+        .arena-table-row:nth-child(5) { animation-delay: 0.4s; }
+        .arena-table-row:hover { border-color: rgba(168, 85, 247, 0.42); background: rgba(26, 34, 58, 0.9); }
+        .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; }
+        .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); border-color: #c084fc; color: #fff; }
 
-        /* Thanh HẠNG CỦA BẠN dưới đáy */
-        .arena-my-Sticky-bar {
-            margin: 0 24px 18px 24px; padding: 12px 20px;
-            border-radius: 16px;
-            background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%);
-            border: 1.5px solid rgba(168, 85, 247, 0.6);
-            box-shadow: 0 0 28px rgba(139, 92, 246, 0.28);
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 14px;
-        }
-        @media (max-width: 768px) {
-            .arena-quote-right, .arena-side-flag { display: none !important; }
-            .arena-podium-stage { gap: 8px; }
-            .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; }
-            .arena-table-head { display: none; }
-            .arena-table-row { grid-template-columns: 28px 1fr auto auto; }
-            .arena-col-hide-sm { display: none; }
-        }
+        .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; }
+        @media (max-width: 768px) { .arena-quote-right, .arena-side-flag { display: none !important; } .arena-podium-stage { gap: 8px; } .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; } .arena-table-head { display: none; } .arena-table-row { grid-template-columns: 28px 1fr auto auto; } .arena-col-hide-sm { display: none; } }
     `;
     document.head.appendChild(st);
 }
@@ -5156,7 +5025,7 @@ window.openLeaderboard = function() {
                         </div>
                     </div>
                     <div class="arena-quote-right">
-                        “Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai.”<br>
+                        “Lượng hóa nỗ lực,<br>định hình tương lai.”<br>
                         <span style="font-size:0.62rem; color:#94a3b8; font-style:normal; font-weight:800;">— ACADEMIC APEX</span>
                     </div>
                     <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
