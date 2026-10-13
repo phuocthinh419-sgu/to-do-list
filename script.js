@@ -4932,13 +4932,12 @@ function injectArenaLeaderboardCSS() {
         .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        /* NÂNG CẤP VISUAL: NHỔ ẢNH LÊN LƠ LỬNG */
         .arena-avatar-wrap { 
             position: relative; margin-bottom: 16px; z-index: 5; 
             display: flex; flex-direction: column; align-items: center; 
             animation: arenaAvatarFloat 4s ease-in-out infinite; 
         }
-        .arena-podium-col.rank-2 .arena-avatar-wrap { animation-delay: 0.5s; } /* Tạo nhịp điệu lơ lửng khác nhau */
+        .arena-podium-col.rank-2 .arena-avatar-wrap { animation-delay: 0.5s; } 
         .arena-podium-col.rank-3 .arena-avatar-wrap { animation-delay: 1s; }
         
         .arena-crown-svg { margin-bottom: -10px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)); animation: arenaFloat 3s ease-in-out infinite reverse; }
@@ -4947,13 +4946,13 @@ function injectArenaLeaderboardCSS() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 8px 24px rgba(148, 163, 184, 0.7); }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.65); }
 
-        /* NÂNG CẤP CẤU TRÚC: BỤC ĐÁ CỐ ĐỊNH ĐỘ CAO VÀ ÉP NỘI DUNG VÀO GIỮA */
+        /* BỤC ĐÁ ĐÃ ĐƯỢC GIẢI PHÓNG CHIỀU CAO VÀ CẤM ÉP CHỮ */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
             overflow: hidden; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; /* Tự động căn giữa chữ số bên trong */
-            padding: 16px 10px;
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center; /* Để flex-start thay vì center */
+            padding: 18px 8px 10px 8px; /* Ép lề trên đồng bộ */
         }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
         .arena-pedestal::after {
@@ -4962,40 +4961,48 @@ function injectArenaLeaderboardCSS() {
             transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite;
         }
 
+        /* Nới lỏng chiều cao để các nội dung không bị nghiến */
         .arena-podium-col.rank-1 .arena-pedestal { 
-            height: 160px; /* Khóa cứng độ cao bục số 1 */
+            height: 175px; 
             background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
             border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
         }
         .arena-podium-col.rank-1 .arena-pedestal::after { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.35), transparent); animation-delay: 0.5s; }
 
         .arena-podium-col.rank-2 .arena-pedestal { 
-            height: 125px; /* Khóa cứng độ cao bục số 2 */
+            height: 145px; 
             background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
             border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; 
         }
         .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; }
 
         .arena-podium-col.rank-3 .arena-pedestal { 
-            height: 90px;  /* Khóa cứng bục số 3 - lùn hẳn xuống */
+            height: 115px; 
             background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
             border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; 
         }
         .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; }
 
-        .arena-podium-content-layer { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
-        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
+        /* KHÓA FLEX-SHRINK ĐỂ VĨNH VIỄN KHÔNG BỊ ÉP CHỮ NỮA */
+        .arena-podium-content-layer { 
+            position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; 
+            width: 100%; flex-shrink: 0; 
+        }
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; flex-shrink: 0; }
         .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
         .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
-        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; max-width: 95%; }
-        .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+        .arena-podium-name { 
+            font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            margin-bottom: 3px; max-width: 95%; flex-shrink: 0; line-height: 1.25; 
+        }
+        .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; }
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.38rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; }
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; flex-shrink: 0; }
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
         .arena-list-section { padding: 12px 24px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
