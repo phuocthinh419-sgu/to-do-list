@@ -5083,15 +5083,16 @@ window.openLeaderboard = function() {
                     </button>
                 </div>
 
-                <div class="arena-tabs-wrap">
-                    <button id="tab-lb-hours" class="arena-tab-btn active" onclick="fetchLeaderboard('weeklyHours')">
-                        <i class="fa-regular fa-clock"></i> Top Giờ Học (Tuần)
-                    </button>
-                    <button id="tab-lb-streak" class="arena-tab-btn" onclick="fetchLeaderboard('streak')">
-                        <i class="fa-solid fa-fire"></i> Top Chuỗi
-                    </button>
-                </div>
-
+               <div style="display: flex; justify-content: center; width: 100%; position: relative; z-index: 10; margin-bottom: 24px; margin-top: -10px;">
+    <div class="arena-tabs-wrap">
+        <button id="tab-lb-hours" class="arena-tab-btn active" onclick="fetchLeaderboard('weeklyHours')">
+            <i class="fa-regular fa-clock"></i> Top Giờ Học (Tuần)
+        </button>
+        <button id="tab-lb-streak" class="arena-tab-btn" onclick="fetchLeaderboard('streak')">
+            <i class="fa-solid fa-fire"></i> Top Chuỗi
+        </button>
+    </div>
+</div>
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
             </div>
 
@@ -5159,24 +5160,23 @@ window.fetchLeaderboard = async function(orderByField) {
         });
 
         // ==========================================
-        // KHÔNG CẦN HÀM RỜI! NHÉT TRỰC TIẾP ÂM BINH VÀO ĐÂY:
+        // GỘP ÂM BINH VÀO ĐÚNG CHỖ (TRƯỚC KHI SẮP XẾP)
         // ==========================================
         const aiBots = [
-            { id: "bot_1", name: "Trường Giang", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", weeklyHours: 4.5, streak: 12, currentStatus: 'focusing', isBot: true },
-            { id: "bot_2", name: "Nhã Phương", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tuan", weeklyHours: 3.2, streak: 8, currentStatus: 'online', isBot: true },
-            { id: "bot_3", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ninja", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
-            { id: "bot_4", name: "Donald Trump", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily", weeklyHours: 1.5, streak: 3, currentStatus: 'focusing', isBot: true },
-            { id: "bot_5", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Destroyer", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true }
+            { id: "bot_1", name: "Mark Zuckerberg", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mark", weeklyHours: 3.5, streak: 8, currentStatus: 'focusing', isBot: true },
+            { id: "bot_2", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elon", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
+            { id: "bot_3", name: "Donald Trump", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Trump", weeklyHours: 1.5, streak: 3, currentStatus: 'focusing', isBot: true },
+            { id: "bot_4", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kim", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true }
         ];
         members = members.concat(aiBots);
-        // ==========================================
 
+        // THUẬT TOÁN SẮP XẾP ĐÃ ĐƯỢC CHUẨN HÓA
         members.sort((a, b) => {
             if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
         });
 
-        // 1. VẼ BỤC VINH QUANG TOP 3
+        // 1. VẼ BỤC VINH QUANG TOP 3 (ĐÃ KHÔI PHỤC LAYER BỤC ĐÁ)
         const top1 = members[0] || null;
         const top2 = members[1] || null;
         const top3 = members[2] || null;
@@ -5188,7 +5188,7 @@ window.fetchLeaderboard = async function(orderByField) {
 
         if (podiumBox) {
             podiumBox.innerHTML = podiumOrder.map(p => {
-                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div>`;
+                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-podium-content-layer"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div></div>`;
                 const m = p.item;
                 const mainMetric = orderByField === 'weeklyHours' ? `${m.weeklyHours.toFixed(1)}h` : `${m.streak} ngày`;
                 const subMetric = orderByField === 'weeklyHours' ? `🔥 ${m.streak} ngày` : `⏱️ ${m.weeklyHours.toFixed(1)}h`;
@@ -5209,18 +5209,21 @@ window.fetchLeaderboard = async function(orderByField) {
                             </div>
                         </div>
                         <div class="arena-pedestal">
-                            <div class="arena-laurel-rank">
-                                ${rankWreath.left}
-                                <span class="arena-rank-num">${p.rank}</span>
-                                ${rankWreath.right}
+                            <!-- LAYER NÀY LÀ LINH HỒN CỦA CÁI BỤC -->
+                            <div class="arena-podium-content-layer">
+                                <div class="arena-laurel-rank">
+                                    ${rankWreath.left}
+                                    <span class="arena-rank-num">${p.rank}</span>
+                                    ${rankWreath.right}
+                                </div>
+                                <div class="arena-podium-name" title="${m.name}">${m.name}</div>
+                                <div class="arena-podium-score">
+                                    ${scoreWreath ? scoreWreath.left : ''}
+                                    <span>${mainMetric}</span>
+                                    ${scoreWreath ? scoreWreath.right : ''}
+                                </div>
+                                <div><span class="arena-streak-pill">${subMetric}</span></div>
                             </div>
-                            <div class="arena-podium-name" title="${m.name}">${m.name}</div>
-                            <div class="arena-podium-score">
-                                ${scoreWreath ? scoreWreath.left : ''}
-                                <span>${mainMetric}</span>
-                                ${scoreWreath ? scoreWreath.right : ''}
-                            </div>
-                            <div><span class="arena-streak-pill">${subMetric}</span></div>
                         </div>
                     </div>
                 `;
