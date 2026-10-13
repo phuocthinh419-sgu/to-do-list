@@ -5158,6 +5158,12 @@ window.fetchLeaderboard = async function(orderByField) {
             });
         });
 
+        // ==========================================
+        // BƯỚC 2: TRIỆU HỒI VÀ TRỘN ÂM BINH VÀO ĐÂY
+        // ==========================================
+        const aiBots = summonAIBots();
+        members = members.concat(aiBots);
+
         members.sort((a, b) => {
             if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
@@ -11216,3 +11222,47 @@ window.showDispatchModal = function() {
         }, 1000);
     }
 };
+
+function summonAIBots() {
+    // Các đối thủ AI được thiết kế với Giờ học (đơn vị: giờ) và Chuỗi ngày (đơn vị: ngày)
+    // Ngài có thể tùy chỉnh các con số này sao cho giống người thật nhất.
+    const bots = [
+        { 
+            displayName: "Trường Giang", 
+            photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", // Avatar ngẫu nhiên
+            studyHours: 4.5,   // Giờ học (Tuần)
+            streakDays: 12,    // Chuỗi ngày
+            isBot: true 
+        },
+        { 
+            displayName: "Nhã Phương", 
+            photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tuan",
+            studyHours: 3.2, 
+            streakDays: 8, 
+            isBot: true 
+        },
+        { 
+            displayName: "Elon Musk", 
+            photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ninja",
+            studyHours: 2.1, 
+            streakDays: 5, 
+            isBot: true 
+        },
+        { 
+            displayName: "Donald Trump", 
+            photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
+            studyHours: 1.5, 
+            streakDays: 3, 
+            isBot: true 
+        },
+        { 
+            displayName: "Kim Jong-un", 
+            photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Destroyer",
+            studyHours: 0.8, 
+            streakDays: 1, 
+            isBot: true 
+        }
+    ];
+    
+    return bots;
+}
