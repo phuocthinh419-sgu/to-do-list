@@ -4922,16 +4922,34 @@ function injectArenaLeaderboardCSS() {
         .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
-        .arena-side-flag {
-            position: absolute; bottom: 12px; width: 76px; height: 155px; background: linear-gradient(180deg, #111827 0%, #1e1b4b 70%, #0f172a 100%);
-            border: 1px solid rgba(251, 191, 36, 0.35); clip-path: polygon(0 0, 100% 0, 100% 86%, 50% 100%, 0 86%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; text-align: center; z-index: 2; opacity: 0.88; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        /* NÂNG CẤP VISUAL HAI LÁ CỜ HIỆU BÊN CẠNH */
+        .arena-side-flag-container {
+            position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2;
         }
-        .arena-side-flag::before { content: ""; position: absolute; top: 0; left: -8px; right: -8px; height: 4px; background: linear-gradient(90deg, #78350f, #fbbf24, #78350f); }
-        .arena-side-flag.left { left: 22px; transform: rotate(-3deg); }
-        .arena-side-flag.right { right: 22px; transform: rotate(3deg); }
+        .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag {
+            width: 100%; height: 100%; position: relative;
+            background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%);
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding-top: 26px; text-align: center;
+        }
+        /* Thanh treo cờ bằng vàng */
+        .arena-side-flag::after {
+            content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px;
+            background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f);
+            border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9);
+        }
+        /* Đường chỉ vàng dệt trong cờ */
+        .arena-side-flag::before {
+            content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px;
+            background: transparent; border: 1px solid rgba(251, 191, 36, 0.4);
+            clip-path: polygon(0 0, 100% 0, 100% 83%, 50% 98%, 0 83%); pointer-events: none;
+        }
 
         .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 6px; position: relative; z-index: 3; padding-top: 22px; }
+        
         .arena-podium-col {
             display: flex; flex-direction: column; align-items: center; width: 210px; position: relative;
             animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -4949,9 +4967,11 @@ function injectArenaLeaderboardCSS() {
 
         .arena-pedestal { width: 100%; border-radius: 12px 12px 0 0; padding: 24px 12px 14px 12px; text-align: center; position: relative; box-sizing: border-box; box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
-        .arena-podium-col.rank-1 .arena-pedestal { min-height: 162px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); }
-        .arena-podium-col.rank-2 .arena-pedestal { min-height: 132px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
-        .arena-podium-col.rank-3 .arena-pedestal { min-height: 124px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
+        
+        /* CĂN CHỈNH LẠI ĐỘ CAO 3 BỤC ĐỂ PHÂN CẤP RÕ RÀNG HƠN (Chênh nhau 35px) */
+        .arena-podium-col.rank-1 .arena-pedestal { min-height: 165px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); }
+        .arena-podium-col.rank-2 .arena-pedestal { min-height: 130px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
+        .arena-podium-col.rank-3 .arena-pedestal { min-height: 95px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
 
         .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
         .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
@@ -4980,7 +5000,7 @@ function injectArenaLeaderboardCSS() {
         .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); border-color: #c084fc; color: #fff; }
 
         .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; }
-        @media (max-width: 768px) { .arena-quote-right, .arena-side-flag { display: none !important; } .arena-podium-stage { gap: 8px; } .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; } .arena-table-head { display: none; } .arena-table-row { grid-template-columns: 28px 1fr auto auto; } .arena-col-hide-sm { display: none; } }
+        @media (max-width: 768px) { .arena-quote-right, .arena-side-flag-container { display: none !important; } .arena-podium-stage { gap: 8px; } .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; } .arena-table-head { display: none; } .arena-table-row { grid-template-columns: 28px 1fr auto auto; } .arena-col-hide-sm { display: none; } }
     `;
     document.head.appendChild(st);
 }
@@ -4999,14 +5019,22 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
-                <!-- Đồng bộ font chữ A trên 2 lá cờ hai bên -->
-                <div class="arena-side-flag left">
-                    <div style="font-size:1.45rem; font-weight:900; color:#cbd5e1; font-family:'Inter', sans-serif;">A</div>
-                    <div style="font-size:0.48rem; letter-spacing:1px; color:#94a3b8; margin-top:4px; font-weight:700;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                <!-- NÂNG CẤP LÁ CỜ BÊN TRÁI -->
+                <div class="arena-side-flag-container left">
+                    <div class="arena-side-flag">
+                        <div style="font-size:1.8rem; font-weight:900; color:#fbbf24; font-family:'Cinzel', Georgia, serif; line-height:1; text-shadow: 0 0 15px rgba(251,191,36,0.6);">A</div>
+                        <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 8px 0;"></div>
+                        <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                    </div>
                 </div>
-                <div class="arena-side-flag right">
-                    <div style="font-size:1.45rem; font-weight:900; color:#cbd5e1; font-family:'Inter', sans-serif;">A</div>
-                    <div style="font-size:0.48rem; letter-spacing:1px; color:#94a3b8; margin-top:4px; font-weight:700;">ACADEMIC<br>APEX</div>
+
+                <!-- NÂNG CẤP LÁ CỜ BÊN PHẢI -->
+                <div class="arena-side-flag-container right">
+                    <div class="arena-side-flag">
+                        <div style="font-size:1.8rem; font-weight:900; color:#fbbf24; font-family:'Cinzel', Georgia, serif; line-height:1; text-shadow: 0 0 15px rgba(251,191,36,0.6);">A</div>
+                        <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 8px 0;"></div>
+                        <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
+                    </div>
                 </div>
 
                 <div class="arena-top-bar">
