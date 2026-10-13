@@ -5022,7 +5022,7 @@ window.openLeaderboard = function() {
                 <!-- LÁ CỜ BÊN TRÁI: DÙNG ẢNH ICON APP THE APEX -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
-                        <img src="TÊN_FILE_ẢNH_CỦA_NGÀI.jpg" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
+                        <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
                         <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
                         <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
                     </div>
@@ -5031,7 +5031,7 @@ window.openLeaderboard = function() {
                 <!-- LÁ CỜ BÊN PHẢI: DÙNG ẢNH ICON APP THE APEX -->
                 <div class="arena-side-flag-container right">
                     <div class="arena-side-flag">
-                        <img src="TÊN_FILE_ẢNH_CỦA_NGÀI.jpg" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
+                        <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
                         <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
                         <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
                     </div>
