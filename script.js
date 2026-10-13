@@ -4861,6 +4861,7 @@ function injectArenaLeaderboardCSS() {
             background: rgba(4, 6, 14, 0.86); z-index: 10002;
             align-items: center; justify-content: center;
             backdrop-filter: blur(12px); padding: 14px;
+            font-family: 'Inter', system-ui, sans-serif; /* ĐỒNG BỘ FONT TOÀN BẢNG */
         }
         .arena-modal-box {
             width: 100%; max-width: 940px; border-radius: 22px;
@@ -4890,11 +4891,12 @@ function injectArenaLeaderboardCSS() {
             filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55));
             flex-shrink: 0;
         }
-        /* Sửa lỗi cắt dấu chữ ĐẤU: thêm padding-top, line-height 1.35 và dùng font Serif sang trọng */
+        
+        /* SỬA LỖI FONT TIẾNG VIỆT CHO TIÊU ĐỀ CHÍNH (Sử dụng Inter 900) */
         .arena-main-title {
-            margin: 0; padding-top: 6px; line-height: 1.32 !important;
-            font-family: 'Cinzel', 'Playfair Display', 'Times New Roman', Georgia, serif;
-            font-size: 1.75rem; font-weight: 900; letter-spacing: 1.5px;
+            margin: 0; padding-top: 4px; line-height: 1.35 !important;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px;
             text-transform: uppercase;
             background: linear-gradient(90deg, #fef08a 0%, #ffffff 35%, #e9d5ff 75%, #c084fc 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -5027,11 +5029,13 @@ function injectArenaLeaderboardCSS() {
             display: inline-flex; align-items: center; justify-content: center;
             gap: 4px; margin-bottom: 2px;
         }
+        
+        /* ĐỒNG BỘ FONT HẠNG CHO SỐ 1, 2, 3 TRÊN BỤC ĐÁ */
         .arena-rank-num {
-            font-family: 'Cinzel', Georgia, serif;
-            font-size: 1.65rem; font-weight: 900; line-height: 1;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1.7rem; font-weight: 900; line-height: 1;
         }
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.0rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
@@ -5126,12 +5130,13 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
+                <!-- Đồng bộ font chữ A trên 2 lá cờ hai bên -->
                 <div class="arena-side-flag left">
-                    <div style="font-size:1.45rem; font-weight:900; color:#cbd5e1; font-family:serif;">A</div>
+                    <div style="font-size:1.45rem; font-weight:900; color:#cbd5e1; font-family:'Inter', sans-serif;">A</div>
                     <div style="font-size:0.48rem; letter-spacing:1px; color:#94a3b8; margin-top:4px; font-weight:700;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
                 </div>
                 <div class="arena-side-flag right">
-                    <div style="font-size:1.45rem; font-weight:900; color:#cbd5e1; font-family:serif;">A</div>
+                    <div style="font-size:1.45rem; font-weight:900; color:#cbd5e1; font-family:'Inter', sans-serif;">A</div>
                     <div style="font-size:0.48rem; letter-spacing:1px; color:#94a3b8; margin-top:4px; font-weight:700;">ACADEMIC<br>APEX</div>
                 </div>
 
@@ -5151,7 +5156,7 @@ window.openLeaderboard = function() {
                         </div>
                     </div>
                     <div class="arena-quote-right">
-                        “Lượng hóa nỗ lực,<br>định hình tương lai.”<br>
+                        “Kỷ luật hôm nay,<br>để trở thành phiên bản tốt hơn ngày mai.”<br>
                         <span style="font-size:0.62rem; color:#94a3b8; font-style:normal; font-weight:800;">— ACADEMIC APEX</span>
                     </div>
                     <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
