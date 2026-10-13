@@ -5159,17 +5159,24 @@ window.fetchLeaderboard = async function(orderByField) {
         });
 
         // ==========================================
-        // BƯỚC 2: TRIỆU HỒI VÀ TRỘN ÂM BINH VÀO ĐÂY
+        // KHÔNG CẦN HÀM RỜI! NHÉT TRỰC TIẾP ÂM BINH VÀO ĐÂY:
         // ==========================================
-        const aiBots = summonAIBots();
+        const aiBots = [
+            { id: "bot_1", name: "Trường Giang", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", weeklyHours: 4.5, streak: 12, currentStatus: 'focusing', isBot: true },
+            { id: "bot_2", name: "Nhã Phương", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tuan", weeklyHours: 3.2, streak: 8, currentStatus: 'online', isBot: true },
+            { id: "bot_3", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ninja", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
+            { id: "bot_4", name: "Donald Trump", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily", weeklyHours: 1.5, streak: 3, currentStatus: 'focusing', isBot: true },
+            { id: "bot_5", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Destroyer", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true }
+        ];
         members = members.concat(aiBots);
+        // ==========================================
 
         members.sort((a, b) => {
             if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
         });
 
-        // 1. VẼ BỤC VINH QUANG TOP 3 VỚI VÒNG NGUYỆT QUẾ & VƯƠNG MIỆN SVG
+        // 1. VẼ BỤC VINH QUANG TOP 3
         const top1 = members[0] || null;
         const top2 = members[1] || null;
         const top3 = members[2] || null;
