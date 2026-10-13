@@ -5094,7 +5094,7 @@ window.fetchLeaderboard = async function(orderByField) {
     if (btnHours) btnHours.classList.toggle('active', orderByField === 'weeklyHours');
     if (btnStreak) btnStreak.classList.toggle('active', orderByField === 'streak');
 
-    listBox.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 30px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.6rem; color:#a855f7; margin-bottom:8px;"></i><br>Đang triệu tập bảng phong thần...</div>';
+    listBox.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 30px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.6rem; color:#a855f7; margin-bottom:8px;"></i><br>Đang tải...</div>';
 
     try {
         const snapshot = await db.collection("academic_apex").get();
