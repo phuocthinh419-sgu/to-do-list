@@ -4861,17 +4861,13 @@ function injectArenaLeaderboardCSS() {
         @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
+        @keyframes arenaTextShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
         
-        /* Hiệu ứng ánh sáng lướt chéo (Sweep) */
-        @keyframes arenaSweepLight {
-            0% { left: -150%; }
-            25% { left: 200%; }
-            100% { left: 200%; }
-        }
-        /* Hiệu ứng ánh sáng phản quang trên chữ (Text Shimmer) */
-        @keyframes arenaTextShimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
+        /* Hiệu ứng nhấp nhô lơ lửng cho toàn khối Avatar */
+        @keyframes arenaAvatarFloat { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-10px); } 
         }
 
         #leaderboard-modal {
@@ -4898,7 +4894,6 @@ function injectArenaLeaderboardCSS() {
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
         
-        /* Chữ ĐẤU TRƯỜNG KỶ LUẬT được bọc hiệu ứng nhấp nháy lướt qua */
         .arena-main-title {
             margin: 0; padding-top: 4px; line-height: 1.35 !important;
             font-family: 'Inter', system-ui, sans-serif; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px;
@@ -4922,81 +4917,80 @@ function injectArenaLeaderboardCSS() {
         .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag {
-            width: 100%; height: 100%; position: relative;
-            background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+            width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
             clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%);
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: 26px; text-align: center; overflow: hidden; /* Cắt phần sáng thừa */
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 26px; text-align: center; overflow: hidden;
         }
-        /* Tia sáng lướt chéo cho Lá cờ */
-        .arena-sweep-light {
-            position: absolute; top: 0; left: -150%; width: 60%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-            transform: skewX(-25deg); pointer-events: none; z-index: 3;
-            animation: arenaSweepLight 5s infinite;
-        }
+        .arena-sweep-light { position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 3; animation: arenaSweepLight 5s infinite; }
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
-
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
         .arena-side-flag::before { content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px; background: transparent; border: 1px solid rgba(251, 191, 36, 0.4); clip-path: polygon(0 0, 100% 0, 100% 83%, 50% 98%, 0 83%); pointer-events: none; z-index: 4;}
 
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 6px; position: relative; z-index: 3; padding-top: 22px; }
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 6px; position: relative; z-index: 3; padding-top: 30px; }
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        .arena-avatar-wrap { position: relative; margin-bottom: -18px; z-index: 5; display: flex; flex-direction: column; align-items: center; }
-        .arena-crown-svg { margin-bottom: -7px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)); animation: arenaFloat 3.5s ease-in-out infinite; }
+        /* NÂNG CẤP VISUAL: NHỔ ẢNH LÊN LƠ LỬNG */
+        .arena-avatar-wrap { 
+            position: relative; margin-bottom: 16px; z-index: 5; 
+            display: flex; flex-direction: column; align-items: center; 
+            animation: arenaAvatarFloat 4s ease-in-out infinite; 
+        }
+        .arena-podium-col.rank-2 .arena-avatar-wrap { animation-delay: 0.5s; } /* Tạo nhịp điệu lơ lửng khác nhau */
+        .arena-podium-col.rank-3 .arena-avatar-wrap { animation-delay: 1s; }
+        
+        .arena-crown-svg { margin-bottom: -10px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)); animation: arenaFloat 3s ease-in-out infinite reverse; }
         .arena-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #1e293b; }
-        .arena-podium-col.rank-1 .arena-avatar-img { width: 88px; height: 88px; border: 3px solid #fde047; box-shadow: 0 0 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff; }
-        .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 0 24px rgba(148, 163, 184, 0.7); }
-        .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 0 24px rgba(249, 115, 22, 0.65); }
+        .arena-podium-col.rank-1 .arena-avatar-img { width: 88px; height: 88px; border: 3px solid #fde047; box-shadow: 0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff; }
+        .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 8px 24px rgba(148, 163, 184, 0.7); }
+        .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.65); }
 
+        /* NÂNG CẤP CẤU TRÚC: BỤC ĐÁ CỐ ĐỊNH ĐỘ CAO VÀ ÉP NỘI DUNG VÀO GIỮA */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
-            overflow: hidden; /* Cắt phần sáng thừa không cho tràn ra ngoài bục */
+            overflow: hidden; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; /* Tự động căn giữa chữ số bên trong */
+            padding: 16px 10px;
         }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
-        
-        /* Tia sáng lướt chéo cho các Bục (Podiums) */
         .arena-pedestal::after {
             content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-            transform: skewX(-25deg); pointer-events: none; z-index: 0;
-            animation: arenaSweepLight 5s infinite;
+            transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite;
         }
 
         .arena-podium-col.rank-1 .arena-pedestal { 
-            padding: 64px 12px 24px 12px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
+            height: 160px; /* Khóa cứng độ cao bục số 1 */
+            background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
             border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
         }
-        /* Bục 1 ánh sáng Vàng kim lướt nhanh hơn */
         .arena-podium-col.rank-1 .arena-pedestal::after { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.35), transparent); animation-delay: 0.5s; }
 
         .arena-podium-col.rank-2 .arena-pedestal { 
-            padding: 34px 12px 16px 12px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
+            height: 125px; /* Khóa cứng độ cao bục số 2 */
+            background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
             border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; 
         }
-        .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; } /* Trễ 1 chút */
+        .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; }
 
         .arena-podium-col.rank-3 .arena-pedestal { 
-            padding: 8px 12px 10px 12px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
+            height: 90px;  /* Khóa cứng bục số 3 - lùn hẳn xuống */
+            background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
             border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; 
         }
-        .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; } /* Trễ nhiều hơn */
+        .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; }
 
-        /* Đảm bảo chữ bên trong bục nổi lên trên ánh sáng */
-        .arena-podium-content-layer { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
-
+        .arena-podium-content-layer { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
         .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
         .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
         .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
-        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; max-width: 95%; }
         .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.38rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
