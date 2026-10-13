@@ -11121,3 +11121,102 @@ renderDashboard();
         };
     }
 })();
+
+// =====================================================================
+// BẢN VÁ TỐI THƯỢNG: NHẬN DIỆN HÀNH VI VÀ CHỐNG LÀM PHIỀN (ANTI-SPAM)
+// =====================================================================
+
+// 1. MẮT THẦN THEO DÕI THAO TÁC (Tự động ghi nhận lúc bệ hạ đang làm việc)
+window.apexLastActivityTime = Date.now();
+['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, () => {
+        window.apexLastActivityTime = Date.now();
+    }, { passive: true });
+});
+
+// 2. GHI ĐÈ LÕI ĐIỀU PHỐI: TRANG BỊ TRÍ TUỆ NHẬN DIỆN
+window.scheduleIdleDispatch = function(customDelay = 60000) {
+    clearTimeout(idleDispatchTimer);
+    if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
+    if (getCurrentBusySchedule() !== null) return;
+    if (Date.now() < dispatchSnoozeUntil) return;
+    let qInfo = getTodayDispatchQuotaInfo();
+    if (isFreeRestMode && qInfo.isQuotaMet) return;
+    if (isSessionActive || isBreakActive || isGracePeriod || isPendingTax || dailyDebtMinutes > 0) return;
+
+    idleDispatchTimer = setTimeout(() => {
+        // Kiểm tra lại các điều kiện cấm
+        if (typeof isCurfewActive === 'function' && isCurfewActive()) return;
+        if (getCurrentBusySchedule() !== null) return;
+        if (Date.now() < dispatchSnoozeUntil) return;
+        if (isFreeRestMode && getTodayDispatchQuotaInfo().isQuotaMet) return;
+
+        // 🛑 LÁ CHẮN 1: CẤM LÀM PHIỀN NẾU BỆ HẠ ĐANG THAO TÁC LIÊN TỤC TRONG 45 GIÂY QUA
+        if (Date.now() - window.apexLastActivityTime < 45000) {
+            console.log("Bệ hạ đang thao tác sôi nổi. Lùi lệnh điều phối thêm 1 phút.");
+            scheduleIdleDispatch(60000); 
+            return;
+        }
+
+        // 🛑 LÁ CHẮN 2: CHỈ CHO PHÉP XUẤT HIỆN KHI Ở ĐÚNG DASHBOARD
+        let dash = document.getElementById('view-dashboard');
+        if (!dash || dash.style.display === 'none') {
+            // Nếu đang xem Tab khác (Phân tích, Thành tựu...) -> Đợi lúc khác
+            scheduleIdleDispatch(60000);
+            return;
+        }
+
+        // 🛑 LÁ CHẮN 3: CẤM XUẤT HIỆN TRONG CÁC KHU VỰC NHẠY CẢM
+        let fr = document.getElementById('focus-room');
+        let lbOpen = document.getElementById('leaderboard-modal')?.style.display === 'flex';
+        let inboxOpen = document.getElementById('inbox-modal')?.style.display === 'flex';
+        let tradeOpen = document.getElementById('trade-modal')?.style.display === 'flex';
+        let shopOpen = document.getElementById('academic-shop-modal')?.style.display === 'flex';
+        let detailOpen = document.getElementById('apex-goal-detail-modal')?.style.display === 'flex';
+        let chatOpen = (typeof isCopilotOpen !== 'undefined' && isCopilotOpen);
+        
+        if ((fr && fr.style.display !== 'none') || lbOpen || inboxOpen || tradeOpen || shopOpen || detailOpen || chatOpen) {
+            scheduleIdleDispatch(60000);
+            return;
+        }
+
+        let activeGoals = goals.filter(g => g.current > 0);
+        if (activeGoals.length > 0) {
+            triggerDispatchPing(false);
+        }
+    }, customDelay);
+};
+
+// 3. NỚI LỎNG THỜI GIAN ÂN HẠN TỪ 15S LÊN 60S CHO BỚT GAY GẮT
+const originalShowDispatchModal = window.showDispatchModal;
+window.showDispatchModal = function() {
+    let q = activeDispatchQuest;
+    if (!q) return;
+
+    // Tạm thời ghi đè thời gian suy nghĩ ngay lúc hiển thị
+    const DECISION_SECONDS = 60; // Nới lỏng lên 1 phút
+    
+    // Gọi lại hàm gốc để vẽ giao diện
+    originalShowDispatchModal();
+
+    // Tìm và điều chỉnh lại đồng hồ đếm ngược vừa được tạo ra
+    clearInterval(dispatchCountdownTimer);
+    if (!q.isMandatory) {
+        let sec = DECISION_SECONDS;
+        let secEl = document.getElementById('dispatch-sec-left');
+        if (secEl) secEl.innerText = sec; // Sửa lại con số hiển thị ngay lập tức
+        
+        dispatchCountdownTimer = setInterval(() => {
+            sec--;
+            let sEl = document.getElementById('dispatch-sec-left');
+            let barEl = document.getElementById('dispatch-timer-bar');
+            if (sEl) sEl.innerText = sec;
+            if (barEl) barEl.style.width = `${(sec / DECISION_SECONDS) * 100}%`;
+
+            if (sec <= 0) {
+                clearInterval(dispatchCountdownTimer);
+                if (typeof timeoutDispatchQuest === 'function') timeoutDispatchQuest();
+            }
+        }, 1000);
+    }
+};
