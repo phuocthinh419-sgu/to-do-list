@@ -3359,10 +3359,6 @@ function abortReport() {
 // =====================================================================
 // AI KIỂM DUYỆT BÁO CÁO & CỐ VẤN HỌC THUẬT (BỨC MÀN TRÚC)
 // =====================================================================
-const p1 = "AQ.Ab8RN6JneSbUwRE";
-const p2 = "YSMiptKviwollYcyZh";
-const p3 = "8lFYg8eW2Rtz4s0lg";
-const GEMINI_API_KEY = p1 + p2 + p3; 
 
 async function validateReportWithAI(reportText, durationMinutes) {
     const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
