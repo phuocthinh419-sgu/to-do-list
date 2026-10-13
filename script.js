@@ -4856,34 +4856,32 @@ function injectArenaLeaderboardCSS() {
     const st = document.createElement('style');
     st.id = 'apex-arena-lb-css';
     st.innerHTML = `
-        /* ANIMATIONS CHO ĐẤU TRƯỜNG */
-        @keyframes arenaPopIn {
-            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+        /* ANIMATIONS CHO ĐẤU TRƯỜNG VÀ HIỆU ỨNG ÁNH SÁNG */
+        @keyframes arenaPopIn { 0% { opacity: 0; transform: scale(0.95) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
+        
+        /* Hiệu ứng ánh sáng lướt chéo (Sweep) */
+        @keyframes arenaSweepLight {
+            0% { left: -150%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
         }
-        @keyframes arenaPodiumUp {
-            0% { opacity: 0; transform: translateY(40px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes arenaFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        @keyframes arenaRowIn {
-            0% { opacity: 0; transform: translateX(-20px); }
-            100% { opacity: 1; transform: translateX(0); }
+        /* Hiệu ứng ánh sáng phản quang trên chữ (Text Shimmer) */
+        @keyframes arenaTextShimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
 
         #leaderboard-modal {
             display: none; position: fixed; inset: 0;
             background: rgba(4, 6, 14, 0.86); z-index: 10002;
             align-items: center; justify-content: center;
-            backdrop-filter: blur(12px); padding: 14px;
-            font-family: 'Inter', system-ui, sans-serif;
+            backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif;
         }
         .arena-modal-box {
-            width: 100%; max-width: 940px; border-radius: 22px;
-            background: #090d1a;
+            width: 100%; max-width: 940px; border-radius: 22px; background: #090d1a;
             border: 1px solid rgba(168, 85, 247, 0.42);
             box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22);
             overflow: hidden; position: relative; color: #f8fafc;
@@ -4898,31 +4896,29 @@ function injectArenaLeaderboardCSS() {
         }
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
-        .arena-emblem-wrap {
-            width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center;
-            filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0;
-        }
+        .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
         
+        /* Chữ ĐẤU TRƯỜNG KỶ LUẬT được bọc hiệu ứng nhấp nháy lướt qua */
         .arena-main-title {
             margin: 0; padding-top: 4px; line-height: 1.35 !important;
             font-family: 'Inter', system-ui, sans-serif; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px;
-            text-transform: uppercase; background: linear-gradient(90deg, #fef08a 0%, #ffffff 35%, #e9d5ff 75%, #c084fc 100%);
+            text-transform: uppercase; 
+            background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); overflow: visible !important;
+            animation: arenaTextShimmer 4s linear infinite;
         }
         .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; margin-top: 1px; }
         .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
-        .arena-close-btn {
-            width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16);
-            color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;
-        }
+        .arena-close-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .arena-close-btn:hover { background: rgba(244, 63, 94, 0.28); color: #fff; border-color: #f43f5e; }
 
         .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 3px; gap: 4px; position: relative; z-index: 4; }
         .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
-        .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; }
+        .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; overflow: hidden; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag {
@@ -4930,25 +4926,22 @@ function injectArenaLeaderboardCSS() {
             background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
             clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%);
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: 26px; text-align: center;
+            padding-top: 26px; text-align: center; overflow: hidden; /* Cắt phần sáng thừa */
         }
-        .arena-side-flag::after {
-            content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px;
-            background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f);
-            border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9);
+        /* Tia sáng lướt chéo cho Lá cờ */
+        .arena-sweep-light {
+            position: absolute; top: 0; left: -150%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            transform: skewX(-25deg); pointer-events: none; z-index: 3;
+            animation: arenaSweepLight 5s infinite;
         }
-        .arena-side-flag::before {
-            content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px;
-            background: transparent; border: 1px solid rgba(251, 191, 36, 0.4);
-            clip-path: polygon(0 0, 100% 0, 100% 83%, 50% 98%, 0 83%); pointer-events: none;
-        }
+        .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
+
+        .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
+        .arena-side-flag::before { content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px; background: transparent; border: 1px solid rgba(251, 191, 36, 0.4); clip-path: polygon(0 0, 100% 0, 100% 83%, 50% 98%, 0 83%); pointer-events: none; z-index: 4;}
 
         .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 6px; position: relative; z-index: 3; padding-top: 22px; }
-        
-        .arena-podium-col {
-            display: flex; flex-direction: column; align-items: center; width: 210px; position: relative;
-            animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
@@ -4960,26 +4953,42 @@ function injectArenaLeaderboardCSS() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 0 24px rgba(148, 163, 184, 0.7); }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 0 24px rgba(249, 115, 22, 0.65); }
 
-        .arena-pedestal { width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); }
+        .arena-pedestal { 
+            width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
+            overflow: hidden; /* Cắt phần sáng thừa không cho tràn ra ngoài bục */
+        }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
         
-        /* 🏆 CĂN CHỈNH CHIỀU CAO BỤC BẰNG PADDING - KHÔNG THỂ LỆCH ĐƯỢC NỮA 🏆 */
-        .arena-podium-col.rank-1 .arena-pedestal { 
-            padding: 64px 12px 24px 12px; /* Top cao vọt */
-            background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
-            border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; 
-            box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
+        /* Tia sáng lướt chéo cho các Bục (Podiums) */
+        .arena-pedestal::after {
+            content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+            transform: skewX(-25deg); pointer-events: none; z-index: 0;
+            animation: arenaSweepLight 5s infinite;
         }
+
+        .arena-podium-col.rank-1 .arena-pedestal { 
+            padding: 64px 12px 24px 12px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
+            border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
+        }
+        /* Bục 1 ánh sáng Vàng kim lướt nhanh hơn */
+        .arena-podium-col.rank-1 .arena-pedestal::after { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.35), transparent); animation-delay: 0.5s; }
+
         .arena-podium-col.rank-2 .arena-pedestal { 
-            padding: 34px 12px 16px 12px; /* Top trung bình */
-            background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
+            padding: 34px 12px 16px 12px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
             border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; 
         }
+        .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; } /* Trễ 1 chút */
+
         .arena-podium-col.rank-3 .arena-pedestal { 
-            padding: 8px 12px 10px 12px; /* Top sát ván, bục cực thấp */
-            background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
+            padding: 8px 12px 10px 12px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
             border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; 
         }
+        .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; } /* Trễ nhiều hơn */
+
+        /* Đảm bảo chữ bên trong bục nổi lên trên ánh sáng */
+        .arena-podium-content-layer { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
 
         .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
         .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
@@ -5027,21 +5036,29 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
-                <!-- LÁ CỜ BÊN TRÁI: DÙNG ẢNH ICON APP THE APEX -->
+                <!-- LÁ CỜ BÊN TRÁI: DÙNG ẢNH ICON APP THE APEX KÈM TIA SÁNG -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
-                        <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
-                        <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
-                        <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                        <div class="arena-sweep-light"></div>
+                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
+                            <!-- NGÀI THAY "TÊN_FILE_ẢNH_CỦA_NGÀI.jpg" BẰNG ẢNH CỦA NGÀI Ở ĐÂY NHÉ -->
+                            <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
+                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- LÁ CỜ BÊN PHẢI: DÙNG ẢNH ICON APP THE APEX -->
+                <!-- LÁ CỜ BÊN PHẢI: DÙNG ẢNH ICON APP THE APEX KÈM TIA SÁNG -->
                 <div class="arena-side-flag-container right">
                     <div class="arena-side-flag">
-                        <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
-                        <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
-                        <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
+                        <div class="arena-sweep-light"></div>
+                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
+                            <!-- NGÀI THAY "TÊN_FILE_ẢNH_CỦA_NGÀI.jpg" BẰNG ẢNH CỦA NGÀI Ở ĐÂY NHÉ -->
+                            <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
+                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
+                        </div>
                     </div>
                 </div>
 
