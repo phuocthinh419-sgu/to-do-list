@@ -4868,10 +4868,10 @@ function injectArenaLeaderboardCSS() {
             backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif;
         }
 
-        /* 🟢 ĐÃ NÂNG CẤP FULL SCREEN THEO Ý BỆ HẠ */
+        /* 🟢 ĐÃ NÂNG CẤP FULL SCREEN */
         .arena-modal-box {
-            width: 98%; max-width: 1200px; /* Mở rộng chiều ngang */
-            height: 96vh; max-height: 96vh; /* Mở rộng chiều dọc full màn hình */
+            width: 98%; max-width: 1200px;
+            height: 96vh; max-height: 96vh;
             border-radius: 22px; background: #090d1a;
             border: 1px solid rgba(168, 85, 247, 0.42);
             box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22);
@@ -4880,14 +4880,14 @@ function injectArenaLeaderboardCSS() {
             animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        /* 🟢 KHÓA CỨNG BỤC ĐÁ, KHÔNG CHO BỊ ÉP ĐÈ */
+        /* 🟢 KHÓA CỨNG BỤC ĐÁ, CẤM ÉP LÊN TRÊN */
         .arena-hero-section {
             position: relative; padding: 24px 28px 15px 28px;
             background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%),
                         url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
             border-bottom: 1px solid rgba(251, 191, 36, 0.22); 
             overflow: hidden;
-            flex-shrink: 0; /* Lệnh kim bài: Cấm phần dưới bóp méo phần này */
+            flex-shrink: 0;
         }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
@@ -4951,7 +4951,8 @@ function injectArenaLeaderboardCSS() {
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
             overflow: hidden; 
             display: flex; flex-direction: column; justify-content: flex-start; align-items: center; 
-            padding: 18px 8px 10px 8px; 
+            /* 🟢 ĐÃ SỬA: Tăng padding dưới, giảm padding trên để chữ nổi bật lên */
+            padding: 12px 8px 16px 8px; 
         }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
         .arena-pedestal::after {
@@ -4960,22 +4961,23 @@ function injectArenaLeaderboardCSS() {
             transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite;
         }
 
+        /* 🟢 ĐÃ SỬA: Tăng chiều cao các bục đá thêm 10px-20px */
         .arena-podium-col.rank-1 .arena-pedestal { 
-            height: 175px; 
+            height: 185px; 
             background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
             border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
         }
         .arena-podium-col.rank-1 .arena-pedestal::after { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.35), transparent); animation-delay: 0.5s; }
 
         .arena-podium-col.rank-2 .arena-pedestal { 
-            height: 145px; 
+            height: 155px; 
             background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
             border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; 
         }
         .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; }
 
         .arena-podium-col.rank-3 .arena-pedestal { 
-            height: 115px; 
+            height: 135px; 
             background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
             border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; 
         }
