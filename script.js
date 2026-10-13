@@ -4922,10 +4922,7 @@ function injectArenaLeaderboardCSS() {
         .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
-        /* NÂNG CẤP VISUAL HAI LÁ CỜ HIỆU BÊN CẠNH */
-        .arena-side-flag-container {
-            position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2;
-        }
+        .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; }
         .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag {
@@ -4935,13 +4932,11 @@ function injectArenaLeaderboardCSS() {
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             padding-top: 26px; text-align: center;
         }
-        /* Thanh treo cờ bằng vàng */
         .arena-side-flag::after {
             content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px;
             background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f);
             border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9);
         }
-        /* Đường chỉ vàng dệt trong cờ */
         .arena-side-flag::before {
             content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px;
             background: transparent; border: 1px solid rgba(251, 191, 36, 0.4);
@@ -4965,13 +4960,26 @@ function injectArenaLeaderboardCSS() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 0 24px rgba(148, 163, 184, 0.7); }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 0 24px rgba(249, 115, 22, 0.65); }
 
-        .arena-pedestal { width: 100%; border-radius: 12px 12px 0 0; padding: 24px 12px 14px 12px; text-align: center; position: relative; box-sizing: border-box; box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); }
+        .arena-pedestal { width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
         
-        /* CĂN CHỈNH LẠI ĐỘ CAO 3 BỤC ĐỂ PHÂN CẤP RÕ RÀNG HƠN (Chênh nhau 35px) */
-        .arena-podium-col.rank-1 .arena-pedestal { min-height: 165px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); }
-        .arena-podium-col.rank-2 .arena-pedestal { min-height: 130px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
-        .arena-podium-col.rank-3 .arena-pedestal { min-height: 95px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
+        /* 🏆 CĂN CHỈNH CHIỀU CAO BỤC BẰNG PADDING - KHÔNG THỂ LỆCH ĐƯỢC NỮA 🏆 */
+        .arena-podium-col.rank-1 .arena-pedestal { 
+            padding: 64px 12px 24px 12px; /* Top cao vọt */
+            background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
+            border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; 
+            box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
+        }
+        .arena-podium-col.rank-2 .arena-pedestal { 
+            padding: 34px 12px 16px 12px; /* Top trung bình */
+            background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
+            border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; 
+        }
+        .arena-podium-col.rank-3 .arena-pedestal { 
+            padding: 8px 12px 10px 12px; /* Top sát ván, bục cực thấp */
+            background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
+            border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; 
+        }
 
         .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
         .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
