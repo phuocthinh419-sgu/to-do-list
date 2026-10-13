@@ -5700,17 +5700,26 @@ function scheduleIdleDispatch(customDelay = 45000) {
         if (Date.now() < dispatchSnoozeUntil) return;
         if (isFreeRestMode && getTodayDispatchQuotaInfo().isQuotaMet) return;
 
+        // 🛑 1. CHỐT CHẶN FOCUS ROOM: Đang ở trong phòng thì cấm tiệt mọi thông báo
+        let fr = document.getElementById('focus-room');
+        if (fr && fr.style.display !== 'none') return;
+
+        // 🛑 2. CHỐT CHẶN MÀN HÌNH: Chỉ Ping khi bệ hạ đang thực sự đứng ở Dashboard
+        let dash = document.getElementById('view-dashboard');
+        if (!dash || dash.style.display === 'none') return;
+
         let lbOpen = document.getElementById('leaderboard-modal')?.style.display === 'flex';
         let inboxOpen = document.getElementById('inbox-modal')?.style.display === 'flex';
         let tradeOpen = document.getElementById('trade-modal')?.style.display === 'flex';
         let shopOpen = document.getElementById('academic-shop-modal')?.style.display === 'flex';
+        let detailOpen = document.getElementById('apex-goal-detail-modal')?.style.display === 'flex';
         let chatOpen = (typeof isCopilotOpen !== 'undefined' && isCopilotOpen);
-        if (lbOpen || inboxOpen || tradeOpen || shopOpen || chatOpen) {
+        
+        if (lbOpen || inboxOpen || tradeOpen || shopOpen || detailOpen || chatOpen) {
             scheduleIdleDispatch(45000);
             return;
         }
 
-        let dash = document.getElementById('view-dashboard');
         let activeGoals = goals.filter(g => g.current > 0);
         if (dash && dash.style.display !== 'none' && !isSessionActive && activeGoals.length > 0) {
             triggerDispatchPing(false);
@@ -5720,9 +5729,13 @@ function scheduleIdleDispatch(customDelay = 45000) {
 
 function triggerDispatchPing(isManual = false) {
     if (typeof isCurfewActive === 'function' && isCurfewActive()) {
-        if (isManual) alert("Hệ thống đang trong Giờ Giới Nghiêm. Trạm điều phối tạm ngưng phát nhiệm vụ để đảm bảo thời gian nghỉ ngơi!");
+        if (isManual) alert("Hệ thống đang trong Giờ Giới Nghiêm. Trạm điều phối tạm ngưng phát lệnh để đảm bảo thời gian nghỉ ngơi!");
         return;
     }
+
+    // 🛑 Bổ sung chốt chặn ở đây để dập tắt lỗi đệ quy Ping chéo
+    let fr = document.getElementById('focus-room');
+    if (!isManual && fr && fr.style.display !== 'none') return;
 
     let activeGoals = goals.filter(g => g.current > 0);
     if (activeGoals.length === 0) {
@@ -5807,10 +5820,10 @@ function showDispatchModal() {
            </div>
            <div style="display:flex; gap:12px;">
                <button onclick="declineDispatchQuest()" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg-hover); color:var(--text-muted); font-weight:700; cursor:pointer;">
-                   Bỏ qua (-15% • Nghỉ 4p)
+                   Bỏ qua (-15%)
                </button>
                <button onclick="acceptDispatchQuest()" style="flex:2; padding:12px; border-radius:12px; border:none; background:${accentColor}; color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
-                   <i class="fa-solid fa-bolt"></i> Nhận nhiệm vụ (<span id="dispatch-sec-left">${DECISION_SECONDS}</span>s)
+                   <i class="fa-solid fa-bolt"></i> Nhận lệnh (<span id="dispatch-sec-left">${DECISION_SECONDS}</span>s)
                </button>
            </div>`;
 
@@ -5850,7 +5863,7 @@ function showDispatchModal() {
 
             if (sec <= 0) {
                 clearInterval(dispatchCountdownTimer);
-                declineDispatchQuest();
+                timeoutDispatchQuest(); // 🟢 CƠ CHẾ AFK NHÂN ĐẠO MỚI KÍCH HOẠT
             }
         }, 1000);
     }
@@ -5869,7 +5882,7 @@ function acceptDispatchQuest() {
 
     let badge = document.getElementById('focus-badge');
     if (badge) {
-        badge.innerText = q.isMandatory ? `NHIỆM VỤ BẮT BUỘC (THƯỞNG 30%: +$${q.finalReward})` : `ĐANG CHẠY NHIỆM VỤ ĐIỀU PHỐI (+$${q.finalReward})`;
+        badge.innerText = q.isMandatory ? `NHIỆM VỤ BẮT BUỘC (+${q.finalReward}$)` : `ĐANG CHẠY LỆNH ĐIỀU PHỐI (+${q.finalReward}$)`;
     }
 }
 
@@ -5880,7 +5893,7 @@ function declineDispatchQuest() {
 
     activeDispatchQuest = null;
     consecutiveRejects++;
-    dispatchRate = Math.max(0, dispatchRate - 15);
+    dispatchRate = Math.max(0, dispatchRate - 15); // Chỉ trừ khi Bệ hạ TỰ TAY bấm Hủy
     saveDispatchState();
     renderDispatchStatusWidget();
     if (typeof renderCompactTopWidgets === 'function') renderCompactTopWidgets();
@@ -5890,9 +5903,25 @@ function declineDispatchQuest() {
             triggerDispatchPing(false);
         }, 600);
     } else {
-        scheduleIdleDispatch(240000);
+        dispatchSnoozeUntil = Date.now() + 10 * 60 * 1000;
+        localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+        scheduleIdleDispatch(10 * 60 * 1000);
     }
 }
+
+// 🟢 ĐẠO LUẬT AFK MỚI: Bỏ lỡ lệnh điều phối không bị phạt!
+window.timeoutDispatchQuest = function() {
+    clearInterval(dispatchCountdownTimer);
+    let modal = document.getElementById('dispatch-modal');
+    if (modal) modal.style.display = 'none';
+
+    activeDispatchQuest = null;
+    // Đi vắng không bị trừ điểm, hệ thống tự động hoãn 10 phút chờ ngài quay lại
+    dispatchSnoozeUntil = Date.now() + 10 * 60 * 1000; 
+    localStorage.setItem('saasDispatchSnoozeUntil', dispatchSnoozeUntil);
+    scheduleIdleDispatch(10 * 60 * 1000);
+    renderDispatchStatusWidget();
+};
 
 function completeDispatchQuestSuccess() {
     if (!activeDispatchQuest) return;
