@@ -4852,19 +4852,14 @@ function injectArenaLeaderboardCSS() {
     const st = document.createElement('style');
     st.id = 'apex-arena-lb-css';
     st.innerHTML = `
-        /* ANIMATIONS CHO ĐẤU TRƯỜNG VÀ HIỆU ỨNG ÁNH SÁNG */
+        /* ANIMATIONS */
         @keyframes arenaPopIn { 0% { opacity: 0; transform: scale(0.95) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
         @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
         @keyframes arenaTextShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        
-        /* Hiệu ứng nhấp nhô lơ lửng cho toàn khối Avatar */
-        @keyframes arenaAvatarFloat { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-10px); } 
-        }
+        @keyframes arenaAvatarFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         #leaderboard-modal {
             display: none; position: fixed; inset: 0;
@@ -4872,20 +4867,29 @@ function injectArenaLeaderboardCSS() {
             align-items: center; justify-content: center;
             backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif;
         }
+
+        /* 🟢 ĐÃ NÂNG CẤP FULL SCREEN THEO Ý BỆ HẠ */
         .arena-modal-box {
-            width: 100%; max-width: 940px; border-radius: 22px; background: #090d1a;
+            width: 98%; max-width: 1200px; /* Mở rộng chiều ngang */
+            height: 96vh; max-height: 96vh; /* Mở rộng chiều dọc full màn hình */
+            border-radius: 22px; background: #090d1a;
             border: 1px solid rgba(168, 85, 247, 0.42);
             box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22);
             overflow: hidden; position: relative; color: #f8fafc;
-            display: flex; flex-direction: column; max-height: 94vh;
+            display: flex; flex-direction: column;
             animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
+
+        /* 🟢 KHÓA CỨNG BỤC ĐÁ, KHÔNG CHO BỊ ÉP ĐÈ */
         .arena-hero-section {
-            position: relative; padding: 24px 28px 0 28px;
+            position: relative; padding: 24px 28px 15px 28px;
             background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%),
                         url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-            border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.22); 
+            overflow: hidden;
+            flex-shrink: 0; /* Lệnh kim bài: Cấm phần dưới bóp méo phần này */
         }
+        
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
@@ -4942,13 +4946,12 @@ function injectArenaLeaderboardCSS() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 8px 24px rgba(148, 163, 184, 0.7); }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.65); }
 
-        /* BỤC ĐÁ ĐÃ ĐƯỢC GIẢI PHÓNG CHIỀU CAO VÀ CẤM ÉP CHỮ */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
             overflow: hidden; 
-            display: flex; flex-direction: column; justify-content: flex-start; align-items: center; /* Để flex-start thay vì center */
-            padding: 18px 8px 10px 8px; /* Ép lề trên đồng bộ */
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center; 
+            padding: 18px 8px 10px 8px; 
         }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
         .arena-pedestal::after {
@@ -4957,7 +4960,6 @@ function injectArenaLeaderboardCSS() {
             transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite;
         }
 
-        /* Nới lỏng chiều cao để các nội dung không bị nghiến */
         .arena-podium-col.rank-1 .arena-pedestal { 
             height: 175px; 
             background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
@@ -4979,7 +4981,6 @@ function injectArenaLeaderboardCSS() {
         }
         .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; }
 
-        /* KHÓA FLEX-SHRINK ĐỂ VĨNH VIỄN KHÔNG BỊ ÉP CHỮ NỮA */
         .arena-podium-content-layer { 
             position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; 
             width: 100%; flex-shrink: 0; 
@@ -5013,8 +5014,16 @@ function injectArenaLeaderboardCSS() {
         .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; }
         .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); border-color: #c084fc; color: #fff; }
 
-        .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; }
-        @media (max-width: 768px) { .arena-quote-right, .arena-side-flag-container { display: none !important; } .arena-podium-stage { gap: 8px; } .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; } .arena-table-head { display: none; } .arena-table-row { grid-template-columns: 28px 1fr auto auto; } .arena-col-hide-sm { display: none; } }
+        .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; flex-shrink: 0; }
+        
+        @media (max-width: 768px) { 
+            .arena-quote-right, .arena-side-flag-container { display: none !important; } 
+            .arena-podium-stage { gap: 8px; } 
+            .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; } 
+            .arena-table-head { display: none; } 
+            .arena-table-row { grid-template-columns: 28px 1fr auto auto; } 
+            .arena-col-hide-sm { display: none; } 
+        }
     `;
     document.head.appendChild(st);
 }
