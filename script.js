@@ -11311,3 +11311,459 @@ window.renderDashboard = function() {
     if (typeof originDashForBots === 'function') originDashForBots();
     wakeUpTheBots(); 
 };
+
+// =====================================================================
+// ĐẠI PHÁP TRÙNG TU ĐẤU TRƯỜNG KỶ LUẬT (BẢN FULL MÀN HÌNH - CHỐNG LỖI 100%)
+// Dán ở đáy file sẽ tự động đè bẹp mọi code cũ!
+// =====================================================================
+
+window.getLaurelPairSVG = function(color, size = 24) {
+    return {
+        left: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        </svg>`,
+        right: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        </svg>`
+    };
+};
+
+window.getRoyalCrownSVG = function(c1, c2, size = 34) {
+    let uid = Math.random().toString(36).substring(2, 7);
+    return `<svg width="${size}" height="${Math.round(size * 0.78)}" viewBox="0 0 44 34" fill="none" class="arena-crown-svg">
+        <defs>
+            <linearGradient id="crG_${uid}" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="${c1}"/>
+                <stop offset="100%" stop-color="${c2}"/>
+            </linearGradient>
+        </defs>
+        <path d="M5 26 L2 10 L13 17 L22 4 L31 17 L42 10 L39 26 Z" fill="url(#crG_${uid})" stroke="${c1}" stroke-width="1.3" stroke-linejoin="round"/>
+        <rect x="5" y="28" width="34" height="4" rx="2" fill="url(#crG_${uid})"/>
+        <circle cx="22" cy="3" r="2.3" fill="#ffffff"/>
+        <circle cx="2" cy="9" r="1.8" fill="${c1}"/>
+        <circle cx="42" cy="9" r="1.8" fill="${c1}"/>
+    </svg>`;
+};
+
+window.injectArenaLeaderboardCSS = function() {
+    let old = document.getElementById('apex-arena-lb-css');
+    if (old) old.remove();
+
+    const st = document.createElement('style');
+    st.id = 'apex-arena-lb-css';
+    st.innerHTML = `
+        @keyframes arenaPopIn { 0% { opacity: 0; transform: scale(0.95) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
+        
+        #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+        .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
+        
+        .arena-hero-section { position: relative; padding: 40px 50px 0 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; flex-shrink: 0; }
+        
+        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; }
+        .arena-title-group { display: flex; align-items: center; gap: 18px; }
+        .arena-emblem-wrap { width: 72px; height: 72px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
+        .arena-main-title { margin: 0; font-size: 2rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
+        .arena-sub-title { font-size: 0.9rem; color: #cbd5e1; font-weight: 500; }
+        .arena-quote-right { margin-left: auto; text-align: right; max-width: 300px; font-size: 0.85rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
+        .arena-close-btn { width: 44px; height: 44px; border-radius: 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .arena-close-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+        .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 4px; gap: 6px; position: relative; z-index: 4; }
+        .arena-tab-btn { padding: 10px 24px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
+        .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; }
+
+        .arena-side-flag-container { position: absolute; bottom: 12px; width: 100px; height: 180px; z-index: 2; border-radius: 6px 6px 0 0; }
+        .arena-side-flag-container.left { left: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag-container.right { right: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
+        .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
+
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 50px; position: relative; z-index: 3; }
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; }
+        .arena-podium-col.rank-2 { animation-delay: 0.15s; }
+        .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
+        .arena-podium-col.rank-3 { animation-delay: 0.45s; }
+
+        .arena-avatar-wrap { position: relative; margin-bottom: -45px; z-index: 5; display: flex; flex-direction: column; align-items: center; }
+        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; transform: scale(1.1); }
+        .arena-avatar-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
+        .arena-podium-col.rank-1 .arena-avatar-img { width: 100px; height: 100px; border: 3px solid #fde047; box-shadow: 0 0 25px rgba(251, 191, 36, 0.6); }
+        .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; }
+        .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; }
+
+        .arena-pedestal { 
+            width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 55px 12px 20px 12px; 
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2;
+            overflow: visible; 
+        }
+        
+        .arena-podium-col.rank-1 .arena-pedestal { height: 260px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
+        .arena-podium-col.rank-2 .arena-pedestal { height: 220px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
+        .arena-podium-col.rank-3 .arena-pedestal { height: 190px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
+
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; }
+        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        .rank-2 .arena-rank-num { color: #f1f5f9; }
+        .rank-3 .arena-rank-num { color: #fdba74; }
+
+        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; width: 95%; }
+        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; }
+        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.7rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
+        .rank-2 .arena-podium-score { color: #ffffff; }
+        .rank-3 .arena-podium-score { color: #fed7aa; }
+        
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; }
+        .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
+
+        .arena-list-section { padding: 20px 40px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
+        .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 50px 2fr 1.2fr 1.2fr 80px 140px; align-items: center; gap: 14px; padding: 12px 20px; }
+        .arena-table-head { font-size: 0.8rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 8px; }
+        .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; margin-bottom: 8px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
+        .arena-table-row:hover { border-color: rgba(168, 85, 247, 0.42); background: rgba(26, 34, 58, 0.9); }
+        .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
+
+        .arena-my-Sticky-bar { margin: 0 40px 24px 40px; padding: 16px 24px; border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+    `;
+    document.head.appendChild(st);
+};
+
+window.openLeaderboard = function() {
+    window.injectArenaLeaderboardCSS();
+
+    let oldModal = document.getElementById('leaderboard-modal');
+    if (oldModal) oldModal.remove();
+
+    let modal = document.createElement('div');
+    modal.id = 'leaderboard-modal';
+    document.body.appendChild(modal);
+
+    const headerWreath = window.getLaurelPairSVG('#fbbf24', 26);
+
+    modal.innerHTML = `
+        <div class="arena-modal-box">
+            <div class="arena-hero-section">
+                <!-- CỜ TRÁI LÀ CHỮ A THEO DESIGN -->
+                <div class="arena-side-flag-container left">
+                    <div class="arena-side-flag">
+                        <div class="arena-sweep-light"></div>
+                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
+                            <div style="font-size: 42px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: sans-serif;">A</div>
+                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỜ PHẢI LÀ CHỮ A THEO DESIGN -->
+                <div class="arena-side-flag-container right">
+                    <div class="arena-side-flag">
+                        <div class="arena-sweep-light"></div>
+                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
+                            <div style="font-size: 42px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: sans-serif;">A</div>
+                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arena-top-bar">
+                    <div class="arena-title-group">
+                        <div class="arena-emblem-wrap">
+                            ${headerWreath.left}
+                            <div style="display:flex; flex-direction:column; align-items:center; margin:0 -4px; z-index:2;">
+                                <i class="fa-solid fa-star" style="font-size:0.55rem; color:#fef08a; margin-bottom:2px;"></i>
+                                <i class="fa-solid fa-trophy" style="font-size:1.45rem; color:#fbbf24;"></i>
+                            </div>
+                            ${headerWreath.right}
+                        </div>
+                        <div>
+                            <h2 class="arena-main-title">ĐẤU TRƯỜNG KỶ LUẬT</h2>
+                            <div class="arena-sub-title">Bảng xếp hạng cộng đồng</div>
+                        </div>
+                    </div>
+                    <div class="arena-quote-right">
+                        “Lượng hóa nỗ lực,<br>định hình tương lai.”<br>
+                        <span style="font-size:0.62rem; color:#94a3b8; font-weight:800;">— ACADEMIC APEX</span>
+                    </div>
+                    <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="arena-tabs-wrap">
+                    <button id="tab-lb-hours" class="arena-tab-btn active" onclick="fetchLeaderboard('weeklyHours')">
+                        <i class="fa-regular fa-clock"></i> Top Giờ Học (Tuần)
+                    </button>
+                    <button id="tab-lb-streak" class="arena-tab-btn" onclick="fetchLeaderboard('streak')">
+                        <i class="fa-solid fa-fire"></i> Top Chuỗi
+                    </button>
+                </div>
+
+                <div id="arena-podium-container" class="arena-podium-stage"></div>
+            </div>
+
+            <div id="leaderboard-content" class="arena-list-section"></div>
+            <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    if (typeof syncToCloud === 'function') syncToCloud();
+    window.fetchLeaderboard('weeklyHours');
+};
+
+window.fetchLeaderboard = async function(orderByField) {
+    const podiumBox = document.getElementById('arena-podium-container');
+    const listBox = document.getElementById('leaderboard-content');
+    const myBarBox = document.getElementById('arena-my-rank-bar');
+    if (!listBox) return;
+
+    const btnHours = document.getElementById('tab-lb-hours');
+    const btnStreak = document.getElementById('tab-lb-streak');
+    if (btnHours) btnHours.classList.toggle('active', orderByField === 'weeklyHours');
+    if (btnStreak) btnStreak.classList.toggle('active', orderByField === 'streak');
+
+    listBox.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 30px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.6rem; color:#a855f7; margin-bottom:8px;"></i><br>Đang tải dữ liệu...</div>';
+
+    try {
+        const snapshot = await db.collection("academic_apex").get();
+        let members = [];
+        let parts = (typeof currentGlobalMonday !== 'undefined') ? currentGlobalMonday.split('-') : "2026-10-12".split('-');
+
+        snapshot.forEach((doc) => {
+            let data = doc.data() || {};
+            if (doc.id === "emperor_data_v1" && !data.displayName) return;
+
+            let calcWeekHrs = 0;
+            if (data.dailyLogs && typeof data.dailyLogs === 'object') {
+                for (let i = 0; i < 7; i++) {
+                    let d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    d.setDate(d.getDate() + i);
+                    let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
+                }
+            } else if (typeof data.weeklyHours === 'number') {
+                calcWeekHrs = data.weeklyHours;
+            }
+
+            if (doc.id === USER_DOC_ID && typeof getTotalCycleHours === 'function') {
+                calcWeekHrs = getTotalCycleHours();
+            }
+
+            let userStreak = Number(data.streak ?? 0);
+            if (doc.id === USER_DOC_ID && typeof currentStreak !== 'undefined') {
+                userStreak = Number(currentStreak);
+            }
+
+            members.push({
+                id: doc.id,
+                name: data.displayName || "Học giả ẩn danh",
+                photo: data.photoURL || ("https://ui-avatars.com/api/?name=" + encodeURIComponent(data.displayName || "U") + "&background=3b82f6&color=fff"),
+                weeklyHours: calcWeekHrs,
+                streak: userStreak,
+                currentStatus: data.currentStatus || 'online'
+            });
+        });
+
+        members.sort((a, b) => {
+            if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
+            return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
+        });
+
+        const top1 = members[0] || null;
+        const top2 = members[1] || null;
+        const top3 = members[2] || null;
+        const podiumOrder = [
+            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 22, crownSz: 32 },
+            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 27, crownSz: 40 },
+            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 22, crownSz: 32 }
+        ];
+
+        if (podiumBox) {
+            podiumBox.innerHTML = podiumOrder.map(p => {
+                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div>`;
+                const m = p.item;
+                const mainMetric = orderByField === 'weeklyHours' ? `${m.weeklyHours.toFixed(1)}h` : `${m.streak} ngày`;
+                const subMetric = orderByField === 'weeklyHours' ? `🔥 ${m.streak} ngày` : `⏱️ ${m.weeklyHours.toFixed(1)}h`;
+                const isFocusing = m.currentStatus === 'focusing';
+                const dotCol = isFocusing ? '#ef4444' : '#10b981';
+
+                const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
+                const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
+
+                return `
+                    <div class="arena-podium-col rank-${p.rank}">
+                        <div class="arena-avatar-wrap">
+                            ${crownSvg}
+                            <div style="position:relative;">
+                                <img src="${m.photo}" class="arena-avatar-img">
+                                <span style="position:absolute; bottom:4px; right:4px; width:13px; height:13px; border-radius:50%; background:${dotCol}; border:2px solid #090d1a;"></span>
+                            </div>
+                        </div>
+                        <div class="arena-pedestal">
+                            <div class="arena-laurel-rank">
+                                ${rankWreath.left}
+                                <span class="arena-rank-num">${p.rank}</span>
+                                ${rankWreath.right}
+                            </div>
+                            <div class="arena-podium-name" title="${m.name}">${m.name}</div>
+                            <div class="arena-podium-score">${mainMetric}</div>
+                            <div class="arena-streak-pill">${subMetric}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const restMembers = members.slice(3, 30);
+        if (restMembers.length === 0) {
+            listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Tất cả cao thủ hiện tại đều đã đứng trên Đài Vinh Quang Top 3!</div>`;
+        } else {
+            let tableHtml = `
+                <div class="arena-table-head">
+                    <div>#</div>
+                    <div>Người dùng</div>
+                    <div>Giờ học (Tuần)</div>
+                    <div>Chuỗi ngày</div>
+                    <div style="text-align:center;">Xu hướng</div>
+                    <div style="text-align:right;">Thao tác</div>
+                </div>
+            `;
+            restMembers.forEach((m, idx) => {
+                const rank = idx + 4;
+                const isMe = m.id === USER_DOC_ID;
+                const isFocusing = m.currentStatus === 'focusing';
+                const dotCol = isFocusing ? '#ef4444' : '#10b981';
+                const trendHtml = idx % 3 === 1 ? `<span style="color:#10b981; font-size:0.72rem; font-weight:800;">▲ 1</span>` : (idx % 3 === 2 ? `<span style="color:#ef4444; font-size:0.72rem; font-weight:800;">▼ 1</span>` : `<span style="color:#64748b;">—</span>`);
+                const safeName = m.name.replace(/'/g, "\\'");
+
+                tableHtml += `
+                    <div class="arena-table-row">
+                        <div style="font-weight:800; color:#94a3b8; font-size:0.85rem;">${rank}</div>
+                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                            <div style="position:relative; flex-shrink:0;">
+                                <img src="${m.photo}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                <span style="position:absolute; bottom:0; right:0; width:10px; height:10px; border-radius:50%; background:${dotCol}; border:2px solid #0b0f1d;"></span>
+                            </div>
+                            <span style="font-weight:700; color:#f1f5f9; font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${m.name} ${isMe ? '<b style="color:#c084fc; font-size:0.7rem;">(Bạn)</b>' : ''}
+                            </span>
+                        </div>
+                        <div style="font-weight:800; color:#fff; font-size:0.85rem;">${m.weeklyHours.toFixed(1)}h</div>
+                        <div style="font-weight:700; color:#cbd5e1; font-size:0.8rem;"><i class="fa-solid fa-fire" style="color:#f97316; margin-right:4px;"></i>${m.streak} ngày</div>
+                        <div style="text-align:center;">${trendHtml}</div>
+                        <div style="text-align:right;">
+                            ${!isMe ? `<button class="arena-challenge-btn" onclick="openComposeModal('${m.id}', '${safeName}')"><i class="fa-solid fa-paper-plane"></i> Thách đấu</button>` : `<span style="font-size:0.72rem; color:#64748b;">Chính chủ</span>`}
+                        </div>
+                    </div>
+                `;
+            });
+            listBox.innerHTML = tableHtml;
+        }
+
+        if (myBarBox) {
+            const myIndex = members.findIndex(x => x.id === USER_DOC_ID);
+            const me = myIndex !== -1 ? members[myIndex] : {
+                name: currentUser?.displayName || "Học giả",
+                photo: currentUser?.photoURL || "https://via.placeholder.com/44",
+                weeklyHours: typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0,
+                streak: typeof currentStreak !== 'undefined' ? currentStreak : 0
+            };
+            const myRankNum = myIndex !== -1 ? (myIndex + 1) : 1;
+
+            myBarBox.innerHTML = `
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:40px; height:40px; border-radius:12px; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                        <i class="fa-solid fa-ranking-star"></i>
+                    </div>
+                    <div style="position:relative;">
+                        <img src="${me.photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">
+                        <span style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; background:#10b981; border:2px solid #0b0f1d;"></span>
+                    </div>
+                    <div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px;">HẠNG CỦA BẠN</div>
+                        <div style="display:flex; align-items:baseline; gap:8px;">
+                            <span style="font-size:1.35rem; font-weight:900; color:#fbbf24;">${myRankNum}</span>
+                            <strong style="font-size:0.95rem; color:#fff;">${me.name}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-regular fa-clock" style="color:#94a3b8; font-size:1.2rem;"></i>
+                        <div>
+                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.weeklyHours.toFixed(1)}h</strong>
+                            <span style="font-size:0.7rem; color:#94a3b8;">Giờ học (Tuần)</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-fire" style="color:#f97316; font-size:1.2rem;"></i>
+                        <div>
+                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.streak} ngày</strong>
+                            <span style="font-size:0.7rem; color:#94a3b8;">Chuỗi hiện tại</span>
+                        </div>
+                    </div>
+                    <div style="font-size:0.85rem; color:#a855f7; font-style:italic; font-weight:600;">
+                        <i class="fa-solid fa-arrow-trend-up" style="margin-right:4px;"></i> Tiếp tục duy trì phong độ!
+                    </div>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error(e);
+        listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
+    }
+};
+
+// =====================================================================
+// RADAR 5 SAO VĨNH CỬU (Chạy ngầm chèn sao tự động)
+// =====================================================================
+window.renderAvatarStarBadge = function() {}; // Vô hiệu hóa hàm cũ
+setInterval(() => {
+    let userBadge = document.getElementById('user-auth-badge');
+    if(!userBadge) return;
+    
+    let img = userBadge.querySelector('img');
+    if(!img) return;
+    
+    let existingBadge = document.getElementById('user-star-pill');
+    if(!existingBadge) {
+        let wrapper = document.getElementById('avatar-star-wrapper');
+        if(!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.id = 'avatar-star-wrapper';
+            wrapper.style.cssText = "position: relative; display: inline-flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-bottom: 6px;";
+            img.parentNode.insertBefore(wrapper, img);
+            wrapper.appendChild(img);
+        }
+        
+        let avg = typeof getAverageStarRating === 'function' ? getAverageStarRating() : 5.0;
+        let badgeColor = avg >= 4.5 ? "#f59e0b" : (avg >= 3.8 ? "#10b981" : "#ef4444");
+
+        let starBadge = document.createElement('div');
+        starBadge.id = 'user-star-pill';
+        starBadge.style.cssText = `position: absolute; bottom: -8px; background: var(--bg-panel); color: var(--text-main); border: 1.5px solid ${badgeColor}; border-radius: 100px; padding: 2px 6px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 12; white-space: nowrap;`;
+        starBadge.innerHTML = `<i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}`;
+        
+        wrapper.appendChild(starBadge);
+    }
+}, 1000);
