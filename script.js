@@ -11334,9 +11334,9 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI KIẾN TRÚC V9: BẢN HOÀN KIM CHUẨN KHÔNG GIAN
-// - Đẩy thẻ tiền thưởng rớt hẳn xuống dưới đáy bệ đá (Không đè viền)
-// - Nới rộng khoảng cách để không đụng nút bấm bên dưới
+// ĐẠI KIẾN TRÚC V10: HOÀN HẢO KHÔNG GIAN (ĐÍNH HUY HIỆU GÓC PHẢI)
+// - Dời thẻ Chuỗi ngày (Streak) lên góc trên bên phải bệ đá
+// - Giải phóng hoàn toàn không gian trung tâm, không còn đè chữ
 // =====================================================================
 
 window.getLaurelPairSVG = function(color, size = 26) {
@@ -11420,8 +11420,7 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* BỤC ĐÁ: TĂNG MARGIN-BOTTOM ĐỂ CÓ KHÔNG GIAN CHO THẺ TIỀN THƯỞNG RỚT XUỐNG */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 55px; position: relative; z-index: 3; flex-shrink: 0; }
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 25px; position: relative; z-index: 3; flex-shrink: 0; }
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 245px; z-index: 4; animation-delay: 0.3s; }
@@ -11429,11 +11428,10 @@ window.injectArenaLeaderboardCSS = function() {
 
         .arena-crown-svg { margin-bottom: -10px; z-index: 15; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; position: relative; }
 
-        /* BỆ ĐÁ VISIBLE CHẮC CHẮN ĐỂ KHÔNG CẮT THẺ */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 16px 8px 10px 8px; 
+            padding: 20px 8px 10px 8px; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; 
             overflow: visible !important; flex-shrink: 0;
         }
@@ -11454,30 +11452,34 @@ window.injectArenaLeaderboardCSS = function() {
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
         .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; max-width: 95%; flex-shrink: 0; line-height: 1.25; position: relative; z-index: 2;}
-        .arena-podium-score { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 2;}
+        .arena-podium-score { font-size: 1.25rem; font-weight: 900; margin-bottom: auto; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 2;}
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.45rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
-        .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
-
-        /* ĐẨY THẺ TIỀN THƯỞNG XUỐNG HẲN BÊN DƯỚI BỆ ĐÁ (TRANSLATEY DƯƠNG) */
-        .arena-reward-tag { 
+        /* THẺ CHUỖI NGÀY: NHẤC BỔNG LÊN GÓC TRÊN BÊN PHẢI BỆ ĐÁ */
+        .arena-streak-pill { 
             position: absolute; 
-            top: 100%; 
-            left: 50%; 
-            transform: translate(-50%, 14px); /* Đẩy lùi xuống +14px để tách rời khỏi bục */
-            font-size: 0.75rem; 
-            color: #fff; 
+            top: -12px; 
+            right: -12px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 4px; 
+            padding: 4px 12px; 
+            border-radius: 100px; 
+            font-size: 0.72rem; 
             font-weight: 800; 
-            padding: 6px 14px; 
-            border-radius: 8px; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.7); 
-            letter-spacing: 0.5px; 
+            background: #090d1a; 
+            border: 1px solid rgba(255, 255, 255, 0.25); 
+            color: #e2e8f0; 
             z-index: 20; 
-            white-space: nowrap; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
         }
+        .rank-1 .arena-streak-pill { background: #271f10; border-color: rgba(251, 191, 36, 0.8); color: #fde047; }
+        .rank-2 .arena-streak-pill { border-color: rgba(148, 163, 184, 0.6); }
+        .rank-3 .arena-streak-pill { background: #2a1812; border-color: rgba(249, 115, 22, 0.6); color: #fdba74; }
+
+        .arena-reward-tag { position: absolute; top: 100%; left: 50%; transform: translate(-50%, 14px); font-size: 0.75rem; color: #fff; font-weight: 800; padding: 6px 14px; border-radius: 8px; box-shadow: 0 6px 15px rgba(0,0,0,0.7); letter-spacing: 0.5px; z-index: 20; white-space: nowrap; }
 
         .arena-expand-btn-wrap { text-align: center; margin-top: auto; padding-top: 10px; z-index: 10; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 10px 28px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -11524,7 +11526,7 @@ window.openLeaderboard = function() {
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
                         <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <img src="Icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <img src="icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <div style="display:none; font-size: 36px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: 'Inter', sans-serif;">A</div>
                             <div style="width:20px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
                             <div style="font-size:0.42rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
@@ -11537,7 +11539,7 @@ window.openLeaderboard = function() {
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
                         <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <img src="Icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <img src="icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <div style="display:none; font-size: 36px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: 'Inter', sans-serif;">A</div>
                             <div style="width:20px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
                             <div style="font-size:0.42rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
@@ -11589,7 +11591,7 @@ window.openLeaderboard = function() {
                 </div>
             </div>
 
-            <!-- THANH THÔNG TIN BẢN THÂN -->
+            <!-- THANH THÔNG TIN BẢN THÂN GẮN ĐÁY -->
             <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
 
             <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
@@ -11725,13 +11727,16 @@ window.fetchLeaderboard = async function(orderByField) {
                         <div class="arena-pedestal">
                             <div class="arena-pedestal-bg"></div>
                             
-                            <!-- BỎ HOÀN TOÀN NGOẶC ĐƠN, CHỈ ĐỂ SỐ KHỔNG LỒ -->
                             <div class="arena-rank-num" style="color: ${p.rCol}; text-shadow: 0 0 16px ${p.rCol}60;">${p.rank}</div>
                             <div class="arena-podium-name" title="${m.name}">${m.name}</div>
                             <div class="arena-podium-score">${mainMetric}</div>
-                            <div class="arena-streak-pill">${subMetric}</div>
                             
-                            <!-- THẺ TIỀN THƯỞNG: RỚT XUỐNG DƯỚI ĐÁY BỆ ĐÁ (TOP: 100%) -->
+                            <!-- HUY HIỆU CHUỖI NGÀY: NHẤC LÊN GÓC PHẢI -->
+                            <div class="arena-streak-pill">
+                                ${subMetric}
+                            </div>
+                            
+                            <!-- THẺ TIỀN THƯỞNG RỚT RA KHỎI BỆ ĐÁ -->
                             <div class="arena-reward-tag" style="background: ${p.bg}; border: 1px solid ${p.rCol}80;">
                                 <i class="fa-solid fa-gift" style="color: ${p.rCol}; margin-right: 4px;"></i>${p.reward}
                             </div>
@@ -11741,7 +11746,7 @@ window.fetchLeaderboard = async function(orderByField) {
             }).join('');
         }
 
-        // VẼ DANH SÁCH ẨN TRONG PANEL (TỪ HẠNG 1 ĐẾN 30)
+        // VẼ DANH SÁCH ẨN TRONG PANEL TỪ 1-30
         const allMembersToDisplay = members.slice(0, 30);
         if (allMembersToDisplay.length === 0) {
             listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Không có dữ liệu!</div>`;
@@ -11847,62 +11852,4 @@ window.fetchLeaderboard = async function(orderByField) {
         console.error(e);
         listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
     }
-};
-
-// ---------------------------------------------------------------------------------
-// THUẬT TOÁN TRAO THƯỞNG HOÀNG GIA ĐẦU TUẦN
-// ---------------------------------------------------------------------------------
-const prevCheckCycleForRewards = window.checkCycleAndStreak;
-window.checkCycleAndStreak = async function() {
-    let currentMon = (typeof getGlobalMonday === 'function') ? getGlobalMonday(new Date()) : "2026-10-12";
-    let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
-
-    if (lastTaxCheckedMon !== currentMon && lastTaxCheckedMon !== "") {
-        try {
-            console.log("🏆 Đang tổng kết Bảng Vàng để trao thưởng Top 3 tuần cũ...");
-            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-            
-            const snapshot = await db.collection("academic_apex").get();
-            let members = [];
-            snapshot.forEach((doc) => {
-                let data = doc.data() || {};
-                let calcWeekHrs = 0;
-                if (data.dailyLogs) {
-                    let parts = lastTaxCheckedMon.split('-');
-                    for (let i = 0; i < 7; i++) {
-                        let d = new Date(parts[0], parts[1] - 1, parts[2]);
-                        d.setDate(d.getDate() + i);
-                        let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                        calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
-                    }
-                } else if (typeof data.weeklyHours === 'number') {
-                    calcWeekHrs = data.weeklyHours;
-                }
-                
-                if (doc.id === USER_DOC_ID) calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
-                members.push({ id: doc.id, weeklyHours: calcWeekHrs });
-            });
-
-            members.sort((a, b) => b.weeklyHours - a.weeklyHours);
-            
-            const myRankIndex = members.findIndex(m => m.id === USER_DOC_ID);
-            if (myRankIndex === 0) {
-                localStorage.setItem("usdBalance", usd + 1000);
-                let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
-                localStorage.setItem('saasFreezes', shields + 1);
-                alert("🏆 QUÁN QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$1,000 USD và +1 Khiên bảo vệ vào tài khoản!");
-            } else if (myRankIndex === 1) {
-                localStorage.setItem("usdBalance", usd + 500);
-                alert("🥈 Á QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$500 USD vào tài khoản!");
-            } else if (myRankIndex === 2) {
-                localStorage.setItem("usdBalance", usd + 300);
-                alert("🥉 QUÝ QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$300 USD vào tài khoản!");
-            }
-            if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
-        } catch(e) {
-            console.error("Lỗi trao thưởng tuần:", e);
-        }
-    }
-    
-    if (typeof prevCheckCycleForRewards === 'function') prevCheckCycleForRewards();
 };
