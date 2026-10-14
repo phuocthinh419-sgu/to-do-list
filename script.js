@@ -11313,48 +11313,10 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI PHÁP TRÙNG TU ĐẤU TRƯỜNG KỶ LUẬT (BẢN FULL MÀN HÌNH - CHỐNG LỖI 100%)
-// Dán ở đáy file sẽ tự động đè bẹp mọi code cũ!
+// ĐẠI PHÁP TRÙNG TU ĐẤU TRƯỜNG KỶ LUẬT (BẢN CHÍNH / PHỤ - TỐI ƯU KHÔNG GIAN)
 // =====================================================================
 
-window.getLaurelPairSVG = function(color, size = 24) {
-    return {
-        left: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
-            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
-            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
-            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
-            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
-            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
-        </svg>`,
-        right: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
-            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
-            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
-            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
-            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
-            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
-        </svg>`
-    };
-};
-
-window.getRoyalCrownSVG = function(c1, c2, size = 34) {
-    let uid = Math.random().toString(36).substring(2, 7);
-    return `<svg width="${size}" height="${Math.round(size * 0.78)}" viewBox="0 0 44 34" fill="none" class="arena-crown-svg">
-        <defs>
-            <linearGradient id="crG_${uid}" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="${c1}"/>
-                <stop offset="100%" stop-color="${c2}"/>
-            </linearGradient>
-        </defs>
-        <path d="M5 26 L2 10 L13 17 L22 4 L31 17 L42 10 L39 26 Z" fill="url(#crG_${uid})" stroke="${c1}" stroke-width="1.3" stroke-linejoin="round"/>
-        <rect x="5" y="28" width="34" height="4" rx="2" fill="url(#crG_${uid})"/>
-        <circle cx="22" cy="3" r="2.3" fill="#ffffff"/>
-        <circle cx="2" cy="9" r="1.8" fill="${c1}"/>
-        <circle cx="42" cy="9" r="1.8" fill="${c1}"/>
-    </svg>`;
-};
-
+// 1. CSS GIAO DIỆN MỚI TÍCH HỢP TAB PHỤ
 window.injectArenaLeaderboardCSS = function() {
     let old = document.getElementById('apex-arena-lb-css');
     if (old) old.remove();
@@ -11367,14 +11329,16 @@ window.injectArenaLeaderboardCSS = function() {
         @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
         @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
+        @keyframes slideUpPanel { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
+        @keyframes fadeOverlay { 0% { opacity: 0; } 100% { opacity: 1; } }
         
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
         
-        /* ĐÃ SỬA: Thêm padding-bottom 50px để khung chứa không cắt đứt bục đá */
-        .arena-hero-section { position: relative; padding: 40px 50px 50px 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; flex-shrink: 0; }
+        /* Bầu trời lộng lẫy bao phủ toàn màn hình chính */
+        .arena-hero-section { position: relative; padding: 40px 50px 50px 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
         
-        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; }
+        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; flex-shrink: 0; }
         .arena-title-group { display: flex; align-items: center; gap: 18px; }
         .arena-emblem-wrap { width: 72px; height: 72px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
         .arena-main-title { margin: 0; font-size: 2rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
@@ -11387,15 +11351,14 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-tab-btn { padding: 10px 24px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; }
 
-        .arena-side-flag-container { position: absolute; bottom: 12px; width: 100px; height: 180px; z-index: 2; border-radius: 6px 6px 0 0; }
+        .arena-side-flag-container { position: absolute; bottom: 130px; width: 100px; height: 180px; z-index: 2; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* ĐÃ SỬA: margin-top căn chỉnh lại để bục không bị đẩy xuống quá sâu */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 20px; position: relative; z-index: 3; }
-        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; flex-shrink: 0; }
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: auto; position: relative; z-index: 3; flex-shrink: 0;}
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; flex-shrink: 0;}
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
@@ -11407,48 +11370,64 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; }
 
-        /* ĐÃ SỬA: Khóa flex-shrink: 0 để bục không bao giờ bị bóp méo */
         .arena-pedestal { 
             width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             padding: 55px 12px 20px 12px; 
             box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2;
-            overflow: visible; flex-shrink: 0; 
+            overflow: visible; flex-shrink: 0;
         }
         
         .arena-podium-col.rank-1 .arena-pedestal { height: 260px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
         .arena-podium-col.rank-2 .arena-pedestal { height: 220px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
         .arena-podium-col.rank-3 .arena-pedestal { height: 190px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
 
-        /* ĐÃ SỬA: Thêm flex-shrink: 0 cho các text để không bị biến thành dấu gạch ngang */
         .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
-        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; flex-shrink: 0; }
+        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; flex-shrink: 0;}
         .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; }
         .rank-3 .arena-rank-num { color: #fdba74; }
 
-        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; width: 95%; flex-shrink: 0; }
-        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; flex-shrink: 0; }
+        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; width: 95%; flex-shrink: 0;}
+        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; flex-shrink: 0;}
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.7rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; flex-shrink: 0; }
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; flex-shrink: 0;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        .arena-list-section { padding: 20px 40px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
+        /* THANH ĐẾ BÊN DƯỚI DÀNH RIÊNG CHO NGÀI (Nằm đè lên Bầu trời) */
+        .arena-footer-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px 50px 30px 50px; background: linear-gradient(180deg, transparent 0%, #090d1a 100%); z-index: 10; display: flex; flex-direction: column; gap: 14px; }
+        
+        /* NÚT MỞ RỘNG BẢNG XẾP HẠNG TỔNG */
+        .arena-expand-btn-wrap { display: flex; justify-content: center; width: 100%; margin-bottom: -10px; z-index: 11; position: relative; }
+        .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+        .arena-expand-btn:hover { background: #a855f7; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+
+        .arena-my-Sticky-bar { border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.85) 0%, rgba(17, 24, 46, 0.95) 55%, rgba(13, 19, 36, 0.98) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); backdrop-filter: blur(12px); flex-shrink: 0;}
+        
+        /* OVERLAY VÀ BẢNG XẾP HẠNG TỔNG (TAB PHỤ) */
+        #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; }
+        #arena-full-list-panel { position: absolute; bottom: 0; left: 0; right: 0; height: 80vh; background: #0b0f19; border-radius: 28px 28px 0 0; border-top: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 -20px 60px rgba(0,0,0,0.8); z-index: 101; display: flex; flex-direction: column; animation: slideUpPanel 0.4s cubic-bezier(0.2, 1, 0.3, 1) both; }
+        
+        .arena-panel-header { padding: 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .arena-panel-title { font-size: 1.2rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .arena-panel-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); color: #94a3b8; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; cursor: pointer; border: none; transition: 0.2s; }
+        .arena-panel-close:hover { background: #ef4444; color: #fff; }
+        
+        .arena-list-section { padding: 20px 40px; flex: 1; overflow-y: auto; }
         .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 50px 2fr 1.2fr 1.2fr 80px 140px; align-items: center; gap: 14px; padding: 12px 20px; }
         .arena-table-head { font-size: 0.8rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 8px; }
         .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; margin-bottom: 8px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
         .arena-table-row:hover { border-color: rgba(168, 85, 247, 0.42); background: rgba(26, 34, 58, 0.9); }
         .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
-
-        .arena-my-Sticky-bar { margin: 0 40px 24px 40px; padding: 16px 24px; border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; flex-shrink: 0; }
     `;
     document.head.appendChild(st);
 };
 
+// 2. HÀM MỞ GIAO DIỆN CHÍNH
 window.openLeaderboard = function() {
     window.injectArenaLeaderboardCSS();
 
@@ -11464,7 +11443,6 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
-                <!-- CỜ TRÁI LÀ CHỮ A THEO DESIGN -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
@@ -11476,7 +11454,6 @@ window.openLeaderboard = function() {
                     </div>
                 </div>
 
-                <!-- CỜ PHẢI LÀ CHỮ A THEO DESIGN -->
                 <div class="arena-side-flag-container right">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
@@ -11521,11 +11498,30 @@ window.openLeaderboard = function() {
                     </button>
                 </div>
 
+                <!-- BỤC ĐÁ TOP 3 -->
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
             </div>
 
-            <div id="leaderboard-content" class="arena-list-section"></div>
-            <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
+            <!-- PHẦN ĐẾ (Gồm Nút mở bảng tổng & Thanh xếp hạng của ngài) -->
+            <div class="arena-footer-bar">
+                <div class="arena-expand-btn-wrap">
+                    <button class="arena-expand-btn" onclick="document.getElementById('arena-full-list-overlay').style.display='block';">
+                        <i class="fa-solid fa-list-ol"></i> Bảng Xếp Hạng Tổng (Hạng 4 - 30) <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
+            </div>
+            
+            <!-- OVERLAY VÀ TAB PHỤ TRƯỢT TỪ DƯỚI LÊN -->
+            <div id="arena-full-list-overlay">
+                <div id="arena-full-list-panel">
+                    <div class="arena-panel-header">
+                        <div class="arena-panel-title"><i class="fa-solid fa-ranking-star" style="color:#a855f7;"></i> BẢNG XẾP HẠNG TỔNG</div>
+                        <button class="arena-panel-close" onclick="document.getElementById('arena-full-list-overlay').style.display='none';"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="leaderboard-content" class="arena-list-section"></div>
+                </div>
+            </div>
         </div>
     `;
 
@@ -11534,6 +11530,7 @@ window.openLeaderboard = function() {
     window.fetchLeaderboard('weeklyHours');
 };
 
+// 3. HÀM TẢI DỮ LIỆU VÀ PHÂN BỔ VÀO TAB CHÍNH / PHỤ
 window.fetchLeaderboard = async function(orderByField) {
     const podiumBox = document.getElementById('arena-podium-container');
     const listBox = document.getElementById('leaderboard-content');
@@ -11639,7 +11636,7 @@ window.fetchLeaderboard = async function(orderByField) {
 
         const restMembers = members.slice(3, 30);
         if (restMembers.length === 0) {
-            listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Tất cả cao thủ hiện tại đều đã đứng trên Đài Vinh Quang Top 3!</div>`;
+            listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.9rem; padding:40px 0;"><i class="fa-solid fa-ghost" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>Tất cả cao thủ hiện tại đều đã đứng trên Đài Vinh Quang Top 3!</div>`;
         } else {
             let tableHtml = `
                 <div class="arena-table-head">
@@ -11661,21 +11658,21 @@ window.fetchLeaderboard = async function(orderByField) {
 
                 tableHtml += `
                     <div class="arena-table-row">
-                        <div style="font-weight:800; color:#94a3b8; font-size:0.85rem;">${rank}</div>
-                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                        <div style="font-weight:900; color:#94a3b8; font-size:0.9rem;">${rank}</div>
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
                             <div style="position:relative; flex-shrink:0;">
-                                <img src="${m.photo}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                <img src="${m.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                                 <span style="position:absolute; bottom:0; right:0; width:10px; height:10px; border-radius:50%; background:${dotCol}; border:2px solid #0b0f1d;"></span>
                             </div>
-                            <span style="font-weight:700; color:#f1f5f9; font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                ${m.name} ${isMe ? '<b style="color:#c084fc; font-size:0.7rem;">(Bạn)</b>' : ''}
+                            <span style="font-weight:700; color:#f1f5f9; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${m.name} ${isMe ? '<b style="color:#c084fc; font-size:0.75rem;">(Bạn)</b>' : ''}
                             </span>
                         </div>
-                        <div style="font-weight:800; color:#fff; font-size:0.85rem;">${m.weeklyHours.toFixed(1)}h</div>
-                        <div style="font-weight:700; color:#cbd5e1; font-size:0.8rem;"><i class="fa-solid fa-fire" style="color:#f97316; margin-right:4px;"></i>${m.streak} ngày</div>
+                        <div style="font-weight:800; color:#fff; font-size:0.9rem;">${m.weeklyHours.toFixed(1)}h</div>
+                        <div style="font-weight:700; color:#cbd5e1; font-size:0.85rem;"><i class="fa-solid fa-fire" style="color:#f97316; margin-right:4px;"></i>${m.streak} ngày</div>
                         <div style="text-align:center;">${trendHtml}</div>
                         <div style="text-align:right;">
-                            ${!isMe ? `<button class="arena-challenge-btn" onclick="openComposeModal('${m.id}', '${safeName}')"><i class="fa-solid fa-paper-plane"></i> Thách đấu</button>` : `<span style="font-size:0.72rem; color:#64748b;">Chính chủ</span>`}
+                            ${!isMe ? `<button class="arena-challenge-btn" onclick="openComposeModal('${m.id}', '${safeName}')"><i class="fa-solid fa-paper-plane"></i> Thách đấu</button>` : `<span style="font-size:0.75rem; color:#64748b;">Chính chủ</span>`}
                         </div>
                     </div>
                 `;
@@ -11694,39 +11691,39 @@ window.fetchLeaderboard = async function(orderByField) {
             const myRankNum = myIndex !== -1 ? (myIndex + 1) : 1;
 
             myBarBox.innerHTML = `
-                <div style="display:flex; align-items:center; gap:14px;">
-                    <div style="width:40px; height:40px; border-radius:12px; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:46px; height:46px; border-radius:14px; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
                         <i class="fa-solid fa-ranking-star"></i>
                     </div>
                     <div style="position:relative;">
-                        <img src="${me.photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">
-                        <span style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; background:#10b981; border:2px solid #0b0f1d;"></span>
+                        <img src="${me.photo}" style="width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">
+                        <span style="position:absolute; bottom:0; right:0; width:14px; height:14px; border-radius:50%; background:#10b981; border:2.5px solid #0b0f1d;"></span>
                     </div>
                     <div>
-                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px;">HẠNG CỦA BẠN</div>
+                        <div style="font-size:0.7rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px;">HẠNG CỦA BẠN</div>
                         <div style="display:flex; align-items:baseline; gap:8px;">
-                            <span style="font-size:1.35rem; font-weight:900; color:#fbbf24;">${myRankNum}</span>
-                            <strong style="font-size:0.95rem; color:#fff;">${me.name}</strong>
+                            <span style="font-size:1.5rem; font-weight:900; color:#fbbf24;">${myRankNum}</span>
+                            <strong style="font-size:1.05rem; color:#fff;">${me.name}</strong>
                         </div>
                     </div>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <i class="fa-regular fa-clock" style="color:#94a3b8; font-size:1.2rem;"></i>
+                <div style="display:flex; align-items:center; gap:32px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="fa-regular fa-clock" style="color:#94a3b8; font-size:1.4rem;"></i>
                         <div>
-                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.weeklyHours.toFixed(1)}h</strong>
-                            <span style="font-size:0.7rem; color:#94a3b8;">Giờ học (Tuần)</span>
+                            <strong style="display:block; font-size:1.05rem; color:#fff;">${me.weeklyHours.toFixed(1)}h</strong>
+                            <span style="font-size:0.75rem; color:#94a3b8;">Giờ học (Tuần)</span>
                         </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <i class="fa-solid fa-fire" style="color:#f97316; font-size:1.2rem;"></i>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="fa-solid fa-fire" style="color:#f97316; font-size:1.4rem;"></i>
                         <div>
-                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.streak} ngày</strong>
-                            <span style="font-size:0.7rem; color:#94a3b8;">Chuỗi hiện tại</span>
+                            <strong style="display:block; font-size:1.05rem; color:#fff;">${me.streak} ngày</strong>
+                            <span style="font-size:0.75rem; color:#94a3b8;">Chuỗi hiện tại</span>
                         </div>
                     </div>
-                    <div style="font-size:0.85rem; color:#a855f7; font-style:italic; font-weight:600;">
+                    <div style="font-size:0.9rem; color:#a855f7; font-style:italic; font-weight:700;">
                         <i class="fa-solid fa-arrow-trend-up" style="margin-right:4px;"></i> Tiếp tục duy trì phong độ!
                     </div>
                 </div>
@@ -11737,37 +11734,3 @@ window.fetchLeaderboard = async function(orderByField) {
         listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
     }
 };
-
-// =====================================================================
-// RADAR 5 SAO VĨNH CỬU (Chạy ngầm chèn sao tự động)
-// =====================================================================
-window.renderAvatarStarBadge = function() {}; // Vô hiệu hóa hàm cũ
-setInterval(() => {
-    let userBadge = document.getElementById('user-auth-badge');
-    if(!userBadge) return;
-    
-    let img = userBadge.querySelector('img');
-    if(!img) return;
-    
-    let existingBadge = document.getElementById('user-star-pill');
-    if(!existingBadge) {
-        let wrapper = document.getElementById('avatar-star-wrapper');
-        if(!wrapper) {
-            wrapper = document.createElement('div');
-            wrapper.id = 'avatar-star-wrapper';
-            wrapper.style.cssText = "position: relative; display: inline-flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-bottom: 6px;";
-            img.parentNode.insertBefore(wrapper, img);
-            wrapper.appendChild(img);
-        }
-        
-        let avg = typeof getAverageStarRating === 'function' ? getAverageStarRating() : 5.0;
-        let badgeColor = avg >= 4.5 ? "#f59e0b" : (avg >= 3.8 ? "#10b981" : "#ef4444");
-
-        let starBadge = document.createElement('div');
-        starBadge.id = 'user-star-pill';
-        starBadge.style.cssText = `position: absolute; bottom: -8px; background: var(--bg-panel); color: var(--text-main); border: 1.5px solid ${badgeColor}; border-radius: 100px; padding: 2px 6px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 12; white-space: nowrap;`;
-        starBadge.innerHTML = `<i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}`;
-        
-        wrapper.appendChild(starBadge);
-    }
-}, 1000);
