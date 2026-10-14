@@ -11334,9 +11334,9 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI KIẾN TRÚC V9: BẢN GIẢI PHẪU KHÔNG GIAN (CHỐNG ĐÈ CHỮ 100%)
-// - Kéo cao bục đá tạo không gian thở cho text
-// - Ép thẻ tiền thưởng rớt hẳn xuống dưới đáy, không lẹm vào bục
+// ĐẠI KIẾN TRÚC V9: BẢN HOÀN KIM CHUẨN KHÔNG GIAN
+// - Đẩy thẻ tiền thưởng rớt hẳn xuống dưới đáy bệ đá (Không đè viền)
+// - Nới rộng khoảng cách để không đụng nút bấm bên dưới
 // =====================================================================
 
 window.getLaurelPairSVG = function(color, size = 26) {
@@ -11420,8 +11420,8 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* BỤC ĐÁ: Thêm khoảng trống padding-bottom 35px để chứa thẻ tiền thưởng treo lơ lửng */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 10px; padding-bottom: 35px; position: relative; z-index: 3; flex-shrink: 0; }
+        /* BỤC ĐÁ: TĂNG MARGIN-BOTTOM ĐỂ CÓ KHÔNG GIAN CHO THẺ TIỀN THƯỞNG RỚT XUỐNG */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 55px; position: relative; z-index: 3; flex-shrink: 0; }
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 245px; z-index: 4; animation-delay: 0.3s; }
@@ -11429,11 +11429,11 @@ window.injectArenaLeaderboardCSS = function() {
 
         .arena-crown-svg { margin-bottom: -10px; z-index: 15; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; position: relative; }
 
-        /* KÉO CAO BỤC ĐÁ LÊN ĐỂ TẠO KHÔNG GIAN THỞ CHO CHỮ */
+        /* BỆ ĐÁ VISIBLE CHẮC CHẮN ĐỂ KHÔNG CẮT THẺ */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 24px 8px 16px 8px; 
+            padding: 16px 8px 10px 8px; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; 
             overflow: visible !important; flex-shrink: 0;
         }
@@ -11441,36 +11441,33 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-pedestal-bg { position: absolute; inset: 0; border-radius: 12px 12px 0 0; overflow: hidden; z-index: 0; }
         .arena-pedestal-bg::after { content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); transform: skewX(-25deg); pointer-events: none; animation: arenaSweepLight 5s infinite; }
         
-        /* CHIỀU CAO MỚI (Đã cộng thêm 30px mỗi bục để nới rộng) */
-        .arena-podium-col.rank-1 .arena-pedestal { height: 215px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; }
+        .arena-podium-col.rank-1 .arena-pedestal { height: 185px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; }
         .arena-podium-col.rank-1 .arena-pedestal-bg::after { animation-delay: 0.5s; }
-        .arena-podium-col.rank-2 .arena-pedestal { height: 180px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
+        .arena-podium-col.rank-2 .arena-pedestal { height: 150px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
         .arena-podium-col.rank-2 .arena-pedestal-bg::after { animation-delay: 1.5s; }
-        .arena-podium-col.rank-3 .arena-pedestal { height: 160px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
+        .arena-podium-col.rank-3 .arena-pedestal { height: 130px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
         .arena-podium-col.rank-3 .arena-pedestal-bg::after { animation-delay: 2.5s; }
 
-        /* SỐ HẠNG: Bỏ ngoặc đơn, tinh chỉnh margin */
-        .arena-rank-num { font-size: 2.4rem; font-weight: 900; line-height: 1; margin-bottom: 8px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        .arena-rank-num { font-size: 2.6rem; font-weight: 900; line-height: 1; margin-bottom: 8px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 3.2rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
         .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; max-width: 95%; flex-shrink: 0; line-height: 1.25; position: relative; z-index: 2;}
-        .arena-podium-score { font-size: 1.25rem; font-weight: 900; margin-bottom: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 2;}
+        .arena-podium-score { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 2;}
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.45rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2; margin-bottom: 0;}
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* THẺ TIỀN THƯỞNG: Treo lơ lửng dưới đáy bệ đá 18px */
+        /* ĐẨY THẺ TIỀN THƯỞNG XUỐNG HẲN BÊN DƯỚI BỆ ĐÁ (TRANSLATEY DƯƠNG) */
         .arena-reward-tag { 
             position: absolute; 
-            bottom: -18px; 
-            top: auto;
+            top: 100%; 
             left: 50%; 
-            transform: translateX(-50%); 
+            transform: translate(-50%, 14px); /* Đẩy lùi xuống +14px để tách rời khỏi bục */
             font-size: 0.75rem; 
             color: #fff; 
             font-weight: 800; 
@@ -11584,6 +11581,7 @@ window.openLeaderboard = function() {
                 <!-- BỤC ĐÁ TOP 3 -->
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
 
+                <!-- NÚT MỞ BẢNG TỔNG QUAN -->
                 <div class="arena-expand-btn-wrap">
                     <button class="arena-expand-btn" onclick="document.getElementById('arena-full-list-overlay').style.display='block';">
                         <i class="fa-solid fa-list-ol"></i> Mở Bảng Xếp Hạng Tổng (1 - 30) <i class="fa-solid fa-chevron-up"></i>
@@ -11591,7 +11589,7 @@ window.openLeaderboard = function() {
                 </div>
             </div>
 
-            <!-- THANH THÔNG TIN BẢN THÂN GẮN ĐÁY -->
+            <!-- THANH THÔNG TIN BẢN THÂN -->
             <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
 
             <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
@@ -11702,6 +11700,7 @@ window.fetchLeaderboard = async function(orderByField) {
                 const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
                 const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
 
+                // KIẾN TRÚC MỚI: Nguyệt quế ôm sát ảnh đại diện
                 let avatarBorder = p.rank === 1 ? '3px solid #fde047' : (p.rank === 2 ? '2.5px solid #e2e8f0' : '2.5px solid #fb923c');
                 let avatarShadow = p.rank === 1 ? '0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff' : 'none';
                 let avatarSize = p.rank === 1 ? 92 : 76;
@@ -11726,12 +11725,13 @@ window.fetchLeaderboard = async function(orderByField) {
                         <div class="arena-pedestal">
                             <div class="arena-pedestal-bg"></div>
                             
+                            <!-- BỎ HOÀN TOÀN NGOẶC ĐƠN, CHỈ ĐỂ SỐ KHỔNG LỒ -->
                             <div class="arena-rank-num" style="color: ${p.rCol}; text-shadow: 0 0 16px ${p.rCol}60;">${p.rank}</div>
                             <div class="arena-podium-name" title="${m.name}">${m.name}</div>
                             <div class="arena-podium-score">${mainMetric}</div>
                             <div class="arena-streak-pill">${subMetric}</div>
                             
-                            <!-- THẺ TIỀN THƯỞNG: NẰM LƠ LỬNG BÊN DƯỚI ĐÁY BỆ ĐÁ MÀ KHÔNG BỊ CẮT -->
+                            <!-- THẺ TIỀN THƯỞNG: RỚT XUỐNG DƯỚI ĐÁY BỆ ĐÁ (TOP: 100%) -->
                             <div class="arena-reward-tag" style="background: ${p.bg}; border: 1px solid ${p.rCol}80;">
                                 <i class="fa-solid fa-gift" style="color: ${p.rCol}; margin-right: 4px;"></i>${p.reward}
                             </div>
@@ -11741,7 +11741,7 @@ window.fetchLeaderboard = async function(orderByField) {
             }).join('');
         }
 
-        // VẼ DANH SÁCH ẨN TRONG PANEL TỪ 1-30
+        // VẼ DANH SÁCH ẨN TRONG PANEL (TỪ HẠNG 1 ĐẾN 30)
         const allMembersToDisplay = members.slice(0, 30);
         if (allMembersToDisplay.length === 0) {
             listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Không có dữ liệu!</div>`;
