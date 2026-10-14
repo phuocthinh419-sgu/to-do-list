@@ -2244,6 +2244,39 @@ function renderGamification() {
     if(heatTotalEl) heatTotalEl.innerText = totalHours35.toFixed(1) + 'h';
     if(heatActiveEl) heatActiveEl.innerText = activeDays35 + '/35';
     if(heatAvgEl) heatAvgEl.innerText = (totalHours35 / 35).toFixed(1) + 'h';
+
+   // --- VÁ THANH TIẾN ĐỘ VÀO THẺ HỌC HÀM ---
+    let rankTitleEl = document.getElementById('rank-title');
+    if (rankTitleEl) {
+        // Tìm cái hộp bọc bên ngoài (thẻ cha)
+        let card = rankTitleEl.closest('.stagger-item') || rankTitleEl.parentElement.parentElement;
+        
+        if (card && card.textContent.includes('Học hàm')) {
+            // Khóa layout để thanh tiến độ không trào ra ngoài
+            card.style.position = 'relative';
+            card.style.overflow = 'hidden';
+            
+            // Tự động tìm dòng chữ "Học hàm hiện tại" và thêm con số phần trăm vào
+            let elements = card.querySelectorAll('*');
+            for (let el of elements) {
+                if (el.textContent.includes('Học hàm hiện tại') && el.children.length <= 1) {
+                    el.innerHTML = `Học hàm hiện tại <span style="color: #fbbf24; font-weight: 800; font-size: 0.9em; margin-left: 4px;">(${rankProgressPct.toFixed(0)}%)</span>`;
+                }
+            }
+
+            // Xóa thanh tiến độ cũ (để không bị nhân bản mỗi khi cập nhật giờ học)
+            let oldBar = card.querySelector('.apex-card-progress');
+            if (oldBar) oldBar.remove();
+
+            // Đổ bê tông thanh tiến độ mới chìm xuống đáy hộp
+            let bar = document.createElement('div');
+            bar.className = 'apex-card-progress';
+            bar.style.cssText = "position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(0,0,0,0.2); z-index: 10;";
+            bar.innerHTML = `<div style="width: ${rankProgressPct}%; height: 100%; background: linear-gradient(90deg, #d97706, #fbbf24); box-shadow: 0 0 10px rgba(251, 191, 36, 0.6); border-radius: 0 2px 2px 0; transition: width 0.5s ease;"></div>`;
+            card.appendChild(bar);
+        }
+    }
+    // --- KẾT THÚC ĐOẠN VÁ ---
 }
 
 function renderCountdowns() {
@@ -5206,19 +5239,19 @@ window.fetchLeaderboard = async function(orderByField) {
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
         });
 
-        // 1. VẼ BỤC VINH QUANG TOP 3 (ĐÃ KHÔI PHỤC LAYER BỤC ĐÁ)
+        // 1. VẼ BỤC VINH QUANG TOP 3 VỚI PHẦN THƯỞNG (REWARD SYSTEM)
         const top1 = members[0] || null;
         const top2 = members[1] || null;
         const top3 = members[2] || null;
         const podiumOrder = [
-            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 22, crownSz: 32 },
-            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 27, crownSz: 40 },
-            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 22, crownSz: 32 }
+            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 22, crownSz: 32, reward: '+$500', rCol: '#38bdf8' },
+            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 27, crownSz: 40, reward: '+$1,000 & 1 🛡️', rCol: '#fbbf24' },
+            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 22, crownSz: 32, reward: '+$300', rCol: '#f97316' }
         ];
 
         if (podiumBox) {
             podiumBox.innerHTML = podiumOrder.map(p => {
-                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-podium-content-layer"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div></div>`;
+                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div>`;
                 const m = p.item;
                 const mainMetric = orderByField === 'weeklyHours' ? `${m.weeklyHours.toFixed(1)}h` : `${m.streak} ngày`;
                 const subMetric = orderByField === 'weeklyHours' ? `🔥 ${m.streak} ngày` : `⏱️ ${m.weeklyHours.toFixed(1)}h`;
@@ -5239,27 +5272,29 @@ window.fetchLeaderboard = async function(orderByField) {
                             </div>
                         </div>
                         <div class="arena-pedestal">
-                            <!-- LAYER NÀY LÀ LINH HỒN CỦA CÁI BỤC -->
-                            <div class="arena-podium-content-layer">
-                                <div class="arena-laurel-rank">
-                                    ${rankWreath.left}
-                                    <span class="arena-rank-num">${p.rank}</span>
-                                    ${rankWreath.right}
-                                </div>
-                                <div class="arena-podium-name" title="${m.name}">${m.name}</div>
-                                <div class="arena-podium-score">
-                                    ${scoreWreath ? scoreWreath.left : ''}
-                                    <span>${mainMetric}</span>
-                                    ${scoreWreath ? scoreWreath.right : ''}
-                                </div>
-                                <div><span class="arena-streak-pill">${subMetric}</span></div>
+                            <div class="arena-laurel-rank">
+                                ${rankWreath.left}
+                                <span class="arena-rank-num">${p.rank}</span>
+                                ${rankWreath.right}
+                            </div>
+                            <div class="arena-podium-name" title="${m.name}">${m.name}</div>
+                            <div class="arena-podium-score">
+                                ${scoreWreath ? scoreWreath.left : ''}
+                                <span>${mainMetric}</span>
+                                ${scoreWreath ? scoreWreath.right : ''}
+                            </div>
+                            <div><span class="arena-streak-pill">${subMetric}</span></div>
+                            
+                            <!-- Nhãn Phần Thưởng (Glow Effect) -->
+                            <div style="margin-top: 10px; font-size: 0.72rem; color: #fff; font-weight: 800; background: ${p.rCol}25; padding: 4px 10px; border-radius: 8px; border: 1px solid ${p.rCol}60; box-shadow: 0 4px 15px ${p.rCol}40; letter-spacing: 0.5px; z-index: 3;">
+                                <i class="fa-solid fa-gift" style="color: ${p.rCol}; margin-right: 4px;"></i>${p.reward}
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
-
+       
         // 2. VẼ DANH SÁCH TỪ HẠNG 4 TRỞ ĐI
         const restMembers = members.slice(3, 30);
         if (restMembers.length === 0) {
@@ -11365,3 +11400,66 @@ function showModernDebtModal(debtMinutes) {
         startDebtSession(); // Gắn thẳng lệnh cấm túc vào đây
     });
 }
+
+// =====================================================================
+// ĐỘNG CƠ ÂM BINH (BOT ENGINE) - BẢN NHÍCH TỪ TỪ (10 - 50 PHÚT)
+// =====================================================================
+async function wakeUpTheBots() {
+    if (!currentUser) return;
+    
+    let now = Date.now();
+    let lastBotUpdate = parseInt(localStorage.getItem('saasLastBotUpdate')) || 0;
+    
+    // Lấy ngày Thứ 2 của tuần hiện tại để đối chiếu
+    let currentMon = (typeof getGlobalMonday === 'function') ? getGlobalMonday() : "2026-10-12";
+    let botCycle = localStorage.getItem('saasBotCycle') || currentMon;
+    let isNewWeek = (botCycle !== currentMon);
+    
+    // Nếu vừa bước sang tuần mới, HOẶC đã hơn 2 tiếng kể từ lần buff cuối cùng
+    if (isNewWeek || (now - lastBotUpdate > 2 * 60 * 60 * 1000)) {
+        try {
+            let snapshot = await db.collection("academic_apex").get();
+            snapshot.forEach(doc => {
+                // Chỉ áp dụng cho Bot (tuyệt đối không đụng vào dữ liệu của bệ hạ)
+                if (doc.id !== USER_DOC_ID && doc.id !== "emperor_data_v1") {
+                    let data = doc.data();
+                    let botHrs = data.weeklyHours || 0;
+                    let needsUpdate = false;
+
+                    if (isNewWeek) {
+                        // Reset tuần mới: Bot cày khởi động sương sương từ 0 đến 45 phút (0.75h)
+                        botHrs = (Math.random() * 0.75);
+                        needsUpdate = true;
+                    } else if (Math.random() < 0.6) { 
+                        // Tuần cũ (Tỷ lệ 60% bot hoạt động): Cày thêm từ 10 phút (0.16h) đến 50 phút (0.83h)
+                        botHrs += (Math.random() * 0.67 + 0.16);
+                        needsUpdate = true;
+                    }
+
+                    // Bí mật cập nhật điểm của bot lên đám mây Firebase
+                    if (needsUpdate) {
+                        db.collection("academic_apex").doc(doc.id).set({
+                            weeklyHours: botHrs,
+                            lastUpdated: now
+                        }, { merge: true });
+                    }
+                }
+            });
+            
+            // Cập nhật lại mốc thời gian đánh thức bot
+            localStorage.setItem('saasLastBotUpdate', now);
+            if (isNewWeek) localStorage.setItem('saasBotCycle', currentMon);
+            
+            console.log("🤖 Báo cáo: Các học giả ảo vừa nhích thêm 10-50 phút để bám đuổi bệ hạ!");
+        } catch (e) {
+            console.log("Lỗi động cơ bot:", e);
+        }
+    }
+}
+
+// Lén kích hoạt Động cơ Âm binh mỗi khi bệ hạ mở Tổng quan Học tập
+const originDashForBots = window.renderDashboard;
+window.renderDashboard = function() {
+    if (typeof originDashForBots === 'function') originDashForBots();
+    wakeUpTheBots(); 
+};
