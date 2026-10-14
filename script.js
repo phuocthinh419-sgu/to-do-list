@@ -11334,28 +11334,32 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI KIẾN TRÚC ĐẤU TRƯỜNG KỶ LUẬT (BẢN CHUẨN THIẾT KẾ VÀNG)
-// - Nguyệt quế ôm Avatar | Có tiền thưởng | Có tia sáng và chữ lấp lánh
-// - Bảng tổng 1-30 ẩn trượt lên | Giữ lại thuật toán phát thưởng thứ 2
+// ĐẠI KIẾN TRÚC V6: HOÀN THIỆN ĐỈNH CAO THẨM MỸ
+// - Sửa chính tả, Bỏ ngoặc đơn
+// - Vòng nguyệt quế thiết kế mới, thanh thoát hơn
+// - Thẻ tiền thưởng treo lơ lửng dưới đáy bệ đá
 // =====================================================================
 
-window.getLaurelPairSVG = function(color, size = 26) {
+// 1. VÒNG NGUYỆT QUẾ MỚI: LÁ THON GỌN, ĐƯỜNG CONG MƯỢT MÀ
+window.getLaurelPairSVG = function(color, size = 32) {
     return {
-        left: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
-            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
-            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
-            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
-            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
-            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        left: `<svg width="${size}" height="${size * 1.4}" viewBox="0 0 40 60" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">
+            <path d="M 35 55 C 20 45, 5 25, 15 5" stroke="${color}" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M 15 5 C 10 10, 5 15, 12 18 C 15 15, 20 10, 15 5 Z" fill="${color}"/>
+            <path d="M 11 18 C 6 23, 1 28, 8 31 C 11 28, 16 23, 11 18 Z" fill="${color}"/>
+            <path d="M 9 32 C 4 37, -1 42, 6 45 C 9 42, 14 37, 9 32 Z" fill="${color}"/>
+            <path d="M 18 12 C 23 15, 28 20, 24 25 C 20 22, 15 17, 18 12 Z" fill="${color}" opacity="0.85"/>
+            <path d="M 15 25 C 20 28, 25 33, 21 38 C 17 35, 12 30, 15 25 Z" fill="${color}" opacity="0.85"/>
+            <path d="M 14 39 C 19 42, 24 47, 20 52 C 16 49, 11 44, 14 39 Z" fill="${color}" opacity="0.85"/>
         </svg>`,
-        right: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
-            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
-            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
-            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
-            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
-            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        right: `<svg width="${size}" height="${size * 1.4}" viewBox="0 0 40 60" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">
+            <path d="M 35 55 C 20 45, 5 25, 15 5" stroke="${color}" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M 15 5 C 10 10, 5 15, 12 18 C 15 15, 20 10, 15 5 Z" fill="${color}"/>
+            <path d="M 11 18 C 6 23, 1 28, 8 31 C 11 28, 16 23, 11 18 Z" fill="${color}"/>
+            <path d="M 9 32 C 4 37, -1 42, 6 45 C 9 42, 14 37, 9 32 Z" fill="${color}"/>
+            <path d="M 18 12 C 23 15, 28 20, 24 25 C 20 22, 15 17, 18 12 Z" fill="${color}" opacity="0.85"/>
+            <path d="M 15 25 C 20 28, 25 33, 21 38 C 17 35, 12 30, 15 25 Z" fill="${color}" opacity="0.85"/>
+            <path d="M 14 39 C 19 42, 24 47, 20 52 C 16 49, 11 44, 14 39 Z" fill="${color}" opacity="0.85"/>
         </svg>`
     };
 };
@@ -11396,14 +11400,12 @@ window.injectArenaLeaderboardCSS = function() {
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: rgba(4, 6, 14, 0.86); z-index: 10002; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100%; max-width: 960px; height: 94vh; border-radius: 22px; background: #090d1a; border: 1px solid rgba(168, 85, 247, 0.42); box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22); overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
         
-        /* HERO SECTION CHỨA BỤC ĐÁ */
         .arena-hero-section { position: relative; padding: 24px 28px 24px 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; flex-shrink: 0; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
         
-        /* TEXT GRADIENT & LẤP LÁNH CHO ĐẤU TRƯỜNG KỶ LUẬT */
         .arena-main-title { margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); animation: arenaTextShimmer 4s linear infinite; }
         .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; }
         .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
@@ -11414,19 +11416,16 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
-        /* CỜ HIỆU ĐƯỢC CHỈNH TỌA ĐỘ BÁM ĐÁY */
         .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; overflow: hidden; }
-        
-        /* TIA SÁNG LƯỚT QUÉT QUA CỜ & BỤC ĐÁ */
+        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; overflow: hidden;}
         .arena-sweep-light { position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 3; animation: arenaSweepLight 5s infinite; }
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* BỤC ĐÁ CÂN ĐỐI TỶ LỆ VÀNG */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 10px; position: relative; z-index: 3; flex-shrink: 0; }
+        /* BỤC ĐÁ TẠO THÊM KHOẢNG TRỐNG ĐÁY ĐỂ CHỨA THẺ TIỀN THƯỞNG TREO LƠ LỬNG */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; padding-bottom: 25px; margin-bottom: 10px; position: relative; z-index: 3; flex-shrink: 0; }
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 245px; z-index: 4; animation-delay: 0.3s; }
@@ -11438,40 +11437,42 @@ window.injectArenaLeaderboardCSS = function() {
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             padding: 16px 8px 10px 8px; 
-            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; overflow: hidden; flex-shrink: 0;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; overflow: visible; flex-shrink: 0;
         }
-        .arena-pedestal::after { content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite; }
+        .arena-pedestal-bg { position: absolute; inset: 0; border-radius: 12px 12px 0 0; overflow: hidden; z-index: 0; }
+        .arena-pedestal-bg::after { content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); transform: skewX(-25deg); pointer-events: none; animation: arenaSweepLight 5s infinite; }
+        
         .arena-podium-col.rank-1 .arena-pedestal { height: 185px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; }
-        .arena-podium-col.rank-1 .arena-pedestal::after { animation-delay: 0.5s; }
+        .arena-podium-col.rank-1 .arena-pedestal-bg::after { animation-delay: 0.5s; }
         .arena-podium-col.rank-2 .arena-pedestal { height: 150px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
-        .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; }
+        .arena-podium-col.rank-2 .arena-pedestal-bg::after { animation-delay: 1.5s; }
         .arena-podium-col.rank-3 .arena-pedestal { height: 130px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
-        .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; }
+        .arena-podium-col.rank-3 .arena-pedestal-bg::after { animation-delay: 2.5s; }
 
-        /* SỬA SỐ HẠNG CHỈ CÓ DẤU NGOẶC TRÒN */
-        .arena-rank-num { font-size: 1.7rem; font-weight: 900; line-height: 1; margin-bottom: 4px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        /* SỐ HẠNG CHỈ CÒN ĐÚNG 1, 2, 3 RẤT UY QUYỀN */
+        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; margin-bottom: 6px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
-        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; max-width: 95%; flex-shrink: 0; line-height: 1.25; position: relative; z-index: 2;}
-        .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 2;}
-        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.38rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
+        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; max-width: 95%; flex-shrink: 0; line-height: 1.25; position: relative; z-index: 2;}
+        .arena-podium-score { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 2;}
+        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.45rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* NÚT MỞ BẢNG XẾP HẠNG TỔNG */
+        /* THẺ TIỀN THƯỞNG: ĐƯỢC TREO LƠ LỬNG DƯỚI ĐÁY BỆ ĐÁ NHƯ TẤM KIM BÀI */
+        .arena-reward-tag { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: #fff; font-weight: 800; padding: 5px 14px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); letter-spacing: 0.5px; z-index: 10; white-space: nowrap; }
+
         .arena-expand-btn-wrap { text-align: center; margin-top: auto; padding-top: 10px; z-index: 10; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 10px 28px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
         .arena-expand-btn:hover { background: #a855f7; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); transform: translateY(-2px); }
 
-        /* THANH GHI NHẬN HẠNG CÁ NHÂN Ở DƯỚI CÙNG */
         .arena-my-Sticky-bar { margin: 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; flex-shrink: 0;}
         
-        /* BẢNG XẾP HẠNG ẨN TRƯỢT TỪ DƯỚI LÊN */
         #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; pointer-events: auto;}
         #arena-full-list-panel { position: absolute; bottom: 0; left: 0; right: 0; height: 85vh; background: #0b0f19; border-radius: 28px 28px 0 0; border-top: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 -20px 60px rgba(0,0,0,0.8); z-index: 101; display: flex; flex-direction: column; animation: slideUpPanel 0.4s cubic-bezier(0.2, 1, 0.3, 1) both; }
         
@@ -11506,7 +11507,7 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
-                <!-- CỜ TRÁI: Dùng Icon.png.png, tự động hiện chữ A lấp lánh nếu file ảnh bị lỗi -->
+                <!-- CỜ TRÁI -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
@@ -11670,16 +11671,15 @@ window.fetchLeaderboard = async function(orderByField) {
         const top2 = members[1] || null;
         const top3 = members[2] || null;
         
-        // NHÃN PHẦN THƯỞNG ĐƯỢC CHUẨN BỊ CHO BỤC ĐÁ
         const podiumOrder = [
-            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 36, crownSz: 32, reward: '+$500', rCol: '#38bdf8' },
-            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 45, crownSz: 40, reward: '+$1,000 & 1 🛡️', rCol: '#fbbf24' },
-            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 36, crownSz: 32, reward: '+$300', rCol: '#f97316' }
+            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 38, crownSz: 32, reward: '+$500', rCol: '#38bdf8', bg: 'rgba(148,163,184,0.3)' },
+            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 48, crownSz: 40, reward: '+$1,000 & 1 🛡️', rCol: '#fbbf24', bg: 'rgba(251,191,36,0.35)' },
+            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 38, crownSz: 32, reward: '+$300', rCol: '#f97316', bg: 'rgba(249,115,22,0.3)' }
         ];
 
         if (podiumBox) {
             podiumBox.innerHTML = podiumOrder.map(p => {
-                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">( ${p.rank} )</div><div class="arena-podium-name">Trống</div></div></div>`;
+                if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div>`;
                 const m = p.item;
                 const mainMetric = orderByField === 'weeklyHours' ? `${m.weeklyHours.toFixed(1)}h` : `${m.streak} ngày`;
                 const subMetric = orderByField === 'weeklyHours' ? `🔥 ${m.streak} ngày` : `⏱️ ${m.weeklyHours.toFixed(1)}h`;
@@ -11689,11 +11689,11 @@ window.fetchLeaderboard = async function(orderByField) {
                 const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
                 const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
 
-                // KIẾN TRÚC MỚI CHÍNH XÁC: Nguyệt quế ôm chặt ảnh đại diện
+                // Nguyệt quế ôm ảnh đại diện thay vì số
                 let avatarBorder = p.rank === 1 ? '3px solid #fde047' : (p.rank === 2 ? '2.5px solid #e2e8f0' : '2.5px solid #fb923c');
                 let avatarShadow = p.rank === 1 ? '0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff' : 'none';
                 let avatarSize = p.rank === 1 ? 92 : 76;
-                let wingOffset = p.rank === 1 ? 38 : 30;
+                let wingOffset = p.rank === 1 ? 40 : 32; // Đẩy cánh nguyệt quế ra sát viền ảnh
 
                 return `
                     <div class="arena-podium-col rank-${p.rank}">
@@ -11701,12 +11701,12 @@ window.fetchLeaderboard = async function(orderByField) {
                             <div style="position:absolute; top:-35px; z-index: 15;">${crownSvg}</div>
                             
                             <div style="position:relative; display:flex; align-items:center; justify-content:center; margin-top: 8px;">
-                                <!-- Cánh nguyệt quế trái -->
+                                <!-- Nguyệt quế trái -->
                                 <div style="position:absolute; left:-${wingOffset}px; z-index:12;">${rankWreath.left}</div>
                                 
                                 <img src="${m.photo}" style="width: ${avatarSize}px; height: ${avatarSize}px; border-radius:50%; object-fit:cover; border: ${avatarBorder}; box-shadow: ${avatarShadow}; position:relative; z-index:10; background: #1e293b;">
                                 
-                                <!-- Cánh nguyệt quế phải -->
+                                <!-- Nguyệt quế phải -->
                                 <div style="position:absolute; right:-${wingOffset}px; z-index:12;">${rankWreath.right}</div>
                                 
                                 <span style="position:absolute; bottom:2px; right:2px; width:14px; height:14px; border-radius:50%; background:${dotCol}; border:2px solid #090d1a; z-index:15;"></span>
@@ -11714,14 +11714,15 @@ window.fetchLeaderboard = async function(orderByField) {
                         </div>
                         
                         <div class="arena-pedestal">
-                            <!-- TRẢ LẠI ( 1 ), ( 2 ), ( 3 ) TRÊN BỤC ĐÁ MÀ KHÔNG CÓ NGOẶC NHỌN -->
-                            <div class="arena-rank-num" style="font-size: 1.8rem; font-weight: 900; margin-bottom: 6px; color: ${p.rCol}; text-shadow: 0 0 12px ${p.rCol}60;">( ${p.rank} )</div>
+                            <div class="arena-pedestal-bg"></div>
+                            <!-- SỐ THỨ TỰ UY QUYỀN (Không còn ngoặc đơn) -->
+                            <div class="arena-rank-num" style="color: ${p.rCol}; text-shadow: 0 0 16px ${p.rCol}60;">${p.rank}</div>
                             <div class="arena-podium-name" title="${m.name}">${m.name}</div>
                             <div class="arena-podium-score">${mainMetric}</div>
                             <div class="arena-streak-pill">${subMetric}</div>
                             
-                            <!-- NHÃN PHẦN THƯỞNG ĐƯỢC PHỤC HỒI RỰC RỠ -->
-                            <div style="margin-top: 10px; font-size: 0.72rem; color: #fff; font-weight: 800; background: ${p.rCol}25; padding: 4px 10px; border-radius: 8px; border: 1px solid ${p.rCol}60; box-shadow: 0 4px 15px ${p.rCol}40; letter-spacing: 0.5px; z-index: 3;">
+                            <!-- THẺ TIỀN THƯỞNG: NẰM LƠ LỬNG BÊN DƯỚI -->
+                            <div class="arena-reward-tag" style="background: ${p.bg}; border: 1px solid ${p.rCol}80;">
                                 <i class="fa-solid fa-gift" style="color: ${p.rCol}; margin-right: 4px;"></i>${p.reward}
                             </div>
                         </div>
@@ -11746,7 +11747,7 @@ window.fetchLeaderboard = async function(orderByField) {
                 </div>
             `;
             allMembersToDisplay.forEach((m, idx) => {
-                const rank = idx + 1; // Tính luôn từ Hạng 1
+                const rank = idx + 1;
                 const isMe = m.id === USER_DOC_ID;
                 const isFocusing = m.currentStatus === 'focusing';
                 const dotCol = isFocusing ? '#ef4444' : '#10b981';
@@ -11754,7 +11755,6 @@ window.fetchLeaderboard = async function(orderByField) {
                 const trendHtml = idx % 3 === 1 ? `<span style="color:#10b981; font-size:0.72rem; font-weight:800;">▲ 1</span>` : (idx % 3 === 2 ? `<span style="color:#ef4444; font-size:0.72rem; font-weight:800;">▼ 1</span>` : `<span style="color:#64748b;">—</span>`);
                 const safeName = m.name.replace(/'/g, "\\'");
 
-                // Gắn vương miện nhỏ và tạo màu riêng cho Top 3 trong list
                 let rankDisplay = `<span style="font-weight:900; color:#94a3b8; font-size:0.9rem;">${rank}</span>`;
                 if (rank === 1) rankDisplay = `<span style="font-weight:900; color:#fde047; font-size:1.1rem; text-shadow:0 0 10px #fde04780;"><i class="fa-solid fa-crown"></i> 1</span>`;
                 else if (rank === 2) rankDisplay = `<span style="font-weight:900; color:#e2e8f0; font-size:1rem;"><i class="fa-solid fa-crown"></i> 2</span>`;
@@ -11837,62 +11837,4 @@ window.fetchLeaderboard = async function(orderByField) {
         console.error(e);
         listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
     }
-};
-
-// ---------------------------------------------------------------------------------
-// THUẬT TOÁN TRAO THƯỞNG HOÀNG GIA ĐẦU TUẦN
-// ---------------------------------------------------------------------------------
-const prevCheckCycleForRewards = window.checkCycleAndStreak;
-window.checkCycleAndStreak = async function() {
-    let currentMon = (typeof getGlobalMonday === 'function') ? getGlobalMonday(new Date()) : "2026-10-12";
-    let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
-
-    if (lastTaxCheckedMon !== currentMon && lastTaxCheckedMon !== "") {
-        try {
-            console.log("🏆 Đang tổng kết Bảng Vàng để trao thưởng Top 3 tuần cũ...");
-            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-            
-            const snapshot = await db.collection("academic_apex").get();
-            let members = [];
-            snapshot.forEach((doc) => {
-                let data = doc.data() || {};
-                let calcWeekHrs = 0;
-                if (data.dailyLogs) {
-                    let parts = lastTaxCheckedMon.split('-');
-                    for (let i = 0; i < 7; i++) {
-                        let d = new Date(parts[0], parts[1] - 1, parts[2]);
-                        d.setDate(d.getDate() + i);
-                        let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                        calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
-                    }
-                } else if (typeof data.weeklyHours === 'number') {
-                    calcWeekHrs = data.weeklyHours;
-                }
-                
-                if (doc.id === USER_DOC_ID) calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
-                members.push({ id: doc.id, weeklyHours: calcWeekHrs });
-            });
-
-            members.sort((a, b) => b.weeklyHours - a.weeklyHours);
-            
-            const myRankIndex = members.findIndex(m => m.id === USER_DOC_ID);
-            if (myRankIndex === 0) {
-                localStorage.setItem("usdBalance", usd + 1000);
-                let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
-                localStorage.setItem('saasFreezes', shields + 1);
-                alert("🏆 QUÁN QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$1,000 USD và +1 Khiên bảo vệ vào tài khoản!");
-            } else if (myRankIndex === 1) {
-                localStorage.setItem("usdBalance", usd + 500);
-                alert("🥈 Á QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$500 USD vào tài khoản!");
-            } else if (myRankIndex === 2) {
-                localStorage.setItem("usdBalance", usd + 300);
-                alert("🥉 QUÝ QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$300 USD vào tài khoản!");
-            }
-            if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
-        } catch(e) {
-            console.error("Lỗi trao thưởng tuần:", e);
-        }
-    }
-    
-    if (typeof prevCheckCycleForRewards === 'function') prevCheckCycleForRewards();
 };
