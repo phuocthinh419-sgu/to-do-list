@@ -4880,171 +4880,84 @@ function injectArenaLeaderboardCSS() {
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
         @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
         
-        #leaderboard-modal { display: none; position: fixed; inset: 0; background: rgba(4, 6, 14, 0.86); z-index: 10002; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
-        .arena-modal-box { width: 100%; max-width: 940px; border-radius: 22px; background: #090d1a; border: 1px solid rgba(168, 85, 247, 0.42); box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9); overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; max-height: 94vh; animation: arenaPopIn 0.4s ease-out both; }
+        #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
         
-        .arena-hero-section { position: relative; padding: 24px 28px 0 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; }
+        /* Chuyển thành Full Màn Hình tuyệt đối */
+        .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
         
-        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
-        .arena-title-group { display: flex; align-items: center; gap: 14px; }
-        .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
-        .arena-main-title { margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
-        .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; }
-        .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
-        .arena-close-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .arena-hero-section { position: relative; padding: 40px 50px 0 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; flex-shrink: 0; }
+        
+        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; }
+        .arena-title-group { display: flex; align-items: center; gap: 18px; }
+        .arena-emblem-wrap { width: 72px; height: 72px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
+        .arena-main-title { margin: 0; font-size: 2rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
+        .arena-sub-title { font-size: 0.9rem; color: #cbd5e1; font-weight: 500; }
+        .arena-quote-right { margin-left: auto; text-align: right; max-width: 300px; font-size: 0.85rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
+        .arena-close-btn { width: 44px; height: 44px; border-radius: 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .arena-close-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
-        .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 3px; gap: 4px; position: relative; z-index: 4; }
-        .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
+        .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 4px; gap: 6px; position: relative; z-index: 4; }
+        .arena-tab-btn { padding: 10px 24px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; }
 
-        /* Cờ hiệu 2 bên */
-        .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; border-radius: 6px 6px 0 0; }
-        .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; }
+        .arena-side-flag-container { position: absolute; bottom: 12px; width: 100px; height: 180px; z-index: 2; border-radius: 6px 6px 0 0; }
+        .arena-side-flag-container.left { left: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag-container.right { right: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* BỤC ĐÁ VÀ AVATAR CHUẨN XÁC */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 16px; margin-top: 40px; position: relative; z-index: 3; }
-        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 200px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; }
+        /* BỤC ĐÁ NỚI RỘNG KHOẢNG CÁCH */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 50px; position: relative; z-index: 3; }
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
-        .arena-podium-col.rank-1 { width: 240px; z-index: 4; animation-delay: 0.3s; }
+        .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        /* Tuyệt chiêu kéo Avatar cưỡi lên bục đá */
         .arena-avatar-wrap { position: relative; margin-bottom: -45px; z-index: 5; display: flex; flex-direction: column; align-items: center; }
-        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; }
-        .arena-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
-        .arena-podium-col.rank-1 .arena-avatar-img { width: 90px; height: 90px; border: 3px solid #fde047; box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
+        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; transform: scale(1.1); }
+        .arena-avatar-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
+        .arena-podium-col.rank-1 .arena-avatar-img { width: 100px; height: 100px; border: 3px solid #fde047; box-shadow: 0 0 25px rgba(251, 191, 36, 0.6); }
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; }
 
-        /* Bục đá kiên cố 100% hiển thị */
         .arena-pedestal { 
             width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 55px 8px 15px 8px; /* Khoảng trống 55px nhường chỗ cho Avatar */
+            padding: 55px 12px 20px 12px; 
             box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2; overflow: hidden;
         }
         
-        .arena-podium-col.rank-1 .arena-pedestal { height: 220px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
-        .arena-podium-col.rank-2 .arena-pedestal { height: 180px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
-        .arena-podium-col.rank-3 .arena-pedestal { height: 150px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
+        .arena-podium-col.rank-1 .arena-pedestal { height: 230px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
+        .arena-podium-col.rank-2 .arena-pedestal { height: 190px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
+        .arena-podium-col.rank-3 .arena-pedestal { height: 160px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
 
-        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; }
-        .arena-rank-num { font-size: 1.7rem; font-weight: 900; line-height: 1; }
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 4px; }
+        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; }
         .rank-3 .arena-rank-num { color: #fdba74; }
 
-        .arena-podium-name { font-size: 0.86rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; width: 90%; }
-        .arena-podium-score { font-size: 1.35rem; font-weight: 900; margin-bottom: auto; }
-        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.6rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
+        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; width: 95%; }
+        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; }
+        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.7rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.7rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; }
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; }
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        .arena-list-section { padding: 12px 24px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
-        .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 42px 1.8fr 1fr 1fr 65px 115px; align-items: center; gap: 10px; padding: 9px 14px; }
-        .arena-table-head { font-size: 0.7rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px; }
-        .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; margin-bottom: 6px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
+        .arena-list-section { padding: 20px 40px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
+        .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 50px 2fr 1.2fr 1.2fr 80px 140px; align-items: center; gap: 14px; padding: 12px 20px; }
+        .arena-table-head { font-size: 0.8rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 8px; }
+        .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; margin-bottom: 8px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
         .arena-table-row:hover { border-color: rgba(168, 85, 247, 0.42); background: rgba(26, 34, 58, 0.9); }
-        .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
 
-        .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+        .arena-my-Sticky-bar { margin: 0 40px 24px 40px; padding: 16px 24px; border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
     `;
     document.head.appendChild(st);
 }
-
-window.openLeaderboard = function() {
-    injectArenaLeaderboardCSS();
-    let modal = document.getElementById('leaderboard-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'leaderboard-modal';
-        document.body.appendChild(modal);
-    }
-
-    const headerWreath = getLaurelPairSVG('#fbbf24', 26);
-
-    modal.innerHTML = `
-        <div class="arena-modal-box">
-            <div class="arena-hero-section">
-                <!-- LÁ CỜ BÊN TRÁI: DÙNG ẢNH ICON APP THE APEX KÈM TIA SÁNG -->
-                <div class="arena-side-flag-container left">
-                    <div class="arena-side-flag">
-                        <div class="arena-sweep-light"></div>
-                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <!-- NGÀI THAY "TÊN_FILE_ẢNH_CỦA_NGÀI.jpg" BẰNG ẢNH CỦA NGÀI Ở ĐÂY NHÉ -->
-                            <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
-                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
-                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LÁ CỜ BÊN PHẢI: DÙNG ẢNH ICON APP THE APEX KÈM TIA SÁNG -->
-                <div class="arena-side-flag-container right">
-                    <div class="arena-side-flag">
-                        <div class="arena-sweep-light"></div>
-                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <!-- NGÀI THAY "TÊN_FILE_ẢNH_CỦA_NGÀI.jpg" BẰNG ẢNH CỦA NGÀI Ở ĐÂY NHÉ -->
-                            <img src="icon.png.png" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;" alt="The Apex">
-                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
-                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="arena-top-bar">
-                    <div class="arena-title-group">
-                        <div class="arena-emblem-wrap">
-                            ${headerWreath.left}
-                            <div style="display:flex; flex-direction:column; align-items:center; margin:0 -4px; z-index:2;">
-                                <i class="fa-solid fa-star" style="font-size:0.55rem; color:#fef08a; margin-bottom:2px;"></i>
-                                <i class="fa-solid fa-trophy" style="font-size:1.45rem; color:#fbbf24;"></i>
-                            </div>
-                            ${headerWreath.right}
-                        </div>
-                        <div>
-                            <h2 class="arena-main-title">ĐẤU TRƯỜNG KỶ LUẬT</h2>
-                            <div class="arena-sub-title">Bảng xếp hạng cộng đồng</div>
-                        </div>
-                    </div>
-                    <div class="arena-quote-right">
-                        “Lượng hóa nỗ lực,<br>định hình tương lai.”<br>
-                        <span style="font-size:0.62rem; color:#94a3b8; font-style:normal; font-weight:800;">— ACADEMIC APEX</span>
-                    </div>
-                    <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-               <div style="display: flex; justify-content: center; width: 100%; position: relative; z-index: 10; margin-bottom: 24px; margin-top: -10px;">
-    <div class="arena-tabs-wrap">
-        <button id="tab-lb-hours" class="arena-tab-btn active" onclick="fetchLeaderboard('weeklyHours')">
-            <i class="fa-regular fa-clock"></i> Top Giờ Học (Tuần)
-        </button>
-        <button id="tab-lb-streak" class="arena-tab-btn" onclick="fetchLeaderboard('streak')">
-            <i class="fa-solid fa-fire"></i> Top Chuỗi
-        </button>
-    </div>
-</div>
-                <div id="arena-podium-container" class="arena-podium-stage"></div>
-            </div>
-
-            <div id="leaderboard-content" class="arena-list-section"></div>
-            <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
-        </div>
-    `;
-
-    modal.style.display = 'flex';
-    if (typeof syncToCloud === 'function') syncToCloud();
-    fetchLeaderboard('weeklyHours');
-};
 
 window.fetchLeaderboard = async function(orderByField) {
     const podiumBox = document.getElementById('arena-podium-container');
