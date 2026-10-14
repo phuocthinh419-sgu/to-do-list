@@ -11334,8 +11334,48 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI PHÁP PHỤC DỰNG ĐẤU TRƯỜNG V5 (NGÔN TỪ TRUNG LẬP + BẢNG ẨN 1-30)
+// ĐẠI KIẾN TRÚC ĐẤU TRƯỜNG KỶ LUẬT (BẢN CHUẨN THIẾT KẾ VÀNG)
+// - Nguyệt quế ôm Avatar | Có tiền thưởng | Có tia sáng và chữ lấp lánh
+// - Bảng tổng 1-30 ẩn trượt lên | Giữ lại thuật toán phát thưởng thứ 2
 // =====================================================================
+
+window.getLaurelPairSVG = function(color, size = 26) {
+    return {
+        left: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        </svg>`,
+        right: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        </svg>`
+    };
+};
+
+window.getRoyalCrownSVG = function(c1, c2, size = 34) {
+    let uid = Math.random().toString(36).substring(2, 7);
+    return `<svg width="${size}" height="${Math.round(size * 0.78)}" viewBox="0 0 44 34" fill="none" class="arena-crown-svg" style="flex-shrink:0;">
+        <defs>
+            <linearGradient id="crG_${uid}" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="${c1}"/>
+                <stop offset="100%" stop-color="${c2}"/>
+            </linearGradient>
+        </defs>
+        <path d="M5 26 L2 10 L13 17 L22 4 L31 17 L42 10 L39 26 Z" fill="url(#crG_${uid})" stroke="${c1}" stroke-width="1.3" stroke-linejoin="round"/>
+        <rect x="5" y="28" width="34" height="4" rx="2" fill="url(#crG_${uid})"/>
+        <circle cx="22" cy="3" r="2.3" fill="#ffffff"/>
+        <circle cx="2" cy="9" r="1.8" fill="${c1}"/>
+        <circle cx="42" cy="9" r="1.8" fill="${c1}"/>
+    </svg>`;
+};
 
 window.injectArenaLeaderboardCSS = function() {
     let old = document.getElementById('apex-arena-lb-css');
@@ -11348,18 +11388,23 @@ window.injectArenaLeaderboardCSS = function() {
         @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
+        @keyframes arenaTextShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
         @keyframes slideUpPanel { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
         @keyframes fadeOverlay { 0% { opacity: 0; } 100% { opacity: 1; } }
         
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: rgba(4, 6, 14, 0.86); z-index: 10002; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100%; max-width: 960px; height: 94vh; border-radius: 22px; background: #090d1a; border: 1px solid rgba(168, 85, 247, 0.42); box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22); overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
         
+        /* HERO SECTION CHỨA BỤC ĐÁ */
         .arena-hero-section { position: relative; padding: 24px 28px 24px 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; flex-shrink: 0; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
-        .arena-main-title { margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
+        
+        /* TEXT GRADIENT & LẤP LÁNH CHO ĐẤU TRƯỜNG KỶ LUẬT */
+        .arena-main-title { margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); animation: arenaTextShimmer 4s linear infinite; }
         .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; }
         .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
         .arena-close-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -11369,24 +11414,32 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
+        /* CỜ HIỆU ĐƯỢC CHỈNH TỌA ĐỘ BÁM ĐÁY */
         .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; overflow: hidden;}
+        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; overflow: hidden; }
+        
+        /* TIA SÁNG LƯỚT QUÉT QUA CỜ & BỤC ĐÁ */
         .arena-sweep-light { position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 3; animation: arenaSweepLight 5s infinite; }
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 20px; position: relative; z-index: 3; flex-shrink: 0; }
+        /* BỤC ĐÁ CÂN ĐỐI TỶ LỆ VÀNG */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 10px; position: relative; z-index: 3; flex-shrink: 0; }
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
-        .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
+        .arena-podium-col.rank-1 { width: 245px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        .arena-avatar-wrap { position: relative; margin-bottom: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
-        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; }
+        .arena-crown-svg { margin-bottom: -10px; z-index: 15; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; position: relative; }
 
-        .arena-pedestal { width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 16px 8px 10px 8px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; overflow: hidden; flex-shrink: 0; }
+        .arena-pedestal { 
+            width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 16px 8px 10px 8px; 
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; overflow: hidden; flex-shrink: 0;
+        }
         .arena-pedestal::after { content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite; }
         .arena-podium-col.rank-1 .arena-pedestal { height: 185px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; }
         .arena-podium-col.rank-1 .arena-pedestal::after { animation-delay: 0.5s; }
@@ -11395,6 +11448,7 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-podium-col.rank-3 .arena-pedestal { height: 130px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
         .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; }
 
+        /* SỬA SỐ HẠNG CHỈ CÓ DẤU NGOẶC TRÒN */
         .arena-rank-num { font-size: 1.7rem; font-weight: 900; line-height: 1; margin-bottom: 4px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
         .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
@@ -11409,14 +11463,15 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* NÚT MỞ RỘNG DANH SÁCH */
+        /* NÚT MỞ BẢNG XẾP HẠNG TỔNG */
         .arena-expand-btn-wrap { text-align: center; margin-top: auto; padding-top: 10px; z-index: 10; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 10px 28px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
         .arena-expand-btn:hover { background: #a855f7; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); transform: translateY(-2px); }
 
+        /* THANH GHI NHẬN HẠNG CÁ NHÂN Ở DƯỚI CÙNG */
         .arena-my-Sticky-bar { margin: 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; flex-shrink: 0;}
         
-        /* OVERLAY VÀ TAB PHỤ (BẢNG XẾP HẠNG 1-30) */
+        /* BẢNG XẾP HẠNG ẨN TRƯỢT TỪ DƯỚI LÊN */
         #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; pointer-events: auto;}
         #arena-full-list-panel { position: absolute; bottom: 0; left: 0; right: 0; height: 85vh; background: #0b0f19; border-radius: 28px 28px 0 0; border-top: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 -20px 60px rgba(0,0,0,0.8); z-index: 101; display: flex; flex-direction: column; animation: slideUpPanel 0.4s cubic-bezier(0.2, 1, 0.3, 1) both; }
         
@@ -11451,12 +11506,12 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
-                <!-- CỜ TRÁI -->
+                <!-- CỜ TRÁI: Dùng Icon.png.png, tự động hiện chữ A lấp lánh nếu file ảnh bị lỗi -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
                         <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <img src="icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <img src="Icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <div style="display:none; font-size: 36px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: 'Inter', sans-serif;">A</div>
                             <div style="width:20px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
                             <div style="font-size:0.42rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
@@ -11469,7 +11524,7 @@ window.openLeaderboard = function() {
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
                         <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <img src="icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <img src="Icon.png.png" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(168,85,247,0.6)); margin-bottom: 4px;" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <div style="display:none; font-size: 36px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: 'Inter', sans-serif;">A</div>
                             <div style="width:20px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
                             <div style="font-size:0.42rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
@@ -11513,7 +11568,7 @@ window.openLeaderboard = function() {
                 <!-- BỤC ĐÁ TOP 3 -->
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
 
-                <!-- NÚT MỞ BẢNG TỔNG QUAN 1-30 -->
+                <!-- NÚT MỞ BẢNG TỔNG QUAN -->
                 <div class="arena-expand-btn-wrap">
                     <button class="arena-expand-btn" onclick="document.getElementById('arena-full-list-overlay').style.display='block';">
                         <i class="fa-solid fa-list-ol"></i> Mở Bảng Xếp Hạng Tổng (1 - 30) <i class="fa-solid fa-chevron-up"></i>
@@ -11521,7 +11576,7 @@ window.openLeaderboard = function() {
                 </div>
             </div>
 
-            <!-- THANH THÔNG TIN CÁ NHÂN GẮN ĐÁY -->
+            <!-- THANH THÔNG TIN BẢN THÂN GẮN ĐÁY -->
             <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
 
             <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
@@ -11553,7 +11608,7 @@ window.fetchLeaderboard = async function(orderByField) {
     if (btnHours) btnHours.classList.toggle('active', orderByField === 'weeklyHours');
     if (btnStreak) btnStreak.classList.toggle('active', orderByField === 'streak');
 
-    listBox.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 30px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.6rem; color:#a855f7; margin-bottom:8px;"></i><br>Đang tải dữ liệu...</div>';
+    listBox.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; color:#a855f7; margin-bottom:12px;"></i><br>Đang tải dữ liệu...</div>';
 
     try {
         const snapshot = await db.collection("academic_apex").get();
@@ -11600,7 +11655,8 @@ window.fetchLeaderboard = async function(orderByField) {
             { id: "bot_1", name: "Mark Zuckerberg", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mark", weeklyHours: 3.5, streak: 8, currentStatus: 'focusing', isBot: true },
             { id: "bot_2", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elon", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
             { id: "bot_3", name: "Donald Trump", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Trump", weeklyHours: 1.5, streak: 3, currentStatus: 'focusing', isBot: true },
-            { id: "bot_4", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kim", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true }
+            { id: "bot_4", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kim", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true },
+            { id: "bot_5", name: "John Nguyen", photo: "https://ui-avatars.com/api/?name=J+N&background=0ea5e9&color=fff", weeklyHours: 0.0, streak: 0, currentStatus: 'online', isBot: true }
         ];
         members = members.concat(aiBots);
 
@@ -11609,6 +11665,7 @@ window.fetchLeaderboard = async function(orderByField) {
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
         });
 
+        // VẼ TOP 3 TRÊN MÀN HÌNH CHÍNH
         const top1 = members[0] || null;
         const top2 = members[1] || null;
         const top3 = members[2] || null;
@@ -11620,7 +11677,6 @@ window.fetchLeaderboard = async function(orderByField) {
             { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 36, crownSz: 32, reward: '+$300', rCol: '#f97316' }
         ];
 
-        // VẼ TOP 3 (HIỂN THỊ TẠI MÀN HÌNH CHÍNH)
         if (podiumBox) {
             podiumBox.innerHTML = podiumOrder.map(p => {
                 if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">( ${p.rank} )</div><div class="arena-podium-name">Trống</div></div></div>`;
@@ -11633,7 +11689,7 @@ window.fetchLeaderboard = async function(orderByField) {
                 const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
                 const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
 
-                // KIẾN TRÚC MỚI: Nguyệt quế ôm sát ảnh đại diện
+                // KIẾN TRÚC MỚI CHÍNH XÁC: Nguyệt quế ôm chặt ảnh đại diện
                 let avatarBorder = p.rank === 1 ? '3px solid #fde047' : (p.rank === 2 ? '2.5px solid #e2e8f0' : '2.5px solid #fb923c');
                 let avatarShadow = p.rank === 1 ? '0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff' : 'none';
                 let avatarSize = p.rank === 1 ? 92 : 76;
@@ -11645,12 +11701,12 @@ window.fetchLeaderboard = async function(orderByField) {
                             <div style="position:absolute; top:-35px; z-index: 15;">${crownSvg}</div>
                             
                             <div style="position:relative; display:flex; align-items:center; justify-content:center; margin-top: 8px;">
-                                <!-- Cánh nguyệt quế trái ôm sát -->
+                                <!-- Cánh nguyệt quế trái -->
                                 <div style="position:absolute; left:-${wingOffset}px; z-index:12;">${rankWreath.left}</div>
                                 
                                 <img src="${m.photo}" style="width: ${avatarSize}px; height: ${avatarSize}px; border-radius:50%; object-fit:cover; border: ${avatarBorder}; box-shadow: ${avatarShadow}; position:relative; z-index:10; background: #1e293b;">
                                 
-                                <!-- Cánh nguyệt quế phải ôm sát -->
+                                <!-- Cánh nguyệt quế phải -->
                                 <div style="position:absolute; right:-${wingOffset}px; z-index:12;">${rankWreath.right}</div>
                                 
                                 <span style="position:absolute; bottom:2px; right:2px; width:14px; height:14px; border-radius:50%; background:${dotCol}; border:2px solid #090d1a; z-index:15;"></span>
@@ -11658,13 +11714,13 @@ window.fetchLeaderboard = async function(orderByField) {
                         </div>
                         
                         <div class="arena-pedestal">
-                            <!-- CHỈ CÒN ĐÚNG SỐ ( 1 ), ( 2 ), ( 3 ) TRÊN BỤC ĐÁ -->
+                            <!-- TRẢ LẠI ( 1 ), ( 2 ), ( 3 ) TRÊN BỤC ĐÁ MÀ KHÔNG CÓ NGOẶC NHỌN -->
                             <div class="arena-rank-num" style="font-size: 1.8rem; font-weight: 900; margin-bottom: 6px; color: ${p.rCol}; text-shadow: 0 0 12px ${p.rCol}60;">( ${p.rank} )</div>
                             <div class="arena-podium-name" title="${m.name}">${m.name}</div>
                             <div class="arena-podium-score">${mainMetric}</div>
                             <div class="arena-streak-pill">${subMetric}</div>
                             
-                            <!-- NHÃN PHẦN THƯỞNG ĐÃ ĐƯỢC PHỤC HỒI -->
+                            <!-- NHÃN PHẦN THƯỞNG ĐƯỢC PHỤC HỒI RỰC RỠ -->
                             <div style="margin-top: 10px; font-size: 0.72rem; color: #fff; font-weight: 800; background: ${p.rCol}25; padding: 4px 10px; border-radius: 8px; border: 1px solid ${p.rCol}60; box-shadow: 0 4px 15px ${p.rCol}40; letter-spacing: 0.5px; z-index: 3;">
                                 <i class="fa-solid fa-gift" style="color: ${p.rCol}; margin-right: 4px;"></i>${p.reward}
                             </div>
@@ -11674,7 +11730,7 @@ window.fetchLeaderboard = async function(orderByField) {
             }).join('');
         }
 
-        // VẼ DANH SÁCH XẾP HẠNG ẨN TRONG PANEL (HIỂN THỊ ĐẦY ĐỦ TỪ HẠNG 1 TỚI 30)
+        // VẼ DANH SÁCH ẨN TRONG PANEL (TỪ HẠNG 1 ĐẾN 30)
         const allMembersToDisplay = members.slice(0, 30);
         if (allMembersToDisplay.length === 0) {
             listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Không có dữ liệu!</div>`;
@@ -11690,7 +11746,7 @@ window.fetchLeaderboard = async function(orderByField) {
                 </div>
             `;
             allMembersToDisplay.forEach((m, idx) => {
-                const rank = idx + 1; // Bắt đầu từ 1 đến 30
+                const rank = idx + 1; // Tính luôn từ Hạng 1
                 const isMe = m.id === USER_DOC_ID;
                 const isFocusing = m.currentStatus === 'focusing';
                 const dotCol = isFocusing ? '#ef4444' : '#10b981';
@@ -11698,6 +11754,7 @@ window.fetchLeaderboard = async function(orderByField) {
                 const trendHtml = idx % 3 === 1 ? `<span style="color:#10b981; font-size:0.72rem; font-weight:800;">▲ 1</span>` : (idx % 3 === 2 ? `<span style="color:#ef4444; font-size:0.72rem; font-weight:800;">▼ 1</span>` : `<span style="color:#64748b;">—</span>`);
                 const safeName = m.name.replace(/'/g, "\\'");
 
+                // Gắn vương miện nhỏ và tạo màu riêng cho Top 3 trong list
                 let rankDisplay = `<span style="font-weight:900; color:#94a3b8; font-size:0.9rem;">${rank}</span>`;
                 if (rank === 1) rankDisplay = `<span style="font-weight:900; color:#fde047; font-size:1.1rem; text-shadow:0 0 10px #fde04780;"><i class="fa-solid fa-crown"></i> 1</span>`;
                 else if (rank === 2) rankDisplay = `<span style="font-weight:900; color:#e2e8f0; font-size:1rem;"><i class="fa-solid fa-crown"></i> 2</span>`;
@@ -11727,11 +11784,10 @@ window.fetchLeaderboard = async function(orderByField) {
             listBox.innerHTML = tableHtml;
         }
 
-        // VẼ THANH THÔNG TIN BẢN THÂN DƯỚI ĐÁY
         if (myBarBox) {
             const myIndex = members.findIndex(x => x.id === USER_DOC_ID);
             const me = myIndex !== -1 ? members[myIndex] : {
-                name: currentUser?.displayName || "Người Dùng",
+                name: currentUser?.displayName || "Học giả",
                 photo: currentUser?.photoURL || "https://via.placeholder.com/44",
                 weeklyHours: typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0,
                 streak: typeof currentStreak !== 'undefined' ? currentStreak : 0
@@ -11784,7 +11840,7 @@ window.fetchLeaderboard = async function(orderByField) {
 };
 
 // ---------------------------------------------------------------------------------
-// KIỂM SOÁT VÀ TRAO THƯỞNG HOÀNG GIA ĐẦU TUẦN
+// THUẬT TOÁN TRAO THƯỞNG HOÀNG GIA ĐẦU TUẦN
 // ---------------------------------------------------------------------------------
 const prevCheckCycleForRewards = window.checkCycleAndStreak;
 window.checkCycleAndStreak = async function() {
