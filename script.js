@@ -4868,7 +4868,7 @@ function injectArenaLeaderboardCSS() {
             backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif;
         }
 
-        /* 🟢 ĐÃ NÂNG CẤP FULL SCREEN */
+        /* 🟢 KHUNG TOÀN MÀN HÌNH (FULL SCREEN) */
         .arena-modal-box {
             width: 98%; max-width: 1200px;
             height: 96vh; max-height: 96vh;
@@ -4946,12 +4946,12 @@ function injectArenaLeaderboardCSS() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 8px 24px rgba(148, 163, 184, 0.7); }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.65); }
 
+        /* 🟢 ĐÃ CĂN CHỈNH PADDING ĐỂ CHỮ NỔI BẬT LÊN */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
             overflow: hidden; 
             display: flex; flex-direction: column; justify-content: flex-start; align-items: center; 
-            /* 🟢 ĐÃ SỬA: Tăng padding dưới, giảm padding trên để chữ nổi bật lên */
             padding: 12px 8px 16px 8px; 
         }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
@@ -4961,7 +4961,7 @@ function injectArenaLeaderboardCSS() {
             transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite;
         }
 
-        /* 🟢 ĐÃ SỬA: Tăng chiều cao các bục đá thêm 10px-20px */
+        /* 🟢 ĐÃ TĂNG CHIỀU CAO CÁC BỤC ĐÁ */
         .arena-podium-col.rank-1 .arena-pedestal { 
             height: 185px; 
             background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
@@ -5018,13 +5018,41 @@ function injectArenaLeaderboardCSS() {
 
         .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; flex-shrink: 0; }
         
+        /* 🟢 QUY TẮC HIỂN THỊ DÀNH RIÊNG CHO ĐIỆN THOẠI */
         @media (max-width: 768px) { 
+            .arena-modal-box { width: 96%; height: 92vh; max-height: 92vh; }
             .arena-quote-right, .arena-side-flag-container { display: none !important; } 
-            .arena-podium-stage { gap: 8px; } 
-            .arena-podium-col, .arena-podium-col.rank-1 { width: 32%; } 
+            .arena-hero-section { padding: 16px 12px 10px 12px; }
+            .arena-main-title { font-size: 1.3rem; }
+            .arena-top-bar { margin-bottom: 8px; }
+            
+            .arena-podium-stage { gap: 4px; padding-top: 15px; } 
+            .arena-podium-col { width: 32% !important; } 
+            .arena-podium-col.rank-1 { width: 36% !important; }
+            .arena-podium-col.rank-1 .arena-pedestal { height: 135px; padding-top: 8px; }
+            .arena-podium-col.rank-2 .arena-pedestal { height: 110px; padding-top: 8px; }
+            .arena-podium-col.rank-3 .arena-pedestal { height: 95px; padding-top: 8px; }
+            
+            .arena-avatar-img { width: 46px; height: 46px; }
+            .arena-podium-col.rank-1 .arena-avatar-img { width: 56px; height: 56px; border-width: 2px; }
+            .arena-crown-svg { transform: scale(0.65); margin-bottom: -12px; }
+            
+            .arena-rank-num { font-size: 1.2rem; }
+            .rank-1 .arena-rank-num { font-size: 1.4rem; }
+            .arena-podium-name { font-size: 0.65rem; }
+            .arena-podium-score { font-size: 0.9rem; }
+            .rank-1 .arena-podium-score { font-size: 1rem; }
+            .arena-streak-pill { padding: 2px 6px; font-size: 0.6rem; margin-top: 2px; }
+            .arena-laurel-rank svg { width: 14px; height: 18px; }
+
+            .arena-list-section { padding: 10px 12px; }
             .arena-table-head { display: none; } 
-            .arena-table-row { grid-template-columns: 28px 1fr auto auto; } 
+            
             .arena-col-hide-sm { display: none; } 
+            .arena-table-row > div:nth-child(6) { display: none; } 
+            .arena-table-row { grid-template-columns: 24px 1fr auto auto; gap: 8px; padding: 10px 8px; } 
+            
+            .arena-my-Sticky-bar { margin: 0 12px 12px 12px; padding: 10px; justify-content: center; gap: 10px; }
         }
     `;
     document.head.appendChild(st);
