@@ -11334,8 +11334,46 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI KIẾN TRÚC V8: BẢN HOÀN HẢO XÓA BỎ MỌI LỖI ĐÈ CHỮ VÀ CHÍNH TẢ
+// ĐẠI KIẾN TRÚC V8: BẢN HOÀN KIM (SỬA LỖI ĐÈ CHỮ, HIỆN DẤU SẮC, TRẢ NGUYỆT QUẾ)
 // =====================================================================
+
+window.getLaurelPairSVG = function(color, size = 26) {
+    return {
+        left: `<svg width="${size}" height="${size * 1.3}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        </svg>`,
+        right: `<svg width="${size}" height="${size * 1.3}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+        </svg>`
+    };
+};
+
+window.getRoyalCrownSVG = function(c1, c2, size = 34) {
+    let uid = Math.random().toString(36).substring(2, 7);
+    return `<svg width="${size}" height="${Math.round(size * 0.78)}" viewBox="0 0 44 34" fill="none" class="arena-crown-svg" style="flex-shrink:0;">
+        <defs>
+            <linearGradient id="crG_${uid}" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="${c1}"/>
+                <stop offset="100%" stop-color="${c2}"/>
+            </linearGradient>
+        </defs>
+        <path d="M5 26 L2 10 L13 17 L22 4 L31 17 L42 10 L39 26 Z" fill="url(#crG_${uid})" stroke="${c1}" stroke-width="1.3" stroke-linejoin="round"/>
+        <rect x="5" y="28" width="34" height="4" rx="2" fill="url(#crG_${uid})"/>
+        <circle cx="22" cy="3" r="2.3" fill="#ffffff"/>
+        <circle cx="2" cy="9" r="1.8" fill="${c1}"/>
+        <circle cx="42" cy="9" r="1.8" fill="${c1}"/>
+    </svg>`;
+};
 
 window.injectArenaLeaderboardCSS = function() {
     let old = document.getElementById('apex-arena-lb-css');
@@ -11356,13 +11394,16 @@ window.injectArenaLeaderboardCSS = function() {
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: rgba(4, 6, 14, 0.86); z-index: 10002; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100%; max-width: 960px; height: 94vh; border-radius: 22px; background: #090d1a; border: 1px solid rgba(168, 85, 247, 0.42); box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22); overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
         
-        .arena-hero-section { position: relative; padding: 24px 28px 24px 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        /* FIX CẮT CHỮ $500: Tăng padding-bottom lên 50px để chừa chỗ cho thẻ tiền thưởng */
+        .arena-hero-section { position: relative; padding: 24px 28px 50px 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; flex-shrink: 0; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
         
-        .arena-main-title { margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); animation: arenaTextShimmer 4s linear infinite; }
+        /* FIX MẤT DẤU SẮC CHỮ "Ấ": Thêm padding-top và line-height */
+        .arena-main-title { margin: 0; padding-top: 5px; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.2; background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); animation: arenaTextShimmer 4s linear infinite; }
+        
         .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; }
         .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
         .arena-close-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -11380,8 +11421,7 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* NỚI RỘNG MARGIN-BOTTOM ĐỂ CÓ CHỖ CHO THẺ TIỀN THƯỞNG LƠ LỬNG */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 45px; position: relative; z-index: 3; flex-shrink: 0; }
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: auto; margin-bottom: 25px; position: relative; z-index: 3; flex-shrink: 0; }
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 245px; z-index: 4; animation-delay: 0.3s; }
@@ -11389,11 +11429,11 @@ window.injectArenaLeaderboardCSS = function() {
 
         .arena-crown-svg { margin-bottom: -10px; z-index: 15; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; position: relative; }
 
-        /* BỆ ĐÁ PHẢI ĐỂ OVERFLOW: VISIBLE ĐỂ THẺ TIỀN THƯỞNG RỚT ĐƯỢC RA NGOÀI */
+        /* BỆ ĐÁ VISIBLE ĐỂ THẺ TIỀN THƯỞNG LỌT RA NGOÀI ĐƯỢC */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 16px 8px 10px 8px; 
+            padding: 20px 8px 10px 8px; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; 
             overflow: visible !important; flex-shrink: 0;
         }
@@ -11408,8 +11448,8 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-podium-col.rank-3 .arena-pedestal { height: 130px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
         .arena-podium-col.rank-3 .arena-pedestal-bg::after { animation-delay: 2.5s; }
 
-        .arena-rank-num { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 6px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.8rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        .arena-rank-num { font-size: 2.6rem; font-weight: 900; line-height: 1; margin-bottom: 8px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 3.2rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
@@ -11422,22 +11462,8 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* THẺ TIỀN THƯỞNG: Đẩy hoàn toàn ra khỏi bệ đá (top: 100%) để không bị đè viền */
-        .arena-reward-tag { 
-            position: absolute; 
-            top: 100%; /* Bám vào mép dưới cùng của bệ đá */
-            left: 50%; 
-            transform: translate(-50%, 8px); /* Đẩy lùi xuống thêm 8px cho lơ lửng */
-            font-size: 0.75rem; 
-            color: #fff; 
-            font-weight: 800; 
-            padding: 6px 14px; 
-            border-radius: 8px; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.7); 
-            letter-spacing: 0.5px; 
-            z-index: 20; 
-            white-space: nowrap; 
-        }
+        /* THẺ TIỀN THƯỞNG: NẰM LƠ LỬNG TRÀN XUỐNG DƯỚI ĐÁY BỆ ĐÁ */
+        .arena-reward-tag { position: absolute; top: 100%; left: 50%; transform: translate(-50%, -10px); font-size: 0.75rem; color: #fff; font-weight: 800; padding: 6px 14px; border-radius: 8px; box-shadow: 0 6px 15px rgba(0,0,0,0.7); letter-spacing: 0.5px; z-index: 20; white-space: nowrap; }
 
         .arena-expand-btn-wrap { text-align: center; margin-top: auto; padding-top: 10px; z-index: 10; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 10px 28px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -11508,10 +11534,15 @@ window.openLeaderboard = function() {
                 <div class="arena-top-bar">
                     <div class="arena-title-group">
                         <div class="arena-emblem-wrap">
-                            <i class="fa-solid fa-trophy" style="font-size:1.8rem; color:#fbbf24; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6));"></i>
+                            ${headerWreath.left}
+                            <div style="display:flex; flex-direction:column; align-items:center; margin:0 -4px; z-index:2;">
+                                <i class="fa-solid fa-star" style="font-size:0.55rem; color:#fef08a; margin-bottom:2px;"></i>
+                                <i class="fa-solid fa-trophy" style="font-size:1.45rem; color:#fbbf24;"></i>
+                            </div>
+                            ${headerWreath.right}
                         </div>
                         <div>
-                            <!-- SỬA LỖI CHÍNH TẢ -->
+                            <!-- ĐÃ SỬA CHÍNH TẢ THÀNH ĐẤU -->
                             <h2 class="arena-main-title">ĐẤU TRƯỜNG KỶ LUẬT</h2>
                             <div class="arena-sub-title">Bảng xếp hạng cộng đồng</div>
                         </div>
@@ -11537,6 +11568,7 @@ window.openLeaderboard = function() {
                 <!-- BỤC ĐÁ TOP 3 -->
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
 
+                <!-- NÚT MỞ BẢNG TỔNG QUAN -->
                 <div class="arena-expand-btn-wrap">
                     <button class="arena-expand-btn" onclick="document.getElementById('arena-full-list-overlay').style.display='block';">
                         <i class="fa-solid fa-list-ol"></i> Mở Bảng Xếp Hạng Tổng (1 - 30) <i class="fa-solid fa-chevron-up"></i>
@@ -11544,8 +11576,10 @@ window.openLeaderboard = function() {
                 </div>
             </div>
 
+            <!-- THANH THÔNG TIN BẢN THÂN GẮN ĐÁY -->
             <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
 
+            <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
             <div id="arena-full-list-overlay">
                 <div id="arena-full-list-panel">
                     <div class="arena-panel-header">
@@ -11653,11 +11687,11 @@ window.fetchLeaderboard = async function(orderByField) {
                 const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
                 const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
 
-                // CĂN CHỈNH KHOẢNG CÁCH NGUYỆT QUẾ VỪA KHÍT
+                // KIẾN TRÚC MỚI: Nguyệt quế ôm sát ảnh đại diện
                 let avatarBorder = p.rank === 1 ? '3px solid #fde047' : (p.rank === 2 ? '2.5px solid #e2e8f0' : '2.5px solid #fb923c');
                 let avatarShadow = p.rank === 1 ? '0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff' : 'none';
                 let avatarSize = p.rank === 1 ? 92 : 76;
-                let wingOffset = p.rank === 1 ? 42 : 34; // Kéo nguyệt quế sát vào
+                let wingOffset = p.rank === 1 ? 40 : 33; 
 
                 return `
                     <div class="arena-podium-col rank-${p.rank}">
@@ -11684,7 +11718,7 @@ window.fetchLeaderboard = async function(orderByField) {
                             <div class="arena-podium-score">${mainMetric}</div>
                             <div class="arena-streak-pill">${subMetric}</div>
                             
-                            <!-- THẺ TIỀN THƯỞNG: RỚT XUỐNG DƯỚI ĐÁY BỆ ĐÁ (TOP: 100%) -->
+                            <!-- THẺ TIỀN THƯỞNG: NẰM LƠ LỬNG BÊN DƯỚI -->
                             <div class="arena-reward-tag" style="background: ${p.bg}; border: 1px solid ${p.rCol}80;">
                                 <i class="fa-solid fa-gift" style="color: ${p.rCol}; margin-right: 4px;"></i>${p.reward}
                             </div>
@@ -11694,7 +11728,7 @@ window.fetchLeaderboard = async function(orderByField) {
             }).join('');
         }
 
-        // VẼ DANH SÁCH ẨN TRONG PANEL TỪ 1-30
+        // VẼ DANH SÁCH ẨN TRONG PANEL (TỪ HẠNG 1 ĐẾN 30)
         const allMembersToDisplay = members.slice(0, 30);
         if (allMembersToDisplay.length === 0) {
             listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Không có dữ liệu!</div>`;
@@ -11800,4 +11834,62 @@ window.fetchLeaderboard = async function(orderByField) {
         console.error(e);
         listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
     }
+};
+
+// ---------------------------------------------------------------------------------
+// THUẬT TOÁN TRAO THƯỞNG HOÀNG GIA ĐẦU TUẦN
+// ---------------------------------------------------------------------------------
+const prevCheckCycleForRewards = window.checkCycleAndStreak;
+window.checkCycleAndStreak = async function() {
+    let currentMon = (typeof getGlobalMonday === 'function') ? getGlobalMonday(new Date()) : "2026-10-12";
+    let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
+
+    if (lastTaxCheckedMon !== currentMon && lastTaxCheckedMon !== "") {
+        try {
+            console.log("🏆 Đang tổng kết Bảng Vàng để trao thưởng Top 3 tuần cũ...");
+            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+            
+            const snapshot = await db.collection("academic_apex").get();
+            let members = [];
+            snapshot.forEach((doc) => {
+                let data = doc.data() || {};
+                let calcWeekHrs = 0;
+                if (data.dailyLogs) {
+                    let parts = lastTaxCheckedMon.split('-');
+                    for (let i = 0; i < 7; i++) {
+                        let d = new Date(parts[0], parts[1] - 1, parts[2]);
+                        d.setDate(d.getDate() + i);
+                        let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                        calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
+                    }
+                } else if (typeof data.weeklyHours === 'number') {
+                    calcWeekHrs = data.weeklyHours;
+                }
+                
+                if (doc.id === USER_DOC_ID) calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
+                members.push({ id: doc.id, weeklyHours: calcWeekHrs });
+            });
+
+            members.sort((a, b) => b.weeklyHours - a.weeklyHours);
+            
+            const myRankIndex = members.findIndex(m => m.id === USER_DOC_ID);
+            if (myRankIndex === 0) {
+                localStorage.setItem("usdBalance", usd + 1000);
+                let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+                localStorage.setItem('saasFreezes', shields + 1);
+                alert("🏆 QUÁN QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$1,000 USD và +1 Khiên bảo vệ vào tài khoản!");
+            } else if (myRankIndex === 1) {
+                localStorage.setItem("usdBalance", usd + 500);
+                alert("🥈 Á QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$500 USD vào tài khoản!");
+            } else if (myRankIndex === 2) {
+                localStorage.setItem("usdBalance", usd + 300);
+                alert("🥉 QUÝ QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$300 USD vào tài khoản!");
+            }
+            if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
+        } catch(e) {
+            console.error("Lỗi trao thưởng tuần:", e);
+        }
+    }
+    
+    if (typeof prevCheckCycleForRewards === 'function') prevCheckCycleForRewards();
 };
