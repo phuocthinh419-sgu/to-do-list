@@ -11334,11 +11334,10 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI KIẾN TRÚC ĐẤU TRƯỜNG V3 (BẢN TỐI THƯỢNG - ÉP CHẠY 100%)
-// Gồm: Cờ chữ A, Vương miện SVG, Bục đá Fullsize, Tab phụ trượt lên
+// PHỤC DỰNG NGUYÊN BẢN ĐẤU TRƯỜNG KỶ LUẬT (BẢN THIẾT KẾ HOÀNG GIA GỐC)
 // =====================================================================
 
-// 1. ÉP KHỞI TẠO LẠI CÁC HÀM VẼ HÌNH BỊ MẤT
+// 1. PHỤC HỒI SVG VƯƠNG MIỆN & NGUYỆT QUẾ
 window.getLaurelPairSVG = function(color, size = 24) {
     return {
         left: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
@@ -11348,9 +11347,6 @@ window.getLaurelPairSVG = function(color, size = 24) {
             <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
             <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
             <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
-            <path d="M19 27 C17 22, 19 19, 23 21 C22 24, 20 26, 19 27 Z" fill="${color}" opacity="0.85"/>
-            <path d="M15 20 C14 15, 17 13, 21 15 C19 18, 17 19, 15 20 Z" fill="${color}" opacity="0.85"/>
-            <path d="M13 13 C13 9, 16 7, 19 9 C18 11, 15 12, 13 13 Z" fill="${color}" opacity="0.85"/>
         </svg>`,
         right: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
             <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
@@ -11359,9 +11355,6 @@ window.getLaurelPairSVG = function(color, size = 24) {
             <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
             <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
             <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
-            <path d="M19 27 C17 22, 19 19, 23 21 C22 24, 20 26, 19 27 Z" fill="${color}" opacity="0.85"/>
-            <path d="M15 20 C14 15, 17 13, 21 15 C19 18, 17 19, 15 20 Z" fill="${color}" opacity="0.85"/>
-            <path d="M13 13 C13 9, 16 7, 19 9 C18 11, 15 12, 13 13 Z" fill="${color}" opacity="0.85"/>
         </svg>`
     };
 };
@@ -11380,13 +11373,10 @@ window.getRoyalCrownSVG = function(c1, c2, size = 34) {
         <circle cx="22" cy="3" r="2.3" fill="#ffffff"/>
         <circle cx="2" cy="9" r="1.8" fill="${c1}"/>
         <circle cx="42" cy="9" r="1.8" fill="${c1}"/>
-        <circle cx="22" cy="20" r="2.2" fill="#ffffff" opacity="0.9"/>
-        <circle cx="12" cy="21" r="1.5" fill="#ffffff" opacity="0.75"/>
-        <circle cx="32" cy="21" r="1.5" fill="#ffffff" opacity="0.75"/>
     </svg>`;
 };
 
-// 2. CSS CHỐNG VỠ KHUNG (Khóa cứng flex-shrink, thêm Padding đáy)
+// 2. PHỤC HỒI CSS GIAO DIỆN MODAL SANG TRỌNG GỐC
 window.injectArenaLeaderboardCSS = function() {
     let old = document.getElementById('apex-arena-lb-css');
     if (old) old.remove();
@@ -11398,101 +11388,91 @@ window.injectArenaLeaderboardCSS = function() {
         @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
-        @keyframes slideUpPanel { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
-        @keyframes fadeOverlay { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
         
-        #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
-        .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
+        #leaderboard-modal { display: none; position: fixed; inset: 0; background: rgba(4, 6, 14, 0.86); z-index: 10002; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
         
-        /* HERO SECTION: Bầu trời chứa Bục đá */
-        .arena-hero-section { position: relative; padding: 40px 50px 0 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+        /* TRẢ LẠI MODAL KHUNG CHUẨN CŨ */
+        .arena-modal-box { width: 100%; max-width: 960px; border-radius: 22px; background: #090d1a; border: 1px solid rgba(168, 85, 247, 0.42); box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22); overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; max-height: 94vh; animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
         
-        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; flex-shrink: 0; }
-        .arena-title-group { display: flex; align-items: center; gap: 18px; }
-        .arena-emblem-wrap { width: 72px; height: 72px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
-        .arena-main-title { margin: 0; font-size: 2rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
-        .arena-sub-title { font-size: 0.9rem; color: #cbd5e1; font-weight: 500; }
-        .arena-quote-right { margin-left: auto; text-align: right; max-width: 300px; font-size: 0.85rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
-        .arena-close-btn { width: 44px; height: 44px; border-radius: 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .arena-hero-section { position: relative; padding: 24px 28px 0 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; flex-shrink: 0; }
+        
+        .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
+        .arena-title-group { display: flex; align-items: center; gap: 14px; }
+        .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
+        .arena-main-title { margin: 0; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); }
+        .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; }
+        .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
+        .arena-close-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .arena-close-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
-        /* TABS: Sửa lỗi bị kéo giãn ngang */
-        .arena-tabs-wrap { display: inline-flex !important; width: max-content !important; align-self: flex-start; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 4px; gap: 6px; position: relative; z-index: 4; margin-bottom: auto; }
-        .arena-tab-btn { padding: 10px 24px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
-        .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; }
+        .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 3px; gap: 4px; position: relative; z-index: 4; }
+        .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
+        .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
-        /* CỜ HIỆU: Ép sát đáy màn hình */
-        .arena-side-flag-container { position: absolute; bottom: 0 !important; width: 100px; height: 220px; z-index: 2; border-radius: 6px 6px 0 0; }
-        .arena-side-flag-container.left { left: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag-container.right { right: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
+        /* TRẢ LẠI CỜ HIỆU RỦ XUỐNG ĐÚNG VỊ TRÍ */
+        .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; border-radius: 6px 6px 0 0; }
+        .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
+        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* BỤC ĐÁ: Tạo khoảng trống (padding-bottom) để không đè lên nút Mở rộng */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: auto; padding-bottom: 90px; position: relative; z-index: 3; flex-shrink: 0;}
-        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; flex-shrink: 0;}
+        /* BỤC ĐÁ GỐC - CHIỀU CAO CHUẨN XÁC, CHỐNG ÉP CHỮ */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 20px; position: relative; z-index: 3; }
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
-        .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
+        .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        .arena-avatar-wrap { position: relative; margin-bottom: -45px; z-index: 5; display: flex; flex-direction: column; align-items: center; flex-shrink: 0;}
-        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; transform: scale(1.1); }
-        .arena-avatar-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
-        .arena-podium-col.rank-1 .arena-avatar-img { width: 100px; height: 100px; border: 3px solid #fde047; box-shadow: 0 0 25px rgba(251, 191, 36, 0.6); }
+        .arena-avatar-wrap { position: relative; margin-bottom: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; }
+        .arena-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
+        .arena-podium-col.rank-1 .arena-avatar-img { width: 88px; height: 88px; border: 3px solid #fde047; box-shadow: 0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff; }
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; }
 
-        .arena-pedestal { width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 55px 12px 20px 12px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2; overflow: visible; flex-shrink: 0; }
-        .arena-podium-col.rank-1 .arena-pedestal { height: 260px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
-        .arena-podium-col.rank-2 .arena-pedestal { height: 220px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
-        .arena-podium-col.rank-3 .arena-pedestal { height: 190px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
+        .arena-pedestal { 
+            width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 16px 8px 10px 8px; 
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; overflow: hidden; flex-shrink: 0;
+        }
+        
+        /* CHIỀU CAO ĐƯỢC CHỈNH LẠI HOÀN HẢO Y NHƯ TRONG ẢNH */
+        .arena-podium-col.rank-1 .arena-pedestal { height: 185px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; }
+        .arena-podium-col.rank-2 .arena-pedestal { height: 150px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
+        .arena-podium-col.rank-3 .arena-pedestal { height: 130px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
 
-        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
-        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; flex-shrink: 0;}
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
-        .rank-2 .arena-rank-num { color: #f1f5f9; }
-        .rank-3 .arena-rank-num { color: #fdba74; }
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; flex-shrink: 0; }
+        .arena-rank-num { font-size: 1.7rem; font-weight: 900; line-height: 1; font-family: 'Inter', system-ui, sans-serif; }
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
+        .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
-        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; width: 95%; flex-shrink: 0;}
-        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; flex-shrink: 0;}
-        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.7rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
+        .arena-podium-name { font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; max-width: 95%; flex-shrink: 0; line-height: 1.25; }
+        .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; }
+        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.38rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; flex-shrink: 0;}
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; flex-shrink: 0; }
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* THANH ĐẾ & NÚT MỞ RỘNG */
-        .arena-footer-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 50px 30px 50px; background: linear-gradient(180deg, transparent 0%, rgba(9,13,26,0.8) 35%, #090d1a 100%); z-index: 10; display: flex; flex-direction: column; gap: 14px; pointer-events: none; }
-        .arena-footer-bar > * { pointer-events: auto; }
-        
-        .arena-expand-btn-wrap { display: flex; justify-content: center; width: 100%; margin-top: -30px; margin-bottom: 10px; z-index: 11; position: relative; }
-        .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
-        .arena-expand-btn:hover { background: #a855f7; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
-
-        .arena-my-Sticky-bar { border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.85) 0%, rgba(17, 24, 46, 0.95) 55%, rgba(13, 19, 36, 0.98) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); backdrop-filter: blur(12px); flex-shrink: 0;}
-        
-        /* BẢNG TỔNG TRƯỢT LÊN */
-        #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; pointer-events: auto;}
-        #arena-full-list-panel { position: absolute; bottom: 0; left: 0; right: 0; height: 80vh; background: #0b0f19; border-radius: 28px 28px 0 0; border-top: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 -20px 60px rgba(0,0,0,0.8); z-index: 101; display: flex; flex-direction: column; animation: slideUpPanel 0.4s cubic-bezier(0.2, 1, 0.3, 1) both; }
-        
-        .arena-panel-header { padding: 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
-        .arena-panel-title { font-size: 1.2rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .arena-panel-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); color: #94a3b8; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; cursor: pointer; border: none; transition: 0.2s; }
-        .arena-panel-close:hover { background: #ef4444; color: #fff; }
-        
-        .arena-list-section { padding: 20px 40px; flex: 1; overflow-y: auto; }
-        .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 50px 2fr 1.2fr 1.2fr 80px 140px; align-items: center; gap: 14px; padding: 12px 20px; }
-        .arena-table-head { font-size: 0.8rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 8px; }
-        .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; margin-bottom: 8px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
+        /* DANH SÁCH & THANH ĐẾ HIỂN THỊ LIỀN MẠCH, KHÔNG CẦN NÚT TRƯỢT LÊN NỮA */
+        .arena-list-section { padding: 12px 24px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
+        .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 42px 1.8fr 1fr 1fr 65px 115px; align-items: center; gap: 10px; padding: 9px 14px; }
+        .arena-table-head { font-size: 0.7rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px; }
+        .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; margin-bottom: 6px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
         .arena-table-row:hover { border-color: rgba(168, 85, 247, 0.42); background: rgba(26, 34, 58, 0.9); }
-        .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
+        .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; justify-content: center;}
+        .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; border-color: #c084fc; }
+
+        .arena-my-Sticky-bar { margin: 0 24px 18px 24px; padding: 12px 20px; border-radius: 16px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); box-shadow: 0 0 28px rgba(139, 92, 246, 0.28); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; animation: arenaPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both; flex-shrink: 0;}
     `;
     document.head.appendChild(st);
 };
 
-// 3. TẠO KHUNG HTML VỚI ĐẦY ĐỦ LOGO CỜ "A" VÀ CÁC THÀNH PHẦN
+// 3. PHỤC HỒI CẤU TRÚC HTML MODAL
 window.openLeaderboard = function() {
     window.injectArenaLeaderboardCSS();
 
@@ -11508,26 +11488,26 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
-                <!-- CỜ TRÁI: Đã khắc phục Logo chữ A -->
+                <!-- CỜ TRÁI: Đúng Logo A -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
                         <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <div style="font-size: 42px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: sans-serif;">A</div>
-                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
-                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                            <div style="font-size: 36px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: 'Inter', sans-serif;">A</div>
+                            <div style="width:20px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.42rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- CỜ PHẢI: Đã khắc phục Logo chữ A -->
+                <!-- CỜ PHẢI: Đúng Logo A -->
                 <div class="arena-side-flag-container right">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
                         <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
-                            <div style="font-size: 42px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: sans-serif;">A</div>
-                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
-                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
+                            <div style="font-size: 36px; font-weight: 900; font-style: italic; color: #a855f7; line-height: 1; filter: drop-shadow(0 0 10px rgba(168,85,247,0.5)); font-family: 'Inter', sans-serif;">A</div>
+                            <div style="width:20px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.42rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
                         </div>
                     </div>
                 </div>
@@ -11565,30 +11545,15 @@ window.openLeaderboard = function() {
                     </button>
                 </div>
 
-                <!-- BỤC ĐÁ TOP 3 -->
+                <!-- BỤC ĐÁ TOP 3 NGAY GÓC DƯỚI HERO SECTION -->
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
             </div>
 
-            <!-- PHẦN ĐẾ CHỨA NÚT MỞ BẢNG TỔNG -->
-            <div class="arena-footer-bar">
-                <div class="arena-expand-btn-wrap">
-                    <button class="arena-expand-btn" onclick="document.getElementById('arena-full-list-overlay').style.display='block';">
-                        <i class="fa-solid fa-list-ol"></i> Bảng Xếp Hạng Tổng (Hạng 4 - 30) <i class="fa-solid fa-chevron-up"></i>
-                    </button>
-                </div>
-                <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
-            </div>
+            <!-- DANH SÁCH NẰM TRỰC TIẾP BÊN DƯỚI BỤC ĐÁ -->
+            <div id="leaderboard-content" class="arena-list-section"></div>
             
-            <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
-            <div id="arena-full-list-overlay">
-                <div id="arena-full-list-panel">
-                    <div class="arena-panel-header">
-                        <div class="arena-panel-title"><i class="fa-solid fa-ranking-star" style="color:#a855f7;"></i> BẢNG XẾP HẠNG TỔNG</div>
-                        <button class="arena-panel-close" onclick="document.getElementById('arena-full-list-overlay').style.display='none';"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <div id="leaderboard-content" class="arena-list-section"></div>
-                </div>
-            </div>
+            <!-- THANH THÔNG TIN BẢN THÂN DƯỚI ĐÁY -->
+            <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
         </div>
     `;
 
@@ -11597,7 +11562,7 @@ window.openLeaderboard = function() {
     window.fetchLeaderboard('weeklyHours');
 };
 
-// 4. HÀM TẢI VÀ ĐIỀN DỮ LIỆU CHUẨN XÁC
+// 4. HÀM KÉO DATA: KẾT HỢP BOT, THAY ĐỔI RANK TRỰC TIẾP TRÊN LIST MÀ KHÔNG BỊ LỖI
 window.fetchLeaderboard = async function(orderByField) {
     const podiumBox = document.getElementById('arena-podium-container');
     const listBox = document.getElementById('leaderboard-content');
@@ -11651,15 +11616,17 @@ window.fetchLeaderboard = async function(orderByField) {
             });
         });
 
-        // Bơm Âm Binh (Bots)
+        // BƠM ÂM BINH (BOTS) LÀM ĐỐI TRỌNG
         const aiBots = [
             { id: "bot_1", name: "Mark Zuckerberg", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mark", weeklyHours: 3.5, streak: 8, currentStatus: 'focusing', isBot: true },
             { id: "bot_2", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elon", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
             { id: "bot_3", name: "Donald Trump", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Trump", weeklyHours: 1.5, streak: 3, currentStatus: 'focusing', isBot: true },
-            { id: "bot_4", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kim", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true }
+            { id: "bot_4", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kim", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true },
+            { id: "bot_5", name: "John Nguyen", photo: "https://ui-avatars.com/api/?name=J+N&background=0ea5e9&color=fff", weeklyHours: 0.0, streak: 0, currentStatus: 'online', isBot: true }
         ];
         members = members.concat(aiBots);
 
+        // THUẬT TOÁN SẮP XẾP CHÍNH XÁC
         members.sort((a, b) => {
             if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
@@ -11674,6 +11641,7 @@ window.fetchLeaderboard = async function(orderByField) {
             { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 22, crownSz: 32 }
         ];
 
+        // VẼ TOP 3
         if (podiumBox) {
             podiumBox.innerHTML = podiumOrder.map(p => {
                 if (!p.item) return `<div class="arena-podium-col rank-${p.rank}" style="opacity:0.25;"><div class="arena-pedestal"><div class="arena-rank-num">${p.rank}</div><div class="arena-podium-name">Trống</div></div></div>`;
@@ -11683,6 +11651,14 @@ window.fetchLeaderboard = async function(orderByField) {
                 const isFocusing = m.currentStatus === 'focusing';
                 const dotCol = isFocusing ? '#ef4444' : '#10b981';
 
+                // TÍCH HỢP RADAR 5 SAO VÀO TOP 3
+                let starRating = '';
+                if(m.id === USER_DOC_ID) {
+                    let avg = typeof getAverageStarRating === 'function' ? getAverageStarRating() : 5.0;
+                    let badgeColor = avg >= 4.5 ? "#f59e0b" : (avg >= 3.8 ? "#10b981" : "#ef4444");
+                    starRating = `<div style="position: absolute; bottom: -8px; background: #090d1a; color: #fff; border: 1.5px solid ${badgeColor}; border-radius: 100px; padding: 2px 6px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 12; white-space: nowrap;"><i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}</div>`;
+                }
+
                 const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
                 const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
 
@@ -11690,9 +11666,10 @@ window.fetchLeaderboard = async function(orderByField) {
                     <div class="arena-podium-col rank-${p.rank}">
                         <div class="arena-avatar-wrap">
                             ${crownSvg}
-                            <div style="position:relative;">
+                            <div style="position:relative; display: flex; flex-direction: column; align-items: center;">
                                 <img src="${m.photo}" class="arena-avatar-img">
-                                <span style="position:absolute; bottom:4px; right:4px; width:13px; height:13px; border-radius:50%; background:${dotCol}; border:2px solid #090d1a;"></span>
+                                <span style="position:absolute; bottom:4px; right:4px; width:13px; height:13px; border-radius:50%; background:${dotCol}; border:2px solid #090d1a; z-index:10;"></span>
+                                ${starRating}
                             </div>
                         </div>
                         <div class="arena-pedestal">
@@ -11710,9 +11687,10 @@ window.fetchLeaderboard = async function(orderByField) {
             }).join('');
         }
 
+        // VẼ DANH SÁCH BÊN DƯỚI (HẠNG 4+)
         const restMembers = members.slice(3, 30);
         if (restMembers.length === 0) {
-            listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.9rem; padding:40px 0;"><i class="fa-solid fa-ghost" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>Tất cả cao thủ hiện tại đều đã đứng trên Đài Vinh Quang Top 3!</div>`;
+            listBox.innerHTML = `<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:18px 0;">Tất cả cao thủ hiện tại đều đã đứng trên Đài Vinh Quang Top 3!</div>`;
         } else {
             let tableHtml = `
                 <div class="arena-table-head">
@@ -11734,21 +11712,21 @@ window.fetchLeaderboard = async function(orderByField) {
 
                 tableHtml += `
                     <div class="arena-table-row">
-                        <div style="font-weight:900; color:#94a3b8; font-size:0.9rem;">${rank}</div>
-                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                        <div style="font-weight:800; color:#94a3b8; font-size:0.85rem;">${rank}</div>
+                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
                             <div style="position:relative; flex-shrink:0;">
-                                <img src="${m.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                                <img src="${m.photo}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
                                 <span style="position:absolute; bottom:0; right:0; width:10px; height:10px; border-radius:50%; background:${dotCol}; border:2px solid #0b0f1d;"></span>
                             </div>
-                            <span style="font-weight:700; color:#f1f5f9; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                ${m.name} ${isMe ? '<b style="color:#c084fc; font-size:0.75rem;">(Bạn)</b>' : ''}
+                            <span style="font-weight:700; color:#f1f5f9; font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${m.name} ${isMe ? '<b style="color:#c084fc; font-size:0.7rem;">(Bạn)</b>' : ''}
                             </span>
                         </div>
-                        <div style="font-weight:800; color:#fff; font-size:0.9rem;">${m.weeklyHours.toFixed(1)}h</div>
-                        <div style="font-weight:700; color:#cbd5e1; font-size:0.85rem;"><i class="fa-solid fa-fire" style="color:#f97316; margin-right:4px;"></i>${m.streak} ngày</div>
+                        <div style="font-weight:800; color:#fff; font-size:0.85rem;">${m.weeklyHours.toFixed(1)}h</div>
+                        <div style="font-weight:700; color:#cbd5e1; font-size:0.8rem;"><i class="fa-solid fa-fire" style="color:#f97316; margin-right:4px;"></i>${m.streak} ngày</div>
                         <div style="text-align:center;">${trendHtml}</div>
                         <div style="text-align:right;">
-                            ${!isMe ? `<button class="arena-challenge-btn" onclick="openComposeModal('${m.id}', '${safeName}')"><i class="fa-solid fa-paper-plane"></i> Thách đấu</button>` : `<span style="font-size:0.75rem; color:#64748b;">Chính chủ</span>`}
+                            ${!isMe ? `<button class="arena-challenge-btn" onclick="openComposeModal('${m.id}', '${safeName}')"><i class="fa-solid fa-paper-plane"></i> Thách đấu</button>` : `<span style="font-size:0.72rem; color:#64748b;">Chính chủ</span>`}
                         </div>
                     </div>
                 `;
@@ -11756,6 +11734,7 @@ window.fetchLeaderboard = async function(orderByField) {
             listBox.innerHTML = tableHtml;
         }
 
+        // VẼ THANH TRẠNG THÁI DƯỚI ĐÁY
         if (myBarBox) {
             const myIndex = members.findIndex(x => x.id === USER_DOC_ID);
             const me = myIndex !== -1 ? members[myIndex] : {
@@ -11767,39 +11746,39 @@ window.fetchLeaderboard = async function(orderByField) {
             const myRankNum = myIndex !== -1 ? (myIndex + 1) : 1;
 
             myBarBox.innerHTML = `
-                <div style="display:flex; align-items:center; gap:16px;">
-                    <div style="width:46px; height:46px; border-radius:14px; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1rem;">
                         <i class="fa-solid fa-ranking-star"></i>
                     </div>
                     <div style="position:relative;">
-                        <img src="${me.photo}" style="width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">
-                        <span style="position:absolute; bottom:0; right:0; width:14px; height:14px; border-radius:50%; background:#10b981; border:2.5px solid #0b0f1d;"></span>
+                        <img src="${me.photo}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">
+                        <span style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:50%; background:#10b981; border:2px solid #0b0f1d;"></span>
                     </div>
                     <div>
-                        <div style="font-size:0.7rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px;">HẠNG CỦA BẠN</div>
+                        <div style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px;">HẠNG CỦA BẠN</div>
                         <div style="display:flex; align-items:baseline; gap:8px;">
-                            <span style="font-size:1.5rem; font-weight:900; color:#fbbf24;">${myRankNum}</span>
-                            <strong style="font-size:1.05rem; color:#fff;">${me.name}</strong>
+                            <span style="font-size:1.35rem; font-weight:900; color:#fbbf24;">${myRankNum}</span>
+                            <strong style="font-size:0.95rem; color:#fff;">${me.name}</strong>
                         </div>
                     </div>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:32px; flex-wrap:wrap;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <i class="fa-regular fa-clock" style="color:#94a3b8; font-size:1.4rem;"></i>
+                <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-regular fa-clock" style="color:#94a3b8; font-size:1rem;"></i>
                         <div>
-                            <strong style="display:block; font-size:1.05rem; color:#fff;">${me.weeklyHours.toFixed(1)}h</strong>
-                            <span style="font-size:0.75rem; color:#94a3b8;">Giờ học (Tuần)</span>
+                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.weeklyHours.toFixed(1)}h</strong>
+                            <span style="font-size:0.68rem; color:#94a3b8;">Giờ học (Tuần)</span>
                         </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <i class="fa-solid fa-fire" style="color:#f97316; font-size:1.4rem;"></i>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-fire" style="color:#f97316; font-size:1.1rem;"></i>
                         <div>
-                            <strong style="display:block; font-size:1.05rem; color:#fff;">${me.streak} ngày</strong>
-                            <span style="font-size:0.75rem; color:#94a3b8;">Chuỗi hiện tại</span>
+                            <strong style="display:block; font-size:0.95rem; color:#fff;">${me.streak} ngày</strong>
+                            <span style="font-size:0.68rem; color:#94a3b8;">Chuỗi hiện tại</span>
                         </div>
                     </div>
-                    <div style="font-size:0.9rem; color:#a855f7; font-style:italic; font-weight:700;">
+                    <div style="font-size:0.78rem; color:#a855f7; font-style:italic; font-weight:600;">
                         <i class="fa-solid fa-arrow-trend-up" style="margin-right:4px;"></i> Tiếp tục duy trì phong độ!
                     </div>
                 </div>
