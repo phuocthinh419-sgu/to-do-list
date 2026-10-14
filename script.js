@@ -2008,16 +2008,7 @@ function checkCycleAndStreak() {
     }
 
     if (dailyDebtMinutes > 0) {
-        let sModal = document.getElementById('shame-modal');
-        if (sModal) sModal.style.display = 'flex';
-        let shameTitle = document.querySelector('.shame-content h2');
-        if (shameTitle) shameTitle.innerText = "ĐẠO LUẬT LÃI KÉP (TIÊU CHUẨN NGÀY)";
-        let shameDesc = document.querySelector('.shame-content p');
-        if (shameDesc) shameDesc.innerHTML = `Bạn tu luyện chưa đủ tiêu chuẩn hàng ngày. Thời lượng nợ và phạt lãi kép là <strong>${dailyDebtMinutes} phút</strong>.<br>Phải làm sạch nợ mới được đi tiếp!`;
-        let btnAlt = document.querySelector('.btn-shame-alt');
-        if (btnAlt) btnAlt.style.display = 'none';
-        let btnShame = document.querySelector('.btn-shame');
-        if (btnShame) { btnShame.innerHTML = `<i class="fa-solid fa-link-slash"></i> BẮT ĐẦU KHỔ SAI (${dailyDebtMinutes}P)`; btnShame.onclick = startDebtSession; }
+        showModernDebtModal(dailyDebtMinutes);
         return;
     }
 
@@ -11314,4 +11305,63 @@ function summonAIBots() {
     ];
     
     return bots;
+}
+
+function showModernDebtModal(debtMinutes) {
+    let oldCss = document.getElementById('modern-debt-css');
+    if (!oldCss) {
+        const st = document.createElement('style');
+        st.id = 'modern-debt-css';
+        st.innerHTML = `
+            @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+            .debt-overlay-modern { position: fixed; inset: 0; background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(12px); z-index: 10005; display: flex; justify-content: center; align-items: center; font-family: 'Inter', system-ui, sans-serif; }
+            .debt-box-modern { position: relative; width: 440px; max-width: 92%; background: linear-gradient(180deg, #13111C 0%, #1A1014 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 24px; padding: 45px 28px 28px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(239, 68, 68, 0.15), inset 0 -20px 40px rgba(239, 68, 68, 0.1); animation: slideUpFade 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; overflow: visible; }
+            .debt-box-modern::before { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 180px; background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80') bottom center / cover no-repeat; opacity: 0.15; mix-blend-mode: screen; pointer-events: none; border-radius: 0 0 24px 24px; mask-image: linear-gradient(to top, black, transparent); -webkit-mask-image: linear-gradient(to top, black, transparent); }
+            .debt-box-modern::after { content: ""; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 180px; height: 80px; background: rgba(239, 68, 68, 0.4); filter: blur(40px); pointer-events: none; z-index: 0; }
+            .debt-icon-container { position: absolute; top: -55px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; justify-content: center; align-items: center; filter: drop-shadow(0 15px 20px rgba(239, 68, 68, 0.4)); }
+            .debt-icon-container img { width: 110px; height: auto; object-fit: contain; }
+            .debt-alert-icon { color: #ef4444; font-size: 32px; margin-top: 15px; margin-bottom: 5px; filter: drop-shadow(0 0 12px rgba(239,68,68,0.6)); position: relative; z-index: 2; }
+            .debt-title-modern { font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0 0 4px 0; letter-spacing: 0.5px; position: relative; z-index: 2; }
+            .debt-title-highlight { background: linear-gradient(90deg, #fca5a5, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+            .debt-subtitle-modern { font-size: 0.9rem; font-weight: 800; color: #ef4444; margin: 0 0 18px 0; letter-spacing: 1px; text-transform: uppercase; position: relative; z-index: 2; }
+            .debt-desc-modern { font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 28px; position: relative; z-index: 2; font-weight: 500; }
+            .debt-desc-modern strong { color: #fca5a5; font-size: 1.05rem; font-weight: 700; }
+            .debt-btn-modern { width: 100%; padding: 16px 20px; border-radius: 14px; background: linear-gradient(90deg, #ef4444, #f43f5e); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 12px 24px rgba(239, 68, 68, 0.35), inset 0 2px 0 rgba(255,255,255,0.2); transition: 0.2s all; }
+            .debt-btn-modern:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(239, 68, 68, 0.5), inset 0 2px 0 rgba(255,255,255,0.2); }
+        `;
+        document.head.appendChild(st);
+    }
+
+    let existingOverlay = document.getElementById('modern-debt-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'modern-debt-overlay';
+    overlay.className = 'debt-overlay-modern';
+
+    overlay.innerHTML = `
+        <div class="debt-box-modern">
+            <div class="debt-icon-container">
+                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/calendar-4993881-4161727.png" alt="3D Calendar">
+            </div>
+            <div class="debt-alert-icon">⚠️</div>
+            <h2 class="debt-title-modern">ĐẠO LUẬT <span class="debt-title-highlight">LÃI KÉP</span></h2>
+            <p class="debt-subtitle-modern">(Tiêu chuẩn ngày)</p>
+            <p class="debt-desc-modern">
+                Bạn học tập chưa đủ tiêu chuẩn hàng ngày.<br>
+                Thời lượng nợ và phạt lãi kép là <strong>${debtMinutes} phút</strong>.<br>
+                Phải hoàn thành cấm túc mới được đi tiếp!
+            </p>
+            <button class="debt-btn-modern" id="start-detention-btn">
+                🚀 BẮT ĐẦU CẤM TÚC (${debtMinutes}P) ❯
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+
+    document.getElementById('start-detention-btn').addEventListener('click', () => {
+        overlay.remove();
+        startDebtSession(); // Gắn thẳng lệnh cấm túc vào đây
+    });
 }
