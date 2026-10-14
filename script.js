@@ -4874,54 +4874,25 @@ function injectArenaLeaderboardCSS() {
     const st = document.createElement('style');
     st.id = 'apex-arena-lb-css';
     st.innerHTML = `
-        /* ANIMATIONS CHO ĐẤU TRƯỜNG VÀ HIỆU ỨNG ÁNH SÁNG */
+        /* Animation cơ bản */
         @keyframes arenaPopIn { 0% { opacity: 0; transform: scale(0.95) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
-        @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes arenaAvatarFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
         @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
         @keyframes arenaTextShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        
-        /* Hiệu ứng nhấp nhô lơ lửng cho toàn khối Avatar */
-        @keyframes arenaAvatarFloat { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-10px); } 
-        }
 
-        #leaderboard-modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(4, 6, 14, 0.86); z-index: 10002;
-            align-items: center; justify-content: center;
-            backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif;
-        }
-        .arena-modal-box {
-            width: 100%; max-width: 940px; border-radius: 22px; background: #090d1a;
-            border: 1px solid rgba(168, 85, 247, 0.42);
-            box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22);
-            overflow: hidden; position: relative; color: #f8fafc;
-            display: flex; flex-direction: column; max-height: 94vh;
-            animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .arena-hero-section {
-            position: relative; padding: 24px 28px 0 28px;
-            background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%),
-                        url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-            border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden;
-        }
+        #leaderboard-modal { display: none; position: fixed; inset: 0; background: rgba(4, 6, 14, 0.86); z-index: 10002; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
+        .arena-modal-box { width: 100%; max-width: 940px; border-radius: 22px; background: #090d1a; border: 1px solid rgba(168, 85, 247, 0.42); box-shadow: 0 25px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.22); overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; max-height: 94vh; animation: arenaPopIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        
+        /* Chỉnh lại padding để bầu trời không bị bóp nghẹt */
+        .arena-hero-section { position: relative; padding: 24px 28px 10px 28px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.26) 0%, rgba(168, 85, 247, 0.2) 36%, rgba(9, 13, 26, 0.96) 76%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; }
+        
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 14px; }
         .arena-title-group { display: flex; align-items: center; gap: 14px; }
         .arena-emblem-wrap { width: 64px; height: 64px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.55)); flex-shrink: 0; }
-        
-        .arena-main-title {
-            margin: 0; padding-top: 4px; line-height: 1.35 !important;
-            font-family: 'Inter', system-ui, sans-serif; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px;
-            text-transform: uppercase; 
-            background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); overflow: visible !important;
-            animation: arenaTextShimmer 4s linear infinite;
-        }
+        .arena-main-title { margin: 0; padding-top: 4px; line-height: 1.35 !important; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; background: linear-gradient(110deg, #fef08a 0%, #c084fc 35%, #ffffff 50%, #c084fc 65%, #fef08a 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.85)); animation: arenaTextShimmer 4s linear infinite; }
         .arena-sub-title { font-size: 0.84rem; color: #cbd5e1; font-weight: 500; margin-top: 1px; }
         .arena-quote-right { margin-left: auto; text-align: right; max-width: 270px; font-size: 0.75rem; color: #cbd5e1; font-style: italic; line-height: 1.45; }
         .arena-close-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -4931,106 +4902,74 @@ function injectArenaLeaderboardCSS() {
         .arena-tab-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 0 20px rgba(124, 58, 237, 0.65); border: 1px solid rgba(192, 132, 252, 0.5); }
 
+        /* Cờ hiệu 2 bên */
         .arena-side-flag-container { position: absolute; bottom: 12px; width: 82px; height: 165px; z-index: 2; overflow: hidden; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 24px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
-        .arena-side-flag {
-            width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
-            clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%);
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 26px; text-align: center; overflow: hidden;
-        }
+        .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 26px; text-align: center; }
         .arena-sweep-light { position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 3; animation: arenaSweepLight 5s infinite; }
         .arena-side-flag-container.right .arena-sweep-light { animation-delay: 2.5s; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
-        .arena-side-flag::before { content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px; background: transparent; border: 1px solid rgba(251, 191, 36, 0.4); clip-path: polygon(0 0, 100% 0, 100% 83%, 50% 98%, 0 83%); pointer-events: none; z-index: 4;}
+        .arena-side-flag::before { content: ""; position: absolute; top: 8px; left: 4px; right: 4px; bottom: 5px; background: transparent; border: 1px solid rgba(251, 191, 36, 0.4); clip-path: polygon(0 0, 100% 0, 100% 83%, 50% 98%, 0 83%); z-index: 4;}
 
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 6px; position: relative; z-index: 3; padding-top: 30px; }
-        .arena-podium-col { display: flex; flex-direction: column; align-items: center; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        /* BỐ CỤC CHUẨN XÁC CHỐNG NUỐT AVATAR */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-top: 20px; position: relative; z-index: 3; }
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 210px; position: relative; animation: arenaPodiumUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 235px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        .arena-avatar-wrap { 
-            position: relative; margin-bottom: 16px; z-index: 5; 
-            display: flex; flex-direction: column; align-items: center; 
-            animation: arenaAvatarFloat 4s ease-in-out infinite; 
-        }
+        /* Avatar cách bục đúng 12px, tuyệt đối không đè nhau */
+        .arena-avatar-wrap { position: relative; margin-bottom: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; animation: arenaAvatarFloat 4s ease-in-out infinite; }
         .arena-podium-col.rank-2 .arena-avatar-wrap { animation-delay: 0.5s; } 
         .arena-podium-col.rank-3 .arena-avatar-wrap { animation-delay: 1s; }
-        
-        .arena-crown-svg { margin-bottom: -10px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)); animation: arenaFloat 3s ease-in-out infinite reverse; }
-        .arena-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #1e293b; }
+        .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9)); animation: arenaFloat 3s ease-in-out infinite reverse; }
+        .arena-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
         .arena-podium-col.rank-1 .arena-avatar-img { width: 88px; height: 88px; border: 3px solid #fde047; box-shadow: 0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff; }
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; box-shadow: 0 8px 24px rgba(148, 163, 184, 0.7); }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.65); }
 
-        /* BỤC ĐÁ ĐÃ ĐƯỢC GIẢI PHÓNG CHIỀU CAO VÀ CẤM ÉP CHỮ */
+        /* Bục đá cố định kích thước, không co giãn làm biến dạng */
         .arena-pedestal { 
-            width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
+            width: 100%; border-radius: 14px 14px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); 
-            overflow: hidden; 
-            display: flex; flex-direction: column; justify-content: flex-start; align-items: center; 
-            padding: 18px 8px 10px 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 16px 8px; z-index: 2; flex-shrink: 0;
         }
         .arena-pedestal::before { content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #ffffff, transparent); }
-        .arena-pedestal::after {
-            content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-            transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite;
-        }
+        .arena-pedestal::after { content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); transform: skewX(-25deg); pointer-events: none; z-index: 0; animation: arenaSweepLight 5s infinite; }
 
-        /* ĐÃ NỚI LỎNG CHIỀU CAO CHO PHẦN THƯỞNG KHÔNG BỊ NGHIẾN */
-        .arena-podium-col.rank-1 .arena-pedestal { 
-            height: 200px; 
-            background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); 
-            border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); 
-        }
+        /* Chỉnh độ cao bục đá cân đối vừa đẹp, dư sức chứa thẻ quà tặng */
+        .arena-podium-col.rank-1 .arena-pedestal { height: 185px; background: radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.28), transparent 70%), linear-gradient(180deg, #271f10 0%, #141118 65%, #090b12 100%); border: 1.5px solid rgba(251, 191, 36, 0.75); border-bottom: 3px solid #fbbf24; box-shadow: 0 -10px 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.15); }
         .arena-podium-col.rank-1 .arena-pedestal::after { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.35), transparent); animation-delay: 0.5s; }
 
-        .arena-podium-col.rank-2 .arena-pedestal { 
-            height: 170px; 
-            background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); 
-            border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; 
-        }
+        .arena-podium-col.rank-2 .arena-pedestal { height: 155px; background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.22), transparent 70%), linear-gradient(180deg, #1e2638 0%, #111624 70%, #090c15 100%); border: 1.5px solid rgba(148, 163, 184, 0.5); border-bottom: 2px solid #94a3b8; }
         .arena-podium-col.rank-2 .arena-pedestal::after { animation-delay: 1.5s; }
 
-        .arena-podium-col.rank-3 .arena-pedestal { 
-            height: 140px; 
-            background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); 
-            border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; 
-        }
+        .arena-podium-col.rank-3 .arena-pedestal { height: 135px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
         .arena-podium-col.rank-3 .arena-pedestal::after { animation-delay: 2.5s; }
 
-        /* KHÓA FLEX-SHRINK ĐỂ VĨNH VIỄN KHÔNG BỊ ÉP CHỮ NỮA */
-        .arena-podium-content-layer { 
-            position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; 
-            width: 100%; flex-shrink: 0; 
-        }
-        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px; flex-shrink: 0; }
-        .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; }
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.1rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        /* Chữ nghĩa hiển thị */
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 4px; position: relative; z-index: 2; flex-shrink: 0; }
+        .arena-rank-num { font-family: 'Inter', system-ui, sans-serif; font-size: 1.6rem; font-weight: 900; line-height: 1; }
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
-        .arena-podium-name { 
-            font-size: 0.84rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            margin-bottom: 3px; max-width: 95%; flex-shrink: 0; line-height: 1.25; 
-        }
-        .arena-podium-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; }
-        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.38rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
+        .arena-podium-name { font-size: 0.86rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; width: 90%; position: relative; z-index: 2; flex-shrink: 0;}
+        .arena-podium-score { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; position: relative; z-index: 2; flex-shrink: 0;}
+        .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.45rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; flex-shrink: 0; }
+        
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 100px; font-size: 0.7rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2; flex-shrink: 0;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
+        /* Danh sách bên dưới */
         .arena-list-section { padding: 12px 24px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
         .arena-table-head, .arena-table-row { display: grid; grid-template-columns: 42px 1.8fr 1fr 1fr 65px 115px; align-items: center; gap: 10px; padding: 9px 14px; }
         .arena-table-head { font-size: 0.7rem; font-weight: 700; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px; }
         .arena-table-row { background: rgba(18, 24, 42, 0.72); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; margin-bottom: 6px; transition: 0.2s; animation: arenaRowIn 0.4s ease-out both; }
-        .arena-table-row:nth-child(2) { animation-delay: 0.1s; }
-        .arena-table-row:nth-child(3) { animation-delay: 0.2s; }
-        .arena-table-row:nth-child(4) { animation-delay: 0.3s; }
-        .arena-table-row:nth-child(5) { animation-delay: 0.4s; }
         .arena-table-row:hover { border-color: rgba(168, 85, 247, 0.42); background: rgba(26, 34, 58, 0.9); }
         .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; }
         .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); border-color: #c084fc; color: #fff; }
@@ -6025,50 +5964,57 @@ function recordNewStarRating(score) {
 
 function renderAvatarStarBadge() {
     let userBadge = document.getElementById('user-auth-badge');
-    if (!userBadge) return;
+    
+    // Nếu Firebase chưa kịp tải xong Avatar, cho radar quét lại sau 500ms
+    if (!userBadge) {
+        setTimeout(renderAvatarStarBadge, 500);
+        return;
+    }
 
     let img = userBadge.querySelector('img');
     if (!img) return;
 
-    let wrapper = document.getElementById('avatar-star-wrapper');
-    if (!wrapper) {
-        wrapper = document.createElement('div');
-        wrapper.id = 'avatar-star-wrapper';
-        wrapper.style.cssText = "position: relative; display: inline-flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-bottom: 6px;";
-        img.parentNode.insertBefore(wrapper, img);
-        wrapper.appendChild(img);
+    // Xóa wrapper cũ nếu bị gọi trùng (khắc phục triệt để lỗi chập chờn)
+    let existingWrapper = document.getElementById('avatar-star-wrapper');
+    if (existingWrapper) {
+        let starBadge = document.getElementById('user-star-pill');
+        if (starBadge) {
+            let avg = typeof getAverageStarRating === 'function' ? getAverageStarRating() : 5.0;
+            let badgeColor = avg >= 4.5 ? "#f59e0b" : (avg >= 3.8 ? "#10b981" : "#ef4444");
+            starBadge.style.borderColor = badgeColor;
+            starBadge.innerHTML = `<i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}`;
+        }
+        return;
     }
 
-    let avg = getAverageStarRating();
+    // Đổ móng tạo Wrapper mới bọc quanh Avatar
+    let wrapper = document.createElement('div');
+    wrapper.id = 'avatar-star-wrapper';
+    wrapper.style.cssText = "position: relative; display: inline-flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-bottom: 6px;";
+    
+    img.parentNode.insertBefore(wrapper, img);
+    wrapper.appendChild(img);
+
+    // Tính điểm và chọn màu
+    let avg = typeof getAverageStarRating === 'function' ? getAverageStarRating() : 5.0;
     let badgeColor = avg >= 4.5 ? "#f59e0b" : (avg >= 3.8 ? "#10b981" : "#ef4444");
 
-    let starBadge = document.getElementById('user-star-pill');
-    if (!starBadge) {
-        starBadge = document.createElement('div');
-        starBadge.id = 'user-star-pill';
-        wrapper.appendChild(starBadge);
-    }
-
+    // Đúc thẻ 5 Sao
+    let starBadge = document.createElement('div');
+    starBadge.id = 'user-star-pill';
     starBadge.style.cssText = `
-        position: absolute;
-        bottom: -8px;
-        background: var(--bg-panel);
-        color: var(--text-main);
-        border: 1.5px solid ${badgeColor};
-        border-radius: 100px;
-        padding: 1px 6px;
-        font-size: 0.65rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        z-index: 12;
-        white-space: nowrap;
+        position: absolute; bottom: -8px; background: var(--bg-panel); color: var(--text-main);
+        border: 1.5px solid ${badgeColor}; border-radius: 100px; padding: 2px 6px;
+        font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 3px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 12; white-space: nowrap;
     `;
-    starBadge.title = `Điểm chất lượng báo cáo (Trung bình ${starHistory.length} phiên gần nhất)`;
     starBadge.innerHTML = `<i class="fa-solid fa-star" style="color: ${badgeColor}; font-size: 0.6rem;"></i> ${avg.toFixed(2)}`;
+    
+    wrapper.appendChild(starBadge);
 }
+
+// Bật Radar quét ngay khi vừa load web để đảm bảo 100% tỷ lệ bắt trúng
+window.addEventListener('DOMContentLoaded', renderAvatarStarBadge);
 
 // =====================================================================
 // 3. TRỢ LÝ HỌC THUẬT AI (FLOATING COPILOT - $30/CÂU VƯỢT MỨC)
