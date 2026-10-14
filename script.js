@@ -11371,7 +11371,8 @@ window.injectArenaLeaderboardCSS = function() {
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
         
-        .arena-hero-section { position: relative; padding: 40px 50px 0 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; flex-shrink: 0; }
+        /* ĐÃ SỬA: Thêm padding-bottom 50px để khung chứa không cắt đứt bục đá */
+        .arena-hero-section { position: relative; padding: 40px 50px 50px 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; border-bottom: 1px solid rgba(251, 191, 36, 0.22); overflow: hidden; flex-shrink: 0; }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; }
         .arena-title-group { display: flex; align-items: center; gap: 18px; }
@@ -11392,8 +11393,9 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 50px; position: relative; z-index: 3; }
-        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; }
+        /* ĐÃ SỬA: margin-top căn chỉnh lại để bục không bị đẩy xuống quá sâu */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 20px; position: relative; z-index: 3; }
+        .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; flex-shrink: 0; }
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
@@ -11405,31 +11407,33 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; }
 
+        /* ĐÃ SỬA: Khóa flex-shrink: 0 để bục không bao giờ bị bóp méo */
         .arena-pedestal { 
             width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             padding: 55px 12px 20px 12px; 
             box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2;
-            overflow: visible; 
+            overflow: visible; flex-shrink: 0; 
         }
         
         .arena-podium-col.rank-1 .arena-pedestal { height: 260px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
         .arena-podium-col.rank-2 .arena-pedestal { height: 220px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
         .arena-podium-col.rank-3 .arena-pedestal { height: 190px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
 
-        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; }
-        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        /* ĐÃ SỬA: Thêm flex-shrink: 0 cho các text để không bị biến thành dấu gạch ngang */
+        .arena-laurel-rank { display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
+        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; flex-shrink: 0; }
         .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; }
         .rank-3 .arena-rank-num { color: #fdba74; }
 
-        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; width: 95%; }
-        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; }
+        .arena-podium-name { font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; width: 95%; flex-shrink: 0; }
+        .arena-podium-score { font-size: 1.45rem; font-weight: 900; margin-bottom: auto; flex-shrink: 0; }
         .rank-1 .arena-podium-score { color: #fef08a; font-size: 1.7rem; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
         .rank-2 .arena-podium-score { color: #ffffff; }
         .rank-3 .arena-podium-score { color: #fed7aa; }
         
-        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; }
+        .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; flex-shrink: 0; }
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
         .arena-list-section { padding: 20px 40px; flex: 1; overflow-y: auto; background: rgba(9, 13, 24, 0.96); }
@@ -11440,7 +11444,7 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-challenge-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .arena-challenge-btn:hover { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
 
-        .arena-my-Sticky-bar { margin: 0 40px 24px 40px; padding: 16px 24px; border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+        .arena-my-Sticky-bar { margin: 0 40px 24px 40px; padding: 16px 24px; border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.72) 0%, rgba(17, 24, 46, 0.92) 55%, rgba(13, 19, 36, 0.96) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; flex-shrink: 0; }
     `;
     document.head.appendChild(st);
 };
