@@ -4404,38 +4404,99 @@ window.renderDashboard = function() {
 // BẢNG XẾP HẠNG TOÀN CẦU (GLOBAL LEADERBOARD REAL-TIME)
 // =====================================================================
 
-function openLeaderboard() {
-    // 1. Tạo giao diện Modal nếu chưa có
-    let modal = document.getElementById('leaderboard-modal');
-    if (!modal) {
-        let html = `
-        <div id="leaderboard-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-            <div style="background:var(--bg-panel); width:90%; max-width:500px; border-radius:24px; padding:24px; border:1px solid var(--border); max-height:85vh; overflow-y:auto; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-                <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-xmark"></i></button>
-                
-                <h2 style="margin-top:0; text-align:center; color:var(--brand-trophy); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng</h2>
-                
-                <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; margin-top: 20px;">
-                    <button id="tab-lb-hours" onclick="fetchLeaderboard('weeklyHours')" style="flex:1; padding:12px; border-radius:12px; background:var(--brand-focus); color:#fff; border:none; font-weight:800; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-fire"></i> Top Giờ Học</button>
-                    <button id="tab-lb-streak" onclick="fetchLeaderboard('streak')" style="flex:1; padding:12px; border-radius:12px; background:var(--bg-hover); color:var(--text-main); border:1px solid var(--border); font-weight:800; cursor:pointer; transition:0.2s;"><i class="fa-solid fa-bolt"></i> Top Chuỗi Kỷ Luật</button>
+window.openLeaderboard = function() {
+    // 1. Bơm CSS full màn hình vào
+    if (typeof injectArenaLeaderboardCSS === 'function') injectArenaLeaderboardCSS();
+
+    // 2. Xóa sạch tàn dư của cái bảng cũ kỹ
+    let oldModal = document.getElementById('leaderboard-modal');
+    if (oldModal) oldModal.remove();
+
+    // 3. Khởi tạo Khung Đấu Trường mới
+    let modal = document.createElement('div');
+    modal.id = 'leaderboard-modal';
+    document.body.appendChild(modal);
+
+    const headerWreath = typeof getLaurelPairSVG === 'function' ? getLaurelPairSVG('#fbbf24', 26) : {left: '', right: ''};
+
+    modal.innerHTML = `
+        <div class="arena-modal-box">
+            <div class="arena-hero-section">
+                <!-- CỜ TRÁI -->
+                <div class="arena-side-flag-container left">
+                    <div class="arena-side-flag">
+                        <div class="arena-sweep-light"></div>
+                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #a855f7, #6366f1); display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;"><i class="fa-solid fa-layer-group"></i></div>
+                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">DISCIPLINE<br>CREATES<br>FREEDOM</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="leaderboard-content" style="display:flex; flex-direction:column; gap:12px;">
-                    <div style="text-align:center; color:var(--text-muted); padding: 40px 0;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px; color: var(--brand-focus);"></i><br>Đang tải dữ liệu từ máy chủ...</div>
+                <!-- CỜ PHẢI -->
+                <div class="arena-side-flag-container right">
+                    <div class="arena-side-flag">
+                        <div class="arena-sweep-light"></div>
+                        <div style="position:relative; z-index:5; display:flex; flex-direction:column; align-items:center;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #a855f7, #6366f1); display: flex; justify-content: center; align-items: center; color: white; box-shadow: 0 0 14px rgba(251, 191, 36, 0.6); border: 1.5px solid rgba(251, 191, 36, 0.8); margin-bottom: 2px;"><i class="fa-solid fa-layer-group"></i></div>
+                            <div style="width:24px; height:1.5px; background:linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 6px 0;"></div>
+                            <div style="font-size:0.48rem; letter-spacing:1.5px; color:#e2e8f0; font-weight:800; line-height:1.5;">ACADEMIC<br>APEX</div>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="arena-top-bar">
+                    <div class="arena-title-group">
+                        <div class="arena-emblem-wrap">
+                            ${headerWreath.left}
+                            <div style="display:flex; flex-direction:column; align-items:center; margin:0 -4px; z-index:2;">
+                                <i class="fa-solid fa-star" style="font-size:0.55rem; color:#fef08a; margin-bottom:2px;"></i>
+                                <i class="fa-solid fa-trophy" style="font-size:1.45rem; color:#fbbf24;"></i>
+                            </div>
+                            ${headerWreath.right}
+                        </div>
+                        <div>
+                            <h2 class="arena-main-title">ĐẤU TRƯỜNG KỶ LUẬT</h2>
+                            <div class="arena-sub-title">Bảng xếp hạng cộng đồng</div>
+                        </div>
+                    </div>
+                    <div class="arena-quote-right">
+                        “Lượng hóa nỗ lực,<br>định hình tương lai.”<br>
+                        <span style="font-size:0.62rem; color:#94a3b8; font-style:normal; font-weight:800;">— ACADEMIC APEX</span>
+                    </div>
+                    <button class="arena-close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="arena-tabs-wrap">
+                    <button id="tab-lb-hours" class="arena-tab-btn active" onclick="fetchLeaderboard('weeklyHours')">
+                        <i class="fa-regular fa-clock"></i> Top Giờ Học (Tuần)
+                    </button>
+                    <button id="tab-lb-streak" class="arena-tab-btn" onclick="fetchLeaderboard('streak')">
+                        <i class="fa-solid fa-fire"></i> Top Chuỗi
+                    </button>
+                </div>
+
+                <!-- NƠI CHỨA BỤC ĐÁ TOP 3 -->
+                <div id="arena-podium-container" class="arena-podium-stage"></div>
             </div>
-        </div>`;
-        document.body.insertAdjacentHTML('beforeend', html);
-        modal = document.getElementById('leaderboard-modal');
-    }
-    
+
+            <!-- NƠI CHỨA DANH SÁCH BÊN DƯỚI -->
+            <div id="leaderboard-content" class="arena-list-section"></div>
+            
+            <!-- NƠI CHỨA THANH HẠNG CỦA BẠN -->
+            <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
+        </div>
+    `;
+
     modal.style.display = 'flex';
     
-    // Ép đồng bộ điểm mới nhất của ngài lên server trước khi mở bảng
+    // Gọi hàm kéo dữ liệu
     if (typeof syncToCloud === 'function') syncToCloud();
-    
-    fetchLeaderboard('weeklyHours');
-}
+    if (typeof fetchLeaderboard === 'function') fetchLeaderboard('weeklyHours');
+};
 
 async function fetchLeaderboard(orderByField) {
     const content = document.getElementById('leaderboard-content');
