@@ -11342,7 +11342,7 @@ function showModernDebtModal(debtMinutes) {
     overlay.innerHTML = `
         <div class="debt-box-modern">
             <div class="debt-icon-container">
-                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/calendar-4993881-4161727.png" alt="3D Calendar">
+                <img src="calendar.png" alt="3D Calendar">
             </div>
             <div class="debt-alert-icon">⚠️</div>
             <h2 class="debt-title-modern">ĐẠO LUẬT <span class="debt-title-highlight">LÃI KÉP</span></h2>
