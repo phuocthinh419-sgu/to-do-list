@@ -11313,10 +11313,59 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI PHÁP TRÙNG TU ĐẤU TRƯỜNG KỶ LUẬT (BẢN CHÍNH / PHỤ - TỐI ƯU KHÔNG GIAN)
+// ĐẠI KIẾN TRÚC ĐẤU TRƯỜNG V3 (BẢN TỐI THƯỢNG - ÉP CHẠY 100%)
+// Gồm: Cờ chữ A, Vương miện SVG, Bục đá Fullsize, Tab phụ trượt lên
 // =====================================================================
 
-// 1. CSS GIAO DIỆN MỚI TÍCH HỢP TAB PHỤ
+// 1. ÉP KHỞI TẠO LẠI CÁC HÀM VẼ HÌNH BỊ MẤT
+window.getLaurelPairSVG = function(color, size = 24) {
+    return {
+        left: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+            <path d="M19 27 C17 22, 19 19, 23 21 C22 24, 20 26, 19 27 Z" fill="${color}" opacity="0.85"/>
+            <path d="M15 20 C14 15, 17 13, 21 15 C19 18, 17 19, 15 20 Z" fill="${color}" opacity="0.85"/>
+            <path d="M13 13 C13 9, 16 7, 19 9 C18 11, 15 12, 13 13 Z" fill="${color}" opacity="0.85"/>
+        </svg>`,
+        right: `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
+            <path d="M19 27 C17 22, 19 19, 23 21 C22 24, 20 26, 19 27 Z" fill="${color}" opacity="0.85"/>
+            <path d="M15 20 C14 15, 17 13, 21 15 C19 18, 17 19, 15 20 Z" fill="${color}" opacity="0.85"/>
+            <path d="M13 13 C13 9, 16 7, 19 9 C18 11, 15 12, 13 13 Z" fill="${color}" opacity="0.85"/>
+        </svg>`
+    };
+};
+
+window.getRoyalCrownSVG = function(c1, c2, size = 34) {
+    let uid = Math.random().toString(36).substring(2, 7);
+    return `<svg width="${size}" height="${Math.round(size * 0.78)}" viewBox="0 0 44 34" fill="none" class="arena-crown-svg" style="flex-shrink:0;">
+        <defs>
+            <linearGradient id="crG_${uid}" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="${c1}"/>
+                <stop offset="100%" stop-color="${c2}"/>
+            </linearGradient>
+        </defs>
+        <path d="M5 26 L2 10 L13 17 L22 4 L31 17 L42 10 L39 26 Z" fill="url(#crG_${uid})" stroke="${c1}" stroke-width="1.3" stroke-linejoin="round"/>
+        <rect x="5" y="28" width="34" height="4" rx="2" fill="url(#crG_${uid})"/>
+        <circle cx="22" cy="3" r="2.3" fill="#ffffff"/>
+        <circle cx="2" cy="9" r="1.8" fill="${c1}"/>
+        <circle cx="42" cy="9" r="1.8" fill="${c1}"/>
+        <circle cx="22" cy="20" r="2.2" fill="#ffffff" opacity="0.9"/>
+        <circle cx="12" cy="21" r="1.5" fill="#ffffff" opacity="0.75"/>
+        <circle cx="32" cy="21" r="1.5" fill="#ffffff" opacity="0.75"/>
+    </svg>`;
+};
+
+// 2. CSS CHỐNG VỠ KHUNG (Khóa cứng flex-shrink, thêm Padding đáy)
 window.injectArenaLeaderboardCSS = function() {
     let old = document.getElementById('apex-arena-lb-css');
     if (old) old.remove();
@@ -11335,7 +11384,7 @@ window.injectArenaLeaderboardCSS = function() {
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
         
-        /* Bầu trời lộng lẫy bao phủ toàn màn hình chính */
+        /* BẦU TRỜI LỘNG LẪY CHỨA TOP 3 */
         .arena-hero-section { position: relative; padding: 40px 50px 50px 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; flex-shrink: 0; }
@@ -11351,19 +11400,21 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-tab-btn { padding: 10px 24px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; }
 
+        /* CỜ HIỆU HAI BÊN */
         .arena-side-flag-container { position: absolute; bottom: 130px; width: 100px; height: 180px; z-index: 2; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
+        /* BỤC ĐÁ TOP 3 - KHÓA FLEX-SHRINK TRÁNH BỊ ÉP DẸP */
         .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: auto; position: relative; z-index: 3; flex-shrink: 0;}
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; flex-shrink: 0;}
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
         .arena-podium-col.rank-3 { animation-delay: 0.45s; }
 
-        .arena-avatar-wrap { position: relative; margin-bottom: -45px; z-index: 5; display: flex; flex-direction: column; align-items: center; }
+        .arena-avatar-wrap { position: relative; margin-bottom: -45px; z-index: 5; display: flex; flex-direction: column; align-items: center; flex-shrink: 0;}
         .arena-crown-svg { margin-bottom: -8px; z-index: 6; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; transform: scale(1.1); }
         .arena-avatar-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: #1e293b; position: relative; z-index: 5; }
         .arena-podium-col.rank-1 .arena-avatar-img { width: 100px; height: 100px; border: 3px solid #fde047; box-shadow: 0 0 25px rgba(251, 191, 36, 0.6); }
@@ -11397,17 +11448,16 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; flex-shrink: 0;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* THANH ĐẾ BÊN DƯỚI DÀNH RIÊNG CHO NGÀI (Nằm đè lên Bầu trời) */
+        /* THANH ĐẾ (FOOTER) VÀ NÚT MỞ BẢNG XẾP HẠNG TỔNG */
         .arena-footer-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px 50px 30px 50px; background: linear-gradient(180deg, transparent 0%, #090d1a 100%); z-index: 10; display: flex; flex-direction: column; gap: 14px; }
         
-        /* NÚT MỞ RỘNG BẢNG XẾP HẠNG TỔNG */
         .arena-expand-btn-wrap { display: flex; justify-content: center; width: 100%; margin-bottom: -10px; z-index: 11; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
         .arena-expand-btn:hover { background: #a855f7; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
 
         .arena-my-Sticky-bar { border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.85) 0%, rgba(17, 24, 46, 0.95) 55%, rgba(13, 19, 36, 0.98) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); backdrop-filter: blur(12px); flex-shrink: 0;}
         
-        /* OVERLAY VÀ BẢNG XẾP HẠNG TỔNG (TAB PHỤ) */
+        /* OVERLAY VÀ TAB PHỤ (BẢNG XẾP HẠNG TỪ HẠNG 4 - 30) */
         #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; }
         #arena-full-list-panel { position: absolute; bottom: 0; left: 0; right: 0; height: 80vh; background: #0b0f19; border-radius: 28px 28px 0 0; border-top: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 -20px 60px rgba(0,0,0,0.8); z-index: 101; display: flex; flex-direction: column; animation: slideUpPanel 0.4s cubic-bezier(0.2, 1, 0.3, 1) both; }
         
@@ -11427,7 +11477,7 @@ window.injectArenaLeaderboardCSS = function() {
     document.head.appendChild(st);
 };
 
-// 2. HÀM MỞ GIAO DIỆN CHÍNH
+// 3. TẠO KHUNG HTML VỚI ĐẦY ĐỦ LOGO CỜ "A" VÀ CÁC THÀNH PHẦN
 window.openLeaderboard = function() {
     window.injectArenaLeaderboardCSS();
 
@@ -11443,6 +11493,7 @@ window.openLeaderboard = function() {
     modal.innerHTML = `
         <div class="arena-modal-box">
             <div class="arena-hero-section">
+                <!-- CỜ TRÁI: Đã khắc phục Logo chữ A -->
                 <div class="arena-side-flag-container left">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
@@ -11454,6 +11505,7 @@ window.openLeaderboard = function() {
                     </div>
                 </div>
 
+                <!-- CỜ PHẢI: Đã khắc phục Logo chữ A -->
                 <div class="arena-side-flag-container right">
                     <div class="arena-side-flag">
                         <div class="arena-sweep-light"></div>
@@ -11502,7 +11554,7 @@ window.openLeaderboard = function() {
                 <div id="arena-podium-container" class="arena-podium-stage"></div>
             </div>
 
-            <!-- PHẦN ĐẾ (Gồm Nút mở bảng tổng & Thanh xếp hạng của ngài) -->
+            <!-- PHẦN ĐẾ CHỨA NÚT MỞ BẢNG TỔNG -->
             <div class="arena-footer-bar">
                 <div class="arena-expand-btn-wrap">
                     <button class="arena-expand-btn" onclick="document.getElementById('arena-full-list-overlay').style.display='block';">
@@ -11512,7 +11564,7 @@ window.openLeaderboard = function() {
                 <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
             </div>
             
-            <!-- OVERLAY VÀ TAB PHỤ TRƯỢT TỪ DƯỚI LÊN -->
+            <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
             <div id="arena-full-list-overlay">
                 <div id="arena-full-list-panel">
                     <div class="arena-panel-header">
@@ -11530,7 +11582,7 @@ window.openLeaderboard = function() {
     window.fetchLeaderboard('weeklyHours');
 };
 
-// 3. HÀM TẢI DỮ LIỆU VÀ PHÂN BỔ VÀO TAB CHÍNH / PHỤ
+// 4. HÀM TẢI VÀ ĐIỀN DỮ LIỆU CHUẨN XÁC
 window.fetchLeaderboard = async function(orderByField) {
     const podiumBox = document.getElementById('arena-podium-container');
     const listBox = document.getElementById('leaderboard-content');
@@ -11583,6 +11635,15 @@ window.fetchLeaderboard = async function(orderByField) {
                 currentStatus: data.currentStatus || 'online'
             });
         });
+
+        // Bơm Âm Binh (Bots)
+        const aiBots = [
+            { id: "bot_1", name: "Mark Zuckerberg", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mark", weeklyHours: 3.5, streak: 8, currentStatus: 'focusing', isBot: true },
+            { id: "bot_2", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elon", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
+            { id: "bot_3", name: "Donald Trump", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Trump", weeklyHours: 1.5, streak: 3, currentStatus: 'focusing', isBot: true },
+            { id: "bot_4", name: "Kim Jong-un", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kim", weeklyHours: 0.8, streak: 1, currentStatus: 'online', isBot: true }
+        ];
+        members = members.concat(aiBots);
 
         members.sort((a, b) => {
             if (orderByField === 'weeklyHours') return (b.weeklyHours - a.weeklyHours) || (b.streak - a.streak);
@@ -11683,7 +11744,7 @@ window.fetchLeaderboard = async function(orderByField) {
         if (myBarBox) {
             const myIndex = members.findIndex(x => x.id === USER_DOC_ID);
             const me = myIndex !== -1 ? members[myIndex] : {
-                name: currentUser?.displayName || "Học giả",
+                name: currentUser?.displayName || "Phước Thịnh",
                 photo: currentUser?.photoURL || "https://via.placeholder.com/44",
                 weeklyHours: typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0,
                 streak: typeof currentStreak !== 'undefined' ? currentStreak : 0
