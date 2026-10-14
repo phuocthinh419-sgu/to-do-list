@@ -11398,15 +11398,14 @@ window.injectArenaLeaderboardCSS = function() {
         @keyframes arenaPodiumUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes arenaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes arenaRowIn { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
-        @keyframes arenaSweepLight { 0% { left: -150%; } 25% { left: 200%; } 100% { left: 200%; } }
         @keyframes slideUpPanel { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
         @keyframes fadeOverlay { 0% { opacity: 0; } 100% { opacity: 1; } }
         
         #leaderboard-modal { display: none; position: fixed; inset: 0; background: #090d1a; z-index: 10002; align-items: center; justify-content: center; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
         .arena-modal-box { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; background: #090d1a; border: none; box-shadow: none; overflow: hidden; position: relative; color: #f8fafc; display: flex; flex-direction: column; animation: arenaPopIn 0.4s ease-out both; }
         
-        /* BẦU TRỜI LỘNG LẪY CHỨA TOP 3 */
-        .arena-hero-section { position: relative; padding: 40px 50px 50px 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+        /* HERO SECTION: Bầu trời chứa Bục đá */
+        .arena-hero-section { position: relative; padding: 40px 50px 0 50px; background: radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.2) 0%, rgba(9, 13, 26, 0.96) 70%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
         
         .arena-top-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 4; margin-bottom: 20px; flex-shrink: 0; }
         .arena-title-group { display: flex; align-items: center; gap: 18px; }
@@ -11417,19 +11416,20 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-close-btn { width: 44px; height: 44px; border-radius: 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.16); color: #cbd5e1; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .arena-close-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
-        .arena-tabs-wrap { display: inline-flex; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 4px; gap: 6px; position: relative; z-index: 4; }
+        /* TABS: Sửa lỗi bị kéo giãn ngang */
+        .arena-tabs-wrap { display: inline-flex !important; width: max-content !important; align-self: flex-start; background: rgba(8, 12, 24, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 4px; gap: 6px; position: relative; z-index: 4; margin-bottom: auto; }
         .arena-tab-btn { padding: 10px 24px; border-radius: 9px; border: none; background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.25s; }
         .arena-tab-btn.active { background: linear-gradient(90deg, #4f46e5, #7c3aed); color: #fff; }
 
-        /* CỜ HIỆU HAI BÊN */
-        .arena-side-flag-container { position: absolute; bottom: 130px; width: 100px; height: 180px; z-index: 2; border-radius: 6px 6px 0 0; }
+        /* CỜ HIỆU: Ép sát đáy màn hình */
+        .arena-side-flag-container { position: absolute; bottom: 0 !important; width: 100px; height: 220px; z-index: 2; border-radius: 6px 6px 0 0; }
         .arena-side-flag-container.left { left: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag-container.right { right: 40px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.85)); }
         .arena-side-flag { width: 100%; height: 100%; position: relative; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; }
         .arena-side-flag::after { content: ""; position: absolute; top: 0; left: -4px; right: -4px; height: 8px; background: linear-gradient(90deg, #78350f, #fde047, #f59e0b, #78350f); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;}
 
-        /* BỤC ĐÁ TOP 3 - KHÓA FLEX-SHRINK TRÁNH BỊ ÉP DẸP */
-        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: auto; position: relative; z-index: 3; flex-shrink: 0;}
+        /* BỤC ĐÁ: Tạo khoảng trống (padding-bottom) để không đè lên nút Mở rộng */
+        .arena-podium-stage { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: auto; padding-bottom: 90px; position: relative; z-index: 3; flex-shrink: 0;}
         .arena-podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 220px; position: relative; animation: arenaPodiumUp 0.65s ease-out both; flex-shrink: 0;}
         .arena-podium-col.rank-2 { animation-delay: 0.15s; }
         .arena-podium-col.rank-1 { width: 260px; z-index: 4; animation-delay: 0.3s; }
@@ -11442,14 +11442,7 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-podium-col.rank-2 .arena-avatar-img { border: 2.5px solid #e2e8f0; }
         .arena-podium-col.rank-3 .arena-avatar-img { border: 2.5px solid #fb923c; }
 
-        .arena-pedestal { 
-            width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; 
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 55px 12px 20px 12px; 
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2;
-            overflow: visible; flex-shrink: 0;
-        }
-        
+        .arena-pedestal { width: 100%; border-radius: 16px 16px 0 0; text-align: center; position: relative; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 55px 12px 20px 12px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 2; overflow: visible; flex-shrink: 0; }
         .arena-podium-col.rank-1 .arena-pedestal { height: 260px; background: linear-gradient(180deg, #422d08 0%, #120d05 100%); border-top: 4px solid #fbbf24; }
         .arena-podium-col.rank-2 .arena-pedestal { height: 220px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-top: 4px solid #cbd5e1; }
         .arena-podium-col.rank-3 .arena-pedestal { height: 190px; background: linear-gradient(180deg, #431407 0%, #2a0904 100%); border-top: 4px solid #f97316; }
@@ -11469,17 +11462,18 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; margin-top: 10px; flex-shrink: 0;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* THANH ĐẾ (FOOTER) VÀ NÚT MỞ BẢNG XẾP HẠNG TỔNG */
-        .arena-footer-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px 50px 30px 50px; background: linear-gradient(180deg, transparent 0%, #090d1a 100%); z-index: 10; display: flex; flex-direction: column; gap: 14px; }
+        /* THANH ĐẾ & NÚT MỞ RỘNG */
+        .arena-footer-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 50px 30px 50px; background: linear-gradient(180deg, transparent 0%, rgba(9,13,26,0.8) 35%, #090d1a 100%); z-index: 10; display: flex; flex-direction: column; gap: 14px; pointer-events: none; }
+        .arena-footer-bar > * { pointer-events: auto; }
         
-        .arena-expand-btn-wrap { display: flex; justify-content: center; width: 100%; margin-bottom: -10px; z-index: 11; position: relative; }
+        .arena-expand-btn-wrap { display: flex; justify-content: center; width: 100%; margin-top: -30px; margin-bottom: 10px; z-index: 11; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 8px 24px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
         .arena-expand-btn:hover { background: #a855f7; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
 
         .arena-my-Sticky-bar { border-radius: 18px; background: linear-gradient(90deg, rgba(59, 29, 110, 0.85) 0%, rgba(17, 24, 46, 0.95) 55%, rgba(13, 19, 36, 0.98) 100%); border: 1.5px solid rgba(168, 85, 247, 0.6); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); backdrop-filter: blur(12px); flex-shrink: 0;}
         
-        /* OVERLAY VÀ TAB PHỤ (BẢNG XẾP HẠNG TỪ HẠNG 4 - 30) */
-        #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; }
+        /* BẢNG TỔNG TRƯỢT LÊN */
+        #arena-full-list-overlay { display: none; position: absolute; inset: 0; background: rgba(4, 6, 14, 0.7); backdrop-filter: blur(8px); z-index: 100; animation: fadeOverlay 0.3s ease-out both; pointer-events: auto;}
         #arena-full-list-panel { position: absolute; bottom: 0; left: 0; right: 0; height: 80vh; background: #0b0f19; border-radius: 28px 28px 0 0; border-top: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 -20px 60px rgba(0,0,0,0.8); z-index: 101; display: flex; flex-direction: column; animation: slideUpPanel 0.4s cubic-bezier(0.2, 1, 0.3, 1) both; }
         
         .arena-panel-header { padding: 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
