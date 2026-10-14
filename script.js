@@ -11334,32 +11334,31 @@ window.renderDashboard = function() {
 };
 
 // =====================================================================
-// ĐẠI KIẾN TRÚC V6: HOÀN THIỆN ĐỈNH CAO THẨM MỸ
-// - Sửa chính tả, Bỏ ngoặc đơn
-// - Vòng nguyệt quế thiết kế mới, thanh thoát hơn
-// - Thẻ tiền thưởng treo lơ lửng dưới đáy bệ đá
+// ĐẠI KIẾN TRÚC V7: HOÀN KIM TUYỆT ĐỐI (SỬA CHÍNH TẢ + TRÀN VIỀN)
+// - ĐẤU TRƯỜNG KỶ LUẬT (Có dấu sắc)
+// - Nguyệt quế thanh mảnh ôm sát Avatar
+// - Thẻ tiền thưởng treo lơ lửng dưới đáy
+// - Bỏ hoàn toàn dấu ngoặc đơn ở số hạng 1, 2, 3
 // =====================================================================
 
-// 1. VÒNG NGUYỆT QUẾ MỚI: LÁ THON GỌN, ĐƯỜNG CONG MƯỢT MÀ
-window.getLaurelPairSVG = function(color, size = 32) {
+// 1. VÒNG NGUYỆT QUẾ ĐƯỢC VẼ LẠI THANH MẢNH VÀ SANG TRỌNG HƠN
+window.getLaurelPairSVG = function(color, size = 26) {
     return {
-        left: `<svg width="${size}" height="${size * 1.4}" viewBox="0 0 40 60" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">
-            <path d="M 35 55 C 20 45, 5 25, 15 5" stroke="${color}" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M 15 5 C 10 10, 5 15, 12 18 C 15 15, 20 10, 15 5 Z" fill="${color}"/>
-            <path d="M 11 18 C 6 23, 1 28, 8 31 C 11 28, 16 23, 11 18 Z" fill="${color}"/>
-            <path d="M 9 32 C 4 37, -1 42, 6 45 C 9 42, 14 37, 9 32 Z" fill="${color}"/>
-            <path d="M 18 12 C 23 15, 28 20, 24 25 C 20 22, 15 17, 18 12 Z" fill="${color}" opacity="0.85"/>
-            <path d="M 15 25 C 20 28, 25 33, 21 38 C 17 35, 12 30, 15 25 Z" fill="${color}" opacity="0.85"/>
-            <path d="M 14 39 C 19 42, 24 47, 20 52 C 16 49, 11 44, 14 39 Z" fill="${color}" opacity="0.85"/>
+        left: `<svg width="${size}" height="${size * 1.3}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
         </svg>`,
-        right: `<svg width="${size}" height="${size * 1.4}" viewBox="0 0 40 60" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">
-            <path d="M 35 55 C 20 45, 5 25, 15 5" stroke="${color}" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M 15 5 C 10 10, 5 15, 12 18 C 15 15, 20 10, 15 5 Z" fill="${color}"/>
-            <path d="M 11 18 C 6 23, 1 28, 8 31 C 11 28, 16 23, 11 18 Z" fill="${color}"/>
-            <path d="M 9 32 C 4 37, -1 42, 6 45 C 9 42, 14 37, 9 32 Z" fill="${color}"/>
-            <path d="M 18 12 C 23 15, 28 20, 24 25 C 20 22, 15 17, 18 12 Z" fill="${color}" opacity="0.85"/>
-            <path d="M 15 25 C 20 28, 25 33, 21 38 C 17 35, 12 30, 15 25 Z" fill="${color}" opacity="0.85"/>
-            <path d="M 14 39 C 19 42, 24 47, 20 52 C 16 49, 11 44, 14 39 Z" fill="${color}" opacity="0.85"/>
+        right: `<svg width="${size}" height="${size * 1.3}" viewBox="0 0 28 36" fill="none" style="flex-shrink:0; transform:scaleX(-1); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
+            <path d="M22 33 C11 28, 7 18, 12 4" stroke="${color}" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M18 30 C11 30, 8 26, 13 23 C16 25, 18 28, 18 30 Z" fill="${color}"/>
+            <path d="M14 25 C7 24, 5 19, 10 17 C13 19, 14 22, 14 25 Z" fill="${color}"/>
+            <path d="M12 19 C5 17, 4 12, 9 11 C12 13, 12 16, 12 19 Z" fill="${color}"/>
+            <path d="M11 13 C6 10, 6 6, 11 5 C13 8, 12 10, 11 13 Z" fill="${color}"/>
+            <path d="M12 7 C10 4, 12 1, 16 2 C15 5, 14 6, 12 7 Z" fill="${color}"/>
         </svg>`
     };
 };
@@ -11433,12 +11432,16 @@ window.injectArenaLeaderboardCSS = function() {
 
         .arena-crown-svg { margin-bottom: -10px; z-index: 15; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); animation: arenaFloat 3s infinite reverse; position: relative; }
 
+        /* MỞ KHÓA OVERFLOW: VISIBLE ĐỂ THẺ TIỀN THƯỞNG RỚT RA NGOÀI ĐƯỢC */
         .arena-pedestal { 
             width: 100%; border-radius: 12px 12px 0 0; text-align: center; position: relative; box-sizing: border-box; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 16px 8px 10px 8px; 
-            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; overflow: visible; flex-shrink: 0;
+            padding: 20px 8px 10px 8px; 
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -10px 30px rgba(0,0,0,0.7); z-index: 2; 
+            overflow: visible !important; flex-shrink: 0;
         }
+        
+        /* Lớp nền cắt ánh sáng (ẩn phần thừa của vệt sáng bên trong) */
         .arena-pedestal-bg { position: absolute; inset: 0; border-radius: 12px 12px 0 0; overflow: hidden; z-index: 0; }
         .arena-pedestal-bg::after { content: ""; position: absolute; top: 0; left: -150%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); transform: skewX(-25deg); pointer-events: none; animation: arenaSweepLight 5s infinite; }
         
@@ -11449,9 +11452,9 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-podium-col.rank-3 .arena-pedestal { height: 130px; background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.22), transparent 70%), linear-gradient(180deg, #2a1812 0%, #151118 70%, #090b12 100%); border: 1.5px solid rgba(249, 115, 22, 0.5); border-bottom: 2px solid #f97316; }
         .arena-podium-col.rank-3 .arena-pedestal-bg::after { animation-delay: 2.5s; }
 
-        /* SỐ HẠNG CHỈ CÒN ĐÚNG 1, 2, 3 RẤT UY QUYỀN */
-        .arena-rank-num { font-size: 1.8rem; font-weight: 900; line-height: 1; margin-bottom: 6px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
-        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.3rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
+        /* SỐ HẠNG CHỈ CÒN DUY NHẤT CON SỐ (Đã gỡ bỏ dấu ngoặc đơn) */
+        .arena-rank-num { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 6px; font-family: 'Inter', system-ui, sans-serif; position: relative; z-index: 2;}
+        .rank-1 .arena-rank-num { color: #fde047; font-size: 2.8rem; text-shadow: 0 0 16px rgba(251,191,36,0.8); }
         .rank-2 .arena-rank-num { color: #f1f5f9; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
         .rank-3 .arena-rank-num { color: #fdba74; text-shadow: 0 0 12px rgba(249,115,22,0.5); }
 
@@ -11464,8 +11467,8 @@ window.injectArenaLeaderboardCSS = function() {
         .arena-streak-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 14px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); color: #e2e8f0; position: relative; z-index: 2;}
         .rank-1 .arena-streak-pill { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
 
-        /* THẺ TIỀN THƯỞNG: ĐƯỢC TREO LƠ LỬNG DƯỚI ĐÁY BỆ ĐÁ NHƯ TẤM KIM BÀI */
-        .arena-reward-tag { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: #fff; font-weight: 800; padding: 5px 14px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); letter-spacing: 0.5px; z-index: 10; white-space: nowrap; }
+        /* THẺ TIỀN THƯỞNG: NẰM LƠ LỬNG TRÀN XUỐNG DƯỚI ĐÁY BỆ ĐÁ NHƯ TẤM KIM BÀI */
+        .arena-reward-tag { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: #fff; font-weight: 800; padding: 6px 14px; border-radius: 8px; box-shadow: 0 6px 15px rgba(0,0,0,0.7); letter-spacing: 0.5px; z-index: 10; white-space: nowrap; }
 
         .arena-expand-btn-wrap { text-align: center; margin-top: auto; padding-top: 10px; z-index: 10; position: relative; }
         .arena-expand-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; padding: 10px 28px; border-radius: 100px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -11502,7 +11505,8 @@ window.openLeaderboard = function() {
     modal.id = 'leaderboard-modal';
     document.body.appendChild(modal);
 
-    const headerWreath = window.getLaurelPairSVG('#fbbf24', 26);
+    // Kích thước vòng nguyệt quế đã được tinh chỉnh
+    const headerWreath = window.getLaurelPairSVG('#fbbf24', 28);
 
     modal.innerHTML = `
         <div class="arena-modal-box">
@@ -11536,14 +11540,10 @@ window.openLeaderboard = function() {
                 <div class="arena-top-bar">
                     <div class="arena-title-group">
                         <div class="arena-emblem-wrap">
-                            ${headerWreath.left}
-                            <div style="display:flex; flex-direction:column; align-items:center; margin:0 -4px; z-index:2;">
-                                <i class="fa-solid fa-star" style="font-size:0.55rem; color:#fef08a; margin-bottom:2px;"></i>
-                                <i class="fa-solid fa-trophy" style="font-size:1.45rem; color:#fbbf24;"></i>
-                            </div>
-                            ${headerWreath.right}
+                            <i class="fa-solid fa-trophy" style="font-size:1.8rem; color:#fbbf24; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6));"></i>
                         </div>
                         <div>
+                            <!-- ĐÃ SỬA CHÍNH TẢ: ĐẤU TRƯỜNG KỶ LUẬT -->
                             <h2 class="arena-main-title">ĐẤU TRƯỜNG KỶ LUẬT</h2>
                             <div class="arena-sub-title">Bảng xếp hạng cộng đồng</div>
                         </div>
@@ -11577,7 +11577,7 @@ window.openLeaderboard = function() {
                 </div>
             </div>
 
-            <!-- THANH THÔNG TIN BẢN THÂN GẮN ĐÁY -->
+            <!-- THANH THÔNG TIN BẢN THÂN -->
             <div id="arena-my-rank-bar" class="arena-my-Sticky-bar"></div>
 
             <!-- OVERLAY VÀ TAB PHỤ TRƯỢT LÊN -->
@@ -11651,7 +11651,7 @@ window.fetchLeaderboard = async function(orderByField) {
             });
         });
 
-        // BƠM ÂM BINH (BOTS) LÀM ĐỐI TRỌNG
+        // BƠM ÂM BINH
         const aiBots = [
             { id: "bot_1", name: "Mark Zuckerberg", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mark", weeklyHours: 3.5, streak: 8, currentStatus: 'focusing', isBot: true },
             { id: "bot_2", name: "Elon Musk", photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elon", weeklyHours: 2.1, streak: 5, currentStatus: 'online', isBot: true },
@@ -11666,15 +11666,15 @@ window.fetchLeaderboard = async function(orderByField) {
             return (b.streak - a.streak) || (b.weeklyHours - a.weeklyHours);
         });
 
-        // VẼ TOP 3 TRÊN MÀN HÌNH CHÍNH
+        // VẼ TOP 3
         const top1 = members[0] || null;
         const top2 = members[1] || null;
         const top3 = members[2] || null;
         
         const podiumOrder = [
-            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 38, crownSz: 32, reward: '+$500', rCol: '#38bdf8', bg: 'rgba(148,163,184,0.3)' },
-            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 48, crownSz: 40, reward: '+$1,000 & 1 🛡️', rCol: '#fbbf24', bg: 'rgba(251,191,36,0.35)' },
-            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 38, crownSz: 32, reward: '+$300', rCol: '#f97316', bg: 'rgba(249,115,22,0.3)' }
+            { item: top2, rank: 2, wreathCol: '#cbd5e1', c1: '#f8fafc', c2: '#94a3b8', size: 32, crownSz: 32, reward: '+$500', rCol: '#38bdf8', bg: 'rgba(148,163,184,0.3)' },
+            { item: top1, rank: 1, wreathCol: '#fbbf24', c1: '#fef08a', c2: '#d97706', size: 40, crownSz: 40, reward: '+$1,000 & 1 🛡️', rCol: '#fbbf24', bg: 'rgba(251,191,36,0.35)' },
+            { item: top3, rank: 3, wreathCol: '#fb923c', c1: '#fed7aa', c2: '#c2410c', size: 32, crownSz: 32, reward: '+$300', rCol: '#f97316', bg: 'rgba(249,115,22,0.3)' }
         ];
 
         if (podiumBox) {
@@ -11689,11 +11689,11 @@ window.fetchLeaderboard = async function(orderByField) {
                 const rankWreath = window.getLaurelPairSVG(p.wreathCol, p.size);
                 const crownSvg = window.getRoyalCrownSVG(p.c1, p.c2, p.crownSz);
 
-                // Nguyệt quế ôm ảnh đại diện thay vì số
+                // KIẾN TRÚC MỚI: Nguyệt quế ôm sát ảnh, lá thon gọn
                 let avatarBorder = p.rank === 1 ? '3px solid #fde047' : (p.rank === 2 ? '2.5px solid #e2e8f0' : '2.5px solid #fb923c');
                 let avatarShadow = p.rank === 1 ? '0 10px 32px rgba(251, 191, 36, 0.85), 0 0 12px #ffffff' : 'none';
                 let avatarSize = p.rank === 1 ? 92 : 76;
-                let wingOffset = p.rank === 1 ? 40 : 32; // Đẩy cánh nguyệt quế ra sát viền ảnh
+                let wingOffset = p.rank === 1 ? 38 : 31; 
 
                 return `
                     <div class="arena-podium-col rank-${p.rank}">
@@ -11715,7 +11715,8 @@ window.fetchLeaderboard = async function(orderByField) {
                         
                         <div class="arena-pedestal">
                             <div class="arena-pedestal-bg"></div>
-                            <!-- SỐ THỨ TỰ UY QUYỀN (Không còn ngoặc đơn) -->
+                            
+                            <!-- BỎ HOÀN TOÀN DẤU NGOẶC ĐƠN: CHỈ CÒN 1, 2, 3 RẤT TO -->
                             <div class="arena-rank-num" style="color: ${p.rCol}; text-shadow: 0 0 16px ${p.rCol}60;">${p.rank}</div>
                             <div class="arena-podium-name" title="${m.name}">${m.name}</div>
                             <div class="arena-podium-score">${mainMetric}</div>
@@ -11787,7 +11788,7 @@ window.fetchLeaderboard = async function(orderByField) {
         if (myBarBox) {
             const myIndex = members.findIndex(x => x.id === USER_DOC_ID);
             const me = myIndex !== -1 ? members[myIndex] : {
-                name: currentUser?.displayName || "Học giả",
+                name: currentUser?.displayName || "Người Dùng",
                 photo: currentUser?.photoURL || "https://via.placeholder.com/44",
                 weeklyHours: typeof getTotalCycleHours === 'function' ? getTotalCycleHours() : 0,
                 streak: typeof currentStreak !== 'undefined' ? currentStreak : 0
@@ -11837,4 +11838,62 @@ window.fetchLeaderboard = async function(orderByField) {
         console.error(e);
         listBox.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Lỗi kết nối máy chủ Đấu trường.</div>';
     }
+};
+
+// ---------------------------------------------------------------------------------
+// KIỂM SOÁT VÀ TRAO THƯỞNG HOÀNG GIA ĐẦU TUẦN
+// ---------------------------------------------------------------------------------
+const prevCheckCycleForRewards = window.checkCycleAndStreak;
+window.checkCycleAndStreak = async function() {
+    let currentMon = (typeof getGlobalMonday === 'function') ? getGlobalMonday(new Date()) : "2026-10-12";
+    let lastTaxCheckedMon = localStorage.getItem('saasTaxCheckedMonday') || "";
+
+    if (lastTaxCheckedMon !== currentMon && lastTaxCheckedMon !== "") {
+        try {
+            console.log("🏆 Đang tổng kết Bảng Vàng để trao thưởng Top 3 tuần cũ...");
+            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+            
+            const snapshot = await db.collection("academic_apex").get();
+            let members = [];
+            snapshot.forEach((doc) => {
+                let data = doc.data() || {};
+                let calcWeekHrs = 0;
+                if (data.dailyLogs) {
+                    let parts = lastTaxCheckedMon.split('-');
+                    for (let i = 0; i < 7; i++) {
+                        let d = new Date(parts[0], parts[1] - 1, parts[2]);
+                        d.setDate(d.getDate() + i);
+                        let dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                        calcWeekHrs += Number(data.dailyLogs[dStr] || 0);
+                    }
+                } else if (typeof data.weeklyHours === 'number') {
+                    calcWeekHrs = data.weeklyHours;
+                }
+                
+                if (doc.id === USER_DOC_ID) calcWeekHrs = (typeof getTotalCycleHours === 'function') ? getTotalCycleHours() : calcWeekHrs;
+                members.push({ id: doc.id, weeklyHours: calcWeekHrs });
+            });
+
+            members.sort((a, b) => b.weeklyHours - a.weeklyHours);
+            
+            const myRankIndex = members.findIndex(m => m.id === USER_DOC_ID);
+            if (myRankIndex === 0) {
+                localStorage.setItem("usdBalance", usd + 1000);
+                let shields = parseInt(localStorage.getItem('saasFreezes')) || 0;
+                localStorage.setItem('saasFreezes', shields + 1);
+                alert("🏆 QUÁN QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$1,000 USD và +1 Khiên bảo vệ vào tài khoản!");
+            } else if (myRankIndex === 1) {
+                localStorage.setItem("usdBalance", usd + 500);
+                alert("🥈 Á QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$500 USD vào tài khoản!");
+            } else if (myRankIndex === 2) {
+                localStorage.setItem("usdBalance", usd + 300);
+                alert("🥉 QUÝ QUÂN ĐẤU TRƯỜNG! Hệ thống vinh danh thành tích tuần qua của bạn. Đã trao thưởng +$300 USD vào tài khoản!");
+            }
+            if (typeof updateUsdDisplay === 'function') updateUsdDisplay();
+        } catch(e) {
+            console.error("Lỗi trao thưởng tuần:", e);
+        }
+    }
+    
+    if (typeof prevCheckCycleForRewards === 'function') prevCheckCycleForRewards();
 };
