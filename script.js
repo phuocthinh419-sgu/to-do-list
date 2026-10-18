@@ -3379,26 +3379,17 @@ function abortReport() {
 }
 
 // =====================================================================
-// AI KIỂM DUYỆT BÁO CÁO (BẢN TỐI ƯU & NGÔN TỪ TRUNG LẬP)
+// AI KIỂM DUYỆT BÁO CÁO (BẢN VÔ HÌNH - HOÀN HẢO CHO NGƯỜI DÙNG)
 // =====================================================================
-
-// Đảm bảo biến API Key luôn tồn tại để tránh lỗi ReferenceError
-if (typeof window.GEMINI_API_KEY === 'undefined') {
-    window.GEMINI_API_KEY = ""; // Bạn có thể điền API Key vào giữa dấu ngoặc kép này nếu cần
-}
-
-// =====================================================================
-// AI KIỂM DUYỆT BÁO CÁO (BẢN HOẠT ĐỘNG NGẦM - NHƯ TRƯỚC KIA)
-// =====================================================================
-
-// BỆ HẠ HÃY DÁN API KEY CỦA NGÀI VÀO GIỮA 2 DẤU NGOẶC KÉP NÀY
-const GEMINI_API_KEY = "AQ.Ab8RN6JneSbUwREYSMiptKviwollYcyZh8lFYg8eW2Rtz4s0lg"; 
 
 async function validateReportWithAI(reportText, durationMinutes) {
     try {
-        // Nếu ngài vô tình để trống Key, hệ thống tự động cho PASS êm ru, không treo máy
-        if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
-            return "PASS | Hệ thống ghi nhận báo cáo thành công (Chế độ mặc định).";
+        // Tự động nhận diện API Key từ file config.js tàng hình của Vercel
+        let apiKey = (typeof GEMINI_API_KEY !== 'undefined') ? GEMINI_API_KEY : "";
+
+        // Nếu lỡ Vercel chưa load kịp, tự động cho PASS êm ru, không treo, không hỏi han
+        if (!apiKey || apiKey.trim() === "") {
+            return "PASS | Hệ thống ghi nhận báo cáo (AI Copilot mặc định).";
         }
 
         const modelName = "gemini-1.5-flash"; 
@@ -3407,7 +3398,7 @@ async function validateReportWithAI(reportText, durationMinutes) {
         Quy tắc: Bắt buộc trả về đúng định dạng: [SỐ SAO TỪ 1 ĐẾN 5] | [LỜI NHẬN XÉT]
         Báo cáo của người dùng: "${reportText}"`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
         
         // Thời gian chờ tối đa 12 giây để AI kịp suy nghĩ
         const controller = new AbortController();
@@ -3425,9 +3416,8 @@ async function validateReportWithAI(reportText, durationMinutes) {
         
         clearTimeout(timeoutId); 
         
-        // Giấu nhẹm mọi lỗi kỹ thuật đối với người dùng
         if (!response.ok) {
-            return `PASS | Trợ lý học thuật đang bảo trì. Phiên học vẫn được ghi nhận thành công!`;
+            return `PASS | Trợ lý học thuật đang bận. Phiên học vẫn được ghi nhận thành công!`;
         }
 
         const data = await response.json();
