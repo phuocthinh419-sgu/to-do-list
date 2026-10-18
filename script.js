@@ -3392,7 +3392,7 @@ if (typeof window.GEMINI_API_KEY === 'undefined') {
 // =====================================================================
 
 // BỆ HẠ HÃY DÁN API KEY CỦA NGÀI VÀO GIỮA 2 DẤU NGOẶC KÉP NÀY
-const GEMINI_API_KEY = "ĐIỀN_API_KEY_CỦA_NGÀI_VÀO_ĐÂY"; 
+const GEMINI_API_KEY = "AQ.Ab8RN6JneSbUwREYSMiptKviwollYcyZh8lFYg8eW2Rtz4s0lg"; 
 
 async function validateReportWithAI(reportText, durationMinutes) {
     try {
