@@ -3387,52 +3387,58 @@ if (typeof window.GEMINI_API_KEY === 'undefined') {
     window.GEMINI_API_KEY = ""; // Bạn có thể điền API Key vào giữa dấu ngoặc kép này nếu cần
 }
 
+// =====================================================================
+// AI KIỂM DUYỆT BÁO CÁO (BẢN HOẠT ĐỘNG NGẦM - NHƯ TRƯỚC KIA)
+// =====================================================================
+
+// BỆ HẠ HÃY DÁN API KEY CỦA NGÀI VÀO GIỮA 2 DẤU NGOẶC KÉP NÀY
+const GEMINI_API_KEY = "ĐIỀN_API_KEY_CỦA_NGÀI_VÀO_ĐÂY"; 
+
 async function validateReportWithAI(reportText, durationMinutes) {
     try {
-        // 1. Kiểm tra API Key
-        let apiKey = window.GEMINI_API_KEY || (typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : "");
-        if (!apiKey || apiKey.trim() === "") {
-            console.warn("Hệ thống: Chưa thiết lập GEMINI_API_KEY. Tự động cấp trạng thái PASS.");
-            return "PASS | Hệ thống AI hiện đang offline (Chưa có API Key). Phiên học của bạn vẫn được ghi nhận thành công.";
+        // Nếu ngài vô tình để trống Key, hệ thống tự động cho PASS êm ru, không treo máy
+        if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
+            return "PASS | Hệ thống ghi nhận báo cáo thành công (Chế độ mặc định).";
         }
 
-        const modelName = "gemini-1.5-flash"; // Sử dụng model nhanh nhất
-        const prompt = `Bạn là Trợ lý Học thuật (Academic Copilot) đánh giá chất lượng phiên học ${durationMinutes} phút.
+        const modelName = "gemini-1.5-flash"; 
+        const promptText = `Bạn là Trợ lý Học thuật (Academic Copilot) đánh giá chất lượng phiên học ${durationMinutes} phút.
         Hãy chấm điểm báo cáo từ 1 đến 5 sao và đưa ra 1 lời khuyên chuyên môn ngắn gọn.
         Quy tắc: Bắt buộc trả về đúng định dạng: [SỐ SAO TỪ 1 ĐẾN 5] | [LỜI NHẬN XÉT]
         Báo cáo của người dùng: "${reportText}"`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
         
-        // 2. Giới hạn thời gian phản hồi: Tối đa 6 giây
+        // Thời gian chờ tối đa 12 giây để AI kịp suy nghĩ
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000); 
+        const timeoutId = setTimeout(() => controller.abort(), 12000); 
 
         const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
+                contents: [{ parts: [{ text: promptText }] }],
                 generationConfig: { temperature: 0.6 } 
             }),
             signal: controller.signal
         });
         
         clearTimeout(timeoutId); 
-        const data = await response.json();
-
+        
+        // Giấu nhẹm mọi lỗi kỹ thuật đối với người dùng
         if (!response.ok) {
-            return `PASS | Đường truyền AI gặp sự cố (${response.status}). Phiên học vẫn được ghi nhận thành công.`;
+            return `PASS | Trợ lý học thuật đang bảo trì. Phiên học vẫn được ghi nhận thành công!`;
         }
+
+        const data = await response.json();
 
         if (data.candidates && data.candidates.length > 0) {
             return data.candidates[0].content.parts[0].text.trim();
         }
 
     } catch (error) {
-        // 3. Xử lý khi quá hạn thời gian (timeout) hoặc lỗi mạng
-        console.error("Lỗi hệ thống AI:", error);
-        return "PASS | Hệ thống kiểm duyệt AI đang bận hoặc phản hồi chậm. Phiên học của bạn vẫn được ghi nhận."; 
+        console.error("Lỗi AI ẩn:", error);
+        return "PASS | Mạng yếu hoặc AI quá tải. Hệ thống vẫn bảo lưu tiến độ của bạn."; 
     }
 
     return `PASS | Quá trình phân tích hoàn tất an toàn.`;
