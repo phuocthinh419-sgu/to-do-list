@@ -141,7 +141,6 @@
         .ax-f-pill i { font-size: 1.05rem; color: #c084fc; }
         .ax-f-pill span { font-size: 0.74rem; font-weight: 600; color: #f1f5f9; line-height: 1.25; text-align: left; }
         
-        /* CỤM ĐẠO CỤ BÀN HỌC 3D ĐÃ CĂN THẲNG HÀNG & CÂN ĐỐI TUYỆT ĐỐI */
         .ax-desk-props {
             display: inline-flex; align-items: flex-end; gap: 18px;
             padding: 16px 22px 14px 18px; border-radius: 18px;
@@ -151,7 +150,6 @@
             box-shadow: 0 18px 40px rgba(0,0,0,0.6);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        /* 3 cuốn sách xếp chồng thẳng tắp 100% không bị lệch */
         .ax-book-stack {
             display: flex; flex-direction: column; gap: 3px; width: 205px;
             filter: drop-shadow(0 8px 16px rgba(0,0,0,0.65));
@@ -175,7 +173,6 @@
         }
         .ax-book-item:nth-child(3) { border-left: 5px solid #38bdf8; }
 
-        /* Ống cắm bút có bút nhô lên */
         .ax-pen-holder-wrap {
             display: flex; flex-direction: column; align-items: center; position: relative;
         }
@@ -194,7 +191,6 @@
             box-shadow: 0 10px 22px rgba(0,0,0,0.7), inset 0 -6px 12px rgba(15,23,42,0.25);
         }
 
-        /* Khối Pha Lê BETTER YOU TOMORROW có tia sáng quét qua */
         .ax-crystal-wrap {
             display: flex; flex-direction: column; align-items: center;
         }
@@ -230,7 +226,6 @@
             margin-top: -1px;
         }
 
-        /* Thẻ Đăng Nhập Kính Mờ Bên Phải */
         .ax-glass-card {
             width: 100%; max-width: 425px; border-radius: 26px;
             padding: 40px 36px 32px 36px; box-sizing: border-box;
@@ -277,7 +272,6 @@
         }
         .ax-btn-email:hover { background: rgba(168, 85, 247, 0.25); border-color: #c084fc; transform: translateY(-2px); }
         
-        /* Chặn script cũ tự chèn thêm nút Email thứ 2 vào trong card */
         .ax-glass-card [id^="btn-apex-email-auth"] { display: none !important; }
 
         .ax-trust-grid {
@@ -315,9 +309,6 @@
             50% { transform: translateY(4px); }
         }
 
-        /* ============================================================================
-           TẦNG 2: THÔNG TIN GIỚI THIỆU FULL-SCREEN 100VH (KHÔNG LỘ VIỀN TRÊN & CÓ ANIMATION)
-           ============================================================================ */
         .ax-about-section {
             width: 100%;
             min-height: 100vh;
@@ -426,7 +417,6 @@
             box-shadow: 0 10px 26px rgba(168, 85, 247, 0.65);
         }
 
-        /* HIỆU ỨNG ANIMATION KHI CUỘN XUỐNG (SCROLL REVEAL) */
         .ax-reveal {
             opacity: 0;
             transform: translateY(32px);
@@ -442,7 +432,6 @@
         .ax-delay-4 { transition-delay: 0.40s; }
         .ax-delay-5 { transition-delay: 0.50s; }
 
-        /* Khóa ẩn vĩnh viễn hộp vòng tròn đỏ "CÒN LẠI" bị lặp ở Sidebar */
         #curfew-countdown-container { display: none !important; }
 
         @media (max-width: 960px) {
@@ -460,10 +449,8 @@
     </style>
 </head>
 <body>
-    <!-- MÀN HÌNH ĐĂNG NHẬP DESIGN 2 & GIỚI THIỆU TỔNG QUAN -->
     <div id="login-overlay">
         <div class="ax-hero-viewport" id="ax-top-anchor">
-            <!-- Top Header -->
             <div class="ax-login-topbar">
                 <div class="ax-brand-wrap">
                     <div class="ax-brand-logo"><i class="fa-solid fa-layer-group"></i></div>
@@ -487,11 +474,8 @@
                 </div>
             </div>
 
-            <!-- Center Content -->
             <div class="ax-login-main">
-                <!-- Left Hero -->
                 <div class="ax-hero-left">
-                    <!-- Đường vòng cung ánh sao không cắt vào chữ "nỗ lực" -->
                     <svg class="ax-orbit-svg" viewBox="0 0 480 145" fill="none">
                         <path d="M12 118 C 135 -12, 395 -18, 442 42 C 458 65, 430 100, 375 118" stroke="url(#orbGrad)" stroke-width="1.5" fill="none"/>
                         <g class="ax-star-sparkle">
@@ -532,7 +516,6 @@
                         </div>
                     </div>
 
-                    <!-- Cụm Đạo Cụ Bàn Học 3D Đã Căn Chỉnh Thẳng Hàng Tuyệt Đối -->
                     <div class="ax-desk-props">
                         <div class="ax-book-stack">
                             <div class="ax-book-item">Discipline · Focus · Mastery</div>
@@ -561,7 +544,6 @@
                     </div>
                 </div>
 
-                <!-- Right Frosted Glass Login Card -->
                 <div class="ax-glass-card">
                     <i class="fa-solid fa-layer-group ax-card-watermark"></i>
                     <div class="ax-card-logo"><i class="fa-solid fa-layer-group"></i></div>
@@ -609,14 +591,12 @@
                 </div>
             </div>
 
-            <!-- Nút Cuộn Xuống Để Khám Phá -->
             <div class="ax-bottom-hint" onclick="document.getElementById('ax-about-anchor').scrollIntoView({behavior:'smooth'})">
                 <span class="ax-scroll-pill">↓</span>
                 <span>Cuộn xuống để khám phá</span>
             </div>
         </div>
 
-        <!-- TẦNG 2: THÔNG TIN GIỚI THIỆU FULL-SCREEN 100VH (CÓ ANIMATION TRƯỢT LÊN) -->
         <section class="ax-about-section" id="ax-about-anchor">
             <div class="ax-about-inner">
                 <div class="ax-about-header ax-reveal">
@@ -783,12 +763,8 @@
         </header>
 
         <div id="view-dashboard" class="view-section">
-            <!-- Khu vực chứa 3 thẻ widget Compact (Sẽ do script inject vào đây qua id apex-compact-widgets) -->
-            
-            <!-- Bố cục 4 tầng chuẩn Concept -->
             <div id="bento-command-center"></div>
 
-            <!-- Giữ ẩn các phần tử cũ để script.js không bị lỗi tham chiếu ID -->
             <div style="display:none;">
                 <div id="kpi-status">0.0 / 5.0h</div>
                 <div id="kpi-bar-fill"></div>
@@ -807,7 +783,6 @@
             </div>
         </div>
 
-        <!-- PHÒNG MỤC TIÊU ĐƯỢC TÁCH RIÊNG (GOALS ROOM) -->
         <div id="view-goals" style="display: none;"></div>
 
         <div id="timetable-room" class="view-section" style="display: none;">
@@ -885,7 +860,6 @@
         </div>
     </main>
 
-    <!-- FOCUS ROOM -->
     <div id="focus-room" style="display: none; background-image: url('https://i.pinimg.com/originals/a4/f2/8d/a4f28d6f8fc6de94bc0283f510bd6d38.gif'); background-size: cover; background-position: center;">
         <div id="focus-overlay" style="position: absolute; top:0; left:0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15, 18, 38, 0.62) 0%, rgba(9, 11, 24, 0.9) 100%); backdrop-filter: blur(6px); z-index: 0;"></div>
 
@@ -1031,9 +1005,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+
+    <!-- THÊM CONFIG.JS ĐỂ NHẬN API KEY TỪ VERCEL -->
+    <script src="config.js"></script>
+    <!-- GỌI SCRIPT CHÍNH SAU CÙNG -->
     <script src="script.js"></script>
 
-    <!-- SCRIPT ĐỒNG HỒ TRANG LOGIN, TỰ ĐỘNG ẨN LOGIN OVERLAY KHI ĐÃ XÁC THỰC & KÍCH HOẠT ANIMATION -->
     <script>
         (function() {
             function tickLoginClock() {
@@ -1046,7 +1023,6 @@
             tickLoginClock();
             setInterval(tickLoginClock, 10000);
 
-            // Tự động mở khóa vào thẳng Dashboard ngay khi Firebase xác nhận đã đăng nhập
             if (typeof firebase !== 'undefined' && firebase.auth) {
                 firebase.auth().onAuthStateChanged(function(user) {
                     var ov = document.getElementById('login-overlay');
@@ -1055,7 +1031,6 @@
                 });
             }
 
-            // Kích hoạt hiệu ứng Animation trượt lên khi người dùng cuộn xuống Tầng Giới Thiệu
             var revealEls = document.querySelectorAll('.ax-reveal');
             if ('IntersectionObserver' in window && revealEls.length > 0) {
                 var obs = new IntersectionObserver(function(entries) {
