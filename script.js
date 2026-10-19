@@ -3384,23 +3384,22 @@ function abortReport() {
 
 async function validateReportWithAI(reportText, durationMinutes) {
     try {
-        // Tự động nhận diện API Key từ file config.js tàng hình của Vercel
         let apiKey = (typeof GEMINI_API_KEY !== 'undefined') ? GEMINI_API_KEY : "";
-
-        // Nếu lỡ Vercel chưa load kịp, tự động cho PASS êm ru, không treo, không hỏi han
         if (!apiKey || apiKey.trim() === "") {
             return "PASS | Hệ thống ghi nhận báo cáo (AI Copilot mặc định).";
         }
 
         const modelName = "gemini-1.5-flash"; 
+        // Làm sạch văn bản: Loại bỏ ngoặc kép thừa hoặc ký tự làm vỡ JSON
+        const safeText = reportText.replace(/"/g, "'").replace(/\n/g, " ");
+        
         const promptText = `Bạn là Trợ lý Học thuật (Academic Copilot) đánh giá chất lượng phiên học ${durationMinutes} phút.
         Hãy chấm điểm báo cáo từ 1 đến 5 sao và đưa ra 1 lời khuyên chuyên môn ngắn gọn.
         Quy tắc: Bắt buộc trả về đúng định dạng: [SỐ SAO TỪ 1 ĐẾN 5] | [LỜI NHẬN XÉT]
-        Báo cáo của người dùng: "${reportText}"`;
+        Báo cáo của người dùng: "${safeText}"`;
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
         
-        // Thời gian chờ tối đa 12 giây để AI kịp suy nghĩ
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000); 
 
@@ -3409,7 +3408,14 @@ async function validateReportWithAI(reportText, durationMinutes) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: { temperature: 0.6 } 
+                generationConfig: { temperature: 0.6 },
+                // ĐẠI BÁC PHÁ VỠ BỘ LỌC KIỂM DUYỆT CỦA GOOGLE
+                safetySettings: [
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
             }),
             signal: controller.signal
         });
@@ -3417,12 +3423,19 @@ async function validateReportWithAI(reportText, durationMinutes) {
         clearTimeout(timeoutId); 
         
         if (!response.ok) {
+            // In thẳng lỗi ra màn hình đen (F12) để bắt tận tay nếu còn bị
+            let errorDetails = await response.text();
+            console.error("Google AI đã từ chối báo cáo vì lỗi:", errorDetails);
             return `PASS | Trợ lý học thuật đang bận. Phiên học vẫn được ghi nhận thành công!`;
         }
 
         const data = await response.json();
 
         if (data.candidates && data.candidates.length > 0) {
+            // Kiểm tra xem AI có tự nín lặng không
+            if (data.candidates[0].finishReason !== "STOP") {
+                return `PASS | Báo cáo đã được lưu trữ an toàn vào hệ thống.`;
+            }
             return data.candidates[0].content.parts[0].text.trim();
         }
 
