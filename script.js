@@ -3766,7 +3766,7 @@ function autoHealDiscrepancy() {
                 if (parts.length === 3) {
                     // Ép chuẩn định dạng YYYY-MM-DD
                     let isoDate = parts[2] + '-' + parts[1].padStart(2, '0') + '-' + parts[0].padStart(2, '0');
-                    let mins = parseInt(r.type.replace(/\D/g, '')) || 0;
+                    let mins = parseInt((r.type || "").replace(/\D/g, '')) || 0;
                     actualMinsPerDay[isoDate] = (actualMinsPerDay[isoDate] || 0) + mins;
                 }
             });
