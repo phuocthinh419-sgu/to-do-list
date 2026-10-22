@@ -3462,7 +3462,7 @@ async function submitReport() {
         }
 
         // ========================================================
-        // 2. KÍCH HOẠT AI CHẤM SAO (1 - 5 SAO) & CỐ VẤN
+        // 2. KHÓA NÚT & KÍCH HOẠT AI CHẤM SAO
         // ========================================================
         let btnSubmit = document.getElementById('btn-submit-report');
         if (btnSubmit) {
@@ -3470,221 +3470,226 @@ async function submitReport() {
             btnSubmit.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Hệ thống đang chấm điểm...";
         }
 
-        let aiResponse = await validateReportWithAI(text, currentDuration);
-        
-        let aiParts = aiResponse.split("|");
-        let rawScore = aiParts[0].trim();
-        let aiAdvice = aiParts[1] ? aiParts[1].trim() : "Hệ thống đã ghi nhận tiến độ của bạn.";
-
-        // Xử lý điểm Sao (Nếu lỗi mạng trả về PASS thì mặc định không tính vào lịch sử sao)
-        let starScore = parseInt(rawScore.replace(/\D/g, ''));
-        let isOfflinePass = (rawScore === "PASS" || isNaN(starScore));
-        if (!isOfflinePass) {
-            starScore = Math.max(1, Math.min(5, starScore));
-            if (typeof recordNewStarRating === 'function') recordNewStarRating(starScore);
-        }
-
-        // Nếu bị chấm 1 hoặc 2 sao -> Không đạt (FAIL)
-        if (!isOfflinePass && starScore <= 2) {
-            let starsVisual = "⭐".repeat(starScore);
-            alert(`ĐÁNH GIÁ BÁO CÁO: ${starsVisual} (${starScore}/5 Sao - Không đạt)\n\nPhản hồi từ hệ thống: ${aiAdvice}\n\nPhiên học đã bị hủy. Hệ thống áp dụng chế tài trừ $100 và đặt lại chuỗi kỷ luật.`);
+        // 🛡️ BỌC THÉP TOÀN BỘ QUÁ TRÌNH XỬ LÝ (CHỐNG KẸT NÚT)
+        try {
+            let aiResponse = await validateReportWithAI(text, currentDuration);
             
-            if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
-            document.getElementById('report-modal').style.display = 'none';
+            let aiParts = aiResponse.split("|");
+            let rawScore = aiParts[0].trim();
+            let aiAdvice = aiParts[1] ? aiParts[1].trim() : "Hệ thống đã ghi nhận tiến độ của bạn.";
 
-            let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
-            localStorage.setItem('usdBalance', Math.max(0, currentUsd - 100));
-            updateUsdDisplay();
-            impactStockMarket("PENALTY");
-            currentStreak = 0; saveAll(); renderGamification(); resetSystem(); return;
-        }
-
-        // Tính tiền Tip theo số Sao (4 sao: +$15 | 5 sao: +$35)
-        let tipAmount = 0;
-        if (!isOfflinePass) {
-            if (starScore === 4) tipAmount = 15;
-            if (starScore === 5) tipAmount = 35;
-        }
-
-        let ratingHeader = isOfflinePass 
-            ? "Phiên học hoàn thành!" 
-            : `ĐÁNH GIÁ CHẤT LƯỢNG: ${"⭐".repeat(starScore)} (${starScore}/5 Sao)${tipAmount > 0 ? `\n💰 Thưởng thêm Tiền Tip chất lượng: +$${tipAmount}` : ""}`;
-
-        alert(`${ratingHeader}\n\n💡 Nhận xét từ Trợ lý AI:\n"${aiAdvice}"`);
-        
-        if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Nộp Báo Cáo"; }
-        // ========================================================
-
-        document.getElementById('report-modal').style.display = 'none';
-        let isPunishment = isHardcoreTax || isDebtSession;
-
-        activeSessionMinutes = standardMinutes + overtimeMinutes;
-        if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; 
-        
-        let now = new Date(); 
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
-        let dateStr = now.toISOString().split('T')[0];
-        let currentHour = new Date().getHours();
-
-        // ========================================================
-        // 💰 HỆ THỐNG TRẢ THƯỞNG & 3 MỐC VINH QUANG (5-10-15)
-        // ========================================================
-        if (!isPunishment) {
-            let baseEarn = activeSessionMinutes * 1; 
-            let todayHrsBefore = dailyLogs[dateStr] || 0; 
-            let todayMinsBefore = Math.round(todayHrsBefore * 60);
-            
-            let extraMins = Math.min(activeSessionMinutes, Math.max(0, todayMinsBefore + activeSessionMinutes - 90));
-            let bonusEarn = extraMins > 0 ? Math.floor(extraMins * 0.2) : 0;
-            
-            let hoursEarned = activeSessionMinutes / 60;
-            let currentCycleHrs = getTotalCycleHours() + hoursEarned; 
-            
-            let rewardMultiplier = 1;
-            if (currentCycleHrs >= 15.0) rewardMultiplier = 3;
-            else if (currentCycleHrs >= 10.0) rewardMultiplier = 2;
-
-            let totalEarn = ((baseEarn + bonusEarn) * rewardMultiplier) + tipAmount;
-            
-            let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
-            localStorage.setItem("usdBalance", currentUsd + totalEarn);
-            updateUsdDisplay();
-
-            let msg = `HOÀN THÀNH PHIÊN HỌC:\n- Thu nhập cơ bản: $${baseEarn + bonusEarn}`;
-            if (rewardMultiplier > 1) msg += `\n- Hệ số nhân (x${rewardMultiplier}): $${(baseEarn + bonusEarn) * rewardMultiplier}`;
-            if (tipAmount > 0) msg += `\n- Tiền Tip (${starScore} Sao): +$${tipAmount}`;
-            msg += `\n=> Tổng thực nhận: +$${totalEarn}`;
-            alert(msg);
-
-            let achieved10h = localStorage.getItem('saasAchieved10h') === 'true';
-            let achieved15h = localStorage.getItem('saasAchieved15h') === 'true';
-            
-            if (currentCycleHrs >= 10.0 && !achieved10h) {
-                localStorage.setItem('saasAchieved10h', 'true');
-                let freezes = parseInt(localStorage.getItem('saasFreezes')) || 0;
-                localStorage.setItem('saasFreezes', freezes + 1);
-                setTimeout(() => alert("🎉 TẤN CẤP TINH ANH (10H): Nhận 1 Kim Bài Miễn Tử & X2 Thu nhập hệ thống!"), 500);
-                if (typeof fireConfetti === 'function') fireConfetti();
-            }
-            if (currentCycleHrs >= 15.0 && !achieved15h) {
-                localStorage.setItem('saasAchieved15h', 'true');
-                setTimeout(() => alert("👑 TẤN CẤP HUYỀN THOẠI (15H): Gắn Vương Miện Danh Dự & X3 Thu nhập hệ thống!"), 1000);
-                if (typeof fireConfetti === 'function') fireConfetti();
+            // Xử lý điểm Sao
+            let starScore = parseInt(rawScore.replace(/\D/g, ''));
+            let isOfflinePass = (rawScore === "PASS" || isNaN(starScore));
+            if (!isOfflinePass) {
+                starScore = Math.max(1, Math.min(5, starScore));
+                if (typeof recordNewStarRating === 'function') recordNewStarRating(starScore);
             }
 
-            impactStockMarket("SUCCESS");
-            if (typeof completeDispatchQuestSuccess === 'function') completeDispatchQuestSuccess();
-        }
-
-        // ========================================================
-        // 📜 CẬP NHẬT CÁO THỊ (NHIỆM VỤ NGẪU NHIÊN)
-        // ========================================================
-        if (!isPunishment) {
-            let quests = JSON.parse(localStorage.getItem('saasDailyQuests')) || [];
-            quests.forEach(q => {
-                if(q.type === 'any_session') q.current += 1;
-                if(q.type === 'session_25' && currentDuration === 25) q.current += 1;
-                if(q.type === 'session_15' && currentDuration === 15) q.current += 1;
-                if(q.type === 'session_long' && activeSessionMinutes >= 50) q.current += 1;
+            // Nếu bị chấm 1 hoặc 2 sao -> Không đạt (FAIL)
+            if (!isOfflinePass && starScore <= 2) {
+                let starsVisual = "⭐".repeat(starScore);
+                alert(`ĐÁNH GIÁ BÁO CÁO: ${starsVisual} (${starScore}/5 Sao - Không đạt)\n\nPhản hồi từ hệ thống: ${aiAdvice}\n\nPhiên học đã bị hủy. Hệ thống áp dụng chế tài trừ $100 và đặt lại chuỗi kỷ luật.`);
                 
-                if(q.type === 'time_slot') {
-                    if (q.slot === 'morning' && currentHour >= 5 && currentHour < 12) q.current += activeSessionMinutes;
-                    if (q.slot === 'afternoon' && currentHour >= 12 && currentHour < 18) q.current += activeSessionMinutes;
-                    if (q.slot === 'evening' && (currentHour >= 18 || currentHour < 5)) q.current += activeSessionMinutes;
-                }
+                document.getElementById('report-modal').style.display = 'none';
 
-                if(q.type === 'total_time') {
-                    let newTotalHrs = (dailyLogs[dateStr] || 0) + (activeSessionMinutes / 60);
-                    q.current = Math.round(newTotalHrs * 60); 
-                }
-                
-                if(q.current > q.target) q.current = q.target;
-            });
-            localStorage.setItem('saasDailyQuests', JSON.stringify(quests));
-        }
-
-        let isSealed = localStorage.getItem("isSealed") === "true";
-        if (isSealed) {
-            let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
-            if (usd >= 250) {
-                localStorage.setItem("usdBalance", usd - 250);
-                localStorage.setItem("isSealed", "false");
-                alert("Tài sản đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
+                let currentUsd = parseInt(localStorage.getItem('usdBalance')) || 0;
+                localStorage.setItem('usdBalance', Math.max(0, currentUsd - 100));
                 updateUsdDisplay();
+                impactStockMarket("PENALTY");
+                currentStreak = 0; saveAll(); renderGamification(); resetSystem(); 
+                return;
             }
-        }
 
-        let goal = goals.find(g => g.id === activeGoalId); 
-        if(!goal) goal = goals[0]; 
-        if(!goal.reports) goal.reports = [];
-        
-       let reportLabel = isPunishment ? `Phạt ${activeSessionMinutes}p` : `${activeSessionMinutes}p`;
-        goal.reports.push({ 
-            date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), 
-            type: reportLabel, 
-            text: text,
-            stars: isOfflinePass ? 5 : starScore
-        });
-        
-        let hoursEarned = activeSessionMinutes / 60; 
-        goal.current = Math.max(0, goal.current - hoursEarned);
+            // Tính tiền Tip
+            let tipAmount = 0;
+            if (!isOfflinePass) {
+                if (starScore === 4) tipAmount = 15;
+                if (starScore === 5) tipAmount = 35;
+            }
 
-        // ⚡ KÍCH HOẠT THẺ XP BOOST x1.5 (CỘNG +50% GIỜ VÀO QUỸ LEVEL XP)
-        let xpBoostUntil = parseInt(localStorage.getItem('saasXpBoostUntil')) || 0;
-        if (!isPunishment && Date.now() < xpBoostUntil) {
-            let bonusXpHrs = hoursEarned * 0.5;
-            let currentBonus = parseFloat(localStorage.getItem('saasBonusXpHours')) || 0;
-            localStorage.setItem('saasBonusXpHours', (currentBonus + bonusXpHrs).toFixed(3));
-        }
-        
-        if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; 
-        dailyLogs[dateStr] += hoursEarned; 
-        totalSessions++;
+            let ratingHeader = isOfflinePass 
+                ? "Phiên học hoàn thành!" 
+                : `ĐÁNH GIÁ CHẤT LƯỢNG: ${"⭐".repeat(starScore)} (${starScore}/5 Sao)${tipAmount > 0 ? `\n💰 Thưởng thêm Tiền Tip chất lượng: +$${tipAmount}` : ""}`;
 
-        lastActiveDate = dateStr;
-        localStorage.setItem('saasLastActive', lastActiveDate);
+            alert(`${ratingHeader}\n\n💡 Nhận xét từ Trợ lý AI:\n"${aiAdvice}"`);
+            
+            // ========================================================
+            // 3. LƯU TRỮ VÀ TRẢ THƯỞNG
+            // ========================================================
+            document.getElementById('report-modal').style.display = 'none';
+            let isPunishment = isHardcoreTax || isDebtSession;
 
-        let checkedStreakDate = localStorage.getItem('saasStreakCheckedDate');
-        if (checkedStreakDate !== dateStr && !isPunishment) {
-            currentStreak++;
-            localStorage.setItem('saasStreakCheckedDate', dateStr);
-        }
-        
-        let focusTargetEl = document.getElementById('focus-target-info');
-        if(focusTargetEl) focusTargetEl.innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
-        
-        if(goal.current <= 0) { 
-            setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); 
-        }
+            activeSessionMinutes = standardMinutes + overtimeMinutes;
+            if (activeSessionMinutes === 0) activeSessionMinutes = currentDuration; 
+            
+            let now = new Date(); 
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
+            let dateStr = now.toISOString().split('T')[0];
+            let currentHour = new Date().getHours();
 
-        if (isHardcoreTax) { 
-            isHardcoreTax = false; 
-            if (localStorage.getItem('saasPendingTax') === 'true') {
-                localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
-                alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của bạn đã được cộng thẳng vào KPI tuần này.`);
+            if (!isPunishment) {
+                let baseEarn = activeSessionMinutes * 1; 
+                let todayHrsBefore = dailyLogs[dateStr] || 0; 
+                let todayMinsBefore = Math.round(todayHrsBefore * 60);
+                
+                let extraMins = Math.min(activeSessionMinutes, Math.max(0, todayMinsBefore + activeSessionMinutes - 90));
+                let bonusEarn = extraMins > 0 ? Math.floor(extraMins * 0.2) : 0;
+                
+                let hoursEarned = activeSessionMinutes / 60;
+                let currentCycleHrs = getTotalCycleHours() + hoursEarned; 
+                
+                let rewardMultiplier = 1;
+                if (currentCycleHrs >= 15.0) rewardMultiplier = 3;
+                else if (currentCycleHrs >= 10.0) rewardMultiplier = 2;
+
+                let totalEarn = ((baseEarn + bonusEarn) * rewardMultiplier) + tipAmount;
+                
+                let currentUsd = parseInt(localStorage.getItem("usdBalance")) || 0;
+                localStorage.setItem("usdBalance", currentUsd + totalEarn);
+                updateUsdDisplay();
+
+                let msg = `HOÀN THÀNH PHIÊN HỌC:\n- Thu nhập cơ bản: $${baseEarn + bonusEarn}`;
+                if (rewardMultiplier > 1) msg += `\n- Hệ số nhân (x${rewardMultiplier}): $${(baseEarn + bonusEarn) * rewardMultiplier}`;
+                if (tipAmount > 0) msg += `\n- Tiền Tip (${starScore} Sao): +$${tipAmount}`;
+                msg += `\n=> Tổng thực nhận: +$${totalEarn}`;
+                alert(msg);
+
+                let achieved10h = localStorage.getItem('saasAchieved10h') === 'true';
+                let achieved15h = localStorage.getItem('saasAchieved15h') === 'true';
+                
+                if (currentCycleHrs >= 10.0 && !achieved10h) {
+                    localStorage.setItem('saasAchieved10h', 'true');
+                    let freezes = parseInt(localStorage.getItem('saasFreezes')) || 0;
+                    localStorage.setItem('saasFreezes', freezes + 1);
+                    setTimeout(() => alert("🎉 TẤN CẤP TINH ANH (10H): Nhận 1 Kim Bài Miễn Tử & X2 Thu nhập hệ thống!"), 500);
+                    if (typeof fireConfetti === 'function') fireConfetti();
+                }
+                if (currentCycleHrs >= 15.0 && !achieved15h) {
+                    localStorage.setItem('saasAchieved15h', 'true');
+                    setTimeout(() => alert("👑 TẤN CẤP HUYỀN THOẠI (15H): Gắn Vương Miện Danh Dự & X3 Thu nhập hệ thống!"), 1000);
+                    if (typeof fireConfetti === 'function') fireConfetti();
+                }
+
+                impactStockMarket("SUCCESS");
+                if (typeof completeDispatchQuestSuccess === 'function') completeDispatchQuestSuccess();
+            }
+
+            if (!isPunishment) {
+                let quests = JSON.parse(localStorage.getItem('saasDailyQuests')) || [];
+                quests.forEach(q => {
+                    if(q.type === 'any_session') q.current += 1;
+                    if(q.type === 'session_25' && currentDuration === 25) q.current += 1;
+                    if(q.type === 'session_15' && currentDuration === 15) q.current += 1;
+                    if(q.type === 'session_long' && activeSessionMinutes >= 50) q.current += 1;
+                    
+                    if(q.type === 'time_slot') {
+                        if (q.slot === 'morning' && currentHour >= 5 && currentHour < 12) q.current += activeSessionMinutes;
+                        if (q.slot === 'afternoon' && currentHour >= 12 && currentHour < 18) q.current += activeSessionMinutes;
+                        if (q.slot === 'evening' && (currentHour >= 18 || currentHour < 5)) q.current += activeSessionMinutes;
+                    }
+
+                    if(q.type === 'total_time') {
+                        let newTotalHrs = (dailyLogs[dateStr] || 0) + (activeSessionMinutes / 60);
+                        q.current = Math.round(newTotalHrs * 60); 
+                    }
+                    if(q.current > q.target) q.current = q.target;
+                });
+                localStorage.setItem('saasDailyQuests', JSON.stringify(quests));
+            }
+
+            let isSealed = localStorage.getItem("isSealed") === "true";
+            if (isSealed) {
+                let usd = parseInt(localStorage.getItem("usdBalance")) || 0;
+                if (usd >= 250) {
+                    localStorage.setItem("usdBalance", usd - 250);
+                    localStorage.setItem("isSealed", "false");
+                    alert("Tài sản đã đủ. Tự động trích $250 nộp Thuế Duy Trì. Các tính năng cao cấp đã được mở khóa!");
+                    updateUsdDisplay();
+                }
+            }
+
+            let goal = goals.find(g => g.id === activeGoalId); 
+            if(!goal) goal = goals[0]; 
+            if(!goal.reports) goal.reports = [];
+            
+            let reportLabel = isPunishment ? `Phạt ${activeSessionMinutes}p` : `${activeSessionMinutes}p`;
+            goal.reports.push({ 
+                date: new Date().toLocaleDateString('vi-VN') + " - " + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}), 
+                type: reportLabel, 
+                text: text,
+                stars: isOfflinePass ? 5 : starScore
+            });
+            
+            let hoursEarned = activeSessionMinutes / 60; 
+            goal.current = Math.max(0, goal.current - hoursEarned);
+
+            let xpBoostUntil = parseInt(localStorage.getItem('saasXpBoostUntil')) || 0;
+            if (!isPunishment && Date.now() < xpBoostUntil) {
+                let bonusXpHrs = hoursEarned * 0.5;
+                let currentBonus = parseFloat(localStorage.getItem('saasBonusXpHours')) || 0;
+                localStorage.setItem('saasBonusXpHours', (currentBonus + bonusXpHrs).toFixed(3));
+            }
+            
+            if(!dailyLogs[dateStr]) dailyLogs[dateStr] = 0; 
+            dailyLogs[dateStr] += hoursEarned; 
+            totalSessions++;
+
+            lastActiveDate = dateStr;
+            localStorage.setItem('saasLastActive', lastActiveDate);
+
+            let checkedStreakDate = localStorage.getItem('saasStreakCheckedDate');
+            if (checkedStreakDate !== dateStr && !isPunishment) {
+                currentStreak++;
+                localStorage.setItem('saasStreakCheckedDate', dateStr);
+            }
+            
+            let focusTargetEl = document.getElementById('focus-target-info');
+            if(focusTargetEl) focusTargetEl.innerText = `Mục tiêu: ${goal.name} | Còn lại: ${goal.current.toFixed(2)}h`;
+            
+            if(goal.current <= 0) { 
+                setTimeout(() => { alert(`🎉 CHÚC MỪNG! Mục tiêu "${goal.name}" đã được hoàn thành 100%.`); }, 500); 
+            }
+
+            if (isHardcoreTax) { 
+                isHardcoreTax = false; 
+                if (localStorage.getItem('saasPendingTax') === 'true') {
+                    localStorage.setItem('saasPendingTax', 'false'); isPendingTax = false;
+                    alert(`Đã cày xong ${currentDuration}p Thuế Trì Hoãn! Mồ hôi của bạn đã được cộng thẳng vào KPI tuần này.`);
+                } else { 
+                    alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); 
+                }
+                let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
+                let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
+            }
+
+            if (isDebtSession) {
+                isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
+                alert(`Đã cày trả sạch nợ Lãi Kép! Thời gian nộp phạt này đã được hệ thống ghi nhận vào Tổng giờ học.`);
+                let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
+                let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
+            }
+
+            saveAll();
+            let statusBoxEl = document.getElementById('status-box');
+            if(statusBoxEl) statusBoxEl.innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
+            
+            if (isPunishment) { 
+                setTimeout(() => location.reload(), 1500); 
             } else { 
-                alert("Chiến dịch khôi phục chuỗi thành công! Sự xao nhãng đã bị dập tắt."); 
+                renderKPI(); 
+                initiateBreak(); 
             }
-            let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
-            let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
-        }
 
-        if (isDebtSession) {
-            isDebtSession = false; dailyDebtMinutes = 0; localStorage.setItem('saasDailyDebt', '0');
-            alert(`Đã cày trả sạch nợ Lãi Kép! Thời gian nộp phạt này đã được hệ thống ghi nhận vào Tổng giờ học.`);
-            let btnTax = document.getElementById('btn-tax'); if(btnTax) btnTax.style.display = 'none'; 
-            let btnFocusBack = document.getElementById('btn-focus-back'); if(btnFocusBack) btnFocusBack.onclick = backToDashboard; 
-        }
-
-        saveAll();
-        let statusBoxEl = document.getElementById('status-box');
-        if(statusBoxEl) statusBoxEl.innerHTML = `<i class="fa-solid fa-check" style="color:var(--brand-break)"></i><span id="status-msg">Kết quả đã được ghi nhận.</span>`;
-        
-        if (isPunishment) { 
-            setTimeout(() => location.reload(), 1500); 
-        } else { 
-            renderKPI(); 
-            initiateBreak(); 
+        } catch (error) {
+            console.error("Lỗi nghiêm trọng khi lưu báo cáo:", error);
+            alert("Lỗi hệ thống trong quá trình lưu trữ! Dù vậy, tiến độ phiên học sẽ được hệ thống tạm thời bảo lưu.");
+        } finally {
+            // 🛡️ CHỐT CHẶN CUỐI CÙNG: DÙNG MỌI CÁCH ĐỂ MỞ KHÓA NÚT BẤM
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = "Lưu kết quả";
+            }
         }
     }
 }
