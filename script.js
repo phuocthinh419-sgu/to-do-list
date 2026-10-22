@@ -3512,12 +3512,17 @@ async function submitReport() {
                 ? "Phiên học hoàn thành!" 
                 : `ĐÁNH GIÁ CHẤT LƯỢNG: ${"⭐".repeat(starScore)} (${starScore}/5 Sao)${tipAmount > 0 ? `\n💰 Thưởng thêm Tiền Tip chất lượng: +$${tipAmount}` : ""}`;
 
-            alert(`${ratingHeader}\n\n💡 Nhận xét từ Trợ lý AI:\n"${aiAdvice}"`);
-            
-            // ========================================================
+           // ========================================================
             // 3. LƯU TRỮ VÀ TRẢ THƯỞNG
             // ========================================================
+            // Tắt bảng báo cáo và nhả nút bấm TRƯỚC
             document.getElementById('report-modal').style.display = 'none';
+            if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = "Lưu kết quả"; }
+
+            // Đợi 0.1 giây để giao diện kịp biến mất rồi mới văng thông báo
+            setTimeout(() => {
+                 alert(`${ratingHeader}\n\n💡 Nhận xét từ Trợ lý AI:\n"${aiAdvice}"`);
+            }, 100);
             let isPunishment = isHardcoreTax || isDebtSession;
 
             activeSessionMinutes = standardMinutes + overtimeMinutes;
