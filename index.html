@@ -462,7 +462,7 @@
                 <div class="ax-top-right">
                     <div class="ax-clock-pill">
                         <i class="fa-regular fa-calendar" style="color:#c084fc;"></i>
-                        <span id="ax-login-live-clock">Thứ 2, 12/10/2026</span>
+                        <span id="ax-login-live-clock">Thứ 2, 12/10/2026 17:00</span>
                     </div>
                     <div class="ax-icon-circle" title="Thông báo hệ thống">
                         <i class="fa-regular fa-bell"></i>
@@ -768,9 +768,6 @@
         <div id="view-dashboard" class="view-section active">
             <div id="bento-command-center"></div>
 
-            <!-- BÃI ĐÁP CŨ: CHỈ ẨN CHÍNH NÓ, KHÔNG ẨN CÁC VIEW KHÁC -->
-            <div id="dashboard-grid" class="dashboard-grid" style="display: none;"></div>
-            
             <div style="display:none;">
                 <div id="kpi-status">0.0 / 5.0h</div>
                 <div id="kpi-bar-fill"></div>
@@ -789,7 +786,10 @@
             </div>
         </div>
 
-        <div id="view-goals" class="view-section" style="display: none;"></div>
+        <!-- TAB MỚI: MỤC TIÊU & LỘ TRÌNH (Chứa dàn thẻ khổng lồ) -->
+        <div id="view-goals" style="display: none; padding-top: 20px;">
+            <!-- Javascript sẽ tự động dọn các thẻ mục tiêu to đùng vào đây -->
+        </div>
 
         <div id="timetable-room" class="view-section" style="display: none;">
             <div class="timetable-header-controls">
