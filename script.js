@@ -2414,15 +2414,24 @@ function deleteCountdown(id) {
     } 
 }
 
+// =====================================================================
+// ĐIỀU HƯỚNG GIAO DIỆN (TAB NAVIGATION)
+// =====================================================================
 window.switchTab = function(tab) {
-    // KHÔNG ÉP MỞ FOCUS ROOM Ở ĐÂY. Nếu có án phạt, hệ thống im lặng từ chối chuyển tab để Shame Modal hiển thị.
+    // 1. Chặn điều hướng nếu người dùng đang có án phạt (nợ hoặc thuế)
     if (isPendingTax || dailyDebtMinutes > 0) { 
-        console.log("Án thư đang bị phong tỏa. Chờ xử lý trên màn hình phạt.");
+        console.log("Hệ thống bị khóa do người dùng đang có nợ hoặc thuế chưa hoàn thành.");
         return; 
     }
 
+    // 2. Tắt trạng thái active của tất cả các menu item
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+    // 3. Tắt hiển thị của tất cả các khu vực giao diện (Views)
     document.getElementById('view-dashboard').style.display = 'none'; 
+    let viewGoals = document.getElementById('view-goals');
+    if (viewGoals) viewGoals.style.display = 'none'; // Khóa chặt giao diện thẻ mục tiêu cũ
+    
     document.getElementById('analytics-room').style.display = 'none'; 
     document.getElementById('trophy-room').style.display = 'none'; 
     document.getElementById('trophy-detail').style.display = 'none';
@@ -2430,50 +2439,85 @@ window.switchTab = function(tab) {
     let ttRoom = document.getElementById('timetable-room');
     if(ttRoom) ttRoom.style.display = 'none';
     
+    // 4. Tắt Sidebar trên thiết bị di động (nếu đang mở)
     document.getElementById('sidebar').classList.remove('active'); 
     document.getElementById('mobile-overlay').classList.remove('active');
 
+    // 5. Tắt active cho menu Thời khóa biểu (do ID đặc biệt)
     let navTt = document.getElementById('nav-timetable'); 
     if(navTt) navTt.classList.remove('active');
 
+    // 6. Xử lý logic hiển thị cho từng Tab cụ thể
     if(tab === 'dashboard') {
         document.getElementById('nav-dash').classList.add('active'); 
         document.getElementById('view-dashboard').style.display = 'block';
-        document.getElementById('main-title').innerText = "Tổng quan học tập"; 
-        document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
-        document.getElementById('btn-create-goal').style.display = 'flex'; 
+        document.getElementById('main-title').innerText = "Tổng quan hệ thống"; 
+        document.getElementById('main-desc').innerText = "Theo dõi tiến trình và quản lý hiệu suất.";
+        
+        document.getElementById('btn-create-goal').style.display = 'none'; 
         document.getElementById('btn-create-countdown').style.display = 'flex'; 
         document.getElementById('btn-rest-day').style.display = 'flex';
-        renderKPI(); renderDashboard(); renderGamification(); renderStockMarket(); renderRecommendations();
+        
+        // Gọi các hàm kết xuất dữ liệu cho Dashboard
+        renderKPI(); 
+        renderDashboard(); 
+        renderGamification(); 
+        renderStockMarket(); 
+        renderRecommendations();
+        
+    } else if (tab === 'goals') {
+        let navGoals = document.getElementById('nav-goals');
+        if(navGoals) navGoals.classList.add('active');
+        
+        if (viewGoals) viewGoals.style.display = 'grid'; 
+        document.getElementById('main-title').innerText = "Mục tiêu & Lộ trình"; 
+        document.getElementById('main-desc').innerText = "Quản lý và thiết lập kế hoạch học tập.";
+        
+        document.getElementById('btn-create-goal').style.display = 'flex'; 
+        document.getElementById('btn-create-countdown').style.display = 'none'; 
+        document.getElementById('btn-rest-day').style.display = 'none';
+        
+        // Gọi hàm kết xuất dữ liệu cho thẻ mục tiêu cũ
+        if (typeof renderGoalsDedicated === 'function') {
+            renderGoalsDedicated(); 
+        }
+        
     } else if(tab === 'analytics') {
         document.getElementById('nav-analytics').classList.add('active'); 
         document.getElementById('analytics-room').style.display = 'block';
-        document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; 
-        document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
+        document.getElementById('main-title').innerText = "Phân tích Dữ liệu"; 
+        document.getElementById('main-desc').innerText = "Báo cáo chi tiết về hiệu suất hoạt động.";
+        
         document.getElementById('btn-create-goal').style.display = 'none'; 
         document.getElementById('btn-create-countdown').style.display = 'none'; 
         document.getElementById('btn-rest-day').style.display = 'none';
+        
         renderAnalytics();
+        
     } else if(tab === 'trophy') {
         document.getElementById('nav-trophy').classList.add('active'); 
         document.getElementById('trophy-room').style.display = 'block';
-        document.getElementById('main-title').innerText = "Lịch Sử Học Tập"; 
-        document.getElementById('main-desc').innerText = "Nơi lưu trữ các mục tiêu đã hoàn thành.";
+        document.getElementById('main-title').innerText = "Lưu trữ Lịch sử"; 
+        document.getElementById('main-desc').innerText = "Dữ liệu các mục tiêu đã hoàn thành.";
+        
         document.getElementById('btn-create-goal').style.display = 'none'; 
         document.getElementById('btn-create-countdown').style.display = 'none'; 
         document.getElementById('btn-rest-day').style.display = 'none';
+        
         renderTrophyRoom();
+        
     } else if (tab === 'timetable') {
         if(navTt) navTt.classList.add('active');
         document.getElementById('timetable-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Thời Khóa Biểu"; 
-        document.getElementById('main-desc').innerText = "Sắp xếp chiến lược. Tối ưu thời gian.";
+        document.getElementById('main-desc').innerText = "Quản lý lịch trình và sự kiện.";
+        
         document.getElementById('btn-create-goal').style.display = 'none'; 
         document.getElementById('btn-create-countdown').style.display = 'none'; 
         document.getElementById('btn-rest-day').style.display = 'none';
+        
         renderTimetable();
         
-        // GỌI TRỢ LÝ AI Ở ĐÂY SAU KHI TAB MỞ
         if (typeof injectAiTimetableToolbar === 'function') {
             setTimeout(injectAiTimetableToolbar, 50);
         }
