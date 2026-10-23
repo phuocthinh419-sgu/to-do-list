@@ -3825,23 +3825,75 @@ let currentViewDate = new Date(); // Biến lưu tuần đang xem
 // 1. Phải vá hàm switchTab để nó nhận diện Tab Thời Khóa Biểu
 const originalSwitchTab = switchTab;
 window.switchTab = function(tab) {
-    originalSwitchTab(tab); // Gọi code cũ
-    document.getElementById('timetable-room').style.display = 'none';
-    let navTt = document.getElementById('nav-timetable'); if(navTt) navTt.classList.remove('active');
+    if (isPendingTax || dailyDebtMinutes > 0) { 
+        console.log("Án thư đang bị phong tỏa. Chờ xử lý trên màn hình phạt.");
+        return; 
+    }
+
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('view-dashboard').style.display = 'none'; 
+    document.getElementById('view-goals').style.display = 'none'; // Thêm dòng này để tắt tab Mục tiêu
+    document.getElementById('analytics-room').style.display = 'none'; 
+    document.getElementById('trophy-room').style.display = 'none'; 
+    document.getElementById('trophy-detail').style.display = 'none';
     
-    if (tab === 'timetable') {
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    let ttRoom = document.getElementById('timetable-room');
+    if(ttRoom) ttRoom.style.display = 'none';
+    
+    document.getElementById('sidebar').classList.remove('active'); 
+    document.getElementById('mobile-overlay').classList.remove('active');
+
+    let navTt = document.getElementById('nav-timetable'); 
+    if(navTt) navTt.classList.remove('active');
+
+    if(tab === 'dashboard') {
+        document.getElementById('nav-dash').classList.add('active'); 
+        document.getElementById('view-dashboard').style.display = 'block';
+        document.getElementById('main-title').innerText = "Tổng quan học tập"; 
+        document.getElementById('main-desc').innerText = "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.";
+        document.getElementById('btn-create-goal').style.display = 'none'; // Ẩn nút tạo mục tiêu ở đây
+        document.getElementById('btn-create-countdown').style.display = 'flex'; 
+        document.getElementById('btn-rest-day').style.display = 'flex';
+        renderKPI(); renderDashboard(); renderGamification(); renderStockMarket(); renderRecommendations();
+    } else if (tab === 'goals') {
+        // TAB MỚI: MỤC TIÊU & LỘ TRÌNH
+        let navGoals = document.getElementById('nav-goals');
+        if(navGoals) navGoals.classList.add('active');
+        document.getElementById('view-goals').style.display = 'grid'; // Gọi bãi đáp của thẻ cũ
+        document.getElementById('main-title').innerText = "Mục tiêu & Lộ trình"; 
+        document.getElementById('main-desc').innerText = "Định hình tầm nhìn, hiện thực hóa ước mơ.";
+        document.getElementById('btn-create-goal').style.display = 'flex'; // Chỉ hiện nút tạo ở đây
+        document.getElementById('btn-create-countdown').style.display = 'none'; 
+        document.getElementById('btn-rest-day').style.display = 'none';
+        renderGoalsDedicated(); // Gọi dàn thẻ khổng lồ ra
+    } else if(tab === 'analytics') {
+        document.getElementById('nav-analytics').classList.add('active'); 
+        document.getElementById('analytics-room').style.display = 'block';
+        document.getElementById('main-title').innerText = "Phân tích Kỷ luật"; 
+        document.getElementById('main-desc').innerText = "Nhìn thấu tiến độ. Điều hướng binh lực.";
+        document.getElementById('btn-create-goal').style.display = 'none'; 
+        document.getElementById('btn-create-countdown').style.display = 'none'; 
+        document.getElementById('btn-rest-day').style.display = 'none';
+        renderAnalytics();
+    } else if(tab === 'trophy') {
+        document.getElementById('nav-trophy').classList.add('active'); 
+        document.getElementById('trophy-room').style.display = 'block';
+        document.getElementById('main-title').innerText = "Lịch Sử Học Tập"; 
+        document.getElementById('main-desc').innerText = "Nơi lưu trữ các mục tiêu đã hoàn thành.";
+        document.getElementById('btn-create-goal').style.display = 'none'; 
+        document.getElementById('btn-create-countdown').style.display = 'none'; 
+        document.getElementById('btn-rest-day').style.display = 'none';
+        renderTrophyRoom();
+    } else if (tab === 'timetable') {
         if(navTt) navTt.classList.add('active');
-        document.getElementById('view-dashboard').style.display = 'none'; 
-        document.getElementById('analytics-room').style.display = 'none'; 
-        document.getElementById('trophy-room').style.display = 'none'; 
-        document.getElementById('trophy-detail').style.display = 'none';
-        
         document.getElementById('timetable-room').style.display = 'block';
         document.getElementById('main-title').innerText = "Thời Khóa Biểu"; 
         document.getElementById('main-desc').innerText = "Sắp xếp chiến lược. Tối ưu thời gian.";
-        document.getElementById('btn-create-goal').style.display = 'none'; document.getElementById('btn-create-countdown').style.display = 'none'; document.getElementById('btn-rest-day').style.display = 'none';
+        document.getElementById('btn-create-goal').style.display = 'none'; 
+        document.getElementById('btn-create-countdown').style.display = 'none'; 
+        document.getElementById('btn-rest-day').style.display = 'none';
         renderTimetable();
+        if (typeof injectAiTimetableToolbar === 'function') setTimeout(injectAiTimetableToolbar, 50);
     }
 }
 
