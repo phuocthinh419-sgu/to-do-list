@@ -2482,8 +2482,22 @@ window.switchTab = function(tab) {
 // =====================================================================
 // 1. CẬP NHẬT RENDER DASHBOARD (BỔ SUNG GOAL HEALTH, REQUIRED PACE, PROJECTION)
 // =====================================================================
+// 1. Hàm mới: Lo dọn dẹp Bảng điều khiển và gọi giao diện Bento
 function renderDashboard() {
-    let activeGoals = goals.filter(g => g.current > 0); const board = document.getElementById('dashboard-grid'); board.innerHTML = '';
+    let oldGrid = document.getElementById('dashboard-grid');
+    if (oldGrid) {
+        oldGrid.style.display = 'none';
+        oldGrid.innerHTML = '';
+    }
+    if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter();
+}
+
+// 2. Hàm cũ: Đổi tên thành renderGoalsDedicated và đẩy bãi đáp sang tab Mục tiêu
+function renderGoalsDedicated() {
+    let activeGoals = goals.filter(g => g.current > 0); 
+    const board = document.getElementById('view-goals'); 
+    board.classList.add('dashboard-grid'); 
+    board.innerHTML = '';
     if (activeGoals.length === 0) { board.innerHTML = '<div class="stagger-item" style="animation-delay:0.3s; grid-column: 1/-1; text-align: center; padding: 60px 20px; border: 2px dashed var(--border); border-radius: 24px; color: var(--text-muted); font-size: 1.05rem; font-weight: 500; backdrop-filter: blur(var(--bg-panel-blur));">Chưa có mục tiêu. Hãy khởi tạo mục tiêu mới.</div>'; return; }
     
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
