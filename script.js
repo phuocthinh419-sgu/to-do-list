@@ -2524,24 +2524,31 @@ window.switchTab = function(tab) {
     }
 }
 // =====================================================================
-// 1. CẬP NHẬT RENDER DASHBOARD (BỔ SUNG GOAL HEALTH, REQUIRED PACE, PROJECTION)
-// =====================================================================
-// 1. Hàm mới: Lo dọn dẹp Bảng điều khiển và gọi giao diện Bento
+// 1. Hàm vẽ Bảng điều khiển (Chỉ dọn dẹp để hiện Bento)
 function renderDashboard() {
     let oldGrid = document.getElementById('dashboard-grid');
-    if (oldGrid) {
-        oldGrid.style.display = 'none';
-        oldGrid.innerHTML = '';
+    // PHẢI CÓ DÒNG if (oldGrid) ĐỂ CHỐNG LỖI NULL NẾU THẺ BỊ XÓA
+    if (oldGrid) { 
+        oldGrid.style.setProperty('display', 'none', 'important'); 
+        oldGrid.innerHTML = ''; 
     }
-    if (typeof renderBentoCommandCenter === 'function') renderBentoCommandCenter();
+    
+    if (typeof renderBentoCommandCenter === 'function') {
+        renderBentoCommandCenter();
+    }
 }
 
-// 2. Hàm cũ: Đổi tên thành renderGoalsDedicated và đẩy bãi đáp sang tab Mục tiêu
+// 2. Hàm vẽ Thẻ mục tiêu (Dành riêng cho Tab Mục tiêu & Lộ trình)
 function renderGoalsDedicated() {
     let activeGoals = goals.filter(g => g.current > 0); 
     const board = document.getElementById('view-goals'); 
+    
+    // NẾU BẢNG BỊ XÓA HOẶC LỖI THÌ THOÁT RA NGAY CHỨ KHÔNG BÁO LỖI
+    if (!board) return; 
+
     board.classList.add('dashboard-grid'); 
     board.innerHTML = '';
+
     if (activeGoals.length === 0) { board.innerHTML = '<div class="stagger-item" style="animation-delay:0.3s; grid-column: 1/-1; text-align: center; padding: 60px 20px; border: 2px dashed var(--border); border-radius: 24px; color: var(--text-muted); font-size: 1.05rem; font-weight: 500; backdrop-filter: blur(var(--bg-panel-blur));">Chưa có mục tiêu. Hãy khởi tạo mục tiêu mới.</div>'; return; }
     
     let todayObj = new Date(); todayObj.setMinutes(todayObj.getMinutes() - todayObj.getTimezoneOffset());
@@ -3448,7 +3455,6 @@ async function validateReportWithAI(reportText, durationMinutes) {
         }
 
         const modelName = "gemini-1.5-flash"; 
-        // Làm sạch văn bản: Loại bỏ ngoặc kép thừa hoặc ký tự làm vỡ JSON
         const safeText = reportText.replace(/"/g, "'").replace(/\n/g, " ");
         
         const promptText = `Bạn là Trợ lý Học thuật (Academic Copilot) đánh giá chất lượng phiên học ${durationMinutes} phút.
@@ -3466,14 +3472,8 @@ async function validateReportWithAI(reportText, durationMinutes) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: { temperature: 0.6 },
-                // ĐẠI BÁC PHÁ VỠ BỘ LỌC KIỂM DUYỆT CỦA GOOGLE
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                ]
+                generationConfig: { temperature: 0.6 }
+                // ĐÃ GỠ BỎ TOÀN BỘ LỆNH SAFETY SETTINGS ĐỂ GOOGLE KHÔNG VĂNG LỖI NỮA
             }),
             signal: controller.signal
         });
@@ -3481,16 +3481,13 @@ async function validateReportWithAI(reportText, durationMinutes) {
         clearTimeout(timeoutId); 
         
         if (!response.ok) {
-            // In thẳng lỗi ra màn hình đen (F12) để bắt tận tay nếu còn bị
-            let errorDetails = await response.text();
-            console.error("Google AI đã từ chối báo cáo vì lỗi:", errorDetails);
+            console.error("Google AI đã từ chối báo cáo với mã lỗi:", response.status);
             return `PASS | Trợ lý học thuật đang bận. Phiên học vẫn được ghi nhận thành công!`;
         }
 
         const data = await response.json();
 
         if (data.candidates && data.candidates.length > 0) {
-            // Kiểm tra xem AI có tự nín lặng không
             if (data.candidates[0].finishReason !== "STOP") {
                 return `PASS | Báo cáo đã được lưu trữ an toàn vào hệ thống.`;
             }
