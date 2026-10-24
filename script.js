@@ -3447,59 +3447,64 @@ function abortReport() {
 // AI KIỂM DUYỆT BÁO CÁO (BẢN VÔ HÌNH - HOÀN HẢO CHO NGƯỜI DÙNG)
 // =====================================================================
 
+// =====================================================================
+// AI KIỂM DUYỆT BÁO CÁO (BẢN BỌC THÉP LÕI KÉP NHƯ COPILOT)
+// =====================================================================
 async function validateReportWithAI(reportText, durationMinutes) {
     try {
-        let apiKey = (typeof GEMINI_API_KEY !== 'undefined') ? GEMINI_API_KEY : "";
-        if (!apiKey || apiKey.trim() === "") {
+        if (typeof GEMINI_API_KEY === 'undefined' || !GEMINI_API_KEY) {
             return "PASS | Hệ thống ghi nhận báo cáo (AI Copilot mặc định).";
         }
 
-        const modelName = "gemini-1.5-flash"; 
         const safeText = reportText.replace(/"/g, "'").replace(/\n/g, " ");
-        
         const promptText = `Bạn là Trợ lý Học thuật (Academic Copilot) đánh giá chất lượng phiên học ${durationMinutes} phút.
         Hãy chấm điểm báo cáo từ 1 đến 5 sao và đưa ra 1 lời khuyên chuyên môn ngắn gọn.
         Quy tắc: Bắt buộc trả về đúng định dạng: [SỐ SAO TỪ 1 ĐẾN 5] | [LỜI NHẬN XÉT]
         Báo cáo của người dùng: "${safeText}"`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        // 🛡️ NÂNG CẤP: Dùng chung hệ thống 3 mô hình dự phòng y hệt như khung chat góc phải
+        const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
         
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); 
+        for (let modelName of models) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+            try {
+                const controller = new AbortController();
+                // Cho phép AI suy nghĩ tối đa 12 giây
+                const timeoutId = setTimeout(() => controller.abort(), 12000); 
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: { temperature: 0.6 }
-                // ĐÃ GỠ BỎ TOÀN BỘ LỆNH SAFETY SETTINGS ĐỂ GOOGLE KHÔNG VĂNG LỖI NỮA
-            }),
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId); 
-        
-        if (!response.ok) {
-            console.error("Google AI đã từ chối báo cáo với mã lỗi:", response.status);
-            return `PASS | Trợ lý học thuật đang bận. Phiên học vẫn được ghi nhận thành công!`;
-        }
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates.length > 0) {
-            if (data.candidates[0].finishReason !== "STOP") {
-                return `PASS | Báo cáo đã được lưu trữ an toàn vào hệ thống.`;
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { temperature: 0.6 }
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId); 
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.candidates && data.candidates.length > 0 && data.candidates[0].finishReason === "STOP") {
+                        // Nếu AI phản hồi chuẩn mực, lập tức gửi kết quả về và kết thúc
+                        return data.candidates[0].content.parts[0].text.trim();
+                    }
+                } else {
+                    console.warn(`[Cảnh báo] Mô hình ${modelName} từ chối chấm điểm: Lỗi ${response.status}`);
+                }
+            } catch (innerErr) {
+                console.warn(`[Cảnh báo] Lỗi kết nối ${modelName}, hệ thống tự động đổi mô hình dự phòng...`);
             }
-            return data.candidates[0].content.parts[0].text.trim();
         }
+
+        // Nếu cả 3 mô hình đều sập, mới nhả ra thông báo bận để bảo lưu tiến độ
+        return `PASS | Trợ lý học thuật đang bận. Phiên học vẫn được ghi nhận thành công!`;
 
     } catch (error) {
-        console.error("Lỗi AI ẩn:", error);
+        console.error("Lỗi hệ thống AI chấm điểm:", error);
         return "PASS | Mạng yếu hoặc AI quá tải. Hệ thống vẫn bảo lưu tiến độ của bạn."; 
     }
-
-    return `PASS | Quá trình phân tích hoàn tất an toàn.`;
 }
 
 async function submitReport() {
